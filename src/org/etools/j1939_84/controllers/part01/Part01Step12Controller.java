@@ -88,6 +88,7 @@ public class Part01Step12Controller extends StepController {
 
         // 6.1.12.1.a. DS DM7 with TID 247 using FMI 31 for each SPN identified as providing test results in a
         // DM24 response in step 6.1.4.1 to the SPN’s respective OBD ECU.
+
         // Create list of ECU address+SPN+FMI supported test results.
         // A.K.A Get all the obdModuleAddresses then send DM7 to each address we have and get supported SPNs
         List<ScaledTestResult> vehicleTestResults = new ArrayList<>();
@@ -116,10 +117,11 @@ public class Part01Step12Controller extends StepController {
 
                     // 6.1.12.1.d. Warn if any ECU reports more than one set of test results for the same SPN+FMI.
                     tableA7Validator.findDuplicates(testResults)
-                                    .forEach(dup -> addWarning("6.1.12.1.d - " + moduleName
-                                            + " returned duplicate test results for SPN " + dup
-                                                                                               .getSpn()
-                                            + " FMI " + dup.getFmi()));
+                                    .forEach(dup -> {
+                                        addWarning("6.1.12.1.d - " + moduleName
+                                                + " returned duplicate test results for SPN " + dup.getSpn()
+                                                + " FMI " + dup.getFmi());
+                                    });
 
                     moduleTestResults.addAll(testResults);
                 }

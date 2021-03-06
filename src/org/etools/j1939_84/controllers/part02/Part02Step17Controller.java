@@ -54,7 +54,7 @@ public class Part02Step17Controller extends StepController {
              new EngineSpeedModule(),
              new VehicleInformationModule(),
              new DiagnosticMessageModule(),
-             new TableA1Validator(DataRepository.getInstance()),
+             new TableA1Validator(DataRepository.getInstance(), PART_NUMBER, STEP_NUMBER),
              J1939DaRepository.getInstance(),
              new BroadcastValidator(DataRepository.getInstance(), J1939DaRepository.getInstance()),
              new BusService(J1939DaRepository.getInstance()));
@@ -114,8 +114,6 @@ public class Part02Step17Controller extends StepController {
                                                 // with the Source Address matching the received message) in DM24.
                                                 tableA1Validator.reportNotAvailableSPNs(p,
                                                                                         getListener(),
-                                                                                        getPartNumber(),
-                                                                                        getStepNumber(),
                                                                                         "6.2.17.2.a"))
                                                 .peek(p ->
                                                 // 6.2.17.2.b. Fail/warn if any broadcast data is not valid for KOER
@@ -125,8 +123,6 @@ public class Part02Step17Controller extends StepController {
                                                                                             getListener(),
                                                                                             true,
                                                                                             fuelType,
-                                                                                            getPartNumber(),
-                                                                                            getStepNumber(),
                                                                                             "6.2.17.2.b"))
                                                 .peek(p ->
                                                 // 6.2.17.2.c. Fail/warn per Table A-1 if an expected SPN from the DM24
@@ -134,8 +130,6 @@ public class Part02Step17Controller extends StepController {
                                                 // is provided by a non-OBD ECU.
                                                 tableA1Validator.reportNonObdModuleProvidedSPNs(p,
                                                                                                 getListener(),
-                                                                                                getPartNumber(),
-                                                                                                getStepNumber(),
                                                                                                 "6.2.17.2.c"))
                                                 .peek(p ->
 
@@ -146,8 +140,6 @@ public class Part02Step17Controller extends StepController {
                                                 tableA1Validator.reportProvidedButNotSupportedSPNs(p,
                                                                                                    getListener(),
                                                                                                    fuelType,
-                                                                                                   getPartNumber(),
-                                                                                                   getStepNumber(),
                                                                                                    "6.2.17.4.a"))
                                                 .peek(p -> tableA1Validator.reportPacketIfNotReported(p,
                                                                                                       getListener(),
@@ -155,7 +147,7 @@ public class Part02Step17Controller extends StepController {
                                                 .collect(Collectors.toList());
 
         // 6.2.17.2.d. Fail/warn per Table A-1, if two or more ECUs provide an SPN listed.
-        tableA1Validator.reportDuplicateSPNs(packets, getListener(), getPartNumber(), getStepNumber(), "6.2.17.2.d");
+        tableA1Validator.reportDuplicateSPNs(packets, getListener(), "6.2.17.2.d");
 
         // Check the Broadcast Period of the received packets1
         // Map of PGN to (Map of Source Address to List of Packets)
@@ -224,8 +216,6 @@ public class Part02Step17Controller extends StepController {
                                                            // supported in DM24, per Table A-1.
                                                            tableA1Validator.reportNotAvailableSPNs(p,
                                                                                                    getListener(),
-                                                                                                   getPartNumber(),
-                                                                                                   getStepNumber(),
                                                                                                    "6.2.17.6.a"))
                                                            .peek(p ->
                                                            // 6.2.17.6.b. Fail/warn if any upon request data is not
@@ -235,8 +225,6 @@ public class Part02Step17Controller extends StepController {
                                                                                                        getListener(),
                                                                                                        true,
                                                                                                        fuelType,
-                                                                                                       getPartNumber(),
-                                                                                                       getStepNumber(),
                                                                                                        "6.2.17.6.b"))
                                                            .collect(Collectors.toList());
 
@@ -266,8 +254,6 @@ public class Part02Step17Controller extends StepController {
                                                                   // SPN indicated as supported in DM24, per Table A-1.
                                                                   tableA1Validator.reportNotAvailableSPNs(p,
                                                                                                           getListener(),
-                                                                                                          getPartNumber(),
-                                                                                                          getStepNumber(),
                                                                                                           "6.2.17.6.a"))
                                                                   .peek(p ->
 
@@ -278,8 +264,6 @@ public class Part02Step17Controller extends StepController {
                                                                                                               getListener(),
                                                                                                               true,
                                                                                                               fuelType,
-                                                                                                              getPartNumber(),
-                                                                                                              getStepNumber(),
                                                                                                               "6.2.17.6.b"))
                                                                   .collect(Collectors.toList());
 

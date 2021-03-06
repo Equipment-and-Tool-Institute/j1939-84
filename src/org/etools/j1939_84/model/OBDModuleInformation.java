@@ -14,9 +14,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.Lookup;
+import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
@@ -28,8 +31,6 @@ import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
  */
 public class OBDModuleInformation implements Cloneable {
 
-    private final List<CalibrationInformation> calibrationInformation = new ArrayList<>();
-    private final List<MonitoredSystem> monitoredSystems = new ArrayList<>();
     private final Set<PerformanceRatio> performanceRatios = new HashSet<>();
     private final List<ScaledTestResult> scaledTestResults = new ArrayList<>();
     private final List<ScaledTestResult> nonInitializedTests = new ArrayList<>();
@@ -37,12 +38,8 @@ public class OBDModuleInformation implements Cloneable {
     private final List<SupportedSPN> supportedSPNs = new ArrayList<>();
     /** These SPNs represent SP which appear in multiple PGs. */
     private final List<Integer> omittedSPNs = new ArrayList<>(List.of(588, 1213, 1220, 12675, 12730, 12783, 12797));
-    private ComponentIdentification componentIdentification = null;
     private int function;
     private int ignitionCycleCounterValue = -1;
-    private byte obdCompliance;
-    private String engineFamilyName = "";
-    private String modelYear = "";
     private PacketArchive packetArchive = new PacketArchive();
     private Double deltaEngineStart = null;
 
@@ -57,17 +54,11 @@ public class OBDModuleInformation implements Cloneable {
         } catch (CloneNotSupportedException ignored) {
         }
         OBDModuleInformation obdInfo = new OBDModuleInformation(getSourceAddress());
-        obdInfo.setCalibrationInformation(getCalibrationInformation());
-        obdInfo.setComponentIdentification(getComponentIdentification());
         obdInfo.setFunction(getFunction());
         obdInfo.setIgnitionCycleCounterValue(getIgnitionCycleCounterValue());
-        obdInfo.setMonitoredSystems(getMonitoredSystems());
-        obdInfo.setObdCompliance(getObdCompliance());
         obdInfo.setPerformanceRatios(getPerformanceRatios());
         obdInfo.setScaledTestResults(getScaledTestResults());
         obdInfo.setSupportedSPNs(getSupportedSPNs());
-        obdInfo.setEngineFamilyName(getEngineFamilyName());
-        obdInfo.setModelYear(getModelYear());
         obdInfo.setNonInitializedTests(getNonInitializedTests());
         obdInfo.setDeltaEngineStart(getDeltaEngineStart());
         obdInfo.packetArchive = packetArchive;
@@ -84,20 +75,13 @@ public class OBDModuleInformation implements Cloneable {
     }
 
     public List<CalibrationInformation> getCalibrationInformation() {
-        return calibrationInformation;
-    }
-
-    public void setCalibrationInformation(List<CalibrationInformation> calibrationInformation) {
-        this.calibrationInformation.clear();
-        this.calibrationInformation.addAll(calibrationInformation);
+        DM19CalibrationInformationPacket dm19 = get(DM19CalibrationInformationPacket.class);
+        return dm19 == null ? List.of() : dm19.getCalibrationInformation();
     }
 
     public ComponentIdentification getComponentIdentification() {
-        return componentIdentification;
-    }
-
-    public void setComponentIdentification(ComponentIdentification componentIdentification) {
-        this.componentIdentification = componentIdentification;
+        ComponentIdentificationPacket packet = get(ComponentIdentificationPacket.class);
+        return packet == null ? null : packet.getComponentIdentification();
     }
 
     public List<SupportedSPN> getDataStreamSPNs() {
@@ -138,20 +122,7 @@ public class OBDModuleInformation implements Cloneable {
     }
 
     public List<MonitoredSystem> getMonitoredSystems() {
-        return monitoredSystems;
-    }
-
-    public void setMonitoredSystems(List<MonitoredSystem> monitoredSystems) {
-        this.monitoredSystems.clear();
-        this.monitoredSystems.addAll(monitoredSystems);
-    }
-
-    public byte getObdCompliance() {
-        return obdCompliance;
-    }
-
-    public void setObdCompliance(byte obdCompliance) {
-        this.obdCompliance = obdCompliance;
+        return get(DM5DiagnosticReadinessPacket.class).getMonitoredSystems();
     }
 
     public Set<PerformanceRatio> getPerformanceRatios() {
@@ -187,6 +158,10 @@ public class OBDModuleInformation implements Cloneable {
                                                                      .collect(Collectors.toList());
     }
 
+    /**
+     * @deprecated Use a DM24 to set the support SPNs
+     */
+    @Deprecated
     public void setSupportedSPNs(List<SupportedSPN> supportedSPNs) {
         this.supportedSPNs.clear();
         this.supportedSPNs.addAll(supportedSPNs);
@@ -205,22 +180,6 @@ public class OBDModuleInformation implements Cloneable {
     public void setNonInitializedTests(List<ScaledTestResult> tests) {
         nonInitializedTests.clear();
         nonInitializedTests.addAll(tests);
-    }
-
-    public String getEngineFamilyName() {
-        return engineFamilyName;
-    }
-
-    public void setEngineFamilyName(String engineFamilyName) {
-        this.engineFamilyName = engineFamilyName;
-    }
-
-    public String getModelYear() {
-        return modelYear;
-    }
-
-    public void setModelYear(String modelYear) {
-        this.modelYear = modelYear;
     }
 
     public <T extends GenericPacket> void remove(Class<T> clazz) {

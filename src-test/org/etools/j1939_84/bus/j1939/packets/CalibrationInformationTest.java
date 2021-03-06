@@ -1,11 +1,10 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotEquals;
 
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.junit.Test;
@@ -28,9 +27,9 @@ public class CalibrationInformationTest {
                                                                       "cvn",
                                                                       new byte[] { (byte) 0 },
                                                                       new byte[] { (byte) 1 });
-        assertTrue(instance1.equals(instance2));
-        assertTrue(instance2.equals(instance1));
-        assertTrue(instance1.hashCode() == instance2.hashCode());
+        assertEquals(instance1, instance2);
+        assertEquals(instance2, instance1);
+        assertEquals(instance1.hashCode(), instance2.hashCode());
     }
 
     @Test
@@ -39,7 +38,7 @@ public class CalibrationInformationTest {
                                                                      "cvn",
                                                                      new byte[] { (byte) 0 },
                                                                      new byte[] { (byte) 1 });
-        assertTrue(instance.equals(instance));
+        assertEquals(instance, instance);
     }
 
     @Test
@@ -70,7 +69,7 @@ public class CalibrationInformationTest {
                                                                       "cvn2",
                                                                       new byte[] { (byte) 0 },
                                                                       new byte[] { (byte) 1 });
-        assertFalse(instance1.equals(instance2));
+        assertNotEquals(instance1, instance2);
     }
 
     @Test
@@ -83,7 +82,7 @@ public class CalibrationInformationTest {
                                                                       "cvn",
                                                                       new byte[] { (byte) 0 },
                                                                       new byte[] { (byte) 1 });
-        assertFalse(instance1.equals(instance2));
+        assertNotEquals(instance1, instance2);
     }
 
     @Test
@@ -92,33 +91,7 @@ public class CalibrationInformationTest {
                                                                      "cvn",
                                                                      new byte[] { (byte) 0 },
                                                                      new byte[] { (byte) 1 });
-        assertFalse(instance.equals(new Object()));
-    }
-
-    @Test
-    public void testNotEqualsRawCalId() {
-        CalibrationInformation instance1 = new CalibrationInformation("id",
-                                                                      "cvn",
-                                                                      new byte[] { (byte) 0 },
-                                                                      new byte[] { (byte) 1 });
-        CalibrationInformation instance2 = new CalibrationInformation("id",
-                                                                      "cvn",
-                                                                      new byte[] { (byte) 10 },
-                                                                      new byte[] { (byte) 1 });
-        assertFalse(instance1.equals(instance2));
-    }
-
-    @Test
-    public void testNotEqualsRawCvn() {
-        CalibrationInformation instance1 = new CalibrationInformation("id",
-                                                                      "cvn",
-                                                                      new byte[] { (byte) 0 },
-                                                                      new byte[] { (byte) 1 });
-        CalibrationInformation instance2 = new CalibrationInformation("id",
-                                                                      "cvn",
-                                                                      new byte[] { (byte) 0 },
-                                                                      new byte[] { (byte) 11 });
-        assertFalse(instance1.equals(instance2));
+        assertNotEquals(instance, new Object());
     }
 
     @Test

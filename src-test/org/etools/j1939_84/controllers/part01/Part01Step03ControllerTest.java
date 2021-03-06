@@ -92,8 +92,7 @@ public class Part01Step03ControllerTest {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
 
-        instance = new Part01Step03Controller(
-                                              executor,
+        instance = new Part01Step03Controller(executor,
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
@@ -153,12 +152,10 @@ public class Part01Step03ControllerTest {
         Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
 
         OBDModuleInformation obdInfo1 = new OBDModuleInformation(0);
-        obdInfo1.setObdCompliance((byte) 4);
         obdInfo1.setFunction(-1);
         obdInfoList.add(obdInfo1);
 
         OBDModuleInformation obdInfo2 = new OBDModuleInformation(17);
-        obdInfo2.setObdCompliance((byte) 5);
         obdInfo2.setFunction(-1);
         obdInfoList.add(obdInfo2);
 
@@ -229,9 +226,7 @@ public class Part01Step03ControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
 
-        verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.a - There needs to be at least one OBD Module");
-
-        verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.a - There needs to be at least one OBD Module");
+        verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.a - No ECU reported as an OBD ECU");
 
         verify(vehicleInformationModule).setJ1939(j1939);
     }
@@ -259,7 +254,6 @@ public class Part01Step03ControllerTest {
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
         obdInfo.setFunction(0);
-        obdInfo.setObdCompliance((byte) 4);
 
         Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
         obdInfoList.add(obdInfo);

@@ -3,21 +3,18 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.Packet;
@@ -62,8 +59,9 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     private static final int STEP_NUMBER = 7;
     @Mock
     private BannerModule bannerModule;
-    @Mock
+
     private DataRepository dataRepository;
+
     @Mock
     private DiagnosticMessageModule diagnosticMessageModule;
     @Mock
@@ -82,23 +80,18 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     private VehicleInformationModule vehicleInformationModule;
 
     private static DM19CalibrationInformationPacket createDM19(int sourceAddress, String calId, String cvn, int count) {
-        DM19CalibrationInformationPacket packet = mock(DM19CalibrationInformationPacket.class);
-        when(packet.getSourceAddress()).thenReturn(sourceAddress);
-
-        List<CalibrationInformation> calInfo = new ArrayList<>();
+        CalibrationInformation[] calInfo = new CalibrationInformation[count];
         for (int i = 0; i < count; i++) {
-            calInfo.add(new CalibrationInformation(calId, cvn, calId.getBytes(UTF_8), cvn.getBytes(UTF_8)));
+            calInfo[i] = new CalibrationInformation(calId, cvn);
         }
-        when(packet.getCalibrationInformation()).thenReturn(calInfo);
-
-        return packet;
+        return DM19CalibrationInformationPacket.create(sourceAddress, calInfo);
     }
 
     @Before
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
-
+        dataRepository = DataRepository.newInstance();
         instance = new Part01Step07Controller(executor,
                                               engineSpeedModule,
                                               bannerModule,
@@ -124,9 +117,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  vehicleInformationModule,
                                  diagnosticMessageModule,
-                                 dataRepository,
-                                 mockListener,
-                                 diagnosticMessageModule);
+                                 mockListener);
     }
 
     @Test
@@ -156,42 +147,28 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     public void testRunHappyPath() {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
-        DM19CalibrationInformationPacket dm19 = createDM19(0, "CALID", "1234", 0);
+        DM19CalibrationInformationPacket dm19 = createDM19(0, "CALID", "1234", 1);
 
         globalDM19s.add(dm19);
-        when(vehicleInformationModule.reportCalibrationInformation(any())).thenReturn(globalDM19s);
+        when(vehicleInformationModule.requestDM19(any())).thenReturn(globalDM19s);
 
-        OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
-        when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0)))
-                                                                                 .thenReturn(new BusResult<>(false,
-                                                                                                             dm19));
-
-        ArrayList<Integer> addresses = new ArrayList<>();
-        addresses.add(0);
-        when(dataRepository.getObdModuleAddresses()).thenReturn(addresses);
+        when(vehicleInformationModule.requestDM19(any(), eq(0)))
+                                                                .thenReturn(BusResult.of(
+                                                                                         dm19));
 
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
-        verify(dataRepository, times(2)).getObdModule(0);
-        verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository).putObdModule(moduleInfo);
-
-        verify(moduleInfo).setCalibrationInformation(dm19.getCalibrationInformation());
-
-        verify(vehicleInformationModule).reportCalibrationInformation(any());
-        verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0));
+        verify(vehicleInformationModule).requestDM19(any());
+        verify(vehicleInformationModule).requestDM19(any(), eq(0));
 
     }
 
@@ -199,33 +176,24 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     @TestDoc(value = @TestItem(verifies = "6.1.7.2.a", description = "Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units"))
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testRunNoModulesRespond() {
-        List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
-
-        when(vehicleInformationModule.reportCalibrationInformation(any())).thenReturn(globalDM19s);
+        when(vehicleInformationModule.requestDM19(any())).thenReturn(List.of());
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setCalIds(5);
         vehicleInformation.setEmissionUnits(1);
-
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-
-        ArrayList<Integer> addresses = new ArrayList<>();
-        when(dataRepository.getObdModuleAddresses()).thenReturn(addresses);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.7.2.a Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units");
+                                        "6.1.7.2.a - Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units");
 
-        verify(vehicleInformationModule).reportCalibrationInformation(any());
-        verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).getObdModuleAddresses();
+        verify(vehicleInformationModule).requestDM19(any());
     }
 
     @Test
@@ -247,35 +215,50 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
         // Module 0A - Too Many CalInfo's
+        dataRepository.putObdModule(new OBDModuleInformation(0x0A));
         DM19CalibrationInformationPacket dm190A = createDM19(0x0A, "CALID", "1234", 2);
+        when(vehicleInformationModule.requestDM19(any(), eq(0x0A))).thenReturn(BusResult.of(dm190A));
         globalDM19s.add(dm190A);
 
         // Module 0B - Missing CalId and Different DS value as OBD Module
+        dataRepository.putObdModule(new OBDModuleInformation(0x0B));
+        DM19CalibrationInformationPacket dm190B2 = createDM19(0x0B, "ABCD", "1234", 1);
+        when(vehicleInformationModule.requestDM19(any(), eq(0x0B))).thenReturn(BusResult.of(dm190B2));
         DM19CalibrationInformationPacket dm190B = createDM19(0x0B, "", "1234", 1);
         globalDM19s.add(dm190B);
 
+
         // Module 1B - Missing CVN as non-OBD Module
         DM19CalibrationInformationPacket dm191B = createDM19(0x1B, "", "1234", 1);
+        when(vehicleInformationModule.requestDM19(any(), eq(0x1B))).thenReturn(BusResult.of(dm191B));
         globalDM19s.add(dm191B);
 
+
         // Module 0C - Missing CVN as OBD Module
+        dataRepository.putObdModule(new OBDModuleInformation(0x0C));
+        when(vehicleInformationModule.requestDM19(any(), eq(0x0C))).thenReturn(BusResult.empty());
         DM19CalibrationInformationPacket dm190C = createDM19(0x0C, "CALID", "", 1);
         globalDM19s.add(dm190C);
 
         // Module 1C - Missing CVN as non-OBD Module
         DM19CalibrationInformationPacket dm191C = createDM19(0x1C, "CALID", "", 1);
+        when(vehicleInformationModule.requestDM19(any(), eq(0x1C))).thenReturn(BusResult.of(dm191C));
         globalDM19s.add(dm191C);
 
         // Module 0D - NonPrintable Chars, padded incorrectly in CalId as OBD
         // Module Also reports BUSY with DS
+        dataRepository.putObdModule(new OBDModuleInformation(0x0D));
         DM19CalibrationInformationPacket dm190D = createDM19(0x0D, "CALID\u0000F", "1234", 1);
+        when(vehicleInformationModule.requestDM19(any(), eq(0x0D))).thenReturn(BusResult.of(dm190D));
         globalDM19s.add(dm190D);
 
         // Module 1D - Non-Printable Chars, padded incorrectly in CalId as
         // non-OBD Module
         DM19CalibrationInformationPacket dm191D = createDM19(0x1D, "CALID\u0000F", "1234", 1);
+        when(vehicleInformationModule.requestDM19(any(), eq(0x1D))).thenReturn(BusResult.of(dm191D));
         globalDM19s.add(dm191D);
 
+        dataRepository.putObdModule(new OBDModuleInformation(0x0E));
         Packet packet0E = Packet.create(0,
                                         0x0E,
                                         0x00,
@@ -299,6 +282,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                         0xFF,
                                         0xFF);
         DM19CalibrationInformationPacket dm190E = new DM19CalibrationInformationPacket(packet0E);
+        when(vehicleInformationModule.requestDM19(any(), eq(0x0E))).thenReturn(BusResult.of(dm190E));
         globalDM19s.add(dm190E);
 
         // Module 1E - CalId all 0xFF and CVN all 0x00 as OBD Module
@@ -325,174 +309,76 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                         0xFF,
                                         0xFF);
         DM19CalibrationInformationPacket dm191E = new DM19CalibrationInformationPacket(packet1E);
+        when(vehicleInformationModule.requestDM19(any(), eq(0x1E))).thenReturn(BusResult.of(dm191E));
         globalDM19s.add(dm191E);
 
         // Non-NACK from non-reporting OBD Module - Module M
 
-        when(vehicleInformationModule.reportCalibrationInformation(any())).thenReturn(globalDM19s);
-
-        OBDModuleInformation moduleInfo0A = mock(OBDModuleInformation.class);
-        when(dataRepository.getObdModule(0x0A)).thenReturn(moduleInfo0A);
-
-        OBDModuleInformation moduleInfo0B = mock(OBDModuleInformation.class);
-        when(dataRepository.getObdModule(0x0B)).thenReturn(moduleInfo0B);
-
-        OBDModuleInformation moduleInfo0C = mock(OBDModuleInformation.class);
-        when(dataRepository.getObdModule(0x0C)).thenReturn(moduleInfo0C);
-
-        OBDModuleInformation moduleInfo0D = mock(OBDModuleInformation.class);
-        when(dataRepository.getObdModule(0x0D)).thenReturn(moduleInfo0D);
-
-        OBDModuleInformation moduleInfo0E = mock(OBDModuleInformation.class);
-        when(dataRepository.getObdModule(0x0E)).thenReturn(moduleInfo0E);
+        when(vehicleInformationModule.requestDM19(any())).thenReturn(globalDM19s);
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(5);
-
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0A)))
-                                                                                    .thenReturn(new BusResult<>(true,
-                                                                                                                dm190A));
-        DM19CalibrationInformationPacket dm190B2 = createDM19(0x0B, "ABCD", "1234", 1);
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0B)))
-                                                                                    .thenReturn(new BusResult<>(false,
-                                                                                                                dm190B2));
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1B)))
-                                                                                    .thenReturn(new BusResult<>(false,
-                                                                                                                dm191B));
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0C)))
-                                                                                    .thenReturn(new BusResult<>(false,
-                                                                                                                Optional.empty()));
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1C)))
-                                                                                    .thenReturn(new BusResult<>(false,
-                                                                                                                dm191C));
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0D)))
-                                                                                    .thenReturn(new BusResult<>(false,
-                                                                                                                dm190D));
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1D)))
-                                                                                    .thenReturn(new BusResult<>(false,
-                                                                                                                dm191D));
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0E)))
-                                                                                    .thenReturn(new BusResult<>(false,
-                                                                                                                dm190E));
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1E)))
-                                                                                    .thenReturn(new BusResult<>(false,
-                                                                                                                dm191E));
-        DM19CalibrationInformationPacket dm190F = createDM19(0x0F, "ABCD", "1234", 1);
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0F)))
-                                                                                    .thenReturn(new BusResult<>(false,
-                                                                                                                dm190F));
-
-        ArrayList<Integer> addresses = new ArrayList<>();
-        addresses.add(0x0A);
-        addresses.add(0x0B);
-        addresses.add(0x0C);
-        addresses.add(0x0D);
-        addresses.add(0x0E);
-        addresses.add(0x0F);
-        when(dataRepository.getObdModuleAddresses()).thenReturn(addresses);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
-        verify(moduleInfo0A).setCalibrationInformation(dm190A.getCalibrationInformation());
-        verify(moduleInfo0B).setCalibrationInformation(dm190B.getCalibrationInformation());
-        verify(moduleInfo0C).setCalibrationInformation(dm190C.getCalibrationInformation());
-        verify(moduleInfo0D).setCalibrationInformation(dm190D.getCalibrationInformation());
-        verify(moduleInfo0E).setCalibrationInformation(dm190E.getCalibrationInformation());
+        assertNotNull(dataRepository.getObdModule(0x0A).getCalibrationInformation());
+        assertNotNull(dataRepository.getObdModule(0x0B).getCalibrationInformation());
+        assertNotNull(dataRepository.getObdModule(0x0C).getCalibrationInformation());
+        assertNotNull(dataRepository.getObdModule(0x0D).getCalibrationInformation());
+        assertNotNull(dataRepository.getObdModule(0x0E).getCalibrationInformation());
 
-        verify(dataRepository, times(9)).putObdModule(any());
+        verify(vehicleInformationModule).requestDM19(any());
+        verify(vehicleInformationModule).requestDM19(any(), eq(0x0A));
+        verify(vehicleInformationModule).requestDM19(any(), eq(0x0B));
+        verify(vehicleInformationModule).requestDM19(any(), eq(0x1B));
+        verify(vehicleInformationModule).requestDM19(any(), eq(0x0C));
+        verify(vehicleInformationModule).requestDM19(any(), eq(0x1C));
+        verify(vehicleInformationModule).requestDM19(any(), eq(0x0D));
+        verify(vehicleInformationModule).requestDM19(any(), eq(0x1D));
+        verify(vehicleInformationModule).requestDM19(any(), eq(0x0E));
+        verify(vehicleInformationModule).requestDM19(any(), eq(0x1E));
 
-        verify(dataRepository, times(2)).getObdModule(0x0A);
-        verify(dataRepository, times(2)).getObdModule(0x0B);
-        verify(dataRepository, times(2)).getObdModule(0x1B);
-        verify(dataRepository, times(2)).getObdModule(0x0C);
-        verify(dataRepository, times(2)).getObdModule(0x1C);
-        verify(dataRepository, times(2)).getObdModule(0x0D);
-        verify(dataRepository, times(2)).getObdModule(0x1D);
-        verify(dataRepository, times(2)).getObdModule(0x0E);
-        verify(dataRepository, times(2)).getObdModule(0x1E);
-
-        verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).getObdModuleAddresses();
-
+        // assertEquals(List.of(), listener.getOutcomes());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.1.7.3.a Total number of reported CAL IDs is > user entered value for number of emission or diagnostic critical control units");
-
+                                        "6.1.7.3.c.i - Non-OBD ECU Vehicle Navigation (28) provided CAL ID");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.1.7.3.b More than one CAL ID and CVN pair is provided in a single DM19 message");
-
-        verify(mockListener, times(2)).addOutcome(PART_NUMBER,
-                                                  STEP_NUMBER,
-                                                  FAIL,
-                                                  "6.1.7.2.b.i <> 1 CVN for every CAL ID");
-        verify(mockListener, times(4)).addOutcome(PART_NUMBER,
-                                                  STEP_NUMBER,
-                                                  WARN,
-                                                  "6.1.7.3.c.i Warn if any non-OBD ECU provides CAL ID");
-
-        verify(mockListener, times(2)).addOutcome(PART_NUMBER,
-                                                  STEP_NUMBER,
-                                                  WARN,
-                                                  "6.1.7.3.c.ii <> 1 CVN for every CAL ID");
-        verify(mockListener, times(2)).addOutcome(PART_NUMBER,
-                                                  STEP_NUMBER,
-                                                  FAIL,
-                                                  "6.1.7.2.b.ii CAL ID not formatted correctly (contains non-printable ASCII)");
-        verify(mockListener, times(2)).addOutcome(PART_NUMBER,
-                                                  STEP_NUMBER,
-                                                  WARN,
-                                                  "6.1.7.3.c.iii Warn if CAL ID not formatted correctly (contains non-printable ASCII)");
+                                        "6.1.7.3.c.i - Non-OBD ECU Electrical System (30) provided CAL ID");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.7.2.b.ii CAL ID not formatted correctly (padded incorrectly)");
+                                        "6.1.7.2.b.ii - Brakes - Drive Axle #2 (14) CAL ID not formatted correctly (contains non-printable ASCII)");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.1.7.3.c.iii CAL ID not formatted correctly (padded incorrectly)");
-
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.7.2.b.iii Received CAL ID is all 0xFF");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.7.2.b.iii Received CVN is all 0x00");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, "6.1.7.3.c.iv Received CAL ID is all 0xFF");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.7.3.c.iv Received CVN is all 0x00");
-
+                                        "6.1.7.3.c.iii - Electrical System (30) CAL ID not formatted correctly (contains non-printable ASCII)");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.7.5.b NACK (PGN 59392) with mode/control byte = 3 (busy) received");
+                                        "6.1.7.2.b.iii - Received CAL ID is all 0xFF from Brakes - Drive Axle #2 (14)");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.7.5.a Compared ECU address + CAL ID + CVN list created from global DM19 request and found difference [CAL ID of  and CVN of 1234]");
+                                        "6.1.7.2.b.iii - Received CVN is all 0x00 from Brakes - Drive Axle #2 (14)");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.1.7.3.c.iv - Received CAL ID is all 0xFF from Electrical System (30)");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.7.5.a Compared ECU address + CAL ID + CVN list created from global DM19 request and found difference [CAL ID of CALID and CVN of ]");
+                                        "6.1.7.3.c.iv Received CVN is all 0x00 from Electrical System (30)");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.7.5.c NACK not received from OBD ECU that did not respond to global query");
-
-        verify(vehicleInformationModule).reportCalibrationInformation(any());
-        verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0x0A));
-        verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0x0B));
-        verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0x1B));
-        verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0x0C));
-        verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0x1C));
-        verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0x0D));
-        verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0x1D));
-        verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0x0E));
-        verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0x1E));
-        verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0x0F));
+                                        "6.1.7.5.a - Difference compared to data received during global request from Brakes - System Controller (11)");
 
     }
 }

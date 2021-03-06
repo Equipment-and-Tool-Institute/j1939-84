@@ -3,9 +3,13 @@
  */
 package org.etools.j1939_84.controllers.part12;
 
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.NOT_SUPPORTED;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -54,8 +58,26 @@ public class Part12Step06Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.12.6.1.a. Receive broadcast info ([PGN 65226 (SPNs 1213-1215, 1706, 3038)]).
+        var dm1s = getDiagnosticMessageModule().readDM1(getListener());
+
         // 6.12.6.2.a. Fail if any ECU does not report MIL off or not supported. See Section A.8 for allowed values.
+        dm1s.stream()
+            .filter(p -> {
+                var mil = p.getMalfunctionIndicatorLampStatus();
+                return isNotOff(mil) && mil != NOT_SUPPORTED;
+            })
+            .map(ParsedPacket::getModuleName)
+            .forEach(moduleName -> {
+                addFailure("6.12.6.2.a - " + moduleName + " did not report MIL 'off' or not supported");
+            });
+
         // 6.12.6.2.b. Fail if any ECU reports active DTCs.
+        dm1s.stream()
+            .filter(DiagnosticTroubleCodePacket::hasDTCs)
+            .map(ParsedPacket::getModuleName)
+            .forEach(moduleName -> {
+                addFailure("6.12.6.2.b - " + moduleName + " reported active DTC(s)");
+            });
     }
 
 }

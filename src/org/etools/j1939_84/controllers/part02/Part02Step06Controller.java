@@ -3,12 +3,13 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -59,29 +60,24 @@ public class Part02Step06Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.2.6.1.a. DS DM56 (send Request (PGN 59904) for PGN 64711 (SPNs 5844 and 5845)) to each OBD ECU.
-        for (int address : getDataRepository().getObdModuleAddresses()) {
-            String moduleName = Lookup.getAddressName(address);
-            getListener().onResult("");
-            List<DM56EngineFamilyPacket> packets = getDiagnosticMessageModule().requestDM56(getListener(), address);
+        var packets = getDataRepository().getObdModuleAddresses()
+                                         .stream()
+                                         .map(a -> getDiagnosticMessageModule().requestDM56(getListener(), a))
+                                         .flatMap(Collection::stream)
+                                         .collect(Collectors.toList());
 
-            // 6.2.6.2.a. Fail if any difference is found when compared to data received during part 1
-            var obdModuleInfo = getDataRepository().getObdModule(address);
-            for (DM56EngineFamilyPacket packet : packets) {
-                if (obdModuleInfo == null || !packet.getModelYearField().equals(obdModuleInfo.getModelYear())) {
-                    addFailure("6.2.6.2.a - " + moduleName
-                            + " reported different Model Year when compared to data received in part 1");
-                    break;
-                }
-            }
+        // 6.2.6.2.a. Fail if any difference is found when compared to data received during part 1
+        packets.stream()
+               .filter(p -> !p.equals(getDM56(p.getSourceAddress())))
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> {
+                   addFailure("6.2.6.2.a - " + moduleName
+                           + " reported difference when compared to data received during part 1");
+               });
+    }
 
-            for (DM56EngineFamilyPacket packet : packets) {
-                if (obdModuleInfo == null || !packet.getFamilyName().equals(obdModuleInfo.getEngineFamilyName())) {
-                    addFailure("6.2.6.2.a - " + moduleName
-                            + " reported different Engine Family Name when compared to data received in part 1");
-                    break;
-                }
-            }
-        }
+    private DM56EngineFamilyPacket getDM56(int address) {
+        return get(DM56EngineFamilyPacket.class, address);
     }
 
 }

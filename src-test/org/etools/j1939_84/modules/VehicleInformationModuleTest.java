@@ -303,7 +303,7 @@ public class VehicleInformationModuleTest {
                                                                                                                                       packet2,
                                                                                                                                       packet3));
 
-        instance.reportCalibrationInformation(NOOP);
+        instance.requestDM19(NOOP);
 
         verify(j1939, times(2)).requestGlobal("Global DM19 Request", DM19CalibrationInformationPacket.class, NOOP);
     }
@@ -325,7 +325,7 @@ public class VehicleInformationModuleTest {
                                                             0x00,
                                                             NOOP);
 
-        instance.reportCalibrationInformation(NOOP, 0x00);
+        instance.requestDM19(NOOP, 0x00);
 
         verify(j1939).requestDS("Destination Specific DM19 Request to Engine #1 (0)",
                                 DM19CalibrationInformationPacket.class,
@@ -343,7 +343,7 @@ public class VehicleInformationModuleTest {
                                               0x00,
                                               NOOP);
 
-        instance.reportCalibrationInformation(NOOP, 0x00);
+        instance.requestDM19(NOOP, 0x00);
 
         verify(j1939).requestDS("Destination Specific DM19 Request to Engine #1 (0)",
                                 DM19CalibrationInformationPacket.class,
@@ -358,7 +358,7 @@ public class VehicleInformationModuleTest {
                                                       DM19CalibrationInformationPacket.class,
                                                       NOOP);
 
-        instance.reportCalibrationInformation(NOOP);
+        instance.requestDM19(NOOP);
 
         verify(j1939).requestGlobal("Global DM19 Request", DM19CalibrationInformationPacket.class, NOOP);
     }

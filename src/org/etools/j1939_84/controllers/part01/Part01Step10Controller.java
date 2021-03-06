@@ -78,13 +78,17 @@ public class Part01Step10Controller extends StepController {
         packets.stream()
                .filter(p -> p.getResponse() == NACK)
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.1.10.2.a - The request for DM11 was NACK'ed by " + moduleName));
+               .forEach(moduleName -> {
+                   addFailure("6.1.10.2.a - The request for DM11 was NACK'ed by " + moduleName);
+               });
 
         // 6.1.10.3.a. Warn if ACK received from any HD OBD ECU.
         packets.stream()
                .filter(p -> p.getResponse() == ACK)
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addWarning("6.1.10.3.a - The request for DM11 was ACK'ed by " + moduleName));
+               .forEach(moduleName -> {
+                   addWarning("6.1.10.3.a - The request for DM11 was ACK'ed by " + moduleName);
+               });
 
     }
 

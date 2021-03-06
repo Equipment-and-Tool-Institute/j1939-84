@@ -17,7 +17,6 @@ import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
-import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
@@ -130,38 +129,35 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        SupportedSPN spn1 = SupportedSPN.create(123, true, false, false, 1);
-        SupportedSPN spn2 = SupportedSPN.create(456, true, false, false, 1);
-        SupportedSPN spn3 = SupportedSPN.create(789, false, true, false, 1);
-        obdModuleInformation.setSupportedSPNs(List.of(spn1, spn2, spn3));
 
-        ScaledTestResult str1 = ScaledTestResult.create(247, 123, 14, 0, 0, 0, 0);
-        ScaledTestResult str2 = ScaledTestResult.create(247, 456, 9, 0, 0, 0, 0);
-        obdModuleInformation.setScaledTestResults(List.of(str1, str2));
+        ScaledTestResult str1 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
+        ScaledTestResult str2 = ScaledTestResult.create(250, 456, 9, 0, 0, 0, 0);
+        ScaledTestResult str3 = ScaledTestResult.create(250, 456, 9, 0, 0, 0, 0);
+        obdModuleInformation.setScaledTestResults(List.of(str1, str2, str3));
         dataRepository.putObdModule(obdModuleInformation);
 
-        var str123 = ScaledTestResult.create(247, 123, 14, 0, 0, 0, 0);
+        var str123 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
         var dm30_123 = DM30ScaledTestResultsPacket.create(0, str123);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
-                                                        eq(247),
+                                                        eq(250),
                                                         eq(123),
-                                                        eq(31))).thenReturn(List.of(dm30_123));
+                                                        eq(14))).thenReturn(List.of(dm30_123));
 
-        var str456 = ScaledTestResult.create(247, 456, 9, 0, 0, 0, 0);
-        var dm30_456 = DM30ScaledTestResultsPacket.create(0, str456);
+        var str456 = ScaledTestResult.create(250, 456, 9, 0, 0, 0, 0);
+        var dm30_456 = DM30ScaledTestResultsPacket.create(0, str456, str456);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
-                                                        eq(247),
+                                                        eq(250),
                                                         eq(456),
-                                                        eq(31))).thenReturn(List.of(dm30_456));
+                                                        eq(9))).thenReturn(List.of(dm30_456));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(123), eq(31));
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(456), eq(31));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(250), eq(123), eq(14));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(250), eq(456), eq(9));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -171,36 +167,31 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNonInitialized() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        SupportedSPN spn1 = SupportedSPN.create(123, true, false, false, 1);
-        SupportedSPN spn2 = SupportedSPN.create(456, true, false, false, 1);
-        SupportedSPN spn3 = SupportedSPN.create(789, false, true, false, 1);
-        obdModuleInformation.setSupportedSPNs(List.of(spn1, spn2, spn3));
-
-        ScaledTestResult str1 = ScaledTestResult.create(247, 123, 14, 0, 0, 0, 0);
-        ScaledTestResult str2 = ScaledTestResult.create(247, 456, 9, 0, 0, 0, 0);
+        ScaledTestResult str1 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
+        ScaledTestResult str2 = ScaledTestResult.create(250, 456, 9, 0, 0, 0, 0);
         obdModuleInformation.setScaledTestResults(List.of(str1, str2));
         dataRepository.putObdModule(obdModuleInformation);
 
-        var str123 = ScaledTestResult.create(247, 123, 14, 0, 0, 0, 0);
+        var str123 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
         var dm30_123 = DM30ScaledTestResultsPacket.create(0, str123);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
-                                                        eq(247),
+                                                        eq(250),
                                                         eq(123),
-                                                        eq(31))).thenReturn(List.of(dm30_123));
+                                                        eq(14))).thenReturn(List.of(dm30_123));
 
-        var str456 = ScaledTestResult.create(247, 456, 9, 0, 5, 10, 0);
+        var str456 = ScaledTestResult.create(250, 456, 9, 0, 5, 10, 0);
         var dm30_456 = DM30ScaledTestResultsPacket.create(0, str456);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
-                                                        eq(247),
+                                                        eq(250),
                                                         eq(456),
-                                                        eq(31))).thenReturn(List.of(dm30_456));
+                                                        eq(9))).thenReturn(List.of(dm30_456));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(123), eq(31));
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(456), eq(31));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(250), eq(123), eq(14));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(250), eq(456), eq(9));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -213,37 +204,33 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferentResults1() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        SupportedSPN spn1 = SupportedSPN.create(123, true, false, false, 1);
-        SupportedSPN spn2 = SupportedSPN.create(456, true, false, false, 1);
-        SupportedSPN spn3 = SupportedSPN.create(789, false, true, false, 1);
-        obdModuleInformation.setSupportedSPNs(List.of(spn1, spn2, spn3));
 
-        ScaledTestResult str1 = ScaledTestResult.create(247, 123, 14, 0, 0, 0, 0);
-        ScaledTestResult str2 = ScaledTestResult.create(247, 456, 9, 0, 5, 10, 0);
+        ScaledTestResult str1 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
+        ScaledTestResult str2 = ScaledTestResult.create(250, 456, 9, 0, 5, 10, 0);
         obdModuleInformation.setScaledTestResults(List.of(str1, str2));
         dataRepository.putObdModule(obdModuleInformation);
 
-        var str123 = ScaledTestResult.create(247, 123, 14, 0, 0, 0, 0);
+        var str123 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
         var dm30_123 = DM30ScaledTestResultsPacket.create(0, str123);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
-                                                        eq(247),
+                                                        eq(250),
                                                         eq(123),
-                                                        eq(31))).thenReturn(List.of(dm30_123));
+                                                        eq(14))).thenReturn(List.of(dm30_123));
 
-        var str456_1 = ScaledTestResult.create(247, 456, 9, 0, 0, 0, 0);
-        var str456_2 = ScaledTestResult.create(247, 456, 1, 0, 0, 0, 0);
+        var str456_1 = ScaledTestResult.create(250, 456, 9, 0, 0, 0, 0);
+        var str456_2 = ScaledTestResult.create(250, 456, 1, 0, 0, 0, 0);
         var dm30_456 = DM30ScaledTestResultsPacket.create(0, str456_1, str456_2);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
-                                                        eq(247),
+                                                        eq(250),
                                                         eq(456),
-                                                        eq(31))).thenReturn(List.of(dm30_456));
+                                                        eq(9))).thenReturn(List.of(dm30_456));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(123), eq(31));
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(456), eq(31));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(250), eq(123), eq(14));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(250), eq(456), eq(9));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -256,34 +243,30 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferentResults2() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        SupportedSPN spn1 = SupportedSPN.create(123, true, false, false, 1);
-        SupportedSPN spn2 = SupportedSPN.create(456, true, false, false, 1);
-        SupportedSPN spn3 = SupportedSPN.create(789, false, true, false, 1);
-        obdModuleInformation.setSupportedSPNs(List.of(spn1, spn2, spn3));
 
-        ScaledTestResult str1 = ScaledTestResult.create(247, 123, 14, 0, 0, 0, 0);
-        ScaledTestResult str2 = ScaledTestResult.create(247, 456, 9, 0, 5, 10, 0);
+        ScaledTestResult str1 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
+        ScaledTestResult str2 = ScaledTestResult.create(250, 456, 9, 0, 5, 10, 0);
         obdModuleInformation.setScaledTestResults(List.of(str1, str2));
         dataRepository.putObdModule(obdModuleInformation);
 
-        var str123 = ScaledTestResult.create(247, 123, 14, 0, 0, 0, 0);
+        var str123 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
         var dm30_123 = DM30ScaledTestResultsPacket.create(0, str123);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
-                                                        eq(247),
+                                                        eq(250),
                                                         eq(123),
-                                                        eq(31))).thenReturn(List.of(dm30_123));
+                                                        eq(14))).thenReturn(List.of(dm30_123));
 
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
-                                                        eq(247),
+                                                        eq(250),
                                                         eq(456),
-                                                        eq(31))).thenReturn(List.of());
+                                                        eq(9))).thenReturn(List.of());
 
         runTest();
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(123), eq(31));
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(456), eq(31));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(250), eq(123), eq(14));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(250), eq(456), eq(9));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

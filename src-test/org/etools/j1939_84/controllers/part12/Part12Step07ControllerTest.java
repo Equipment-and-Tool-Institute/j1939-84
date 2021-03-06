@@ -3,16 +3,24 @@
  */
 package org.etools.j1939_84.controllers.part12;
 
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,11 +127,117 @@ public class Part12Step07ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 10);
+        var dm21_1 = DM21DiagnosticReadinessPacket.create(1, 0, 0, 0, 0xFFFF);
+        var dm21_3 = DM21DiagnosticReadinessPacket.create(3, 0, 0, 0, 11);
+
+        when(diagnosticMessageModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0, dm21_1, dm21_3));
 
         runTest();
 
+        verify(diagnosticMessageModule).requestDM21(any());
+
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+        assertEquals(List.of(), listener.getOutcomes());
+    }
+
+    @Test
+    public void testNoResponse() {
+
+        when(diagnosticMessageModule.requestDM21(any())).thenReturn(RequestResult.of());
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM21(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.12.7.2.d - No OBD ECU provided a DM21 message");
+    }
+
+    @Test
+    public void testFailureForDistanceSCCNonZero() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 1, 0, 10);
+
+        when(diagnosticMessageModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM21(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.12.7.2.a - Engine #1 (0) reported distance SCC > 0");
+    }
+
+    @Test
+    public void testFailureForTSCCLessThan10() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 9);
+
+        when(diagnosticMessageModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM21(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.12.7.2.b - Engine #1 (0) reported < 10 minutes for time SCC");
+    }
+
+    @Test
+    public void testFailureDifferentTSCCs() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 10);
+        var dm21_3 = DM21DiagnosticReadinessPacket.create(3, 0, 0, 0, 12);
+
+        when(diagnosticMessageModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0, dm21_3));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM21(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.12.7.2.c - More than one ECU responded and values reported for time SCC differ by > 1 minute");
+    }
+
+    @Test
+    public void testFailureForNoOBDResponse() {
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 10);
+
+        when(diagnosticMessageModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM21(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.12.7.2.d - No OBD ECU provided a DM21 message");
     }
 
 }

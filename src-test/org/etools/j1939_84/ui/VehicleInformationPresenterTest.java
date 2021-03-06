@@ -98,7 +98,7 @@ public class VehicleInformationPresenterTest {
         verify(vehicleInformationModule).getEngineModelYear();
         verify(view).setEngineModelYear(4);
         verify(vehicleInformationModule).reportAddressClaim(any());
-        verify(vehicleInformationModule).reportCalibrationInformation(any());
+        verify(vehicleInformationModule).requestDM19(any());
         verify(vehicleInformationModule).getEngineFamilyName();
         verify(view).setCertificationIntent("family");
         verify(vehicleInformationModule).getOBDModules(any());
@@ -132,7 +132,7 @@ public class VehicleInformationPresenterTest {
         verify(view).setVehicleModelYear(500);
         verify(view).setEngineModelYear(500);
         verify(vehicleInformationModule).reportAddressClaim(any());
-        verify(vehicleInformationModule).reportCalibrationInformation(any());
+        verify(vehicleInformationModule).requestDM19(any());
         verify(vehicleInformationModule).getEngineModelYear();
         verify(vehicleInformationModule).getEngineFamilyName();
         verify(vehicleInformationModule).getOBDModules(any());

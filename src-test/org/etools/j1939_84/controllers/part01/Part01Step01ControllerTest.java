@@ -213,9 +213,9 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         verify(mockListener).onVehicleInformationNeeded(vehicleInfoCaptor.capture());
         vehicleInfoCaptor.getValue().onResult(vehicleInfo);
 
-        String expectedMessages = "Part 1, Step 1 a-c Displaying Warning Message" + NL;
-        expectedMessages += "Part 1, Step 1 d Ensuring Key ON/Engine OFF" + NL;
-        expectedMessages += "Part 1, Step 1 e Collecting Vehicle Information";
+        String expectedMessages = "Step 1.1.a - c Displaying Warning Message" + NL;
+        expectedMessages += "Step 1.1.d Ensuring Key ON/Engine OFF" + NL;
+        expectedMessages += "Step 1.1.e Collecting Vehicle Information";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedResults = "Initial Engine Speed = 0.0 RPMs" + NL;
@@ -266,16 +266,16 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Start Part 1"), eq(WARNING), any());
 
-        String expectedMessages = "Part 1, Step 1 a-c Displaying Warning Message" + NL;
-        expectedMessages += "Part 1, Step 1 d Ensuring Key ON/Engine OFF" + NL;
-        expectedMessages += "Part 1, Step 1 e Collecting Vehicle Information" + NL;
-        expectedMessages += "Part 1, Step 1 e Collecting Vehicle Information";
+        String expectedMessages = "Step 1.1.a - c Displaying Warning Message" + NL;
+        expectedMessages += "Step 1.1.d Ensuring Key ON/Engine OFF" + NL;
+        expectedMessages += "Step 1.1.e Collecting Vehicle Information" + NL;
+        expectedMessages += "Step 1.1.e Collecting Vehicle Information";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
-        expectedResults += "User cancelled testing at Part 1 Step 1" + NL;
+        expectedResults += "User cancelled testing at Part 1 Test 1" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
@@ -313,8 +313,8 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
                                              eq(WARNING),
                                              any());
 
-        String expectedMessages = "Part 1, Step 1 a-c Displaying Warning Message" + NL;
-        expectedMessages += "Part 1, Step 1 d Ensuring Key ON/Engine OFF" + NL;
+        String expectedMessages = "Step 1.1.a - c Displaying Warning Message" + NL;
+        expectedMessages += "Step 1.1.d Ensuring Key ON/Engine OFF" + NL;
         expectedMessages += "Waiting for Key ON/Engine OFF..." + NL;
         expectedMessages += "Waiting for Key ON/Engine OFF...";
         assertEquals(expectedMessages, listener.getMessages());

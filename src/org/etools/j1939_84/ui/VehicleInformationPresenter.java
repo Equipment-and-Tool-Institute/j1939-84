@@ -130,7 +130,6 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         this.vinDecoder = vinDecoder;
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T swingProxy(T o, Class<T> cls) {
         return (T) Proxy.newProxyInstance(cls.getClassLoader(),
                                           new Class<?>[] { cls },
@@ -213,7 +212,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         }
 
         try {
-            calIdsFound = vehicleInformationModule.reportCalibrationInformation(NOOP);
+            calIdsFound = vehicleInformationModule.requestDM19(NOOP);
             view.setCalIds((int) calIdsFound.stream().mapToLong(p -> p.getCalibrationInformation().size()).sum());
         } catch (Exception e) {
             getLogger().log(INFO, "Error reading calibration IDs", e);
@@ -304,14 +303,13 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
 
     @Override
     public void onOverrideChanged(boolean checked) {
-        this.isOverridden = checked;
+        isOverridden = checked;
         validate();
     }
 
     /**
      * Validates the information in the form to determine if the user can proceed
      */
-    @SuppressWarnings("ConstantConditions")
     private void validate() {
         boolean vinValid = vinDecoder.isVinValid(vin);
         view.setVinValid(vinValid);

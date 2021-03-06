@@ -29,48 +29,56 @@ import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.Outcome;
-import org.etools.j1939_84.modules.DateTimeModule;
 
 public class TableA1Validator {
 
     private final DataRepository dataRepository;
-    private final DateTimeModule dateTimeModule;
     // Map of Source Address to PGNs for packets already written to the log
     private final Map<Integer, Set<Integer>> foundPackets = new HashMap<>();
+
     // Map of Source Address to SPN for SPNs with invalid values (to avoid
     // duplicate reporting)
     private final Map<Integer, Set<Integer>> invalidSPNs = new HashMap<>();
+
     private final J1939DaRepository j1939DaRepository;
+
     // Map of Source Address to SPNs for packets already written to the log
     private final Map<Integer, Set<Integer>> nonObdProvidedSPNs = new HashMap<>();
+
     // Map of Source Address to SPN for SPNs with value of Not Available (to
     // avoid duplicate reporting)
     private final Map<Integer, Set<Integer>> notAvailableSPNs = new HashMap<>();
+
     // Map of Source Address to SPN for SPNs provided by not supported (to avoid
     // duplicate reporting)
     private final Map<Integer, Set<Integer>> providedNotSupportedSPNs = new HashMap<>();
+
     private final TableA1ValueValidator valueValidator;
 
-    public TableA1Validator(DataRepository dataRepository) {
+    private final int partNumber;
+    private final int stepNumber;
+
+    public TableA1Validator(DataRepository dataRepository, int partNumber, int stepNumber) {
         this(new TableA1ValueValidator(dataRepository),
              dataRepository,
              new J1939DaRepository(),
-             DateTimeModule.getInstance());
+             partNumber,
+             stepNumber);
     }
 
     TableA1Validator(TableA1ValueValidator valueValidator,
                      DataRepository dataRepository,
                      J1939DaRepository j1939DaRepository,
-                     DateTimeModule dateTimeModule) {
+                     int partNumber,
+                     int stepNumber) {
         this.dataRepository = dataRepository;
         this.valueValidator = valueValidator;
         this.j1939DaRepository = j1939DaRepository;
-        this.dateTimeModule = dateTimeModule;
+        this.partNumber = partNumber;
+        this.stepNumber = stepNumber;
     }
 
-    private static void addOutcome(ResultsListener listener,
-                                   int partNumber,
-                                   int stepNumber,
+    private void addOutcome(ResultsListener listener,
                                    String section,
                                    Outcome outcome,
                                    String message) {
@@ -78,37 +86,15 @@ public class TableA1Validator {
     }
 
     private static List<Integer> getFailureSPNs(FuelType fuelType) {
-        List<Integer> allRequiredSPNs = new ArrayList<>(
-                                                        List.of(92,
-                                                                102,
-                                                                512,
-                                                                513,
-                                                                514,
-                                                                539,
-                                                                540,
-                                                                541,
-                                                                542,
-                                                                543,
-                                                                544,
-                                                                2978,
-                                                                3563));
+        var spns = new ArrayList<>(List.of(92, 102, 512, 513, 514, 539, 540, 541, 542, 543, 544, 2978, 3563));
 
         if (fuelType.isCompressionIgnition()) {
-            allRequiredSPNs.addAll(List.of(3719, 5466));
+            spns.addAll(List.of(3719, 5466));
         } else if (fuelType.isSparkIgnition()) {
-            allRequiredSPNs.addAll(List.of(51,
-                                           3217,
-                                           3227,
-                                           3241,
-                                           3245,
-                                           3249,
-                                           3464,
-                                           4236,
-                                           4237,
-                                           4240));
+            spns.addAll(List.of(51, 3217, 3227, 3241, 3245, 3249, 3464, 4236, 4237, 4240));
         }
 
-        return allRequiredSPNs;
+        return spns;
     }
 
     private static List<Integer> getInfoSPNs() {
@@ -127,61 +113,26 @@ public class TableA1Validator {
     }
 
     private static List<Integer> getWarningSPNs(FuelType fuelType) {
-        List<Integer> allWarningSPNs = new ArrayList<>(List.of(
-                                                               27,
-                                                               84,
-                                                               91,
-                                                               94,
-                                                               106,
-                                                               108,
-                                                               110,
-                                                               132,
-                                                               157,
-                                                               158,
-                                                               168,
-                                                               183,
-                                                               190,
-                                                               235,
-                                                               247,
-                                                               248,
-                                                               723,
-                                                               1127,
-                                                               1413,
-                                                               1433,
-                                                               1436,
-                                                               1600,
-                                                               1637,
-                                                               2791,
-                                                               4076,
-                                                               4193,
-                                                               4201,
-                                                               4202,
-                                                               5829,
-                                                               5837,
-                                                               6393,
-                                                               6895,
-                                                               7333));
+        //@formatter:off
+        var spns = new ArrayList<>(List.of(27, 84, 91, 94,
+                                           106, 108, 110, 132, 157, 158, 168, 183, 190, 235, 247, 248, 723,
+                                           1127, 1413, 1433, 1436, 1600, 1637,
+                                           2791,
+                                           4076, 4193, 4201, 4202,
+                                           5829, 5837,
+                                           6393, 6895,
+                                           7333));
+        //@formatter:on
 
         if (fuelType.isCompressionIgnition()) {
-            allWarningSPNs.addAll(List.of(164,
-                                          3031,
-                                          3226,
-                                          3251,
-                                          3515,
-                                          3516,
-                                          3518,
-                                          3609,
-                                          3610,
-                                          3700,
-                                          5313,
-                                          5314,
-                                          5454,
-                                          5466,
-                                          5578,
-                                          5827,
-                                          7346));
+            //@formatter:off
+            spns.addAll(List.of(164, 
+                                3031, 3226, 3251, 3515, 3516, 3518, 3609, 3610, 3700, 
+                                5313, 5314, 5454, 5466, 5578, 5827, 
+                                7346));
+            //@formatter:on
         }
-        return allWarningSPNs;
+        return spns;
     }
 
     private Collection<Integer> getAllSupportedSPNs() {
@@ -274,11 +225,8 @@ public class TableA1Validator {
      */
     public void reportDuplicateSPNs(List<GenericPacket> packets,
                                     ResultsListener listener,
-                                    int partNumber,
-                                    int stepNumber,
                                     String section) {
-        // f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed
-        // in Table A-1
+        // f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1
         Map<Integer, Integer> uniques = new HashMap<>();
         Map<Integer, Outcome> duplicateSPNs = new HashMap<>();
 
@@ -303,8 +251,6 @@ public class TableA1Validator {
                      .stream()
                      .sorted(Comparator.comparingInt(Map.Entry::getKey))
                      .forEach(entry -> addOutcome(listener,
-                                                  partNumber,
-                                                  stepNumber,
                                                   section,
                                                   entry.getValue(),
                                                   "N.5 SPN " + entry.getKey() + " provided by more than one module"));
@@ -343,15 +289,12 @@ public class TableA1Validator {
     }
 
     /**
-     * Reports on SPN values which are implausible given the key state and fuel
-     * type
+     * Reports on SPN values which are implausible given the key state and fuel type
      */
     public void reportImplausibleSPNValues(GenericPacket packet,
                                            ResultsListener listener,
                                            boolean isEngineOn,
                                            FuelType fuelType,
-                                           int partNumber,
-                                           int stepNumber,
                                            String section) {
 
         int moduleAddress = packet.getSourceAddress();
@@ -382,7 +325,7 @@ public class TableA1Validator {
                               message = "N.8 " + moduleName + " reported value for SPN " + spnId + " (" + value
                                       + ") is implausible";
                           }
-                          addOutcome(listener, partNumber, stepNumber, section, Outcome.WARN, message);
+                          addOutcome(listener, section, Outcome.WARN, message);
                           invalid.add(spnId);
                           invalidSPNs.put(moduleAddress, invalid);
                       }
@@ -391,13 +334,10 @@ public class TableA1Validator {
     }
 
     /**
-     * Writes a Failures/Warning to the report if an OBD Supported SPN is
-     * provided by a Non-OBD Module.
+     * Writes a Failures/Warning to the report if an OBD Supported SPN is provided by a Non-OBD Module.
      */
     public void reportNonObdModuleProvidedSPNs(GenericPacket packet,
                                                ResultsListener listener,
-                                               int partNumber,
-                                               int stepNumber,
                                                String section) {
 
         int sourceAddress = packet.getSourceAddress();
@@ -421,8 +361,6 @@ public class TableA1Validator {
                           String moduleName = Lookup.getAddressName(sourceAddress);
                           reportPacketIfNotReported(packet, listener, true);
                           addOutcome(listener,
-                                     partNumber,
-                                     stepNumber,
                                      section,
                                      outcome,
                                      "N.6 SPN " + id + " provided by non-OBD Module " + moduleName);
@@ -436,8 +374,6 @@ public class TableA1Validator {
 
     public void reportNotAvailableSPNs(GenericPacket packet,
                                        ResultsListener listener,
-                                       int partNumber,
-                                       int stepNumber,
                                        String section) {
 
         int moduleAddress = packet.getSourceAddress();
@@ -460,8 +396,6 @@ public class TableA1Validator {
                       reportPacketIfNotReported(packet, listener, true);
                       String moduleName = Lookup.getAddressName(moduleAddress);
                       addOutcome(listener,
-                                 partNumber,
-                                 stepNumber,
                                  section,
                                  Outcome.FAIL,
                                  "SPN " + spn + " was received as NOT AVAILABLE from " + moduleName);
@@ -473,7 +407,7 @@ public class TableA1Validator {
               });
     }
 
-    private void reportOmittedSPN(ResultsListener listener, String moduleName, Integer spn) {
+    private static void reportOmittedSPN(ResultsListener listener, String moduleName, Integer spn) {
         listener.onResult("  SPN " + spn + " is supported by " + moduleName + " but will be omitted" + NL);
     }
 
@@ -499,14 +433,11 @@ public class TableA1Validator {
     }
 
     /**
-     * Writes a Failure/Warning for any SPNs found in the data stream which
-     * aren't in the DM24
+     * Writes a Failure/Warning for any SPNs found in the data stream which aren't in the DM24
      */
     public void reportProvidedButNotSupportedSPNs(GenericPacket packet,
                                                   ResultsListener listener,
                                                   FuelType fuelType,
-                                                  int partNumber,
-                                                  int stepNumber,
                                                   String section) {
 
         int sourceAddress = packet.getSourceAddress();
@@ -542,8 +473,6 @@ public class TableA1Validator {
                     reportPacketIfNotReported(packet, listener, true);
                     String moduleName = Lookup.getAddressName(sourceAddress);
                     addOutcome(listener,
-                               partNumber,
-                               stepNumber,
                                section,
                                outcomes.get(spn),
                                "N.7 Provided SPN " + spn + " is not indicated as supported by " + moduleName);

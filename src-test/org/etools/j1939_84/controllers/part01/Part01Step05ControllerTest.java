@@ -302,13 +302,12 @@ public class Part01Step05ControllerTest {
     @Test
     @TestDoc(@TestItem(verifies = "6.1.5.2.a", description = "Verify fail reported with no response."))
     public void testPacketsEmpty() {
-        List<VehicleIdentificationPacket> packets = new ArrayList<>();
 
-        when(vehicleInformationModule.reportVin(any())).thenReturn(packets);
+        when(vehicleInformationModule.reportVin(any())).thenReturn(List.of());
 
         runTest();
 
-        verify(mockListener).addOutcome(1, 5, FAIL, "6.1.5.2.a - No VIN was provided");
+        verify(mockListener).addOutcome(1, 5, FAIL, "6.1.5.2.a - No VIN was provided by any ECU");
 
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(vehicleInformationModule).reportVin(any());

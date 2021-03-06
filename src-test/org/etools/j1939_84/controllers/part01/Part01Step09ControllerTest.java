@@ -115,12 +115,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                                                    String unitNumber) {
         OBDModuleInformation module = new OBDModuleInformation(sourceAddress);
         module.setFunction(function);
-        ComponentIdentificationPacket componentIdentificationPacket = create(sourceAddress,
-                                                                             make,
-                                                                             model,
-                                                                             serialNumber,
-                                                                             unitNumber);
-        module.setComponentIdentification(componentIdentificationPacket.getComponentIdentification());
+        module.set(create(sourceAddress, make, model, serialNumber, unitNumber));
         return module;
     }
 

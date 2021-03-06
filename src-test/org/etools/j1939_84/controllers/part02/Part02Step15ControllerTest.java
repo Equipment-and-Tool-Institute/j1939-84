@@ -155,7 +155,7 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testNoResponsesSIEngine() {
+    public void testNoResponsesCIEngine() {
 
         when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.empty());
         when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.empty());
@@ -182,7 +182,7 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testNoResponsesCIEngine() {
+    public void testNoResponsesSIEngine() {
 
         when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.empty());
         when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.empty());
@@ -200,7 +200,29 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
+    }
 
+    @Test
+    public void testNoResponsesSIEnginePost2024() {
+
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.empty());
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.empty());
+
+        var vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2024);
+        vehInfo.setFuelType(FuelType.GAS);
+        dataRepository.setVehicleInformation(vehInfo);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
+        verify(diagnosticMessageModule).requestDM33(any());
+
+        assertEquals("", listener.getResults());
+        assertEquals("", listener.getMessages());
+
+        verify(mockListener).addOutcome(PART, STEP, FAIL, "6.2.15.2.a - No ECU responded to the global request");
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,

@@ -308,17 +308,13 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
         verify(tableA1Validator).reportNonObdModuleProvidedSPNs(any(),
                                                                 any(ResultsListener.class),
-                                                                eq(1),
-                                                                eq(26),
                                                                 any());
         verify(tableA1Validator).reportImplausibleSPNValues(any(),
                                                             any(ResultsListener.class),
                                                             eq(false),
                                                             eq(DSL),
-                                                            eq(1),
-                                                            eq(26),
                                                             any());
-        verify(tableA1Validator).reportDuplicateSPNs(any(), any(ResultsListener.class), eq(1), eq(26), any());
+        verify(tableA1Validator).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
 
         String expected = "";
         expected += "FAIL: SPN 222 was not broadcast by Engine #1 (0)" + NL;
@@ -406,17 +402,13 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
         verify(tableA1Validator).reportNonObdModuleProvidedSPNs(any(),
                                                                 any(ResultsListener.class),
-                                                                eq(1),
-                                                                eq(26),
                                                                 any());
         verify(tableA1Validator).reportImplausibleSPNValues(any(),
                                                             any(ResultsListener.class),
                                                             eq(false),
                                                             eq(DSL),
-                                                            eq(1),
-                                                            eq(26),
                                                             any());
-        verify(tableA1Validator).reportDuplicateSPNs(any(), any(ResultsListener.class), eq(1), eq(26), any());
+        verify(tableA1Validator).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
 
         String expected = "";
         assertEquals(expected, listener.getResults());

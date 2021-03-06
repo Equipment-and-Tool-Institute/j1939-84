@@ -124,7 +124,9 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
     @Test
     public void testEmptyObdModules() {
         runTest();
-        verify(diagnosticMessageModule).setJ1939(j1939);
+
+        assertEquals("", listener.getResults());
+        assertEquals("", listener.getMessages());
     }
 
     @Test
@@ -147,7 +149,6 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
             when(packet0.getSupportedSpns()).thenReturn(supportedSPNs0);
 
             OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
-            obdInfo0.setObdCompliance((byte) 4);
             obdInfo0.setSupportedSPNs(List.of(spn1, spn2, mock(SupportedSPN.class)));
             dataRepository.putObdModule(obdInfo0);
         }
@@ -164,14 +165,12 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
             when(packet1.getSupportedSpns()).thenReturn(supportedSpns);
 
             OBDModuleInformation obdInfo1 = new OBDModuleInformation(1);
-            obdInfo1.setObdCompliance((byte) 4);
             obdInfo1.setSupportedSPNs(List.of(spn1));
             dataRepository.putObdModule(obdInfo1);
         }
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM24(any(), eq(0));
         verify(diagnosticMessageModule).requestDM24(any(), eq(1));
 
@@ -223,7 +222,6 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
             when(packet0.getSupportedSpns()).thenReturn(supportedSPNs0);
 
             OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
-            obdInfo0.setObdCompliance((byte) 4);
             obdInfo0.setSupportedSPNs(List.of(spn1, spn2));
             dataRepository.putObdModule(obdInfo0);
         }
@@ -240,7 +238,6 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
             when(packet1.getSupportedSpns()).thenReturn(supportedSpns);
 
             OBDModuleInformation obdInfo1 = new OBDModuleInformation(1);
-            obdInfo1.setObdCompliance((byte) 4);
             obdInfo1.setSupportedSPNs(List.of(spn1, spn2));
             dataRepository.putObdModule(obdInfo1);
         }

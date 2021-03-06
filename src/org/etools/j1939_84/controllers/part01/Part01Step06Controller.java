@@ -16,6 +16,9 @@ import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
+/**
+ * DM56: Model year and certification engine family
+ */
 public class Part01Step06Controller extends StepController {
 
     private static final int PART_NUMBER = 1;
@@ -54,22 +57,14 @@ public class Part01Step06Controller extends StepController {
     @Override
     protected void run() throws Throwable {
 
-        // DM56: Model year and certification engine family
+        // 6.1.6.1.a. Global DM56 (send Request (PGN 59904) for PGN 64711 (SPNs 5844 and 5845)).
         List<DM56EngineFamilyPacket> packets = getDiagnosticMessageModule().requestDM56(getListener());
         if (packets.isEmpty()) {
-            getListener().onResult("DM56 is not supported");
+            getListener().onResult("6.1.6.1.a - DM56 is not supported");
             return;
         }
 
-        for (DM56EngineFamilyPacket packet : packets) {
-            int sourceAddress = packet.getSourceAddress();
-            var obdModuleInfo = getDataRepository().getObdModule(sourceAddress);
-            if (obdModuleInfo != null) {
-                obdModuleInfo.setModelYear(packet.getModelYearField());
-                obdModuleInfo.setEngineFamilyName(packet.getFamilyName());
-                getDataRepository().putObdModule(obdModuleInfo);
-            }
-        }
+        packets.forEach(this::save);
 
         int engineModelYear = getDataRepository().getVehicleInformation().getEngineModelYear();
         for (DM56EngineFamilyPacket packet : packets) {

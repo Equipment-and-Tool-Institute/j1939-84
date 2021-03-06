@@ -209,10 +209,8 @@ public class Part09Step21ControllerTest extends AbstractControllerTest {
     @Test
     public void testRun() {
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.setObdCompliance((byte) 0x22);
         dataRepository.putObdModule(obdModule);
         OBDModuleInformation obdModule_1 = new OBDModuleInformation(1);
-        obdModule.setObdCompliance((byte) 0x22);
         dataRepository.putObdModule(obdModule_1);
 
         var dm5 = DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22);
