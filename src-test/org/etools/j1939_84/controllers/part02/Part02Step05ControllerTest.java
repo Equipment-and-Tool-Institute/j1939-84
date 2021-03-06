@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
+import static org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.PGN;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -11,9 +12,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.Packet;
@@ -54,7 +52,6 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
     @Mock
     private BannerModule bannerModule;
 
-    @Mock
     private DataRepository dataRepository;
 
     @Mock
@@ -85,6 +82,7 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
+        dataRepository = DataRepository.newInstance();
 
         instance = new Part02Step05Controller(executor,
                                               engineSpeedModule,
@@ -110,7 +108,6 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 dataRepository,
                                  mockListener,
                                  diagnosticMessageModule);
     }
@@ -147,7 +144,7 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
     @Test
     public void testRunHappyPathOneModuleThreeCalibration() {
         // formatter:off
-        Packet packet = Packet.create(DM19CalibrationInformationPacket.PGN,
+        Packet packet = Packet.create(PGN,
                                       0x00,
                                       // Cal #1
                                       0x51,
@@ -215,30 +212,19 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
                                       0x00,
                                       0x00);
         // formatter:on
-        DM19CalibrationInformationPacket dm19CalibrationInformationPacket = new DM19CalibrationInformationPacket(packet);
+        DM19CalibrationInformationPacket dm19 = new DM19CalibrationInformationPacket(packet);
         OBDModuleInformation obd0x00 = new OBDModuleInformation(0x00);
-        obd0x00.setCalibrationInformation(dm19CalibrationInformationPacket.getCalibrationInformation());
+        obd0x00.set(dm19);
+        dataRepository.putObdModule(obd0x00);
 
-        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        obdModuleInformations.add(obd0x00);
-
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
-
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x00)))
-                                                                                    .thenReturn(new BusResult<>(false,
-                                                                                                                dm19CalibrationInformationPacket));
+        when(vehicleInformationModule.requestDM19(any(), eq(0x00))).thenReturn(BusResult.of(dm19));
 
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
-        verify(dataRepository).getObdModules();
-
-        verify(vehicleInformationModule).setJ1939(j1939);
-        verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0));
-
+        verify(vehicleInformationModule).requestDM19(any(), eq(0));
     }
 
     /*
@@ -246,22 +232,19 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testRunNoModulesRespond() {
-        when(dataRepository.getObdModules()).thenReturn(List.of());
 
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
-        verify(dataRepository).getObdModules();
     }
 
     @Test
     public void testRunWithWarningsAndFailures() {
 
         // formatter:off
-        Packet packet0x00 = Packet.create(DM19CalibrationInformationPacket.PGN,
+        Packet packet0x00 = Packet.create(PGN,
                                           0x00,
                                           // Cal #1
                                           0x51,
@@ -329,13 +312,12 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
                                           0x00,
                                           0x00);
         // formatter:on
-        DM19CalibrationInformationPacket dm19CalibrationInformationPacket0x00 = new DM19CalibrationInformationPacket(
-                                                                                                                     packet0x00);
         OBDModuleInformation obd0x00 = new OBDModuleInformation(0x00);
-        obd0x00.setCalibrationInformation(dm19CalibrationInformationPacket0x00.getCalibrationInformation());
+        obd0x00.set(new DM19CalibrationInformationPacket(packet0x00));
+        dataRepository.putObdModule(obd0x00);
 
         // formatter:off
-        Packet packet0x01 = Packet.create(DM19CalibrationInformationPacket.PGN,
+        Packet packet0x01 = Packet.create(PGN,
                                           0x01,
                                           // Cal #1
                                           0x00,
@@ -359,13 +341,12 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
                                           0x00,
                                           0x00);
         // formatter:on
-        DM19CalibrationInformationPacket dm19CalibrationInformationPacket0x01 = new DM19CalibrationInformationPacket(
-                                                                                                                     packet0x01);
         OBDModuleInformation obd0x01 = new OBDModuleInformation(0x01);
-        obd0x01.setCalibrationInformation(dm19CalibrationInformationPacket0x01.getCalibrationInformation());
+        obd0x01.set(new DM19CalibrationInformationPacket(packet0x01));
+        dataRepository.putObdModule(obd0x01);
 
         // formatter:off
-        Packet packet0x02 = Packet.create(DM19CalibrationInformationPacket.PGN,
+        Packet packet0x02 = Packet.create(PGN,
                                           0x02,
                                           // Cal #1
                                           0x96,
@@ -389,20 +370,12 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
                                           0x00,
                                           0x00);
         // formatter:on
-        DM19CalibrationInformationPacket dm19CalibrationInformationPacket0x02 = new DM19CalibrationInformationPacket(
-                                                                                                                     packet0x02);
         OBDModuleInformation obd0x02 = new OBDModuleInformation(0x02);
-        obd0x02.setCalibrationInformation(dm19CalibrationInformationPacket0x02.getCalibrationInformation());
-
-        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        obdModuleInformations.add(obd0x00);
-        obdModuleInformations.add(obd0x01);
-        obdModuleInformations.add(obd0x02);
-
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+        obd0x02.set(new DM19CalibrationInformationPacket(packet0x02));
+        dataRepository.putObdModule(obd0x02);
 
         // formatter:off
-        Packet packet0x01V2 = Packet.create(DM19CalibrationInformationPacket.PGN,
+        Packet packet0x01V2 = Packet.create(PGN,
                                             0x01,
                                             // Cal #1
                                             0x51,
@@ -426,27 +399,18 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
                                             0x00,
                                             0x00);
         // formatter:on
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x00)))
-                                                                                    .thenReturn(new BusResult<>(false,
-                                                                                                                dm19CalibrationInformationPacket0x00));
+        when(vehicleInformationModule.requestDM19(any(), eq(0x00)))
+                                                                   .thenReturn(BusResult.of(new DM19CalibrationInformationPacket(packet0x00)));
 
-        DM19CalibrationInformationPacket dm19CalibrationInformationPacket0x01V2 = new DM19CalibrationInformationPacket(
-                                                                                                                       packet0x01V2);
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x01)))
-                                                                                    .thenReturn(new BusResult<>(false,
-                                                                                                                dm19CalibrationInformationPacket0x01V2));
+        when(vehicleInformationModule.requestDM19(any(), eq(0x01)))
+                                                                   .thenReturn(BusResult.of(new DM19CalibrationInformationPacket(packet0x01V2)));
 
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x02)))
-                                                                                    .thenReturn(new BusResult<>(false,
-                                                                                                                Optional.empty()));
+        when(vehicleInformationModule.requestDM19(any(), eq(0x02))).thenReturn(BusResult.empty());
 
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
-
-        verify(dataRepository).getObdModules();
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -454,8 +418,8 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
                                         "6.2.5.2.a - Engine #2 (1) reported CAL IDs/CVNs with different values/quantity than those reported in Part 1 data");
 
         verify(vehicleInformationModule).setJ1939(j1939);
-        verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0x00));
-        verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0x01));
-        verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0x02));
+        verify(vehicleInformationModule).requestDM19(any(), eq(0x00));
+        verify(vehicleInformationModule).requestDM19(any(), eq(0x01));
+        verify(vehicleInformationModule).requestDM19(any(), eq(0x02));
     }
 }

@@ -48,8 +48,9 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
     @Mock
     private BannerModule bannerModule;
-    @Mock
+
     private DataRepository dataRepository;
+
     @Mock
     private DiagnosticMessageModule diagnosticMessageModule;
     @Mock
@@ -87,6 +88,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
+        dataRepository = DataRepository.newInstance();
 
         instance = new Part01Step08Controller(executor,
                                               engineSpeedModule,
@@ -114,7 +116,8 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule);
+                                 diagnosticMessageModule,
+                                 mockListener);
     }
 
     @Test
@@ -132,25 +135,19 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false, dm20));
+        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
-        OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
-        when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.BATT_ELEC);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
 
-        verify(dataRepository).getObdModule(0);
-        verify(dataRepository).getVehicleInformation();
-
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM20(any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -160,33 +157,25 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         List<Integer> SPNs = List.of(3058, 3064, 5321, 3055);
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false, dm20));
+        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
-        OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
-        when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.DSL);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
 
-        verify(dataRepository).getObdModule(0);
-        verify(dataRepository).getVehicleInformation();
-
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,
                                         FAIL,
-                                        "6.1.8.2.a - minimum expected SPNs are not supported. Not Supported SPNs: 5318, 5322 None of these SPNs are supported: 4364, 4792, 5308");
+                                        "6.1.8.2.a - Minimum expected SPNs are not supported. Not Supported SPNs: 5318, 5322 None of these SPNs are supported: 4364, 4792, 5308");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals(
-                     "",
-                     listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -195,19 +184,15 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         List<Integer> SPNs = List.of(3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057);
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false, dm20));
+        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
-        OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
-        when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.BI_CNG);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
-
-        verify(dataRepository).getObdModule(0);
-        verify(dataRepository).getVehicleInformation();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM20(any());
@@ -215,7 +200,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         8,
                                         FAIL,
-                                        "6.1.8.2.a - minimum expected SPNs are not supported. Not Supported SPNs: 3054");
+                                        "6.1.8.2.a - Minimum expected SPNs are not supported. Not Supported SPNs: 3054");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -228,21 +213,17 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false, dm20));
+        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.DSL);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
 
-        verify(dataRepository).getVehicleInformation();
-
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM20(any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -253,51 +234,42 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false, dm20));
+        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
-        OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
-        when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.DSL);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
-        verify(dataRepository).getObdModule(0);
-        verify(dataRepository).getVehicleInformation();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM20(any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
     @Test
     public void testEmptyPacketsCompressionIgnition() {
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(true));
+        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.empty());
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.DSL);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
-        verify(dataRepository).getVehicleInformation();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,
                                         FAIL,
-                                        "6.1.8.2.a - minimum expected SPNs are not supported. Not Supported SPNs: 3055, 3058, 3064, 5318, 5321, 5322 None of these SPNs are supported: 4364, 4792, 5308");
+                                        "6.1.8.2.a - Minimum expected SPNs are not supported. Not Supported SPNs: 3055, 3058, 3064, 5318, 5321, 5322 None of these SPNs are supported: 4364, 4792, 5308");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(
-                     "",
-                     listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -306,28 +278,23 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.BI_CNG);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
-        verify(dataRepository).getVehicleInformation();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,
                                         FAIL,
-                                        "6.1.8.2.a - minimum expected SPNs are not supported. Not Supported SPNs: 3050, 3051, 3053, 3054, 3055, 3056, 3057, 3058, 3306");
+                                        "6.1.8.2.a - Minimum expected SPNs are not supported. Not Supported SPNs: 3050, 3051, 3053, 3054, 3055, 3056, 3057, 3058, 3306");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals(
-                     "",
-                     listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
-    public void testGetDiplayName() {
+    public void testGetDisplayName() {
         assertEquals("Display Name", "Part 1 Step 8", instance.getDisplayName());
     }
 
@@ -341,28 +308,23 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         List<Integer> spns = List.of(5322, 5318, 3058, 3064, 5321, 3055);
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(spns);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false, dm20));
+        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.BI_DSL);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
-        verify(dataRepository).getVehicleInformation();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,
                                         FAIL,
-                                        "6.1.8.2.a - minimum expected SPNs are not supported. None of these SPNs are supported: 4364, 4792, 5308");
+                                        "6.1.8.2.a - Minimum expected SPNs are not supported. None of these SPNs are supported: 4364, 4792, 5308");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals(
-                     "",
-                     listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -372,24 +334,19 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false, dm20));
+        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
-        OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
-        when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.BI_CNG);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
-        verify(dataRepository).getObdModule(0);
-        verify(dataRepository).getVehicleInformation();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM20(any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 

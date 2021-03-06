@@ -215,12 +215,11 @@ public class VehicleInformationModule extends FunctionalModule {
         return responses;
     }
 
-    public List<DM19CalibrationInformationPacket> reportCalibrationInformation(ResultsListener listener) {
+    public List<DM19CalibrationInformationPacket> requestDM19(ResultsListener listener) {
         return requestDMPackets("DM19", DM19CalibrationInformationPacket.class, GLOBAL_ADDR, listener).getPackets();
     }
 
-    public BusResult<DM19CalibrationInformationPacket> reportCalibrationInformation(ResultsListener listener,
-                                                                                    int address) {
+    public BusResult<DM19CalibrationInformationPacket> requestDM19(ResultsListener listener, int address) {
         return requestDMPackets("DM19", DM19CalibrationInformationPacket.class, address, listener).busResult();
     }
 

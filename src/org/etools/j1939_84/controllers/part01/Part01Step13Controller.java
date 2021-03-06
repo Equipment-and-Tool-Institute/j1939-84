@@ -100,16 +100,19 @@ public class Part01Step13Controller extends StepController {
         obdGlobalPackets.stream()
                         .filter(p -> p.getActiveCodeCount() != (byte) 0xFF && p.getActiveCodeCount() != 0)
                         .map(ParsedPacket::getModuleName)
-                        .forEach(moduleName -> addFailure("6.1.13.2.b - OBD ECU " + moduleName
-                                + " reported active DTC count not = 0"));
+                        .forEach(moduleName -> {
+                            addFailure("6.1.13.2.b - OBD ECU " + moduleName + " reported active DTC count not = 0");
+                        });
 
         // 6.1.13.2.b. Fail if any OBD ECU reports previously active DTCs count not = 0.
         obdGlobalPackets.stream()
                         .filter(p -> p.getPreviouslyActiveCodeCount() != (byte) 0xFF
                                 && p.getPreviouslyActiveCodeCount() != 0)
                         .map(ParsedPacket::getModuleName)
-                        .forEach(moduleName -> addFailure("6.1.13.2.b - OBD ECU " + moduleName
-                                + " reported previously active DTC count not = 0"));
+                        .forEach(moduleName -> {
+                            addFailure("6.1.13.2.b - OBD ECU " + moduleName
+                                    + " reported previously active DTC count not = 0");
+                        });
 
         // 6.1.13.2.c. Fail if no OBD ECU provides DM5 with readiness bits showing monitor support.
         boolean isEnabled = obdGlobalPackets.stream()
@@ -126,12 +129,12 @@ public class Part01Step13Controller extends StepController {
         // Get the list of duplicate composite systems
         reportDuplicateCompositeSystems(obdGlobalPackets, "6.1.13.2.d");
 
-        List<Integer> obdAddresses = getDataRepository().getObdModuleAddresses();
         // 6.1.13.3.a. DS DM5 to each OBD ECU.
-        var dsPackets = obdAddresses
-                                    .stream()
-                                    .map(address -> getDiagnosticMessageModule().requestDM5(getListener(), address))
-                                    .collect(Collectors.toList());
+        var dsPackets = getDataRepository().getObdModuleAddresses()
+                                           .stream()
+                                           .map(address -> getDiagnosticMessageModule().requestDM5(getListener(),
+                                                                                                   address))
+                                           .collect(Collectors.toList());
 
         // 6.1.13.4.a. Fail if any difference compared to data received during global request.
         compareRequestPackets(obdGlobalPackets, filterPackets(dsPackets), "6.1.13.4.a");

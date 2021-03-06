@@ -3,12 +3,12 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.model.FuelType.BI_GAS;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,7 +17,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -66,8 +65,9 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
     private static final int STEP_NUMBER = 4;
     @Mock
     private BannerModule bannerModule;
-    @Mock
+
     private DataRepository dataRepository;
+
     @Mock
     private EngineSpeedModule engineSpeedModule;
     @Mock
@@ -100,6 +100,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
+        dataRepository = DataRepository.newInstance();
 
         instance = new Part01Step04Controller(
                                               executor,
@@ -128,7 +129,6 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  vehicleInformationModule,
                                  diagnosticMessageModule,
-                                 dataRepository,
                                  mockListener,
                                  supportedSpnModule);
     }
@@ -139,30 +139,19 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
         when(packet1.getSourceAddress()).thenReturn(0);
 
-        OBDModuleInformation obdInfo1 = new OBDModuleInformation(0);
-        Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
-        obdInfo1.setObdCompliance((byte) 4);
-        obdInfoList.add(obdInfo1);
-        when(dataRepository.getObdModules()).thenReturn(Collections.emptyList());
-        when(dataRepository.getObdModule(0)).thenReturn(null);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
 
         when(diagnosticMessageModule.requestDM24(any(), eq(0)))
-                                                               .thenReturn(new BusResult<>(false, packet1));
+                                                               .thenReturn(BusResult.of(packet1));
 
-        when(dataRepository.getObdModules()).thenReturn(obdInfoList);
-
-        VehicleInformation vehicleInfo = mock(VehicleInformation.class);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInfo);
-        when(dataRepository.getVehicleInformation().getFuelType()).thenReturn(BI_GAS);
+        VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setFuelType(BI_GAS);
+        dataRepository.setVehicleInformation(vehicleInfo);
 
         runTest();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM24(any(), eq(0));
-
-        verify(dataRepository).getObdModule(0);
-        verify(dataRepository, atLeastOnce()).getObdModules();
-        verify(dataRepository, atLeastOnce()).getVehicleInformation();
 
         verify(engineSpeedModule).setJ1939(j1939);
 
@@ -207,40 +196,25 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
         when(packet1.getSourceAddress()).thenReturn(0);
 
-        OBDModuleInformation obdInfo1 = new OBDModuleInformation(0);
-        OBDModuleInformation obdInfo4 = new OBDModuleInformation(1);
-        Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
-        obdInfo1.setObdCompliance((byte) 4);
-        obdInfo4.setObdCompliance((byte) 4);
-        obdInfoList.add(obdInfo1);
-        obdInfoList.add(obdInfo4);
-        when(dataRepository.getObdModules()).thenReturn(obdInfoList);
-        when(dataRepository.getObdModule(0)).thenReturn(obdInfo1);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(BusResult.of(packet1));
 
-        AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
-
-        when(diagnosticMessageModule.requestDM24(any(), eq(0)))
-                                                               .thenReturn(new BusResult<>(false, packet1));
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        AcknowledgmentPacket packet4 = AcknowledgmentPacket.create(1, NACK);
         when(diagnosticMessageModule.requestDM24(any(), eq(1)))
-                                                               .thenReturn(new BusResult<>(true, packet4));
+                                                               .thenReturn(BusResult.empty())
+                                                               .thenReturn(BusResult.of(packet4));
 
-        when(dataRepository.getObdModules()).thenReturn(obdInfoList);
 
-        VehicleInformation vehicleInfo = mock(VehicleInformation.class);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInfo);
-        when(dataRepository.getVehicleInformation().getFuelType()).thenReturn(BI_GAS);
+        VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setFuelType(BI_GAS);
+        dataRepository.setVehicleInformation(vehicleInfo);
 
         runTest();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM24(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM24(any(), eq(1));
-
-        verify(dataRepository).getObdModule(0);
-
-        verify(dataRepository, atLeastOnce()).getObdModules();
-        verify(dataRepository, atLeastOnce()).getVehicleInformation();
-        verify(dataRepository).putObdModule(obdInfo1);
+        verify(diagnosticMessageModule, times(2)).requestDM24(any(), eq(1));
 
         verify(engineSpeedModule).setJ1939(j1939);
 
@@ -249,7 +223,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.4.2.a - Retry was required to obtain DM24 response from Engine #2 (1)");
+                                        "6.1.4.2.a - Retry was required to obtain DM25 response from Engine #2 (1)");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -291,22 +265,10 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
     @TestDoc(value = @TestItem(verifies = "6.1.4.2.a,b,c"), description = "Verify that step completes without errors when none of the fail criteria are met.")
     public void testGoodObjects() {
 
-        Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
-        obdInfo0.setObdCompliance((byte) 4);
-        obdInfoList.add(obdInfo0);
-        when(dataRepository.getObdModule(eq(0x00))).thenReturn(obdInfo0);
-
-        OBDModuleInformation obdInfo1 = new OBDModuleInformation(1);
-        obdInfo1.setObdCompliance((byte) 4);
-        obdInfoList.add(obdInfo1);
-        when(dataRepository.getObdModule(eq(0x01))).thenReturn(obdInfo1);
-
-        when(dataRepository.getObdModules()).thenReturn(obdInfoList);
-
-        DM24SPNSupportPacket packet1 = new DM24SPNSupportPacket(
-                                                                Packet.create(DM24SPNSupportPacket.PGN,
+        DM24SPNSupportPacket packet1 = new DM24SPNSupportPacket(Packet.create(DM24SPNSupportPacket.PGN,
                                                                               0x00,
                                                                               0x5C,
                                                                               0x00,
@@ -321,8 +283,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                                                                               0x1B,
                                                                               0x01));
 
-        BusResult<DM24SPNSupportPacket> result1 = new BusResult<>(false, packet1);
-        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(result1);
+        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(BusResult.of(packet1));
 
         //@formatter:off
         DM24SPNSupportPacket packet4 = new DM24SPNSupportPacket(Packet.create(DM24SPNSupportPacket.PGN,
@@ -361,12 +322,11 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                 0x00, 0x1F, 0x00, 0x00, 0x00, 0x1F, 0x00, 0x00, 0x00, 0x1F, 0x00, 0x00, 0x00, 0x1F, 0x00));
         //@formatter:on
 
-        BusResult<DM24SPNSupportPacket> result4 = new BusResult<>(false, packet4);
-        when(diagnosticMessageModule.requestDM24(any(), eq(1))).thenReturn(result4);
+        when(diagnosticMessageModule.requestDM24(any(), eq(1))).thenReturn(BusResult.of(packet4));
 
-        VehicleInformation vehicleInfo = mock(VehicleInformation.class);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInfo);
-        when(dataRepository.getVehicleInformation().getFuelType()).thenReturn(BI_GAS);
+        VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setFuelType(BI_GAS);
+        dataRepository.setVehicleInformation(vehicleInfo);
 
         when(supportedSpnModule.validateDataStreamSpns(any(), any(), any())).thenReturn(true);
         when(supportedSpnModule.validateFreezeFrameSpns(any(), any())).thenReturn(true);
@@ -376,14 +336,6 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM24(any(), eq(0));
         verify(diagnosticMessageModule).requestDM24(any(), eq(1));
-
-        verify(dataRepository).getObdModule(0);
-        verify(dataRepository).getObdModule(1);
-        verify(dataRepository, times(3)).getObdModules();
-
-        verify(dataRepository, times(2)).getVehicleInformation();
-        verify(dataRepository).putObdModule(obdInfo0);
-        verify(dataRepository).putObdModule(obdInfo1);
 
         verify(engineSpeedModule).setJ1939(j1939);
 
@@ -469,7 +421,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                                                          new SupportedSPN(convertToIntArray(spn92Packet1)),
                                                          new SupportedSPN(convertToIntArray(spn512Packet1)),
                                                          new SupportedSPN(convertToIntArray(spn513Packet1)));
-        assertEquals(expectedPacket1Spns, obdInfo0.getSupportedSPNs());
+        assertEquals(expectedPacket1Spns, dataRepository.getObdModule(0).getSupportedSPNs());
 
         byte[] spn92 = { 0x5C, 0x00, 0x1C, 0x01 };
         byte[] spn512 = { 0x00, 0x02, 0x1C, 0x01 };
@@ -702,6 +654,6 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
             }
         };
         expectedPacket4Spns.sort(Comparator.comparingInt(SupportedSPN::getSpn));
-        assertEquals(expectedPacket4Spns, obdInfo1.getSupportedSPNs());
+        assertEquals(expectedPacket4Spns, dataRepository.getObdModule(1).getSupportedSPNs());
     }
 }

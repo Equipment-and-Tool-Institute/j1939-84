@@ -71,7 +71,7 @@ public class Part02Step05Controller extends StepController {
                            .forEach(moduleInfo -> {
                                int sourceAddress = moduleInfo.getSourceAddress();
                                getVehicleInformationModule()
-                                                            .reportCalibrationInformation(getListener(), sourceAddress)
+                                                            .requestDM19(getListener(), sourceAddress)
                                                             .getPacket()
                                                             .ifPresent(p -> {
                                                                 Optional<DM19CalibrationInformationPacket> left = p.left;

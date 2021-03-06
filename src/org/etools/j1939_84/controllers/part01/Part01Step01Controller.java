@@ -21,6 +21,9 @@ import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
+/**
+ * 6.1.1 Test Vehicle Data Collection
+ */
 public class Part01Step01Controller extends StepController {
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 1;
@@ -69,7 +72,7 @@ public class Part01Step01Controller extends StepController {
             public void onResult(VehicleInformation vehInfo) {
                 if (vehInfo == null) {
                     try {
-                        getListener().onResult("User cancelled testing at Part " + getPartNumber() + " Step "
+                        getListener().onResult("User cancelled testing at Part " + getPartNumber() + " Test "
                                 + getStepNumber());
                         setEnding(Ending.STOPPED);
                         incrementProgress("User cancelled testing");
@@ -90,32 +93,44 @@ public class Part01Step01Controller extends StepController {
 
         while (getDataRepository().getVehicleInformation() == null) {
             getDateTimeModule().pauseFor(500);
-            updateProgress("Part 1, Step 1 e Collecting Vehicle Information");
+            updateProgress("Step 1.1.e Collecting Vehicle Information");
         }
         getListener().onVehicleInformationReceived(getDataRepository().getVehicleInformation());
     }
 
-    /**
-     * Displays a warning message to the user.
-     */
-    private void displayWarningMessage() {
-        String message = "Ready to begin Part 1" + NL;
-        message += "a. Confirm the vehicle is in a safe location and condition for the test" + NL;
-        message += "b. Confirm that the vehicle battery is well charged. (Battery voltage >> 12 volts)" + NL;
-        message += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions"
-                + NL;
-        displayInstructionAndWait(message, "Start Part 1", WARNING);
-    }
-
     @Override
     protected void run() throws Throwable {
-        incrementProgress("Part 1, Step 1 a-c Displaying Warning Message");
-        displayWarningMessage();
+        incrementProgress("Step 1.1.a - c Displaying Warning Message");
+        String message = "Ready to begin Part 1" + NL;
 
-        incrementProgress("Part 1, Step 1 d Ensuring Key ON/Engine OFF");
+        // 6.1.1.1.a. Confirm the vehicle is in a safe location and condition for the test.
+        message += "a. Confirm the vehicle is in a safe location and condition for the test" + NL;
+
+        // 6.1.1.1.b. Confirm that the vehicle battery is well charged. ([Battery voltage >> 12 V].)
+        message += "b. Confirm that the vehicle battery is well charged. (Battery voltage >> 12 volts)" + NL;
+
+        // 6.1.1.1.c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s
+        // instructions.
+        message += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions"
+                + NL;
+
+        displayInstructionAndWait(message, "Start Part 1", WARNING);
+
+        // 6.1.1.1.d. Turn the ignition key to on.
+        incrementProgress("Step 1.1.d Ensuring Key ON/Engine OFF");
         ensureKeyStateIs(KEY_ON_ENGINE_OFF);
 
-        incrementProgress("Part 1, Step 1 e Collecting Vehicle Information");
+        incrementProgress("Step 1.1.e Collecting Vehicle Information");
+        // 6.1.1.1.e. Record vehicle data base entries including:
+        // 6.1.1.1.e.i. VIN of vehicle,
+        // 6.1.1.1.e.ii. MY of vehicle,
+        // 6.1.1.1.e.ii.1. Warn the user if the MY character of the VIN does not match the data entered by the user for
+        // the vehicle model year.
+        // 6.1.1.1.e.iii. MY of engine,
+        // 6.1.1.1.e.iv. Fuel type,
+        // 6.1.1.1.e.v. Number of emission or diagnostic-critical control units on vehicle (i.e., number that are
+        // required to support CAL ID and CVN),3 and
+        // 6.1.1.1.e.vi. Certification intent (U.S., Euro, etc.).
         collectVehicleInformation();
     }
 

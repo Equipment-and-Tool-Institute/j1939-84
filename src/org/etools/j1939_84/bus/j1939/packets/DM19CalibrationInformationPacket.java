@@ -1,10 +1,11 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Objects;
 
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
+import org.etools.j1939_84.utils.CollectionUtils;
 
 /**
  * Parses the Calibration Information Packet (DM19)
@@ -21,6 +23,15 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
  */
 public class DM19CalibrationInformationPacket extends GenericPacket {
     public static final int PGN = 54016;
+
+    public static DM19CalibrationInformationPacket create(int address, CalibrationInformation... calInfos) {
+        byte[] data = new byte[0];
+        for (CalibrationInformation calInfo : calInfos) {
+            data = CollectionUtils.join(data, calInfo.getBytes());
+        }
+        return new DM19CalibrationInformationPacket(Packet.create(PGN, address, data));
+    }
+
     private List<CalibrationInformation> info;
 
     public DM19CalibrationInformationPacket(Packet packet) {
@@ -46,7 +57,7 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
 
     @Override
     public String toString() {
-        final boolean moreThanOne = getCalibrationInformation().size() > 1;
+        boolean moreThanOne = getCalibrationInformation().size() > 1;
         StringBuilder sb = new StringBuilder();
         sb.append(getStringPrefix());
         sb.append(moreThanOne ? "[" + NL : "");
@@ -85,7 +96,7 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
      */
     private List<CalibrationInformation> parseAllInformation() {
         List<CalibrationInformation> result = new ArrayList<>();
-        final int length = getPacket().getLength();
+        int length = getPacket().getLength();
         for (int i = 0; i + 20 <= length; i = i + 20) {
             CalibrationInformation info = parseInformation(i);
             result.add(info);
@@ -126,6 +137,27 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
         private final byte[] rawCalId;
         private final byte[] rawCvn;
 
+        public CalibrationInformation(String calId, String cvn) {
+            if (calId.length() > 15) {
+                calibrationIdentification = calId.substring(0, 14);
+            } else if (calId.length() < 15) {
+                calibrationIdentification = String.format("%1$15s", calId);
+            } else {
+                calibrationIdentification = calId;
+            }
+
+            if (cvn.length() > 4) {
+                calibrationVerificationNumber = cvn.substring(0, 3);
+            } else if (cvn.length() < 4) {
+                calibrationVerificationNumber = String.format("%1$15s", cvn);
+            } else {
+                calibrationVerificationNumber = cvn;
+            }
+
+            rawCalId = calibrationIdentification.getBytes(StandardCharsets.UTF_8);
+            rawCvn = calibrationVerificationNumber.getBytes(StandardCharsets.UTF_8);
+        }
+
         public CalibrationInformation(String id, String cvn, byte[] rawCalId, byte[] rawCvn) {
             calibrationIdentification = id;
             calibrationVerificationNumber = cvn;
@@ -133,20 +165,10 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
             this.rawCvn = Arrays.copyOf(rawCvn, rawCvn.length);
         }
 
-        /**
-         * Returns the Calibration Identification
-         *
-         * @return String
-         */
         public String getCalibrationIdentification() {
             return calibrationIdentification;
         }
 
-        /**
-         * Returns the Calibration Verification Number
-         *
-         * @return String
-         */
         public String getCalibrationVerificationNumber() {
             return calibrationVerificationNumber;
         }
@@ -159,12 +181,13 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
             return Arrays.copyOf(rawCvn, rawCvn.length);
         }
 
+        public byte[] getBytes() {
+            return CollectionUtils.join(rawCalId, rawCvn);
+        }
+
         @Override
         public int hashCode() {
-            return Objects.hash(getCalibrationIdentification(),
-                                getCalibrationVerificationNumber(),
-                                Arrays.hashCode(getRawCalId()),
-                                Arrays.hashCode(getRawCvn()));
+            return Objects.hash(getCalibrationIdentification(), getCalibrationVerificationNumber());
         }
 
         @Override
@@ -179,9 +202,7 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
             CalibrationInformation that = (CalibrationInformation) obj;
 
             return Objects.equals(getCalibrationIdentification(), that.getCalibrationIdentification())
-                    && Objects.equals(getCalibrationVerificationNumber(), that.getCalibrationVerificationNumber())
-                    && Arrays.equals(getRawCalId(), that.getRawCalId())
-                    && Arrays.equals(getRawCvn(), that.getRawCvn());
+                    && Objects.equals(getCalibrationVerificationNumber(), that.getCalibrationVerificationNumber());
         }
 
         @Override

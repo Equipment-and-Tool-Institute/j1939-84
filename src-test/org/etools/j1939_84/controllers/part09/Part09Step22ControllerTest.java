@@ -262,7 +262,7 @@ public class Part09Step22ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.9.22.2.a - ECU Engine #1 (0) did not report MIL off");
+                                        "6.9.22.2.a - ECU Engine #1 (0) reported MIL status of on");
     }
 
     @Test

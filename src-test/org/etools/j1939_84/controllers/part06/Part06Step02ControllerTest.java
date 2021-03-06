@@ -318,18 +318,14 @@ public class Part06Step02ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testRun() {
-        OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.setObdCompliance((byte) 0x22);
-        dataRepository.putObdModule(obdModule);
-        OBDModuleInformation obdModule_1 = new OBDModuleInformation(1);
-        obdModule.setObdCompliance((byte) 0x22);
-        dataRepository.putObdModule(obdModule_1);
+    public void testHappyPathNoFailures() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(1));
 
         var dm5 = DM5DiagnosticReadinessPacket.create(0, 1, 0, 0x22);
         var dm5_1 = DM5DiagnosticReadinessPacket.create(1, 0, 0, 0x22);
 
-        when(diagnosticMessageModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5, dm5_1));
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5, dm5_1));
 
         runTest();
 
