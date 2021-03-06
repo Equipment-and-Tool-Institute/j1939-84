@@ -135,7 +135,6 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    // FIXME: we need a good way to test the repeated key state changes.
     public void testHappyPathNoFailuresOneFaultB() {
 
         // ensureKeyOffEngineOff()
