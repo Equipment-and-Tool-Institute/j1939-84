@@ -68,7 +68,7 @@ public class Part10Step04Controller extends StepController {
                                                     // 6.10.4.2.b. Fail if any ECU does not report MIL off.
                                                     // See Section A.8 for allowed values.
                                                     if (isNotOff(p.getMalfunctionIndicatorLampStatus())) {
-                                                        addFailure("6.10.4.2.b. ECU " + p.getModuleName()
+                                                        addFailure("6.10.4.2.b. - ECU " + p.getModuleName()
                                                                 + "did not report MIL 'off'");
                                                     }
                                                 })
