@@ -129,7 +129,7 @@ public class Part11Step13ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
-        String OFF_MSG = "Wait for the manufacturer's recommended interval with the key in off position."
+        String OFF_MSG = "Wait for the manufacturer's recommended interval with the Key OFF."
                 + NL + "Press OK to continue the testing.";
 
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("500.0 RPMs",

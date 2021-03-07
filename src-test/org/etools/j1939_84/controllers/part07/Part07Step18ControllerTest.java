@@ -221,7 +221,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                                                             any());
 
         // 6.7.18.1.h.
-        String urgentMessages3 = "Wait for the manufacturer's recommended interval with the key in off position."
+        String urgentMessages3 = "Wait for the manufacturer's recommended interval with the Key OFF."
                 + NL;
         urgentMessages3 += "Press OK to continue the testing.";
         String expectedTitle3 = "Step 6.7.18.1.h";
@@ -365,7 +365,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                                                             any());
 
         // 6.7.18.1.h.
-        String urgentMessages3 = "Wait for the manufacturer's recommended interval with the key in off position."
+        String urgentMessages3 = "Wait for the manufacturer's recommended interval with the Key OFF."
                 + NL;
         urgentMessages3 += "Press OK to continue the testing.";
         String expectedTitle3 = "Step 6.7.18.1.h";
@@ -389,7 +389,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages5 = "Wait for the manufacturer's recommended interval with the key in off position."
+        String urgentMessages5 = "Wait for the manufacturer's recommended interval with the Key OFF."
                 + NL;
         urgentMessages5 += "Press OK to continue the testing.";
         String expectedTitle5 = "Step 6.7.18.1.m";
@@ -538,7 +538,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                                                             any());
 
         // 6.7.18.1.h.
-        String urgentMessages3 = "Wait for the manufacturer's recommended interval with the key in off position."
+        String urgentMessages3 = "Wait for the manufacturer's recommended interval with the Key OFF."
                 + NL;
         urgentMessages3 += "Press OK to continue the testing.";
         String expectedTitle3 = "Step 6.7.18.1.h";

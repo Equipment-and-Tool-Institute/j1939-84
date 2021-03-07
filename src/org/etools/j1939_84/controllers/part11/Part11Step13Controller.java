@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part11;
 
+import static org.etools.j1939_84.model.KeyState.KEY_OFF;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -55,10 +57,10 @@ public class Part11Step13Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.11.13.1.a. Turn Engine Off.
-        ensureKeyStateIs(KeyState.KEY_OFF);
+        ensureKeyStateIs(KEY_OFF);
 
         // 6.11.13.1.b. Wait manufacturer's recommended interval.
-        waitForManufacturerInterval("Step 6.11.31.1.b", "off");
+        waitForManufacturerInterval("Step 6.11.31.1.b", KEY_OFF);
 
         // 6.11.13.1.c. Turn Key On.
         // 6.11.13.1.d. Start Engine Immediately.
@@ -68,10 +70,10 @@ public class Part11Step13Controller extends StepController {
         pause("Step 6.11.13.1.e - Waiting %1$d seconds", 60);
 
         // 6.11.13.1.f. Turn engine off.
-        ensureKeyStateIs(KeyState.KEY_OFF);
+        ensureKeyStateIs(KEY_OFF);
 
         // 6.11.13.1.g. Wait manufacturer's recommended interval.
-        waitForManufacturerInterval("Step 6.11.31.1.g", "off");
+        waitForManufacturerInterval("Step 6.11.31.1.g", KEY_OFF);
 
         // 6.11.13.1.h. Turn Key On.
         ensureKeyStateIs(KeyState.KEY_ON_ENGINE_OFF);
