@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -64,47 +65,47 @@ public class Part07Step02Controller extends StepController {
         // ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(address -> getDiagnosticMessageModule().requestDM23(getListener(),
-                                                                                                    address))
+                                           .map(a -> getDiagnosticMessageModule().requestDM23(getListener(), a))
                                            .collect(Collectors.toList());
 
         List<DM23PreviouslyMILOnEmissionDTCPacket> packets = filterPackets(dsResults);
 
         // 6.7.2.2.b Fail if no OBD ECU reports previously active DTC.
-        long activeDtcCount = packets.stream()
-                                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                                     .filter(p -> !p.getDtcs().isEmpty())
-                                     .count();
-        if (activeDtcCount == 0) {
+        boolean noObdDtc = packets.stream()
+                                  .filter(p -> isObdModule(p.getSourceAddress()))
+                                  .noneMatch(DiagnosticTroubleCodePacket::hasDTCs);
+        if (noObdDtc) {
             addFailure("6.7.2.2.b - No OBD ECU reported a previously active DTC");
         }
 
-        packets.stream().peek(this::save).forEach(p -> {
-            // 6.7.2.2.b Fail if reported previously active DTC does not match DM12 active DTC from part 6.
-            List<DiagnosticTroubleCode> dm6Dtcs = getDataRepository().getObdModule(p.getSourceAddress())
-                                                                     .get(DM6PendingEmissionDTCPacket.class)
-                                                                     .getDtcs();
-            if (!p.getDtcs().equals(dm6Dtcs)) {
+        packets.forEach(this::save);
+
+        // 6.7.2.2.b Fail if reported previously active DTC does not match DM12 active DTC from part 6.
+        packets.forEach(p -> {
+            List<DiagnosticTroubleCode> dm6DTCs = getDTCs(DM6PendingEmissionDTCPacket.class, p.getSourceAddress(), 6);
+            if (!p.getDtcs().equals(dm6DTCs)) {
                 addFailure("6.7.2.2.b - OBD module " + p.getModuleName()
                         + " reported a different DTCs from the DM12 DTCs");
             }
-            // 6.7.2.2.c. Fail if any ECU does not report MIL off and not flashing.
+        });
+
+        // 6.7.2.2.c. Fail if any ECU does not report MIL off and not flashing.
+        packets.forEach(p -> {
             if (p.getMalfunctionIndicatorLampStatus() != OFF) {
-                addFailure("6.7.2.2.c - OBD module " + p.getModuleName()
-                        + " reported MIL off and not flashing");
-
+                addFailure("6.7.2.2.c - OBD module " + p.getModuleName() + " reported MIL off and not flashing");
             }
-            // 6.7.2.3.a Warn if any ECU reports > 1 previously active DTC.
-            if (p.getDtcs().size() > 1) {
-                addWarning("6.7.2.3.c - OBD module " + p.getModuleName()
-                        + " reported > 1 previously active DTCs");
+        });
 
+        // 6.7.2.3.a Warn if any ECU reports > 1 previously active DTC.
+        packets.forEach(p -> {
+            if (p.getDtcs().size() > 1) {
+                addWarning("6.7.2.3.c - OBD module " + p.getModuleName() + " reported > 1 previously active DTCs");
             }
         });
 
         // 6.7.2.3.b Warn if more than one ECU reports a previously active DTC.
-        long acitveDtcCount = packets.stream().filter(p -> !p.getDtcs().isEmpty()).count();
-        if (acitveDtcCount > 1) {
+        long activeDtcCount = packets.stream().filter(DiagnosticTroubleCodePacket::hasDTCs).count();
+        if (activeDtcCount > 1) {
             addWarning("6.7.2.3.b - More than one ECU reported previously active DTC");
         }
 

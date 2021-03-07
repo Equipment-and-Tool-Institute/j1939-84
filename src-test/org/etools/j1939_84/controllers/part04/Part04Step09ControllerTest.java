@@ -85,9 +85,9 @@ public class Part04Step09ControllerTest extends AbstractControllerTest {
         return DM27AllPendingDTCsPacket.create(sourceAddress, milStatus, OFF, OFF, OFF, dtc);
     }
 
-    private static DM12MILOnEmissionDTCPacket createDM12(int sourceAddress, int spn, int fmi, LampStatus milStatus) {
-        var dtc = DiagnosticTroubleCode.create(spn, fmi, 0, 5);
-        return DM12MILOnEmissionDTCPacket.create(sourceAddress, milStatus, OFF, OFF, OFF, dtc);
+    private static DM12MILOnEmissionDTCPacket createDM12(LampStatus milStatus) {
+        var dtc = DiagnosticTroubleCode.create(231, 12, 0, 5);
+        return DM12MILOnEmissionDTCPacket.create(0, milStatus, OFF, OFF, OFF, dtc);
     }
 
     @Before
@@ -148,7 +148,7 @@ public class Part04Step09ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         // Module 0 provides a response
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(createDM12(0, 231, 12, ON));
+        obdModuleInformation0.set(createDM12(ON), 4);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dm27_0 = createDM27(0, 0, 0, ON);
@@ -180,7 +180,7 @@ public class Part04Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDTC() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(createDM12(0, 231, 12, ON));
+        obdModuleInformation0.set(createDM12(ON), 4);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dm27 = createDM27(0, 231, 12, ON);
@@ -205,7 +205,7 @@ public class Part04Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureDifferentMILStatus() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(createDM12(0, 231, 12, OFF));
+        obdModuleInformation0.set(createDM12(OFF), 4);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dm27 = createDM27(0, 0, 0, ON);
@@ -230,7 +230,7 @@ public class Part04Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferenceBetweenGlobalAndDS() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(createDM12(0, 231, 12, ON));
+        obdModuleInformation0.set(createDM12(ON), 4);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dm27_0 = createDM27(0, 0, 0, ON);
@@ -257,7 +257,7 @@ public class Part04Step09ControllerTest extends AbstractControllerTest {
     public void testFailureForNoNACK() {
         // Module 0 provides a response
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(createDM12(0, 231, 12, ON));
+        obdModuleInformation0.set(createDM12(ON), 4);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dm27_0 = createDM27(0, 0, 0, ON);

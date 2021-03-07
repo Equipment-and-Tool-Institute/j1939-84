@@ -74,9 +74,11 @@ public class Part07Step17Controller extends StepController {
                                             .map(DM30ScaledTestResultsPacket::getTestResults)
                                             .flatMap(Collection::stream)
                                             .filter(ScaledTestResult::isInitialized)
-                                            .forEach(s -> addFailure("6.7.17.2.a - " + moduleName
-                                                    + " is now reporting an initialize test for SPN = " + spn
-                                                    + ", FMI = " + fmi));
+                                            .forEach(s -> {
+                                                addFailure("6.7.17.2.a - " + moduleName
+                                                        + " is now reporting an initialize test for SPN = " + spn
+                                                        + ", FMI = " + fmi);
+                                            });
             }
         }
     }

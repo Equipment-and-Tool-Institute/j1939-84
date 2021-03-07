@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ALTERNATE_OFF;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.NOT_SUPPORTED;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 
@@ -83,7 +82,8 @@ public class Part07Step03Controller extends StepController {
                      .filter(p -> isObdModule(p.getSourceAddress()))
                      .filter(p -> p.getDtcs()
                                    .size() < getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class,
-                                                     p.getSourceAddress()).size())
+                                                     p.getSourceAddress(),
+                                                     7).size())
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> addFailure("6.7.3.2.b - " + moduleName
                              + " reported fewer previously active DTCs than in DM23 response earlier in this part"));
@@ -95,7 +95,8 @@ public class Part07Step03Controller extends StepController {
                      .forEach(p -> {
                          var dm2DTCs = p.getDtcs();
                          for (DiagnosticTroubleCode dtc : getDTCs(DM12MILOnEmissionDTCPacket.class,
-                                                                  p.getSourceAddress())) {
+                                                                  p.getSourceAddress(),
+                                                                  6)) {
                              if (!dm2DTCs.contains(dtc)) {
                                  int spn = dtc.getSuspectParameterNumber();
                                  int fmi = dtc.getFailureModeIndicator();
@@ -108,12 +109,11 @@ public class Part07Step03Controller extends StepController {
         // 6.7.3.2.d (if supported) Fail if any OBD ECU does not report MIL off. See Section A.8 for allowed values.
         globalPackets.stream()
                      .filter(p -> isObdModule(p.getSourceAddress()))
-                     .filter(p -> {
-                         LampStatus mil = p.getMalfunctionIndicatorLampStatus();
-                         return mil != OFF && mil != ALTERNATE_OFF;
-                     })
+                     .filter(p -> isNotOff(p.getMalfunctionIndicatorLampStatus()))
                      .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.7.3.2.d - " + moduleName + " did not report MIL 'off'"));
+                     .forEach(moduleName -> {
+                         addFailure("6.7.3.2.d - " + moduleName + " did not report MIL 'off'");
+                     });
 
         // 6.7.3.2.e Fail if any non-OBD ECU does not report MIL off or not supported.
         globalPackets.stream()
@@ -123,8 +123,9 @@ public class Part07Step03Controller extends StepController {
                          return mil != OFF && mil != NOT_SUPPORTED;
                      })
                      .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.7.3.2.e - " + moduleName
-                             + " did not report MIL off or not supported"));
+                     .forEach(moduleName -> {
+                         addFailure("6.7.3.2.e - " + moduleName + " did not report MIL off or not supported");
+                     });
 
         // 6.7.3.3.a DS DM2 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()

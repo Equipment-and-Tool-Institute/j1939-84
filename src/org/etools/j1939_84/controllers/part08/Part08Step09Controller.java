@@ -111,11 +111,11 @@ public class Part08Step09Controller extends StepController {
     }
 
     private List<DiagnosticTroubleCode> getDM12DTCs(int address) {
-        return getDTCs(DM12MILOnEmissionDTCPacket.class, address);
+        return getDTCs(DM12MILOnEmissionDTCPacket.class, address, 8);
     }
 
     private List<DiagnosticTroubleCode> getDM23DTCs(int address) {
-        return getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class, address);
+        return getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class, address, 8);
     }
 
 }

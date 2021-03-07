@@ -25,8 +25,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *         6.1.9 Component ID: Make, Model, Serial Number Support
+ * 6.1.9 Component ID: Make, Model, Serial Number Support
  */
 public class Part01Step09Controller extends StepController {
 

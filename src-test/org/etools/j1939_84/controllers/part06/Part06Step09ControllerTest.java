@@ -138,7 +138,7 @@ public class Part06Step09ControllerTest extends AbstractControllerTest {
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation);
         var dm31 = DM31DtcToLampAssociation.create(0, DTCLampStatus.create(dtc, OFF, ON, OFF, OFF));
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(RequestResult.of(dm31));
@@ -162,7 +162,7 @@ public class Part06Step09ControllerTest extends AbstractControllerTest {
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dtc1 = DiagnosticTroubleCode.create(456, 12, 0, 1);
@@ -186,7 +186,7 @@ public class Part06Step09ControllerTest extends AbstractControllerTest {
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation);
         var dm31 = DM31DtcToLampAssociation.create(0, DTCLampStatus.create(dtc, OFF, OFF, OFF, OFF));
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(RequestResult.of(dm31));
@@ -208,7 +208,7 @@ public class Part06Step09ControllerTest extends AbstractControllerTest {
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation);
         var dm31 = DM31DtcToLampAssociation.create(0, DTCLampStatus.create(dtc, OFF, ON, OFF, OFF));
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(RequestResult.of(dm31));

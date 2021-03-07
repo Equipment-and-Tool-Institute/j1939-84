@@ -19,7 +19,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * DM56: Model year and certification engine family
+ * 6.2.6 DM56: Model year and certification engine family
  */
 public class Part02Step06Controller extends StepController {
 
@@ -77,7 +77,7 @@ public class Part02Step06Controller extends StepController {
     }
 
     private DM56EngineFamilyPacket getDM56(int address) {
-        return get(DM56EngineFamilyPacket.class, address);
+        return get(DM56EngineFamilyPacket.class, address, 1);
     }
 
 }

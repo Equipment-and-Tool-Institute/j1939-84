@@ -23,9 +23,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * @author Matt Gumbel (matt@soliddesign.net)
- *         <p>
- *         The controller for DM24: SPN support
+ * 6.2.3 DM24: SPN support
  */
 public class Part02Step03Controller extends StepController {
 

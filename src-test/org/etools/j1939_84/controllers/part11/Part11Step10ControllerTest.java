@@ -175,7 +175,7 @@ public class Part11Step10ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM5(any(), eq(0x17));
         verify(diagnosticMessageModule).requestDM5(any(), eq(0x23));
 
-        assertSame(packet0, dataRepository.getObdModule(0).get(DM5DiagnosticReadinessPacket.class));
+        assertSame(packet0, dataRepository.getObdModule(0).getLatest(DM5DiagnosticReadinessPacket.class));
 
         assertEquals("", listener.getMessages());
         String expectedVehicleComposite = NL + "Vehicle Composite of DM5:" + NL +

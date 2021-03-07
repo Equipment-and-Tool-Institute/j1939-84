@@ -64,7 +64,7 @@ public class Part09Step13Controller extends StepController {
         // that has any DM28 permanent DTCs.
         var addresses = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .filter(a -> !getDTCs(DM28PermanentEmissionDTCPacket.class, a).isEmpty())
+                                           .filter(a -> !getDTCs(DM28PermanentEmissionDTCPacket.class, a, 9).isEmpty())
                                            .collect(Collectors.toList());
 
         var results = addresses.stream()

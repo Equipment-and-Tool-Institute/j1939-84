@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
@@ -66,7 +65,7 @@ public class Part04Step07Controller extends StepController {
 
         for (OBDModuleInformation obdModuleInformation : getDataRepository().getObdModules()) {
             var moduleAddress = obdModuleInformation.getSourceAddress();
-            String moduleName = Lookup.getAddressName(moduleAddress);
+            String moduleName = obdModuleInformation.getModuleName();
 
             // 6.4.7.1.a DS DM31 [(send Request (PGN 59904) for PGN 47128 (SPN 1214-1215, 4113, 4117)]) to each ECU
             // supporting DM12.
@@ -106,13 +105,11 @@ public class Part04Step07Controller extends StepController {
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int moduleAddress) {
-        var packet = getDTCPacket(moduleAddress);
-        return packet == null ? List.of() : packet.getDtcs();
+        return getDTCs(DM12MILOnEmissionDTCPacket.class, moduleAddress, 4);
     }
 
     private DiagnosticTroubleCodePacket getDTCPacket(int moduleAddress) {
-        OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(moduleAddress);
-        return obdModuleInformation == null ? null : obdModuleInformation.get(DM12MILOnEmissionDTCPacket.class);
+        return get(DM12MILOnEmissionDTCPacket.class, moduleAddress, 4);
     }
 
 }

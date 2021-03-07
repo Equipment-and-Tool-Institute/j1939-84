@@ -118,12 +118,12 @@ public class Part08Step02Controller extends StepController {
         globalPackets.stream()
                      .filter(p -> p.getDtcs().size() > 1)
                      .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addWarning("6.8.2.2.a - " + moduleName + " reported > 1 active DTC"));
+                     .forEach(moduleName -> {
+                         addWarning("6.8.2.2.a - " + moduleName + " reported > 1 active DTC");
+                     });
 
         // 6.8.2.2.b. Warn if more than one ECU reports an active DTC.
-        long modulesWithFaults = globalPackets.stream()
-                                              .filter(p -> !p.getDtcs().isEmpty())
-                                              .count();
+        long modulesWithFaults = globalPackets.stream().filter(DiagnosticTroubleCodePacket::hasDTCs).count();
         if (modulesWithFaults > 1) {
             addWarning("6.8.2.2.b - More than one ECU reported an active DTC");
         }
@@ -131,13 +131,13 @@ public class Part08Step02Controller extends StepController {
         // 6.8.2.3.a. DS DM12 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(address -> getDiagnosticMessageModule().requestDM12(getListener(),
-                                                                                                    address))
+                                           .map(a -> getDiagnosticMessageModule().requestDM12(getListener(), a))
                                            .map(BusResult::requestResult)
                                            .collect(Collectors.toList());
 
-        // 6.8.2.4.a. Fail if any difference compared to data received with global request.
         List<DM12MILOnEmissionDTCPacket> dsPackets = filterRequestResultPackets(dsResults);
+
+        // 6.8.2.4.a. Fail if any difference compared to data received with global request.
         compareRequestPackets(globalPackets, dsPackets, "6.8.2.4.a");
 
         // 6.8.2.4.c. Fail if NACK not received from OBD ECUs that did not respond to global query.
@@ -151,19 +151,21 @@ public class Part08Step02Controller extends StepController {
 
         // 6.8.2.5.a. Warn if ECU reporting active DTC does not report MIL on.
         dsPackets.stream()
-                 .filter(p -> !p.getDtcs().isEmpty())
+                 .filter(DiagnosticTroubleCodePacket::hasDTCs)
                  .filter(p -> p.getMalfunctionIndicatorLampStatus() != ON)
                  .map(ParsedPacket::getModuleName)
-                 .forEach(moduleName -> addWarning("6.8.2.5.a - " + moduleName
-                         + " reported an active DTC and did not report MIL on"));
+                 .forEach(moduleName -> {
+                     addWarning("6.8.2.5.a - " + moduleName + " reported an active DTC and did not report MIL on");
+                 });
 
         // 6.8.2.5.b. Warn if an ECU not reporting an active DTC reports MIL on.
         dsPackets.stream()
-                 .filter(p -> p.getDtcs().isEmpty())
+                 .filter(p -> !p.hasDTCs())
                  .filter(p -> p.getMalfunctionIndicatorLampStatus() == ON)
                  .map(ParsedPacket::getModuleName)
-                 .forEach(moduleName -> addWarning("6.8.2.5.a - " + moduleName
-                         + " did not report an active DTC and did report MIL on"));
+                 .forEach(moduleName -> {
+                     addWarning("6.8.2.5.a - " + moduleName + " did not report an active DTC and did report MIL on");
+                 });
     }
 
 }

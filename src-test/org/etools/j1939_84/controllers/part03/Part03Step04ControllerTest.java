@@ -139,7 +139,6 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
@@ -153,19 +152,17 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForMILCountGreaterThanZero() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 1, 1, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29));
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        var dm27 = DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
-        moduleInfo.set(dm27);
-        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
+        moduleInfo.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1), 3);
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1), 3);
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
@@ -179,19 +176,17 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForPreviousMILCountGreaterThanZero() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 1, 0, 1, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29));
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        var dm27 = DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
-        moduleInfo.set(dm27);
-        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
+        moduleInfo.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1), 3);
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1), 3);
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
@@ -205,19 +200,17 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForPermanentDTCCountGreaterThanZero() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 1, 0, 0, 1);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29));
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        var dm27 = DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
-        moduleInfo.set(dm27);
-        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
+        moduleInfo.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1), 3);
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1), 3);
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
@@ -231,17 +224,15 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNoEmissionPendingCount() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29));
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
-        var dm27 = DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF);
-        moduleInfo.set(dm27);
+        moduleInfo.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 3);
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
@@ -255,20 +246,18 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferenceFromDM6WithMore() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 1, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29));
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dtc2 = DiagnosticTroubleCode.create(456, 12, 0, 1);
-        var dm27 = DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
-        moduleInfo.set(dm27);
-        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1, dtc2));
+        moduleInfo.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1), 3);
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1, dtc2), 3);
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
@@ -282,18 +271,16 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferenceFromDM6WithLess() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 1, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29));
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        var dm27 = DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
-        moduleInfo.set(dm27);
+        moduleInfo.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1), 3);
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
@@ -307,19 +294,17 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferencePendingCounts() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29));
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        var dm27 = DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF);
-        moduleInfo.set(dm27);
-        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
+        moduleInfo.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 3);
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1), 3);
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
@@ -333,20 +318,18 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForLessThanDM27DTCs() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 1, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29));
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dtc2 = DiagnosticTroubleCode.create(435, 12, 0, 1);
-        var dm27 = DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2);
-        moduleInfo.set(dm27);
-        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
+        moduleInfo.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2), 3);
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1), 3);
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
@@ -360,17 +343,16 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForWrongNotSupportedValue() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 1, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29));
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1), 3);
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
@@ -384,12 +366,11 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNonOBD() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 1, 1, 1, 1);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29));
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
@@ -433,20 +414,18 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForMoreThanOnePendingCounts() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 2, 2, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29));
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dtc2 = DiagnosticTroubleCode.create(456, 12, 0, 1);
-        var dm27 = DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2);
-        moduleInfo.set(dm27);
-        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1, dtc2));
+        moduleInfo.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2), 3);
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1, dtc2), 3);
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
@@ -465,24 +444,23 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     public void testFailureForMoreThanOneModuleReportingPendingCounts() {
         DM29DtcCounts dm29_0 = DM29DtcCounts.create(0, 1, 1, 0, 0, 0);
         DM29DtcCounts dm29_1 = DM29DtcCounts.create(1, 1, 1, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29_0, dm29_1));
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0, dm29_1));
 
         OBDModuleInformation moduleInfo0 = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        moduleInfo0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1));
-        moduleInfo0.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
+        moduleInfo0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1), 3);
+        moduleInfo0.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1), 3);
         dataRepository.putObdModule(moduleInfo0);
 
         OBDModuleInformation moduleInfo1 = new OBDModuleInformation(1);
         var dtc2 = DiagnosticTroubleCode.create(456, 12, 0, 1);
-        moduleInfo1.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc2));
-        moduleInfo1.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc2));
+        moduleInfo1.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc2), 3);
+        moduleInfo1.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc2), 3);
         dataRepository.putObdModule(moduleInfo1);
 
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
@@ -500,19 +478,17 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoFailures() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 1, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29));
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo0 = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        moduleInfo0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1));
-        moduleInfo0.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
+        moduleInfo0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1), 3);
+        moduleInfo0.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1), 3);
         dataRepository.putObdModule(moduleInfo0);
 
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
         assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());

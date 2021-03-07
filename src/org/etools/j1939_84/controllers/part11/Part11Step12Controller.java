@@ -95,7 +95,7 @@ public class Part11Step12Controller extends StepController {
 
         int moduleAddress = currentDM21.getSourceAddress();
 
-        var previousDM21 = get(DM21DiagnosticReadinessPacket.class, moduleAddress);
+        var previousDM21 = get(DM21DiagnosticReadinessPacket.class, moduleAddress, 11);
         if (previousDM21 == null) {
             return false;
         }

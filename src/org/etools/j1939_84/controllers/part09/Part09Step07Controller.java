@@ -63,11 +63,7 @@ public class Part09Step07Controller extends StepController {
         if (!isSparkIgnition() || getEngineModelYear() >= 2024) {
             packets.stream()
                    .filter(p -> isObdModule(p.getSourceAddress()))
-                   .filter(p -> {
-                       var prevDm31 = get(DM33EmissionIncreasingAECDActiveTime.class, p.getSourceAddress());
-                       return prevDm31 == null
-                               || prevDm31.getEiAecdEngineHoursTimers().size() != p.getEiAecdEngineHoursTimers().size();
-                   })
+                   .filter(p -> p.getEiAecdEngineHoursTimers().size() != getPrevDM33TimerCount(p.getSourceAddress()))
                    .map(ParsedPacket::getModuleName)
                    .forEach(moduleName -> {
                        addFailure("6.9.7.2.a - " + moduleName
@@ -78,6 +74,11 @@ public class Part09Step07Controller extends StepController {
         // 6.9.7.1.b Create a list of ECU address + EI-AECD number + actual time (for Timer 1 and/or Timer 2) for any
         // with non-zero timer values.
         packets.forEach(this::save);
+    }
+
+    private int getPrevDM33TimerCount(int address) {
+        var dm31 = get(DM33EmissionIncreasingAECDActiveTime.class, address, 2);
+        return dm31 == null ? -1 : dm31.getEiAecdEngineHoursTimers().size();
     }
 
     private boolean isSparkIgnition() {

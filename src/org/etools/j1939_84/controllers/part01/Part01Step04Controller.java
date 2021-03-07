@@ -28,7 +28,7 @@ import org.etools.j1939_84.modules.SupportedSpnModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * DM24: SPN support
+ * 6.1.4 DM24: SPN support
  */
 public class Part01Step04Controller extends StepController {
 

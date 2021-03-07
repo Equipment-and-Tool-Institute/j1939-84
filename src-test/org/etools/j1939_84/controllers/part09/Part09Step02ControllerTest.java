@@ -135,7 +135,7 @@ public class Part09Step02ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1));
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dtc3 = DiagnosticTroubleCode.create(123, 12, 0, 1);
@@ -154,7 +154,7 @@ public class Part09Step02ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule).requestDM12(any());
 
-        assertEquals(dm12_0, dataRepository.getObdModule(0).get(DM12MILOnEmissionDTCPacket.class));
+        assertEquals(dm12_0, dataRepository.getObdModule(0).getLatest(DM12MILOnEmissionDTCPacket.class));
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
         assertEquals(List.of(), listener.getOutcomes());
@@ -185,7 +185,7 @@ public class Part09Step02ControllerTest extends AbstractControllerTest {
     public void testFailureForNoMILOn() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1));
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1), 8);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dtc2 = DiagnosticTroubleCode.create(123, 12, 0, 1);
@@ -207,7 +207,7 @@ public class Part09Step02ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNoDTCs() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF));
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF), 8);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dm12 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF);
@@ -229,7 +229,7 @@ public class Part09Step02ControllerTest extends AbstractControllerTest {
     public void testFailureForDifferentDTCs() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1));
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dtc2 = DiagnosticTroubleCode.create(456, 12, 0, 1);
@@ -253,7 +253,7 @@ public class Part09Step02ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dtc2 = DiagnosticTroubleCode.create(456, 12, 0, 1);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2));
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2), 8);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dm12 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2);
@@ -275,12 +275,12 @@ public class Part09Step02ControllerTest extends AbstractControllerTest {
     public void testWarningForMoreThanOneDTCModule() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1));
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
         dataRepository.putObdModule(obdModuleInformation0);
 
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
         var dtc2 = DiagnosticTroubleCode.create(456, 12, 0, 1);
-        obdModuleInformation1.set(DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc2));
+        obdModuleInformation1.set(DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc2), 8);
         dataRepository.putObdModule(obdModuleInformation1);
 
         var dm12_0 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);

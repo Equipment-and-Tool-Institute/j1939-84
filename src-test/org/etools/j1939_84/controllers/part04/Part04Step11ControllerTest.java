@@ -131,8 +131,8 @@ public class Part04Step11ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         PerformanceRatio ratio = new PerformanceRatio(123, 10, 25, 0);
-        obdModuleInformation.setPerformanceRatios(List.of(ratio));
-        obdModuleInformation.setIgnitionCycleCounterValue(100);
+        obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0, 100, 0, ratio), 1);
+        obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0, 100, 0, ratio), 3);
         dataRepository.putObdModule(obdModuleInformation);
 
         dataRepository.putObdModule(new OBDModuleInformation(1)); // no query expected
@@ -153,8 +153,8 @@ public class Part04Step11ControllerTest extends AbstractControllerTest {
     public void testFailureForTooFewIgnitionCycles() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         PerformanceRatio ratio = new PerformanceRatio(123, 10, 25, 0);
-        obdModuleInformation.setPerformanceRatios(List.of(ratio));
-        obdModuleInformation.setIgnitionCycleCounterValue(100);
+        obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0, 100, 0, ratio), 1);
+        obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0, 100, 0, ratio), 3);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm20 = DM20MonitorPerformanceRatioPacket.create(0, 100, 10, ratio);
@@ -178,8 +178,8 @@ public class Part04Step11ControllerTest extends AbstractControllerTest {
     public void testFailureForTooManyIgnitionCycles() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         PerformanceRatio ratio = new PerformanceRatio(123, 10, 25, 0);
-        obdModuleInformation.setPerformanceRatios(List.of(ratio));
-        obdModuleInformation.setIgnitionCycleCounterValue(100);
+        obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0, 100, 0, ratio), 1);
+        obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0, 100, 0, ratio), 3);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm20 = DM20MonitorPerformanceRatioPacket.create(0, 103, 10, ratio);

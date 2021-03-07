@@ -140,8 +140,8 @@ public class Part11Step02ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule).requestDM26(any());
 
-        assertSame(dm26_0, dataRepository.getObdModule(0).get(DM26TripDiagnosticReadinessPacket.class));
-        assertSame(dm26_1, dataRepository.getObdModule(1).get(DM26TripDiagnosticReadinessPacket.class));
+        assertSame(dm26_0, dataRepository.getObdModule(0).getLatest(DM26TripDiagnosticReadinessPacket.class));
+        assertSame(dm26_1, dataRepository.getObdModule(1).getLatest(DM26TripDiagnosticReadinessPacket.class));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -178,8 +178,8 @@ public class Part11Step02ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule).requestDM26(any());
 
-        assertSame(dm26_0, dataRepository.getObdModule(0).get(DM26TripDiagnosticReadinessPacket.class));
-        assertSame(dm26_1, dataRepository.getObdModule(1).get(DM26TripDiagnosticReadinessPacket.class));
+        assertSame(dm26_0, dataRepository.getObdModule(0).getLatest(DM26TripDiagnosticReadinessPacket.class));
+        assertSame(dm26_1, dataRepository.getObdModule(1).getLatest(DM26TripDiagnosticReadinessPacket.class));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

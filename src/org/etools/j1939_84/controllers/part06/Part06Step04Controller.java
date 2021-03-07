@@ -102,17 +102,12 @@ public class Part06Step04Controller extends StepController {
     }
 
     private int getDM5ActiveCount(int moduleAddress) {
-        var dm5 = get(DM5DiagnosticReadinessPacket.class, moduleAddress);
+        var dm5 = get(DM5DiagnosticReadinessPacket.class, moduleAddress, 6);
         return dm5 == null ? -1 : dm5.getActiveCodeCount();
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int moduleAddress) {
-        var packet = getDTCPacket(moduleAddress);
-        return packet == null ? List.of() : packet.getDtcs();
-    }
-
-    private DiagnosticTroubleCodePacket getDTCPacket(int moduleAddress) {
-        return get(DM12MILOnEmissionDTCPacket.class, moduleAddress);
+        return getDTCs(DM12MILOnEmissionDTCPacket.class, moduleAddress, 6);
     }
 
 }

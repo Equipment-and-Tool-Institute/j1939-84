@@ -91,9 +91,8 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
                                                                    String model,
                                                                    String serialNumber,
                                                                    String unitNumber) {
-        OBDModuleInformation module = new OBDModuleInformation(sourceAddress);
-        module.setFunction(function);
-        module.set(create(sourceAddress, make, model, serialNumber, unitNumber));
+        OBDModuleInformation module = new OBDModuleInformation(sourceAddress, function);
+        module.set(create(sourceAddress, make, model, serialNumber, unitNumber), 1);
         return module;
     }
 

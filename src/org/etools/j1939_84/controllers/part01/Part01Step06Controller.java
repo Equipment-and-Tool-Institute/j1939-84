@@ -17,7 +17,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * DM56: Model year and certification engine family
+ * 6.1.6 DM56: Model year and certification engine family
  */
 public class Part01Step06Controller extends StepController {
 

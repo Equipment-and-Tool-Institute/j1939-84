@@ -15,13 +15,11 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -135,11 +133,9 @@ public class Part10Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
         var dtc = DiagnosticTroubleCode.create(123, 1, 0, 1);
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
-        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(dm28);
-        dataRepository.putObdModule(obdModuleInformation);
         when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
@@ -158,11 +154,8 @@ public class Part10Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForNoDTC() {
-        var dm28 = DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(dm28);
-        dataRepository.putObdModule(obdModuleInformation);
-        when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(new BusResult(false, Optional.empty()));
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(BusResult.empty());
 
         runTest();
 
@@ -182,10 +175,7 @@ public class Part10Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForMilNotOff() {
-        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        var dtc1 = DiagnosticTroubleCode.create(123, 1, 0, 1);
-        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1));
-        dataRepository.putObdModule(obdModuleInformation);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
 
         var dtc2 = DiagnosticTroubleCode.create(234, 1, 0, 1);
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc2);
@@ -205,10 +195,9 @@ public class Part10Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForNoNACK() {
-        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
         var dtc = DiagnosticTroubleCode.create(123, 1, 0, 1);
-        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
-        dataRepository.putObdModule(obdModuleInformation);
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
         when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
 

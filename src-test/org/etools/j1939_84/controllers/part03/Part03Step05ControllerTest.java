@@ -143,7 +143,6 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -155,7 +154,6 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
         runTest();
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
     }
@@ -167,7 +165,7 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(new RequestResult<>(false, dm31));
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc), 3);
         dataRepository.putObdModule(obdModuleInformation);
 
         runTest();
@@ -175,7 +173,6 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM31(any(), eq(0));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -186,7 +183,7 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(new RequestResult<>(false, dm31));
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc), 3);
         dataRepository.putObdModule(obdModuleInformation);
 
         runTest();
@@ -198,7 +195,6 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
                                         "A.8 - Alternate coding for off (0b00, 0b00) has been accepted");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -209,7 +205,7 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
 
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc), 3);
         dataRepository.putObdModule(obdModuleInformation);
 
         runTest();
@@ -217,7 +213,6 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM31(any(), eq(0));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -227,7 +222,7 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
 
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc), 3);
         dataRepository.putObdModule(obdModuleInformation);
 
         runTest();
@@ -235,7 +230,6 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM31(any(), eq(0));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -251,7 +245,7 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(new RequestResult<>(false, dm31));
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc), 3);
         dataRepository.putObdModule(obdModuleInformation);
 
         runTest();
@@ -259,7 +253,6 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM31(any(), eq(0));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,

@@ -141,7 +141,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         Packet packet1Packet = Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88);
         DM26TripDiagnosticReadinessPacket packet1 = new DM26TripDiagnosticReadinessPacket(packet1Packet);
         OBDModuleInformation obdModule1 = new OBDModuleInformation(0x01);
-        obdModule1.set(new DM5DiagnosticReadinessPacket(packet1Packet));
+        obdModule1.set(new DM5DiagnosticReadinessPacket(packet1Packet), 1);
         dataRepository.putObdModule(obdModule1);
         when(diagnosticMessageModule.requestDM26(any(), eq(0x01))).thenReturn(RequestResult.of(packet1));
 
@@ -152,7 +152,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         DM26TripDiagnosticReadinessPacket obdPacket3 = new DM26TripDiagnosticReadinessPacket(obdPacket3Packet);
 
         OBDModuleInformation obdModule3 = new OBDModuleInformation(0x03);
-        obdModule3.set(new DM5DiagnosticReadinessPacket(obdPacket3Packet));
+        obdModule3.set(new DM5DiagnosticReadinessPacket(obdPacket3Packet), 1);
         dataRepository.putObdModule(obdModule3);
         when(diagnosticMessageModule.requestDM26(any(), eq(0x03))).thenReturn(RequestResult.of(obdPacket3));
 
@@ -318,7 +318,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         DM26TripDiagnosticReadinessPacket packet1 = new DM26TripDiagnosticReadinessPacket(packet1Packet);
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(0x01);
-        obdModule1.set(new DM5DiagnosticReadinessPacket(packet1Packet));
+        obdModule1.set(new DM5DiagnosticReadinessPacket(packet1Packet), 1);
         dataRepository.putObdModule(obdModule1);
 
         when(diagnosticMessageModule.requestDM26(any())).thenReturn(RequestResult.of(packet1));

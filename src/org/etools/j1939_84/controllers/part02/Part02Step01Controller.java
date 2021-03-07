@@ -17,14 +17,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *         <p>
- *         The controller for 6.2.1 Part 2 Key On Engine Running Data Collection
- *         </p>
- *         <p>
- *         Part 2 Purpose: Verify data in Key-on, engine running (KOER) operation
- *         with no implanted faults.
- *         </p>
+ * 6.2.1 Part 2 Key On Engine Running Data Collection
  */
 public class Part02Step01Controller extends StepController {
 

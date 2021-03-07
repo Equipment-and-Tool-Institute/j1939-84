@@ -113,9 +113,8 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                                                    String model,
                                                                    String serialNumber,
                                                                    String unitNumber) {
-        OBDModuleInformation module = new OBDModuleInformation(sourceAddress);
-        module.setFunction(function);
-        module.set(create(sourceAddress, make, model, serialNumber, unitNumber));
+        OBDModuleInformation module = new OBDModuleInformation(sourceAddress, function);
+        module.set(create(sourceAddress, make, model, serialNumber, unitNumber), 1);
         return module;
     }
 
@@ -315,8 +314,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                                           "WW109877654",
                                                           "Lasso");
 
-        OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
-        obdModule0.setFunction(0);
+        OBDModuleInformation obdModule0 = new OBDModuleInformation(0, 0);
         dataRepository.putObdModule(obdModule0);
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(2));

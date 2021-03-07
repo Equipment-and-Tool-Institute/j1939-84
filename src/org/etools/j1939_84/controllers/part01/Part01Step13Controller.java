@@ -26,9 +26,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *         <p>
- *         The controller for 6.1.13 DM5: Diagnostic Readiness 1: Monitor Readiness
+ * 6.1.13 DM5: Diagnostic Readiness 1: Monitor Readiness
  */
 public class Part01Step13Controller extends StepController {
 
@@ -132,8 +130,7 @@ public class Part01Step13Controller extends StepController {
         // 6.1.13.3.a. DS DM5 to each OBD ECU.
         var dsPackets = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(address -> getDiagnosticMessageModule().requestDM5(getListener(),
-                                                                                                   address))
+                                           .map(a -> getDiagnosticMessageModule().requestDM5(getListener(), a))
                                            .collect(Collectors.toList());
 
         // 6.1.13.4.a. Fail if any difference compared to data received during global request.

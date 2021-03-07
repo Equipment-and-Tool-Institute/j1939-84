@@ -134,7 +134,7 @@ public class Part05Step03ControllerTest extends AbstractControllerTest {
         // Module 0 responds properly
         var dtc0 = DiagnosticTroubleCode.create(123, 14, 1, 1);
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0));
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0), 5);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm1_0 = DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc0);
 
@@ -160,7 +160,7 @@ public class Part05Step03ControllerTest extends AbstractControllerTest {
     public void testFailureForDifferentDTCs() {
         var dtc0 = DiagnosticTroubleCode.create(123, 14, 1, 1);
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0));
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0), 5);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dtc1 = DiagnosticTroubleCode.create(456, 14, 1, 1);
@@ -185,7 +185,7 @@ public class Part05Step03ControllerTest extends AbstractControllerTest {
     public void testFailureForDifferentMILStatus() {
         var dtc0 = DiagnosticTroubleCode.create(123, 14, 1, 1);
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0));
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0), 5);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm1_0 = DM1ActiveDTCsPacket.create(0, FAST_FLASH, OFF, OFF, OFF, dtc0);
 

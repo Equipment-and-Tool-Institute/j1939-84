@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part04;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -15,7 +14,6 @@ import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -81,28 +79,22 @@ public class Part04Step06Controller extends StepController {
         packets.stream()
                .filter(p -> p.getActiveCodeCount() != getDTCs(p.getSourceAddress()).size())
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.4.6.2.b - " + moduleName + " reported a different number " +
-                       "of active DTCs than it did in DM1 response earlier in this part."));
+               .forEach(moduleName -> {
+                   addFailure("6.4.6.2.b - " + moduleName + " reported a different number " +
+                           "of active DTCs than it did in DM1 response earlier in this part.");
+               });
 
         // 6.4.6.2.c Fail if any OBD ECU reports > 0 previously active DTCs.
         packets.stream()
                .filter(p -> p.getPreviouslyActiveCodeCount() > 0)
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.4.6.2.c - " + moduleName + " reported > 0 previously active DTCs"));
+               .forEach(moduleName -> {
+                   addFailure("6.4.6.2.c - " + moduleName + " reported > 0 previously active DTCs");
+               });
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int moduleAddress) {
-        List<DiagnosticTroubleCode> results = new ArrayList<>();
-
-        OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(moduleAddress);
-        if (obdModuleInformation != null) {
-            DM1ActiveDTCsPacket packet = obdModuleInformation.get(DM1ActiveDTCsPacket.class);
-            if (packet != null) {
-                results.addAll(packet.getDtcs());
-            }
-        }
-
-        return results;
+        return getDTCs(DM1ActiveDTCsPacket.class, moduleAddress, 4);
     }
 
 }

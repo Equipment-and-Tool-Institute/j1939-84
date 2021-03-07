@@ -74,8 +74,10 @@ public class Part08Step05Controller extends StepController {
         packets.stream()
                .filter(p -> !p.getDtcs().equals(getDTCs(p.getSourceAddress())))
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.8.5.2.a - " + moduleName
-                       + " did not include all DTCs from its DM23 response in its DM2 response"));
+               .forEach(moduleName -> {
+                   addFailure("6.8.5.2.a - " + moduleName
+                           + " did not include all DTCs from its DM23 response in its DM2 response");
+               });
 
         // 6.8.5.2.b (if supported) Fail if any OBD ECU reporting a different MIL status than DM12 response earlier in
         // this part.
@@ -83,16 +85,18 @@ public class Part08Step05Controller extends StepController {
                .filter(p -> getMIL(p.getSourceAddress()) != null)
                .filter(p -> p.getMalfunctionIndicatorLampStatus() != getMIL(p.getSourceAddress()))
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.8.5.2.b - " + moduleName
-                       + " reported different MIL status than DM12 response earlier in this part"));
+               .forEach(moduleName -> {
+                   addFailure("6.8.5.2.b - " + moduleName
+                           + " reported different MIL status than DM12 response earlier in this part");
+               });
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int address) {
-        return getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class, address);
+        return getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class, address, 8);
     }
 
     private LampStatus getMIL(int address) {
-        var dm12 = get(DM12MILOnEmissionDTCPacket.class, address);
+        var dm12 = get(DM12MILOnEmissionDTCPacket.class, address, 8);
         return dm12 == null ? null : dm12.getMalfunctionIndicatorLampStatus();
     }
 }

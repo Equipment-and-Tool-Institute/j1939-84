@@ -7,6 +7,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -54,32 +56,30 @@ public class Part10Step04Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.10.4.1.a. DS DM28 [(send Request (PGN 59904) for PGN 64896 (SPNs 1213-1215, 1706, and 3038))] to each OBD
-        // ECU.
+        // 6.10.4.1.a. DS DM28 [send Request (PGN 59904) for PGN 64896 (SPNs 1213-1215, 1706, and 3038)] to each OBD ECU
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
                                            .map(a -> getDiagnosticMessageModule().requestDM28(getListener(), a))
                                            .collect(Collectors.toList());
 
-        var dsPackets = filterPackets(dsResults).stream()
-                                                // Save DM28
-                                                .peek(this::save)
-                                                .peek(p -> {
-                                                    // 6.10.4.2.b. Fail if any ECU does not report MIL off.
-                                                    // See Section A.8 for allowed values.
-                                                    if (isNotOff(p.getMalfunctionIndicatorLampStatus())) {
-                                                        addFailure("6.10.4.2.b. - ECU " + p.getModuleName()
-                                                                + "did not report MIL 'off'");
-                                                    }
-                                                })
-                                                .collect(Collectors.toList());
+        var dsPackets = filterPackets(dsResults);
+        dsPackets.forEach(this::save);
+
+        // 6.10.4.2.b. Fail if any ECU does not report MIL off. See Section A.8 for allowed values.
+        dsPackets.stream()
+                 .filter(p -> isNotOff(p.getMalfunctionIndicatorLampStatus()))
+                 .map(ParsedPacket::getModuleName)
+                 .forEach(moduleName -> {
+                     addFailure("6.10.4.2.b. - ECU " + moduleName + "did not report MIL 'off'");
+                 });
 
         // 6.10.4.2.a. Fail if no ECU reports a permanent DTC.
-        if (dsPackets.isEmpty()) {
+        boolean noDTCs = dsPackets.stream().noneMatch(DiagnosticTroubleCodePacket::hasDTCs);
+        if (noDTCs) {
             addFailure("6.10.4.2.a - No ECU reported a permanent DTC");
         }
 
         // 6.10.4.2.c. Fail if NACK not received from OBD ECUs that did not provide a DM28 message.
-        checkForNACKsDS(filterPackets(dsResults), filterAcks(dsResults), "6.10.4.2.c");
+        checkForNACKsDS(dsPackets, filterAcks(dsResults), "6.10.4.2.c");
     }
 }

@@ -21,7 +21,6 @@ import org.etools.j1939_84.bus.j1939.packets.DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -29,7 +28,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * The controller for 6.2.8 DM26: Diagnostic readiness 3
+ * 6.2.8 DM26: Diagnostic readiness 3
  */
 public class Part02Step08Controller extends StepController {
 
@@ -76,8 +75,8 @@ public class Part02Step08Controller extends StepController {
             int address = obdModuleInformation.getSourceAddress();
             String moduleName = Lookup.getAddressName(address);
 
-            RequestResult<DM26TripDiagnosticReadinessPacket> result = getDiagnosticMessageModule().requestDM26(getListener(),
-                                                                                                               address);
+            var result = getDiagnosticMessageModule().requestDM26(getListener(), address);
+
             var resultPackets = result.getPackets();
             if (resultPackets != null) {
                 dsPackets.addAll(resultPackets);
@@ -87,8 +86,7 @@ public class Part02Step08Controller extends StepController {
                 resultPackets.stream()
                              .map(DiagnosticReadinessPacket::getMonitoredSystems)
                              .filter(set -> {
-                                 DM26TripDiagnosticReadinessPacket lastDM26 = obdModuleInformation.get(
-                                                                                                       DM26TripDiagnosticReadinessPacket.class);
+                                 var lastDM26 = get(DM26TripDiagnosticReadinessPacket.class, address, 1);
                                  return lastDM26 == null || !Objects.equals(set, lastDM26.getMonitoredSystems());
                              })
                              .findFirst()

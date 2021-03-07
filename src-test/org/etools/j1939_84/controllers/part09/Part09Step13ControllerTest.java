@@ -137,21 +137,21 @@ public class Part09Step13ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc0 = DiagnosticTroubleCode.create(123, 1, 0, 1);
-        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0));
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0), 9);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm31_0 = DM31DtcToLampAssociation.create(0, DTCLampStatus.create(dtc0, OFF, OFF, OFF, OFF));
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(RequestResult.of(dm31_0));
 
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
         var dtc1 = DiagnosticTroubleCode.create(456, 9, 0, 1);
-        obdModuleInformation1.set(DM28PermanentEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
+        obdModuleInformation1.set(DM28PermanentEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1), 9);
         dataRepository.putObdModule(obdModuleInformation1);
         var nack = AcknowledgmentPacket.create(1, NACK);
         when(diagnosticMessageModule.requestDM31(any(), eq(1))).thenReturn(new RequestResult<>(false, nack));
 
         // Module 2 doesn't have any DTCs
         OBDModuleInformation obdModuleInformation2 = new OBDModuleInformation(2);
-        obdModuleInformation2.set(DM28PermanentEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF));
+        obdModuleInformation2.set(DM28PermanentEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF), 9);
         dataRepository.putObdModule(obdModuleInformation2);
 
         // Module 3 doesn't support DM28
@@ -171,7 +171,7 @@ public class Part09Step13ControllerTest extends AbstractControllerTest {
     public void testFailureForMILNotOff() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc0 = DiagnosticTroubleCode.create(123, 1, 0, 1);
-        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0));
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0), 9);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm31_0 = DM31DtcToLampAssociation.create(0, DTCLampStatus.create(dtc0, OFF, ON, OFF, OFF));
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(RequestResult.of(dm31_0));
@@ -192,7 +192,7 @@ public class Part09Step13ControllerTest extends AbstractControllerTest {
     public void testFailureForNoNACK() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc0 = DiagnosticTroubleCode.create(123, 1, 0, 1);
-        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0));
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0), 9);
         dataRepository.putObdModule(obdModuleInformation0);
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(RequestResult.of());
 

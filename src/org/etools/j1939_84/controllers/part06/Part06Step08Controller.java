@@ -162,15 +162,15 @@ public class Part06Step08Controller extends StepController {
     }
 
     private List<DiagnosticTroubleCode> getDM12DTCs(int moduleAddress) {
-        return getDTCs(DM12MILOnEmissionDTCPacket.class, moduleAddress);
+        return getDTCs(DM12MILOnEmissionDTCPacket.class, moduleAddress, 6);
     }
 
     private List<DiagnosticTroubleCode> getDM28DTCs(int moduleAddress) {
-        return getDTCs(DM28PermanentEmissionDTCPacket.class, moduleAddress);
+        return getDTCs(DM28PermanentEmissionDTCPacket.class, moduleAddress, 6);
     }
 
     private List<DiagnosticTroubleCode> getDM6DTCs(int moduleAddress) {
-        return getDTCs(DM6PendingEmissionDTCPacket.class, moduleAddress);
+        return getDTCs(DM6PendingEmissionDTCPacket.class, moduleAddress, 6);
     }
 
 }

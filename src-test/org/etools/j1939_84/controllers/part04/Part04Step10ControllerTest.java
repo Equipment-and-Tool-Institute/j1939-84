@@ -138,16 +138,16 @@ public class Part04Step10ControllerTest extends AbstractControllerTest {
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
 
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 4);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var spn = Spn.create(102, 900);
         var dm25 = DM25ExpandedFreezeFrame.create(0, new FreezeFrame(dtc, spn));
-        when(diagnosticMessageModule.requestDM25(any(), eq(0))).thenReturn(new BusResult<>(false, dm25));
+        when(diagnosticMessageModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(dm25));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         var nack = AcknowledgmentPacket.create(1, NACK);
-        when(diagnosticMessageModule.requestDM25(any(), eq(1))).thenReturn(new BusResult<>(false, nack));
+        when(diagnosticMessageModule.requestDM25(any(), eq(1))).thenReturn(BusResult.of(nack));
 
         runTest();
 
@@ -178,7 +178,7 @@ public class Part04Step10ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         var nack = AcknowledgmentPacket.create(1, NACK);
-        when(diagnosticMessageModule.requestDM25(any(), eq(1))).thenReturn(new BusResult<>(false, nack));
+        when(diagnosticMessageModule.requestDM25(any(), eq(1))).thenReturn(BusResult.of(nack));
 
         runTest();
 
@@ -198,12 +198,12 @@ public class Part04Step10ControllerTest extends AbstractControllerTest {
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
 
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 4);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var spn = Spn.create(102, 900);
         var dm25 = DM25ExpandedFreezeFrame.create(0, new FreezeFrame(dtc, spn));
-        when(diagnosticMessageModule.requestDM25(any(), eq(0))).thenReturn(new BusResult<>(false, dm25));
+        when(diagnosticMessageModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(dm25));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         when(diagnosticMessageModule.requestDM25(any(), eq(1))).thenReturn(new BusResult<>(true));
@@ -227,14 +227,14 @@ public class Part04Step10ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
 
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1));
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1), 4);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var spn = Spn.create(102, 900);
         var dtc2 = DiagnosticTroubleCode.create(456, 12, 0, 1);
 
         var dm25 = DM25ExpandedFreezeFrame.create(0, new FreezeFrame(dtc2, spn));
-        when(diagnosticMessageModule.requestDM25(any(), eq(0))).thenReturn(new BusResult<>(false, dm25));
+        when(diagnosticMessageModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(dm25));
 
         runTest();
 

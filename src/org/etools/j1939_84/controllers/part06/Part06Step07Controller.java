@@ -102,8 +102,7 @@ public class Part06Step07Controller extends StepController {
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int moduleAddress) {
-        var packet = get(DM12MILOnEmissionDTCPacket.class, moduleAddress);
-        return packet == null ? List.of() : packet.getDtcs();
+        return getDTCs(DM12MILOnEmissionDTCPacket.class, moduleAddress, 6);
     }
 
 }

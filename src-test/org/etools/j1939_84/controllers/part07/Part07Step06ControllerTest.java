@@ -132,7 +132,7 @@ public class Part07Step06ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 12, 1, 1);
-        obdModuleInformation.set(DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF, dtc), 7);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm5_0 = DM5DiagnosticReadinessPacket.create(0, 0, 1, 0x22);
@@ -153,7 +153,7 @@ public class Part07Step06ControllerTest extends AbstractControllerTest {
     public void testFailureForActiveDTC() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 12, 1, 1);
-        obdModuleInformation.set(DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF, dtc), 7);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm5_0 = DM5DiagnosticReadinessPacket.create(0, 1, 1, 0x22);

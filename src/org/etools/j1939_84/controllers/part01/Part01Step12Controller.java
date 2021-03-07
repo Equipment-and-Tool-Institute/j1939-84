@@ -27,9 +27,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *         <p>
- *         The controller for 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results
+ * 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results
  */
 public class Part01Step12Controller extends StepController {
     //@formatter:off
@@ -93,11 +91,11 @@ public class Part01Step12Controller extends StepController {
         // A.K.A Get all the obdModuleAddresses then send DM7 to each address we have and get supported SPNs
         List<ScaledTestResult> vehicleTestResults = new ArrayList<>();
 
-        // Record it the DM30 for each module
+        // Record the DM30 for each module
         for (OBDModuleInformation obdModule : getDataRepository().getObdModules()) {
             List<ScaledTestResult> moduleTestResults = new ArrayList<>();
             int sourceAddress = obdModule.getSourceAddress();
-            String moduleName = Lookup.getAddressName(sourceAddress);
+            String moduleName = obdModule.getModuleName();
 
             for (SupportedSPN spn : obdModule.getTestResultSPNs()) {
                 int spnId = spn.getSpn();
@@ -126,6 +124,7 @@ public class Part01Step12Controller extends StepController {
                     moduleTestResults.addAll(testResults);
                 }
             }
+
             obdModule.setScaledTestResults(moduleTestResults);
             getDataRepository().putObdModule(obdModule);
             vehicleTestResults.addAll(moduleTestResults);

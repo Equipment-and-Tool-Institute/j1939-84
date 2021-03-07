@@ -585,7 +585,7 @@ public class SectionA5Verifier {
     private List<DiagnosticTroubleCode> getDTCs(Class<? extends DiagnosticTroubleCodePacket> clazz, int address) {
         OBDModuleInformation obdModuleInformation = dataRepository.getObdModule(address);
         if (obdModuleInformation != null) {
-            var packet = obdModuleInformation.get(clazz);
+            var packet = obdModuleInformation.getLatest(clazz);
             if (packet != null) {
                 return packet.getDtcs();
             }
@@ -596,7 +596,7 @@ public class SectionA5Verifier {
     private LampStatus getMIL(Class<? extends DiagnosticTroubleCodePacket> clazz, int address) {
         OBDModuleInformation obdModuleInformation = dataRepository.getObdModule(address);
         if (obdModuleInformation != null) {
-            var packet = obdModuleInformation.get(clazz);
+            var packet = obdModuleInformation.getLatest(clazz);
             if (packet != null) {
                 return packet.getMalfunctionIndicatorLampStatus();
             }
@@ -606,7 +606,7 @@ public class SectionA5Verifier {
 
     private GenericPacket getRepoPacket(GenericPacket packet) {
         OBDModuleInformation info = dataRepository.getObdModule(packet.getSourceAddress());
-        return info == null ? null : info.get(packet.getClass());
+        return info == null ? null : info.getLatest(packet.getClass());
     }
 
 }

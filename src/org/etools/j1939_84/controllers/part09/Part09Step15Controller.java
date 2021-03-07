@@ -136,7 +136,7 @@ public class Part09Step15Controller extends StepController {
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int address) {
-        return getDTCs(DM28PermanentEmissionDTCPacket.class, address);
+        return getDTCs(DM28PermanentEmissionDTCPacket.class, address, 9);
     }
 
 }

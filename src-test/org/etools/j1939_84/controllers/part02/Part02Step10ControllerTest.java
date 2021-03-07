@@ -123,7 +123,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
         obdModule0.setScaledTestResults(List.of(testResult1, testResult2));
 
         SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, 1);
-        obdModule0.setSupportedSPNs(List.of(spn1));
+        obdModule0.set(DM24SPNSupportPacket.create(0, spn1), 1);
 
         dataRepository.putObdModule(obdModule0);
 
@@ -140,7 +140,6 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
                                         "6.2.10.2.a - Engine #1 (0) provided different test result labels from the test results received in part 1 test 12");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -154,15 +153,15 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
         obdModule0.setScaledTestResults(List.of(testResult1));
 
         SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, 1);
-        obdModule0.setSupportedSPNs(List.of(spn1));
+        obdModule0.set(DM24SPNSupportPacket.create(0, spn1), 1);
 
         dataRepository.putObdModule(obdModule0);
 
+        DM30ScaledTestResultsPacket dm30_1 = DM30ScaledTestResultsPacket.create(0, testResult1);
+        DM30ScaledTestResultsPacket dm30_2 = DM30ScaledTestResultsPacket.create(0, testResult2);
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(247), eq(spn1.getSpn()), eq(31)))
-                                                                                                          .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0,
-                                                                                                                                                                 testResult1),
-                                                                                                                              DM30ScaledTestResultsPacket.create(0,
-                                                                                                                                                                 testResult2)));
+                                                                                                          .thenReturn(List.of(dm30_1,
+                                                                                                                              dm30_2));
 
         runTest();
 
@@ -174,7 +173,6 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
                                         "6.2.10.2.a - Engine #1 (0) provided different test result labels from the test results received in part 1 test 12");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -204,7 +202,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, 1);
         SupportedSPN spn2 = SupportedSPN.create(987, true, false, false, 1);
-        obdModule0.set(DM24SPNSupportPacket.create(0, spn1, spn2));
+        obdModule0.set(DM24SPNSupportPacket.create(0, spn1, spn2), 1);
         dataRepository.putObdModule(obdModule0);
 
         OBDModuleInformation obdModule3 = new OBDModuleInformation(3);
@@ -222,7 +220,6 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(247), eq(spn2.getSpn()), eq(31));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -234,7 +231,6 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).setJ1939(j1939);
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -249,7 +245,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, 1);
         SupportedSPN spn2 = SupportedSPN.create(987, true, false, false, 1);
-        obdModule0.set(DM24SPNSupportPacket.create(0, spn1, spn2));
+        obdModule0.set(DM24SPNSupportPacket.create(0, spn1, spn2), 1);
         dataRepository.putObdModule(obdModule0);
 
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(247), eq(spn1.getSpn()), eq(31)))
@@ -270,7 +266,6 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
                                         "6.2.10.3.a - All test results from Engine #1 (0) are still initialized");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 

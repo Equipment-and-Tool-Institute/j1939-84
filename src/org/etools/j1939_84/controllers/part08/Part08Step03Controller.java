@@ -104,11 +104,11 @@ public class Part08Step03Controller extends StepController {
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int moduleAddress) {
-        return getDTCs(DM12MILOnEmissionDTCPacket.class, moduleAddress);
+        return getDTCs(DM12MILOnEmissionDTCPacket.class, moduleAddress, 8);
     }
 
     private LampStatus getMIL(int moduleAddress) {
-        var dm12 = get(DM12MILOnEmissionDTCPacket.class, moduleAddress);
+        var dm12 = get(DM12MILOnEmissionDTCPacket.class, moduleAddress, 8);
         return dm12 == null ? null : dm12.getMalfunctionIndicatorLampStatus();
     }
 }

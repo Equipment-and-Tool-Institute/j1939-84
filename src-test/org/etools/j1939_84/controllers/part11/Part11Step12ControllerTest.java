@@ -131,7 +131,7 @@ public class Part11Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0));
+        obdModuleInformation.set(DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0), 11);
         obdModuleInformation.setDeltaEngineStart(600.0);
         dataRepository.putObdModule(obdModuleInformation);
         var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 10);
@@ -154,7 +154,7 @@ public class Part11Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferenceTooMuch() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0));
+        obdModuleInformation.set(DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0), 11);
         obdModuleInformation.setDeltaEngineStart(600.0);
         dataRepository.putObdModule(obdModuleInformation);
         var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 11);
@@ -175,7 +175,7 @@ public class Part11Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferenceTooLittle() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0));
+        obdModuleInformation.set(DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0), 11);
         obdModuleInformation.setDeltaEngineStart(600.0);
         dataRepository.putObdModule(obdModuleInformation);
         var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 9);
@@ -196,7 +196,7 @@ public class Part11Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDistanceSCC() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0));
+        obdModuleInformation.set(DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0), 11);
         obdModuleInformation.setDeltaEngineStart(600.0);
         dataRepository.putObdModule(obdModuleInformation);
         var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 1, 0, 10);

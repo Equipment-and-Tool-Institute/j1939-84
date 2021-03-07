@@ -77,24 +77,28 @@ public class Part08Step04Controller extends StepController {
         packets.stream()
                .filter(p -> !p.getDtcs().equals(getDTCs(p.getSourceAddress())))
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.8.4.2.b - Previously active DTC reported by " + moduleName
-                       + " is not the same as previously active DTC from part 7"));
+               .forEach(moduleName -> {
+                   addFailure("6.8.4.2.b - Previously active DTC reported by " + moduleName
+                           + " is not the same as previously active DTC from part 7");
+               });
 
         // 6.8.4.2.c Fail if any ECU reporting different MIL status than DM12 response earlier in this part.
         packets.stream()
                .filter(p -> getMIL(p.getSourceAddress()) != null)
                .filter(p -> p.getMalfunctionIndicatorLampStatus() != getMIL(p.getSourceAddress()))
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.8.4.2.c - " + moduleName
-                       + " reported different MIL status than DM12 response earlier in this part"));
+               .forEach(moduleName -> {
+                   addFailure("6.8.4.2.c - " + moduleName
+                           + " reported different MIL status than DM12 response earlier in this part");
+               });
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int address) {
-        return getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class, address);
+        return getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class, address, 8);
     }
 
     private LampStatus getMIL(int address) {
-        var dm12 = get(DM12MILOnEmissionDTCPacket.class, address);
+        var dm12 = get(DM12MILOnEmissionDTCPacket.class, address, 8);
         return dm12 == null ? null : dm12.getMalfunctionIndicatorLampStatus();
     }
 

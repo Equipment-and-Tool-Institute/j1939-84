@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part07;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -80,8 +81,8 @@ public class Part07Step12Controller extends StepController {
         // 6.7.12.2.b. Fail if DTC in reported Freeze Frame data does not include the DTC provided by DM23 earlier in
         // this part.
         for (DM25ExpandedFreezeFrame dm25 : packets) {
-            for (DiagnosticTroubleCode dtc : getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class,
-                                                     dm25.getSourceAddress())) {
+            int address = dm25.getSourceAddress();
+            for (DiagnosticTroubleCode dtc : getDTCs(address)) {
                 if (dm25.getFreezeFrameWithDTC(dtc) == null) {
                     addFailure("6.7.12.2.b - " + dm25.getModuleName()
                             + " did not reported DTC in Freeze Frame data which included the DTC provided by DM23 earlier in this part");
@@ -96,8 +97,13 @@ public class Part07Step12Controller extends StepController {
         packets.stream()
                .filter(p -> p.getFreezeFrames().size() > 1)
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addWarning("6.7.12.3.a - " + moduleName
-                       + " reported more than one Freeze Frame"));
+               .forEach(moduleName -> {
+                   addWarning("6.7.12.3.a - " + moduleName + " reported more than one Freeze Frame");
+               });
+    }
+
+    private List<DiagnosticTroubleCode> getDTCs(int address) {
+        return getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class, address, 7);
     }
 
 }

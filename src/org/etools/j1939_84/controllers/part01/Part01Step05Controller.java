@@ -16,6 +16,9 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.VinDecoder;
 
+/**
+ * 6.1.5 PGN 65260 VIN Verification
+ */
 public class Part01Step05Controller extends StepController {
 
     private static final int PART_NUMBER = 1;

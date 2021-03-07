@@ -7,7 +7,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
@@ -61,8 +60,7 @@ public class Part03Step12Controller extends StepController {
         // 6.3.12.1.a. DS DM24 (send Request (PGN 59904) for PGN 64950 (SPNs 3297, 4100-4103)) to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(address -> getDiagnosticMessageModule().requestDM24(getListener(),
-                                                                                                    address))
+                                           .map(a -> getDiagnosticMessageModule().requestDM24(getListener(), a))
                                            .collect(Collectors.toList());
 
         // 6.3.12.1.b. Compare response with responses received in part 1 test 4 for each OBD ECU.
@@ -71,7 +69,7 @@ public class Part03Step12Controller extends StepController {
             int sourceAddress = packet.getSourceAddress();
             OBDModuleInformation info = getDataRepository().getObdModule(sourceAddress);
             if (!info.getSupportedSPNs().equals(packet.getSupportedSpns())) {
-                addFailure("6.3.12.2.a - Message data received from " + Lookup.getAddressName(sourceAddress)
+                addFailure("6.3.12.2.a - Message data received from " + packet.getModuleName()
                         + " differs from that provided in part 6.1.4");
             }
         });

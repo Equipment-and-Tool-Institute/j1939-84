@@ -169,7 +169,7 @@ public class Part04Step02Controller extends StepController {
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int moduleAddress) {
-        return getDTCs(DM6PendingEmissionDTCPacket.class, moduleAddress);
+        return getDTCs(DM6PendingEmissionDTCPacket.class, moduleAddress, 3);
     }
 
 }

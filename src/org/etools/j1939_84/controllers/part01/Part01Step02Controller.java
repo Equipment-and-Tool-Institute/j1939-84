@@ -16,6 +16,9 @@ import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
+/**
+ * 6.1.2 Verify Engine Operation
+ */
 public class Part01Step02Controller extends StepController {
 
     private static final int PART_NUMBER = 1;

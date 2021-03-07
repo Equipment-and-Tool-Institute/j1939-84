@@ -129,7 +129,7 @@ public class Part07Step13ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.setIgnitionCycleCounterValue(9);
+        obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0, 9, 5), 5);
         dataRepository.putObdModule(obdModuleInformation);
         var dm20 = DM20MonitorPerformanceRatioPacket.create(0, 12, 5);
         when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(BusResult.of(dm20));
@@ -149,7 +149,7 @@ public class Part07Step13ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForTooMany() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.setIgnitionCycleCounterValue(9);
+        obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0, 9, 5), 5);
         dataRepository.putObdModule(obdModuleInformation);
         var dm20 = DM20MonitorPerformanceRatioPacket.create(0, 14, 5);
         when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(BusResult.of(dm20));
@@ -169,7 +169,7 @@ public class Part07Step13ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForTooFew() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.setIgnitionCycleCounterValue(9);
+        obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0, 9, 5), 5);
         dataRepository.putObdModule(obdModuleInformation);
         var dm20 = DM20MonitorPerformanceRatioPacket.create(0, 9, 5);
         when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(BusResult.of(dm20));

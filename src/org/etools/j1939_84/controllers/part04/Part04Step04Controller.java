@@ -3,14 +3,12 @@
  */
 package org.etools.j1939_84.controllers.part04;
 
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
+import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -67,36 +65,42 @@ public class Part04Step04Controller extends StepController {
                      .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                      .filter(p -> p.getDtcs().size() > 0)
                      .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.4.4.2.a - OBD ECU " + moduleName
-                             + " reported > 0 previously active DTCs"));
+                     .forEach(moduleName -> {
+                         addFailure("6.4.4.2.a - OBD ECU " + moduleName + " reported > 0 previously active DTCs");
+                     });
 
         // 6.4.4.2.b (if supported) Fail if any OBD ECU reports a different MIL status (e.g., on and flashing, or off)
         // than it did in DM12 response earlier in this part.
         globalPackets.stream()
-                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                     .filter(p -> getDataRepository().getObdModule(p.getSourceAddress())
-                                                     .get(DM12MILOnEmissionDTCPacket.class) != null)
-                     .filter(p -> p.getMalfunctionIndicatorLampStatus() != getDataRepository().getObdModule(p.getSourceAddress())
-                                                                                              .get(DM12MILOnEmissionDTCPacket.class)
-                                                                                              .getMalfunctionIndicatorLampStatus())
+                     .filter(p -> isObdModule(p.getSourceAddress()))
+                     .filter(p -> getDM12(p.getSourceAddress()) != null)
+                     .filter(p -> p.getMalfunctionIndicatorLampStatus() != getMILStatus(p.getSourceAddress()))
                      .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.4.4.2.b - OBD ECU " + moduleName
-                             + " reported a MIL status differing from DM12 response earlier in this part"));
-
-        List<Integer> obdAddresses = getDataRepository().getObdModuleAddresses();
+                     .forEach(moduleName -> {
+                         addFailure("6.4.4.2.b - OBD ECU " + moduleName
+                                 + " reported a MIL status differing from DM12 response earlier in this part");
+                     });
 
         // 6.4.4.3.a DS DM2 to each OBD ECU.
-        var dsResult = obdAddresses.stream()
-                                   .map(address -> getDiagnosticMessageModule().requestDM2(getListener(), address))
-                                   .collect(Collectors.toList());
+        var dsResult = getDataRepository().getObdModuleAddresses()
+                                          .stream()
+                                          .map(a -> getDiagnosticMessageModule().requestDM2(getListener(), a))
+                                          .collect(Collectors.toList());
 
         // 6.4.4.4.a (if supported) Fail if any difference compared to data received from global request.
-        List<DM2PreviouslyActiveDTC> dsPackets = filterPackets(dsResult);
-        compareRequestPackets(globalPackets, dsPackets, "6.4.4.4.a");
+        compareRequestPackets(globalPackets, filterPackets(dsResult), "6.4.4.4.a");
 
         // 6.4.4.4.b (if supported) Fail if NACK not received from OBD ECUs that did not respond to global query.
-        List<AcknowledgmentPacket> dsAcks = filterAcks(dsResult);
-        checkForNACKsGlobal(globalPackets, dsAcks, "6.4.4.4.b");
+        checkForNACKsGlobal(globalPackets, filterAcks(dsResult), "6.4.4.4.b");
+    }
+
+    private LampStatus getMILStatus(int sourceAddress) {
+        var dm12 = getDM12(sourceAddress);
+        return dm12 == null ? null : dm12.getMalfunctionIndicatorLampStatus();
+    }
+
+    private DM12MILOnEmissionDTCPacket getDM12(int address) {
+        return get(DM12MILOnEmissionDTCPacket.class, address, 4);
     }
 
 }

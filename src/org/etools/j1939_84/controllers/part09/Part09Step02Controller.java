@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -64,6 +65,8 @@ public class Part09Step02Controller extends StepController {
                                                   .stream()
                                                   .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                                                   .collect(Collectors.toList());
+        // 6.9.2.1.b Create list of which OBD ECU(s) have a DM12 active MIL on DTC and which do not.
+        packets.forEach(this::save);
 
         // 6.9.2.2.a Fail if no OBD ECU reporting one or more active MIL on DTCs.
         var noDTCs = packets.stream().allMatch(p -> p.getDtcs().isEmpty());
@@ -80,7 +83,7 @@ public class Part09Step02Controller extends StepController {
         // 6.9.2.2.c Fail if any ECU reports a different active MIL on DTC(s) than what that ECU reported in part 8 DM12
         // response.
         packets.forEach(dm12 -> {
-            var prevDM12 = get(DM12MILOnEmissionDTCPacket.class, dm12.getSourceAddress());
+            var prevDM12 = get(DM12MILOnEmissionDTCPacket.class, dm12.getSourceAddress(), 8);
             if (prevDM12 == null || !dm12.getDtcs().equals(prevDM12.getDtcs())) {
                 addFailure("6.9.2.2.c - " + dm12.getModuleName()
                         + " reported different active MIL on DTC(s) than what it reported in part 8 DM 12 response");
@@ -96,20 +99,12 @@ public class Part09Step02Controller extends StepController {
                });
 
         // 6.9.2.3.b Warn if more than one ECU reports an active DTC
-        var dtcCount = packets.stream()
-                              .filter(p -> !p.getDtcs().isEmpty())
-                              .count();
+        var dtcCount = packets.stream().filter(DiagnosticTroubleCodePacket::hasDTCs).count();
         if (dtcCount > 1) {
             addWarning("6.9.2.3.b - More than one ECU reported an active DTC");
         }
 
-        // 6.9.2.1.b Create list of which OBD ECU(s) have a DM12 active MIL on DTC and which do not.
-        // This is out of order so the previous DM12 isn't overwritten
-        packets.forEach(dm12 -> {
-            var module = getDataRepository().getObdModule(dm12.getSourceAddress());
-            module.set(dm12);
-            getDataRepository().putObdModule(module);
-        });
+
     }
 
 }

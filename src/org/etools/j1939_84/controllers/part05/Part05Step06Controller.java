@@ -10,7 +10,6 @@ import java.util.concurrent.Executors;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -67,11 +66,7 @@ public class Part05Step06Controller extends StepController {
                            .map(BusResult::requestResult)
                            .map(RequestResult::getPackets)
                            .flatMap(Collection::stream)
-                           .forEach(packet -> {
-                               OBDModuleInformation obdModule = getDataRepository().getObdModule(packet.getSourceAddress());
-                               obdModule.setIgnitionCycleCounterValue(packet.getIgnitionCycles());
-                               getDataRepository().putObdModule(obdModule);
-                           });
+                           .forEach(this::save);
     }
 
 }

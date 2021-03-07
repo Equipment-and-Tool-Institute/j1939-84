@@ -19,10 +19,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *         6.2.18 Part 2 to Part 3 transition
- *         <p>
- *         This step is similar to Part 01 Step 27 & Part 02 Step 01
+ * 6.2.18 Part 2 to Part 3 transition
  */
 public class Part02Step18Controller extends StepController {
 

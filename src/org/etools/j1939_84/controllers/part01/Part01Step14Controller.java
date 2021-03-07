@@ -13,6 +13,7 @@ import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -22,9 +23,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *         <p>
- *         The controller for 6.1.14 DM26: Diagnostic readiness 3
+ * 6.1.14 DM26: Diagnostic readiness 3
  */
 
 public class Part01Step14Controller extends StepController {
@@ -69,7 +68,7 @@ public class Part01Step14Controller extends StepController {
         var globalPackets = getDiagnosticMessageModule().requestDM26(getListener())
                                                         .getPackets()
                                                         .stream()
-                                                        .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                                                        .filter(p -> isObdModule(p.getSourceAddress()))
                                                         .collect(Collectors.toList());
 
         // 6.1.14.2.f. Fail if no OBD ECU provides DM26.
@@ -137,20 +136,22 @@ public class Part01Step14Controller extends StepController {
 
         // 6.1.14.2.d. Fail if any response indicates number of warm-ups since code clear (WU-SCC) (SPN 3302) is not
         // zero.
-        globalPackets
-                     .stream()
+        globalPackets.stream()
                      .filter(packet -> packet.getWarmUpsSinceClear() != 0)
-                     .map(packet -> Lookup.getAddressName(packet.getSourceAddress()))
-                     .forEach(moduleName -> addFailure("6.1.14.2.d - " + moduleName
-                             + " response indicates number of warm-ups since code clear is not zero"));
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> {
+                         addFailure("6.1.14.2.d - " + moduleName
+                                 + " response indicates number of warm-ups since code clear is not zero");
+                     });
 
         // 6.1.14.2.e. Fail if any response indicates time since engine start (SPN 3301) is not zero.
-        globalPackets
-                     .stream()
+        globalPackets.stream()
                      .filter(packet -> packet.getTimeSinceEngineStart() != 0)
-                     .map(packet -> Lookup.getAddressName(packet.getSourceAddress()))
-                     .forEach(moduleName -> addFailure("6.1.14.2.e - " + moduleName
-                             + " response indicates time since engine start is not zero"));
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> {
+                         addFailure("6.1.14.2.e - " + moduleName
+                                 + " response indicates time since engine start is not zero");
+                     });
 
         // 6.1.14.3.a. Warn if any individual required monitor, except Continuous
         // Component Monitoring (CCM) is supported by more than one OBD ECU.
@@ -160,8 +161,7 @@ public class Part01Step14Controller extends StepController {
         // 6.1.14.4.a. DS DM26 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(address -> getDiagnosticMessageModule().requestDM26(getListener(),
-                                                                                                    address))
+                                           .map(a -> getDiagnosticMessageModule().requestDM26(getListener(), a))
                                            .collect(Collectors.toList());
 
         // 6.1.14.5.a. Fail if any difference compared to data received during global request.
@@ -172,7 +172,7 @@ public class Part01Step14Controller extends StepController {
     }
 
     private MonitoredSystem getDM5System(CompositeSystem systemId, int address) {
-        var dm5 = get(DM5DiagnosticReadinessPacket.class, address);
+        var dm5 = get(DM5DiagnosticReadinessPacket.class, address, 1);
         return dm5 == null ? null
                 : dm5.getMonitoredSystems()
                      .stream()

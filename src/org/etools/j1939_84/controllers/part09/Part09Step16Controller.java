@@ -80,7 +80,7 @@ public class Part09Step16Controller extends StepController {
     }
 
     private int getWarmUpsSCC(int address) {
-        var dm26 = get(DM26TripDiagnosticReadinessPacket.class, address);
+        var dm26 = get(DM26TripDiagnosticReadinessPacket.class, address, 8);
         return dm26 == null ? 0 : dm26.getWarmUpsSinceClear();
     }
 }

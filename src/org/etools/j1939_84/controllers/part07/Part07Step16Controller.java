@@ -3,9 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
-
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -13,7 +12,6 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.part01.SectionA5Verifier;
-import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -76,9 +74,8 @@ public class Part07Step16Controller extends StepController {
         verifier.verifyDataNotErased(getListener(), "6.7.16.2.a");
 
         // 6.7.16.3.a. DS DM3 to each OBD ECU.
-        var dsPackets = getDataRepository().getObdModules()
+        var dsPackets = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(OBDModuleInformation::getSourceAddress)
                                            .map(a -> getDiagnosticMessageModule().requestDM3(getListener(), a))
                                            .flatMap(Collection::stream)
                                            .collect(Collectors.toList());
@@ -86,15 +83,10 @@ public class Part07Step16Controller extends StepController {
         // 6.7.16.3.b. Wait 5 seconds before checking for erased information.
         pause("Step 6.7.16.3.b Waiting %1$d seconds", 5L);
 
-        // 6.7.16.4.a. Fail if any ECU does not NACK, or if any OBD ECU erases any diagnostic information. See Section
-        // A.5 for more information.
-        dsPackets.stream()
-                 .peek(acknowledgmentPacket -> verifier.verifyDataNotErased(getListener(), "6.7.16.4.a"))
-                 .filter(p -> p.getResponse() != NACK)
-                 .forEach(packet -> {
-                     addFailure("6.7.16.4.a - " + packet.getModuleName()
-                             + " did not NACK the DS DM3 request");
+        // 6.7.16.4.a. Fail if any ECU does not NACK
+        checkForNACKsDS(List.of(), dsPackets, "6.7.16.4.a");
 
-                 });
+        // 6.7.16.4.a. Fail if any OBD ECU erases any diagnostic information. See Section A.5 for more information.
+        verifier.verifyDataNotErased(getListener(), "6.7.16.4.a");
     }
 }

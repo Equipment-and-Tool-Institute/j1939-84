@@ -134,14 +134,14 @@ public class Part09Step17ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         // Module 0 responds normally
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM25ExpandedFreezeFrame.create(0));
+        obdModuleInformation0.set(DM25ExpandedFreezeFrame.create(0), 8);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm25 = DM25ExpandedFreezeFrame.create(0);
         when(diagnosticMessageModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(dm25));
 
         // Module 1 - NACKs
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
-        obdModuleInformation1.set(DM25ExpandedFreezeFrame.create(1));
+        obdModuleInformation1.set(DM25ExpandedFreezeFrame.create(1), 8);
         dataRepository.putObdModule(obdModuleInformation1);
         var nack = AcknowledgmentPacket.create(1, NACK);
         when(diagnosticMessageModule.requestDM25(any(), eq(1))).thenReturn(BusResult.of(nack));
@@ -164,7 +164,7 @@ public class Part09Step17ControllerTest extends AbstractControllerTest {
     @Test
     public void tesFailureForFreezeFramesPresent() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM25ExpandedFreezeFrame.create(0));
+        obdModuleInformation0.set(DM25ExpandedFreezeFrame.create(0), 8);
         dataRepository.putObdModule(obdModuleInformation0);
         var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
         var freezeFrame = new FreezeFrame(dtc, new int[10]);
@@ -187,7 +187,7 @@ public class Part09Step17ControllerTest extends AbstractControllerTest {
     public void testFailureForNoNACK() {
         // Module 1 - NACKs
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
-        obdModuleInformation1.set(DM25ExpandedFreezeFrame.create(1));
+        obdModuleInformation1.set(DM25ExpandedFreezeFrame.create(1), 8);
         dataRepository.putObdModule(obdModuleInformation1);
         when(diagnosticMessageModule.requestDM25(any(), eq(1))).thenReturn(BusResult.empty());
 

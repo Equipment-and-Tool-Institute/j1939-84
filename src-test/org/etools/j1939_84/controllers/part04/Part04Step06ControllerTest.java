@@ -131,11 +131,11 @@ public class Part04Step06ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPathNoFailures() {
         OBDModuleInformation module0 = new OBDModuleInformation(0);
-        module0.set(DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF, DiagnosticTroubleCode.create(123, 3, 0, 1)));
+        module0.set(DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF, DiagnosticTroubleCode.create(123, 3, 0, 1)), 4);
         dataRepository.putObdModule(module0);
 
         var dm5 = DM5DiagnosticReadinessPacket.create(0, 1, 0, 0x22);
-        when(diagnosticMessageModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5));
 
         runTest();
 
@@ -148,11 +148,11 @@ public class Part04Step06ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNoActiveDTCs() {
         OBDModuleInformation module0 = new OBDModuleInformation(0);
-        module0.set(DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF));
+        module0.set(DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF), 4);
         dataRepository.putObdModule(module0);
 
         var dm5 = DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22);
-        when(diagnosticMessageModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5));
 
         runTest();
 
@@ -170,11 +170,11 @@ public class Part04Step06ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferentNumberDTCs() {
         OBDModuleInformation module0 = new OBDModuleInformation(0);
-        module0.set(DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF, DiagnosticTroubleCode.create(123, 3, 0, 1)));
+        module0.set(DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF, DiagnosticTroubleCode.create(123, 3, 0, 1)), 4);
         dataRepository.putObdModule(module0);
 
         var dm5 = DM5DiagnosticReadinessPacket.create(0, 2, 0, 0x22);
-        when(diagnosticMessageModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5));
 
         runTest();
 
@@ -192,11 +192,11 @@ public class Part04Step06ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForPreviouslyActiveDTCs() {
         OBDModuleInformation module0 = new OBDModuleInformation(0);
-        module0.set(DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF, DiagnosticTroubleCode.create(123, 3, 0, 1)));
+        module0.set(DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF, DiagnosticTroubleCode.create(123, 3, 0, 1)), 4);
         dataRepository.putObdModule(module0);
 
         var dm5 = DM5DiagnosticReadinessPacket.create(0, 1, 1, 0x22);
-        when(diagnosticMessageModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5));
 
         runTest();
 

@@ -335,7 +335,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        assertSame(dm56, dataRepository.getObdModule(0).get(DM56EngineFamilyPacket.class));
+        assertSame(dm56, dataRepository.getObdModule(0).getLatest(DM56EngineFamilyPacket.class));
 
         verify(diagnosticMessageModule).requestDM56(any());
 

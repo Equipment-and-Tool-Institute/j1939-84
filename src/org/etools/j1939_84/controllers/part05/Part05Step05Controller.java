@@ -8,10 +8,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -166,28 +164,16 @@ public class Part05Step05Controller extends StepController {
     }
 
     private List<DiagnosticTroubleCode> getDM12DTCs(int moduleAddress) {
-        var packet = getDM12(moduleAddress);
-        return packet == null ? List.of() : packet.getDtcs();
-    }
-
-    private DiagnosticTroubleCodePacket getDM12(int moduleAddress) {
-        OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(moduleAddress);
-        return obdModuleInformation == null ? null : obdModuleInformation.get(DM12MILOnEmissionDTCPacket.class);
+        return getDTCs(DM12MILOnEmissionDTCPacket.class, moduleAddress, 5);
     }
 
     private List<DiagnosticTroubleCode> getDM28DTCs(int moduleAddress) {
-        var packet = getDM28(moduleAddress);
-        return packet == null ? List.of() : packet.getDtcs();
-    }
-
-    private DiagnosticTroubleCodePacket getDM28(int moduleAddress) {
-        OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(moduleAddress);
-        return obdModuleInformation == null ? null : obdModuleInformation.get(DM28PermanentEmissionDTCPacket.class);
+        return getDTCs(DM28PermanentEmissionDTCPacket.class, moduleAddress, 5);
     }
 
     private boolean isDM27Supported(int moduleAddress) {
         OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(moduleAddress);
-        return obdModuleInformation != null && obdModuleInformation.get(DM27AllPendingDTCsPacket.class) != null;
+        return obdModuleInformation != null && obdModuleInformation.supportsDM27();
     }
 
 }

@@ -120,6 +120,10 @@ public class TestResultsListener implements ResultsListener {
         return String.join(NL, messages);
     }
 
+    /**
+     * @deprecated TODO remove this method; it's not useful
+     */
+    @Deprecated
     public String getMilestones() {
         return String.join(NL, milestones);
     }

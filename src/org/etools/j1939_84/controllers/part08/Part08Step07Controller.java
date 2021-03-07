@@ -72,15 +72,19 @@ public class Part08Step07Controller extends StepController {
         globalPackets.stream()
                      .filter(p -> !p.getDtcs().equals(getDTCs(p.getSourceAddress())))
                      .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.8.7.2.b - " + moduleName
-                             + " permanent DTC does not match DM12 DTC from earlier in test 6.8.2"));
+                     .forEach(moduleName -> {
+                         addFailure("6.8.7.2.b - " + moduleName
+                                 + " permanent DTC does not match DM12 DTC from earlier in test 6.8.2");
+                     });
 
         // 6.8.7.2.c. Fail if any ECU reporting different MIL status than DM12 response earlier in test 6.8.2.
         globalPackets.stream()
                      .filter(p -> p.getMalfunctionIndicatorLampStatus() != getMIL(p.getSourceAddress()))
                      .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.8.7.2.c - " + moduleName
-                             + " reported different MIL status than DM12 response earlier in test 6.8.2"));
+                     .forEach(moduleName -> {
+                         addFailure("6.8.7.2.c - " + moduleName
+                                 + " reported different MIL status than DM12 response earlier in test 6.8.2");
+                     });
 
         // 6.8.7.3.a. Warn if more than one ECU reports a permanent DTC.
         long dtcCount = globalPackets.stream().map(p -> !p.getDtcs().isEmpty()).count();
@@ -92,8 +96,9 @@ public class Part08Step07Controller extends StepController {
         globalPackets.stream()
                      .filter(p -> p.getDtcs().size() > 1)
                      .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addWarning("6.8.7.3.b - " + moduleName
-                             + " reported more than one permanent DTC"));
+                     .forEach(moduleName -> {
+                         addWarning("6.8.7.3.b - " + moduleName + " reported more than one permanent DTC");
+                     });
 
         // 6.8.7.4.a. DS DM28 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
@@ -109,11 +114,11 @@ public class Part08Step07Controller extends StepController {
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int address) {
-        return getDTCs(DM12MILOnEmissionDTCPacket.class, address);
+        return getDTCs(DM12MILOnEmissionDTCPacket.class, address, 8);
     }
 
     private LampStatus getMIL(int address) {
-        var dm12 = get(DM12MILOnEmissionDTCPacket.class, address);
+        var dm12 = get(DM12MILOnEmissionDTCPacket.class, address, 8);
         return dm12 == null ? null : dm12.getMalfunctionIndicatorLampStatus();
     }
 

@@ -87,8 +87,7 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
 
-        instance = new Part01Step22Controller(
-                                              executor,
+        instance = new Part01Step22Controller(executor,
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
@@ -137,11 +136,11 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
         DM29DtcCounts packet1 = DM29DtcCounts.create(1, 0, 0, 0, 0, 0);
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(1);
-        obdModuleInformation.set(dm27(1));
+        obdModuleInformation.set(dm27(1), 1);
         dataRepository.putObdModule(obdModuleInformation);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(new RequestResult<>(false, packet1));
-        when(diagnosticMessageModule.requestDM29(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM29(any(), eq(0x01))).thenReturn(BusResult.of(packet1));
 
         runTest();
 
@@ -151,7 +150,6 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
@@ -159,7 +157,7 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
 
         // Module 0 will support DM27 and have no errors
         OBDModuleInformation module0 = new OBDModuleInformation(0);
-        module0.set(dm27(0));
+        module0.set(dm27(0), 1);
         dataRepository.putObdModule(module0);
         DM29DtcCounts packet0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 0);
 
@@ -169,7 +167,7 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
 
         // Module 2 will support DM27 but return bad values
         OBDModuleInformation module2 = new OBDModuleInformation(2);
-        module2.set(dm27(2));
+        module2.set(dm27(2), 1);
         dataRepository.putObdModule(module2);
         DM29DtcCounts packet2 = DM29DtcCounts.create(0x02, 0x00, 0x00, 0x04, 0x00, 0xFF);
 
@@ -201,12 +199,12 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
                                                                                         packet6,
                                                                                         packet71));
 
-        when(diagnosticMessageModule.requestDM29(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
-        when(diagnosticMessageModule.requestDM29(any(), eq(1))).thenReturn(new BusResult<>(false, packet1));
-        when(diagnosticMessageModule.requestDM29(any(), eq(2))).thenReturn(new BusResult<>(false, packet2));
-        when(diagnosticMessageModule.requestDM29(any(), eq(3))).thenReturn(new BusResult<>(false, packet3));
+        when(diagnosticMessageModule.requestDM29(any(), eq(0))).thenReturn(BusResult.of(packet0));
+        when(diagnosticMessageModule.requestDM29(any(), eq(1))).thenReturn(BusResult.of(packet1));
+        when(diagnosticMessageModule.requestDM29(any(), eq(2))).thenReturn(BusResult.of(packet2));
+        when(diagnosticMessageModule.requestDM29(any(), eq(3))).thenReturn(BusResult.of(packet3));
         when(diagnosticMessageModule.requestDM29(any(), eq(4))).thenReturn(new BusResult<>(true));
-        when(diagnosticMessageModule.requestDM29(any(), eq(7))).thenReturn(new BusResult<>(false, packet72));
+        when(diagnosticMessageModule.requestDM29(any(), eq(7))).thenReturn(BusResult.of(packet72));
 
         runTest();
 
@@ -268,7 +266,6 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
 }

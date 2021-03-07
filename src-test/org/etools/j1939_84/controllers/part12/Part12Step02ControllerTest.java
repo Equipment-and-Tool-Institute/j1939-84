@@ -140,20 +140,22 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
                                                                       0,
                                                                       0x22,
                                                                       List.of(CompositeSystem.values()),
-                                                                      List.of()));
-        obdModuleInformation0.set(DM26TripDiagnosticReadinessPacket.create(0, 0, 0, List.of(), List.of()));
+                                                                      List.of()),
+                                  1);
+        obdModuleInformation0.set(DM26TripDiagnosticReadinessPacket.create(0, 0, 0, List.of(), List.of()), 11);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm26_0 = DM26TripDiagnosticReadinessPacket.create(0, 0, 0, List.of(), List.of());
         when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26_0));
 
         // Module 1 responds with changing status, but doesn't support any systems (probably not a real world test)
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
-        obdModuleInformation1.set(DM5DiagnosticReadinessPacket.create(1, 0, 0, 0x22, List.of(), List.of()));
+        obdModuleInformation1.set(DM5DiagnosticReadinessPacket.create(1, 0, 0, 0x22, List.of(), List.of()), 1);
         obdModuleInformation1.set(DM26TripDiagnosticReadinessPacket.create(1,
                                                                            0,
                                                                            0,
                                                                            List.of(),
-                                                                           List.of(CompositeSystem.values())));
+                                                                           List.of(CompositeSystem.values())),
+                                  11);
         dataRepository.putObdModule(obdModuleInformation1);
         var dm26_1 = DM26TripDiagnosticReadinessPacket.create(1, 0, 0, List.of(), List.of());
         when(diagnosticMessageModule.requestDM26(any(), eq(1))).thenReturn(RequestResult.of(dm26_1));
@@ -170,12 +172,14 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
                                                                       0,
                                                                       0x22,
                                                                       List.of(CompositeSystem.values()),
-                                                                      List.of(CompositeSystem.values())));
+                                                                      List.of(CompositeSystem.values())),
+                                  1);
         obdModuleInformation3.set(DM26TripDiagnosticReadinessPacket.create(3,
                                                                            0,
                                                                            0,
                                                                            List.of(CompositeSystem.values()),
-                                                                           List.of(CompositeSystem.values())));
+                                                                           List.of(CompositeSystem.values())),
+                                  11);
         dataRepository.putObdModule(obdModuleInformation3);
         var dm26_3 = DM26TripDiagnosticReadinessPacket.create(3,
                                                               0,
@@ -191,9 +195,9 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM26(any(), eq(2));
         verify(diagnosticMessageModule).requestDM26(any(), eq(3));
 
-        assertSame(dm26_0, dataRepository.getObdModule(0).get(DM26TripDiagnosticReadinessPacket.class));
-        assertSame(dm26_1, dataRepository.getObdModule(1).get(DM26TripDiagnosticReadinessPacket.class));
-        assertSame(dm26_3, dataRepository.getObdModule(3).get(DM26TripDiagnosticReadinessPacket.class));
+        assertSame(dm26_0, dataRepository.getObdModule(0).getLatest(DM26TripDiagnosticReadinessPacket.class));
+        assertSame(dm26_1, dataRepository.getObdModule(1).getLatest(DM26TripDiagnosticReadinessPacket.class));
+        assertSame(dm26_3, dataRepository.getObdModule(3).getLatest(DM26TripDiagnosticReadinessPacket.class));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -209,12 +213,14 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
                                                                       0,
                                                                       0x22,
                                                                       List.of(CompositeSystem.values()),
-                                                                      List.of()));
+                                                                      List.of()),
+                                  1);
         obdModuleInformation0.set(DM26TripDiagnosticReadinessPacket.create(0,
                                                                            0,
                                                                            0,
                                                                            List.of(),
-                                                                           List.of(CompositeSystem.values())));
+                                                                           List.of(CompositeSystem.values())),
+                                  11);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm26_0 = DM26TripDiagnosticReadinessPacket.create(0, 0, 0, List.of(), List.of());
         when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26_0));

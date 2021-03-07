@@ -193,14 +193,14 @@ public class Part08Step08Controller extends StepController {
     }
 
     private int getDM12Count(int address) {
-        return getDTCs(DM12MILOnEmissionDTCPacket.class, address).size();
+        return getDTCs(DM12MILOnEmissionDTCPacket.class, address, 8).size();
     }
 
     private int getDM23Count(int address) {
-        return getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class, address).size();
+        return getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class, address, 8).size();
     }
 
     private int getDM28Count(int address) {
-        return getDTCs(DM28PermanentEmissionDTCPacket.class, address).size();
+        return getDTCs(DM28PermanentEmissionDTCPacket.class, address, 8).size();
     }
 }

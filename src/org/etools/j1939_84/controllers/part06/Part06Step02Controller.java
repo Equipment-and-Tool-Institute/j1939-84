@@ -58,11 +58,11 @@ public class Part06Step02Controller extends StepController {
         var globalPackets = getDiagnosticMessageModule().requestDM5(getListener()).getPackets();
 
         // Save the DM5 response for each OBD ECU
-        globalPackets.stream().filter(p -> isObdModule(p.getSourceAddress())).forEach(this::save);
+        globalPackets.forEach(this::save);
 
         // 6.6.2.2.a Fail if no OBD ECU reports a count of > 0 active DTCs.
         boolean noActiveDTCs = globalPackets.stream()
-                                            .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                                            .filter(p -> isObdModule(p.getSourceAddress()))
                                             .noneMatch(p -> (p.getActiveCodeCount() > 0));
         if (noActiveDTCs) {
             addFailure("6.6.2.2.a - No OBD ECU reported a count of > 0 active DTCs");
@@ -70,12 +70,13 @@ public class Part06Step02Controller extends StepController {
 
         // 6.6.2.2.b Fail if any OBD ECU reports > 0 previously active DTC.
         globalPackets.stream()
-                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                     .filter(p -> isObdModule(p.getSourceAddress()))
                         .filter(p -> p.getPreviouslyActiveCodeCount() != (byte) 0xFF
                                 && p.getPreviouslyActiveCodeCount() > 0)
                         .map(ParsedPacket::getModuleName)
-                        .forEach(moduleName -> addFailure("6.6.2.2.b - OBD ECU " + moduleName
-                                + " reported > 0 previously active DTC"));
+                     .forEach(moduleName -> {
+                         addFailure("6.6.2.2.b - OBD ECU " + moduleName + " reported > 0 previously active DTC");
+                     });
 
         // 6.6.2.3.a Warn if any ECU reports a count of > 1 active DTC or previously active DTC.
         globalPackets.forEach(p -> {

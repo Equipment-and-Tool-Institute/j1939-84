@@ -149,7 +149,7 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
-        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)));
+        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)), 1);
         dataRepository.putObdModule(obdInfo);
 
         runTest();
@@ -163,14 +163,13 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
     public void testNoResponses() {
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
-        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)));
+        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)), 1);
         dataRepository.putObdModule(obdInfo);
 
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(true));
@@ -181,7 +180,6 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
@@ -201,7 +199,7 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
-        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)));
+        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)), 1);
         dataRepository.putObdModule(obdInfo);
 
         runTest();
@@ -210,6 +208,5 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 }

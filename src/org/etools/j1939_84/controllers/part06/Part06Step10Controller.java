@@ -121,7 +121,7 @@ public class Part06Step10Controller extends StepController {
     }
 
     private boolean hasDM12DTC(int address) {
-        return !getDTCs(DM12MILOnEmissionDTCPacket.class, address).isEmpty();
+        return !getDTCs(DM12MILOnEmissionDTCPacket.class, address, 6).isEmpty();
     }
 
 }

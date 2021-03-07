@@ -131,13 +131,13 @@ public class Part09Step16ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM26TripDiagnosticReadinessPacket.create(0, 0, 0));
+        obdModuleInformation0.set(DM26TripDiagnosticReadinessPacket.create(0, 0, 0), 8);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm26_0 = DM26TripDiagnosticReadinessPacket.create(0, 0, 0);
         when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26_0));
 
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
-        obdModuleInformation1.set(DM26TripDiagnosticReadinessPacket.create(1, 0, 1));
+        obdModuleInformation1.set(DM26TripDiagnosticReadinessPacket.create(1, 0, 1), 8);
         dataRepository.putObdModule(obdModuleInformation1);
         var dm26_1 = DM26TripDiagnosticReadinessPacket.create(1, 0, 0);
         when(diagnosticMessageModule.requestDM26(any(), eq(1))).thenReturn(RequestResult.of(dm26_1));
@@ -165,7 +165,7 @@ public class Part09Step16ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForWarmUpsSinceCodeClearNonZero() {
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
-        obdModuleInformation1.set(DM26TripDiagnosticReadinessPacket.create(1, 0, 1));
+        obdModuleInformation1.set(DM26TripDiagnosticReadinessPacket.create(1, 0, 1), 8);
         dataRepository.putObdModule(obdModuleInformation1);
         var dm26_1 = DM26TripDiagnosticReadinessPacket.create(1, 0, 1);
         when(diagnosticMessageModule.requestDM26(any(), eq(1))).thenReturn(RequestResult.of(dm26_1));

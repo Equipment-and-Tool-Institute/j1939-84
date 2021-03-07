@@ -325,11 +325,21 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
-        assertNotNull(dataRepository.getObdModule(0x0A).getCalibrationInformation());
-        assertNotNull(dataRepository.getObdModule(0x0B).getCalibrationInformation());
-        assertNotNull(dataRepository.getObdModule(0x0C).getCalibrationInformation());
-        assertNotNull(dataRepository.getObdModule(0x0D).getCalibrationInformation());
-        assertNotNull(dataRepository.getObdModule(0x0E).getCalibrationInformation());
+        assertNotNull(dataRepository.getObdModule(0x0A)
+                                    .getLatest(DM19CalibrationInformationPacket.class)
+                                    .getCalibrationInformation());
+        assertNotNull(dataRepository.getObdModule(0x0B)
+                                    .getLatest(DM19CalibrationInformationPacket.class)
+                                    .getCalibrationInformation());
+        assertNotNull(dataRepository.getObdModule(0x0C)
+                                    .getLatest(DM19CalibrationInformationPacket.class)
+                                    .getCalibrationInformation());
+        assertNotNull(dataRepository.getObdModule(0x0D)
+                                    .getLatest(DM19CalibrationInformationPacket.class)
+                                    .getCalibrationInformation());
+        assertNotNull(dataRepository.getObdModule(0x0E)
+                                    .getLatest(DM19CalibrationInformationPacket.class)
+                                    .getCalibrationInformation());
 
         verify(vehicleInformationModule).requestDM19(any());
         verify(vehicleInformationModule).requestDM19(any(), eq(0x0A));

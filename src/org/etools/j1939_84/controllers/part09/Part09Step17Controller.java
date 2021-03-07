@@ -74,7 +74,7 @@ public class Part09Step17Controller extends StepController {
         // 6.9.17.2.b. Fail if NACK now received from OBD ECUs that previously provided a DM25 message
         var addresses = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .filter(a -> get(DM25ExpandedFreezeFrame.class, a) != null)
+                                           .filter(a -> get(DM25ExpandedFreezeFrame.class, a, 8) != null)
                                            .collect(Collectors.toList());
         checkForNACKsDS(packets, filterAcks(dsResults), "6.9.17.2.b", addresses);
     }

@@ -137,7 +137,7 @@ public class Part09Step07ControllerTest extends AbstractControllerTest {
         dataRepository.setVehicleInformation(vehicleInformation);
 
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM33EmissionIncreasingAECDActiveTime.create(0, EngineHoursTimer.create(0, 1, 1)));
+        obdModuleInformation0.set(DM33EmissionIncreasingAECDActiveTime.create(0, EngineHoursTimer.create(0, 1, 1)), 2);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm33_0 = DM33EmissionIncreasingAECDActiveTime.create(0, EngineHoursTimer.create(0, 1, 1));
 
@@ -147,7 +147,7 @@ public class Part09Step07ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule).requestDM33(any());
 
-        assertSame(dm33_0, dataRepository.getObdModule(0).get(DM33EmissionIncreasingAECDActiveTime.class));
+        assertSame(dm33_0, dataRepository.getObdModule(0).getLatest(DM33EmissionIncreasingAECDActiveTime.class));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -182,7 +182,7 @@ public class Part09Step07ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         EngineHoursTimer timer0 = EngineHoursTimer.create(0, 0, 0);
         EngineHoursTimer timer1 = EngineHoursTimer.create(1, 1, 1);
-        obdModuleInformation0.set(DM33EmissionIncreasingAECDActiveTime.create(0, timer0, timer1));
+        obdModuleInformation0.set(DM33EmissionIncreasingAECDActiveTime.create(0, timer0, timer1), 2);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm33_0 = DM33EmissionIncreasingAECDActiveTime.create(0, EngineHoursTimer.create(0, 1, 1));
 
@@ -217,7 +217,7 @@ public class Part09Step07ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         EngineHoursTimer timer0 = EngineHoursTimer.create(0, 0, 0);
         EngineHoursTimer timer1 = EngineHoursTimer.create(1, 1, 1);
-        obdModuleInformation0.set(DM33EmissionIncreasingAECDActiveTime.create(0, timer0, timer1));
+        obdModuleInformation0.set(DM33EmissionIncreasingAECDActiveTime.create(0, timer0, timer1), 2);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm33_0 = DM33EmissionIncreasingAECDActiveTime.create(0, EngineHoursTimer.create(0, 1, 1));
 
@@ -252,7 +252,7 @@ public class Part09Step07ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         EngineHoursTimer timer0 = EngineHoursTimer.create(0, 0, 0);
         EngineHoursTimer timer1 = EngineHoursTimer.create(1, 1, 1);
-        obdModuleInformation0.set(DM33EmissionIncreasingAECDActiveTime.create(0, timer0, timer1));
+        obdModuleInformation0.set(DM33EmissionIncreasingAECDActiveTime.create(0, timer0, timer1), 2);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm33_0 = DM33EmissionIncreasingAECDActiveTime.create(0, EngineHoursTimer.create(0, 1, 1));
 

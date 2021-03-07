@@ -138,7 +138,7 @@ public class Part09Step12ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 1, 0, 3);
-        obdModule0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        obdModule0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 9);
         dataRepository.putObdModule(obdModule0);
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
         when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
@@ -161,7 +161,7 @@ public class Part09Step12ControllerTest extends AbstractControllerTest {
     public void testWarningAltOff() {
         OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 1, 0, 3);
-        obdModule0.set(DM12MILOnEmissionDTCPacket.create(0, ALTERNATE_OFF, OFF, OFF, OFF, dtc));
+        obdModule0.set(DM12MILOnEmissionDTCPacket.create(0, ALTERNATE_OFF, OFF, OFF, OFF, dtc), 9);
         dataRepository.putObdModule(obdModule0);
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, ALTERNATE_OFF, OFF, OFF, OFF, dtc);
         when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
@@ -203,7 +203,7 @@ public class Part09Step12ControllerTest extends AbstractControllerTest {
     public void testFailureForMILNotOff() {
         OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 1, 0, 3);
-        obdModule0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc));
+        obdModule0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 9);
         dataRepository.putObdModule(obdModule0);
 
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc);

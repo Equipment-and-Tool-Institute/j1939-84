@@ -133,7 +133,7 @@ public class Part11Step09ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 12, 1, 1);
-        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 10);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 2);
@@ -156,7 +156,7 @@ public class Part11Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNoDTCs() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF));
+        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF), 10);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
@@ -175,7 +175,7 @@ public class Part11Step09ControllerTest extends AbstractControllerTest {
     public void testFailureForDifferentDTCs() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 12, 1, 1);
-        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 10);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dtc1 = DiagnosticTroubleCode.create(456, 12, 0, 2);
@@ -198,7 +198,7 @@ public class Part11Step09ControllerTest extends AbstractControllerTest {
     public void testFailureForNoNACK() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 12, 1, 1);
-        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 10);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 2);

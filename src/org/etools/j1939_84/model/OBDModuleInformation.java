@@ -3,26 +3,19 @@
  */
 package org.etools.j1939_84.model;
 
+import static java.util.Comparator.comparingInt;
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
-import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
-import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 
@@ -31,20 +24,31 @@ import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
  */
 public class OBDModuleInformation implements Cloneable {
 
-    private final Set<PerformanceRatio> performanceRatios = new HashSet<>();
-    private final List<ScaledTestResult> scaledTestResults = new ArrayList<>();
-    private final List<ScaledTestResult> nonInitializedTests = new ArrayList<>();
     private final int sourceAddress;
-    private final List<SupportedSPN> supportedSPNs = new ArrayList<>();
+
+    private final int function;
+
     /** These SPNs represent SP which appear in multiple PGs. */
     private final List<Integer> omittedSPNs = new ArrayList<>(List.of(588, 1213, 1220, 12675, 12730, 12783, 12797));
-    private int function;
-    private int ignitionCycleCounterValue = -1;
-    private PacketArchive packetArchive = new PacketArchive();
+
+    // TODO this should be removed and tests re-factored to save a DM24 instead
+    private final List<SupportedSPN> supportedSPNs = new ArrayList<>();
+
+    private final List<ScaledTestResult> scaledTestResults = new ArrayList<>();
+
+    private final List<ScaledTestResult> nonInitializedTests = new ArrayList<>();
+
     private Double deltaEngineStart = null;
 
+    private PacketArchive packetArchive = new PacketArchive();
+
     public OBDModuleInformation(int sourceAddress) {
+        this(sourceAddress, -1);
+    }
+
+    public OBDModuleInformation(int sourceAddress, int function) {
         this.sourceAddress = sourceAddress;
+        this.function = function;
     }
 
     @Override
@@ -53,10 +57,7 @@ public class OBDModuleInformation implements Cloneable {
             super.clone();
         } catch (CloneNotSupportedException ignored) {
         }
-        OBDModuleInformation obdInfo = new OBDModuleInformation(getSourceAddress());
-        obdInfo.setFunction(getFunction());
-        obdInfo.setIgnitionCycleCounterValue(getIgnitionCycleCounterValue());
-        obdInfo.setPerformanceRatios(getPerformanceRatios());
+        OBDModuleInformation obdInfo = new OBDModuleInformation(getSourceAddress(), getFunction());
         obdInfo.setScaledTestResults(getScaledTestResults());
         obdInfo.setSupportedSPNs(getSupportedSPNs());
         obdInfo.setNonInitializedTests(getNonInitializedTests());
@@ -64,83 +65,6 @@ public class OBDModuleInformation implements Cloneable {
         obdInfo.packetArchive = packetArchive;
 
         return obdInfo;
-    }
-
-    public int getIgnitionCycleCounterValue() {
-        return ignitionCycleCounterValue;
-    }
-
-    public void setIgnitionCycleCounterValue(int ignitionCycleCounterValue) {
-        this.ignitionCycleCounterValue = ignitionCycleCounterValue;
-    }
-
-    public List<CalibrationInformation> getCalibrationInformation() {
-        DM19CalibrationInformationPacket dm19 = get(DM19CalibrationInformationPacket.class);
-        return dm19 == null ? List.of() : dm19.getCalibrationInformation();
-    }
-
-    public ComponentIdentification getComponentIdentification() {
-        ComponentIdentificationPacket packet = get(ComponentIdentificationPacket.class);
-        return packet == null ? null : packet.getComponentIdentification();
-    }
-
-    public List<SupportedSPN> getDataStreamSPNs() {
-        return getSupportedSPNs().stream()
-                                 .filter(SupportedSPN::supportsDataStream)
-                                 .collect(Collectors.toList());
-    }
-
-    /**
-     * Returns the List of SupportedSPNs filtering out 'dis-allowed' SPNs
-     */
-    public List<SupportedSPN> getFilteredDataStreamSPNs() {
-        return getDataStreamSPNs().stream()
-                                  .filter(s -> !getOmittedDataStreamSPNs().contains(s.getSpn()))
-                                  .collect(Collectors.toList());
-    }
-
-    public List<Integer> getOmittedDataStreamSPNs() {
-        return omittedSPNs.stream().distinct().sorted().collect(Collectors.toList());
-    }
-
-    public void addOmittedDataStreamSPN(int spn) {
-        omittedSPNs.add(spn);
-    }
-
-    public List<SupportedSPN> getFreezeFrameSPNs() {
-        return getSupportedSPNs().stream()
-                                 .filter(SupportedSPN::supportsExpandedFreezeFrame)
-                                 .collect(Collectors.toList());
-    }
-
-    public int getFunction() {
-        return function;
-    }
-
-    public void setFunction(int function) {
-        this.function = function;
-    }
-
-    public List<MonitoredSystem> getMonitoredSystems() {
-        return get(DM5DiagnosticReadinessPacket.class).getMonitoredSystems();
-    }
-
-    public Set<PerformanceRatio> getPerformanceRatios() {
-        return performanceRatios;
-    }
-
-    public void setPerformanceRatios(Collection<PerformanceRatio> performanceRatios) {
-        this.performanceRatios.clear();
-        this.performanceRatios.addAll(performanceRatios);
-    }
-
-    public List<ScaledTestResult> getScaledTestResults() {
-        return scaledTestResults;
-    }
-
-    public void setScaledTestResults(List<ScaledTestResult> scaledTestResults) {
-        this.scaledTestResults.clear();
-        this.scaledTestResults.addAll(scaledTestResults);
     }
 
     public int getSourceAddress() {
@@ -151,11 +75,17 @@ public class OBDModuleInformation implements Cloneable {
         return Lookup.getAddressName(getSourceAddress());
     }
 
-    public List<SupportedSPN> getSupportedSPNs() {
-        return (get(DM24SPNSupportPacket.class) == null ? supportedSPNs
-                : get(DM24SPNSupportPacket.class).getSupportedSpns()).stream()
-                                                                     .sorted(Comparator.comparingInt(SupportedSPN::getSpn))
-                                                                     .collect(Collectors.toList());
+    public int getFunction() {
+        return function;
+    }
+
+    /**
+     * @deprecated TODO inline the usage of this method
+     */
+    @Deprecated
+    public ComponentIdentification getComponentIdentification() {
+        ComponentIdentificationPacket packet = get(ComponentIdentificationPacket.class, 1);
+        return packet == null ? null : packet.getComponentIdentification();
     }
 
     /**
@@ -167,10 +97,54 @@ public class OBDModuleInformation implements Cloneable {
         this.supportedSPNs.addAll(supportedSPNs);
     }
 
+    public List<SupportedSPN> getSupportedSPNs() {
+        DM24SPNSupportPacket dm24 = get(DM24SPNSupportPacket.class, 1);
+        List<SupportedSPN> spns = dm24 == null ? supportedSPNs : dm24.getSupportedSpns();
+        return spns.stream().sorted(comparingInt(SupportedSPN::getSpn)).collect(toList());
+    }
+
+    public List<SupportedSPN> getDataStreamSPNs() {
+        return getSupportedSPNs().stream()
+                                 .filter(SupportedSPN::supportsDataStream)
+                                 .collect(toList());
+    }
+
+    /**
+     * Returns the List of SupportedSPNs filtering out 'dis-allowed' SPNs
+     */
+    public List<SupportedSPN> getFilteredDataStreamSPNs() {
+        return getDataStreamSPNs().stream()
+                                  .filter(s -> !getOmittedDataStreamSPNs().contains(s.getSpn()))
+                                  .collect(toList());
+    }
+
+    public List<SupportedSPN> getFreezeFrameSPNs() {
+        return getSupportedSPNs().stream()
+                                 .filter(SupportedSPN::supportsExpandedFreezeFrame)
+                                 .collect(toList());
+    }
+
     public List<SupportedSPN> getTestResultSPNs() {
         return getSupportedSPNs().stream()
                                  .filter(SupportedSPN::supportsScaledTestResults)
-                                 .collect(Collectors.toList());
+                                 .collect(toList());
+    }
+
+    public List<Integer> getOmittedDataStreamSPNs() {
+        return omittedSPNs.stream().distinct().sorted().collect(toList());
+    }
+
+    public void addOmittedDataStreamSPN(int spn) {
+        omittedSPNs.add(spn);
+    }
+
+    public List<ScaledTestResult> getScaledTestResults() {
+        return scaledTestResults;
+    }
+
+    public void setScaledTestResults(List<ScaledTestResult> scaledTestResults) {
+        this.scaledTestResults.clear();
+        this.scaledTestResults.addAll(scaledTestResults);
     }
 
     public List<ScaledTestResult> getNonInitializedTests() {
@@ -182,20 +156,20 @@ public class OBDModuleInformation implements Cloneable {
         nonInitializedTests.addAll(tests);
     }
 
-    public <T extends GenericPacket> void remove(Class<T> clazz) {
-        packetArchive.remove(clazz);
+    public void set(GenericPacket packet, int partNumber) {
+        packetArchive.put(packet, partNumber);
     }
 
-    public void set(GenericPacket packet) {
-        packetArchive.put(packet);
+    public <T extends GenericPacket> T get(Class<T> clazz, int partNumber) {
+        return packetArchive.get(clazz, partNumber);
     }
 
-    public <T extends GenericPacket> T get(Class<T> clazz) {
-        return packetArchive.get(clazz);
+    public <T extends GenericPacket> T getLatest(Class<T> clazz) {
+        return packetArchive.getLatest(clazz);
     }
 
     public boolean supportsDM27() {
-        return get(DM27AllPendingDTCsPacket.class) != null;
+        return getLatest(DM27AllPendingDTCsPacket.class) != null;
     }
 
     public Double getDeltaEngineStart() {
@@ -208,19 +182,40 @@ public class OBDModuleInformation implements Cloneable {
 
     private static class PacketArchive {
 
-        private final Map<Class<? extends GenericPacket>, GenericPacket> packetArchive = new HashMap<>();
+        private final Map<Class<? extends GenericPacket>, GenericPacket[]> packetArchive = new HashMap<>();
 
-        public void put(GenericPacket packet) {
-            packetArchive.put(packet.getClass(), packet);
+        public void put(GenericPacket packet, int partNumber) {
+            if (partNumber == 0) {
+                throw new IllegalArgumentException("0 is not a valid partNumber");
+            }
+
+            var packets = getPackets(packet.getClass());
+            packets[partNumber] = packet;
+            packetArchive.put(packet.getClass(), packets);
         }
 
-        public <T extends GenericPacket> T get(Class<T> clazz) {
-            return (T) packetArchive.get(clazz);
+        public <T extends GenericPacket> T getLatest(Class<T> clazz) {
+            for (int i = 12; i > 0; i--) {
+                var packet = get(clazz, i);
+                if (packet != null) {
+                    return packet;
+                }
+            }
+            return null;
         }
 
-        public <T extends GenericPacket> void remove(Class<T> clazz) {
-            packetArchive.remove(clazz);
+        public <T extends GenericPacket> T get(Class<T> clazz, int partNumber) {
+            if (partNumber == 0) {
+                throw new IllegalArgumentException("0 is not a valid partNumber");
+            }
+
+            return (T) getPackets(clazz)[partNumber];
         }
+
+        private <T extends GenericPacket> GenericPacket[] getPackets(Class<T> clazz) {
+            return packetArchive.getOrDefault(clazz, new GenericPacket[13]);
+        }
+
     }
 
 }
