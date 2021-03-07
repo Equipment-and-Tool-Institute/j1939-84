@@ -316,9 +316,9 @@ public abstract class StepController extends Controller {
         }
     }
 
-    protected void waitForManufacturerInterval(String boxTitle, String keyState) {
-        String message = format("Wait for the manufacturer's recommended interval with the key in %s position."
-                + NL, keyState);
+    protected void waitForManufacturerInterval(String boxTitle, KeyState keyState) {
+        String message = format("Wait for the manufacturer's recommended interval with the %s."
+                + NL, keyState.name);
         message += "Press OK to continue the testing.";
         displayInstructionAndWait(message, boxTitle, WARNING);
     }

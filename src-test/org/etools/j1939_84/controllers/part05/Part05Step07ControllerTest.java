@@ -151,7 +151,7 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Wait for the manufacturer's recommended interval with the key in off position."
+        String urgentMessages = "Wait for the manufacturer's recommended interval with the Key OFF."
                 + NL;
         urgentMessages += "Press OK to continue the testing.";
         String expectedTitle = "Step 6.5.7.1.b";
@@ -165,7 +165,7 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
         String expectedTitle1 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING), any());
 
-        String urgentMessages2 = "Wait for the manufacturer's recommended interval with the key in on position."
+        String urgentMessages2 = "Wait for the manufacturer's recommended interval with the Key ON/Engine RUNNING."
                 + NL;
         urgentMessages2 += "Press OK to continue the testing.";
         String expectedTitle2 = "Step 6.5.7.1.d";
@@ -226,7 +226,7 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Wait for the manufacturer's recommended interval with the key in off position."
+        String urgentMessages = "Wait for the manufacturer's recommended interval with the Key OFF."
                 + NL;
         urgentMessages += "Press OK to continue the testing.";
         String expectedTitle = "Step 6.5.7.1.b";
@@ -240,7 +240,7 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
         String expectedTitle1 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING), any());
 
-        String urgentMessages2 = "Wait for the manufacturer's recommended interval with the key in on position."
+        String urgentMessages2 = "Wait for the manufacturer's recommended interval with the Key ON/Engine RUNNING."
                 + NL;
         urgentMessages2 += "Press OK to continue the testing.";
         String expectedTitle2 = "Step 6.5.7.1.d";
@@ -306,7 +306,7 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Wait for the manufacturer's recommended interval with the key in off position."
+        String urgentMessages = "Wait for the manufacturer's recommended interval with the Key OFF."
                 + NL;
         urgentMessages += "Press OK to continue the testing.";
         String expectedTitle = "Step 6.5.7.1.b";
@@ -320,7 +320,7 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
         String expectedTitle1 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING), any());
 
-        String urgentMessages2 = "Wait for the manufacturer's recommended interval with the key in on position."
+        String urgentMessages2 = "Wait for the manufacturer's recommended interval with the Key ON/Engine RUNNING."
                 + NL;
         urgentMessages2 += "Press OK to continue the testing.";
         String expectedTitle2 = "Step 6.5.7.1.d";

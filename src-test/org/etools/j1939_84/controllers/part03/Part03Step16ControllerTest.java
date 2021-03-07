@@ -156,7 +156,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
 
         questionCaptor.getValue().answered(NO);
 
-        String urgentMessages2 = "Wait for the manufacturer's recommended interval with the key in off position."
+        String urgentMessages2 = "Wait for the manufacturer's recommended interval with the Key OFF."
                 + NL;
         urgentMessages2 += "Press OK to continue the testing.";
         String expectedTitle2 = "Step 6.3.16.1.c";
@@ -219,7 +219,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages2 = "Wait for the manufacturer's recommended interval with the key in off position."
+        String urgentMessages2 = "Wait for the manufacturer's recommended interval with the Key OFF."
                 + NL;
         urgentMessages2 += "Press OK to continue the testing.";
         String expectedTitle2 = "Step 6.3.16.1.c";
@@ -280,7 +280,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages2 = "Wait for the manufacturer's recommended interval with the key in off position."
+        String urgentMessages2 = "Wait for the manufacturer's recommended interval with the Key OFF."
                 + NL;
         urgentMessages2 += "Press OK to continue the testing.";
         String expectedTitle2 = "Step 6.3.16.1.c";

@@ -61,7 +61,7 @@ public class Part05Step07Controller extends StepController {
 
         // 6.5.7.1.b Wait manufacturer’s recommended interval with the key in the off position.
         incrementProgress("Step 6.5.7.1.b - Waiting manufacturer’s recommended interval with the key in the off position");
-        waitForManufacturerInterval("Step 6.5.7.1.b", "off");
+        waitForManufacturerInterval("Step 6.5.7.1.b", KEY_OFF);
 
         // 6.5.7.1.c Start Engine for second cycle.
         incrementProgress("Step 6.5.7.1.c Turn Engine on and keep the ignition key in the on position");
@@ -69,7 +69,7 @@ public class Part05Step07Controller extends StepController {
 
         // 6.5.7.1.d Wait for manufacturer’s recommended time for Fault A to be detected as passed.
         incrementProgress("Waiting manufacturer’s recommended time for Fault A to be detected as passed");
-        waitForManufacturerInterval("Step 6.5.7.1.d", "on");
+        waitForManufacturerInterval("Step 6.5.7.1.d", KEY_ON_ENGINE_RUNNING);
 
         // 6.5.7.1.e Turn the engine off to complete the second cycle.
         // 6.5.7.1.f Wait manufacturer’s recommended interval with the key in the off position.

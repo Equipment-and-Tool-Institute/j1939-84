@@ -87,7 +87,7 @@ public class Part07Step18Controller extends StepController {
         ensureKeyStateIs(KEY_OFF);
 
         // 6.7.18.1.h. Wait engine manufacturer’s recommended interval for permanent fault recording.
-        waitForManufacturerInterval("Step 6.7.18.1.h", "off");
+        waitForManufacturerInterval("Step 6.7.18.1.h", KEY_OFF);
 
         // 6.7.18.1.i. Start Engine.
         incrementProgress("Step 6.7.18.1.i - Turn Engine on with the ignition key in the on position");
@@ -110,7 +110,7 @@ public class Part07Step18Controller extends StepController {
                 ensureKeyStateIs(KEY_OFF);
 
                 // 6.7.18.1.m. Wait engine manufacturer’s recommended interval for permanent fault recording.
-                waitForManufacturerInterval("Step 6.7.18.1.m", "off");
+                waitForManufacturerInterval("Step 6.7.18.1.m", KEY_OFF);
 
                 // 6.7.18.1.n. Start Engine.
                 // 6.7.18.1.o. Proceed with part 8 (cycle 8b).

@@ -138,7 +138,7 @@ public class Part04Step15ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Wait for the manufacturer's recommended interval with the key in off position."
+        String urgentMessages = "Wait for the manufacturer's recommended interval with the Key OFF."
                 + NL;
         urgentMessages += "Press OK to continue the testing.";
         String expectedTitle = "Step 6.4.15.1.b";
@@ -199,7 +199,7 @@ public class Part04Step15ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Wait for the manufacturer's recommended interval with the key in off position."
+        String urgentMessages = "Wait for the manufacturer's recommended interval with the Key OFF."
                 + NL;
         urgentMessages += "Press OK to continue the testing.";
         String expectedTitle = "Step 6.4.15.1.b";
@@ -259,7 +259,7 @@ public class Part04Step15ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Wait for the manufacturer's recommended interval with the key in off position."
+        String urgentMessages = "Wait for the manufacturer's recommended interval with the Key OFF."
                 + NL;
         urgentMessages += "Press OK to continue the testing.";
         String expectedTitle = "Step 6.4.15.1.b";
