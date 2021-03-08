@@ -59,6 +59,7 @@ public class Part11Step01Controller extends StepController {
         // 6.11.1.2.a. If engine speed is < 400 rpm, prompt/warn operator to confirm engine is running and then press
         // enter.
         ensureKeyStateIs(KEY_ON_ENGINE_RUNNING);
+        getDataRepository().setPart11StartTime(getDateTimeModule().getTimeAsLong());
     }
 
 }

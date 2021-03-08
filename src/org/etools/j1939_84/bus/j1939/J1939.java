@@ -21,6 +21,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -230,7 +231,7 @@ public class J1939 {
         return bus.getAddress();
     }
 
-    private DateTimeModule getDateTimeModule() {
+    private static DateTimeModule getDateTimeModule() {
         return DateTimeModule.getInstance();
     }
 
@@ -373,6 +374,18 @@ public class J1939 {
             default:
                 return new GenericPacket(packet);
         }
+    }
+
+    public Stream<GenericPacket> readGenericPacket(Predicate<Either<GenericPacket, AcknowledgmentPacket>> predicate) {
+        try {
+            return read()
+                         .takeWhile(predicate)
+                         .filter(e -> e.left.isPresent())
+                         .flatMap(e -> e.left.stream());
+        } catch (BusException e) {
+            getLogger().log(Level.SEVERE, "Error while reading bus", e);
+        }
+        return Stream.empty();
     }
 
     /**

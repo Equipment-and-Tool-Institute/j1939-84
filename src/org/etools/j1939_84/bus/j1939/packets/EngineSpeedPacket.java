@@ -5,6 +5,7 @@ package org.etools.j1939_84.bus.j1939.packets;
 
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
+import org.etools.j1939_84.utils.CollectionUtils;
 
 /**
  * The {@link ParsedPacket} responsible for translating Engine Speed (SPN 190)
@@ -15,6 +16,13 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 public class EngineSpeedPacket extends GenericPacket {
 
     public static final int PGN = 61444;
+
+    public static EngineSpeedPacket create(int sourceAddress, int engineRPMs) {
+        int[] data = new int[] { 0xFF, 0xFF, 0xFF };
+        data = CollectionUtils.join(data, toInts(engineRPMs * 8)); // Bytes 4 & 5
+        data = CollectionUtils.join(data, new int[] { 0xFF, 0xFF, 0xFF });
+        return new EngineSpeedPacket(Packet.create(PGN, sourceAddress, data));
+    }
 
     private final double engineSpeed;
 

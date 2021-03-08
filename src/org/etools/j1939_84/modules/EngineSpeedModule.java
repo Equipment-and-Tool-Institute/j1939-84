@@ -3,14 +3,25 @@
  */
 package org.etools.j1939_84.modules;
 
+import static java.time.temporal.ChronoUnit.MILLIS;
+import static org.etools.j1939_84.bus.j1939.J1939.ENGINE_ADDR;
 import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
+import static org.etools.j1939_84.model.KeyState.UNKNOWN;
 
+import java.time.LocalDateTime;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
-import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.Either;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket;
+import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.model.KeyState;
 
 /**
@@ -21,67 +32,178 @@ import org.etools.j1939_84.model.KeyState;
  */
 public class EngineSpeedModule extends FunctionalModule {
 
-    public EngineSpeedModule() {
-        super();
-    }
+    private static final double WMA_FACTOR = 64.0;
+
+    private final AtomicLong timeAtSpeed = new AtomicLong(0);
+    private final AtomicLong timeAtIdle = new AtomicLong(0);
+    private final AtomicReference<Double> idleEngineSpeed = new AtomicReference<>(600.0);
+    private final AtomicReference<Double> pedalPosition = new AtomicReference<>(0.0);
+
+    private LocalDateTime lastTimestamp = null;
+
+    private final AtomicReference<Double> averagedEngineSpeed = new AtomicReference<>(0.0);
+    private final AtomicReference<Double> currentEngineSpeed = new AtomicReference<>(0.0);
 
     private EngineSpeedPacket getEngineSpeedPacket() {
         // The transmission rate changes based upon the engine speed. 100 ms is
         // the longest period between messages when the engine is off
-        return getJ1939().read(EngineSpeedPacket.class, J1939.ENGINE_ADDR, 300, TimeUnit.MILLISECONDS)
+        return getJ1939().read(EngineSpeedPacket.class, ENGINE_ADDR, 300, TimeUnit.MILLISECONDS)
                          .flatMap(e -> e.left)
                          .orElse(null);
     }
 
-    /**
-     * Returns true if the Engine Speed is returned from the engine indicating
-     * the engine is communicating
-     *
-     * @return true if the engine is communicating; false if the engine is not
-     *         communicating
-     */
-    private boolean isEngineCommunicating() {
-        return getEngineSpeedPacket() != null;
-    }
-
-    /**
-     * 
-     * @return the current keystate of the vehicle based on requirements around
-     *         engine communications and RPMs {@link KeyState}
-     */
     public KeyState getKeyState() {
-        if (!isEngineCommunicating()) {
+        EngineSpeedPacket packet = getEngineSpeedPacket();
+
+        if (packet == null) {
             return KEY_OFF;
-        }
-        if (isEngineRunning()) {
+        } else if (packet.isError() || packet.isNotAvailable()) {
+            return UNKNOWN;
+        } else if (packet.getEngineSpeed() <= 300) {
+            return KEY_ON_ENGINE_OFF;
+        } else {
             return KEY_ON_ENGINE_RUNNING;
         }
-        return KEY_ON_ENGINE_OFF;
-    }
-
-    /**
-     * Returns true if the Engine is communicating with an Engine Speed greater
-     * than or equal to 300 RPM.
-     *
-     * @return true if the engine is not running; false otherwise
-     */
-    private boolean isEngineRunning() {
-        EngineSpeedPacket packet = getEngineSpeedPacket();
-        return !(packet == null || packet.isError() || packet.isNotAvailable() || packet.getEngineSpeed() <= 300);
-    }
-
-    /**
-     * Returns the engine speed in RPMs.
-     *
-     * @return double representing the engine speed in RPMs
-     */
-    public Double getEngineSpeed() {
-        EngineSpeedPacket packet = getEngineSpeedPacket();
-        return packet == null ? null : packet.getEngineSpeed();
     }
 
     public String getEngineSpeedAsString() {
-        Double engineSpeed = getEngineSpeed();
-        return (engineSpeed == null ? "----" : engineSpeed) + " RPMs";
+        EngineSpeedPacket packet = getEngineSpeedPacket();
+        if (packet == null) {
+            return "---- RPMs";
+        } else if (packet.isError()) {
+            return "Error RPMs";
+        } else if (packet.isNotAvailable()) {
+            return "N/A RPMs";
+        } else {
+            return packet.getEngineSpeed() + " RPMs";
+        }
     }
+
+    public boolean isEngineAtIdle() {
+
+        // N_SPN188 is the engine speed value for Point 1 in the Engine Configuration Message given in SPN 188.
+
+        // LOWER_LIMIT = N_SPN188 – 100 RPM
+        double lowerIdleLimit = idleEngineSpeed() - 100;
+        // UPPER_LIMIT = N_SPN188 + 100 RPM
+        double upperIdleLimit = idleEngineSpeed() + 100;
+
+        // APS = SPN 91
+        // AUX_APS = SPN 29 (if supported, substitute 0 for unsupported, and broadcast values of 0xFF or 0xFE)
+        // (APS <= 0.4%) AND (AUX_APS <= 0.4%) //[No Pedal Demand]
+        boolean noPedalDemand = pedalPosition() <= 0.4;
+
+        // AND (LOWER_LIMIT <= N <= UPPER_LIMIT) [Engine Speed Within Boundaries]
+        boolean currentInRange = lowerIdleLimit < currentEngineSpeed() && currentEngineSpeed() < upperIdleLimit;
+
+        // AND (LOWER_LIMIT <= N_WMA(+) <= UPPER_LIMIT) [Weighted Average Engine Speed within boundaries]
+        // Where N_WMA(+) = 1/64 * N(+) + 63/64 * N_WMA(-)
+        boolean averageInRange = lowerIdleLimit < averagedEngineSpeed() && averagedEngineSpeed() < upperIdleLimit;
+
+        // AND (N_SPN188 <= 850 RPM) [Engine Idle Speed lower than Upper Bound]
+        boolean idleSpeedReasonable = idleEngineSpeed() <= 850;
+
+        // Engine is at Idle when:
+        return noPedalDemand && currentInRange && averageInRange && idleSpeedReasonable;
+    }
+
+    public void startMonitoringEngineSpeed(ExecutorService executor,
+                                           Predicate<Either<GenericPacket, AcknowledgmentPacket>> stopPredicate) {
+        lastTimestamp = null;
+        timeAtSpeed.set(0);
+        timeAtIdle.set(0);
+        idleEngineSpeed.set(600.0);
+
+        var engineSpeedPacket = getEngineSpeedPacket();
+        if (engineSpeedPacket == null || engineSpeedPacket.isNotAvailable() || engineSpeedPacket.isError()) {
+            currentEngineSpeed.set(0.0);
+            averagedEngineSpeed.set(0.0);
+        } else {
+            currentEngineSpeed.set(engineSpeedPacket.getEngineSpeed());
+            averagedEngineSpeed.set(engineSpeedPacket.getEngineSpeed());
+        }
+
+        executor.submit(() -> {
+            getJ1939().readGenericPacket(stopPredicate)
+                      .filter(p -> p.getSourceAddress() == ENGINE_ADDR)
+                      .forEach(p -> {
+                          int pgn = p.getPacket().getPgn();
+                          switch (pgn) {
+                              case 61444:
+                                  processEngineSpeedPacket(p);
+                                  break;
+                              case 65251:
+                                  processIdleSpeedPacket(p);
+                                  break;
+                              case 61443:
+                                  processPedalPositionPacket(p);
+                                  break;
+                          }
+                      });
+        });
+
+    }
+
+    private void processIdleSpeedPacket(GenericPacket packet) {
+        packet.getSpnValue(188).forEach(idleEngineSpeed::set);
+    }
+
+    private void processPedalPositionPacket(GenericPacket packet) {
+        Stream.concat(packet.getSpnValue(29), packet.getSpnValue(91))
+              .mapToDouble(v -> v)
+              .max()
+              .stream()
+              .forEach(pedalPosition::set);
+    }
+
+    private void processEngineSpeedPacket(GenericPacket packet) {
+        long millisBetweenPackets = calculateMillisBetweenPackets(packet);
+
+        packet.getSpnValue(190).forEach(engineSpeed -> {
+            currentEngineSpeed.set(engineSpeed);
+            averagedEngineSpeed.set(engineSpeed / WMA_FACTOR
+                    + averagedEngineSpeed.get() * (WMA_FACTOR - 1) / WMA_FACTOR);
+
+            if (isEngineAtIdle()) {
+                timeAtIdle.getAndAdd(millisBetweenPackets);
+            } else if (engineSpeed >= 1150) {
+                timeAtSpeed.getAndAdd(millisBetweenPackets);
+            }
+        });
+    }
+
+    private long calculateMillisBetweenPackets(GenericPacket packet) {
+        LocalDateTime currentTimestamp = packet.getPacket().getTimestamp();
+        long diffTime = 0;
+        if (lastTimestamp != null) {
+            diffTime = lastTimestamp.until(currentTimestamp, MILLIS);
+        }
+        lastTimestamp = currentTimestamp;
+        return diffTime;
+    }
+
+    public long secondsAtSpeed() {
+        return TimeUnit.MILLISECONDS.toSeconds(timeAtSpeed.get());
+    }
+
+    public long secondsAtIdle() {
+        return TimeUnit.MILLISECONDS.toSeconds(timeAtIdle.get());
+    }
+
+    public double idleEngineSpeed() {
+        return idleEngineSpeed.get();
+    }
+
+    public double averagedEngineSpeed() {
+        return averagedEngineSpeed.get();
+    }
+
+    public double pedalPosition() {
+        return pedalPosition.get();
+    }
+
+    public double currentEngineSpeed() {
+        return currentEngineSpeed.get();
+    }
+
 }

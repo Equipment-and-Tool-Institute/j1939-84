@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
+import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
@@ -69,8 +70,17 @@ public class GenericPacket extends ParsedPacket {
         return pgnDefinition;
     }
 
-    public Optional<Spn> getSpn(int spnId) {
-        return getSpns().stream().filter(s -> s.getId() == spnId).findFirst();
+    public Optional<Spn> getSpn(int spn) {
+        return getSpns().stream().filter(s -> s.getId() == spn).findAny();
+    }
+
+    public Stream<Double> getSpnValue(int spn) {
+        return getSpns().stream()
+                        .filter(s -> s.getId() == spn)
+                        .filter(Spn::hasValue)
+                        .map(Spn::getValue)
+                        .findAny()
+                        .stream();
     }
 
     public List<Spn> getSpns() {

@@ -26,6 +26,7 @@ public class DataRepository {
     private boolean isAfterCodeClear;
     private double koeoEngineReferenceTorque;
     private VehicleInformation vehicleInformation;
+    private long part11StartTime;
 
     private DataRepository() {
     }
@@ -105,5 +106,13 @@ public class DataRepository {
 
     public void setIsAfterCodeClear(boolean isAfterCodeClear) {
         this.isAfterCodeClear = isAfterCodeClear;
+    }
+
+    public long getPart11StartTime() {
+        return part11StartTime;
+    }
+
+    public void setPart11StartTime(long part11StartTime) {
+        this.part11StartTime = part11StartTime;
     }
 }
