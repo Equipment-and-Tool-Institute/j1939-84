@@ -131,12 +131,10 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM26(any());
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
@@ -147,7 +145,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM26(any());
         verify(diagnosticMessageModule).requestDM26(any(), eq(0x01));
 
@@ -162,7 +159,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
@@ -180,7 +176,7 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
                                                                                                         0x77,
                                                                                                         0x88));
         OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
-        obdModule0.set(packet0);
+        obdModule0.set(packet0, 1);
         dataRepository.putObdModule(obdModule0);
         DM26TripDiagnosticReadinessPacket packet00 = new DM26TripDiagnosticReadinessPacket(
                                                                                            Packet.create(PGN,
@@ -208,7 +204,7 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
                                                                                                         0xFF,
                                                                                                         0xFF));
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
-        obdModule1.set(packet1);
+        obdModule1.set(packet1, 1);
         dataRepository.putObdModule(obdModule1);
         when(diagnosticMessageModule.requestDM26(any(), eq(1))).thenReturn(new RequestResult<>(false, packet1));
 
@@ -239,7 +235,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM26(any());
         verify(diagnosticMessageModule).requestDM26(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM26(any(), eq(0x01));
@@ -387,7 +382,7 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
                                                                                                         0x88));
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(0x01);
-        obdModule1.set(packet1);
+        obdModule1.set(packet1, 1);
         dataRepository.putObdModule(obdModule1);
 
         when(diagnosticMessageModule.requestDM26(any())).thenReturn(new RequestResult<>(false, packet1));
@@ -395,7 +390,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM26(any());
         verify(diagnosticMessageModule).requestDM26(any(), eq(0x01));
 

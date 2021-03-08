@@ -7,7 +7,6 @@ import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Respons
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.FAST_FLASH;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -143,14 +142,16 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
                                                          OFF,
                                                          OFF,
                                                          OFF,
-                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)));
+                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)),
+                       4);
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
         obdModule1.set(DM12MILOnEmissionDTCPacket.create(1,
                                                          OFF,
                                                          OFF,
                                                          OFF,
                                                          OFF,
-                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)));
+                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)),
+                       4);
 
         dataRepository.putObdModule(obdModule0);
         dataRepository.putObdModule(obdModule1);
@@ -168,7 +169,6 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM23(any(), eq(1));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -181,14 +181,16 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
                                                          OFF,
                                                          OFF,
                                                          OFF,
-                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)));
+                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)),
+                       4);
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
         obdModule1.set(DM12MILOnEmissionDTCPacket.create(1,
                                                          OFF,
                                                          OFF,
                                                          OFF,
                                                          OFF,
-                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)));
+                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)),
+                       4);
 
         dataRepository.putObdModule(obdModule0);
         dataRepository.putObdModule(obdModule1);
@@ -204,7 +206,6 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM23(any(), eq(1));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -218,7 +219,7 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
 
         var obdModule0 = new OBDModuleInformation(0);
-        obdModule0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        obdModule0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 4);
         dataRepository.putObdModule(obdModule0);
 
         var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
@@ -229,7 +230,6 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM23(any(), eq(0));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -239,14 +239,15 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testNackNotRecieved() {
+    public void testNackNotReceived() {
         OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
         obdModule0.set(DM12MILOnEmissionDTCPacket.create(0,
                                                          OFF,
                                                          OFF,
                                                          OFF,
                                                          OFF,
-                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)));
+                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)),
+                       4);
         dataRepository.putObdModule(obdModule0);
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
         obdModule1.set(DM12MILOnEmissionDTCPacket.create(1,
@@ -254,7 +255,8 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
                                                          OFF,
                                                          OFF,
                                                          OFF,
-                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)));
+                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)),
+                       4);
         dataRepository.putObdModule(obdModule1);
 
         var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, FAST_FLASH, OFF, OFF, OFF);
@@ -269,7 +271,6 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM23(any(), eq(1));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -289,10 +290,9 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
                                                          OFF,
                                                          OFF,
                                                          OFF,
-                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)));
+                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)),
+                       4);
         dataRepository.putObdModule(obdModule0);
-
-        var dsDM23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF);
         when(diagnosticMessageModule.requestDM23(any(), eq(0))).thenReturn(new BusResult<>(false, Optional.empty()));
 
         runTest();
@@ -300,7 +300,6 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM23(any(), eq(0));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,

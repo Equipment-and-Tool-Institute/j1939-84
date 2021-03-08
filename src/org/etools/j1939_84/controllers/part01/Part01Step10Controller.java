@@ -22,9 +22,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *         <p>
- *         6.1.10 DM11: Diagnostic Data Clear/Reset for Active DTCs
+ * 6.1.10 DM11: Diagnostic Data Clear/Reset for Active DTCs
  */
 public class Part01Step10Controller extends StepController {
 
@@ -68,7 +66,7 @@ public class Part01Step10Controller extends StepController {
         // 6.1.10.1.b. Record all ACK/NACK/BUSY/Access Denied responses (for PGN 65235) in the log.
         List<AcknowledgmentPacket> packets = getDiagnosticMessageModule().requestDM11(getListener())
                                                                          .stream()
-                                                                         .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                                                                         .filter(p -> isObdModule(p.getSourceAddress()))
                                                                          .collect(Collectors.toList());
 
         // 6.1.10.1.c. Allow 5 s to elapse before proceeding with test step 6.1.10.2.

@@ -135,9 +135,9 @@ public class Part08Step06ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 1, 0, 1);
         var dtc2 = DiagnosticTroubleCode.create(234, 1, 0, 1);
-        obdModuleInformation.set(DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2));
+        obdModuleInformation.set(DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2), 8);
         var dtc3 = DiagnosticTroubleCode.create(1098, 1, 0, 1);
-        obdModuleInformation.set(DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF, dtc3));
+        obdModuleInformation.set(DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF, dtc3), 8);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm5 = DM5DiagnosticReadinessPacket.create(0, 2, 1, 0x22);
@@ -158,9 +158,9 @@ public class Part08Step06ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 1, 0, 1);
         var dtc2 = DiagnosticTroubleCode.create(234, 1, 0, 1);
-        obdModuleInformation.set(DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2));
+        obdModuleInformation.set(DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2), 8);
         var dtc3 = DiagnosticTroubleCode.create(1098, 1, 0, 1);
-        obdModuleInformation.set(DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF, dtc3));
+        obdModuleInformation.set(DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF, dtc3), 8);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm5 = DM5DiagnosticReadinessPacket.create(0, 1, 1, 0x22);
@@ -185,9 +185,9 @@ public class Part08Step06ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 1, 0, 1);
         var dtc2 = DiagnosticTroubleCode.create(234, 1, 0, 1);
-        obdModuleInformation.set(DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2));
+        obdModuleInformation.set(DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2), 8);
         var dtc3 = DiagnosticTroubleCode.create(1098, 1, 0, 1);
-        obdModuleInformation.set(DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF, dtc3));
+        obdModuleInformation.set(DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF, dtc3), 8);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm5 = DM5DiagnosticReadinessPacket.create(0, 2, 2, 0x22);
@@ -212,9 +212,9 @@ public class Part08Step06ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 1, 0, 1);
         var dtc2 = DiagnosticTroubleCode.create(234, 1, 0, 1);
-        obdModuleInformation.set(DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2));
+        obdModuleInformation.set(DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2), 8);
         var dtc3 = DiagnosticTroubleCode.create(1098, 1, 0, 1);
-        obdModuleInformation.set(DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF, dtc3));
+        obdModuleInformation.set(DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF, dtc3), 8);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm5_1 = DM5DiagnosticReadinessPacket.create(0, 2, 1, 0x22);

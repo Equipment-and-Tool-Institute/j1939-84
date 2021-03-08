@@ -91,7 +91,7 @@ public class Part02Step12Controller extends StepController {
         globalPackets.stream()
                      .filter(p -> p.hasNonZeroCounts(null))
                      .map(ParsedPacket::getSourceAddress)
-                     .filter(address -> !getDataRepository().isObdModule(address))
+                     .filter(address -> !isObdModule(address))
                      .map(Lookup::getAddressName)
                      .forEach(moduleName -> {
                          addFailure("6.2.12.2.c - A non-OBD ECU " + moduleName
@@ -112,8 +112,7 @@ public class Part02Step12Controller extends StepController {
         // 6.2.12.3.a. DS DM29 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(address -> getDiagnosticMessageModule().requestDM29(getListener(),
-                                                                                                    address))
+                                           .map(a -> getDiagnosticMessageModule().requestDM29(getListener(), a))
                                            .collect(Collectors.toList());
 
         // 6.2.12.4.a. Fail if any difference compared to data received during global request.

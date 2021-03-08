@@ -137,7 +137,7 @@ public class Part11Step05ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule).requestDM20(any());
 
-        assertSame(dm20_0, dataRepository.getObdModule(0).get(DM20MonitorPerformanceRatioPacket.class));
+        assertSame(dm20_0, dataRepository.getObdModule(0).getLatest(DM20MonitorPerformanceRatioPacket.class));
         assertNull(dataRepository.getObdModule(1));
 
         assertEquals("", listener.getMessages());

@@ -14,7 +14,6 @@ import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -67,7 +66,9 @@ public class Part04Step09Controller extends StepController {
         globalPackets.stream()
                      .filter(p -> !p.getDtcs().isEmpty())
                      .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.4.9.2.a - " + moduleName + " reported a pending DTC"));
+                     .forEach(moduleName -> {
+                         addFailure("6.4.9.2.a - " + moduleName + " reported a pending DTC");
+                     });
 
         // 6.4.9.2.b (if supported) Fail if any ([OBD)] ECU reports a different MIL status than it did for DM12 response
         // earlier in this part.
@@ -75,16 +76,17 @@ public class Part04Step09Controller extends StepController {
                      .filter(p -> getLampStatus(p.getSourceAddress()) != null)
                      .filter(p -> p.getMalfunctionIndicatorLampStatus() != getLampStatus(p.getSourceAddress()))
                      .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.4.9.2.b - " + moduleName
-                             + " reported a different MIL status that it did for DM12 response earlier in this part"));
+                     .forEach(moduleName -> {
+                         addFailure("6.4.9.2.b - " + moduleName
+                                 + " reported a different MIL status that it did for DM12 response earlier in this part");
+                     });
 
         List<Integer> obdModuleAddresses = getDataRepository().getObdModuleAddresses();
 
         // 6.4.9.3.a DS DM27 to each OBD ECU.
         var dsResults = obdModuleAddresses
                                           .stream()
-                                          .map(address -> getDiagnosticMessageModule().requestDM27(getListener(),
-                                                                                                   address))
+                                          .map(a -> getDiagnosticMessageModule().requestDM27(getListener(), a))
                                           .collect(Collectors.toList());
 
         // 6.4.9.4.a (if supported) Fail if any difference compared to data received from global request.
@@ -94,13 +96,8 @@ public class Part04Step09Controller extends StepController {
         checkForNACKsGlobal(globalPackets, filterAcks(dsResults), "6.4.9.4.b");
     }
 
-    private DiagnosticTroubleCodePacket getDTCPacket(int moduleAddress) {
-        OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(moduleAddress);
-        return obdModuleInformation == null ? null : obdModuleInformation.get(DM12MILOnEmissionDTCPacket.class);
-    }
-
     private LampStatus getLampStatus(int moduleAddress) {
-        var packet = getDTCPacket(moduleAddress);
+        var packet = (DiagnosticTroubleCodePacket) get(DM12MILOnEmissionDTCPacket.class, moduleAddress, 4);
         return packet == null ? null : packet.getMalfunctionIndicatorLampStatus();
     }
 }

@@ -325,7 +325,7 @@ public class TableA1Validator {
                               message = "N.8 " + moduleName + " reported value for SPN " + spnId + " (" + value
                                       + ") is implausible";
                           }
-                          addOutcome(listener, section, Outcome.WARN, message);
+                          addOutcome(listener, section, WARN, message);
                           invalid.add(spnId);
                           invalidSPNs.put(moduleAddress, invalid);
                       }

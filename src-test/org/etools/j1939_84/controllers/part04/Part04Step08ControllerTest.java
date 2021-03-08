@@ -84,9 +84,9 @@ public class Part04Step08ControllerTest extends AbstractControllerTest {
         return DM6PendingEmissionDTCPacket.create(sourceAddress, milStatus, OFF, OFF, OFF, dtc);
     }
 
-    private static DM12MILOnEmissionDTCPacket createDM12(int sourceAddress, int spn, int fmi, LampStatus milStatus) {
-        var dtc = DiagnosticTroubleCode.create(spn, fmi, 0, 5);
-        return DM12MILOnEmissionDTCPacket.create(sourceAddress, milStatus, OFF, OFF, OFF, dtc);
+    private static DM12MILOnEmissionDTCPacket createDM12(LampStatus milStatus) {
+        var dtc = DiagnosticTroubleCode.create(231, 12, 0, 5);
+        return DM12MILOnEmissionDTCPacket.create(0, milStatus, OFF, OFF, OFF, dtc);
     }
 
     @Before
@@ -147,11 +147,11 @@ public class Part04Step08ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         // Module 0 provides a response
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(createDM12(0, 231, 12, ON));
+        obdModuleInformation0.set(createDM12(ON), 4);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dm6_0 = createDM6(0, 0, 0, ON);
-        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6_0));
+        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(RequestResult.of(dm6_0));
 
         // Module 1 provides a NACK
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
@@ -162,7 +162,7 @@ public class Part04Step08ControllerTest extends AbstractControllerTest {
         // Module 2 is not an OBD Module
         var dm6_2 = createDM6(2, 0, 0, ON);
 
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6_0, dm6_2));
+        when(diagnosticMessageModule.requestDM6(any())).thenReturn(RequestResult.of(dm6_0, dm6_2));
 
         runTest();
 
@@ -179,13 +179,13 @@ public class Part04Step08ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDTC() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(createDM12(0, 231, 12, ON));
+        obdModuleInformation0.set(createDM12(ON), 4);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dm6 = createDM6(0, 231, 12, ON);
-        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6));
+        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(RequestResult.of(dm6));
 
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6));
+        when(diagnosticMessageModule.requestDM6(any())).thenReturn(RequestResult.of(dm6));
 
         runTest();
 
@@ -204,13 +204,13 @@ public class Part04Step08ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureDifferentMILStatus() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(createDM12(0, 231, 12, OFF));
+        obdModuleInformation0.set(createDM12(OFF), 4);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dm6 = createDM6(0, 0, 0, ON);
-        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6));
+        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(RequestResult.of(dm6));
 
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6));
+        when(diagnosticMessageModule.requestDM6(any())).thenReturn(RequestResult.of(dm6));
 
         runTest();
 
@@ -230,7 +230,7 @@ public class Part04Step08ControllerTest extends AbstractControllerTest {
     public void testFailureForNoOBDResponse() {
         var dm6 = createDM6(2, 0, 0, ON);
 
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6));
+        when(diagnosticMessageModule.requestDM6(any())).thenReturn(RequestResult.of(dm6));
 
         runTest();
 
@@ -248,14 +248,14 @@ public class Part04Step08ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferenceBetweenGlobalAndDS() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(createDM12(0, 231, 12, ON));
+        obdModuleInformation0.set(createDM12(ON), 4);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dm6_0 = createDM6(0, 0, 0, ON);
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6_0));
+        when(diagnosticMessageModule.requestDM6(any())).thenReturn(RequestResult.of(dm6_0));
 
         var dm6_1 = createDM6(0, 0, 0, OFF);
-        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6_1));
+        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(RequestResult.of(dm6_1));
 
         runTest();
 
@@ -275,18 +275,18 @@ public class Part04Step08ControllerTest extends AbstractControllerTest {
     public void testFailureForNoNACK() {
         // Module 0 provides a response
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(createDM12(0, 231, 12, ON));
+        obdModuleInformation0.set(createDM12(ON), 4);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dm6_0 = createDM6(0, 0, 0, ON);
-        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6_0));
+        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(RequestResult.of(dm6_0));
 
         // Module 1 doesn't provide a NACK
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
         dataRepository.putObdModule(obdModuleInformation1);
         when(diagnosticMessageModule.requestDM6(any(), eq(1))).thenReturn(new RequestResult<>(true));
 
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6_0));
+        when(diagnosticMessageModule.requestDM6(any())).thenReturn(RequestResult.of(dm6_0));
 
         runTest();
 

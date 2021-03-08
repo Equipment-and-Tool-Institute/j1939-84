@@ -64,7 +64,9 @@ public class Part07Step06Controller extends StepController {
                .filter(p -> isObdModule(p.getSourceAddress()))
                .filter(p -> p.getActiveCodeCount() > 0)
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.7.6.2.a - " + moduleName + " reported > 0 for active DTCs"));
+               .forEach(moduleName -> {
+                   addFailure("6.7.6.2.a - " + moduleName + " reported > 0 for active DTCs");
+               });
 
         // 6.7.6.2.b Fail if no [OBD] ECU reports > 0 for previously active DTCs.
         boolean noPrev = packets.stream()
@@ -80,10 +82,13 @@ public class Part07Step06Controller extends StepController {
         packets.stream()
                .filter(p -> isObdModule(p.getSourceAddress()))
                .filter(p -> p.getPreviouslyActiveCodeCount() != getDTCs(DM2PreviouslyActiveDTC.class,
-                                                                        p.getSourceAddress()).size())
+                                                                        p.getSourceAddress(),
+                                                                        7).size())
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.7.6.2.c - " + moduleName
-                       + " reported a different number of previously active DTCs than in DM2 response earlier in this part"));
+               .forEach(moduleName -> {
+                   addFailure("6.7.6.2.c - " + moduleName
+                           + " reported a different number of previously active DTCs than in DM2 response earlier in this part");
+               });
     }
 
 }

@@ -69,6 +69,8 @@ public class Part08Step10Controller extends StepController {
 
         var packets = filterPackets(dsResults);
 
+        packets.forEach(this::save);
+
         // 6.8.10.2.a. Fail if DTC(s) reported in the freeze frame does not include either the DTC reported in DM12 or
         // the DTC reported in DM23 earlier in this part
         packets.stream()
@@ -111,13 +113,13 @@ public class Part08Step10Controller extends StepController {
     }
 
     private List<DiagnosticTroubleCode> getDM23DTCs(int address) {
-        return getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class, address);
+        return getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class, address, 8);
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int address) {
         List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
-        dtcs.addAll(getDTCs(DM12MILOnEmissionDTCPacket.class, address));
-        dtcs.addAll(getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class, address));
+        dtcs.addAll(getDTCs(DM12MILOnEmissionDTCPacket.class, address, 8));
+        dtcs.addAll(getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class, address, 8));
         return dtcs;
     }
 }

@@ -146,7 +146,7 @@ public class Part09Step08ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 1, 0, 1);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc));
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 9);
         dataRepository.putObdModule(obdModuleInformation0);
 
         dataRepository.putObdModule(new OBDModuleInformation(1));

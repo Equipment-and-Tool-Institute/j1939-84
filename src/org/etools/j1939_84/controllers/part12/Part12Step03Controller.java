@@ -106,14 +106,14 @@ public class Part12Step03Controller extends StepController {
                                          .filter(id -> id != CompositeSystem.COMPREHENSIVE_COMPONENT)
                                          .collect(Collectors.toList());
 
-        var previouslyCompleteSupportedSystems = get(DM5DiagnosticReadinessPacket.class,
-                                                     address)
-                                                             .getMonitoredSystems()
-                                                             .stream()
-                                                             .filter(s -> s.getStatus().isComplete())
-                                                             .map(MonitoredSystem::getId)
-                                                             .filter(supportedSystems::contains)
-                                                             .collect(Collectors.toList());
+        var previouslyCompleteSupportedSystems = get(DM5DiagnosticReadinessPacket.class, address, 1)
+                                                                                                    .getMonitoredSystems()
+                                                                                                    .stream()
+                                                                                                    .filter(s -> s.getStatus()
+                                                                                                                  .isComplete())
+                                                                                                    .map(MonitoredSystem::getId)
+                                                                                                    .filter(supportedSystems::contains)
+                                                                                                    .collect(Collectors.toList());
 
         currentDM5.getMonitoredSystems()
                   .stream()
@@ -130,7 +130,7 @@ public class Part12Step03Controller extends StepController {
     }
 
     private long getDM26CompleteMonitors(int address) {
-        var dm26 = get(DM26TripDiagnosticReadinessPacket.class, address);
+        var dm26 = get(DM26TripDiagnosticReadinessPacket.class, address, 12);
         if (dm26 == null) {
             return 0;
         }

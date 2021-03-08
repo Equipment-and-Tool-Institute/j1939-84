@@ -102,7 +102,7 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
     @TestDoc(value = @TestItem(verifies = "6.2.6.2.a", description = "Engine Family or model year is different from part 1"))
     public void testCompareEngineFamily() {
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
-        obdModuleInformation1.set(DM56EngineFamilyPacket.create(1, 2021, true, "Engine Family2"));
+        obdModuleInformation1.set(DM56EngineFamilyPacket.create(1, 2021, true, "Engine Family2"), 1);
         dataRepository.putObdModule(obdModuleInformation1);
 
         var packet1 = DM56EngineFamilyPacket.create(1, 2021, true, "Engine Family Different");
@@ -119,7 +119,6 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
                                         "6.2.6.2.a - Engine #2 (1) reported difference when compared to data received during part 1");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -127,7 +126,7 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
     @TestDoc(value = @TestItem(verifies = "6.2.6.2.a", description = "Model year and Engine Family are same as part 1"))
     public void testNoFailures() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM56EngineFamilyPacket.create(0, 2020, true, "Engine Family"));
+        obdModuleInformation0.set(DM56EngineFamilyPacket.create(0, 2020, true, "Engine Family"), 1);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var packet0 = DM56EngineFamilyPacket.create(0, 2020, true, "Engine Family");

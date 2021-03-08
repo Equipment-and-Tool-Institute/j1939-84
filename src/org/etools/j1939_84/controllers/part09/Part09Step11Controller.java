@@ -112,7 +112,7 @@ public class Part09Step11Controller extends StepController {
     }
 
     private DM20MonitorPerformanceRatioPacket getDM20(int address) {
-        return get(DM20MonitorPerformanceRatioPacket.class, address);
+        return get(DM20MonitorPerformanceRatioPacket.class, address, 9);
     }
 
 }

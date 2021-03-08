@@ -77,7 +77,7 @@ public class Part11Step06Controller extends StepController {
     }
 
     private int getDTCCount(int address) {
-        var dm29 = get(DM29DtcCounts.class, address);
+        var dm29 = get(DM29DtcCounts.class, address, 11);
         return dm29 == null ? 0 : dm29.getEmissionRelatedPermanentDTCCount();
     }
 

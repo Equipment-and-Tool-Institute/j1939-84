@@ -19,6 +19,7 @@ import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * 6.12.2 DM26: Diagnostic Readiness 3
@@ -82,16 +83,7 @@ public class Part12Step02Controller extends StepController {
         int address = currentDM26.getSourceAddress();
         String moduleName = currentDM26.getModuleName();
 
-        var supportedSystems = getSupportedSystems(address);
-
-        var previouslyCompleteSupportedSystems = get(DM26TripDiagnosticReadinessPacket.class,
-                                                     address)
-                                                             .getMonitoredSystems()
-                                                             .stream()
-                                                             .filter(s -> s.getStatus().isComplete())
-                                                             .map(MonitoredSystem::getId)
-                                                             .filter(supportedSystems::contains)
-                                                             .collect(Collectors.toList());
+        List<CompositeSystem> previouslyCompleteSupportedSystems = getPreviouslyCompleteSupportedSystems(address);
 
         currentDM26.getMonitoredSystems()
                    .stream()
@@ -107,8 +99,20 @@ public class Part12Step02Controller extends StepController {
                    });
     }
 
+    @NotNull
+    private List<CompositeSystem> getPreviouslyCompleteSupportedSystems(int address) {
+        var supportedSystems = getSupportedSystems(address);
+        return get(DM26TripDiagnosticReadinessPacket.class, address, 11)
+                                                                        .getMonitoredSystems()
+                                                                        .stream()
+                                                                        .filter(s -> s.getStatus().isComplete())
+                                                                        .map(MonitoredSystem::getId)
+                                                                        .filter(supportedSystems::contains)
+                                                                        .collect(Collectors.toList());
+    }
+
     private List<CompositeSystem> getSupportedSystems(int address) {
-        var dm5 = get(DM5DiagnosticReadinessPacket.class, address);
+        var dm5 = get(DM5DiagnosticReadinessPacket.class, address, 1);
         if (dm5 == null) {
             return List.of();
         }

@@ -136,16 +136,15 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
         var dtc_1 = DiagnosticTroubleCode.create(609, 19, 1, 1);
         var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc_1);
 
-        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        var dm6_1 = DM6PendingEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc_1);
         var obdModule0 = new OBDModuleInformation(0);
-        obdModule0.set(dm6);
-        var obdModule1 = new OBDModuleInformation(1);
-        obdModule1.set(dm6_1);
+        obdModule0.set(DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF), 4);
         dataRepository.putObdModule(obdModule0);
+
+        var obdModule1 = new OBDModuleInformation(1);
+        obdModule1.set(DM6PendingEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc_1), 4);
         dataRepository.putObdModule(obdModule1);
 
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12, dm12_1));
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12, dm12_1));
 
         runTest();
 
@@ -161,17 +160,15 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
         var dtc_1 = DiagnosticTroubleCode.create(609, 19, 1, 1);
         var dtc_2 = DiagnosticTroubleCode.create(4334, 4, 0, 0);
         var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, SLOW_FLASH, OFF, OFF, OFF, dtc_1, dtc_2);
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12, dm12_1));
 
-        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        var dm6_1 = DM6PendingEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc_1);
         var obdModule0 = new OBDModuleInformation(0);
-        obdModule0.set(dm6);
-        var obdModule1 = new OBDModuleInformation(1);
-        obdModule1.set(dm6_1);
+        obdModule0.set(DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF), 4);
         dataRepository.putObdModule(obdModule0);
-        dataRepository.putObdModule(obdModule1);
 
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12, dm12_1));
+        var obdModule1 = new OBDModuleInformation(1);
+        obdModule1.set(DM6PendingEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc_1), 4);
+        dataRepository.putObdModule(obdModule1);
 
         runTest();
 
@@ -199,16 +196,15 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
         var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
         var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF);
 
-        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        var dm6_1 = DM6PendingEmissionDTCPacket.create(1, SLOW_FLASH, OFF, OFF, OFF);
         var obdModule0 = new OBDModuleInformation(0);
-        obdModule0.set(dm6);
-        var obdModule1 = new OBDModuleInformation(1);
-        obdModule1.set(dm6_1);
+        obdModule0.set(DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF), 4);
         dataRepository.putObdModule(obdModule0);
+
+        var obdModule1 = new OBDModuleInformation(1);
+        obdModule1.set(DM6PendingEmissionDTCPacket.create(1, SLOW_FLASH, OFF, OFF, OFF), 4);
         dataRepository.putObdModule(obdModule1);
 
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12, dm12_1));
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12, dm12_1));
 
         runTest();
 
@@ -234,16 +230,15 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
         var dtc_2 = DiagnosticTroubleCode.create(4334, 4, 0, 0);
         var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, FAST_FLASH, OFF, OFF, OFF);
 
-        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        var dm6_1 = DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc_1, dtc_2);
         var obdModule0 = new OBDModuleInformation(0);
-        obdModule0.set(dm6);
-        var obdModule1 = new OBDModuleInformation(1);
-        obdModule1.set(dm6_1);
+        obdModule0.set(DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF), 4);
         dataRepository.putObdModule(obdModule0);
+
+        var obdModule1 = new OBDModuleInformation(1);
+        obdModule1.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc_1, dtc_2), 4);
         dataRepository.putObdModule(obdModule1);
 
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12, dm12_1));
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12, dm12_1));
 
         runTest();
 

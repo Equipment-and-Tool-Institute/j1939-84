@@ -5,7 +5,6 @@ package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -20,10 +19,8 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *         The controller for 6.1.20 DM28: Permanent DTCs DTCs
+ * 6.1.20 DM28: Permanent DTCs
  */
-
 public class Part01Step20Controller extends StepController {
 
     private static final int PART_NUMBER = 1;
@@ -69,29 +66,29 @@ public class Part01Step20Controller extends StepController {
         globalPackets.stream()
                      .filter(p -> !p.getDtcs().isEmpty())
                      .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.1.20.2.a - " + moduleName + " reported permanent DTCs"));
+                     .forEach(moduleName -> {
+                         addFailure("6.1.20.2.a - " + moduleName + " reported permanent DTCs");
+                     });
 
         // 6.1.20.2.b. Fail if any ECU does not report MIL off.
         globalPackets.stream()
                      .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF)
                      .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.1.20.2.b - " + moduleName + " did not report MIL off"));
+                     .forEach(moduleName -> {
+                         addFailure("6.1.20.2.b - " + moduleName + " did not report MIL off");
+                     });
 
-        boolean obdModuleResponded = globalPackets.stream()
-                                                  .anyMatch(p -> getDataRepository().isObdModule(p.getSourceAddress()));
+        // 6.1.20.2.c. Fail if no OBD ECU provides DM28.
+        boolean obdModuleResponded = globalPackets.stream().anyMatch(p -> isObdModule(p.getSourceAddress()));
         if (!obdModuleResponded) {
-            // 6.1.20.2.c. Fail if no OBD ECU provides DM28.
             addFailure("6.1.20.2.c - No OBD ECU provided DM28");
         }
 
-        List<Integer> obdModuleAddresses = getDataRepository().getObdModuleAddresses();
-
         // 6.1.20.3.a. DS DM28 to all OBD ECUs.
-        var dsResults = obdModuleAddresses
-                                          .stream()
-                                          .map(address -> getDiagnosticMessageModule().requestDM28(getListener(),
-                                                                                                   address))
-                                          .collect(Collectors.toList());
+        var dsResults = getDataRepository().getObdModuleAddresses()
+                                           .stream()
+                                           .map(a -> getDiagnosticMessageModule().requestDM28(getListener(), a))
+                                           .collect(Collectors.toList());
 
         // 6.1.20.4.a. Fail if any difference compared to data received during global request.
         compareRequestPackets(globalPackets, filterPackets(dsResults), "6.1.20.4.a");

@@ -335,7 +335,7 @@ public class Part08Step12Controller extends StepController {
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int address) {
-        return getDTCs(DM12MILOnEmissionDTCPacket.class, address);
+        return getDTCs(DM12MILOnEmissionDTCPacket.class, address, 8);
     }
 
 }

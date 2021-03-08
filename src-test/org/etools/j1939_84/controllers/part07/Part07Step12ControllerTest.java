@@ -137,7 +137,7 @@ public class Part07Step12ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(122, 3, 1, 1);
-        obdModuleInformation.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 7);
         dataRepository.putObdModule(obdModuleInformation);
         var freezeFrame = new FreezeFrame(dtc, new int[0]);
         var dm25 = DM25ExpandedFreezeFrame.create(0, freezeFrame);
@@ -179,7 +179,7 @@ public class Part07Step12ControllerTest extends AbstractControllerTest {
     public void testFailureForMissingDTC() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(122, 3, 1, 1);
-        obdModuleInformation.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1));
+        obdModuleInformation.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1), 7);
         dataRepository.putObdModule(obdModuleInformation);
         var dtc2 = DiagnosticTroubleCode.create(234, 3, 1, 1);
         var freezeFrame = new FreezeFrame(dtc2, new int[0]);
@@ -202,7 +202,7 @@ public class Part07Step12ControllerTest extends AbstractControllerTest {
     public void testFailureForNoNACK() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(122, 3, 1, 1);
-        obdModuleInformation.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 7);
         dataRepository.putObdModule(obdModuleInformation);
         var freezeFrame = new FreezeFrame(dtc, new int[0]);
         var dm25 = DM25ExpandedFreezeFrame.create(0, freezeFrame);
@@ -228,7 +228,7 @@ public class Part07Step12ControllerTest extends AbstractControllerTest {
     public void testWarningForMultipleFreezeFrames() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(122, 3, 1, 1);
-        obdModuleInformation.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1));
+        obdModuleInformation.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1), 7);
         dataRepository.putObdModule(obdModuleInformation);
 
         var freezeFrame1 = new FreezeFrame(dtc1, new int[0]);

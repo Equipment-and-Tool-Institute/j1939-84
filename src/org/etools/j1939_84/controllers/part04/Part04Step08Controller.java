@@ -14,7 +14,6 @@ import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -101,8 +100,7 @@ public class Part04Step08Controller extends StepController {
     }
 
     private DiagnosticTroubleCodePacket getDTCPacket(int moduleAddress) {
-        OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(moduleAddress);
-        return obdModuleInformation == null ? null : obdModuleInformation.get(DM12MILOnEmissionDTCPacket.class);
+        return get(DM12MILOnEmissionDTCPacket.class, moduleAddress, 4);
     }
 
     private LampStatus getLampStatus(int moduleAddress) {

@@ -144,12 +144,11 @@ public class Part02Step14ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
-        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)));
+        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)), 1);
         dataRepository.putObdModule(obdInfo);
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM25(any(), eq(0x00));
 
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
@@ -159,27 +158,23 @@ public class Part02Step14ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
     public void testNoResponses() {
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
-        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)));
+        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)), 1);
         dataRepository.putObdModule(obdInfo);
 
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(true));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-
         verify(diagnosticMessageModule).requestDM25(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
@@ -199,16 +194,14 @@ public class Part02Step14ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
-        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)));
+        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)), 1);
         dataRepository.putObdModule(obdInfo);
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM25(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 }

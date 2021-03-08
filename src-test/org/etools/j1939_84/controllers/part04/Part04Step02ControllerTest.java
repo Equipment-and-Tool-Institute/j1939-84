@@ -165,8 +165,6 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
         }
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
-
         StringBuilder expectedResults = new StringBuilder();
         for (int i = 1; i <= 300; i++) {
             expectedResults.append(NL).append("Attempt ").append(i).append(NL);
@@ -217,8 +215,6 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
         }
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
-
         StringBuilder expectedResults = new StringBuilder();
         for (int i = 1; i <= 300; i++) {
             expectedResults.append(NL).append("Attempt ").append(i).append(NL);
@@ -247,7 +243,7 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
         var dtc2 = DiagnosticTroubleCode.create(456, 3, 0, 1);
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2));
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2), 3);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm12 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2);
@@ -258,8 +254,6 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Step 6.4.2.1.a Requesting DM12 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
@@ -281,7 +275,7 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1));
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 3);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm12_0 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);
@@ -293,8 +287,6 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Step 6.4.2.1.a Requesting DM12 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
@@ -316,7 +308,7 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1));
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1), 3);
         dataRepository.putObdModule(obdModuleInformation);
         var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
         when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12));
@@ -326,8 +318,6 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Step 6.4.2.1.a Requesting DM12 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
@@ -350,7 +340,7 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
         var dtc2 = DiagnosticTroubleCode.create(456, 12, 0, 1);
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1));
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 3);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm12 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc2);
@@ -361,8 +351,6 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Step 6.4.2.1.a Requesting DM12 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
@@ -382,9 +370,8 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
     @Test
     public void testGlobalDSDifferenceFailure() {
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        var dm6 = DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(dm6);
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 3);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm12_1 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);
@@ -396,8 +383,6 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Step 6.4.2.1.a Requesting DM12 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
@@ -418,7 +403,7 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
     public void testNoNACKFailure() {
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1));
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 3);
         dataRepository.putObdModule(obdModuleInformation);
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
@@ -433,8 +418,6 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Step 6.4.2.1.a Requesting DM12 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;

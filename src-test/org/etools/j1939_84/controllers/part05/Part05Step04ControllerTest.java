@@ -138,15 +138,15 @@ public class Part05Step04ControllerTest extends AbstractControllerTest {
 
         // Module 0 will response
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 5);
         dataRepository.putObdModule(obdModuleInformation);
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(new BusResult<>(false, dm28));
+        when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
 
         // Module 1 will NACK
         dataRepository.putObdModule(new OBDModuleInformation(1));
         var nack = AcknowledgmentPacket.create(1, NACK);
-        when(diagnosticMessageModule.requestDM28(any(), eq(1))).thenReturn(new BusResult<>(false, nack));
+        when(diagnosticMessageModule.requestDM28(any(), eq(1))).thenReturn(BusResult.of(nack));
 
         runTest();
 
@@ -162,10 +162,10 @@ public class Part05Step04ControllerTest extends AbstractControllerTest {
         var dtc = DiagnosticTroubleCode.create(123, 9, 0, 14);
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 5);
         dataRepository.putObdModule(obdModuleInformation);
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, FAST_FLASH, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(new BusResult<>(false, dm28));
+        when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
 
         runTest();
 
@@ -185,12 +185,12 @@ public class Part05Step04ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(123, 9, 0, 14);
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1));
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dtc2 = DiagnosticTroubleCode.create(456, 9, 0, 14);
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc2);
-        when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(new BusResult<>(false, dm28));
+        when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
 
         runTest();
 

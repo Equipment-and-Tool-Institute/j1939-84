@@ -145,8 +145,8 @@ public class Part11Step03ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM21(any(), eq(0));
         verify(diagnosticMessageModule).requestDM21(any(), eq(1));
 
-        assertSame(dm21, dataRepository.getObdModule(0).get(DM21DiagnosticReadinessPacket.class));
-        assertNull(dataRepository.getObdModule(1).get(DM21DiagnosticReadinessPacket.class));
+        assertSame(dm21, dataRepository.getObdModule(0).getLatest(DM21DiagnosticReadinessPacket.class));
+        assertNull(dataRepository.getObdModule(1).getLatest(DM21DiagnosticReadinessPacket.class));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

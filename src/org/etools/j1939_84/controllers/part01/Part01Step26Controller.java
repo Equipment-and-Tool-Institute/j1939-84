@@ -32,7 +32,9 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * Data stream support verification 6.1.26.1 Actions: a. Gather broadcast data
+ * 6.1.26 Data stream support verification
+ * 
+ * 6.1.26.1 Actions: a. Gather broadcast data
  * for all SPNs that are supported for data stream in the OBD ECU DM24
  * responses. b. Gather/timestamp each parameter at least three times to be able
  * to verify frequency of broadcast.
@@ -69,7 +71,6 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 public class Part01Step26Controller extends StepController {
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 26;
-    private static final int TOTAL_STEPS = 0;
 
     private final BroadcastValidator broadcastValidator;
     private final BusService busService;

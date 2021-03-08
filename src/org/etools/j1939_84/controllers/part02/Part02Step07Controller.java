@@ -3,11 +3,12 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
@@ -21,9 +22,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *         <p>
- *         The controller for Component ID: Make, Model, Serial Number Support
+ * 6.2.7 Component ID: Make, Model, Serial Number Support
  */
 public class Part02Step07Controller extends StepController {
 
@@ -62,28 +61,25 @@ public class Part02Step07Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.2.7.3 Actions2: [Note: No warning message shall be provided for responses from non-OBD devices for PGN
-        // 59904].
-        // a. Global Request for Component ID request (PGN 59904) for PGN 65259 (SPNs 586, 587, and 588)
-        List<ComponentIdentificationPacket> globalPackets = getVehicleInformationModule()
-                                                                                         // b. Display each positive
-                                                                                         // return in the log.
-                                                                                         .reportComponentIdentification(getListener())
-                                                                                         .getPackets();
+        // [Note: No warning message shall be provided for responses from non-OBD devices for PGN 59904].
+        // 6.2.7.3.a. Global Request for Component ID request (PGN 59904) for PGN 65259 (SPNs 586, 587, and 588)
+        // 6.2.7.3.b. Display each positive return in the log.
+        var globalPackets = getVehicleInformationModule().reportComponentIdentification(getListener()).getPackets();
 
         List<OBDModuleInformation> zeroFunctionObdModules = new ArrayList<>();
 
-        final ComponentIdentificationPacket[] dsFunctionZeroPacket = { null };
-        // 6.2.7 Component ID: Make, Model, Serial Number Support
+        ComponentIdentificationPacket[] dsFunctionZeroPacket = { null };
+
         getDataRepository().getObdModules()
                            .stream()
                            // get modules that responded in Part01 from dataRepo
-                           .filter(obdModuleInformation -> obdModuleInformation.getComponentIdentification() != null)
+                           .filter(obdModuleInformation -> obdModuleInformation.get(ComponentIdentificationPacket.class,
+                                                                                    1) != null)
                            .forEach(module -> {
                                int moduleAddress = module.getSourceAddress();
                                String moduleName = Lookup.getAddressName(moduleAddress);
 
-                               // 6.2.7.1.a Actions: Destination Specific (DS) Component ID request
+                               // 6.2.7.1.a Destination Specific (DS) Component ID request
                                // (PGN 59904) for PGN 65259 (SPNs 586, 587, and 588) to each OBD ECU.
                                getVehicleInformationModule()
                                                             .reportComponentIdentification(getListener(), moduleAddress)
@@ -130,9 +126,7 @@ public class Part02Step07Controller extends StepController {
                                // a. Warn if Component ID not supported for the global query
                                // in 6.2.7.3 with engine running.
                                if (module.getFunction() != 0 &&
-                                       globalPackets.stream()
-                                                    // not supported means didn't respond?
-                                                    .noneMatch(packet -> packet.getSourceAddress() == moduleAddress)) {
+                                       globalPackets.stream().noneMatch(p -> p.getSourceAddress() == moduleAddress)) {
                                    addWarning("6.2.7.5.a - " + moduleName
                                            + " did not provide a positive respond to global query while engine running");
                                }
@@ -143,9 +137,9 @@ public class Part02Step07Controller extends StepController {
                 : zeroFunctionObdModules.get(0).getSourceAddress();
 
         // Get the packets from the global response for the zero function module
-        List<ComponentIdentificationPacket> zeroFunctionPackets = globalPackets.stream()
-                                                                               .filter(zeroPacket -> zeroPacket.getSourceAddress() == function0SourceAddress)
-                                                                               .collect(Collectors.toList());
+        var zeroFunctionPackets = globalPackets.stream()
+                                               .filter(p -> p.getSourceAddress() == function0SourceAddress)
+                                               .collect(toList());
 
         // 6.2.7.4.b Fail if the global response does not match the
         // destination specific response from function 0.

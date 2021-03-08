@@ -141,8 +141,9 @@ public class Part12Step03ControllerTest extends AbstractControllerTest {
                                                                       0,
                                                                       0x22,
                                                                       List.of(CompositeSystem.values()),
-                                                                      List.of()));
-        obdModuleInformation0.set(DM26TripDiagnosticReadinessPacket.create(0, 0, 0, List.of(), List.of()));
+                                                                      List.of()),
+                                  1);
+        obdModuleInformation0.set(DM26TripDiagnosticReadinessPacket.create(0, 0, 0, List.of(), List.of()), 12);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm5_0 = DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22, List.of(), List.of());
         when(diagnosticMessageModule.requestDM5(any(), eq(0))).thenReturn(BusResult.of(dm5_0));
@@ -154,12 +155,14 @@ public class Part12Step03ControllerTest extends AbstractControllerTest {
                                                                       0,
                                                                       0x22,
                                                                       List.of(),
-                                                                      List.of(CompositeSystem.values())));
+                                                                      List.of(CompositeSystem.values())),
+                                  1);
         obdModuleInformation1.set(DM26TripDiagnosticReadinessPacket.create(1,
                                                                            0,
                                                                            0,
                                                                            List.of(),
-                                                                           List.of()));
+                                                                           List.of()),
+                                  12);
         dataRepository.putObdModule(obdModuleInformation1);
         var dm5_1 = DM5DiagnosticReadinessPacket.create(1, 0, 0, 0x22, List.of(), List.of());
         when(diagnosticMessageModule.requestDM5(any(), eq(1))).thenReturn(BusResult.of(dm5_1));
@@ -171,12 +174,14 @@ public class Part12Step03ControllerTest extends AbstractControllerTest {
                                                                       0,
                                                                       0x22,
                                                                       List.of(CompositeSystem.values()),
-                                                                      List.of(CompositeSystem.values())));
+                                                                      List.of(CompositeSystem.values())),
+                                  1);
         obdModuleInformation3.set(DM26TripDiagnosticReadinessPacket.create(3,
                                                                            0,
                                                                            0,
                                                                            List.of(CompositeSystem.values()),
-                                                                           List.of(CompositeSystem.values())));
+                                                                           List.of(CompositeSystem.values())),
+                                  12);
         dataRepository.putObdModule(obdModuleInformation3);
         var dm5_3 = DM5DiagnosticReadinessPacket.create(3,
                                                         0,
@@ -223,8 +228,9 @@ public class Part12Step03ControllerTest extends AbstractControllerTest {
                                                                       0,
                                                                       0x22,
                                                                       List.of(CompositeSystem.values()),
-                                                                      List.of(CompositeSystem.values())));
-        obdModuleInformation0.set(DM26TripDiagnosticReadinessPacket.create(0, 0, 0, List.of(), List.of()));
+                                                                      List.of(CompositeSystem.values())),
+                                  1);
+        obdModuleInformation0.set(DM26TripDiagnosticReadinessPacket.create(0, 0, 0, List.of(), List.of()), 12);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm5_0 = DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22, List.of(CompositeSystem.values()), List.of());
         when(diagnosticMessageModule.requestDM5(any(), eq(0))).thenReturn(BusResult.of(dm5_0));
@@ -324,12 +330,14 @@ public class Part12Step03ControllerTest extends AbstractControllerTest {
                                                                       0,
                                                                       0x22,
                                                                       List.of(CompositeSystem.values()),
-                                                                      List.of()));
+                                                                      List.of()),
+                                  1);
         obdModuleInformation0.set(DM26TripDiagnosticReadinessPacket.create(0,
                                                                            0,
                                                                            0,
                                                                            List.of(),
-                                                                           List.of(MISFIRE, CATALYST)));
+                                                                           List.of(MISFIRE, CATALYST)),
+                                  12);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm5_0 = DM5DiagnosticReadinessPacket.create(0,
                                                         0,

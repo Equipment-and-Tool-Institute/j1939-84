@@ -100,7 +100,7 @@ public class Part11Step11Controller extends StepController {
     private boolean areTimesConsistent(DM26TripDiagnosticReadinessPacket currentPacket) {
         final int THRESHOLD = 10; // seconds
 
-        var previousPacket = get(DM26TripDiagnosticReadinessPacket.class, currentPacket.getSourceAddress());
+        var previousPacket = getDM26(currentPacket.getSourceAddress());
         if (previousPacket == null) {
             return false;
         }
@@ -116,7 +116,7 @@ public class Part11Step11Controller extends StepController {
     }
 
     private Double getDeltaEngineStart(DM26TripDiagnosticReadinessPacket currentPacket) {
-        var previousPacket = get(DM26TripDiagnosticReadinessPacket.class, currentPacket.getSourceAddress());
+        var previousPacket = getDM26(currentPacket.getSourceAddress());
         if (previousPacket == null) {
             return null;
         }
@@ -124,6 +124,10 @@ public class Part11Step11Controller extends StepController {
         var currentTSES = currentPacket.getTimeSinceEngineStart();
         var previousTSES = previousPacket.getTimeSinceEngineStart();
         return currentTSES - previousTSES;
+    }
+
+    private DM26TripDiagnosticReadinessPacket getDM26(int address) {
+        return get(DM26TripDiagnosticReadinessPacket.class, address, 11);
     }
 
 }

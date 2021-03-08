@@ -69,7 +69,7 @@ public class Part09Step08Controller extends StepController {
         getDataRepository().getObdModules()
                            .stream()
                            .map(OBDModuleInformation::getSourceAddress)
-                           .filter(a -> getDTCs(DM12MILOnEmissionDTCPacket.class, a).isEmpty())
+                           .filter(a -> getDTCs(DM12MILOnEmissionDTCPacket.class, a, 9).isEmpty())
                            .forEach(a -> {
                                getDiagnosticMessageModule().requestDM11(getListener(), a);
                            });
@@ -88,7 +88,7 @@ public class Part09Step08Controller extends StepController {
         getDataRepository().getObdModules()
                            .stream()
                            .map(OBDModuleInformation::getSourceAddress)
-                           .filter(a -> !getDTCs(DM12MILOnEmissionDTCPacket.class, a).isEmpty())
+                           .filter(a -> !getDTCs(DM12MILOnEmissionDTCPacket.class, a, 9).isEmpty())
                            .forEach(a -> {
                                getDiagnosticMessageModule().requestDM11(getListener(), a);
                            });

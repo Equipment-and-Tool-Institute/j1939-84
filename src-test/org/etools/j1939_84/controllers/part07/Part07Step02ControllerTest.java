@@ -137,15 +137,15 @@ public class Part07Step02ControllerTest extends AbstractControllerTest {
         var dtc = DiagnosticTroubleCode.create(1569, 31, 0, 0);
         var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(dm6);
+        obdModule.set(dm6, 6);
         dataRepository.putObdModule(obdModule);
 
         var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM23(any(), eq(0))).thenReturn(new BusResult<>(false, dm23));
+        when(diagnosticMessageModule.requestDM23(any(), eq(0))).thenReturn(BusResult.of(dm23));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         var nack = AcknowledgmentPacket.create(1, NACK);
-        when(diagnosticMessageModule.requestDM23(any(), eq(1))).thenReturn(new BusResult<>(false, nack));
+        when(diagnosticMessageModule.requestDM23(any(), eq(1))).thenReturn(BusResult.of(nack));
 
         runTest();
 
@@ -161,12 +161,12 @@ public class Part07Step02ControllerTest extends AbstractControllerTest {
         var dtc = DiagnosticTroubleCode.create(1569, 31, 0, 0);
         var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(dm6);
+        obdModule.set(dm6, 6);
         dataRepository.putObdModule(obdModule);
 
         var dtc23 = DiagnosticTroubleCode.create(123, 12, 0, 4);
         var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc23);
-        when(diagnosticMessageModule.requestDM23(any(), eq(0))).thenReturn(new BusResult<>(false, dm23));
+        when(diagnosticMessageModule.requestDM23(any(), eq(0))).thenReturn(BusResult.of(dm23));
 
         runTest();
 
@@ -191,11 +191,11 @@ public class Part07Step02ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(1569, 31, 0, 0);
         var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc, dtc1);
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(dm6);
+        obdModule.set(dm6, 6);
         dataRepository.putObdModule(obdModule);
 
         var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc, dtc1);
-        when(diagnosticMessageModule.requestDM23(any(), eq(0))).thenReturn(new BusResult<>(false, dm23));
+        when(diagnosticMessageModule.requestDM23(any(), eq(0))).thenReturn(BusResult.of(dm23));
 
         runTest();
 
@@ -217,18 +217,18 @@ public class Part07Step02ControllerTest extends AbstractControllerTest {
         var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
         var dm6_1 = DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1);
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(dm6);
+        obdModule.set(dm6, 6);
         dataRepository.putObdModule(obdModule);
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
-        obdModule1.set(dm6_1);
+        obdModule1.set(dm6_1, 6);
         dataRepository.putObdModule(obdModule1);
 
         var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM23(any(), eq(0))).thenReturn(new BusResult<>(false, dm23));
+        when(diagnosticMessageModule.requestDM23(any(), eq(0))).thenReturn(BusResult.of(dm23));
 
         var dm23_1 = DM23PreviouslyMILOnEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1);
-        when(diagnosticMessageModule.requestDM23(any(), eq(1))).thenReturn(new BusResult<>(false, dm23_1));
+        when(diagnosticMessageModule.requestDM23(any(), eq(1))).thenReturn(BusResult.of(dm23_1));
 
         runTest();
 
@@ -248,11 +248,11 @@ public class Part07Step02ControllerTest extends AbstractControllerTest {
     public void testFailureForEmptyDtcs() {
         var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(dm6);
+        obdModule.set(dm6, 6);
         dataRepository.putObdModule(obdModule);
 
         var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM23(any(), eq(0))).thenReturn(new BusResult<>(false, dm23));
+        when(diagnosticMessageModule.requestDM23(any(), eq(0))).thenReturn(BusResult.of(dm23));
 
         runTest();
 
@@ -272,14 +272,16 @@ public class Part07Step02ControllerTest extends AbstractControllerTest {
         var dtc = DiagnosticTroubleCode.create(1569, 31, 0, 0);
         var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(dm6);
+        obdModule.set(dm6, 6);
         dataRepository.putObdModule(obdModule);
 
         var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM23(any(), eq(0))).thenReturn(new BusResult<>(false, dm23));
+        when(diagnosticMessageModule.requestDM23(any(), eq(0))).thenReturn(BusResult.of(dm23));
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
-        obdModule1.set(dm6);
+        var dtc1 = DiagnosticTroubleCode.create(1569, 31, 0, 0);
+        var dm6_1 = DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1);
+        obdModule.set(dm6_1, 6);
         dataRepository.putObdModule(obdModule1);
         when(diagnosticMessageModule.requestDM23(any(), eq(1))).thenReturn(new BusResult<>(true));
 

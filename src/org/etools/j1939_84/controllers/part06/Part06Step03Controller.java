@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -58,12 +59,10 @@ public class Part06Step03Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-
         // 6.6.3.1.a DS DM12 [(send Request (PGN 59904) for PGN 65236 (SPNs 1213-1215, 3038, 1706))] to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(address -> getDiagnosticMessageModule().requestDM12(getListener(),
-                                                                                                    address))
+                                           .map(a -> getDiagnosticMessageModule().requestDM12(getListener(), a))
                                            .collect(Collectors.toList());
 
         List<DM12MILOnEmissionDTCPacket> dsPackets = filterPackets(dsResults);
@@ -72,15 +71,15 @@ public class Part06Step03Controller extends StepController {
 
         // 6.6.3.2.a Fail if no ([OBD]) ECU reports an MIL-on active DTC.
         boolean dtcReported = dsPackets.stream()
-                                   .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                                       .anyMatch(p -> !p.getDtcs().isEmpty());
+                                       .filter(p -> isObdModule(p.getSourceAddress()))
+                                       .anyMatch(DiagnosticTroubleCodePacket::hasDTCs);
         if (!dtcReported) {
             addFailure("6.6.3.2.a - No ECU reported a MIL-on active DTC");
         }
 
         // 6.6.3.2.b Fail if no ECU reports MIL on. See Section A.8 for allowed values.
         boolean milOn = dsPackets.stream()
-                                         .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                                 .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                                  .anyMatch(p -> p.getMalfunctionIndicatorLampStatus() == ON);
         if (!milOn) {
             addFailure("6.6.3.2.b - No ECU reported MIL on");

@@ -135,7 +135,8 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
         var dsPacket = create(0, EngineHoursTimer.create(1, 4, 10));
 
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(dsPacket);
+        obdModule.set(dsPacket, 2);
+        obdModule.set(dsPacket, 9);
         dataRepository.putObdModule(obdModule);
 
         when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(dsPacket));
@@ -166,7 +167,8 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
 
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
         var previousPacket = create(0, EngineHoursTimer.create(1, 4, 10));
-        obdModule.set(previousPacket);
+        obdModule.set(previousPacket, 2);
+        obdModule.set(previousPacket, 9);
         dataRepository.putObdModule(obdModule);
 
         runTest();
@@ -180,7 +182,6 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.9.24.2.c. - OBD module Engine #1 (0) did not provide a NACK for the DS query");
-
     }
 
     @Test
@@ -196,8 +197,10 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
         vehInfo.setEngineModelYear(2020);
         vehInfo.setFuelType(DSL);
         dataRepository.setVehicleInformation(vehInfo);
+
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(previousPacket);
+        obdModule.set(previousPacket, 2);
+        obdModule.set(previousPacket, 9);
         dataRepository.putObdModule(obdModule);
 
         runTest();
@@ -226,7 +229,8 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
         vehInfo.setFuelType(DSL);
         dataRepository.setVehicleInformation(vehInfo);
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(create(0, timer2));
+        obdModule.set(create(0, timer2), 2);
+        obdModule.set(create(0, timer2), 9);
         dataRepository.putObdModule(obdModule);
 
         runTest();
@@ -240,7 +244,6 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.9.24.2.b - ECU Engine #1 (0) reported timer 1 value less than previously observed in 6.9.7.1");
-
     }
 
     @Test
@@ -254,8 +257,10 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
         vehInfo.setEngineModelYear(2020);
         vehInfo.setFuelType(DSL);
         dataRepository.setVehicleInformation(vehInfo);
+
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(globalPacket);
+        obdModule.set(globalPacket, 2);
+        obdModule.set(globalPacket, 9);
         dataRepository.putObdModule(obdModule);
 
         runTest();
@@ -269,8 +274,6 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.9.24.2.b - ECU Engine #1 (0) reported timer 2 value less than previously observed in 6.9.7.1");
-
-
     }
 
     @Test
@@ -284,8 +287,10 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
         vehInfo.setEngineModelYear(2020);
         vehInfo.setFuelType(DSL);
         dataRepository.setVehicleInformation(vehInfo);
+
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(globalPacket);
+        obdModule.set(globalPacket, 2);
+        obdModule.set(globalPacket, 9);
         dataRepository.putObdModule(obdModule);
 
         runTest();
@@ -299,8 +304,6 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.9.24.2.b - ECU Engine #1 (0) reported timer 1 value less than previously observed in 6.9.7.1");
-
-
     }
 
     @Test
@@ -314,8 +317,10 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
         vehInfo.setEngineModelYear(2025);
         vehInfo.setFuelType(GAS);
         dataRepository.setVehicleInformation(vehInfo);
+
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(globalPacket);
+        obdModule.set(globalPacket, 2);
+        obdModule.set(globalPacket, 9);
         dataRepository.putObdModule(obdModule);
 
         runTest();
@@ -329,7 +334,6 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.9.24.2.b - ECU Engine #1 (0) reported timer 1 value less than previously observed in 6.9.7.1");
-
     }
 
 }

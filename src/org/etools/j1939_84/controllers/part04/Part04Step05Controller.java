@@ -15,6 +15,7 @@ import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -74,15 +75,13 @@ public class Part04Step05Controller extends StepController {
                 if (p.left.isPresent()) {
                     DM23PreviouslyMILOnEmissionDTCPacket dm23 = p.left.get();
                     // 6.4.5.2.a Fail if any ECU reports > 0 previously active DTC.
-                    if (dm23.getDtcs().size() > 0) {
+                    if (dm23.hasDTCs()) {
                         addFailure("6.4.5.2.a - OBD module " + dm23.getModuleName()
                                 + " reported > 0 previously active DTC");
                     }
                     // 6.4.5.2.b Fail if any ECU reports a different MIL status than it did in DM12
                     // response earlier in this part.
-                    var dm12 = getDataRepository().getObdModule(address).get(DM12MILOnEmissionDTCPacket.class);
-                    if (dm12 != null
-                            && dm23.getMalfunctionIndicatorLampStatus() != dm12.getMalfunctionIndicatorLampStatus()) {
+                    if (dm23.getMalfunctionIndicatorLampStatus() != getMILStatus(address)) {
                         addFailure("6.4.5.2.b - OBD module " + dm23.getModuleName()
                                 + " reported a MIL status different from the DM12 response earlier in this part");
                     }
@@ -107,5 +106,10 @@ public class Part04Step05Controller extends StepController {
         if (dsResults.isEmpty()) {
             addFailure("6.4.5.2.d - No OBD module provided a DM23");
         }
+    }
+
+    private LampStatus getMILStatus(int address) {
+        var dm12 = get(DM12MILOnEmissionDTCPacket.class, address, 4);
+        return dm12 == null ? null : dm12.getMalfunctionIndicatorLampStatus();
     }
 }

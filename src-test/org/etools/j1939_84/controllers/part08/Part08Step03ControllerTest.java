@@ -133,7 +133,7 @@ public class Part08Step03ControllerTest extends AbstractControllerTest {
         var dtc = DiagnosticTroubleCode.create(123, 12, 1, 1);
 
         OBDModuleInformation moduleInformation = new OBDModuleInformation(0);
-        moduleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc));
+        moduleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(moduleInformation);
 
         var dm1 = DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc);
@@ -190,14 +190,14 @@ public class Part08Step03ControllerTest extends AbstractControllerTest {
         // Module 0 Different DTCs
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 1, 1);
         OBDModuleInformation moduleInfo0 = new OBDModuleInformation(0);
-        moduleInfo0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1));
+        moduleInfo0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
         dataRepository.putObdModule(moduleInfo0);
         var dtc2 = DiagnosticTroubleCode.create(456, 9, 1, 1);
         var dm1_0 = DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc2);
 
         // Module 1 No active DTC in DM1
         OBDModuleInformation moduleInfo1 = new OBDModuleInformation(1);
-        moduleInfo1.set(DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc1));
+        moduleInfo1.set(DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc1), 8);
         dataRepository.putObdModule(moduleInfo1);
         var dm1_1 = DM1ActiveDTCsPacket.create(1, ON, OFF, OFF, OFF);
 
@@ -228,7 +228,7 @@ public class Part08Step03ControllerTest extends AbstractControllerTest {
         // Module 0 Different DTCs
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 1, 1);
         OBDModuleInformation moduleInfo0 = new OBDModuleInformation(0);
-        moduleInfo0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1));
+        moduleInfo0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1), 8);
         dataRepository.putObdModule(moduleInfo0);
         var dm1_0 = DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc1);
 

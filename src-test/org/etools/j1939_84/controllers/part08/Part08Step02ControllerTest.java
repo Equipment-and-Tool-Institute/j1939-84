@@ -24,7 +24,6 @@ import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.QuestionListener;
@@ -164,8 +163,6 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         }
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
-
         StringBuilder expectedResults = new StringBuilder();
         for (int i = 1; i <= 300; i++) {
             expectedResults.append(NL).append("Attempt ").append(i).append(NL);
@@ -192,7 +189,7 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
         var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12));
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12));
 
         String promptMsg = "No module has reported an active DTC." + NL + "Do you wish to continue?";
         String promptTitle = "No Active DTCs Found";
@@ -215,8 +212,6 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
             }
         }
         assertEquals(expectedMessages.toString(), listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         StringBuilder expectedResults = new StringBuilder();
         for (int i = 1; i <= 300; i++) {
@@ -242,23 +237,18 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testMultipleDTCFailure() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dtc2 = DiagnosticTroubleCode.create(456, 3, 0, 1);
-
-        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2));
-        dataRepository.putObdModule(obdModuleInformation);
-
         var dm12 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2);
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12));
-        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, dm12));
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12));
+        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12));
 
         runTest();
 
         String expectedMessages = "Step 6.8.2.1.a Requesting DM12 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
@@ -277,23 +267,18 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testDTCsMultipleModulesFailure() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-
-        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1));
-        dataRepository.putObdModule(obdModuleInformation);
-
         var dm12_0 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);
         var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc1);
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12_0, dm12_1));
-        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, dm12_0));
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12_0, dm12_1));
+        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12_0));
 
         runTest();
 
         String expectedMessages = "Step 6.8.2.1.a Requesting DM12 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
@@ -312,21 +297,17 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testMILNotOnFailure() {
-        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1));
-        dataRepository.putObdModule(obdModuleInformation);
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12));
-        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, dm12));
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12));
+        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12));
 
         runTest();
 
         String expectedMessages = "Step 6.8.2.1.a Requesting DM12 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
@@ -350,23 +331,20 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testGlobalDSDifferenceFailure() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        var dm6 = DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);
-        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(dm6);
-        dataRepository.putObdModule(obdModuleInformation);
 
         var dm12_1 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12_1));
+
         var dm12_2 = DM12MILOnEmissionDTCPacket.create(0, ON, ON, OFF, OFF, dtc1);
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12_1));
-        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, dm12_2));
+        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12_2));
 
         runTest();
 
         String expectedMessages = "Step 6.8.2.1.a Requesting DM12 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
@@ -385,25 +363,19 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testNoNACKFailure() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1));
-        dataRepository.putObdModule(obdModuleInformation);
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12));
+        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
-
-        var dm12 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12));
-        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, dm12));
-
         when(diagnosticMessageModule.requestDM12(any(), eq(1))).thenReturn(new BusResult<>(true));
 
         runTest();
 
         String expectedMessages = "Step 6.8.2.1.a Requesting DM12 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;

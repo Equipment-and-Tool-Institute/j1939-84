@@ -19,8 +19,8 @@ import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
-/*
- * The controller for 6.2.10 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results
+/**
+ * 6.2.10 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results
  */
 public class Part02Step10Controller extends StepController {
 

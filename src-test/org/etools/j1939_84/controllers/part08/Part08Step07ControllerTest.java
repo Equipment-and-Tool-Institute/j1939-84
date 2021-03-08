@@ -138,7 +138,7 @@ public class Part08Step07ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 1, 0, 1);
-        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation);
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc);
         when(diagnosticMessageModule.requestDM28(any())).thenReturn(RequestResult.of(dm28));
@@ -162,7 +162,7 @@ public class Part08Step07ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNoDTC() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF));
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF), 8);
         dataRepository.putObdModule(obdModuleInformation);
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF);
         when(diagnosticMessageModule.requestDM28(any())).thenReturn(RequestResult.of(dm28));
@@ -185,7 +185,7 @@ public class Part08Step07ControllerTest extends AbstractControllerTest {
     public void testFailureForDifferentDTCs() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 1, 0, 1);
-        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1));
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dtc2 = DiagnosticTroubleCode.create(234, 1, 0, 1);
@@ -210,7 +210,7 @@ public class Part08Step07ControllerTest extends AbstractControllerTest {
     public void testFailureForDifferentMIL() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 1, 0, 1);
-        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation);
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
         when(diagnosticMessageModule.requestDM28(any())).thenReturn(RequestResult.of(dm28));
@@ -235,7 +235,7 @@ public class Part08Step07ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(123, 1, 0, 1);
         var dtc2 = DiagnosticTroubleCode.create(345, 1, 0, 1);
 
-        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2));
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2), 8);
         dataRepository.putObdModule(obdModuleInformation);
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2);
         when(diagnosticMessageModule.requestDM28(any())).thenReturn(RequestResult.of(dm28));
@@ -258,14 +258,14 @@ public class Part08Step07ControllerTest extends AbstractControllerTest {
     public void testWarningForMoreThanOneDTCModule() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc_0 = DiagnosticTroubleCode.create(123, 1, 0, 1);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc_0));
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc_0), 8);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm28_0 = DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc_0);
         when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28_0));
 
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
         var dtc_1 = DiagnosticTroubleCode.create(234, 1, 0, 1);
-        obdModuleInformation1.set(DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc_1));
+        obdModuleInformation1.set(DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc_1), 8);
         dataRepository.putObdModule(obdModuleInformation1);
         var dm28_1 = DM28PermanentEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc_1);
 
@@ -292,7 +292,7 @@ public class Part08Step07ControllerTest extends AbstractControllerTest {
     public void testFailureForDifferenceGlobalVsDs() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 1, 0, 1);
-        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation);
         var dm28_1 = DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc);
         when(diagnosticMessageModule.requestDM28(any())).thenReturn(RequestResult.of(dm28_1));
@@ -316,7 +316,7 @@ public class Part08Step07ControllerTest extends AbstractControllerTest {
     public void testFailureForNoNACK() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 1, 0, 1);
-        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc));
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation);
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc);
         when(diagnosticMessageModule.requestDM28(any())).thenReturn(RequestResult.of(dm28));

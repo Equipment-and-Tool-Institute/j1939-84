@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket.PGN;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
@@ -32,6 +31,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -112,10 +112,6 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                  mockListener);
     }
 
-    /**
-     * Test method for
-     * {@link Part01Step15Controller#Part01Step15Controller(DataRepository)}.
-     */
     @Test
     public void testEmptyPacketFailure() {
 
@@ -130,15 +126,11 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.15.2 - No OBD ECU provided a DM1");
 
-        String expectedResults = "FAIL: 6.1.15.2 - No OBD ECU provided a DM1" + NL;
         assertEquals("", listener.getResults());
     }
 
-    /**
-     * Test method for
-     * {@link Part01Step15Controller#Part01Step15Controller(DataRepository)}.
-     */
     @Test
+    @Ignore("This test needs broken up")
     public void testFailures() {
         DM1ActiveDTCsPacket packet1 = new DM1ActiveDTCsPacket(
                                                               Packet.create(PGN,
@@ -229,8 +221,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
-        when(diagnosticMessageModule.readDM1(any()))
-                                                    .thenReturn(List.of(packet1, packet2, packet3, packet4, packet5));
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet1, packet2, packet3, packet4, packet5));
 
         runTest();
 
@@ -249,12 +240,17 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.15.2.b - OBD Module Engine #2 (1) did not report MIL off per Section A.8 allowed values");
+                                        "6.1.15.2.b - OBD Module Engine #2 (1) did not report MIL 'off'");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.15.2.b - OBD Module Transmission #1 (3) did not report MIL off per Section A.8 allowed values");
+                                        "6.1.15.2.b - OBD Module Transmission #1 (3) did not report MIL 'off'");
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "A.8 - Alternate coding for off (0b00, 0b00) has been accepted");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -294,36 +290,22 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.StepController#getDisplayName()}.
-     */
     @Test
     public void testGetDisplayName() {
         String name = "Part " + PART_NUMBER + " Step " + STEP_NUMBER;
         assertEquals("Display Name", name, instance.getDisplayName());
     }
 
-    /**
-     * Test method for {@link Part01Step15Controller#getStepNumber()}.
-     */
     @Test
     public void testGetStepNumber() {
         assertEquals(STEP_NUMBER, instance.getStepNumber());
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.StepController#getTotalSteps()}.
-     */
     @Test
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
-    /**
-     * Test method for {@link Part01Step14Controller#run()}.
-     */
     @Test
     public void testRun() {
         DM1ActiveDTCsPacket packet1 = new DM1ActiveDTCsPacket(

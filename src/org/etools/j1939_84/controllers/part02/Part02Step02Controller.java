@@ -27,6 +27,9 @@ import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
+/**
+ * 6.2.2 DM5: Diagnostic Readiness 1
+ */
 public class Part02Step02Controller extends StepController {
     private static final int PART_NUMBER = 2;
     private static final int STEP_NUMBER = 2;

@@ -134,7 +134,7 @@ public class Part11Step11ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM26TripDiagnosticReadinessPacket.create(0, 0, 0));
+        obdModuleInformation.set(DM26TripDiagnosticReadinessPacket.create(0, 0, 0), 11);
         dataRepository.putObdModule(obdModuleInformation);
         var dm26 = DM26TripDiagnosticReadinessPacket.create(0, 9, 1);
         when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26));
@@ -148,8 +148,8 @@ public class Part11Step11ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM26(any(), eq(0));
         verify(diagnosticMessageModule).requestDM26(any(), eq(1));
 
-        assertSame(dm26, dataRepository.getObdModule(0).get(DM26TripDiagnosticReadinessPacket.class));
-        assertNull(dataRepository.getObdModule(1).get(DM26TripDiagnosticReadinessPacket.class));
+        assertSame(dm26, dataRepository.getObdModule(0).getLatest(DM26TripDiagnosticReadinessPacket.class));
+        assertNull(dataRepository.getObdModule(1).getLatest(DM26TripDiagnosticReadinessPacket.class));
 
         assertEquals(9.0, dataRepository.getObdModule(0).getDeltaEngineStart(), 0.0);
         assertEquals("", listener.getMessages());
@@ -160,7 +160,7 @@ public class Part11Step11ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForTimeTooLong() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM26TripDiagnosticReadinessPacket.create(0, 0, 0));
+        obdModuleInformation.set(DM26TripDiagnosticReadinessPacket.create(0, 0, 0), 11);
         dataRepository.putObdModule(obdModuleInformation);
         var dm26 = DM26TripDiagnosticReadinessPacket.create(0, 100, 1);
         when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26));
@@ -182,7 +182,7 @@ public class Part11Step11ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         DM26TripDiagnosticReadinessPacket repoDM26 = DM26TripDiagnosticReadinessPacket.create(0, 0, 0);
         repoDM26.getPacket().setTimestamp(LocalDateTime.of(2020, 3, 4, 11, 33, 0));
-        obdModuleInformation.set(repoDM26);
+        obdModuleInformation.set(repoDM26, 11);
         dataRepository.putObdModule(obdModuleInformation);
         var dm26 = DM26TripDiagnosticReadinessPacket.create(0, 5, 1);
         dm26.getPacket().setTimestamp(LocalDateTime.of(2020, 3, 4, 11, 33, 16));

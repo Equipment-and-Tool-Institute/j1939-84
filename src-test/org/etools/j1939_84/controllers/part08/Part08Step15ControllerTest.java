@@ -143,7 +143,7 @@ public class Part08Step15ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM26(any(), eq(0));
         verify(diagnosticMessageModule).requestDM26(any(), eq(1));
 
-        assertEquals(dm26, dataRepository.getObdModule(0).get(DM26TripDiagnosticReadinessPacket.class));
+        assertEquals(dm26, dataRepository.getObdModule(0).getLatest(DM26TripDiagnosticReadinessPacket.class));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

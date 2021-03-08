@@ -8,20 +8,17 @@ import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.AreaStatus.NOT
 import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.AreaStatus.OUTSIDE;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus;
 import org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.AreaStatus;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.FuelType;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -68,30 +65,29 @@ public class Part02Step16Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        FuelType fuelType = getDataRepository().getVehicleInformation().getFuelType();
-
         // 6.2.16.1.a. Global DM34 (send Request (PGN 59904) for PGN 40960 (SPNs 4127-4132)).
         var globalPackets = getDiagnosticMessageModule().requestDM34(getListener()).getPackets();
-        if (globalPackets.isEmpty() && !fuelType.isSparkIgnition()) {
-            // 6.2.16.2.a. Fail if no ECU responds, unless the user selected SI technology.
+
+        // 6.2.16.2.a. Fail if no ECU responds, unless the user selected SI technology.
+        if (globalPackets.isEmpty() && !getFuelType().isSparkIgnition()) {
             addFailure("6.2.16.2.a - No ECU responded to the global request");
         }
 
         // 6.2.16.2.b. Fail if any ECU response is not = 0b00 (Outside Control Area) for NOx control area
         globalPackets.stream()
                      .filter(p -> p.getNoxNTEControlAreaStatus() != OUTSIDE)
-                     .map(ParsedPacket::getSourceAddress)
-                     .map(Lookup::getAddressName)
-                     .forEach(moduleName -> addFailure("6.2.16.2.b - " + moduleName
-                             + " reported NOx control area != 0b00"));
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> {
+                         addFailure("6.2.16.2.b - " + moduleName + " reported NOx control area != 0b00");
+                     });
 
         // 6.2.16.2.b. Fail if any ECU response is not = 0b00 (Outside Control Area) for PM control area
         globalPackets.stream()
                      .filter(p -> p.getPmNTEControlAreaStatus() != OUTSIDE)
-                     .map(ParsedPacket::getSourceAddress)
-                     .map(Lookup::getAddressName)
-                     .forEach(moduleName -> addFailure("6.2.16.2.b - " + moduleName
-                             + " reported PM control area != 0b00"));
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> {
+                         addFailure("6.2.16.2.b - " + moduleName + " reported PM control area != 0b00");
+                     });
 
         // 6.2.16.2.c. Fail if any ECU response is not = 0b00 (Outside Area) or 0b11 (not available) for NOx carve-out
         // area.
@@ -100,10 +96,10 @@ public class Part02Step16Controller extends StepController {
                          AreaStatus area = p.getNoxNTECarveOutAreaStatus();
                          return area != OUTSIDE && area != NOT_AVAILABLE;
                      })
-                     .map(ParsedPacket::getSourceAddress)
-                     .map(Lookup::getAddressName)
-                     .forEach(moduleName -> addFailure("6.2.16.2.c - " + moduleName
-                             + " reported NOx carve-out area != 0b00 or 0b11"));
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> {
+                         addFailure("6.2.16.2.c - " + moduleName + " reported NOx carve-out area != 0b00 or 0b11");
+                     });
 
         // 6.2.16.2.c. Fail if any ECU response is not = 0b00 (Outside Area) or 0b11 (not available) for NOx deficiency
         // area.
@@ -112,10 +108,10 @@ public class Part02Step16Controller extends StepController {
                          AreaStatus area = p.getNoxNTEDeficiencyAreaStatus();
                          return area != OUTSIDE && area != NOT_AVAILABLE;
                      })
-                     .map(ParsedPacket::getSourceAddress)
-                     .map(Lookup::getAddressName)
-                     .forEach(moduleName -> addFailure("6.2.16.2.c - " + moduleName
-                             + " reported NOx deficiency area != 0b00 or 0b11"));
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> {
+                         addFailure("6.2.16.2.c - " + moduleName + " reported NOx deficiency area != 0b00 or 0b11");
+                     });
 
         // 6.2.16.2.c. Fail if any ECU response is not = 0b00 (Outside Area) or 0b11 (not available) for PM carve-out
         // area
@@ -124,10 +120,10 @@ public class Part02Step16Controller extends StepController {
                          AreaStatus area = p.getPmNTECarveOutAreaStatus();
                          return area != OUTSIDE && area != NOT_AVAILABLE;
                      })
-                     .map(ParsedPacket::getSourceAddress)
-                     .map(Lookup::getAddressName)
-                     .forEach(moduleName -> addFailure("6.2.16.2.c - " + moduleName
-                             + " reported PM carve-out area != 0b00 or 0b11"));
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> {
+                         addFailure("6.2.16.2.c - " + moduleName + " reported PM carve-out area != 0b00 or 0b11");
+                     });
 
         // 6.2.16.2.c. Fail if any ECU response is not = 0b00 (Outside Area) or 0b11 (not available) for PM deficiency
         // area
@@ -136,26 +132,26 @@ public class Part02Step16Controller extends StepController {
                          AreaStatus area = p.getPmNTEDeficiencyAreaStatus();
                          return area != OUTSIDE && area != NOT_AVAILABLE;
                      })
-                     .map(ParsedPacket::getSourceAddress)
-                     .map(Lookup::getAddressName)
-                     .forEach(moduleName -> addFailure("6.2.16.2.c - " + moduleName
-                             + " reported PM deficiency area != 0b00 or 0b11"));
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> {
+                         addFailure("6.2.16.2.c - " + moduleName + " reported PM deficiency area != 0b00 or 0b11");
+                     });
 
         // 6.2.16.2.d. Fail if any ECU response is not = 0b11 for byte 1 bits 1-2 and for byte 2 bits 1-2.
         globalPackets.stream()
                      .filter(p -> (p.getPacket().get(0) & 0x03) != 0x03)
-                     .map(ParsedPacket::getSourceAddress)
-                     .map(Lookup::getAddressName)
-                     .forEach(moduleName -> addFailure("6.2.16.2.d - " + moduleName
-                             + " reported byte 1 bit 1-2 != 0b11"));
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> {
+                         addFailure("6.2.16.2.d - " + moduleName + " reported byte 1 bit 1-2 != 0b11");
+                     });
 
         // 6.2.16.2.d. Fail if any ECU response is not = 0b11 for byte 2 bits 1-2.
         globalPackets.stream()
                      .filter(p -> (p.getPacket().get(1) & 0x03) != 0x03)
-                     .map(ParsedPacket::getSourceAddress)
-                     .map(Lookup::getAddressName)
-                     .forEach(moduleName -> addFailure("6.2.16.2.d - " + moduleName
-                             + " reported byte 2 bit 1-2 != 0b11"));
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> {
+                         addFailure("6.2.16.2.d - " + moduleName + " reported byte 2 bit 1-2 != 0b11");
+                     });
 
         // 6.2.16.2.e. Fail if any reserved bytes 3-8 are not = 0xFF.
         globalPackets.stream()
@@ -163,8 +159,9 @@ public class Part02Step16Controller extends StepController {
                      .filter(p -> Arrays.stream(p.getData(2, 7)).anyMatch(d -> d != 0xFF))
                      .map(Packet::getSource)
                      .map(Lookup::getAddressName)
-                     .forEach(moduleName -> addFailure("6.2.16.2.d - " + moduleName
-                             + " reported reserve bytes 3-8 != 0xFF"));
+                     .forEach(moduleName -> {
+                         addFailure("6.2.16.2.d - " + moduleName + " reported reserve bytes 3-8 != 0xFF");
+                     });
 
         var obdAddresses = globalPackets.stream()
                                         .map(ParsedPacket::getSourceAddress)
@@ -174,10 +171,9 @@ public class Part02Step16Controller extends StepController {
                                         .collect(Collectors.toList());
 
         // 6.2.16.3.a. DS DM34 to each OBD ECU which responded to the DM34 global request in step 1.
-        List<RequestResult<DM34NTEStatus>> dsResponses = obdAddresses.stream()
-                                                                     .map(address -> getDiagnosticMessageModule().requestDM34(getListener(),
-                                                                                                                              address))
-                                                                     .collect(Collectors.toList());
+        var dsResponses = obdAddresses.stream()
+                                      .map(a -> getDiagnosticMessageModule().requestDM34(getListener(), a))
+                                      .collect(Collectors.toList());
 
         // 6.2.16.4.a. Fail if any difference compared to data received from global request.
         compareRequestPackets(globalPackets, filterRequestResultPackets(dsResponses), "6.1.16.4.a");
@@ -186,10 +182,15 @@ public class Part02Step16Controller extends StepController {
         dsResponses.stream()
                    .flatMap(r -> r.getAcks().stream())
                    .filter(a -> a.getResponse() == NACK)
-                   .map(ParsedPacket::getSourceAddress)
-                   .map(Lookup::getAddressName)
-                   .forEach(moduleName -> addFailure("6.2.16.4.b - NACK received from " + moduleName
-                           + " which responded to the global query"));
+                   .map(ParsedPacket::getModuleName)
+                   .forEach(moduleName -> {
+                       addFailure("6.2.16.4.b - NACK received from " + moduleName
+                               + " which responded to the global query");
+                   });
 
+    }
+
+    private FuelType getFuelType() {
+        return getDataRepository().getVehicleInformation().getFuelType();
     }
 }

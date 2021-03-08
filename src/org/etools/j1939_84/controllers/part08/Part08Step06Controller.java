@@ -65,16 +65,20 @@ public class Part08Step06Controller extends StepController {
         globalPackets.stream()
                      .filter(p -> p.getActiveCodeCount() != dm1Count(p.getSourceAddress()))
                      .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.8.6.2.a - " + moduleName
-                             + " reported different number of DTCs than correspond DM1 response earlier in this part"));
+                     .forEach(moduleName -> {
+                         addFailure("6.8.6.2.a - " + moduleName
+                                 + " reported different number of DTCs than correspond DM1 response earlier in this part");
+                     });
 
         // 6.8.6.2.a Fail if any OBD ECU reports different number of DTCs than corresponding DM2 response earlier
         // this part.
         globalPackets.stream()
                      .filter(p -> p.getPreviouslyActiveCodeCount() != dm2Count(p.getSourceAddress()))
                      .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.8.6.2.a - " + moduleName
-                             + " reported different number of DTCs than correspond DM2 response earlier in this part"));
+                     .forEach(moduleName -> {
+                         addFailure("6.8.6.2.a - " + moduleName
+                                 + " reported different number of DTCs than correspond DM2 response earlier in this part");
+                     });
 
         // 6.8.6.3.a DS DM5 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
@@ -87,11 +91,11 @@ public class Part08Step06Controller extends StepController {
     }
 
     private int dm1Count(int address) {
-        return getDTCs(DM1ActiveDTCsPacket.class, address).size();
+        return getDTCs(DM1ActiveDTCsPacket.class, address, 8).size();
     }
 
     private int dm2Count(int address) {
-        return getDTCs(DM2PreviouslyActiveDTC.class, address).size();
+        return getDTCs(DM2PreviouslyActiveDTC.class, address, 8).size();
     }
 
 }

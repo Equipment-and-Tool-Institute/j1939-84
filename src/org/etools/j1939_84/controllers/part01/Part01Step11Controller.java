@@ -19,9 +19,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *         <p>
- *         The controller for 6.1.11 DM21: Diagnostic readiness 2
+ * 6.1.11 DM21: Diagnostic readiness 2
  */
 public class Part01Step11Controller extends StepController {
 
@@ -88,8 +86,7 @@ public class Part01Step11Controller extends StepController {
                          .filter(packet -> isNotZero(packet.getKmWhileMILIsActivated()))
                          .map(ParsedPacket::getModuleName)
                          .forEach(moduleName -> {
-                             addFailure("6.1.11.1.b - " + moduleName
-                                     + " reported distance SCC (SPN 3294) is not zero");
+                             addFailure("6.1.11.1.b - " + moduleName + " reported distance SCC (SPN 3294) is not zero");
                          });
 
             // 6.1.11.2.c. Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)
@@ -106,8 +103,7 @@ public class Part01Step11Controller extends StepController {
                          .filter(packet -> Double.valueOf(packet.getMinutesSinceDTCsCleared()).intValue() > 1)
                          .map(ParsedPacket::getModuleName)
                          .forEach(moduleName -> {
-                             addFailure("6.1.11.1.d - " + moduleName
-                                     + " reported time SCC (SPN 3296) > 1 minute");
+                             addFailure("6.1.11.1.d - " + moduleName + " reported time SCC (SPN 3296) > 1 minute");
                          });
         }
 
@@ -146,7 +142,7 @@ public class Part01Step11Controller extends StepController {
 
         // 6.1.11.4.d. Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported).
         dsPackets.stream()
-                 .filter(packet -> isNotZero(packet.getMinutesSinceDTCsCleared()))
+                 .filter(packet -> Double.valueOf(packet.getMinutesSinceDTCsCleared()).intValue() > 1)
                  .map(ParsedPacket::getModuleName)
                  .forEach(moduleName -> {
                      addFailure("6.1.11.4.d - " + moduleName + " reported time SCC (SPN 3296) > 1 minute");

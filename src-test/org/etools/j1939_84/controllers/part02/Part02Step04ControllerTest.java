@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part02;
 
 import static org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket.PGN;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -22,10 +23,8 @@ import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
-import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -130,29 +129,26 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         };
         var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data));
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false, packet));
+        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(packet));
         when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
-                                                                  .thenReturn(new BusResult<>(false, packet));
+                                                                  .thenReturn(BusResult.of(packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
-        obdInfo.setIgnitionCycleCounterValue(1);
         var ratio = new PerformanceRatio(0x1111, 0xAAAA, 0xCCCC, 0x00);
-        obdInfo.setPerformanceRatios(List.of(ratio));
+        obdInfo.set(DM20MonitorPerformanceRatioPacket.create(0, 1, 0, ratio), 1);
         dataRepository.putObdModule(obdInfo);
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM20(any());
         verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        Outcome.FAIL,
+                                        FAIL,
                                         "6.2.4.2.b - ECU Engine #1 (0) reported a denominator that does not match denominator recorded in part 1");
     }
 
@@ -174,15 +170,14 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         };
         var packet1 = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data1));
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(packet1));
 
         var packet2 = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, 0, 0, 0, 0, 0, 0, 0, 0, 0));
-        when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
-                                                                  .thenReturn(new BusResult<>(false, packet2));
+        when(diagnosticMessageModule.requestDM20(any(), eq(0x00))).thenReturn(BusResult.of(packet2));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
-        obdInfo.setIgnitionCycleCounterValue(3);
-        obdInfo.setPerformanceRatios(packet1.getRatios());
+        PerformanceRatio[] ratios = packet1.getRatios().toArray(new PerformanceRatio[0]);
+        obdInfo.set(DM20MonitorPerformanceRatioPacket.create(0, 3, 1, ratios), 1);
         dataRepository.putObdModule(obdInfo);
 
         runTest();
@@ -193,11 +188,10 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        Outcome.FAIL,
+                                        FAIL,
                                         "6.2.4.4.a - Difference compared to data received during global request from Engine #1 (0)");
     }
 
@@ -219,29 +213,26 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         };
         var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data));
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false, packet));
-        when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
-                                                                  .thenReturn(new BusResult<>(false, packet));
+        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(packet));
+        when(diagnosticMessageModule.requestDM20(any(), eq(0x00))).thenReturn(BusResult.of(packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
-        obdInfo.setIgnitionCycleCounterValue(1);
-        obdInfo.setPerformanceRatios(packet.getRatios());
+        PerformanceRatio[] ratios = packet.getRatios().toArray(new PerformanceRatio[0]);
+        obdInfo.set(DM20MonitorPerformanceRatioPacket.create(0, 1, 1, ratios), 1);
         dataRepository.putObdModule(obdInfo);
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM20(any());
         verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        Outcome.FAIL,
-                                        "6.2.4.2.a - ECU Engine #1 (0) reported ignition cycle is invalid.  Expected 2 but was 4");
+                                        FAIL,
+                                        "6.2.4.2.a - ECU Engine #1 (0) reported ignition cycle is invalid");
     }
 
     @Test
@@ -262,15 +253,15 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         };
         var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data1));
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false, packet));
+        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(packet));
         when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
-                                                                  .thenReturn(new BusResult<>(false, packet));
+                                                                  .thenReturn(BusResult.of(packet));
 
-        when(diagnosticMessageModule.requestDM20(any(), eq(0x17))).thenReturn(new BusResult<>(false));
+        when(diagnosticMessageModule.requestDM20(any(), eq(0x17))).thenReturn(BusResult.empty());
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
-        obdInfo.setIgnitionCycleCounterValue(3);
-        obdInfo.setPerformanceRatios(packet.getRatios());
+        PerformanceRatio[] ratios = packet.getRatios().toArray(new PerformanceRatio[0]);
+        obdInfo.set(DM20MonitorPerformanceRatioPacket.create(0, 3, 1, ratios), 1);
         dataRepository.putObdModule(obdInfo);
 
         OBDModuleInformation obdInfo2 = new OBDModuleInformation(0x17);
@@ -278,18 +269,16 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM20(any());
         verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM20(any(), eq(0x17));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        Outcome.FAIL,
+                                        FAIL,
                                         "6.2.4.4.b - OBD module Instrument Cluster #1 (23) did not provide a response to Global query and did not provide a NACK for the DS query");
     }
 
@@ -312,60 +301,44 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         };
         var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data));
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false, packet));
-        when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
-                                                                  .thenReturn(new BusResult<>(false, packet));
+        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(packet));
+        when(diagnosticMessageModule.requestDM20(any(), eq(0x00))).thenReturn(BusResult.of(packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
-        obdInfo.setIgnitionCycleCounterValue(1);
         var ratio = new PerformanceRatio(0x222222, 0xAAAA, 0xBBBB, 0x00);
-        obdInfo.setPerformanceRatios(List.of(ratio));
+        obdInfo.set(DM20MonitorPerformanceRatioPacket.create(0, 1, 1, ratio), 1);
         dataRepository.putObdModule(obdInfo);
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM20(any());
         verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        Outcome.FAIL,
+                                        FAIL,
                                         "6.2.4.2.a - ECU Engine #1 (0) reported different SPNs as supported for data than in part 1");
     }
 
-    /**
-     * Test method for {@link StepController#getDisplayName()}.
-     */
     @Test
     public void testGetDisplayName() {
         String name = "Part " + PART_NUMBER + " Step " + STEP_NUMBER;
         assertEquals("Display Name", name, instance.getDisplayName());
     }
 
-    /**
-     * Test method for {@link StepController#getPartNumber()}.
-     */
     @Test
     public void testGetPartNumber() {
         assertEquals("Part Number", PART_NUMBER, instance.getPartNumber());
     }
 
-    /**
-     * Test method for {@link StepController#getStepNumber()}.
-     */
     @Test
     public void testGetStepNumber() {
         assertEquals(STEP_NUMBER, instance.getStepNumber());
     }
 
-    /**
-     * Test method for {@link StepController#getTotalSteps()}.
-     */
     @Test
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 0, instance.getTotalSteps());
@@ -400,12 +373,11 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
             };
             var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data));
             packetList.add(packet);
-            when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
-                                                                      .thenReturn(new BusResult<>(false, packet));
+            when(diagnosticMessageModule.requestDM20(any(), eq(0x00))).thenReturn(BusResult.of(packet));
 
             OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
-            obdInfo.setIgnitionCycleCounterValue(1);
-            obdInfo.setPerformanceRatios(packet.getRatios());
+            PerformanceRatio[] ratios = packet.getRatios().toArray(new PerformanceRatio[0]);
+            obdInfo.set(DM20MonitorPerformanceRatioPacket.create(0, 1, 1, ratios), 1);
             dataRepository.putObdModule(obdInfo);
         }
 
@@ -434,41 +406,35 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
             };
             var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x17, data));
             packetList.add(packet);
-            when(diagnosticMessageModule.requestDM20(any(), eq(0x17)))
-                                                                      .thenReturn(new BusResult<>(false, packet));
+            when(diagnosticMessageModule.requestDM20(any(), eq(0x17))).thenReturn(BusResult.of(packet));
 
             OBDModuleInformation obdInfo = new OBDModuleInformation(0x17);
-            obdInfo.setPerformanceRatios(packet.getRatios());
-            obdInfo.setIgnitionCycleCounterValue(0xA5A5 - 1);
+            PerformanceRatio[] ratios = packet.getRatios().toArray(new PerformanceRatio[0]);
+            obdInfo.set(DM20MonitorPerformanceRatioPacket.create(0, 0xA5A5 - 1, 1, ratios), 1);
             dataRepository.putObdModule(obdInfo);
         }
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false,
-                                                                                        packetList,
-                                                                                        List.of()));
+        when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false, packetList, List.of()));
 
         runTest();
-        verify(diagnosticMessageModule).setJ1939(j1939);
+
         verify(diagnosticMessageModule).requestDM20(any());
         verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM20(any(), eq(0x17));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
     public void testNoPackets() {
-        when(diagnosticMessageModule.requestDM20(any()))
-                                                        .thenReturn(new RequestResult<>(false, List.of(), List.of()));
+        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.empty());
 
         runTest();
-        verify(diagnosticMessageModule).setJ1939(j1939);
+
         verify(diagnosticMessageModule).requestDM20(any());
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 }

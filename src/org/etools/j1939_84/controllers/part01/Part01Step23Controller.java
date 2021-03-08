@@ -3,16 +3,16 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
 import org.etools.j1939_84.bus.j1939.packets.DTCLampStatus;
-import org.etools.j1939_84.bus.j1939.packets.LampStatus;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -20,11 +20,8 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *         <p>
- *         The controller for 6.1.23 DM31: DTC to Lamp Association
+ * 6.1.23 DM31: DTC to Lamp Association
  */
-
 public class Part01Step23Controller extends StepController {
 
     private static final int PART_NUMBER = 1;
@@ -62,24 +59,22 @@ public class Part01Step23Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-
         // 6.1.23.1.a. Global DM31 (send Request (PGN 59904) for PGN 41728 (SPNs 1214-1215, 4113, 4117)).
-        RequestResult<DM31DtcToLampAssociation> globalResponse = getDiagnosticMessageModule().requestDM31(getListener());
-
-        globalResponse.getPackets()
-                      .stream()
-                      .filter(packet -> isMilNotOff(packet))
-                      .forEach(packet -> {
-                          // 6.1.23.2.a. Fail if any received ECU response does not report MIL off.
-                          addFailure("6.1.23.2.a - ECU " + Lookup.getAddressName(packet.getSourceAddress())
-                                  + " reported MIL not off");
-                      });
+        // 6.1.23.2.a. Fail if any received ECU response does not report MIL off.
+        getDiagnosticMessageModule().requestDM31(getListener())
+                                    .getPackets()
+                                    .stream()
+                                    .filter(Part01Step23Controller::isMilNotOff)
+                                    .map(ParsedPacket::getModuleName)
+                                    .forEach(moduleName -> {
+                                        addFailure("6.1.23.2.a - ECU " + moduleName + " did not report MIL off");
+                                    });
     }
 
-    private boolean isMilNotOff(DM31DtcToLampAssociation packet) {
+    private static boolean isMilNotOff(DM31DtcToLampAssociation packet) {
         return packet.getDtcLampStatuses()
                      .stream()
                      .map(DTCLampStatus::getMalfunctionIndicatorLampStatus)
-                     .anyMatch(lampStatus -> lampStatus != LampStatus.OFF);
+                     .anyMatch(lampStatus -> lampStatus != OFF);
     }
 }

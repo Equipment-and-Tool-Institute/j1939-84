@@ -103,10 +103,7 @@ public class Part03Step04Controller extends StepController {
             // what that ECU reported in DM6 earlier in this part.
             boolean hasEmissionDTCDifference = modulePackets.stream()
                                                             .anyMatch(p -> {
-                                                                var dm6 = obdModuleInformation.get(DM6PendingEmissionDTCPacket.class);
-                                                                int existingSize = dm6 == null ? 0
-                                                                        : dm6.getDtcs().size();
-                                                                return p.getEmissionRelatedPendingDTCCount() != existingSize;
+                                                                return p.getEmissionRelatedPendingDTCCount() != getDM6DTCSize(p.getSourceAddress());
                                                             });
             if (hasEmissionDTCDifference) {
                 addFailure("6.3.4.2.c - " + moduleName
@@ -114,7 +111,7 @@ public class Part03Step04Controller extends StepController {
                         "than what it reported in the previous DM6");
             }
 
-            var lastDM27 = obdModuleInformation.get(DM27AllPendingDTCsPacket.class);
+            var lastDM27 = get(DM27AllPendingDTCsPacket.class, moduleAddress, 3);
             if (lastDM27 != null) {
                 // 6.3.4.2.d For OBD ECUs that support DM27, fail if any ECU reports a lower number of
                 // all pending DTCs (SPN 4105) than the number of emission-related pending DTCs.
@@ -207,6 +204,10 @@ public class Part03Step04Controller extends StepController {
         if (modulesReportingAllPendingCount > 1) {
             addWarning("6.3.4.3.b - More than one ECU reported > 0 for all pending DTC count");
         }
+    }
+
+    private int getDM6DTCSize(int address) {
+        return getDTCs(DM6PendingEmissionDTCPacket.class, address, 3).size();
     }
 
 }

@@ -57,6 +57,8 @@ public class Part11Step04Controller extends StepController {
         // 6.11.4.1.a. Global DM29 [(send Request (PGN 59904) for PGN 40448 (SPNs 4104-4108)]).
         var packets = getDiagnosticMessageModule().requestDM29(getListener()).getPackets();
 
+        packets.forEach(this::save);
+
         // 6.11.4.2.a. Fail if any ECU reports > 0 for emission-related pending
         packets.stream()
                .filter(p -> p.getEmissionRelatedPendingDTCCount() > 0)
@@ -64,6 +66,7 @@ public class Part11Step04Controller extends StepController {
                .forEach(moduleName -> {
                    addFailure("6.11.4.2.a - " + moduleName + " reported > 0 for emission-related pending");
                });
+
         // 6.11.4.2.a. Fail if any ECU reports > 0 for MIL-on
         packets.stream()
                .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 0)

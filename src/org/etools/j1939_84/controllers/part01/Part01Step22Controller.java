@@ -8,7 +8,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
@@ -21,9 +20,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *         <p>
- *         The controller for 6.1.22 DM29: Regulated DTC counts
+ * 6.1.22 DM29: Regulated DTC counts
  */
 public class Part01Step22Controller extends StepController {
 
@@ -113,13 +110,12 @@ public class Part01Step22Controller extends StepController {
             addFailure("6.1.22.2.d - No OBD ECU provided DM29");
         }
 
-        List<Integer> obdModuleAddresses = getDataRepository().getObdModuleAddresses();
-
         // 6.1.22.3.a. DS DM29 to each OBD ECU.
-        List<BusResult<DM29DtcCounts>> dsResults = obdModuleAddresses.stream()
-                                                                     .map(address -> getDiagnosticMessageModule().requestDM29(getListener(),
-                                                                                                                              address))
-                                                                     .collect(Collectors.toList());
+        var dsResults = getDataRepository()
+                                           .getObdModuleAddresses()
+                                           .stream()
+                                           .map(a -> getDiagnosticMessageModule().requestDM29(getListener(), a))
+                                           .collect(Collectors.toList());
 
         // 6.1.22.4.a. Fail if any difference compared to data received during global request.
         compareRequestPackets(globalPackets, filterPackets(dsResults), "6.1.22.4.a");

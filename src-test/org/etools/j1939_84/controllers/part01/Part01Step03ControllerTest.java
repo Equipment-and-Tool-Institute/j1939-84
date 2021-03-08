@@ -8,13 +8,11 @@ import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -59,7 +57,6 @@ public class Part01Step03ControllerTest {
     @Mock
     private BannerModule bannerModule;
 
-    @Mock
     private DataRepository dataRepository;
 
     @Mock
@@ -91,6 +88,7 @@ public class Part01Step03ControllerTest {
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
+        dataRepository = DataRepository.newInstance();
 
         instance = new Part01Step03Controller(executor,
                                               engineSpeedModule,
@@ -108,7 +106,6 @@ public class Part01Step03ControllerTest {
                                  bannerModule,
                                  vehicleInformationModule,
                                  diagnosticMessageModule,
-                                 dataRepository,
                                  mockListener);
     }
 
@@ -149,33 +146,25 @@ public class Part01Step03ControllerTest {
         when(packet5.getOBDCompliance()).thenReturn((byte) 5);
         packets.add(packet5);
 
-        Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
+        OBDModuleInformation obdInfo1 = new OBDModuleInformation(0, -1);
+        dataRepository.putObdModule(obdInfo1);
 
-        OBDModuleInformation obdInfo1 = new OBDModuleInformation(0);
-        obdInfo1.setFunction(-1);
-        obdInfoList.add(obdInfo1);
-
-        OBDModuleInformation obdInfo2 = new OBDModuleInformation(17);
-        obdInfo2.setFunction(-1);
-        obdInfoList.add(obdInfo2);
-
-        when(dataRepository.getObdModules()).thenReturn(obdInfoList);
+        OBDModuleInformation obdInfo2 = new OBDModuleInformation(17, -1);
+        dataRepository.putObdModule(obdInfo2);
 
         VehicleInformation vehicleInformation = new VehicleInformation();
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         instance.execute(listener, j1939, reportFileModule);
         ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
         verify(executor).execute(runnableCaptor.capture());
         runnableCaptor.getValue().run();
 
-        verify(dataRepository, times(2)).getVehicleInformation();
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(engineSpeedModule).setJ1939(j1939);
         verify(vehicleInformationModule).setJ1939(j1939);
-        verify(dataRepository).getObdModules();
         verify(diagnosticMessageModule).requestDM5(any());
-        verify(dataRepository, times(2)).putObdModule(any());
+
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
         verify(mockListener).addOutcome(1,
                                         3,
@@ -209,17 +198,12 @@ public class Part01Step03ControllerTest {
         when(packet2.getResponse()).thenReturn(Response.DENIED);
         acks.add(packet2);
 
-        Collection<OBDModuleInformation> obdInfoList = List.of();
-        when(dataRepository.getObdModules()).thenReturn(obdInfoList);
-        when(diagnosticMessageModule.requestDM5(any()))
-                                                       .thenReturn(requestResult);
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(requestResult);
 
         instance.execute(listener, j1939, reportFileModule);
         ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
         verify(executor).execute(runnableCaptor.capture());
         runnableCaptor.getValue().run();
-
-        verify(dataRepository).getObdModules();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM5(any());
@@ -252,37 +236,29 @@ public class Part01Step03ControllerTest {
 
         DM5DiagnosticReadinessPacket packet4 = mock(DM5DiagnosticReadinessPacket.class);
 
-        OBDModuleInformation obdInfo = new OBDModuleInformation(0);
-        obdInfo.setFunction(0);
+        OBDModuleInformation obdInfo = new OBDModuleInformation(0, 0);
+        dataRepository.putObdModule(obdInfo);
 
-        Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
-        obdInfoList.add(obdInfo);
-
-        when(dataRepository.getObdModules()).thenReturn(obdInfoList);
         when(packet4.isObd()).thenReturn(true);
         when(packet4.getSourceAddress()).thenReturn(0);
         when(packet4.getOBDCompliance()).thenReturn((byte) 4);
         packets.add(packet4);
-        when(diagnosticMessageModule.requestDM5(any()))
-                                                       .thenReturn(requestResult);
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(requestResult);
 
-        VehicleInformation vehicleInformation = new VehicleInformation();
         AddressClaimPacket addressClaimPacket = mock(AddressClaimPacket.class);
         when(addressClaimPacket.getSourceAddress()).thenReturn(0);
         when(addressClaimPacket.getFunctionId()).thenReturn(0);
         RequestResult<AddressClaimPacket> addressClaimResults = new RequestResult<>(false, addressClaimPacket);
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setAddressClaim(addressClaimResults);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         instance.execute(listener, j1939, reportFileModule);
 
         ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
         verify(executor).execute(runnableCaptor.capture());
         runnableCaptor.getValue().run();
-
-        verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(any());
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM5(any());

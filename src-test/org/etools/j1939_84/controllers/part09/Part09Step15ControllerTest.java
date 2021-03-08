@@ -133,8 +133,8 @@ public class Part09Step15ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
-        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
-        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 9);
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 9);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 1);
 
@@ -173,8 +173,8 @@ public class Part09Step15ControllerTest extends AbstractControllerTest {
     public void testFailureForPendingNoZero() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
-        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
-        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 9);
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 9);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm29_0 = DM29DtcCounts.create(0, 1, 0, 0, 0, 1);
 
@@ -196,8 +196,8 @@ public class Part09Step15ControllerTest extends AbstractControllerTest {
     public void testFailureForMILNonZero() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
-        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
-        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 9);
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 9);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm29_0 = DM29DtcCounts.create(0, 0, 0, 1, 0, 1);
 
@@ -219,8 +219,8 @@ public class Part09Step15ControllerTest extends AbstractControllerTest {
     public void testFailureForPreviousMILNonZero() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
-        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
-        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 9);
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 9);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 1, 1);
 
@@ -241,8 +241,8 @@ public class Part09Step15ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNoPermanent() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF));
-        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF), 9);
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 9);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 0);
 
@@ -265,8 +265,8 @@ public class Part09Step15ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 1, 1, 1);
         var dtc2 = DiagnosticTroubleCode.create(456, 1, 1, 1);
-        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2));
-        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2), 9);
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 9);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 1);
 
@@ -288,8 +288,8 @@ public class Part09Step15ControllerTest extends AbstractControllerTest {
     public void testFailureForSupportDM27AllPendingWrong() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
-        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
-        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 9);
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 9);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm29_0 = DM29DtcCounts.create(0, 0, 1, 0, 0, 1);
 
@@ -311,7 +311,7 @@ public class Part09Step15ControllerTest extends AbstractControllerTest {
     public void testFailureForDoesNotSupportDM27AllPendingWrong() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
-        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 9);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 1);
 
@@ -334,8 +334,8 @@ public class Part09Step15ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 1, 1, 1);
         var dtc2 = DiagnosticTroubleCode.create(4456, 1, 1, 1);
-        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2));
-        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2), 9);
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 9);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 2);
 
@@ -357,14 +357,14 @@ public class Part09Step15ControllerTest extends AbstractControllerTest {
     public void testWarningForMoreThanOneDTCModule() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
-        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
-        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 9);
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 9);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 1);
 
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
         var dtc1 = DiagnosticTroubleCode.create(456, 1, 1, 1);
-        obdModuleInformation1.set(DM28PermanentEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
+        obdModuleInformation1.set(DM28PermanentEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1), 9);
         dataRepository.putObdModule(obdModuleInformation1);
         var dm29_1 = DM29DtcCounts.create(1, 0, 0xFF, 0, 0, 1);
 

@@ -113,22 +113,23 @@ public abstract class StepController extends Controller {
     }
 
     protected <T extends DiagnosticTroubleCodePacket> List<DiagnosticTroubleCode> getDTCs(Class<T> packetClass,
-                                                                                          int address) {
-        var packet = get(packetClass, address);
+                                                                                          int address,
+                                                                                          int partNumber) {
+        var packet = get(packetClass, address, partNumber);
         return packet == null ? List.of() : packet.getDtcs();
     }
 
     protected void save(GenericPacket packet) {
         OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(packet.getSourceAddress());
         if (obdModuleInformation != null) {
-            obdModuleInformation.set(packet);
+            obdModuleInformation.set(packet, partNumber);
             getDataRepository().putObdModule(obdModuleInformation);
         }
     }
 
-    protected <T extends GenericPacket> T get(Class<T> packetClass, int address) {
+    protected <T extends GenericPacket> T get(Class<T> packetClass, int address, int partNumber) {
         OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(address);
-        return obdModuleInformation == null ? null : obdModuleInformation.get(packetClass);
+        return obdModuleInformation == null ? null : obdModuleInformation.get(packetClass, partNumber);
     }
 
     protected void ensureKeyStateIs(KeyState requestedKeyState) throws InterruptedException {

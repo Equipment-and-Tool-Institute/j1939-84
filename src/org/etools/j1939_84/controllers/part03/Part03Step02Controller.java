@@ -113,14 +113,7 @@ public class Part03Step02Controller extends StepController {
         }
 
         // Save the DTCs per module
-        globalPackets.stream()
-                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                     .filter(p -> !p.getDtcs().isEmpty())
-                     .forEach(p -> {
-                         var moduleInfo = getDataRepository().getObdModule(p.getSourceAddress());
-                         moduleInfo.set(p);
-                         getDataRepository().putObdModule(moduleInfo);
-                     });
+        globalPackets.forEach(this::save);
 
         // 6.3.2.3.a Warn if any ECU reports > 1 pending DTC
         globalPackets.stream()

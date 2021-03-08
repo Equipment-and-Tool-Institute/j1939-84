@@ -16,7 +16,6 @@ import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DTCLampStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -64,11 +63,9 @@ public class Part03Step05Controller extends StepController {
     @Override
     protected void run() throws Throwable {
 
-        getDataRepository().getObdModules()
+        getDataRepository().getObdModuleAddresses()
                            .stream()
-                           .filter(info -> info.get(DM6PendingEmissionDTCPacket.class) != null)
-                           .filter(info -> !info.get(DM6PendingEmissionDTCPacket.class).getDtcs().isEmpty())
-                           .map(OBDModuleInformation::getSourceAddress)
+                           .filter(a -> !getDTCs(DM6PendingEmissionDTCPacket.class, a, 3).isEmpty())
                            .forEach(moduleAddress -> {
                                String moduleName = Lookup.getAddressName(moduleAddress);
 

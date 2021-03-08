@@ -6,12 +6,13 @@ package org.etools.j1939_84.controllers.part11;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.controllers.TableA1Validator;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -43,7 +44,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
     private EngineSpeedModule engineSpeedModule;
 
     @Mock
-    private Executor executor;
+    private ExecutorService executor;
 
     @Mock
     private J1939 j1939;
@@ -56,6 +57,9 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
 
     @Mock
     private VehicleInformationModule vehicleInformationModule;
+
+    @Mock
+    private TableA1Validator validator;
 
     private TestResultsListener listener;
 
@@ -74,7 +78,8 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              diagnosticMessageModule,
+                                              validator);
 
         setup(instance,
               listener,
@@ -94,7 +99,8 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  vehicleInformationModule,
                                  diagnosticMessageModule,
-                                 mockListener);
+                                 mockListener,
+                                 validator);
     }
 
     @Test

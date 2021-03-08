@@ -23,6 +23,9 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * 6.1.3 DM5: Diagnostic Readiness 1
+ */
 public class Part01Step03Controller extends StepController {
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 3;
@@ -82,12 +85,9 @@ public class Part01Step03Controller extends StepController {
                 .stream()
                 .filter(DM5DiagnosticReadinessPacket::isObd)
                 .forEach(p -> {
-                    OBDModuleInformation info = new OBDModuleInformation(p.getSourceAddress());
-                    info.set(p);
-
-                    int function = getAddressClaimFunction(p);
-                    info.setFunction(function);
-
+                    OBDModuleInformation info = new OBDModuleInformation(p.getSourceAddress(),
+                                                                         getAddressClaimFunction(p));
+                    info.set(p, 1);
                     getDataRepository().putObdModule(info);
                 });
 

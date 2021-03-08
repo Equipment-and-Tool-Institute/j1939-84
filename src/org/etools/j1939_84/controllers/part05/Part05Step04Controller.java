@@ -16,7 +16,6 @@ import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -72,11 +71,7 @@ public class Part05Step04Controller extends StepController {
         var packets = filterRequestResultPackets(responses);
 
         // Save the DM28 packet for later use
-        packets.forEach(p -> {
-            OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(p.getSourceAddress());
-            obdModuleInformation.set(p);
-            getDataRepository().putObdModule(obdModuleInformation);
-        });
+        packets.forEach(this::save);
 
         // 6.5.4.2.a Fail if no ECU reports a permanent DTC.
         boolean noDTCs = packets.stream().allMatch(p -> p.getDtcs().isEmpty());
@@ -88,8 +83,10 @@ public class Part05Step04Controller extends StepController {
         packets.stream()
                .filter(p -> p.getMalfunctionIndicatorLampStatus() != getDM12MilStatus(p.getSourceAddress()))
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.5.4.2.b - " + moduleName + " reported a different MIL status " +
-                       "than it did for DM12 response earlier in this part"));
+               .forEach(moduleName -> {
+                   addFailure("6.5.4.2.b - " + moduleName + " reported a different MIL status " +
+                           "than it did for DM12 response earlier in this part");
+               });
 
         // 6.5.4.2.c Fail if permanent DTC does not match DM12 active DTC from earlier in this part.
         packets.forEach(p -> {
@@ -106,21 +103,14 @@ public class Part05Step04Controller extends StepController {
 
         // 6.5.4.2.d Fail if NACK not received from OBD ECUs that did not provide a DM28 message.
         checkForNACKsDS(packets, filterRequestResultAcks(responses), "6.5.4.2.d");
-
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int moduleAddress) {
-        var packet = getDTCPacket(moduleAddress);
-        return packet == null ? List.of() : packet.getDtcs();
-    }
-
-    private DiagnosticTroubleCodePacket getDTCPacket(int moduleAddress) {
-        OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(moduleAddress);
-        return obdModuleInformation == null ? null : obdModuleInformation.get(DM12MILOnEmissionDTCPacket.class);
+        return getDTCs(DM12MILOnEmissionDTCPacket.class, moduleAddress, 5);
     }
 
     private LampStatus getDM12MilStatus(int moduleAddress) {
-        var packet = getDTCPacket(moduleAddress);
+        var packet = (DiagnosticTroubleCodePacket) get(DM12MILOnEmissionDTCPacket.class, moduleAddress, 5);
         return packet == null ? null : packet.getMalfunctionIndicatorLampStatus();
     }
 

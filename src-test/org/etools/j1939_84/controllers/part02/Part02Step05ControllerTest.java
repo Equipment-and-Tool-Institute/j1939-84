@@ -20,7 +20,6 @@ import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
-import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
@@ -122,25 +121,16 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
         assertEquals(0, instance.getTotalSteps());
     }
 
-    /**
-     * Test method for {@link StepController#getPartNumber()}.
-     */
     @Test
     public void testGetPartNumber() {
         assertEquals("Part Number", PART_NUMBER, instance.getPartNumber());
     }
 
-    /**
-     * Test method for {@link StepController#getStepNumber()}.
-     */
     @Test
     public void testGetStepNumber() {
         assertEquals(STEP_NUMBER, instance.getStepNumber());
     }
 
-    /**
-     * Test one module responds without issue
-     */
     @Test
     public void testRunHappyPathOneModuleThreeCalibration() {
         // formatter:off
@@ -214,7 +204,7 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
         // formatter:on
         DM19CalibrationInformationPacket dm19 = new DM19CalibrationInformationPacket(packet);
         OBDModuleInformation obd0x00 = new OBDModuleInformation(0x00);
-        obd0x00.set(dm19);
+        obd0x00.set(dm19, 1);
         dataRepository.putObdModule(obd0x00);
 
         when(vehicleInformationModule.requestDM19(any(), eq(0x00))).thenReturn(BusResult.of(dm19));
@@ -313,7 +303,7 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
                                           0x00);
         // formatter:on
         OBDModuleInformation obd0x00 = new OBDModuleInformation(0x00);
-        obd0x00.set(new DM19CalibrationInformationPacket(packet0x00));
+        obd0x00.set(new DM19CalibrationInformationPacket(packet0x00), 1);
         dataRepository.putObdModule(obd0x00);
 
         // formatter:off
@@ -342,7 +332,7 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
                                           0x00);
         // formatter:on
         OBDModuleInformation obd0x01 = new OBDModuleInformation(0x01);
-        obd0x01.set(new DM19CalibrationInformationPacket(packet0x01));
+        obd0x01.set(new DM19CalibrationInformationPacket(packet0x01), 1);
         dataRepository.putObdModule(obd0x01);
 
         // formatter:off
@@ -371,7 +361,7 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
                                           0x00);
         // formatter:on
         OBDModuleInformation obd0x02 = new OBDModuleInformation(0x02);
-        obd0x02.set(new DM19CalibrationInformationPacket(packet0x02));
+        obd0x02.set(new DM19CalibrationInformationPacket(packet0x02), 1);
         dataRepository.putObdModule(obd0x02);
 
         // formatter:off
@@ -417,7 +407,6 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.2.5.2.a - Engine #2 (1) reported CAL IDs/CVNs with different values/quantity than those reported in Part 1 data");
 
-        verify(vehicleInformationModule).setJ1939(j1939);
         verify(vehicleInformationModule).requestDM19(any(), eq(0x00));
         verify(vehicleInformationModule).requestDM19(any(), eq(0x01));
         verify(vehicleInformationModule).requestDM19(any(), eq(0x02));

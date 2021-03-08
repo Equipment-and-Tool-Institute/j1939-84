@@ -75,14 +75,18 @@ public class Part03Step06Controller extends StepController {
                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                .filter(p -> !p.getDtcs().isEmpty())
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.3.6.2.b - " + moduleName + " reported an active DTC"));
+               .forEach(moduleName -> {
+                   addFailure("6.3.6.2.b - " + moduleName + " reported an active DTC");
+               });
 
         // 6.3.6.2.c Fail if any OBD ECU does not report MIL off. See section A.8 for allowed values.
         packets.stream()
                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                .filter(p -> isNotOff(p.getMalfunctionIndicatorLampStatus()))
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.3.6.2.c - " + moduleName + " did not report MIL 'off'"));
+               .forEach(moduleName -> {
+                   addFailure("6.3.6.2.c - " + moduleName + " did not report MIL 'off'");
+               });
 
         // 6.3.6.2.d Fail if any non-OBD ECU does not report MIL off or not supported.
         packets.stream()
@@ -92,8 +96,10 @@ public class Part03Step06Controller extends StepController {
                    return mil != OFF && mil != NOT_SUPPORTED;
                })
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.3.6.2.d - Non-OBD module " + moduleName
-                       + " did not report MIL off or not supported"));
+               .forEach(moduleName -> {
+                   addFailure("6.3.6.2.d - Non-OBD module " + moduleName
+                           + " did not report MIL off or not supported");
+               });
     }
 
 }

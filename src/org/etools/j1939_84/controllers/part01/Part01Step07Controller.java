@@ -23,6 +23,9 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.StringUtils;
 
+/**
+ * 6.1.7 DM19: Calibration Information
+ */
 public class Part01Step07Controller extends StepController {
 
     private static final int PART_NUMBER = 1;

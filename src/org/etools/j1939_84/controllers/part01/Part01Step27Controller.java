@@ -21,9 +21,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *         <p>
- *         The controller for 6.1.27 Part 1 to Part 2 Transition
+ * 6.1.27 Part 1 to Part 2 Transition
  */
 public class Part01Step27Controller extends StepController {
 

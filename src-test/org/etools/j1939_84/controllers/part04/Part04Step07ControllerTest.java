@@ -79,15 +79,15 @@ public class Part04Step07ControllerTest extends AbstractControllerTest {
 
     private StepController instance;
 
-    private static DM31DtcToLampAssociation createDM31(int sourceAddress, int spn, int fmi, LampStatus milStatus) {
-        var dtc = DiagnosticTroubleCode.create(spn, fmi, 0, 5);
+    private static DM31DtcToLampAssociation createDM31(int spn, LampStatus milStatus) {
+        var dtc = DiagnosticTroubleCode.create(spn, 12, 0, 5);
         var lampStatus = DTCLampStatus.create(dtc, OFF, milStatus, OFF, OFF);
-        return DM31DtcToLampAssociation.create(sourceAddress, lampStatus);
+        return DM31DtcToLampAssociation.create(0, lampStatus);
     }
 
-    private static DM12MILOnEmissionDTCPacket createDM12(int sourceAddress, int spn, int fmi, LampStatus milStatus) {
+    private static DM12MILOnEmissionDTCPacket createDM12(int sourceAddress, int spn, int fmi) {
         var dtc = DiagnosticTroubleCode.create(spn, fmi, 0, 5);
-        return DM12MILOnEmissionDTCPacket.create(sourceAddress, milStatus, OFF, OFF, OFF, dtc);
+        return DM12MILOnEmissionDTCPacket.create(sourceAddress, LampStatus.ON, OFF, OFF, OFF, dtc);
     }
 
     @Before
@@ -148,19 +148,19 @@ public class Part04Step07ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         // Module 0 responds with the DM31
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(createDM12(0, 123, 12, ON));
+        obdModuleInformation0.set(createDM12(0, 123, 12), 4);
         dataRepository.putObdModule(obdModuleInformation0);
 
         // Module 1 NACKs the request
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
-        obdModuleInformation1.set(createDM12(1, 472, 17, ON));
+        obdModuleInformation1.set(createDM12(1, 472, 17), 4);
         dataRepository.putObdModule(obdModuleInformation1);
 
         // Module 2 doesn't support DM12
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(2);
         dataRepository.putObdModule(obdModuleInformation);
 
-        var dm31 = createDM31(0, 123, 12, ON);
+        var dm31 = createDM31(123, ON);
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(new RequestResult<>(false, dm31));
 
         var nack = AcknowledgmentPacket.create(1, NACK);
@@ -178,10 +178,10 @@ public class Part04Step07ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferentDTC() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(createDM12(0, 123, 12, ON));
+        obdModuleInformation.set(createDM12(0, 123, 12), 4);
         dataRepository.putObdModule(obdModuleInformation);
 
-        var dm31 = createDM31(0, 456, 12, ON);
+        var dm31 = createDM31(456, ON);
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(new RequestResult<>(false, dm31));
 
         runTest();
@@ -200,10 +200,10 @@ public class Part04Step07ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForMILNotOn() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(createDM12(0, 123, 12, ON));
+        obdModuleInformation.set(createDM12(0, 123, 12), 4);
         dataRepository.putObdModule(obdModuleInformation);
 
-        var dm31 = createDM31(0, 123, 12, OFF);
+        var dm31 = createDM31(123, OFF);
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(new RequestResult<>(false, dm31));
 
         runTest();
@@ -222,7 +222,7 @@ public class Part04Step07ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNoNACK() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(createDM12(0, 123, 12, ON));
+        obdModuleInformation.set(createDM12(0, 123, 12), 4);
         dataRepository.putObdModule(obdModuleInformation);
 
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(new RequestResult<>(true));

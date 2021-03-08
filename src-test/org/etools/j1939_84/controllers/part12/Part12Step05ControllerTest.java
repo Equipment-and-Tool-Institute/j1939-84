@@ -129,7 +129,7 @@ public class Part12Step05ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 1);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 0);
 
@@ -167,7 +167,7 @@ public class Part12Step05ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForPendingNonZero() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 1);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm29_0 = DM29DtcCounts.create(0, 1, 0, 0, 0, 0);
 
@@ -188,7 +188,7 @@ public class Part12Step05ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForMILNonZero() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 1);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm29_0 = DM29DtcCounts.create(0, 0, 0, 1, 0, 0);
 
@@ -209,7 +209,7 @@ public class Part12Step05ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForPreviousMILNonZero() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 1);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 1, 0);
 
@@ -230,7 +230,7 @@ public class Part12Step05ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForPermanentNonZero() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 1);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 1);
 
@@ -251,7 +251,7 @@ public class Part12Step05ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForSupportDM27AllPendingWrong() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 1);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm29_0 = DM29DtcCounts.create(0, 0, 1, 0, 0, 0);
 

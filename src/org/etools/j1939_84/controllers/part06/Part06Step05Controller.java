@@ -3,13 +3,16 @@
  */
 package org.etools.j1939_84.controllers.part06;
 
+import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.etools.j1939_84.bus.j1939.BusResult;
+import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -55,24 +58,37 @@ public class Part06Step05Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        for (OBDModuleInformation obdModuleInformation : getDataRepository().getObdModules()) {
-            int ignCycles = obdModuleInformation.getIgnitionCycleCounterValue();
-            if (ignCycles != -1) {
-                // 6.6.5.1.a DS DM20 [(send Request (PGN 59904) for PGN 49664 (SPN 3048)]) to OBD ECU(s) that responded
-                // in part 5 (test 6.5.[6]) with DM20 data.
-                // 6.6.5.2.a Fail if any ignition cycle counter (SPN 3048) from same ECU as was stored in part 5 has
-                // incremented by a value other than 2.
-                getDiagnosticMessageModule().requestDM20(getListener(), obdModuleInformation.getSourceAddress())
-                                            .requestResult()
-                                            .getPackets()
-                                            .stream()
-                                            .filter(p -> p.getIgnitionCycles() != ignCycles + 2)
-                                            .map(ParsedPacket::getModuleName)
-                                            .forEach(moduleName -> addFailure("6.6.5.2.a - Ignition cycle counter (SPN 3048) from "
-                                                    + moduleName +
-                                                    " has not incremented by two compared to the value recorded in part 5"));
-            }
-        }
+        // 6.6.5.1.a DS DM20 [(send Request (PGN 59904) for PGN 49664 (SPN 3048)]) to OBD ECU(s) that responded
+        // in part 5 (test 6.5.[6]) with DM20 data.
+        // 6.6.5.2.a Fail if any ignition cycle counter (SPN 3048) from same ECU as was stored in part 5 has
+        // incremented by a value other than 2.
+        getDataRepository().getObdModuleAddresses()
+                           .stream()
+                           .filter(this::providedDM20InPart5)
+                           .map(a -> getDiagnosticMessageModule().requestDM20(getListener(), a))
+                           .map(BusResult::requestResult)
+                           .map(RequestResult::getPackets)
+                           .flatMap(Collection::stream)
+                           .filter(p -> p.getIgnitionCycles() != getPart5IgnCycles(p.getSourceAddress()) + 2)
+                           .map(ParsedPacket::getModuleName)
+                           .forEach(moduleName -> {
+                               addFailure("6.6.5.2.a - Ignition cycle counter (SPN 3048) from "
+                                       + moduleName +
+                                       " has not incremented by two compared to the value recorded in part 5");
+                           });
+    }
+
+    private boolean providedDM20InPart5(int address) {
+        return getPart5DM20(address) != null;
+    }
+
+    private int getPart5IgnCycles(int address) {
+        var dm20 = getPart5DM20(address);
+        return dm20 == null ? -1 : dm20.getIgnitionCycles();
+    }
+
+    private DM20MonitorPerformanceRatioPacket getPart5DM20(int address) {
+        return get(DM20MonitorPerformanceRatioPacket.class, address, 5);
     }
 
 }

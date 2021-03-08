@@ -141,25 +141,27 @@ public class Part04Step04ControllerTest extends AbstractControllerTest {
                                                          OFF,
                                                          OFF,
                                                          OFF,
-                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)));
+                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)),
+                       4);
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
         obdModule1.set(DM12MILOnEmissionDTCPacket.create(1,
                                                          OFF,
                                                          OFF,
                                                          OFF,
                                                          OFF,
-                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)));
+                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)),
+                       4);
 
         dataRepository.putObdModule(obdModule0);
         dataRepository.putObdModule(obdModule1);
 
         var dm2 = DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM2(any())).thenReturn(new RequestResult<>(false, dm2));
+        when(diagnosticMessageModule.requestDM2(any())).thenReturn(RequestResult.of(dm2));
 
-        when(diagnosticMessageModule.requestDM2(any(), eq(0))).thenReturn(new BusResult<>(false, dm2));
+        when(diagnosticMessageModule.requestDM2(any(), eq(0))).thenReturn(BusResult.of(dm2));
 
         var nack = AcknowledgmentPacket.create(1, NACK);
-        when(diagnosticMessageModule.requestDM2(any(), eq(1))).thenReturn(new BusResult<>(false, nack));
+        when(diagnosticMessageModule.requestDM2(any(), eq(1))).thenReturn(BusResult.of(nack));
 
         runTest();
 
@@ -168,7 +170,6 @@ public class Part04Step04ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(1));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -181,22 +182,24 @@ public class Part04Step04ControllerTest extends AbstractControllerTest {
                                                          OFF,
                                                          OFF,
                                                          OFF,
-                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)));
+                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)),
+                       4);
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
         obdModule1.set(DM12MILOnEmissionDTCPacket.create(1,
                                                          OFF,
                                                          OFF,
                                                          OFF,
                                                          OFF,
-                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)));
+                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)),
+                       4);
 
         dataRepository.putObdModule(obdModule0);
         dataRepository.putObdModule(obdModule1);
 
         var dm2 = DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM2(any())).thenReturn(new RequestResult<>(false, dm2));
+        when(diagnosticMessageModule.requestDM2(any())).thenReturn(RequestResult.of(dm2));
 
-        when(diagnosticMessageModule.requestDM2(any(), eq(0))).thenReturn(new BusResult<>(false, dm2));
+        when(diagnosticMessageModule.requestDM2(any(), eq(0))).thenReturn(BusResult.of(dm2));
 
         when(diagnosticMessageModule.requestDM2(any(), eq(1))).thenReturn(new BusResult<>(true));
 
@@ -207,7 +210,6 @@ public class Part04Step04ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(1));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -221,12 +223,12 @@ public class Part04Step04ControllerTest extends AbstractControllerTest {
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
 
         var obdModule0 = new OBDModuleInformation(0);
-        obdModule0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        obdModule0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 4);
         dataRepository.putObdModule(obdModule0);
 
         var dm2 = DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM2(any())).thenReturn(new RequestResult<>(false, dm2));
-        when(diagnosticMessageModule.requestDM2(any(), eq(0))).thenReturn(new BusResult<>(false, dm2));
+        when(diagnosticMessageModule.requestDM2(any())).thenReturn(RequestResult.of(dm2));
+        when(diagnosticMessageModule.requestDM2(any(), eq(0))).thenReturn(BusResult.of(dm2));
 
         runTest();
 
@@ -234,7 +236,6 @@ public class Part04Step04ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(0));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -251,12 +252,13 @@ public class Part04Step04ControllerTest extends AbstractControllerTest {
                                                          OFF,
                                                          OFF,
                                                          OFF,
-                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)));
+                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)),
+                       4);
         dataRepository.putObdModule(obdModule0);
 
         var dm2 = DM2PreviouslyActiveDTC.create(0, ON, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM2(any())).thenReturn(new RequestResult<>(false, dm2));
-        when(diagnosticMessageModule.requestDM2(any(), eq(0))).thenReturn(new BusResult<>(false, dm2));
+        when(diagnosticMessageModule.requestDM2(any())).thenReturn(RequestResult.of(dm2));
+        when(diagnosticMessageModule.requestDM2(any(), eq(0))).thenReturn(BusResult.of(dm2));
 
         runTest();
 
@@ -264,7 +266,6 @@ public class Part04Step04ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(0));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -281,14 +282,15 @@ public class Part04Step04ControllerTest extends AbstractControllerTest {
                                                          OFF,
                                                          OFF,
                                                          OFF,
-                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)));
+                                                         DiagnosticTroubleCode.create(123, 12, 0, 1)),
+                       4);
         dataRepository.putObdModule(obdModule0);
 
         var globalDM2 = DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM2(any())).thenReturn(new RequestResult<>(false, globalDM2));
+        when(diagnosticMessageModule.requestDM2(any())).thenReturn(RequestResult.of(globalDM2));
 
         var dsDM2 = DM2PreviouslyActiveDTC.create(0, ON, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM2(any(), eq(0))).thenReturn(new BusResult<>(false, dsDM2));
+        when(diagnosticMessageModule.requestDM2(any(), eq(0))).thenReturn(BusResult.of(dsDM2));
 
         runTest();
 
@@ -296,7 +298,6 @@ public class Part04Step04ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(0));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
