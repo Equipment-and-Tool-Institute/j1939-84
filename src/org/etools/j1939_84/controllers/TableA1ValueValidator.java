@@ -16,7 +16,8 @@ public class TableA1ValueValidator {
     /**
      * Returns true if the supplied value is not valid (implausible) given the conditions according to Table A1
      */
-    public boolean isImplausible(int spn, Double value, boolean isEngineRunning, FuelType fuelType) {
+    public boolean isImplausible(int spn, Double value, boolean isEngineRunning) {
+
         if (value == null) {
             return false;
         }
@@ -90,10 +91,10 @@ public class TableA1ValueValidator {
             case 3700:
                 return !isEngineRunning && value == 1; // Active
             case 5837:
-                if (fuelType.isCompressionIgnition()) {
+                if (getFuelType().isCompressionIgnition()) {
                     return value != 4; // Diesel
                 }
-                if (fuelType.isSparkIgnition()) {
+                if (getFuelType().isSparkIgnition()) {
                     return value == 4; // Diesel
                 }
                 break;
@@ -151,6 +152,10 @@ public class TableA1ValueValidator {
                 }
         }
         return false;
+    }
+
+    private FuelType getFuelType() {
+        return dataRepository.getVehicleInformation().getFuelType();
     }
 
 }

@@ -293,8 +293,7 @@ public class TableA1Validator {
      */
     public void reportImplausibleSPNValues(GenericPacket packet,
                                            ResultsListener listener,
-                                           boolean isEngineOn,
-                                           FuelType fuelType,
+                                           boolean isEngineRunning,
                                            String section) {
 
         int moduleAddress = packet.getSourceAddress();
@@ -311,7 +310,7 @@ public class TableA1Validator {
                   int spnId = spn.getId();
                   Double value = spn.getValue();
                   if ((spn.isError() && moduleSPNs.contains(spnId))
-                          || valueValidator.isImplausible(spnId, value, isEngineOn, fuelType)) {
+                          || valueValidator.isImplausible(spnId, value, isEngineRunning)) {
                       Set<Integer> invalid = invalidSPNs.getOrDefault(moduleAddress, new HashSet<>());
                       if (!invalid.contains(spnId)) {
                           reportPacketIfNotReported(packet, listener, true);

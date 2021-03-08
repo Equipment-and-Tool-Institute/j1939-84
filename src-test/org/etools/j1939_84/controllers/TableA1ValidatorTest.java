@@ -25,7 +25,6 @@ import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 import org.etools.j1939_84.bus.j1939.packets.model.Spn;
 import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.junit.After;
 import org.junit.Before;
@@ -194,29 +193,29 @@ public class TableA1ValidatorTest {
             packets.add(packet);
         }
 
-        when(valueValidator.isImplausible(1, 100.0, true, FuelType.DSL)).thenReturn(false);
-        when(valueValidator.isImplausible(2, 200.0, true, FuelType.DSL)).thenReturn(true);
-        when(valueValidator.isImplausible(3, 100.0, true, FuelType.DSL)).thenReturn(true);
-        when(valueValidator.isImplausible(4, 200.0, true, FuelType.DSL)).thenReturn(false);
-        when(valueValidator.isImplausible(5, 100.0, true, FuelType.DSL)).thenReturn(false);
-        when(valueValidator.isImplausible(6, 200.0, true, FuelType.DSL)).thenReturn(false);
-        when(valueValidator.isImplausible(7, 100.0, true, FuelType.DSL)).thenReturn(false);
-        when(valueValidator.isImplausible(8, 200.0, true, FuelType.DSL)).thenReturn(false);
+        when(valueValidator.isImplausible(1, 100.0, true)).thenReturn(false);
+        when(valueValidator.isImplausible(2, 200.0, true)).thenReturn(true);
+        when(valueValidator.isImplausible(3, 100.0, true)).thenReturn(true);
+        when(valueValidator.isImplausible(4, 200.0, true)).thenReturn(false);
+        when(valueValidator.isImplausible(5, 100.0, true)).thenReturn(false);
+        when(valueValidator.isImplausible(6, 200.0, true)).thenReturn(false);
+        when(valueValidator.isImplausible(7, 100.0, true)).thenReturn(false);
+        when(valueValidator.isImplausible(8, 200.0, true)).thenReturn(false);
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
         for (GenericPacket packet : packets) {
-            instance.reportImplausibleSPNValues(packet, listener, true, FuelType.DSL, "6.1.26");
+            instance.reportImplausibleSPNValues(packet, listener, true, "6.1.26");
         }
 
-        verify(valueValidator).isImplausible(1, 100.0, true, FuelType.DSL);
-        verify(valueValidator).isImplausible(2, 200.0, true, FuelType.DSL);
-        verify(valueValidator).isImplausible(3, 100.0, true, FuelType.DSL);
-        verify(valueValidator).isImplausible(4, 200.0, true, FuelType.DSL);
-        verify(valueValidator, times(2)).isImplausible(5, 100.0, true, FuelType.DSL);
-        verify(valueValidator, times(2)).isImplausible(6, 200.0, true, FuelType.DSL);
-        verify(valueValidator).isImplausible(7, 100.0, true, FuelType.DSL);
-        verify(valueValidator).isImplausible(8, 200.0, true, FuelType.DSL);
+        verify(valueValidator).isImplausible(1, 100.0, true);
+        verify(valueValidator).isImplausible(2, 200.0, true);
+        verify(valueValidator).isImplausible(3, 100.0, true);
+        verify(valueValidator).isImplausible(4, 200.0, true);
+        verify(valueValidator, times(2)).isImplausible(5, 100.0, true);
+        verify(valueValidator, times(2)).isImplausible(6, 200.0, true);
+        verify(valueValidator).isImplausible(7, 100.0, true);
+        verify(valueValidator).isImplausible(8, 200.0, true);
 
         String expected = "";
         expected += "PGN 11111 with Supported SPNs " + NL;

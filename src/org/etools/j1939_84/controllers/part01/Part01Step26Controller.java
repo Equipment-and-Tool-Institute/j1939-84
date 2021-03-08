@@ -167,7 +167,6 @@ public class Part01Step26Controller extends StepController {
                                                   tableA1Validator.reportImplausibleSPNValues(p,
                                                                                               getListener(),
                                                                                               false,
-                                                                                              fuelType,
                                                                                               "6.1.26.2.d"))
                                                   .peek(p ->
                                                   // 6.1.26.2.e. Fail/warn per Table A-1, if an expected SPN from the
@@ -267,7 +266,6 @@ public class Part01Step26Controller extends StepController {
                                                            tableA1Validator.reportImplausibleSPNValues(p,
                                                                                                        getListener(),
                                                                                                        false,
-                                                                                                       fuelType,
                                                                                                        "6.1.26.6.d"))
                                                            .peek(p ->
                                                            // 6.1.26.2.e. Fail/warn per Table A-1, if an expected SPN
@@ -304,7 +302,6 @@ public class Part01Step26Controller extends StepController {
                                                                   tableA1Validator.reportImplausibleSPNValues(p,
                                                                                                               getListener(),
                                                                                                               false,
-                                                                                                              fuelType,
                                                                                                               "6.1.26.6.d"))
                                                                   .peek(p ->
                                                                   // 6.1.26.6.e. Fail/warn per Table A-1, if an expected
