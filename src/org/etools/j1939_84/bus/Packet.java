@@ -136,6 +136,19 @@ public class Packet {
         return new Packet(time, priority, id, source, transmitted, data);
     }
 
+    public static Packet create(LocalDateTime time,
+                                int priority,
+                                int id,
+                                int source,
+                                boolean transmitted,
+                                int... data) {
+        if (data.length < 3) {
+            // a body of 0 length indicates that the packet was a failure.
+            throw new IllegalArgumentException("Packets must have a body of at least 3 bytes.");
+        }
+        return new Packet(time, priority, id, source, transmitted, data);
+    }
+
     /**
      * Converts the value produced by Packet.toString() back into a Packet
      *

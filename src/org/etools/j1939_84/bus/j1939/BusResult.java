@@ -5,6 +5,7 @@ package org.etools.j1939_84.bus.j1939;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -98,5 +99,9 @@ public class BusResult<T extends ParsedPacket> {
 
     public RequestResult<T> requestResult() {
         return new RequestResult<>(isRetryUsed(), getPacket().stream().collect(Collectors.toList()));
+    }
+
+    public Stream<T> toPacketStream() {
+        return getPacket().stream().filter(e -> e.left.isPresent()).flatMap(e -> e.left.stream());
     }
 }

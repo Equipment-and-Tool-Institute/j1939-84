@@ -8,6 +8,7 @@ import static org.etools.j1939_84.utils.CollectionUtils.join;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.etools.j1939_84.NumberFormatter;
 import org.etools.j1939_84.bus.Packet;
@@ -56,8 +57,12 @@ public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
      *                    all the {@link PerformanceRatio}s
      * @return        the length of the longest name
      */
-    private int getLongestName(List<PerformanceRatio> ratios) {
+    private static int getLongestName(List<PerformanceRatio> ratios) {
         return ratios.stream().mapToInt(t -> t.getName().length()).max().orElse(50);
+    }
+
+    public Optional<PerformanceRatio> getRatio(int id) {
+        return getRatios().stream().filter(r -> r.getId() == id).findFirst();
     }
 
     @Override
@@ -121,7 +126,7 @@ public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
      *                    the maximum number of spaces
      * @return        the padded string
      */
-    private String padLeft(String string, int length) {
+    private static String padLeft(String string, int length) {
         return String.format("%1$" + length + "s", string);
     }
 
@@ -134,13 +139,13 @@ public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
      *                    the maximum number of spaces
      * @return        the padded string
      */
-    private String padRight(String string, int length) {
+    private static String padRight(String string, int length) {
         return String.format("%1$-" + length + "s", string);
     }
 
     private List<PerformanceRatio> parsePacket() {
         List<PerformanceRatio> results = new ArrayList<>();
-        final int length = getPacket().getLength();
+        int length = getPacket().getLength();
         for (int i = 4; i + 6 < length; i = i + 7) {
             results.add(parseRatio(i));
         }
