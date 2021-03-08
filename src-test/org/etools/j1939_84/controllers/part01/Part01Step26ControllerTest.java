@@ -312,7 +312,6 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         verify(tableA1Validator).reportImplausibleSPNValues(any(),
                                                             any(ResultsListener.class),
                                                             eq(false),
-                                                            eq(DSL),
                                                             any());
         verify(tableA1Validator).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
 
@@ -406,7 +405,6 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         verify(tableA1Validator).reportImplausibleSPNValues(any(),
                                                             any(ResultsListener.class),
                                                             eq(false),
-                                                            eq(DSL),
                                                             any());
         verify(tableA1Validator).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
 

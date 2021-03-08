@@ -122,7 +122,6 @@ public class Part02Step17Controller extends StepController {
                                                 tableA1Validator.reportImplausibleSPNValues(p,
                                                                                             getListener(),
                                                                                             true,
-                                                                                            fuelType,
                                                                                             "6.2.17.2.b"))
                                                 .peek(p ->
                                                 // 6.2.17.2.c. Fail/warn per Table A-1 if an expected SPN from the DM24
@@ -224,7 +223,6 @@ public class Part02Step17Controller extends StepController {
                                                            tableA1Validator.reportImplausibleSPNValues(p,
                                                                                                        getListener(),
                                                                                                        true,
-                                                                                                       fuelType,
                                                                                                        "6.2.17.6.b"))
                                                            .collect(Collectors.toList());
 
@@ -263,7 +261,6 @@ public class Part02Step17Controller extends StepController {
                                                                   tableA1Validator.reportImplausibleSPNValues(p,
                                                                                                               getListener(),
                                                                                                               true,
-                                                                                                              fuelType,
                                                                                                               "6.2.17.6.b"))
                                                                   .collect(Collectors.toList());
 
