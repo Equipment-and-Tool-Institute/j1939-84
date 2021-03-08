@@ -18,7 +18,6 @@ import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -130,8 +129,7 @@ public class Part01Step04Controller extends StepController {
                                                           .sorted()
                                                           .collect(Collectors.toList());
 
-        FuelType fuelType = getDataRepository().getVehicleInformation().getFuelType();
-        boolean dataStreamOk = supportedSpnModule.validateDataStreamSpns(getListener(), dataStreamSPNs, fuelType);
+        boolean dataStreamOk = supportedSpnModule.validateDataStreamSpns(getListener(), dataStreamSPNs, getFuelType());
         if (!dataStreamOk) {
             addFailure("6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
         }

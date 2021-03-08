@@ -82,7 +82,7 @@ public class Part09Step07Controller extends StepController {
     }
 
     private boolean isSparkIgnition() {
-        return getDataRepository().getVehicleInformation().getFuelType().isSparkIgnition();
+        return getFuelType().isSparkIgnition();
     }
 
     private int getEngineModelYear() {

@@ -148,7 +148,7 @@ public class Part02Step15Controller extends StepController {
     }
 
     private boolean isNotSparkIgnition() {
-        return !getDataRepository().getVehicleInformation().getFuelType().isSparkIgnition();
+        return !getFuelType().isSparkIgnition();
     }
 
     private int getEngineModelYear() {

@@ -436,7 +436,6 @@ public class TableA1Validator {
      */
     public void reportProvidedButNotSupportedSPNs(GenericPacket packet,
                                                   ResultsListener listener,
-                                                  FuelType fuelType,
                                                   String section) {
 
         int sourceAddress = packet.getSourceAddress();
@@ -454,11 +453,11 @@ public class TableA1Validator {
         Map<Integer, Outcome> outcomes = new HashMap<>();
 
         // Failure SPNs
-        List<Integer> failureSPNs = getFailureSPNs(fuelType);
+        List<Integer> failureSPNs = getFailureSPNs(getFuelType());
         providedSPNs.stream().filter(failureSPNs::contains).forEach(s -> outcomes.put(s, FAIL));
 
         // Warnings SPNs
-        List<Integer> warningSPNs = getWarningSPNs(fuelType);
+        List<Integer> warningSPNs = getWarningSPNs(getFuelType());
         providedSPNs.stream().filter(warningSPNs::contains).forEach(s -> outcomes.put(s, WARN));
 
         // INFO SPNs
@@ -487,6 +486,10 @@ public class TableA1Validator {
         invalidSPNs.clear();
         notAvailableSPNs.clear();
         foundPackets.clear();
+    }
+
+    private FuelType getFuelType() {
+        return dataRepository.getVehicleInformation().getFuelType();
     }
 
 }

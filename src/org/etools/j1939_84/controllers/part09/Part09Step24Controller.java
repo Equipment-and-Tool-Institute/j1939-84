@@ -121,7 +121,7 @@ public class Part09Step24Controller extends StepController {
     }
 
     private boolean isSparkIgnition() {
-        return getDataRepository().getVehicleInformation().getFuelType().isSparkIgnition();
+        return getFuelType().isSparkIgnition();
     }
 
     private int getEngineModelYear() {

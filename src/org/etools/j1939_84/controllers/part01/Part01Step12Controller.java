@@ -18,7 +18,6 @@ import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -132,11 +131,9 @@ public class Part01Step12Controller extends StepController {
 
         // Create list of ECU address+SPN+FMI supported test results.
         // 6.1.12.2.a. Fail/warn per section A.7 Criteria for Test Results Evaluation.
-        FuelType fuelType = getDataRepository().getVehicleInformation().getFuelType();
-
-        if (fuelType.isCompressionIgnition()) {
+        if (getFuelType().isCompressionIgnition()) {
             tableA7Validator.validateForCompressionIgnition(vehicleTestResults, getListener());
-        } else if (fuelType.isSparkIgnition()) {
+        } else if (getFuelType().isSparkIgnition()) {
             tableA7Validator.validateForSparkIgnition(vehicleTestResults, getListener());
         }
 

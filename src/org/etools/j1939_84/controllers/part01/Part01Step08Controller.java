@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -97,8 +96,6 @@ public class Part01Step08Controller extends StepController {
                 failure = true;
             }
         } else if (getFuelType().isSparkIgnition()) {
-            // TODO Add the Outlet Oxygen Sensor Banks in Table A-3-2 (pg.111)
-            // with non-integer variables i.e. New1, New2 at the end of the table.
             List<Integer> SPNsi = new ArrayList<>(List.of(3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057));
             SPNsi.removeAll(dm20Spns);
             if (!SPNsi.isEmpty()) {
@@ -111,8 +108,4 @@ public class Part01Step08Controller extends StepController {
         }
     }
 
-
-    private FuelType getFuelType() {
-        return getDataRepository().getVehicleInformation().getFuelType();
-    }
 }

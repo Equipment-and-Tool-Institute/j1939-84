@@ -18,7 +18,6 @@ import org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.AreaStatus;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -190,7 +189,4 @@ public class Part02Step16Controller extends StepController {
 
     }
 
-    private FuelType getFuelType() {
-        return getDataRepository().getVehicleInformation().getFuelType();
-    }
 }
