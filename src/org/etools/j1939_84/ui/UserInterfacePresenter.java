@@ -349,7 +349,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      */
     @Override
     public void onStopButtonClicked() {
-        if (Controller.isActive()) {
+        if (overallController.isActive()) {
             overallController.stop();
         }
         getResultsListener().onComplete(false);
@@ -357,7 +357,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         getView().setStopButtonEnabled(false);
     }
 
-    private static Logger getLogger() {
+    private Logger getLogger() {
         return J1939_84.getLogger();
     }
 
