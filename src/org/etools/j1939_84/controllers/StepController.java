@@ -134,11 +134,13 @@ public abstract class StepController extends Controller {
 
     protected void ensureKeyStateIs(KeyState requestedKeyState) throws InterruptedException {
         getListener().onResult("Initial Engine Speed = " + getEngineSpeedAsString());
-        if (getCurrentKeyState() != requestedKeyState && !isDevEnv()) {
-            getListener().onUrgentMessage("Please turn " + requestedKeyState,
-                                          "Adjust Key Switch",
-                                          WARNING,
-                                          getQuestionListener());
+        if (getCurrentKeyState() != requestedKeyState) {
+            if (!isDevEnv()) {
+                getListener().onUrgentMessage("Please turn " + requestedKeyState,
+                                              "Adjust Key Switch",
+                                              WARNING,
+                                              getQuestionListener());
+            }
             while (getCurrentKeyState() != requestedKeyState) {
                 updateProgress("Waiting for " + requestedKeyState + "...");
                 getDateTimeModule().pauseFor(500);
