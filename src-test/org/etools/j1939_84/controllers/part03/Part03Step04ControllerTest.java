@@ -489,7 +489,6 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         runTest();
 
         assertEquals("", listener.getMessages());
-
         assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
