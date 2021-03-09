@@ -155,6 +155,7 @@ public class Part11Step07Controller extends StepController {
             secondsToGo = calculateSecondsRemaining();
         } while (secondsToGo > 0);
 
+        executor.shutdownNow();
         isComplete.set(true);
     }
 
