@@ -38,16 +38,6 @@ public class SummaryModule {
         stepResult.addResult(new ActionOutcome(outcome, message));
     }
 
-    public void beginPart(PartResult partResult) {
-        getPartResults().add(partResult);
-    }
-
-    public void endStep(StepResult stepResult) {
-        if (stepResult.getOutcome() == Outcome.INCOMPLETE) {
-            stepResult.addResult(new ActionOutcome(Outcome.PASS, null));
-        }
-    }
-
     public String generateSummary() {
         StringBuilder sb = new StringBuilder();
         for (PartResult partResult : getPartResults()) {
@@ -77,7 +67,7 @@ public class SummaryModule {
                                .count();
     }
 
-    private String println(IResult iResult) {
+    private static String println(IResult iResult) {
         String name = iResult.toString();
 
         Outcome outcome = iResult.getOutcome();

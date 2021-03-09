@@ -58,21 +58,18 @@ public abstract class PartController extends Controller {
 
         PartResult partResult = getPartResult();
         getListener().onResult("");
-        getListener().beginPart(partResult);
         getListener().onResult("Start " + partResult);
         getListener().onResult("");
 
         for (StepController controller : getStepControllers()) {
             StepResult stepResult = getPartResult().getStepResult(controller.getStepNumber());
 
-            getListener().beginStep(stepResult);
             getListener().onResult("Start " + stepResult);
             getListener().onResult("");
 
             incrementProgress(stepResult.toString());
             controller.run(getListener(), getJ1939());
 
-            getListener().endStep(stepResult);
             getListener().onResult("");
             getListener().onResult("End " + stepResult);
             getListener().onResult("");
@@ -80,7 +77,6 @@ public abstract class PartController extends Controller {
         getListener().onResult("");
         getListener().onResult("End " + partResult);
         getListener().onResult("");
-        getListener().endPart(partResult);
     }
 
     protected PartResult getPartResult() {

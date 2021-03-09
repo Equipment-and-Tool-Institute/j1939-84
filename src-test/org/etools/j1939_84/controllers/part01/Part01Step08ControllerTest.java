@@ -203,7 +203,6 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
                                         "6.1.8.2.a - Minimum expected SPNs are not supported. Not Supported SPNs: 3054");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -268,7 +267,6 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
                                         "6.1.8.2.a - Minimum expected SPNs are not supported. Not Supported SPNs: 3055, 3058, 3064, 5318, 5321, 5322 None of these SPNs are supported: 4364, 4792, 5308");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 

@@ -92,7 +92,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // assertTrue(instance.verifyDM12(listener));
     //
     // assertEquals("PASS: Section A.5 Step 1.b DM12 Verification", listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -124,7 +123,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // NL +
     // "MIL status is : fast flash.";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -160,7 +158,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // NL +
     // "MIL status is : fast flash.";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -192,7 +189,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // listener));
     //
     // assertEquals("PASS: Section A.5 Step 7.a DM20 Verification", listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -228,7 +224,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // + "Previous Monitor Performance Ratio (DM20):" + NL +
     // "Post Monitor Performance Ratio (DM20):" + NL + "dm20Packet.toString()" + NL;
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -258,7 +253,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // assertTrue(instance.verifyDM21(listener));
     //
     // assertEquals("PASS: Section A.5 Step 3.b & 5.b DM21 Verification", listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -295,7 +289,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // NL + "0.0 km(s) since DTC code clear sent" + NL +
     // "0.0 minute(s) since the DTC code clear sent";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -332,7 +325,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // NL + "0.0 km(s) since DTC code clear sent" + NL +
     // "0.0 minute(s) since the DTC code clear sent";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -369,7 +361,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // NL + "0.0 km(s) since DTC code clear sent" + NL +
     // "15.0 minute(s) since the DTC code clear sent";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -403,7 +394,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // assertTrue(instance.verifyDM23(listener));
     //
     // assertEquals("PASS: Section A.5 Step 1.c DM23 Verification", listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -440,7 +430,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // + "Module with source address 0, reported 0 DTCs." + NL +
     // "MIL status is : on.";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -491,7 +480,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // assertTrue(instance.verifyDM25(listener, obdModuleAddresses));
     //
     // assertEquals("PASS: Section A.5 Step 2.a DM25 Verification", listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -550,7 +538,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // "Module with source address 0, has 1 supported SPNs" + NL +
     // "Module with source address 33, has 1 supported SPNs";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -609,7 +596,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // "Module with source address 23, has 1 supported SPNs" + NL +
     // "Module with source address 33, has 1 supported SPNs";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -642,7 +628,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // assertTrue(instance.verifyDM26(listener));
     //
     // assertEquals("PASS: Section A.5 Step 5.a DM26 Verification", listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -677,7 +662,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // NL +
     // "Modules with source address 0, reported 2 warm-ups since code clear";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -705,7 +689,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // listener));
     //
     // assertEquals("PASS: Section A.5 Step 8.a DM28 Verification", listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -767,7 +750,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // "DTC 157:7 - Engine Fuel 1 Injector Metering Rail 1 Pressure, Mechanical System Not Responding Or Out Of
     // Adjustment - 1 times";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -811,7 +793,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // assertTrue(instance.verifyDM29(listener));
     //
     // assertEquals("PASS: Section A.5 Step 1.d DM29 Verification", listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -855,7 +836,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // String expectedMessages = "Section A.5 verification failed during DM29 check done at table step 1.d" + NL +
     // "Modules with source address 0, dm29Packet.toString() ";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -902,7 +882,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // String expectedMessages = "Section A.5 verification failed during DM29 check done at table step 1.d" + NL +
     // "Modules with source address 0, dm29Packet.toString() ";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -948,7 +927,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // String expectedMessages = "Section A.5 verification failed during DM29 check done at table step 1.d" + NL +
     // "Modules with source address 0, dm29Packet.toString() ";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -976,7 +954,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // assertTrue(instance.verifyDM31(listener));
     //
     // assertEquals("PASS: Section A.5 Step 3.a DM31 Verification", listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -1012,7 +989,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // String expectedMessages = "Section A.5 verification failed during DM31 check done at table step 3.a" + NL +
     // "Modules with source address 0, is reporting 1 with DTC lamp status(es) causing MIL on.";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -1085,7 +1061,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // assertTrue(instance.verifyDM33(dm33Packets, listener, obdModuleAddresses));
     //
     // assertEquals("PASS: Section A.5 Step 9.a DM33 Verification", listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -1170,7 +1145,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // expectedMessages += " dm33Packet17.toString()" + NL;
     // expectedMessages += " dm33Packet21.toString()";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -1255,7 +1229,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // expectedMessages += "}" + NL + NL;
     // expectedMessages += " dm33Packet17.toString()";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -1293,7 +1266,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // NL +
     // "PASS: Section A.5 Step 4.a DM5 Verification";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -1338,7 +1310,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // "Section A.5 verification failed during DM5 check done at table step 4.a" + NL +
     // "Module address 0 :" + NL + "dm5Packet.toString()";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -1381,7 +1352,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // "Modules with source address 0, reported 2 active DTCs and 0 previously active DTCs" + NL +
     // "PASS: Section A.5 Step 4.a DM5 Verification";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -1414,7 +1384,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // assertTrue(instance.verifyDM6(listener));
     //
     // assertEquals("PASS: Section A.5 Step 1.a DM6 Verfication", listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -1452,7 +1421,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // "Modules with source address 0, reported 1 DTCs." + NL +
     // "MIL status is : slow flash.";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -1522,7 +1490,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // assertTrue(instance.verifyDM7DM30(listener, obdModuleAddresses));
     //
     // assertEquals("PASS: Section A.5 Step 6.a DM7/DM30 Verification", listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(dataRepository).getObdModule(eq(0x00));
@@ -1609,7 +1576,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // NL + "]" + NL + "source address 0 are : [" + NL +
     // " TestResult failed and the value returned was : 85" + NL + "]";
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(dataRepository).getObdModule(eq(0x00));
@@ -1648,7 +1614,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // "PASS: Section A.5 Step 9.b Cumulative engine runtime (PGN 65253 (SPN 247)) and engine idle time (PGN 65244 (SPN
     // 235)) Verification",
     // listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -1715,7 +1680,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // expected += " SPN 249, Engine Total Revolutions: 287454020000.000000 r" + NL;
     // expected += NL;
     // assertEquals(expected, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -1785,7 +1749,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // expected += " SPN 249, Engine Total Revolutions: 287454020000.000000 r" + NL;
     // expected += NL;
     // assertEquals(expected, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(diagnosticMessageModule).setJ1939(j1939);
@@ -2176,7 +2139,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // " Engine Hours from Engine #1 (0): 210,554,060.75 hours" +
     // NL;
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(dataRepository).getObdModuleAddresses();
@@ -2576,7 +2538,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // " EMPTY" +
     // NL;
     // assertEquals(expectedMessages, listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(dataRepository).getObdModuleAddresses();
@@ -2846,7 +2807,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // assertEquals(
     // expectedMessages,
     // listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(dataRepository).getObdModuleAddresses();
@@ -3104,7 +3064,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     // assertEquals(
     // expectedMessages,
     // listener.getMessages());
-    // assertEquals("", listener.getMilestones());
     // assertEquals("", listener.getResults());
     //
     // verify(dataRepository).getObdModuleAddresses();

@@ -158,7 +158,6 @@ public class Part09Step22ControllerTest extends AbstractControllerTest {
                                         "6.9.22.4.b - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -183,7 +182,6 @@ public class Part09Step22ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(1));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -207,7 +205,6 @@ public class Part09Step22ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(1));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -232,7 +229,6 @@ public class Part09Step22ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(0));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -256,7 +252,6 @@ public class Part09Step22ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(0));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -281,7 +276,6 @@ public class Part09Step22ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(0));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,

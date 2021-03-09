@@ -186,15 +186,10 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         expectedMessages += "User cancelled testing at Part 3 Step 16";
         assertEquals(expectedMessages, listener.getMessages());
 
-        String expectedMilestones = "";
-        assertEquals(expectedMilestones, listener.getMilestones());
-
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expectedResults, listener.getResults());
-
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
@@ -250,11 +245,9 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         expectedMessages += "Waiting for manufacturer's recommended interval with the key in off position";
         assertEquals(expectedMessages, listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
         expected += "Final Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
@@ -309,13 +302,9 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         expectedMessages += "User cancelled testing at Part 3 Step 16";
         assertEquals(expectedMessages, listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
-
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expectedResults, listener.getResults());
-
-        assertEquals("", listener.getMilestones());
     }
 }

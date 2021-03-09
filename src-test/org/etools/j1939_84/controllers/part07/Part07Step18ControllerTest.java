@@ -251,7 +251,6 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         expectedMessages += "Step 6.7.18.1.j - Fault B is a single trip fault; proceeding with part 8 immediately";
         assertEquals(expectedMessages, listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
         expected += "Final Engine Speed = 0.0 RPMs" + NL;
         expected += "Initial Engine Speed = 0.0 RPMs" + NL;
@@ -264,7 +263,6 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         expected += "Final Engine Speed = 500.0 RPMs" + NL;
 
         assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMilestones());
 
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
     }
@@ -422,7 +420,6 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         expectedMessages += "Step 6.7.18.1.n & o - With the ignition key on and engine on proceeding to Part 8";
         assertEquals(expectedMessages, listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
         expected += "Final Engine Speed = 0.0 RPMs" + NL;
         expected += "Initial Engine Speed = 0.0 RPMs" + NL;
@@ -439,7 +436,6 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         expected += "Final Engine Speed = 500.0 RPMs" + NL;
 
         assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMilestones());
 
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
     }
@@ -571,7 +567,6 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         expectedMessages += "Step 6.7.18.1.i - Turn Engine on with the ignition key in the on position";
         assertEquals(expectedMessages, listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
         expected += "Final Engine Speed = 0.0 RPMs" + NL;
         expected += "Initial Engine Speed = 0.0 RPMs" + NL;
@@ -582,7 +577,6 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         expected += "Final Engine Speed = 500.0 RPMs" + NL;
 
         assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMilestones());
 
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
     }

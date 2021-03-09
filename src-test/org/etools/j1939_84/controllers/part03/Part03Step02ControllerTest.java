@@ -146,8 +146,6 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         String expectedMessages = "Requesting DM6 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
-
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
         assertEquals(expectedResults, listener.getResults());
@@ -185,8 +183,6 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         expectedMessages.append("Requesting DM6 Attempt 1");
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
-
         StringBuilder expectedResults = new StringBuilder();
         for (int i = 1; i <= 300; i++) {
             expectedResults.append(NL).append("Attempt ").append(i).append(NL);
@@ -215,8 +211,6 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Requesting DM6 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
@@ -248,8 +242,6 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         String expectedMessages = "Requesting DM6 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
-
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
         assertEquals(expectedResults, listener.getResults());
@@ -277,8 +269,6 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Requesting DM6 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
@@ -309,8 +299,6 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         String expectedMessages = "Requesting DM6 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
-
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
         assertEquals(expectedResults, listener.getResults());
@@ -340,8 +328,6 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Requesting DM6 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;

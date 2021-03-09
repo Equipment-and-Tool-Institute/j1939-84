@@ -200,7 +200,6 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
         verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         String expectedVehicleComposite = NL + "Vehicle Composite of DM5:" + NL +
                 "    A/C system refrigerant     not supported,     complete" + NL +
                 "    Boost pressure control sys     supported, not complete" + NL +
@@ -286,7 +285,6 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
         verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -442,7 +440,6 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
         verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalResponse));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         String expectedVehicleComposite = NL + "Vehicle Composite of DM5:" + NL +
                 "    A/C system refrigerant     not supported,     complete" + NL +
                 "    Boost pressure control sys     supported, not complete" + NL +

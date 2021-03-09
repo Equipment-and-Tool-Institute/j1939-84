@@ -336,8 +336,6 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         expectedMsg += "Global Request for PGN 66666" + NL;
         expectedMsg += "End Part 1 Step 26";
         assertEquals(expectedMsg, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
     }
 
     @Ignore("Fix once Step 26 is accepted")
@@ -416,8 +414,6 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         expectedMsg += "DS Request for 44444 to Engine #1 (0)" + NL;
         expectedMsg += "End Part 1 Step 26";
         assertEquals(expectedMsg, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
     }
 
     @Test

@@ -211,7 +211,6 @@ public class Part06Step11ControllerTest extends AbstractControllerTest {
         expectedMessages += "Step 6.6.11.g - Waiting manufacturer’s recommended interval with the key in the off position";
         assertEquals(expectedMessages, listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
         expected += "Final Engine Speed = 500.0 RPMs" + NL;
         expected += "Initial Engine Speed = 500.0 RPMs" + NL;
@@ -220,7 +219,6 @@ public class Part06Step11ControllerTest extends AbstractControllerTest {
         expected += "Final Engine Speed = 500.0 RPMs" + NL;
 
         assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMilestones());
 
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
     }
@@ -391,8 +389,6 @@ verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
         expectedMessages += "User cancelled testing at Part 6 Step 11";
         assertEquals(expectedMessages, listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
-
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
@@ -400,7 +396,5 @@ verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expectedResults, listener.getResults());
-
-        assertEquals("", listener.getMilestones());
     }
 }

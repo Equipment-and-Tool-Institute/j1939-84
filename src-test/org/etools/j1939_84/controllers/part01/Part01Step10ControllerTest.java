@@ -147,7 +147,6 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
         expectedMessages += "Step 1.10.1.c. Waiting for 2 seconds" + NL;
         expectedMessages += "Step 1.10.1.c. Waiting for 1 seconds";
         assertEquals(expectedMessages, listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
@@ -189,7 +188,6 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
         expectedMessages += "Step 1.10.1.c. Waiting for 2 seconds" + NL;
         expectedMessages += "Step 1.10.1.c. Waiting for 1 seconds";
         assertEquals(expectedMessages, listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 

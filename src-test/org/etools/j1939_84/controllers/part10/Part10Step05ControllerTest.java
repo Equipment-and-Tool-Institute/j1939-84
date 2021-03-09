@@ -205,14 +205,12 @@ public class Part10Step05ControllerTest extends AbstractControllerTest {
         expectedMessages.append("Waiting for Key ON/Engine RUNNING...");
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
         expected += "Final Engine Speed = 0.0 RPMs" + NL;
         expected += "Initial Engine Speed = 0.0 RPMs" + NL;
         expected += "Final Engine Speed = 500.0 RPMs" + NL;
 
         assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMilestones());
 
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
     }
@@ -289,14 +287,12 @@ public class Part10Step05ControllerTest extends AbstractControllerTest {
         expectedMessages.append("User cancelled testing at Part 10 Step 5");
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
         expected += "Final Engine Speed = 0.0 RPMs" + NL;
         expected += "Initial Engine Speed = 0.0 RPMs" + NL;
         expected += "Final Engine Speed = 500.0 RPMs" + NL;
 
         assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMilestones());
 
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
     }

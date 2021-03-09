@@ -32,6 +32,7 @@ import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.RP1210;
 import org.etools.j1939_84.bus.RP1210Bus;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.OverallController;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -622,7 +623,7 @@ public class UserInterfacePresenterTest {
 
     @Test
     public void testOnStopButtonClicked() {
-        when(overallController.isActive()).thenReturn(true);
+        when(Controller.isActive()).thenReturn(true);
 
         instance.onStopButtonClicked();
 
@@ -641,7 +642,7 @@ public class UserInterfacePresenterTest {
 
     @Test
     public void testOnStopButtonClickedWithStoppedController() {
-        when(overallController.isActive()).thenReturn(false);
+        when(Controller.isActive()).thenReturn(false);
 
         instance.onStopButtonClicked();
 

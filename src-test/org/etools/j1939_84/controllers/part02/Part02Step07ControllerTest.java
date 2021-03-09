@@ -229,7 +229,6 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -360,7 +359,6 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -457,7 +455,6 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -556,7 +553,6 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -666,7 +662,6 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
     }
@@ -768,7 +763,6 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -868,7 +862,6 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -975,7 +968,6 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 }

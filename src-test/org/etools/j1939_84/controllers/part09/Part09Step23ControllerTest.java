@@ -143,7 +143,6 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).readDM1(any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -161,7 +160,6 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).readDM1(any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -184,7 +182,6 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
                                         "6.9.22.2.a - ECU Engine #1 (0) reported MIL status of alternate off");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -197,7 +194,6 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).readDM1(any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.9.23.2.c - No OBD ECU provided a DM1");
@@ -218,7 +214,6 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).readDM1(any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,

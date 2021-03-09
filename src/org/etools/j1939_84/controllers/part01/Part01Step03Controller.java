@@ -21,7 +21,6 @@ import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * 6.1.3 DM5: Diagnostic Readiness 1
@@ -112,7 +111,6 @@ public class Part01Step03Controller extends StepController {
         }
     }
 
-    @NotNull
     private Integer getAddressClaimFunction(DM5DiagnosticReadinessPacket p) {
         return getDataRepository().getVehicleInformation()
                                   .getAddressClaim()

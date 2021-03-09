@@ -196,13 +196,11 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
         expectedMessages += "Waiting manufacturer’s recommended time for Fault A to be detected as passed";
         assertEquals(expectedMessages, listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
         expected += "Final Engine Speed = 500.0 RPMs" + NL;
         expected += "Initial Engine Speed = 500.0 RPMs" + NL;
         expected += "Final Engine Speed = 500.0 RPMs" + NL;
         assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMilestones());
 
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
     }
@@ -350,16 +348,12 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
         expectedMessages += "User cancelled testing at Part 5 Step 7";
         assertEquals(expectedMessages, listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
-
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expectedResults, listener.getResults());
-
-        assertEquals("", listener.getMilestones());
     }
 
 }

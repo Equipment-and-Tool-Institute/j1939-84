@@ -229,27 +229,6 @@ public class AbstractPartControllerTest {
 
         String partName = Lookup.getPartName(partNumber);
 
-        StringBuilder expectedMilestones = new StringBuilder("Begin Part: " + partName + NL);
-        for (int i = 1; i <= stepControllers.size(); i++) {
-            String stepName = Lookup.getStepName(partNumber, i);
-            expectedMilestones.append("Begin Step: Step ")
-                              .append(partNumber)
-                              .append(".")
-                              .append(i)
-                              .append(". ")
-                              .append(stepName)
-                              .append(NL);
-            expectedMilestones.append("End Step: Step ")
-                              .append(partNumber)
-                              .append(".")
-                              .append(i)
-                              .append(". ")
-                              .append(stepName)
-                              .append(NL);
-        }
-        expectedMilestones.append("End Part: ").append(partName);
-        assertEquals(expectedMilestones.toString(), listener.getMilestones());
-
         StringBuilder expectedMessages = new StringBuilder();
         for (int i = 1; i <= stepControllers.size(); i++) {
             expectedMessages.append(NL)

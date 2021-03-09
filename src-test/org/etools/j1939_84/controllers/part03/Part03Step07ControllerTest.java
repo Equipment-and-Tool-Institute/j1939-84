@@ -155,7 +155,6 @@ public class Part03Step07ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(1));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -179,7 +178,6 @@ public class Part03Step07ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(1));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -203,7 +201,6 @@ public class Part03Step07ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(0));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -226,7 +223,6 @@ public class Part03Step07ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(0));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -245,7 +241,6 @@ public class Part03Step07ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -270,7 +265,6 @@ public class Part03Step07ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(0));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,

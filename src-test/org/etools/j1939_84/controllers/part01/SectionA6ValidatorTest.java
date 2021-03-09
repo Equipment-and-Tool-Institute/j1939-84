@@ -137,7 +137,6 @@ public class SectionA6ValidatorTest {
         verify(tableA6Validator, times(3)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -173,7 +172,6 @@ public class SectionA6ValidatorTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, expectedMessage1a.toString());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -258,7 +256,6 @@ public class SectionA6ValidatorTest {
         verify(tableA6Validator, times(4)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -321,7 +318,6 @@ public class SectionA6ValidatorTest {
         verify(tableA6Validator, times(3)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -453,7 +449,6 @@ public class SectionA6ValidatorTest {
         verify(tableA6Validator, times(2)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
