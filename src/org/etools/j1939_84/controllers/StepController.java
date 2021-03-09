@@ -39,6 +39,7 @@ import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
+import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.KeyState;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
@@ -156,6 +157,10 @@ public abstract class StepController extends Controller {
 
     private KeyState getCurrentKeyState() {
         return getEngineSpeedModule().getKeyState();
+    }
+
+    protected FuelType getFuelType() {
+        return getDataRepository().getVehicleInformation().getFuelType();
     }
 
     protected void addFailure(String message) {

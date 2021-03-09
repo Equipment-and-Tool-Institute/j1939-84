@@ -23,7 +23,6 @@ import org.etools.j1939_84.controllers.BusService;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TableA1Validator;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -135,8 +134,6 @@ public class Part01Step26Controller extends StepController {
         // Finally, the bus is monitored again for any missing data
         // The Table A1 validator then reports on the data found
 
-        FuelType fuelType = getDataRepository().getVehicleInformation().getFuelType();
-
         // Collect all the Data Stream Supported SPNs from all OBD Modules.
         List<Integer> supportedSPNs = getDataRepository().getObdModules()
                                                          .stream()
@@ -185,7 +182,6 @@ public class Part01Step26Controller extends StepController {
                                                   // but not included in DM24”.
                                                   tableA1Validator.reportProvidedButNotSupportedSPNs(p,
                                                                                                      getListener(),
-                                                                                                     fuelType,
                                                                                                      "6.1.26.4.a"))
                                                   .peek(p -> tableA1Validator.reportPacketIfNotReported(p,
                                                                                                         getListener(),
