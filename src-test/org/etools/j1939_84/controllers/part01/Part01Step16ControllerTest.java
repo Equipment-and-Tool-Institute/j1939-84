@@ -232,8 +232,7 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
                                         "6.1.16.2.c - Non-OBD ECU Engine #1 (0) did not report MIL off or not supported");
 
         assertEquals("", listener.getMessages());
-        String expected = "";
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
