@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import org.etools.j1939_84.model.ActionOutcome;
+import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.modules.BannerModule;
@@ -58,29 +60,33 @@ public abstract class PartController extends Controller {
 
         PartResult partResult = getPartResult();
         getListener().onResult("");
-        getListener().beginPart(partResult);
         getListener().onResult("Start " + partResult);
         getListener().onResult("");
 
         for (StepController controller : getStepControllers()) {
             StepResult stepResult = getPartResult().getStepResult(controller.getStepNumber());
 
-            getListener().beginStep(stepResult);
             getListener().onResult("Start " + stepResult);
             getListener().onResult("");
 
             incrementProgress(stepResult.toString());
             controller.run(getListener(), getJ1939());
 
-            getListener().endStep(stepResult);
             getListener().onResult("");
             getListener().onResult("End " + stepResult);
             getListener().onResult("");
+
+            recordStepResult(stepResult);
         }
         getListener().onResult("");
         getListener().onResult("End " + partResult);
         getListener().onResult("");
-        getListener().endPart(partResult);
+    }
+
+    private static void recordStepResult(StepResult stepResult) {
+        if (stepResult.getOutcome() == Outcome.INCOMPLETE) {
+            stepResult.addResult(new ActionOutcome(Outcome.PASS, null));
+        }
     }
 
     protected PartResult getPartResult() {

@@ -182,7 +182,6 @@ public class Part06Step02ControllerTest extends AbstractControllerTest {
                                         "6.6.2.2.a - No OBD ECU reported a count of > 0 active DTCs");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -239,7 +238,6 @@ public class Part06Step02ControllerTest extends AbstractControllerTest {
                                         "6.6.2.2.a - No OBD ECU reported a count of > 0 active DTCs");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -313,7 +311,6 @@ public class Part06Step02ControllerTest extends AbstractControllerTest {
                                         WARN,
                                         "6.6.2.3.a - ECU module Body Controller (33) reported a count of > 1 active DTCs");
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 

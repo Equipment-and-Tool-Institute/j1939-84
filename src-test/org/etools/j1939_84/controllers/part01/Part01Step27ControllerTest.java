@@ -186,15 +186,10 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         expectedMessages.append(NL).append("User cancelled testing at Part 1 Step 27");
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
-        String expectedMilestones = "";
-        assertEquals(expectedMilestones, listener.getMilestones());
-
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expectedResults, listener.getResults());
-
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
@@ -272,12 +267,10 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         }
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
         String expected = "";
         expected += "Initial Engine Speed = 0.0 RPMs" + NL;
         expected += "Final Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMilestones());
     }
 
     // FIXME - this needs to be fixed when we figure out how to throw the InterruptedException.
@@ -340,8 +333,6 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         String expectedResults = "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expectedResults, listener.getResults());
-
-        assertEquals("", listener.getMilestones());
     }
 
 }

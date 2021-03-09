@@ -547,7 +547,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(result, instance.requestDM21(listener, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).read(anyLong(), any());
@@ -579,7 +578,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(result, instance.requestDM21(listener, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).read(anyLong(), any());
@@ -611,7 +609,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(result, instance.requestDM21(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
@@ -645,7 +642,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(result, instance.requestDM21(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
@@ -881,7 +877,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(RequestResult.empty(false), instance.requestDM23(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
@@ -918,7 +913,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedResult, instance.requestDM25(listener, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).read(anyLong(), any());
@@ -940,7 +934,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedResult, instance.requestDM25(listener, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).read(anyLong(), any());
@@ -987,7 +980,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedResult, instance.requestDM25(listener, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).read(anyLong(), any());
@@ -1070,7 +1062,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedResult, instance.requestDM26(listener, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).read(anyLong(), any());
@@ -1097,7 +1088,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedResult, instance.requestDM26(listener, 0x17));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x17);
         verify(j1939).read(anyLong(), any());
@@ -1167,7 +1157,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedResult, instance.requestDM26(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
@@ -1207,7 +1196,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedResult, instance.requestDM26(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
@@ -1229,7 +1217,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(RequestResult.empty(false), instance.requestDM26(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
         verify(j1939).read(anyLong(), any());
@@ -1267,7 +1254,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedResult, instance.requestDM27(listener, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).read(anyLong(), any());
@@ -1314,7 +1300,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedResult, instance.requestDM27(listener, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).read(anyLong(), any());
@@ -1339,7 +1324,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedResult, instance.requestDM27(listener, 0x17));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x17);
         verify(j1939).read(anyLong(), any());
@@ -1526,7 +1510,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedResult, instance.requestDM28(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
@@ -1549,7 +1532,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(BusResult.empty(), instance.requestDM29(listener, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).read(anyLong(), any());
@@ -1589,7 +1571,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedResult, instance.requestDM29(listener, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).read(anyLong(), any());
@@ -1609,7 +1590,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(RequestResult.empty(false), instance.requestDM29(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
@@ -1649,7 +1629,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedResult, instance.requestDM29(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
@@ -1673,7 +1652,6 @@ public class DiagnosticMessageModuleTest {
         assertTrue(instance.requestDM2(listener, 0x17).getPacket().isEmpty());
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x17);
         verify(j1939).read(anyLong(), any());
@@ -1713,7 +1691,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(packet1, busResult.getPacket().get().left.get());
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x01);
         verify(j1939).read(anyLong(), any());
@@ -1782,7 +1759,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedPackets, instance.requestDM2(listener).getPackets());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
@@ -1832,7 +1808,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedResult, instance.requestDM2(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
         verify(j1939).read(anyLong(), any());
@@ -1855,7 +1830,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(new ArrayList<DM2PreviouslyActiveDTC>(), instance.requestDM2(listener).getPackets());
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
@@ -1880,7 +1854,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedResult, instance.requestDM31(listener, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).read(anyLong(), any());
@@ -1941,7 +1914,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedResult, instance.requestDM31(listener, 0x21));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x21);
         verify(j1939).read(anyLong(), any());
@@ -1961,7 +1933,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(RequestResult.empty(false), instance.requestDM31(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
@@ -2017,7 +1988,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedResult, instance.requestDM31(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
@@ -2058,7 +2028,6 @@ public class DiagnosticMessageModuleTest {
 
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
@@ -2083,7 +2052,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedResult, instance.requestDM33(listener, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).read(anyLong(), any());
@@ -2122,7 +2090,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(expectedResult, instance.requestDM33(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
@@ -2143,7 +2110,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(RequestResult.empty(false), instance.requestDM33(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
@@ -2181,7 +2147,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(result, instance.requestDM6(listener, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).read(anyLong(), any());
@@ -2229,7 +2194,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(result, instance.requestDM6(listener, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).read(anyLong(), any());
@@ -2255,7 +2219,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(result, instance.requestDM6(listener, 0x21));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x21);
         verify(j1939).read(anyLong(), any());
@@ -2314,7 +2277,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(result, instance.requestDM6(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
@@ -2359,7 +2321,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(result, instance.requestDM6(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
@@ -2379,7 +2340,6 @@ public class DiagnosticMessageModuleTest {
         assertEquals(RequestResult.empty(false), instance.requestDM6(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());

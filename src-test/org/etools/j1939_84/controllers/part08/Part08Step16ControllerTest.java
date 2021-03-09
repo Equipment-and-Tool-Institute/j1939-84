@@ -216,8 +216,6 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
         expectedMessages += "6.8.16.1.e & f - Do Not Start Engine - proceeding with part 9";
         assertEquals(expectedMessages, listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
-
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
         expected += "Final Engine Speed = 0.0 RPMs" + NL;
         expected += "Initial Engine Speed = 0.0 RPMs" + NL;
@@ -313,8 +311,6 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
         expectedMessages += "6.8.16.1.e & f - Do Not Start Engine - proceeding with part 9" + NL;
         expectedMessages += "User cancelled testing at Part 8 Step 16";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
         expected += "Final Engine Speed = 0.0 RPMs" + NL;

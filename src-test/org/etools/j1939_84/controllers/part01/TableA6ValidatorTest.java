@@ -365,7 +365,6 @@ public class TableA6ValidatorTest {
         assertTrue(instance.verify(listener, packet1, PART_NUMBER, STEP_NUMBER));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(dataRepository, atLeast(1)).getVehicleInformation();
@@ -502,7 +501,6 @@ public class TableA6ValidatorTest {
         assertFalse(instance.verify(listener, packet1, PART_NUMBER, STEP_NUMBER));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "TableA6 A/C system refrigerant verification");
@@ -632,7 +630,6 @@ public class TableA6ValidatorTest {
         assertFalse(instance.verify(listener, packet1, PART_NUMBER, STEP_NUMBER));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "TableA6 A/C system refrigerant verification");
@@ -771,7 +768,6 @@ public class TableA6ValidatorTest {
         assertTrue(instance.verify(listener, packet1, PART_NUMBER, STEP_NUMBER));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(dataRepository, atLeast(1)).getVehicleInformation();
@@ -903,7 +899,6 @@ public class TableA6ValidatorTest {
         assertFalse(instance.verify(listener, packet1, PART_NUMBER, STEP_NUMBER));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "TableA6 A/C system refrigerant verification");

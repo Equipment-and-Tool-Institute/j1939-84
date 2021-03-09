@@ -173,7 +173,6 @@ public class Part09Step21ControllerTest extends AbstractControllerTest {
                                         "6.9.21.2.a - OBD ECU Body Controller (33) reported > 0 previously active DTCs count");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -202,7 +201,6 @@ public class Part09Step21ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM5(any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 

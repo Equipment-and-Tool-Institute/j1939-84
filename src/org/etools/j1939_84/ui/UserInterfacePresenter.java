@@ -24,13 +24,12 @@ import org.etools.j1939_84.bus.RP1210;
 import org.etools.j1939_84.bus.RP1210Bus;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.J1939TP;
+import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.OverallController;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.Outcome;
-import org.etools.j1939_84.model.PartResult;
-import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -393,22 +392,6 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
             }
 
             @Override
-            public void beginPart(PartResult partResult) {
-            }
-
-            @Override
-            public void beginStep(StepResult stepResult) {
-            }
-
-            @Override
-            public void endPart(PartResult partResult) {
-            }
-
-            @Override
-            public void endStep(StepResult stepResult) {
-            }
-
-            @Override
             public void onComplete(boolean success) {
                 getView().setStopButtonEnabled(false);
             }
@@ -532,7 +515,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      *                         if the file cannot be used
      */
 
-    private File setupReportFile(File file) throws IOException {
+    private static File setupReportFile(File file) throws IOException {
         File reportFile = file;
         if (!file.exists()) {
             // Append the file extension if the file doesn't have one.

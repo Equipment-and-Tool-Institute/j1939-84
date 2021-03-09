@@ -147,7 +147,6 @@ public class Part03Step06ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).readDM1(any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -170,7 +169,6 @@ public class Part03Step06ControllerTest extends AbstractControllerTest {
                                         "A.8 - Alternate coding for off (0b00, 0b00) has been accepted");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -183,7 +181,6 @@ public class Part03Step06ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).readDM1(any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.3.6.2.a - No OBD ECU supports DM1");
@@ -200,7 +197,6 @@ public class Part03Step06ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).readDM1(any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.3.6.2.a - No OBD ECU supports DM1");
@@ -221,7 +217,6 @@ public class Part03Step06ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).readDM1(any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,

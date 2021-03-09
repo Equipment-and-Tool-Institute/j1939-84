@@ -141,7 +141,6 @@ public class Part06Step03ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
@@ -202,7 +201,6 @@ public class Part06Step03ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,

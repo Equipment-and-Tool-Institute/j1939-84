@@ -10,8 +10,6 @@ import java.util.List;
 
 import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.Outcome;
-import org.etools.j1939_84.model.PartResult;
-import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 
@@ -23,7 +21,6 @@ import org.etools.j1939_84.model.VehicleInformationListener;
 public class TestResultsListener implements ResultsListener {
 
     private final List<String> messages = new ArrayList<>();
-    private final List<String> milestones = new ArrayList<>();
     private final ResultsListener mockListener;
     private final List<String> results = new ArrayList<>();
     private final List<ActionOutcome> outcomes = new ArrayList<>();
@@ -44,25 +41,6 @@ public class TestResultsListener implements ResultsListener {
         mockListener.addOutcome(partNumber, stepNumber, outcome, message);
     }
 
-    @Override
-    public void beginPart(PartResult partResult) {
-        milestones.add("Begin Part: " + partResult);
-    }
-
-    @Override
-    public void beginStep(StepResult stepResult) {
-        milestones.add("Begin Step: " + stepResult);
-    }
-
-    @Override
-    public void endPart(PartResult partResult) {
-        milestones.add("End Part: " + partResult);
-    }
-
-    @Override
-    public void endStep(StepResult stepResult) {
-        milestones.add("End Step: " + stepResult);
-    }
 
     @Override
     public void onComplete(boolean success) {
@@ -118,14 +96,6 @@ public class TestResultsListener implements ResultsListener {
 
     public String getMessages() {
         return String.join(NL, messages);
-    }
-
-    /**
-     * @deprecated TODO remove this method; it's not useful
-     */
-    @Deprecated
-    public String getMilestones() {
-        return String.join(NL, milestones);
     }
 
     public String getResults() {

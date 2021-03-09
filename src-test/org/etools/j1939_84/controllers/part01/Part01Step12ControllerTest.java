@@ -160,7 +160,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -196,7 +195,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -229,7 +227,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -273,7 +270,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).findDuplicates(any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -312,7 +308,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -349,7 +344,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -387,7 +381,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -425,7 +418,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -440,7 +432,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -474,7 +465,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
         assertEquals(List.of(), listener.getOutcomes());
     }
@@ -526,7 +516,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -561,7 +550,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 }

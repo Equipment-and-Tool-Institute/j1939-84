@@ -213,7 +213,6 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -311,7 +310,6 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = NL + "Vehicle Composite of DM5:" + NL +
                 "    A/C system refrigerant     not supported,     complete" + NL +
@@ -410,7 +408,6 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -499,7 +496,6 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = NL + "Vehicle Composite of DM5:" + NL +
                 "    A/C system refrigerant     not supported,     complete" + NL +
@@ -591,7 +587,6 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         String expectedVehicleComposite = NL + "Vehicle Composite of DM5:" + NL +
                 "    A/C system refrigerant     not supported,     complete" + NL +
                 "    Boost pressure control sys     supported, not complete" + NL +

@@ -14,7 +14,6 @@ import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
-import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.BannerModule;
@@ -243,7 +242,7 @@ public abstract class Controller {
      *
      * @return {@link Logger}
      */
-    protected Logger getLogger() {
+    protected static Logger getLogger() {
         return J1939_84.getLogger();
     }
 
@@ -312,7 +311,7 @@ public abstract class Controller {
      *
      * @return boolean
      */
-    public boolean isActive() {
+    public static boolean isActive() {
         return ending == null;
     }
 
@@ -404,26 +403,6 @@ public abstract class Controller {
         @Override
         public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
             Arrays.stream(listeners).forEach(l -> l.addOutcome(partNumber, stepNumber, outcome, message));
-        }
-
-        @Override
-        public void beginPart(PartResult partResult) {
-            Arrays.stream(listeners).forEach(l -> l.beginPart(partResult));
-        }
-
-        @Override
-        public void beginStep(StepResult stepResult) {
-            Arrays.stream(listeners).forEach(l -> l.beginStep(stepResult));
-        }
-
-        @Override
-        public void endPart(PartResult partResult) {
-            Arrays.stream(listeners).forEach(l -> l.endPart(partResult));
-        }
-
-        @Override
-        public void endStep(StepResult stepResult) {
-            Arrays.stream(listeners).forEach(l -> l.endStep(stepResult));
         }
 
         @Override

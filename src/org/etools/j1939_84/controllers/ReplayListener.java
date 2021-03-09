@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.etools.j1939_84.model.Outcome;
-import org.etools.j1939_84.model.PartResult;
-import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 
@@ -19,26 +17,6 @@ public class ReplayListener implements ResultsListener {
 
     @Override
     public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
-
-    }
-
-    @Override
-    public void beginPart(PartResult partResult) {
-
-    }
-
-    @Override
-    public void beginStep(StepResult stepResult) {
-
-    }
-
-    @Override
-    public void endPart(PartResult partResult) {
-
-    }
-
-    @Override
-    public void endStep(StepResult stepResult) {
 
     }
 

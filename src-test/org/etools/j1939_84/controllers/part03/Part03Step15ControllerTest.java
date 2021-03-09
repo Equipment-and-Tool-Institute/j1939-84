@@ -144,7 +144,6 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(diagnosticMessageModule).requestDM21(any(), eq(0));
 
@@ -174,7 +173,7 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
+
 
         verify(diagnosticMessageModule).requestDM21(any(), eq(0));
         verify(diagnosticMessageModule).requestDM21(any(), eq(1));
@@ -212,7 +211,7 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
+
 
         verify(diagnosticMessageModule).requestDM21(any(), eq(0));
         verify(diagnosticMessageModule).requestDM21(any(), eq(1));

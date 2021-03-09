@@ -151,7 +151,6 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
     }
 
@@ -171,7 +170,6 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART,
                                         STEP,
@@ -200,7 +198,6 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART,
                                         STEP,
@@ -249,7 +246,6 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART,
                                         STEP,
@@ -281,7 +277,6 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART,
                                         STEP,
