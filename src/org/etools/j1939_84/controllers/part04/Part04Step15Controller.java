@@ -59,16 +59,16 @@ public class Part04Step15Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.4.15.1.a Turn the engine off.
-        incrementProgress("Test 4.15 - Turn Engine Off and keep the ignition key in the off position");
+        incrementProgress("Step 6.4.15.1.a - Turn Engine Off and keep the ignition key in the off position");
         ensureKeyStateIs(KEY_OFF);
 
         // 6.4.15.1.b Wait engine manufacturer’s recommended interval.
-        incrementProgress("Waiting for manufacturer's recommended interval with the key in off position");
+        incrementProgress("Step 6.4.15.1.b - Waiting for manufacturer's recommended interval with the key in off position");
         waitForManufacturerInterval("Step 6.4.15.1.b", KEY_OFF);
 
         // 6.4.15.1.c With the key in the off position remove the implanted Fault A according to the
         // manufacturer’s instructions for restoring the system to a fault- free operating condition.
-        incrementProgress("Test 4.15 - Remove implanted fault per manufacturer's instructions");
+        incrementProgress("Step 6.4.15.1.c - Remove implanted fault per manufacturer's instructions");
         confirmFaultRemoved();
 
         // 6.4.15.1.d Turn ignition key to the ON position.
@@ -79,24 +79,24 @@ public class Part04Step15Controller extends StepController {
     }
 
     private void confirmFaultRemoved() {
-        String message = "6.4.15.1.c - With the key in the off position remove the implanted Fault A according to the"
+        String message = "Step 6.4.15.1.c - With Key OFF, remove the implanted Fault A according to the"
                 + NL;
         message += "manufacturer’s instructions for restoring the system to a fault- free operating condition" + NL;
         message += "Press OK to continue testing.";
-        displayInstructionAndWait(message, "Step 6.4.15.1.c", WARNING);
+        displayInstructionAndWait(message, "Test 6.4.15", WARNING);
     }
 
     private void waitForEngineStart() {
         if (!isDevEnv()) {
-            String message = "6.4.15.1.d - Turn ignition key to the ON position." + NL;
-            message += "6.4.15.1.e - Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster."
+            String message = "Step 6.4.15.1.d - Turn ignition key to the ON position." + NL;
+            message += "Step 6.4.15.1.e - Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster."
                     + NL;
-            message += "6.4.15.1.f - Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished."
+            message += "Step 6.4.15.1.f - Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished."
                     + NL;
-            message += "6.4.15.1.g - Please wait as indicated by the engine manufacturer’s recommendations for Fault A."
+            message += "Step 6.4.15.1.g - Please wait as indicated by the engine manufacturer’s recommendations for Fault A."
                     + NL;
             message += "Press OK to continue testing.";
-            displayInstructionAndWait(message, "Step 6.4.15.1.d - g", WARNING);
+            displayInstructionAndWait(message, "Test 6.4.15", WARNING);
         }
     }
 
