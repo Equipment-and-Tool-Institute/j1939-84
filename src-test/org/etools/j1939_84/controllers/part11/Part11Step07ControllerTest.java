@@ -194,6 +194,8 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
 
         runTest();
 
+        verify(executor).shutdownNow();
+
         var submitCaptor = ArgumentCaptor.forClass(Runnable.class);
         verify(executor).submit(submitCaptor.capture());
         submitCaptor.getValue().run();
@@ -271,6 +273,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
 
         verify(executor).submit((Runnable) any());
         verify(executor).scheduleAtFixedRate(any(), eq(0L), eq(1L), eq(TimeUnit.MINUTES));
+        verify(executor).shutdownNow();
 
         verify(engineSpeedModule).startMonitoringEngineSpeed(eq(executor), any());
 
@@ -310,6 +313,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
 
         verify(executor).submit((Runnable) any());
         verify(executor).scheduleAtFixedRate(any(), eq(0L), eq(1L), eq(TimeUnit.MINUTES));
+        verify(executor).shutdownNow();
 
         verify(engineSpeedModule).startMonitoringEngineSpeed(eq(executor), any());
 

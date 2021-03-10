@@ -88,7 +88,7 @@ public abstract class Controller {
      * @throws InterruptedException
      *                                  if the ending has been set
      */
-    private static void checkEnding() throws InterruptedException {
+    private void checkEnding() throws InterruptedException {
         if (getEnding() != null && INTERUPPTABLE_ENDINGS.contains(getEnding())) {
             throw new InterruptedException(getEnding().toString());
         }
@@ -97,7 +97,7 @@ public abstract class Controller {
     /**
      * @return the ending
      */
-    protected static Ending getEnding() {
+    protected Ending getEnding() {
         return ending;
     }
 
@@ -107,7 +107,7 @@ public abstract class Controller {
      * @throws InterruptedException
      *                                  if the ending was set to ABORTED or STOPPED
      */
-    protected static void setEnding(Ending ending) throws InterruptedException {
+    protected void setEnding(Ending ending) throws InterruptedException {
         Controller.ending = ending;
         checkEnding();
     }
@@ -311,7 +311,7 @@ public abstract class Controller {
      *
      * @return boolean
      */
-    public static boolean isActive() {
+    public boolean isActive() {
         return ending == null;
     }
 

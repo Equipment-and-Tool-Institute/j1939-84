@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
+import org.etools.j1939_84.controllers.SectionA5Verifier;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.controllers.part01.SectionA5Verifier;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -80,11 +80,9 @@ public class Part12Step09Controller extends StepController {
 
         // 6.12.9.2.b. Check diagnostic information as described in Section A.5 and fail if any ECU partially erases
         // diagnostic information (pass if it erases either all or none).
-        verifier.verifyDataNotPartialErased(getListener(), "6.12.9.2.b");
-
         // 6.12.9.2.c. For systems with multiple ECUs, fail if one OBD ECU or more than one OBD ECU erases diagnostic
         // information and one or more other OBD ECUs do not erase diagnostic information.
-        verifier.verifyDataNotMixedErased(getListener(), "6.12.9.2.c");
+        verifier.verifyDataNotPartialErased(getListener(), "6.12.9.2.b", "6.12.9.2.c");
 
         // 6.12.9.3.a. Global DM11.
         var globalPackets = getDiagnosticMessageModule().requestDM11(getListener());
@@ -110,12 +108,10 @@ public class Part12Step09Controller extends StepController {
 
         // 6.12.9.4.c. Check diagnostic information and fail if any ECU partially erases diagnostic information
         // (pass if it erases either all or none).
-        verifier.verifyDataNotPartialErased(getListener(), "6.12.9.4.c");
-
         // 6.12.9.4.d. Fail if one OBD ECU or more than one OBD ECU erases diagnostic information and one or more
         // other ECUs do not erase diagnostic information. See Section A.5 for the methods to check for erasure of
         // diagnostic information.
-        verifier.verifyDataNotMixedErased(getListener(), "6.12.9.4.d");
+        verifier.verifyDataNotPartialErased(getListener(), "6.12.9.4.c", "6.12.9.4.d");
     }
 
 }
