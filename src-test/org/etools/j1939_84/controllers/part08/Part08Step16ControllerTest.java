@@ -169,7 +169,7 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
         String urgentMessages2 = "Wait for the manufacturer's recommended interval with the Key OFF."
                 + NL;
         urgentMessages2 += "Press OK to continue the testing.";
-        String expectedTitle2 = "6.8.16.1.b";
+        String expectedTitle2 = "Step 6.8.16.1.b";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2),
                                              eq(expectedTitle2),
                                              eq(WARNING),
@@ -178,11 +178,11 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
 
         // 6.8.16.1.c With the key in the off position remove the implanted Fault B, according to the manufacturer’s
         // instructions for restoring the system to a fault- free operating condition.
-        String urgentMessages3 = "With the key in the off position remove the implanted Fault B, according to the manufacturer’s"
+        String urgentMessages3 = "Step 6.8.16.1.c - With the key in the off position remove the implanted Fault B, according to the manufacturer’s"
                 + NL;
         urgentMessages3 += "instructions for restoring the system to a fault- free operating condition." + NL;
         urgentMessages3 += "Press OK to continue the testing.";
-        String expectedTitle3 = "6.8.16.1.c";
+        String expectedTitle3 = "Test 8.16";
         verify(mockListener).onUrgentMessage(eq(urgentMessages3),
                                              eq(expectedTitle3),
                                              eq(WARNING),
@@ -197,10 +197,10 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
                                                             eq(WARNING),
                                                             any());
 
-        String urgentMessages5 = "Do Not Start Engine." + NL;
-        urgentMessages5 += "Proceeding with part 9." + NL;
+        String urgentMessages5 = "Step 6.8.16.1.e - Do Not Start Engine." + NL;
+        urgentMessages5 += "Step 6.8.16.1.f - Proceeding with part 9." + NL;
         urgentMessages5 += "Press OK to continue the testing.";
-        String expectedTitle5 = "6.8.16.1.e & f";
+        String expectedTitle5 = "Test 8.16";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages5),
                                                             eq(expectedTitle5),
                                                             eq(WARNING),
@@ -209,11 +209,10 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Waiting for Key OFF..." + NL;
         expectedMessages += "Waiting for Key OFF..." + NL;
-        expectedMessages += "6.8.16.1.c - With the key in the off position remove the implanted Fault B, according to the manufacturer’s"
+        expectedMessages += "Step 6.8.16.1.c - With Key OFF, remove the implanted Fault B"
                 + NL;
-        expectedMessages += "instructions for restoring the system to a fault- free operating condition." + NL;
         expectedMessages += "Waiting for Key ON/Engine OFF..." + NL;
-        expectedMessages += "6.8.16.1.e & f - Do Not Start Engine - proceeding with part 9";
+        expectedMessages += "Step 6.8.16.1.e & f - Do Not Start Engine - proceeding with part 9";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
@@ -262,7 +261,7 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
         String urgentMessages2 = "Wait for the manufacturer's recommended interval with the Key OFF."
                 + NL;
         urgentMessages2 += "Press OK to continue the testing.";
-        String expectedTitle2 = "6.8.16.1.b";
+        String expectedTitle2 = "Step 6.8.16.1.b";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2),
                                              eq(expectedTitle2),
                                              eq(WARNING),
@@ -271,11 +270,11 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
 
         // 6.8.16.1.c With the key in the off position remove the implanted Fault B, according to the manufacturer’s
         // instructions for restoring the system to a fault- free operating condition.
-        String urgentMessages3 = "With the key in the off position remove the implanted Fault B, according to the manufacturer’s"
+        String urgentMessages3 = "Step 6.8.16.1.c - With the key in the off position remove the implanted Fault B, according to the manufacturer’s"
                 + NL;
         urgentMessages3 += "instructions for restoring the system to a fault- free operating condition." + NL;
         urgentMessages3 += "Press OK to continue the testing.";
-        String expectedTitle3 = "6.8.16.1.c";
+        String expectedTitle3 = "Test 8.16";
         verify(mockListener).onUrgentMessage(eq(urgentMessages3),
                                              eq(expectedTitle3),
                                              eq(WARNING),
@@ -290,10 +289,10 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
                                                             eq(WARNING),
                                                             any());
 
-        String urgentMessages5 = "Do Not Start Engine." + NL;
-        urgentMessages5 += "Proceeding with part 9." + NL;
+        String urgentMessages5 = "Step 6.8.16.1.e - Do Not Start Engine." + NL;
+        urgentMessages5 += "Step 6.8.16.1.f - Proceeding with part 9." + NL;
         urgentMessages5 += "Press OK to continue the testing.";
-        String expectedTitle5 = "6.8.16.1.e & f";
+        String expectedTitle5 = "Test 8.16";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages5),
                                                             eq(expectedTitle5),
                                                             eq(WARNING),
@@ -304,11 +303,10 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Waiting for Key OFF..." + NL;
         expectedMessages += "Waiting for Key OFF..." + NL;
-        expectedMessages += "6.8.16.1.c - With the key in the off position remove the implanted Fault B, according to the manufacturer’s"
+        expectedMessages += "Step 6.8.16.1.c - With Key OFF, remove the implanted Fault B"
                 + NL;
-        expectedMessages += "instructions for restoring the system to a fault- free operating condition." + NL;
         expectedMessages += "Waiting for Key ON/Engine OFF..." + NL;
-        expectedMessages += "6.8.16.1.e & f - Do Not Start Engine - proceeding with part 9" + NL;
+        expectedMessages += "Step 6.8.16.1.e & f - Do Not Start Engine - proceeding with part 9" + NL;
         expectedMessages += "User cancelled testing at Part 8 Step 16";
         assertEquals(expectedMessages, listener.getMessages());
 

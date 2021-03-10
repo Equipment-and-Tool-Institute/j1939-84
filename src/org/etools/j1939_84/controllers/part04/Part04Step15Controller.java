@@ -59,7 +59,7 @@ public class Part04Step15Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.4.15.1.a Turn the engine off.
-        incrementProgress("Part 4, Step 15 Turn Engine Off and keep the ignition key in the off position");
+        incrementProgress("Test 4.15 - Turn Engine Off and keep the ignition key in the off position");
         ensureKeyStateIs(KEY_OFF);
 
         // 6.4.15.1.b Wait engine manufacturer’s recommended interval.
@@ -68,7 +68,7 @@ public class Part04Step15Controller extends StepController {
 
         // 6.4.15.1.c With the key in the off position remove the implanted Fault A according to the
         // manufacturer’s instructions for restoring the system to a fault- free operating condition.
-        incrementProgress("Part 4, Step 15 Remove implanted fault per manufacturer's instructions");
+        incrementProgress("Test 4.15 - Remove implanted fault per manufacturer's instructions");
         confirmFaultRemoved();
 
         // 6.4.15.1.d Turn ignition key to the ON position.

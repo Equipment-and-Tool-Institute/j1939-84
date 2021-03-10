@@ -67,7 +67,7 @@ public class Part06Step11Controller extends StepController {
         waitForManufacturerInterval("Step 6.6.11.1.b", KEY_OFF);
 
         // 6.6.11.1.c Turn key to on position.
-        incrementProgress("6.6.11.1.c Turn the ignition key in the on position");
+        incrementProgress("Step 6.6.11.1.c - Turn the ignition key in the on position");
         ensureKeyStateIs(KEY_ON_ENGINE_OFF);
 
         // 6.6.11.1.d If required by engine manufacturer, start the engine for start to start operating cycle effects.

@@ -175,9 +175,9 @@ public class Part04Step15ControllerTest extends AbstractControllerTest {
         String outcomeMessage = "User cancelled testing at Part 4 Step 15";
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, outcomeMessage);
 
-        String expectedMessages = "Part 4, Step 15 Turn Engine Off and keep the ignition key in the off position" + NL;
+        String expectedMessages = "Test 4.15 - Turn Engine Off and keep the ignition key in the off position" + NL;
         expectedMessages += "Waiting for manufacturer's recommended interval with the key in off position" + NL;
-        expectedMessages += "Part 4, Step 15 Remove implanted fault per manufacturer's instructions" + NL;
+        expectedMessages += "Test 4.15 - Remove implanted fault per manufacturer's instructions" + NL;
         expectedMessages += "User cancelled testing at Part 4 Step 15";
         assertEquals(expectedMessages, listener.getMessages());
 
@@ -236,9 +236,9 @@ public class Part04Step15ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String expectedMessages = "Part 4, Step 15 Turn Engine Off and keep the ignition key in the off position" + NL;
+        String expectedMessages = "Test 4.15 - Turn Engine Off and keep the ignition key in the off position" + NL;
         expectedMessages += "Waiting for manufacturer's recommended interval with the key in off position" + NL;
-        expectedMessages += "Part 4, Step 15 Remove implanted fault per manufacturer's instructions";
+        expectedMessages += "Test 4.15 - Remove implanted fault per manufacturer's instructions";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
@@ -294,9 +294,9 @@ public class Part04Step15ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 4 Step 15");
 
-        String expectedMessages = "Part 4, Step 15 Turn Engine Off and keep the ignition key in the off position" + NL;
+        String expectedMessages = "Test 4.15 - Turn Engine Off and keep the ignition key in the off position" + NL;
         expectedMessages += "Waiting for manufacturer's recommended interval with the key in off position" + NL;
-        expectedMessages += "Part 4, Step 15 Remove implanted fault per manufacturer's instructions" + NL;
+        expectedMessages += "Test 4.15 - Remove implanted fault per manufacturer's instructions" + NL;
         expectedMessages += "User cancelled testing at Part 4 Step 15";
         assertEquals(expectedMessages, listener.getMessages());
 

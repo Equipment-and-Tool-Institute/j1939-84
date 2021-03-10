@@ -73,7 +73,7 @@ public class StepResult implements IResult {
 
     @Override
     public String toString() {
-        return "Step " + partNumber + "." + stepNumber + ". " + getName();
+        return "Test " + partNumber + "." + stepNumber + " " + getName();
     }
 
 }
