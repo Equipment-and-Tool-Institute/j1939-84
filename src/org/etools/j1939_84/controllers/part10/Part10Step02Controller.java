@@ -75,7 +75,7 @@ public class Part10Step02Controller extends StepController {
         String message = "Step 6.10.2.1.a - Wait for manufacturer’s recommended time for Fault B to be detected as passed."
                 + NL;
         message += "Press OK to continue the testing.";
-        displayInstructionAndWait(message, "Test 10.2", WARNING);
+        displayInstructionAndWait(message, "Test 6.10.2", WARNING);
     }
 
 }

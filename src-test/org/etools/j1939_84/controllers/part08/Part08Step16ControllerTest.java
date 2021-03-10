@@ -182,7 +182,7 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
                 + NL;
         urgentMessages3 += "instructions for restoring the system to a fault- free operating condition." + NL;
         urgentMessages3 += "Press OK to continue the testing.";
-        String expectedTitle3 = "Test 8.16";
+        String expectedTitle3 = "Test 6.8.16";
         verify(mockListener).onUrgentMessage(eq(urgentMessages3),
                                              eq(expectedTitle3),
                                              eq(WARNING),
@@ -200,7 +200,7 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
         String urgentMessages5 = "Step 6.8.16.1.e - Do Not Start Engine." + NL;
         urgentMessages5 += "Step 6.8.16.1.f - Proceeding with part 9." + NL;
         urgentMessages5 += "Press OK to continue the testing.";
-        String expectedTitle5 = "Test 8.16";
+        String expectedTitle5 = "Test 6.8.16";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages5),
                                                             eq(expectedTitle5),
                                                             eq(WARNING),
@@ -274,7 +274,7 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
                 + NL;
         urgentMessages3 += "instructions for restoring the system to a fault- free operating condition." + NL;
         urgentMessages3 += "Press OK to continue the testing.";
-        String expectedTitle3 = "Test 8.16";
+        String expectedTitle3 = "Test 6.8.16";
         verify(mockListener).onUrgentMessage(eq(urgentMessages3),
                                              eq(expectedTitle3),
                                              eq(WARNING),
@@ -292,7 +292,7 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
         String urgentMessages5 = "Step 6.8.16.1.e - Do Not Start Engine." + NL;
         urgentMessages5 += "Step 6.8.16.1.f - Proceeding with part 9." + NL;
         urgentMessages5 += "Press OK to continue the testing.";
-        String expectedTitle5 = "Test 8.16";
+        String expectedTitle5 = "Test 6.8.16";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages5),
                                                             eq(expectedTitle5),
                                                             eq(WARNING),

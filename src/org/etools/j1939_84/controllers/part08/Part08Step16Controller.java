@@ -81,7 +81,7 @@ public class Part08Step16Controller extends StepController {
         String message = "Step 6.8.16.1.c - With the key in the off position remove the implanted Fault B, according to the manufacturer’s"
                 + NL + "instructions for restoring the system to a fault- free operating condition." + NL;
         message += "Press OK to continue the testing.";
-        displayInstructionAndWait(message, "Test 8.16", WARNING);
+        displayInstructionAndWait(message, "Test 6.8.16", WARNING);
     }
 
     private void displayDoNotStartEngine() throws InterruptedException {
@@ -89,6 +89,6 @@ public class Part08Step16Controller extends StepController {
         String message = "Step 6.8.16.1.e - Do Not Start Engine." + NL;
         message += "Step 6.8.16.1.f - Proceeding with part 9." + NL;
         message += "Press OK to continue the testing.";
-        displayInstructionAndWait(message, "Test 8.16", WARNING);
+        displayInstructionAndWait(message, "Test 6.8.16", WARNING);
     }
 }

@@ -60,7 +60,7 @@ public class Part03Step16Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.3.16.1.a. Turn the engine off.
-        incrementProgress("Test 3.16 - Turn Engine Off and keep the ignition key in the off position");
+        incrementProgress("Test 6.3.16 - Turn Engine Off and keep the ignition key in the off position");
         ensureKeyStateIs(KEY_OFF);
 
         // 6.3.16.1.b. Confirm Fault A is still implanted according to the manufacturer’s instruction.
