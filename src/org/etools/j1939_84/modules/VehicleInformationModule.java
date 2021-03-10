@@ -233,7 +233,7 @@ public class VehicleInformationModule extends FunctionalModule {
      *                      the {@link ResultsListener} that will be given the report
      * @return          {@link List} of {@link ComponentIdentificationPacket}
      */
-    public RequestResult<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener) {
+    public RequestResult<ComponentIdentificationPacket> requestComponentIdentification(ResultsListener listener) {
         listener.onResult("");
         return getJ1939().requestGlobal("Global Component Identification Request",
                                         ComponentIdentificationPacket.class,
@@ -251,8 +251,8 @@ public class VehicleInformationModule extends FunctionalModule {
      *                      addressed
      * @return          {@link List} of {@link ComponentIdentificationPacket}
      */
-    public BusResult<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener,
-                                                                                  int address) {
+    public BusResult<ComponentIdentificationPacket> requestComponentIdentification(ResultsListener listener,
+                                                                                   int address) {
         return getJ1939().requestDS("Destination Specific Component Identification Request to "
                 + Lookup.getAddressName(address),
                                     ComponentIdentificationPacket.class,

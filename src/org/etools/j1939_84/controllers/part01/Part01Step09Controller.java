@@ -70,8 +70,8 @@ public class Part01Step09Controller extends StepController {
         // 6.1.9.1.b Display each positive return in the log.
         var dsPackets = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getVehicleInformationModule().reportComponentIdentification(getListener(),
-                                                                                                                 a))
+                                           .map(a -> getVehicleInformationModule().requestComponentIdentification(getListener(),
+                                                                                                                  a))
                                            .map(BusResult::requestResult)
                                            .map(RequestResult::getPackets)
                                            .flatMap(Collection::stream)
@@ -187,7 +187,7 @@ public class Part01Step09Controller extends StepController {
         // 6.1.9.4.a. Global Component ID request (PGN 59904) for PGN 65259 (SPNs 586, 587, and 588).
         // 6.1.9.4.b. Display each positive return in the log.
         var globalPackets = getVehicleInformationModule()
-                                                         .reportComponentIdentification(getListener())
+                                                         .requestComponentIdentification(getListener())
                                                          .getPackets();
 
         // 6.1.9.5 Fail Criteria2 for function 0:

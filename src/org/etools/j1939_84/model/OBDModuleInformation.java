@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
@@ -77,15 +76,6 @@ public class OBDModuleInformation implements Cloneable {
 
     public int getFunction() {
         return function;
-    }
-
-    /**
-     * @deprecated TODO inline the usage of this method
-     */
-    @Deprecated
-    public ComponentIdentification getComponentIdentification() {
-        ComponentIdentificationPacket packet = get(ComponentIdentificationPacket.class, 1);
-        return packet == null ? null : packet.getComponentIdentification();
     }
 
     /**

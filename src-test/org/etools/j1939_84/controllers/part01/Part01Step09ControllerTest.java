@@ -184,11 +184,11 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
+        when(vehicleInformationModule.requestComponentIdentification(any()))
                                                                            .thenReturn(new RequestResult<>(false,
                                                                                                            packet));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x00)))
                                                                                      .thenReturn(new BusResult<>(false));
 
         runTest();
@@ -197,8 +197,8 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_B);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any());
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0x00));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0x00));
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -224,23 +224,23 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule0);
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
+        when(vehicleInformationModule.requestComponentIdentification(any()))
                                                                            .thenReturn(new RequestResult<>(false,
                                                                                                            packet0));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x00)))
                                                                                      .thenReturn(new BusResult<>(false,
                                                                                                                  packet0));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x01)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x01)))
                                                                                      .thenReturn(new BusResult<>(false,
                                                                                                                  packet1));
         runTest();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_6_A);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any());
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0x00));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0x01));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0x00));
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0x01));
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -267,12 +267,12 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule0x00);
 
         // Global request response
-        when(vehicleInformationModule.reportComponentIdentification(any()))
+        when(vehicleInformationModule.requestComponentIdentification(any()))
                                                                            .thenReturn(new RequestResult<>(false,
                                                                                                            packet2));
 
         // Destination specific responses
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
                                                                                   .thenReturn(new BusResult<>(false,
                                                                                                               packet1));
 
@@ -280,8 +280,8 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -317,41 +317,49 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(2));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
+        when(vehicleInformationModule.requestComponentIdentification(any()))
                                                                            .thenReturn(new RequestResult<>(false,
                                                                                                            packet0x00,
                                                                                                            packet0x01,
                                                                                                            packet0x02,
                                                                                                            packet0x03));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x00)))
                                                                                      .thenReturn(new BusResult<>(false,
                                                                                                                  packet0x00));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x01)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x01)))
                                                                                      .thenReturn(new BusResult<>(false,
                                                                                                                  packet0x01));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x02)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x02)))
                                                                                      .thenReturn(new BusResult<>(false,
                                                                                                                  packet0x02));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x03)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x03)))
                                                                                      .thenReturn(new BusResult<>(false,
                                                                                                                  packet0x03));
 
         runTest();
         assertEquals(packet0x00.getComponentIdentification(),
-                     dataRepository.getObdModule(0).getComponentIdentification());
+                     dataRepository.getObdModule(0)
+                                   .get(ComponentIdentificationPacket.class, 1)
+                                   .getComponentIdentification());
         assertEquals(packet0x01.getComponentIdentification(),
-                     dataRepository.getObdModule(1).getComponentIdentification());
+                     dataRepository.getObdModule(1)
+                                   .get(ComponentIdentificationPacket.class, 1)
+                                   .getComponentIdentification());
         assertEquals(packet0x02.getComponentIdentification(),
-                     dataRepository.getObdModule(2).getComponentIdentification());
+                     dataRepository.getObdModule(2)
+                                   .get(ComponentIdentificationPacket.class, 1)
+                                   .getComponentIdentification());
         assertEquals(packet0x03.getComponentIdentification(),
-                     dataRepository.getObdModule(3).getComponentIdentification());
+                     dataRepository.getObdModule(3)
+                                   .get(ComponentIdentificationPacket.class, 1)
+                                   .getComponentIdentification());
 
-        verify(vehicleInformationModule).reportComponentIdentification(any());
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(1));
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(2));
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(3));
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -376,12 +384,12 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule0x00);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
+        when(vehicleInformationModule.requestComponentIdentification(any()))
                                                                            .thenReturn(new RequestResult<>(false,
                                                                                                            List.of(packet),
                                                                                                            List.of()));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
                                                                                   .thenReturn(new BusResult<>(false,
                                                                                                               packet));
 
@@ -389,8 +397,8 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D_MAKE);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -415,11 +423,11 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
+        when(vehicleInformationModule.requestComponentIdentification(any()))
                                                                            .thenReturn(new RequestResult<>(false,
                                                                                                            packet));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
                                                                                   .thenReturn(new BusResult<>(false,
                                                                                                               packet));
 
@@ -427,8 +435,8 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -452,11 +460,11 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
+        when(vehicleInformationModule.requestComponentIdentification(any()))
                                                                            .thenReturn(new RequestResult<>(false,
                                                                                                            packet));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
                                                                                   .thenReturn(new BusResult<>(false,
                                                                                                               packet));
 
@@ -464,8 +472,8 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -489,11 +497,11 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
+        when(vehicleInformationModule.requestComponentIdentification(any()))
                                                                            .thenReturn(new RequestResult<>(false,
                                                                                                            packet));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
                                                                                   .thenReturn(new BusResult<>(false,
                                                                                                               packet));
 
@@ -501,8 +509,8 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_C);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -529,10 +537,10 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
+        when(vehicleInformationModule.requestComponentIdentification(any()))
                                                                            .thenReturn(new RequestResult<>(false,
                                                                                                            packet));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
                                                                                   .thenReturn(new BusResult<>(false,
                                                                                                               packet));
 
@@ -540,8 +548,8 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D_MODEL);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -565,11 +573,11 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
+        when(vehicleInformationModule.requestComponentIdentification(any()))
                                                                            .thenReturn(new RequestResult<>(false,
                                                                                                            packet));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
                                                                                   .thenReturn(new BusResult<>(false,
                                                                                                               packet));
 
@@ -577,8 +585,8 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_D);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -601,10 +609,10 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                                                     "Land");
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
+        when(vehicleInformationModule.requestComponentIdentification(any()))
                                                                            .thenReturn(new RequestResult<>(false));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
                                                                                   .thenReturn(new BusResult<>(false,
                                                                                                               packet));
 
@@ -612,8 +620,8 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -681,23 +689,23 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule0x02);
         dataRepository.putObdModule(obdModule0x03);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
+        when(vehicleInformationModule.requestComponentIdentification(any()))
                                                                            .thenReturn(new RequestResult<>(false,
                                                                                                            packet0x00,
                                                                                                            packet0x01,
                                                                                                            packet0x02,
                                                                                                            packet0x03));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
                                                                                   .thenReturn(new BusResult<>(false,
                                                                                                               packet0x00));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(1)))
                                                                                   .thenReturn(new BusResult<>(false,
                                                                                                               packet0x01));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(2)))
                                                                                   .thenReturn(new BusResult<>(false,
                                                                                                               packet0x02));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(3)))
                                                                                   .thenReturn(new BusResult<>(false,
                                                                                                               packet0x03));
 
@@ -705,11 +713,11 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D_SN);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(1));
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(2));
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(3));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -733,11 +741,11 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule0x00);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
+        when(vehicleInformationModule.requestComponentIdentification(any()))
                                                                            .thenReturn(new RequestResult<>(false,
                                                                                                            packet));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x00)))
                                                                                      .thenReturn(new BusResult<>(false,
                                                                                                                  packet));
 
@@ -745,8 +753,8 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any());
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0x00));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0x00));
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -770,11 +778,11 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule0x00);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
+        when(vehicleInformationModule.requestComponentIdentification(any()))
                                                                            .thenReturn(new RequestResult<>(false,
                                                                                                            packet));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
                                                                                   .thenReturn(new BusResult<>(false,
                                                                                                               packet));
 
@@ -782,8 +790,8 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_C);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
