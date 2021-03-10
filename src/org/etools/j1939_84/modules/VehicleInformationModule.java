@@ -32,6 +32,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.Ca
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
+import org.etools.j1939_84.bus.j1939.packets.IdleOperationPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -252,7 +253,8 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public BusResult<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener,
                                                                                   int address) {
-        return getJ1939().requestDS("DS Component Identification Request to " + Lookup.getAddressName(address),
+        return getJ1939().requestDS("Destination Specific Component Identification Request to "
+                + Lookup.getAddressName(address),
                                     ComponentIdentificationPacket.class,
                                     address,
                                     listener);
@@ -288,15 +290,18 @@ public class VehicleInformationModule extends FunctionalModule {
         return getJ1939().requestGlobal("Global VIN Request", VehicleIdentificationPacket.class, listener).getPackets();
     }
 
-    /**
-     * Sends a global request for the Engine Hours from the engine and generates
-     * a {@link String} that's suitable for inclusion in the report
-     *
-     * @param listener
-     *                     the {@link ResultsListener} that will be given the report
-     */
-    public RequestResult<EngineHoursPacket> requestEngineHours(ResultsListener listener) {
-        return getJ1939().requestGlobal("Global Engine Hours Request", EngineHoursPacket.class, listener);
+    public BusResult<EngineHoursPacket> requestEngineHours(ResultsListener listener, int address) {
+        return getJ1939().requestDS("Destination Specific Engine Hours Request to " + Lookup.getAddressName(address),
+                                    EngineHoursPacket.class,
+                                    address,
+                                    listener);
+    }
+
+    public BusResult<IdleOperationPacket> requestIdleOperation(ResultsListener listener, int address) {
+        return getJ1939().requestDS("Destination Specific Idle Operation Request to " + Lookup.getAddressName(address),
+                                    IdleOperationPacket.class,
+                                    address,
+                                    listener);
     }
 
     /**

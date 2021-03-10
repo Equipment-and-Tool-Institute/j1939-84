@@ -409,6 +409,10 @@ public class J1939DaRepository {
         return pgnDefinition;
     }
 
+    public Slot findSLOT(int id) {
+        return findSLOT(id, 0);
+    }
+
     public Slot findSLOT(int id, int spn) {
         return findSlot(id, spn);
     }

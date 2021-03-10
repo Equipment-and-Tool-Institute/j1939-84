@@ -160,4 +160,8 @@ public class RequestResult<T extends ParsedPacket> {
         }
     }
 
+    public Stream<T> toPacketStream() {
+        return getPackets().stream();
+    }
+
 }

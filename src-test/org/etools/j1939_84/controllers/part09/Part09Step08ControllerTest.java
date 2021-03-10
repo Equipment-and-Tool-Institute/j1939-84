@@ -26,9 +26,9 @@ import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.controllers.SectionA5Verifier;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.controllers.part01.SectionA5Verifier;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -161,10 +161,8 @@ public class Part09Step08ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM11(any(), eq(1));
         verify(diagnosticMessageModule).requestDM11(any());
 
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.2.a"));
-        verify(verifier).verifyDataNotMixedErased(any(), eq("6.9.8.2.b"));
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.4.a"));
-        verify(verifier).verifyDataNotMixedErased(any(), eq("6.9.8.4.b"));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.2.a"), eq("6.9.8.2.b"));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.4.a"), eq("6.9.8.4.b"));
         verify(verifier).verifyDataErased(any(), eq("6.9.8.6.c"));
 
         String expected = getExpectedMessages();
@@ -191,10 +189,8 @@ public class Part09Step08ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM11(any(), eq(0));
         verify(diagnosticMessageModule).requestDM11(any());
 
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.2.a"));
-        verify(verifier).verifyDataNotMixedErased(any(), eq("6.9.8.2.b"));
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.4.a"));
-        verify(verifier).verifyDataNotMixedErased(any(), eq("6.9.8.4.b"));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.2.a"), eq("6.9.8.2.b"));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.4.a"), eq("6.9.8.4.b"));
         verify(verifier).verifyDataErased(any(), eq("6.9.8.6.c"));
 
         assertEquals(getExpectedMessages(), listener.getMessages());
@@ -223,10 +219,8 @@ public class Part09Step08ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM11(any(), eq(0));
         verify(diagnosticMessageModule).requestDM11(any());
 
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.2.a"));
-        verify(verifier).verifyDataNotMixedErased(any(), eq("6.9.8.2.b"));
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.4.a"));
-        verify(verifier).verifyDataNotMixedErased(any(), eq("6.9.8.4.b"));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.2.a"), eq("6.9.8.2.b"));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.4.a"), eq("6.9.8.4.b"));
         verify(verifier).verifyDataErased(any(), eq("6.9.8.6.c"));
 
         assertEquals(getExpectedMessages(), listener.getMessages());

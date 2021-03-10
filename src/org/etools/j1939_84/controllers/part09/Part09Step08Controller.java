@@ -10,8 +10,8 @@ import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
+import org.etools.j1939_84.controllers.SectionA5Verifier;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.controllers.part01.SectionA5Verifier;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -78,11 +78,9 @@ public class Part09Step08Controller extends StepController {
         pause("Step 6.9.8.1.b Waiting %1$d seconds before checking for erased data.", 5);
 
         // 6.9.8.2.a Fail if any ECU partially erases diagnostic information (pass if it erases either all or none).
-        verifier.verifyDataNotPartialErased(getListener(), "6.9.8.2.a");
-
         // 6.9.8.2.b Fail if one or more than one ECU erases diagnostic information and one or more other ECUs do not
         // erase diagnostic information. See Section A.5.
-        verifier.verifyDataNotMixedErased(getListener(), "6.9.8.2.b");
+        verifier.verifyDataNotPartialErased(getListener(), "6.9.8.2.a", "6.9.8.2.b");
 
         // 6.9.8.3.a DS DM11 to each OBD ECU with DM12 active MIL on DTC, based on the list created in step 6.9.2.1.
         getDataRepository().getObdModules()
@@ -97,11 +95,9 @@ public class Part09Step08Controller extends StepController {
         pause("Step 6.9.8.3.b Waiting %1$d seconds before checking for erased data.", 5);
 
         // 6.9.8.4.a Fail if any ECU partially erases diagnostic information (pass if it erases either all or none).
-        verifier.verifyDataNotPartialErased(getListener(), "6.9.8.4.a");
-
         // 6.9.8.4.b For systems with multiple ECU’s, fail if one ECU or more than one ECU erases diagnostic information
         // and one or more other ECUs do not erase diagnostic information.
-        verifier.verifyDataNotMixedErased(getListener(), "6.9.8.4.b");
+        verifier.verifyDataNotPartialErased(getListener(), "6.9.8.4.a", "6.9.8.4.b");
 
         // 6.9.8.5.a Global DM11 ([send Request (PGN 59904) for PGN 65235]).
         var packets = getDiagnosticMessageModule().requestDM11(getListener());

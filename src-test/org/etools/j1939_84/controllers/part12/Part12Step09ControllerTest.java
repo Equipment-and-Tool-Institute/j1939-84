@@ -22,9 +22,9 @@ import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.controllers.SectionA5Verifier;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.controllers.part01.SectionA5Verifier;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -155,11 +155,8 @@ public class Part12Step09ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM11(any(), eq(1));
         verify(diagnosticMessageModule).requestDM11(any());
 
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.2.b"));
-        verify(verifier).verifyDataNotMixedErased(any(), eq("6.12.9.2.c"));
-
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.4.c"));
-        verify(verifier).verifyDataNotMixedErased(any(), eq("6.12.9.4.d"));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.2.b"), eq("6.12.9.2.c"));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.4.c"), eq("6.12.9.4.d"));
 
         String expected = getExpectedMessages();
         assertEquals(expected, listener.getMessages());
@@ -182,11 +179,8 @@ public class Part12Step09ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM11(any(), eq(0));
         verify(diagnosticMessageModule).requestDM11(any());
 
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.2.b"));
-        verify(verifier).verifyDataNotMixedErased(any(), eq("6.12.9.2.c"));
-
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.4.c"));
-        verify(verifier).verifyDataNotMixedErased(any(), eq("6.12.9.4.d"));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.2.b"), eq("6.12.9.2.c"));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.4.c"), eq("6.12.9.4.d"));
 
         String expected = getExpectedMessages();
         assertEquals(expected, listener.getMessages());
@@ -213,11 +207,8 @@ public class Part12Step09ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM11(any(), eq(0));
         verify(diagnosticMessageModule).requestDM11(any());
 
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.2.b"));
-        verify(verifier).verifyDataNotMixedErased(any(), eq("6.12.9.2.c"));
-
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.4.c"));
-        verify(verifier).verifyDataNotMixedErased(any(), eq("6.12.9.4.d"));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.2.b"), eq("6.12.9.2.c"));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.4.c"), eq("6.12.9.4.d"));
 
         String expected = getExpectedMessages();
         assertEquals(expected, listener.getMessages());
@@ -245,11 +236,8 @@ public class Part12Step09ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM11(any(), eq(0));
         verify(diagnosticMessageModule).requestDM11(any());
 
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.2.b"));
-        verify(verifier).verifyDataNotMixedErased(any(), eq("6.12.9.2.c"));
-
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.4.c"));
-        verify(verifier).verifyDataNotMixedErased(any(), eq("6.12.9.4.d"));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.2.b"), eq("6.12.9.2.c"));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.4.c"), eq("6.12.9.4.d"));
 
         String expected = getExpectedMessages();
         assertEquals(expected, listener.getMessages());
