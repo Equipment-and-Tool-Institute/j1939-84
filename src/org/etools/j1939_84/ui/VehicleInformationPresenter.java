@@ -192,8 +192,8 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
 
             emissionUnitsFound = obdModules
                                            .stream()
-                                           .map(address -> vehicleInformationModule.reportComponentIdentification(NOOP,
-                                                                                                                  address)
+                                           .map(address -> vehicleInformationModule.requestComponentIdentification(NOOP,
+                                                                                                                   address)
                                                                                    .getPacket()
                                                                                    .map(e -> e.resolve(p -> p,
                                                                                                        ack -> create(address,

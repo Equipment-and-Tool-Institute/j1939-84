@@ -382,7 +382,7 @@ public class VehicleInformationModuleTest {
                                                                                                                                                        packet2,
                                                                                                                                                        packet3));
 
-        instance.reportComponentIdentification(NOOP);
+        instance.requestComponentIdentification(NOOP);
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
         verify(j1939, times(2)).requestGlobal("Global Component Identification Request",
@@ -396,7 +396,7 @@ public class VehicleInformationModuleTest {
                                        .requestGlobal("Global Component Identification Request",
                                                       ComponentIdentificationPacket.class,
                                                       NOOP);
-        instance.reportComponentIdentification(NOOP);
+        instance.requestComponentIdentification(NOOP);
 
         verify(j1939).requestGlobal("Global Component Identification Request",
                                     ComponentIdentificationPacket.class,
