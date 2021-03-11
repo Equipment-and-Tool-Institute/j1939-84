@@ -24,7 +24,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 
 /**
  * A Super class for Diagnostic Readiness Packets
@@ -33,8 +32,8 @@ import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
  */
 public abstract class DiagnosticReadinessPacket extends GenericPacket {
 
-    protected DiagnosticReadinessPacket(Packet packet, PgnDefinition pgnDefinition) {
-        super(packet, pgnDefinition);
+    protected DiagnosticReadinessPacket(Packet packet) {
+        super(packet);
     }
 
     private MonitoredSystem createMonitoredSystem(CompositeSystem compositeSystem) {

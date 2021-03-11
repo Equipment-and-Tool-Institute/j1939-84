@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Objects;
 
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The {@link ParsedPacket} for Diagnostic Readiness #1 (DM5)
@@ -24,7 +23,7 @@ public class DM5DiagnosticReadinessPacket extends DiagnosticReadinessPacket {
     private final byte previousCount;
 
     public DM5DiagnosticReadinessPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+        super(packet);
         activeCount = getByte(0);
         previousCount = getByte(1);
         obdCompliance = getByte(2);
@@ -57,7 +56,6 @@ public class DM5DiagnosticReadinessPacket extends DiagnosticReadinessPacket {
         return new DM5DiagnosticReadinessPacket(Packet.create(PGN, sourceAddress, data));
     }
 
-    @SuppressWarnings("DuplicateBranchesInSwitch")
     private static String lookupObdCompliance(byte value) {
         switch (value) {
             case 1:

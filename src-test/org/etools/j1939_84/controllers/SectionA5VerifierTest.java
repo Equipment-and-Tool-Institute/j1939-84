@@ -14,9 +14,7 @@ import java.util.List;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.junit.After;
 import org.junit.Before;
@@ -39,9 +37,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
     private DataRepository dataRepository;
 
-    @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
-
     private SectionA5Verifier instance;
 
     @Mock
@@ -51,9 +46,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
     @Mock
     private ResultsListener mockListener;
-
-    @Mock
-    private VehicleInformationModule vehicleInformationModule;
 
     @Mock
     private SectionA5MessageVerifier verifier;
@@ -66,27 +58,21 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         listener = new TestResultsListener(mockListener);
 
         instance = new SectionA5Verifier(dataRepository,
-                                         diagnosticMessageModule,
-                                         vehicleInformationModule,
+                                         verifier,
                                          PART_NUMBER,
-                                         STEP_NUMBER,
-                                         verifier);
+                                         STEP_NUMBER);
     }
 
     @After
     public void tearDown() {
         DateTimeModule.setInstance(null);
-        verifyNoMoreInteractions(diagnosticMessageModule,
-                                 mockListener,
-                                 vehicleInformationModule,
-                                 verifier);
+        verifyNoMoreInteractions(mockListener, verifier);
     }
 
     @Test
     public void testSetJ1939() {
         instance.setJ1939(j1939);
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(vehicleInformationModule).setJ1939(j1939);
+        verify(verifier).setJ1939(j1939);
     }
 
     @Test

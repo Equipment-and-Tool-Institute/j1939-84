@@ -133,7 +133,7 @@ public class DiagnosticReadinessModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 C2 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
         instance.requestDM20(listener);
         assertEquals(expected, listener.getResults());
 
@@ -299,7 +299,7 @@ public class DiagnosticReadinessModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM21 Request to Instrument Cluster #1 (23)" + NL;
         expected += "10:15:30.0000 18EA17A5 [3] 00 C1 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         instance.requestDM21(listener, 0x17);
         assertEquals(expected, listener.getResults());
@@ -360,7 +360,7 @@ public class DiagnosticReadinessModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Global DM21 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 C1 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
         instance.requestDM21(listener);
         assertEquals(expected, listener.getResults());
 
@@ -595,7 +595,7 @@ public class DiagnosticReadinessModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
         instance.requestDM5(listener);
         assertEquals(expected, listener.getResults());
 

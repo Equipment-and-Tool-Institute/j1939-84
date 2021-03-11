@@ -190,9 +190,6 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                                                                 packet21);
         when(diagnosticMessageModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
 
-        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
-                                                                                                                       false);
-
         when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x21));
 
         runTest();
@@ -210,7 +207,7 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.2.2.1.a - Global DM5 request did not receive any response packets");
 
-        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
+        verify(sectionA6Validator).verify(any(), eq("6.2.2.2.a"), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -279,9 +276,6 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         BusResult<DM5DiagnosticReadinessPacket> busResult0x21 = new BusResult<>(false, packet21V2);
         when(diagnosticMessageModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
 
-        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse)))
-                                                                                                           .thenReturn(false);
-
         when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x21));
 
         runTest();
@@ -307,7 +301,7 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.2.2.4.a - Difference compared to data received during global request");
 
-        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
+        verify(sectionA6Validator).verify(any(), eq("6.2.2.2.a"), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
 
@@ -385,9 +379,6 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                                                                 packet21);
         when(diagnosticMessageModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
 
-        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
-                                                                                                                       false);
-
         when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x21));
 
         runTest();
@@ -405,7 +396,7 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.2.2.1.a - Global DM5 request did not receive any response packets");
 
-        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
+        verify(sectionA6Validator).verify(any(), eq("6.2.2.2.a"), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -464,9 +455,6 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                                                                 packet21);
         when(diagnosticMessageModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
 
-        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
-                                                                                                                       false);
-
         when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x21));
 
         runTest();
@@ -493,7 +481,7 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                         WARN,
                                         "6.2.2.3.a - OBD module Instrument Cluster #1 (23) did not return a response to a destination specific DM5 request");
 
-        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
+        verify(sectionA6Validator).verify(any(), eq("6.2.2.2.a"), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
 
@@ -569,9 +557,6 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         BusResult<DM5DiagnosticReadinessPacket> busResult0x23 = new BusResult<>(false, packet23);
         when(diagnosticMessageModule.requestDM5(any(), eq(0x23))).thenReturn(busResult0x23);
 
-        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
-                                                                                                                       true);
-
         when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x23));
 
         runTest();
@@ -584,7 +569,7 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM5(any(), eq(0x17));
         verify(diagnosticMessageModule).requestDM5(any(), eq(0x23));
 
-        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
+        verify(sectionA6Validator).verify(any(), eq("6.2.2.2.a"), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
         String expectedVehicleComposite = NL + "Vehicle Composite of DM5:" + NL +

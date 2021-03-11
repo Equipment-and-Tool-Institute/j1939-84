@@ -10,43 +10,32 @@ import java.util.Set;
 
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
 
 public class SectionA5Verifier {
     private final DataRepository dataRepository;
-    private final DiagnosticMessageModule diagMsgModule;
-    private final VehicleInformationModule vehInfoModule;
     private final int partNumber;
     private final int stepNumber;
     private final SectionA5MessageVerifier verifier;
 
     public SectionA5Verifier(int partNumber, int stepNumber) {
         this(DataRepository.getInstance(),
-             new DiagnosticMessageModule(),
-             new VehicleInformationModule(),
+             new SectionA5MessageVerifier(partNumber, stepNumber),
              partNumber,
-             stepNumber,
-             new SectionA5MessageVerifier(partNumber, stepNumber));
+             stepNumber);
     }
 
     SectionA5Verifier(DataRepository dataRepository,
-                      DiagnosticMessageModule diagMsgModule,
-                      VehicleInformationModule vehInfoModule,
+                      SectionA5MessageVerifier verifier,
                       int partNumber,
-                      int stepNumber,
-                      SectionA5MessageVerifier verifier) {
+                      int stepNumber) {
         this.dataRepository = dataRepository;
-        this.diagMsgModule = diagMsgModule;
-        this.vehInfoModule = vehInfoModule;
         this.partNumber = partNumber;
         this.stepNumber = stepNumber;
         this.verifier = verifier;
     }
 
     public void setJ1939(J1939 j1939) {
-        diagMsgModule.setJ1939(j1939);
-        vehInfoModule.setJ1939(j1939);
+        verifier.setJ1939(j1939);
     }
 
     public void verifyDataErased(ResultsListener listener, String section) {

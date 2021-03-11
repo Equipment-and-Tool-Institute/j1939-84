@@ -12,7 +12,6 @@ import java.util.Optional;
 
 import org.etools.j1939_84.NumberFormatter;
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The Parsed DM20 {@link Packet}
@@ -25,10 +24,11 @@ public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
     private List<PerformanceRatio> ratios;
 
     public DM20MonitorPerformanceRatioPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+        super(packet);
     }
 
     public static DM20MonitorPerformanceRatioPacket create(int sourceAddress,
+                                                           int destination,
                                                            int ignitionCycles,
                                                            int obdConditions,
                                                            PerformanceRatio... ratios) {
@@ -38,7 +38,14 @@ public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
         for (PerformanceRatio ratio : ratios) {
             data = join(data, ratio.getData());
         }
-        return new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, sourceAddress, data));
+        return new DM20MonitorPerformanceRatioPacket(Packet.create(PGN | destination, sourceAddress, data));
+    }
+
+    public static DM20MonitorPerformanceRatioPacket create(int sourceAddress,
+                                                           int ignitionCycles,
+                                                           int obdConditions,
+                                                           PerformanceRatio... ratios) {
+        return create(sourceAddress, 0, ignitionCycles, obdConditions, ratios);
     }
 
     /**

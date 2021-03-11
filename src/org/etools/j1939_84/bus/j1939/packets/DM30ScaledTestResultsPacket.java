@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * Parses the DM30 Scaled Test Results packet
@@ -23,7 +22,7 @@ public class DM30ScaledTestResultsPacket extends GenericPacket {
     private List<ScaledTestResult> testResults;
 
     public DM30ScaledTestResultsPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+        super(packet);
     }
 
     public static DM30ScaledTestResultsPacket create(int source, ScaledTestResult... testResults) {
@@ -69,7 +68,7 @@ public class DM30ScaledTestResultsPacket extends GenericPacket {
     public List<ScaledTestResult> getTestResults() {
         if (testResults == null) {
             testResults = new ArrayList<>();
-            final int length = getPacket().getLength();
+            int length = getPacket().getLength();
             for (int i = 0; i + 11 < length; i = i + 12) {
                 testResults.add(parseTestResult(i));
             }
@@ -78,7 +77,7 @@ public class DM30ScaledTestResultsPacket extends GenericPacket {
     }
 
     private ScaledTestResult parseTestResult(int index) {
-        final int[] data = getPacket().getData(index, index + 12);
+        int[] data = getPacket().getData(index, index + 12);
         return new ScaledTestResult(data);
     }
 

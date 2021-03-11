@@ -12,7 +12,7 @@ import org.junit.Test;
 public class J1939DaRepositoryTest {
     @Test
     public void verifyDMs() {
-        J1939DaRepository j1939Da = new J1939DaRepository();
+        J1939DaRepository j1939Da = J1939DaRepository.getInstance();
         int missingCount = new ArrayList<>(j1939Da.getPgnDefinitions().values()).stream()
                                                                                 // only consider DMs that are not
                                                                                 // manually implemented in
@@ -55,7 +55,7 @@ public class J1939DaRepositoryTest {
 
     @Test
     public void verifySpnOrder() {
-        new J1939DaRepository()
+        J1939DaRepository.getInstance()
                                .getPgnDefinitions()
                                .values()
                                .forEach(p -> {

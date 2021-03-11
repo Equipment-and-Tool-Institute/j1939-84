@@ -86,7 +86,7 @@ public class Lookup {
      *             value in the map
      */
     private static String find(Map<Integer, String> map, int key) {
-        final String name = map != null ? map.get(key) : null;
+        String name = map != null ? map.get(key) : null;
         return name != null ? name : "Unknown";
     }
 
@@ -145,7 +145,7 @@ public class Lookup {
      * @return     The name as defined by SAE or "Unknown" if it's not defined
      */
     public static String getSpnName(int spn) {
-        SpnDefinition spnDef = new J1939DaRepository().findSpnDefinition(spn);
+        SpnDefinition spnDef = J1939DaRepository.getInstance().findSpnDefinition(spn);
         return spnDef == null ? "Unknown" : spnDef.getLabel();
     }
 
@@ -189,8 +189,8 @@ public class Lookup {
         Map<Integer, String> map = new HashMap<>();
         String[] values;
 
-        final InputStream is = Resources.class.getResourceAsStream(fileName);
-        final InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
+        InputStream is = Resources.class.getResourceAsStream(fileName);
+        InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
         try (CSVReader reader = new CSVReader(isReader)) {
             while ((values = reader.readNext()) != null) {
                 map.put(Integer.valueOf(values[0]), values[1]);

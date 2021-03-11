@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
+import org.etools.j1939_84.bus.j1939.packets.Slot;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -115,13 +116,14 @@ public class Part01Step12Controller extends StepController {
                     // 6.1.12.1.d. Warn if any ECU reports more than one set of test results for the same SPN+FMI.
                     tableA7Validator.findDuplicates(testResults)
                                     .forEach(dup -> {
-                                        addWarning("6.1.12.1.d - " + moduleName
+                                        addWarning("6.1.12.2.a (A7.2.b) - " + moduleName
                                                 + " returned duplicate test results for SPN " + dup.getSpn()
                                                 + " FMI " + dup.getFmi());
                                     });
 
                     moduleTestResults.addAll(testResults);
                 }
+                getListener().onResult("");
             }
 
             obdModule.setScaledTestResults(moduleTestResults);
@@ -136,7 +138,6 @@ public class Part01Step12Controller extends StepController {
         } else if (getFuelType().isSparkIgnition()) {
             tableA7Validator.validateForSparkIgnition(vehicleTestResults, getListener());
         }
-
     }
 
     private void verifyDM30PacketSupported(DM30ScaledTestResultsPacket packet, int spnId) {
@@ -153,7 +154,7 @@ public class Part01Step12Controller extends StepController {
                                                    .collect(Collectors.toList());
 
         if (testResults.isEmpty()) {
-            addFailure("6.1.12.1.a - No test result for Supported SPN " + spnId + " from " + moduleName);
+            addFailure("6.1.12.2.a (A7.1.a) - No test result for supported SPN " + spnId + " from " + moduleName);
         }
 
         // 6.1.12.1.b. Fail if any test result does not report the test result/min test
@@ -161,7 +162,7 @@ public class Part01Step12Controller extends StepController {
         // 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000).
         for (ScaledTestResult result : testResults) {
             if (!result.isInitialized()) {
-                addFailure("6.1.12.1.b - Test result for SPN " + spnId + " FMI " + result.getFmi() + " from "
+                addFailure("6.1.12.2.a (A7.1.b) - Test result for SPN " + spnId + " FMI " + result.getFmi() + " from "
                         + moduleName
                         + " does not report the test result/min test limit/max test limit initialized properly");
             }
@@ -170,15 +171,11 @@ public class Part01Step12Controller extends StepController {
             // undefined or a not valid SLOT in Appendix A of J1939-71. See
             // Table A-7-2 3 for a list of the valid, SLOTs known to be
             // appropriate for use in test results.
-            if (result.getSlot() != null) {
-                int slotIdentifier = result.getSlot().getId();
-                if (!VALID_SLOTS.contains(slotIdentifier)) {
-                    addFailure("6.1.12.1.c - #" + slotIdentifier + " SLOT identifier for SPN " + spnId + " from "
-                            + moduleName + " is invalid");
-                }
-            } else {
-                addFailure("6.1.12.1.c - #" + result.getSlotNumber() + " SLOT identifier for SPN " + spnId + " from "
-                        + moduleName + " is undefined");
+            Slot slot = result.getSlot();
+            int slotIdentifier = slot == null ? -1 : slot.getId();
+            if (!VALID_SLOTS.contains(slotIdentifier)) {
+                addFailure("6.1.12.2.a (A7.1.c) - #" + slotIdentifier + " SLOT identifier for SPN " + spnId + " from "
+                        + moduleName + " is invalid");
             }
         }
     }

@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The {@link ParsedPacket} for Diagnostic Trouble Code Counts Codes (DM29)
@@ -28,7 +27,7 @@ public class DM29DtcCounts extends GenericPacket {
     private int emissionRelatedPreviouslyMILOnDTCCount = -1;
 
     public DM29DtcCounts(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+        super(packet);
     }
 
     public static DM29DtcCounts create(int source,

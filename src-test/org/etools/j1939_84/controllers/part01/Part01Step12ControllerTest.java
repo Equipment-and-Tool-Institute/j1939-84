@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.FuelType.BATT_ELEC;
 import static org.etools.j1939_84.model.FuelType.BI_DSL;
 import static org.etools.j1939_84.model.FuelType.BI_GAS;
@@ -160,7 +161,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
+        assertEquals("" + NL, listener.getResults());
     }
 
     @Test
@@ -195,7 +196,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
+        assertEquals("" + NL, listener.getResults());
     }
 
     @Test
@@ -227,7 +228,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
+        assertEquals("" + NL, listener.getResults());
     }
 
     @Test
@@ -270,7 +271,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).findDuplicates(any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
+        assertEquals("" + NL, listener.getResults());
     }
 
     @Test
@@ -299,7 +300,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
+                                        "6.1.12.2.a (A7.1.b) - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
 
         verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
 
@@ -308,7 +309,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
+        assertEquals("" + NL, listener.getResults());
     }
 
     @Test
@@ -336,7 +337,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
+                                        "6.1.12.2.a (A7.1.b) - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
 
         verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
 
@@ -344,7 +345,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
+        assertEquals("" + NL, listener.getResults());
     }
 
     @Test
@@ -373,7 +374,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
+                                        "6.1.12.2.a (A7.1.b) - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
 
         verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(supportedSPN.getSpn()), eq(31));
 
@@ -381,7 +382,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
+        assertEquals("" + NL, listener.getResults());
     }
 
     @Test
@@ -410,7 +411,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.12.1.c - #1 SLOT identifier for SPN 157 from Engine #1 (0) is invalid");
+                                        "6.1.12.2.a (A7.1.c) - #1 SLOT identifier for SPN 157 from Engine #1 (0) is invalid");
 
         verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
 
@@ -418,7 +419,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
+        assertEquals("" + NL, listener.getResults());
     }
 
     @Test
@@ -465,7 +466,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
+        assertEquals("" + NL, listener.getResults());
         assertEquals(List.of(), listener.getOutcomes());
     }
 
@@ -499,15 +500,15 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.12.1.b - Test result for SPN 157 FMI 18 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
+                                        "6.1.12.2.a (A7.1.b) - Test result for SPN 157 FMI 18 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
+                                        "6.1.12.2.a (A7.1.b) - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.1.12.1.d - Engine #1 (0) returned duplicate test results for SPN 157 FMI 18");
+                                        "6.1.12.2.a (A7.2.b) - Engine #1 (0) returned duplicate test results for SPN 157 FMI 18");
 
         verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
 
@@ -516,7 +517,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
+        assertEquals("" + NL, listener.getResults());
     }
 
     @Test
@@ -550,6 +551,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
+        assertEquals("" + NL, listener.getResults());
     }
 }

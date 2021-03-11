@@ -63,6 +63,8 @@ public class Part08Step13Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
+        verifier.setJ1939(getJ1939());
+
         // 6.8.13.1.a. DS DM3 [(send Request (PGN 59904) for PGN 65228]) to each OBD ECU.
         for (OBDModuleInformation obdInfo : getDataRepository().getObdModules()) {
 

@@ -388,7 +388,7 @@ public class DiagnosticMessageModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM12 Request to Instrument Cluster #1 (23)" + NL;
         expected += "10:15:30.0000 18EA17A5 [3] D4 FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         BusResult<DM12MILOnEmissionDTCPacket> expectedResult = new BusResult<>(false, Optional.empty());
@@ -520,7 +520,7 @@ public class DiagnosticMessageModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Global DM12 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] D4 FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         assertEquals(RequestResult.empty(false), instance.requestDM12(listener));
         assertEquals(expected, listener.getResults());
@@ -539,7 +539,7 @@ public class DiagnosticMessageModuleTest {
 
         String expected = "10:15:30.0000 Destination Specific DM21 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] 00 C1 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         BusResult<DM21DiagnosticReadinessPacket> result = new BusResult<>(false);
@@ -738,7 +738,7 @@ public class DiagnosticMessageModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM23 Request to Instrument Cluster #1 (23)" + NL;
         expected += "10:15:30.0000 18EA17A5 [3] B5 FD 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         BusResult<DM23PreviouslyMILOnEmissionDTCPacket> expectedResult = new BusResult<>(false, Optional.empty());
@@ -871,7 +871,7 @@ public class DiagnosticMessageModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Global DM23 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] B5 FD 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         assertEquals(RequestResult.empty(false), instance.requestDM23(listener));
@@ -927,7 +927,7 @@ public class DiagnosticMessageModuleTest {
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
         String expected = "10:15:30.0000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] B7 FD 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         BusResult<DM25ExpandedFreezeFrame> expectedResult = new BusResult<>(false, Optional.empty());
@@ -1079,7 +1079,7 @@ public class DiagnosticMessageModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM26 Request to Instrument Cluster #1 (23)" + NL;
         expected += "10:15:30.0000 18EA17A5 [3] B8 FD 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM26TripDiagnosticReadinessPacket> expectedResult = new RequestResult<>(false,
@@ -1211,7 +1211,7 @@ public class DiagnosticMessageModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] B8 FD 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         assertEquals(RequestResult.empty(false), instance.requestDM26(listener));
@@ -1317,7 +1317,7 @@ public class DiagnosticMessageModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM27 Request to Instrument Cluster #1 (23)" + NL;
         expected += "10:15:30.0000 18EA17A5 [3] 82 FD 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         BusResult<DM27AllPendingDTCsPacket> expectedResult = new BusResult<>(false, Optional.empty());
@@ -1457,7 +1457,7 @@ public class DiagnosticMessageModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Global DM27 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 82 FD 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         assertEquals(RequestResult.empty(false), instance.requestDM27(listener));
@@ -1523,7 +1523,7 @@ public class DiagnosticMessageModuleTest {
 
         String expected = "10:15:30.0000 Destination Specific DM29 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] 00 9E 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response."
+        expected += "10:15:30.0000 Timeout - No Response"
                 + NL;
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
@@ -1582,7 +1582,7 @@ public class DiagnosticMessageModuleTest {
 
         String expected = "10:15:30.0000 Global DM29 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 9E 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
@@ -1646,7 +1646,7 @@ public class DiagnosticMessageModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM2 Request to Instrument Cluster #1 (23)" + NL;
         expected += "10:15:30.0000 18EA17A5 [3] CB FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         assertTrue(instance.requestDM2(listener, 0x17).getPacket().isEmpty());
@@ -1824,7 +1824,7 @@ public class DiagnosticMessageModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Global DM2 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] CB FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         assertEquals(new ArrayList<DM2PreviouslyActiveDTC>(), instance.requestDM2(listener).getPackets());
@@ -1843,7 +1843,7 @@ public class DiagnosticMessageModuleTest {
 
         String expected = "10:15:30.0000 Destination Specific DM31 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] 00 A3 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
@@ -1925,7 +1925,7 @@ public class DiagnosticMessageModuleTest {
 
         String expected = "10:15:30.0000 Global DM31 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 A3 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
@@ -2045,7 +2045,7 @@ public class DiagnosticMessageModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM33 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] 00 A1 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         var expectedResult = new RequestResult<>(false);
@@ -2104,7 +2104,7 @@ public class DiagnosticMessageModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Global DM33 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 A1 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         assertEquals(RequestResult.empty(false), instance.requestDM33(listener));
@@ -2210,7 +2210,7 @@ public class DiagnosticMessageModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM6 Request to Body Controller (33)" + NL;
         expected += "10:15:30.0000 18EA21A5 [3] CF FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM6PendingEmissionDTCPacket> result = new RequestResult<>(false,
@@ -2334,7 +2334,7 @@ public class DiagnosticMessageModuleTest {
 
         String expected = "10:15:30.0000 Global DM6 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] CF FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         assertEquals(RequestResult.empty(false), instance.requestDM6(listener));

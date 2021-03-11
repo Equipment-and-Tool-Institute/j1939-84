@@ -4,7 +4,6 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.utils.CollectionUtils;
 
 /**
@@ -27,7 +26,7 @@ public class EngineSpeedPacket extends GenericPacket {
     private final double engineSpeed;
 
     public EngineSpeedPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+        super(packet);
         engineSpeed = getScaledShortValue(3, 8.0);
     }
 
