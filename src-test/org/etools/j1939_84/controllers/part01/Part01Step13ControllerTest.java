@@ -186,9 +186,6 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                                                                                                 packet21);
         when(diagnosticMessageModule.requestDM5(any())).thenReturn(globalRequestResponse);
 
-        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse)))
-                                                                                                           .thenReturn(true);
-
         when(dataRepository.getObdModuleAddresses()).thenReturn(List.of());
 
         runTest();
@@ -197,7 +194,7 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule).requestDM5(any());
 
-        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
+        verify(sectionA6Validator).verify(any(), eq("6.1.13.2.a"), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
         String expectedVehicleComposite = NL + "Vehicle Composite of DM5:" + NL +
@@ -248,9 +245,6 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                                                                                 Optional.empty());
         when(diagnosticMessageModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
 
-        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
-                                                                                                                       false);
-
         when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x21));
 
         runTest();
@@ -282,7 +276,8 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.1.13.4.b. - OBD module Body Controller (33) did not provide a response to Global query and did not provide a NACK for the DS query");
-        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
+
+        verify(sectionA6Validator).verify(any(), eq("6.1.13.2.a"), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -351,8 +346,6 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                                                                  .thenReturn(new BusResult<>(false, packet21V2));
         when(diagnosticMessageModule.requestDM5(any(), eq(0x23)))
                                                                  .thenReturn(new BusResult<>(false, packet23));
-
-        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalResponse))).thenReturn(false);
 
         when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x21, 0x23));
 
@@ -437,7 +430,7 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.13.4.b. - OBD module Hitch Control (35) did not provide a response to Global query and did not provide a NACK for the DS query");
 
-        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalResponse));
+        verify(sectionA6Validator).verify(any(), eq("6.1.13.2.a"), eq(globalResponse));
 
         assertEquals("", listener.getMessages());
         String expectedVehicleComposite = NL + "Vehicle Composite of DM5:" + NL +

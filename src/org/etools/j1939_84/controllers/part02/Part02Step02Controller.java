@@ -44,7 +44,7 @@ public class Part02Step02Controller extends StepController {
              new VehicleInformationModule(),
              new DiagnosticMessageModule(),
              DateTimeModule.getInstance(),
-             new SectionA6Validator(dataRepository),
+             new SectionA6Validator(dataRepository, PART_NUMBER, STEP_NUMBER),
              dataRepository);
     }
 
@@ -93,7 +93,7 @@ public class Part02Step02Controller extends StepController {
             addFailure("6.2.2.1.a - Global DM5 request did not receive any response packets");
         }
         // 6.2.2.2.a. Fail/warn per the section A.6 Criteria for Readiness 1 Evaluation.27
-        sectionA6Validator.verify(getListener(), getPartNumber(), getStepNumber(), globalDM5Result);
+        sectionA6Validator.verify(getListener(), "6.2.2.2.a", globalDM5Result);
 
         // 6.2.2.2.b. Fail if any OBD ECU reports active DTC count not = 0.
         obdGlobalPackets.stream()

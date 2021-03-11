@@ -32,52 +32,42 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 
 public class J1939DaRepository {
-    static class ParseError extends Exception {
+
+    private static class ParseError extends Exception {
         public ParseError(String string) {
             super(string);
         }
-
     }
 
-    final private static J1939DaRepository instance = new J1939DaRepository();
-    private static Map<Integer, PgnDefinition> pgnLut;
-    /**
-     * The Map of SLOT ID to Slot for lookups
-     */
-    private static Map<Integer, Slot> slots;
-    private static Map<Integer, SpnDefinition> spnLut;
+    private static final J1939DaRepository instance = new J1939DaRepository();
 
-    private static Map<Integer, Set<Integer>> spnToPgnMap = null;
+    private Map<Integer, Slot> slots;
 
-    public static Slot findSlot(int slotId, int spn) {
-        if (slots == null) {
-            slots = loadSlots();
-        }
-        Slot slot = slots.get(slotId);
-        if (slot == null) {
-            slot = slots.get(-spn);
-        }
-        if (slot == null) {
-            if (slotId != -1) {
-                getLogger().log(Level.INFO, "Unable to find SLOT " + slotId);
-            }
-            return new Slot(slotId, "Unknown", "UNK", 1.0, 0.0, null, 0);
-        }
-        return slot;
+    private Map<Integer, PgnDefinition> pgnLut;
+
+    private Map<Integer, SpnDefinition> spnLut;
+
+    private Map<Integer, Set<Integer>> spnToPgnMap = null;
+
+    private J1939DaRepository() {
     }
 
     public static J1939DaRepository getInstance() {
         return instance;
     }
 
-    static private void loadLookUpTables() {
+    public static Slot findSlot(int slotId, int spn) {
+        return getInstance().findSLOT(slotId, spn);
+    }
+
+    private synchronized void loadLookUpTables() {
         if (pgnLut == null) {
             // parse the selected columns from J1939DA. The source data is
             // unaltered, so some processing is required to convert byte.bit
             // specifications into ints.
-            final InputStream is = new SequenceInputStream(Resources.class.getResourceAsStream("j1939da-extract.csv"),
+            InputStream is = new SequenceInputStream(Resources.class.getResourceAsStream("j1939da-extract.csv"),
                                                            Resources.class.getResourceAsStream("j1939da-addendum.csv"));
-            final InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
+            InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
             try (CSVReader reader = new CSVReaderBuilder(isReader).withSkipLines(2).build()) {
                 // collect spns under the pgn
                 Collection<Object[]> table = StreamSupport.stream(reader.spliterator(), false)
@@ -153,7 +143,7 @@ public class J1939DaRepository {
                               .map(row -> ((SpnDefinition) row[1]))
                               .filter(Objects::nonNull)
                               // prefer the spn with a star byte over the one without
-                              .sorted(Comparator.comparing(s -> s.getStartByte()))
+                              .sorted(Comparator.comparing(SpnDefinition::getStartByte))
                               .collect(Collectors.toMap(SpnDefinition::getSpnId, s -> s, (a, b) -> b));
 
                 pgnLut = table.stream()
@@ -171,7 +161,7 @@ public class J1939DaRepository {
                                                                                                   b
                                                                                                    .getSpnDefinitions()
                                                                                                    .stream())
-                                                                                          .map(s -> s.getSpnId())
+                                                                                          .map(SpnDefinition::getSpnId)
                                                                                           .distinct()
                                                                                           .map(id -> spnLut.get(id))
                                                                                           .sorted(Comparator
@@ -190,7 +180,7 @@ public class J1939DaRepository {
                     }
                 }
             } catch (Exception e) {
-                getLogger().log(Level.SEVERE, "Error loading J1939DA data.", e);
+                logError("Error loading J1939DA data.", e);
                 throw new RuntimeException("Unable to load J1939DA", e);
             }
         }
@@ -201,39 +191,41 @@ public class J1939DaRepository {
      *
      * @return Map of SLOT ID to Slot
      */
-    private static Map<Integer, Slot> loadSlots() {
+    private Map<Integer, Slot> loadSlots() {
         Map<Integer, Slot> slots = new HashMap<>();
         String[] values;
 
-        final InputStream is = new SequenceInputStream(Resources.class.getResourceAsStream("j1939da-slots.csv"),
+        InputStream is = new SequenceInputStream(Resources.class.getResourceAsStream("j1939da-slots.csv"),
                                                        Resources.class.getResourceAsStream("j1939da-slots-addendum.csv"));
-        final InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.UTF_8);
+        InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.UTF_8);
         try (CSVReader reader = new CSVReaderBuilder(isReader)
                                                               .withSkipLines(2)
                                                               .build()) {
             while ((values = reader.readNext()) != null) {
                 if (values.length > 1 && !values[0].startsWith(";")) {
                     try {
-                        final int id = Integer.parseInt(values[0]);
-                        final String name = values[1];
-                        final String type = values[2];
-                        final Double scaling = Double.parseDouble(values[3]);
-                        final String unit = values[4];
-                        final Double offset = Double.parseDouble(values[5]);
-                        final int length = Integer.parseInt(values[6]);
+                        int id = Integer.parseInt(values[0]);
+                        String name = values[1];
+                        String type = values[2];
+                        Double scaling = Double.parseDouble(values[3]);
+                        String unit = values[4];
+                        Double offset = Double.parseDouble(values[5]);
+                        int length = Integer.parseInt(values[6]);
                         Slot slot = new Slot(id, name, type, scaling, offset, unit, length);
                         slots.put(id, slot);
                     } catch (Exception e) {
-                        getLogger().log(Level.SEVERE,
-                                        "Error loading slot:" + Arrays.asList(values),
-                                        e);
+                        logError("Error loading slot:" + Arrays.asList(values), e);
                     }
                 }
             }
         } catch (Exception e) {
-            getLogger().log(Level.SEVERE, "Error loading map from slots", e);
+            logError("Error loading map from slots", e);
         }
         return slots;
+    }
+
+    private void logError(String s, Exception e) {
+        getLogger().log(Level.SEVERE, s, e);
     }
 
     static private int parseTransmissionRate(String transmissionRate) throws ParseError {
@@ -414,7 +406,21 @@ public class J1939DaRepository {
     }
 
     public Slot findSLOT(int id, int spn) {
-        return findSlot(id, spn);
+        if (slots == null) {
+            slots = loadSlots();
+        }
+
+        Slot slot = slots.get(id);
+        if (slot == null) {
+            slot = slots.get(-spn);
+        }
+        if (slot == null) {
+            if (id != -1) {
+                getLogger().log(Level.INFO, "Unable to find SLOT " + id);
+            }
+            return new Slot(id, "Unknown", "UNK", 1.0, 0.0, null, 0);
+        }
+        return slot;
     }
 
     public SpnDefinition findSpnDefinition(int spn) {

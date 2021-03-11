@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The {@link ParsedPacket} for Diagnostic Trouble Code to Lamp Associations
@@ -26,7 +25,7 @@ public class DM31DtcToLampAssociation extends GenericPacket {
     private List<DTCLampStatus> dtcLampStatuses;
 
     public DM31DtcToLampAssociation(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+        super(packet);
     }
 
     public static DM31DtcToLampAssociation create(int sourceAddress, DTCLampStatus... lampStatuses) {
@@ -82,7 +81,7 @@ public class DM31DtcToLampAssociation extends GenericPacket {
      * Parses the packet to populate all the member variables
      */
     private void parsePacket() {
-        final int length = getPacket().getLength();
+        int length = getPacket().getLength();
         dtcLampStatuses = new ArrayList<>();
         for (int i = 0; i + 6 <= length; i = i + 6) {
             if (getPacket().get32(0) != 0) {

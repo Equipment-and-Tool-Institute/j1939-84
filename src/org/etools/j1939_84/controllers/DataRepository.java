@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 
@@ -23,7 +22,6 @@ public class DataRepository {
      * Map of OBD Module Source Address to {@link OBDModuleInformation}
      */
     private final Map<Integer, OBDModuleInformation> obdModules = new HashMap<>();
-    private boolean isAfterCodeClear;
     private double koeoEngineReferenceTorque;
     private VehicleInformation vehicleInformation;
     private long part11StartTime;
@@ -89,23 +87,12 @@ public class DataRepository {
         this.vehicleInformation = vehicleInformation;
     }
 
-    /**
-     * Flag tracking DM11 code clear was sent {@link DM11ClearActiveDTCsPacket}
-     */
-    public boolean isAfterCodeClear() {
-        return isAfterCodeClear;
-    }
-
     public boolean isObdModule(int sourceAddress) {
         return obdModules.containsKey(sourceAddress);
     }
 
     public void putObdModule(OBDModuleInformation obdModuleInformation) {
         obdModules.put(obdModuleInformation.getSourceAddress(), obdModuleInformation);
-    }
-
-    public void setIsAfterCodeClear(boolean isAfterCodeClear) {
-        this.isAfterCodeClear = isAfterCodeClear;
     }
 
     public long getPart11StartTime() {

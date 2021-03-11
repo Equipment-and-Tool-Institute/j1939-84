@@ -43,7 +43,7 @@ public class Part01Step13Controller extends StepController {
              new VehicleInformationModule(),
              new DiagnosticMessageModule(),
              dataRepository,
-             new SectionA6Validator(dataRepository),
+             new SectionA6Validator(dataRepository, PART_NUMBER, STEP_NUMBER),
              DateTimeModule.getInstance());
     }
 
@@ -92,7 +92,7 @@ public class Part01Step13Controller extends StepController {
         }
 
         // 6.1.13.2.a. Fail/warn per section A.6, Criteria for Readiness 1 Evaluation
-        sectionA6Validator.verify(getListener(), getPartNumber(), getStepNumber(), response);
+        sectionA6Validator.verify(getListener(), "6.1.13.2.a", response);
 
         // 6.1.13.2.b. Fail if any OBD ECU reports active DTCs count not = 0.
         obdGlobalPackets.stream()

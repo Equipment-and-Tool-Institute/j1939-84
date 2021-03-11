@@ -65,6 +65,7 @@ public class Part12Step09Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
+        verifier.setJ1939(getJ1939());
         // 6.12.9.1.a. DS DM11 [send Request (PGN 59904) for PGN 65235] to each OBD ECU.
         var dsPackets = getDataRepository().getObdModuleAddresses()
                                            .stream()

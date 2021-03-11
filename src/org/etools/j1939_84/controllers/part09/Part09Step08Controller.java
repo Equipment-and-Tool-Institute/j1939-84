@@ -63,6 +63,7 @@ public class Part09Step08Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
+        verifier.setJ1939(getJ1939());
 
         // 6.9.8.1.a DS DM11 [(send Request (PGN 59904) for PGN 65235]) to each OBD ECU without DM12 active MIL on DTC,
         // based on the list created in step 6.9.2.1.

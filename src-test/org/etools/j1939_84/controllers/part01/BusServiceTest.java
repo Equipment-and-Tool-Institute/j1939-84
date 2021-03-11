@@ -57,7 +57,7 @@ public class BusServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        J1939DaRepository j1939DaRepository = new J1939DaRepository();
+        J1939DaRepository j1939DaRepository = J1939DaRepository.getInstance();
         instance = new BusService(j1939DaRepository);
         instance.setup(j1939, listener);
     }

@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.Lookup;
 
 /**
@@ -46,7 +45,7 @@ public class AddressClaimPacket extends GenericPacket {
      *                   the {@link Packet} to parse
      */
     public AddressClaimPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+        super(packet);
 
         source = Lookup.getAddressName(getSourceAddress());
         int identityNumber = (packet.get(0) & 0xFF) + ((packet.get(1) & 0xFF) << 8) + ((packet.get(2) & 0x1F) << 16);

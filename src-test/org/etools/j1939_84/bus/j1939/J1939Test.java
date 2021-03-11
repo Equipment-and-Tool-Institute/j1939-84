@@ -440,7 +440,7 @@ public class J1939Test {
         assertEquals(0, response.getPackets().size());
         /* verify there is an error */
         assertTrue(listener.getResults()
-                           .matches("(?s).*Error: Timeout - No Response\\..*"));
+                           .matches("(?s).*Timeout - No Response.*"));
     }
 
     /** Request the VIN without a delay and verify no warning. */

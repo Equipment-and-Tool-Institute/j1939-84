@@ -106,8 +106,10 @@ public class J1939 {
 
     private static final String LATE_BAM_RESPONSE = "Warning: Late BAM response: ";
 
-    private static final String TIMEOUT_MESSAGE = "Error: Timeout - No Response.";
+    private static final String TIMEOUT_MESSAGE = "Timeout - No Response";
+
     private final Bus bus;
+
     private int warnings;
 
     public J1939() {
@@ -712,17 +714,7 @@ public class J1939 {
             throw new IllegalArgumentException("DM7 request to global.");
         }
 
-        Packet request = Packet.create(DM7CommandTestsPacket.PGN | address,
-                                       getBusAddress(),
-                                       true,
-                                       tid,
-                                       spn & 0xFF,
-                                       (spn >> 8) & 0xFF,
-                                       (((spn >> 16) & 0xFF) << 5) | (fmi & 0x1F),
-                                       0xFF,
-                                       0xFF,
-                                       0xFF,
-                                       0xFF);
+        Packet request = DM7CommandTestsPacket.create(getBusAddress(), address, tid, spn, fmi).getPacket();
 
         String title = "Sending DM7 for DM30 to " + Lookup.getAddressName(address) + " for SPN " + spn;
         listener.onResult(getDateTimeModule().getTime() + " " + title);

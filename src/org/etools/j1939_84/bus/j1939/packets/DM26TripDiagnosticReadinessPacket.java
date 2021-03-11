@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The {@link ParsedPacket} for Trip Diagnostic Readiness (DM26)
@@ -17,7 +16,7 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
  */
 public class DM26TripDiagnosticReadinessPacket extends DiagnosticReadinessPacket {
 
-    public static final int PGN = 64952;
+    public static final int PGN = 64952; // 0xFDB8
 
     public static DM26TripDiagnosticReadinessPacket create(int address, int secondsSCC, int warmUpsSCC) {
         return DM26TripDiagnosticReadinessPacket.create(address, secondsSCC, warmUpsSCC, List.of(), List.of());
@@ -46,7 +45,7 @@ public class DM26TripDiagnosticReadinessPacket extends DiagnosticReadinessPacket
     private final byte warmUps;
 
     public DM26TripDiagnosticReadinessPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+        super(packet);
         warmUps = getByte(2);
         timeRunning = getScaledShortValue(0, 1.0);
     }

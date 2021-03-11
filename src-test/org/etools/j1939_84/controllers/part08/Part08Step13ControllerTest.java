@@ -146,6 +146,8 @@ public class Part08Step13ControllerTest extends AbstractControllerTest {
 
         runTest();
 
+        verify(verifier).setJ1939(j1939);
+
         verify(diagnosticMessageModule).requestDM3(any(), eq(0));
         verify(diagnosticMessageModule).requestDM3(any());
 
@@ -179,6 +181,8 @@ public class Part08Step13ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM3(any(), eq(1))).thenReturn(List.of());
 
         runTest();
+
+        verify(verifier).setJ1939(j1939);
 
         verify(diagnosticMessageModule).requestDM3(any(), eq(0));
         verify(diagnosticMessageModule).requestDM3(any(), eq(1));

@@ -8,7 +8,6 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.utils.StringUtils.stripLeadingAndTrailingNulls;
 
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.model.ComponentIdentification;
 
 /**
@@ -38,7 +37,7 @@ public class ComponentIdentificationPacket extends GenericPacket {
      *                   the {@link Packet} to parse
      */
     public ComponentIdentificationPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+        super(packet);
         String str = new String(packet.getBytes());
         String[] array = str.split("\\*", -1);
         for (int i = 0; i < 4 && i < array.length; i++) {

@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static org.etools.j1939_84.model.Outcome.FAIL;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,7 +17,6 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.ExpectedTestResult;
-import org.etools.j1939_84.model.Outcome;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
@@ -50,8 +51,8 @@ public class TableA7Validator {
                          1,
                          etr(651, 7),
                          etr(651, 18),
-                         etr(5358, 16),
-                         etr(1413, 16)));
+                         etr(5358, 18),
+                         etr(1413, 18)));
         rows.add(new Row("% of misfire", 1, etr(1323, 31)));
         rows.add(new Row("% of misfire", 1, etr(1324, 31)));
         rows.add(new Row("% of misfire", 1, etr(1325, 31)));
@@ -170,10 +171,16 @@ public class TableA7Validator {
         public boolean validate(Collection<ScaledTestResult> actualTestResults, ResultsListener listener) {
             boolean isValid = rowValidator.isValid(actualTestResults, expectedTestResults, minimumContains);
             if (!isValid) {
-                listener.addOutcome(PART_NUMBER,
-                                    STEP_NUMBER,
-                                    Outcome.FAIL,
-                                    monitorName + " is missing required Test Result");
+                var list = expectedTestResults.stream()
+                                              .map(r -> r.getSpn() + ":" + r.getFmi())
+                                              .collect(Collectors.joining(", "));
+                String message = "6.1.12.2.a (A7.2.a) - " + monitorName + " is missing required Test Result";
+                if (expectedTestResults.size() > 1) {
+                    message = message + ", one of: " + list;
+                } else {
+                    message = message + ": " + list;
+                }
+                listener.addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, message);
             }
             return isValid;
         }

@@ -61,7 +61,7 @@ public class TableA1Validator {
     public TableA1Validator(DataRepository dataRepository, int partNumber, int stepNumber) {
         this(new TableA1ValueValidator(dataRepository),
              dataRepository,
-             new J1939DaRepository(),
+             J1939DaRepository.getInstance(),
              partNumber,
              stepNumber);
     }

@@ -157,6 +157,8 @@ public class Part09Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
+        verify(verifier).setJ1939(j1939);
+
         verify(diagnosticMessageModule).requestDM11(any(), eq(0));
         verify(diagnosticMessageModule).requestDM11(any(), eq(1));
         verify(diagnosticMessageModule).requestDM11(any());
@@ -185,6 +187,8 @@ public class Part09Step08ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM11(any())).thenReturn(List.of(nack_0, nack_1));
 
         runTest();
+
+        verify(verifier).setJ1939(j1939);
 
         verify(diagnosticMessageModule).requestDM11(any(), eq(0));
         verify(diagnosticMessageModule).requestDM11(any());
@@ -215,6 +219,8 @@ public class Part09Step08ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM11(any())).thenReturn(List.of(ack_0, ack_1));
 
         runTest();
+
+        verify(verifier).setJ1939(j1939);
 
         verify(diagnosticMessageModule).requestDM11(any(), eq(0));
         verify(diagnosticMessageModule).requestDM11(any());

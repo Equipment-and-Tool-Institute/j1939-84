@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * Parses the SPN Support (DM24) Packet
@@ -26,7 +25,7 @@ public class DM24SPNSupportPacket extends GenericPacket {
     private List<SupportedSPN> freezeFrameSPNs;
 
     public DM24SPNSupportPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+        super(packet);
     }
 
     public static DM24SPNSupportPacket create(int source, SupportedSPN... spns) {
@@ -100,9 +99,9 @@ public class DM24SPNSupportPacket extends GenericPacket {
     public List<SupportedSPN> getFreezeFrameSPNsInOrder() {
         if (freezeFrameSPNs == null) {
             freezeFrameSPNs = new ArrayList<>();
-            final int length = getPacket().getLength();
+            int length = getPacket().getLength();
             for (int i = 0; i + 3 < length; i = i + 4) {
-                final SupportedSPN parsedSpn = parseSpn(i);
+                SupportedSPN parsedSpn = parseSpn(i);
                 if (parsedSpn.getSpn() != 0 && parsedSpn.supportsExpandedFreezeFrame()) {
                     freezeFrameSPNs.add(parsedSpn);
                 }
@@ -115,9 +114,9 @@ public class DM24SPNSupportPacket extends GenericPacket {
      * Parses the packet to populate all the {@link SupportedSPN}s
      */
     private void parsePacket() {
-        final int length = getPacket().getLength();
+        int length = getPacket().getLength();
         for (int i = 0; i + 3 < length; i = i + 4) {
-            final SupportedSPN parsedSpn = parseSpn(i);
+            SupportedSPN parsedSpn = parseSpn(i);
             if (parsedSpn.getSpn() != 0) {
                 spns.add(parsedSpn);
             }

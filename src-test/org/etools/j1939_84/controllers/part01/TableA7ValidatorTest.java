@@ -140,7 +140,7 @@ public class TableA7ValidatorTest {
         verify(listener).addOutcome(PART_NUMBER,
                                     STEP_NUMBER,
                                     FAIL,
-                                    "Fuel system pressure control low is missing required Test Result");
+                                    "6.1.12.2.a (A7.2.a) - Fuel system pressure control low is missing required Test Result, one of: 157:18, 164:18, 3055:18");
     }
 
     @Test

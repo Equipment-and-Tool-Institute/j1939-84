@@ -5,7 +5,6 @@ import java.util.Arrays;
 
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.utils.CollectionUtils;
 
 public class DM56EngineFamilyPacket extends GenericPacket {
@@ -28,7 +27,7 @@ public class DM56EngineFamilyPacket extends GenericPacket {
     private String modelYear = null;
 
     public DM56EngineFamilyPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+        super(packet);
     }
 
     public Integer getEngineModelYear() {

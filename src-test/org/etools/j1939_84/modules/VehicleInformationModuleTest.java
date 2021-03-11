@@ -464,7 +464,7 @@ public class VehicleInformationModuleTest {
 
         String expected = "10:15:30.0000 Global VIN Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] EC FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         List<VehicleIdentificationPacket> packets = instance.reportVin(listener);
         assertEquals(0, packets.size());
