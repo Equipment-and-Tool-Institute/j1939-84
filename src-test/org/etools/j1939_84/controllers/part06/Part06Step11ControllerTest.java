@@ -205,9 +205,7 @@ public class Part06Step11ControllerTest extends AbstractControllerTest {
                 + NL;
         expectedMessages += "Step 6.6.11.1.b - Waiting manufacturer’s recommended interval with the key in the off position"
                 + NL;
-        expectedMessages += "6.6.11.1.c Turn the ignition key in the on position" + NL;
-        // expectedMessages += "Waiting for Key ON/Engine OFF..." + NL;
-        // expectedMessages += "Waiting for Key ON/Engine OFF..." + NL;
+        expectedMessages += "Step 6.6.11.1.c - Turn the ignition key in the on position" + NL;
         expectedMessages += "Step 6.6.11.g - Waiting manufacturer’s recommended interval with the key in the off position";
         assertEquals(expectedMessages, listener.getMessages());
 
@@ -234,12 +232,6 @@ public class Part06Step11ControllerTest extends AbstractControllerTest {
                                                          KEY_ON_ENGINE_RUNNING);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs", "500.0 RPMs");
 
-        // new Timer().schedule(new TimerTask() {
-        // @Override
-        // public void run() {
-        // when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_ON);
-        // }
-        // }, 750);
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
 
         runTest();
@@ -299,9 +291,7 @@ public class Part06Step11ControllerTest extends AbstractControllerTest {
                 + NL;
         expectedMessages += "Step 6.6.11.1.b - Waiting manufacturer’s recommended interval with the key in the off position"
                 + NL;
-        expectedMessages += "6.6.11.1.c Turn the ignition key in the on position" + NL;
-        // expectedMessages += "Waiting for Key ON/Engine OFF..." + NL;
-        // expectedMessages += "Waiting for Key ON/Engine OFF..." + NL;
+        expectedMessages += "Step 6.6.11.1.c - Turn the ignition key in the on position" + NL;
         expectedMessages += "Step 6.6.11.g - Waiting manufacturer’s recommended interval with the key in the off position"
                 + NL;
         expectedMessages += "User cancelled testing at Part 6 Step 11";
@@ -382,7 +372,7 @@ verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                 + NL;
         expectedMessages += "Step 6.6.11.1.b - Waiting manufacturer’s recommended interval with the key in the off position"
                 + NL;
-        expectedMessages += "6.6.11.1.c Turn the ignition key in the on position" + NL;
+        expectedMessages += "Step 6.6.11.1.c - Turn the ignition key in the on position" + NL;
         expectedMessages += "Waiting for Key OFF..." + NL;
         expectedMessages += "Waiting for Key OFF..." + NL;
         expectedMessages += "Waiting for Key OFF..." + NL;

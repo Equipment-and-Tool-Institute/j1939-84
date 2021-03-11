@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part08;
 
-import static java.lang.String.format;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.KeyState.KEY_OFF;
@@ -63,37 +62,33 @@ public class Part08Step16Controller extends StepController {
         ensureKeyStateIs(KEY_OFF);
 
         // 6.8.16.1.b Wait manufacturer's recommended interval.
-        waitForManufacturerInterval("6.8.16.1.b", KEY_OFF);
+        waitForManufacturerInterval("Step 6.8.16.1.b", KEY_OFF);
 
         // 6.8.16.1.c With the key in the off position remove the implanted Fault B, according to the manufacturer’s
         // instructions for restoring the system to a fault- free operating condition.
-        waitForFault("6.8.16.1.c");
+        waitForFaultRemoval();
 
         // 6.8.16.1.d Turn the ignition key to the ON position.
         ensureKeyStateIs(KEY_ON_ENGINE_OFF);
 
         // 6.8.16.1.e Do not start engine.
         // 6.8.16.1.f Proceed with part 9.
-        displayDoNotStartEngine("6.8.16.1.e & f");
+        displayDoNotStartEngine();
     }
 
-    private void waitForFault(String stepId) throws InterruptedException {
-        incrementProgress(format("%s - With the key in the off position remove the implanted Fault B, according to the manufacturer’s"
-                + NL + "instructions for restoring the system to a fault- free operating condition.",
-                                 stepId));
-        String message = "With the key in the off position remove the implanted Fault B, according to the manufacturer’s"
+    private void waitForFaultRemoval() throws InterruptedException {
+        incrementProgress("Step 6.8.16.1.c - With Key OFF, remove the implanted Fault B");
+        String message = "Step 6.8.16.1.c - With the key in the off position remove the implanted Fault B, according to the manufacturer’s"
                 + NL + "instructions for restoring the system to a fault- free operating condition." + NL;
         message += "Press OK to continue the testing.";
-        displayInstructionAndWait(message, stepId, WARNING);
+        displayInstructionAndWait(message, "Test 6.8.16", WARNING);
     }
 
-    private void displayDoNotStartEngine(String stepId) throws InterruptedException {
-        incrementProgress(format("%s - Do Not Start Engine - proceeding with part 9",
-                                 stepId));
-        String message = "Do Not Start Engine." + NL;
-        message += "Proceeding with part 9." + NL;
+    private void displayDoNotStartEngine() throws InterruptedException {
+        incrementProgress("Step 6.8.16.1.e & f - Do Not Start Engine - proceeding with part 9");
+        String message = "Step 6.8.16.1.e - Do Not Start Engine." + NL;
+        message += "Step 6.8.16.1.f - Proceeding with part 9." + NL;
         message += "Press OK to continue the testing.";
-        displayInstructionAndWait(message, stepId, WARNING);
+        displayInstructionAndWait(message, "Test 6.8.16", WARNING);
     }
-
 }

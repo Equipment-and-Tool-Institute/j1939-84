@@ -232,11 +232,11 @@ public class AbstractPartControllerTest {
         StringBuilder expectedMessages = new StringBuilder();
         for (int i = 1; i <= stepControllers.size(); i++) {
             expectedMessages.append(NL)
-                            .append("Step ")
+                            .append("Test ")
                             .append(partNumber)
                             .append(".")
                             .append(i)
-                            .append(". ")
+                            .append(" ")
                             .append(Lookup.getStepName(partNumber, i));
         }
         assertEquals(expectedMessages.toString(), listener.getMessages());
@@ -245,20 +245,20 @@ public class AbstractPartControllerTest {
         for (int i = 1; i <= stepControllers.size(); i++) {
             String stepName = Lookup.getStepName(partNumber, i);
             expectedResults.append(NL)
-                           .append("Start Step ")
+                           .append("Start Test ")
                            .append(partNumber)
                            .append(".")
                            .append(i)
-                           .append(". ")
+                           .append(" ")
                            .append(stepName)
                            .append(NL)
                            .append(NL)
                            .append(NL);
-            expectedResults.append("End Step ")
+            expectedResults.append("End Test ")
                            .append(partNumber)
                            .append(".")
                            .append(i)
-                           .append(". ")
+                           .append(" ")
                            .append(stepName)
                            .append(NL);
         }

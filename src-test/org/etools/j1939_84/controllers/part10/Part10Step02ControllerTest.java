@@ -162,10 +162,10 @@ public class Part10Step02ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Wait for manufacturer’s recommended time for Fault B to be detected as passed."
+        String urgentMessages = "Step 6.10.2.1.a - Wait for manufacturer’s recommended time for Fault B to be detected as passed."
                 + NL;
         urgentMessages += "Press OK to continue the testing.";
-        String expectedTitle = "Step 6.10.2.1.a";
+        String expectedTitle = "Test 6.10.2";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq(expectedTitle),
                                              eq(WARNING),
@@ -193,12 +193,12 @@ public class Part10Step02ControllerTest extends AbstractControllerTest {
                                                            "Step 6.10.2.1.a - Waiting for manufacturer’s recommended time for Fault B to be detected as passed"
                                                                    + NL);
         for (int i = 120; i > 0; i--) {
-            expectedMessages.append(format("Step 6.10.2.1.b Waiting %1$d seconds", i)).append(NL);
+            expectedMessages.append(format("Step 6.10.2.1.b - Waiting %1$d seconds", i)).append(NL);
         }
         expectedMessages.append("Waiting for Key OFF...").append(NL);
         expectedMessages.append("Waiting for Key OFF...").append(NL);
         for (int i = 60; i > 0; i--) {
-            expectedMessages.append(format("Step 6.10.2.1.d Waiting %1$d seconds", i)).append(NL);
+            expectedMessages.append(format("Step 6.10.2.1.d - Waiting %1$d seconds", i)).append(NL);
         }
         expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
         expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
@@ -243,10 +243,10 @@ public class Part10Step02ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Wait for manufacturer’s recommended time for Fault B to be detected as passed."
+        String urgentMessages = "Step 6.10.2.1.a - Wait for manufacturer’s recommended time for Fault B to be detected as passed."
                 + NL;
         urgentMessages += "Press OK to continue the testing.";
-        String expectedTitle = "Step 6.10.2.1.a";
+        String expectedTitle = "Test 6.10.2";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq(expectedTitle),
                                              eq(WARNING),
@@ -274,12 +274,12 @@ public class Part10Step02ControllerTest extends AbstractControllerTest {
         StringBuilder expectedMessages = new StringBuilder("Step 6.10.2.1.a - Waiting for manufacturer’s recommended time for Fault B to be detected as passed"
                 + NL);
         for (int i = 120; i > 0; i--) {
-            expectedMessages.append(format("Step 6.10.2.1.b Waiting %1$d seconds", i)).append(NL);
+            expectedMessages.append(format("Step 6.10.2.1.b - Waiting %1$d seconds", i)).append(NL);
         }
         expectedMessages.append("Waiting for Key OFF...").append(NL);
         expectedMessages.append("Waiting for Key OFF...").append(NL);
         for (int i = 60; i > 0; i--) {
-            expectedMessages.append(format("Step 6.10.2.1.d Waiting %1$d seconds", i)).append(NL);
+            expectedMessages.append(format("Step 6.10.2.1.d - Waiting %1$d seconds", i)).append(NL);
         }
         expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
         expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);

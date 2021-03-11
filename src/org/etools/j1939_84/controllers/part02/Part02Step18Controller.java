@@ -78,7 +78,7 @@ public class Part02Step18Controller extends StepController {
     private void waitForFaultA() {
         String message = "Implant Fault A according to engine manufacturer’s instruction" + NL;
         message += "Press OK to continue testing" + NL;
-        displayInstructionAndWait(message, "Part 6.2.18.1.b", WARNING);
+        displayInstructionAndWait(message, "Step 6.2.18.1.b", WARNING);
     }
 
     private void waitForEngineStart() {
@@ -86,7 +86,7 @@ public class Part02Step18Controller extends StepController {
         message += "Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster" + NL;
         message += "Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished" + NL;
         message += "Press OK to continue testing" + NL;
-        displayInstructionAndWait(message, "Part 6.2.18.1.c-e", WARNING);
+        displayInstructionAndWait(message, "Step 6.2.18.1.c-e", WARNING);
     }
 
 }
