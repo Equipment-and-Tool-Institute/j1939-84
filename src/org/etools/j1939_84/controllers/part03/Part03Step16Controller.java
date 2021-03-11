@@ -86,12 +86,12 @@ public class Part03Step16Controller extends StepController {
 
     private void waitForEngineStart() {
         if (!isDevEnv()) {
-            String message = "6.3.16.1.d - Turn ignition key to the ON position." + NL;
-            message += "6.3.16.1.e - Observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster."
+            String message = "Step 6.3.16.1.d - Turn ignition key to the ON position." + NL;
+            message += "Step 6.3.16.1.e - Observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster."
                     + NL;
-            message += "6.3.16.1.f - Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished."
+            message += "Step 6.3.16.1.f - Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished."
                     + NL;
-            message += "6.3.16.1.g - Wait as indicated by the engine manufacturer’s recommendations for Fault A."
+            message += "Step 6.3.16.1.g - Wait as indicated by the engine manufacturer’s recommendations for Fault A."
                     + NL;
             message += "Press OK to continue testing.";
             displayInstructionAndWait(message, "Step 6.3.16.1.d - g", WARNING);

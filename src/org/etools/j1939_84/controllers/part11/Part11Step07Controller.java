@@ -5,7 +5,7 @@ package org.etools.j1939_84.controllers.part11;
 
 import static java.lang.String.format;
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.controllers.ResultsListener.MessageType.INFO;
+import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -124,8 +124,8 @@ public class Part11Step07Controller extends StepController {
 
         String msg = "";
         msg += "Please increase engine speed over 1150 rpm for a minimum of %1$d seconds" + NL;
-        msg += "Press OK to begin";
-        displayInstructionAndWait(format(msg, TOTAL_TIME_AT_SPEED), "Step 6.11.7.1.c", INFO);
+        msg += "Press OK to continue";
+        displayInstructionAndWait(format(msg, TOTAL_TIME_AT_SPEED), "Step 6.11.7.1.c", WARNING);
 
         long secondsToGo = TOTAL_TIME_AT_SPEED;
         String message = "Increase engine speed over 1150 rpm for %1$d seconds";
@@ -144,7 +144,7 @@ public class Part11Step07Controller extends StepController {
         msg2 += "Please reduce engine speed back to idle" + NL;
         msg2 += "Test will continue for an additional %1$d seconds" + NL;
         msg2 += "Press OK to continue";
-        displayInstructionAndWait(format(msg2, calculateSecondsRemaining()), "Step 6.11.7.1.f", INFO);
+        displayInstructionAndWait(format(msg2, calculateSecondsRemaining()), "Step 6.11.7.1.f", WARNING);
 
         // 6.11.7.4.a. Once 620 seconds of engine operation overall in part 11 have elapsed (including over 300 seconds
         // of engine operation over 1150 rpm), end periodic DM20 and DM28 and continue with test 6.11.8.

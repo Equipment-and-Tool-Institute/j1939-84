@@ -106,7 +106,7 @@ public class Part01Step27Controller extends StepController {
             message += "   Vehicles with the MIL on will fail subsequent tests." + NL + NL;
             message += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?"
                     + NL;
-            displayInstructionAndWait(message, "Start Part 2", QUESTION);
+            displayInstructionAndWait(message, "Test 6.1.27", QUESTION);
         }
     }
 }
