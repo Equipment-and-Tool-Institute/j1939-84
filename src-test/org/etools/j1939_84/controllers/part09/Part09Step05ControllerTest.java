@@ -131,11 +131,11 @@ public class Part09Step05ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPathNoFailures() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
-        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 5, 10);
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 5, 10);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
-        var dm21_1 = DM21DiagnosticReadinessPacket.create(1, 0, 0, 3, 11);
+        var dm21_1 = DM21DiagnosticReadinessPacket.create(1, 0, 0, 0, 3, 11);
         when(diagnosticMessageModule.requestDM21(any(), eq(1))).thenReturn(BusResult.of(dm21_1));
 
         dataRepository.putObdModule(new OBDModuleInformation(2));
@@ -156,7 +156,7 @@ public class Part09Step05ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDistanceSCC() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
-        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 1, 5, 10);
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 1, 5, 10);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
 
         runTest();
@@ -174,7 +174,7 @@ public class Part09Step05ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForTimeSCC() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
-        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 5, 0);
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 5, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
 
         runTest();
@@ -205,7 +205,7 @@ public class Part09Step05ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNoNACK() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
-        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 5, 1);
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 5, 1);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
@@ -227,11 +227,11 @@ public class Part09Step05ControllerTest extends AbstractControllerTest {
     @Test
     public void testWarningForTimeDifference() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
-        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 5, 10);
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 5, 10);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
-        var dm21_1 = DM21DiagnosticReadinessPacket.create(1, 0, 0, 3, 12);
+        var dm21_1 = DM21DiagnosticReadinessPacket.create(1, 0, 0, 0, 3, 12);
         when(diagnosticMessageModule.requestDM21(any(), eq(1))).thenReturn(BusResult.of(dm21_1));
 
         runTest();

@@ -25,7 +25,7 @@ public class DM33EmissionIncreasingAECDActiveTimeTest {
         EngineHoursTimer timer2 = EngineHoursTimer.create(2, 0xFE000000, 0xFF000000);
         EngineHoursTimer timer3 = EngineHoursTimer.create(3, 0xFE000000, 199468);
         EngineHoursTimer timer4 = EngineHoursTimer.create(4, 0xFE000000, 0xFF000000);
-        instance = DM33EmissionIncreasingAECDActiveTime.create(0, timer1, timer2, timer3, timer4);
+        instance = DM33EmissionIncreasingAECDActiveTime.create(0, 0, timer1, timer2, timer3, timer4);
     }
 
     @Test

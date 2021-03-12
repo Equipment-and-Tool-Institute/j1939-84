@@ -130,7 +130,7 @@ public class Part11Step06ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM29DtcCounts.create(0, 5, 4, 3, 2, 1), 11);
+        obdModuleInformation0.set(DM29DtcCounts.create(0, 0, 5, 4, 3, 2, 1), 11);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
@@ -168,7 +168,7 @@ public class Part11Step06ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferentNumberOfDTCs() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM29DtcCounts.create(0, 5, 4, 3, 2, 2), 11);
+        obdModuleInformation0.set(DM29DtcCounts.create(0, 0, 5, 4, 3, 2, 2), 11);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);

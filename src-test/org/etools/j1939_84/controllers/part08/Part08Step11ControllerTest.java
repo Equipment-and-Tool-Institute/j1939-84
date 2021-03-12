@@ -145,14 +145,14 @@ public class Part08Step11ControllerTest extends AbstractControllerTest {
         obdModuleInformation.setScaledTestResults(List.of(str1, str2));
         dataRepository.putObdModule(obdModuleInformation);
 
-        var dm30_1 = DM30ScaledTestResultsPacket.create(0, str1);
+        var dm30_1 = DM30ScaledTestResultsPacket.create(0, 0, str1);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
                                                         eq(247),
                                                         eq(spn1),
                                                         eq(31))).thenReturn(List.of(dm30_1));
 
-        var dm30_2 = DM30ScaledTestResultsPacket.create(0, str2);
+        var dm30_2 = DM30ScaledTestResultsPacket.create(0, 0, str2);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
                                                         eq(247),

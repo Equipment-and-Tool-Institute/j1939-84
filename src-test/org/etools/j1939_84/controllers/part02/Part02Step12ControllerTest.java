@@ -132,7 +132,7 @@ public class Part02Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoErrors() {
 
-        DM29DtcCounts packet1 = DM29DtcCounts.create(1, 0, 0, 0, 0, 0);
+        DM29DtcCounts packet1 = DM29DtcCounts.create(1, 0, 0, 0, 0, 0, 0);
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(1);
         obdModuleInformation.set(dm27(1), 1);
@@ -156,7 +156,7 @@ public class Part02Step12ControllerTest extends AbstractControllerTest {
         OBDModuleInformation module2 = new OBDModuleInformation(2);
         module2.set(dm27(2), 1);
         dataRepository.putObdModule(module2);
-        DM29DtcCounts packet2 = DM29DtcCounts.create(0x02, 0x00, 0x00, 0x04, 0x00, 0xFF);
+        DM29DtcCounts packet2 = DM29DtcCounts.create(0x02, 0, 0x00, 0x00, 0x04, 0x00, 0xFF);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(packet2));
         when(diagnosticMessageModule.requestDM29(any(), eq(2))).thenReturn(BusResult.of(packet2));
@@ -178,7 +178,7 @@ public class Part02Step12ControllerTest extends AbstractControllerTest {
     public void testFailureForNoSupportAndNonZero() {
         // Module 3 will not support DM27 but return bad values
         dataRepository.putObdModule(new OBDModuleInformation(3));
-        DM29DtcCounts packet3 = DM29DtcCounts.create(0x03, 0x00, 0, 0x00, 0x00, 0x00);
+        DM29DtcCounts packet3 = DM29DtcCounts.create(0x03, 0, 0x00, 0, 0x00, 0x00, 0x00);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(packet3));
         when(diagnosticMessageModule.requestDM29(any(), eq(3))).thenReturn(BusResult.of(packet3));
@@ -199,12 +199,12 @@ public class Part02Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNonOBDModule() {
         dataRepository.putObdModule(new OBDModuleInformation(3));
-        DM29DtcCounts packet3 = DM29DtcCounts.create(0x03, 0x00, 0xFF, 0x00, 0x00, 0x00);
+        DM29DtcCounts packet3 = DM29DtcCounts.create(0x03, 0, 0x00, 0xFF, 0x00, 0x00, 0x00);
 
         when(diagnosticMessageModule.requestDM29(any(), eq(3))).thenReturn(BusResult.of(packet3));
 
         // Module 6 will be a non-obd module with bad values
-        DM29DtcCounts packet6 = DM29DtcCounts.create(0x06, 0, 0xFF, 0, 0, 1);
+        DM29DtcCounts packet6 = DM29DtcCounts.create(0x06, 0, 0, 0xFF, 0, 0, 1);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(packet3, packet6));
 
@@ -231,8 +231,8 @@ public class Part02Step12ControllerTest extends AbstractControllerTest {
 
         // Module 7 will return different values global/ds
         dataRepository.putObdModule(new OBDModuleInformation(7));
-        DM29DtcCounts packet71 = DM29DtcCounts.create(0x07, 0, 0xFF, 0, 0, 0);
-        DM29DtcCounts packet72 = DM29DtcCounts.create(0x07, 1, 0xFF, 0, 0, 0);
+        DM29DtcCounts packet71 = DM29DtcCounts.create(0x07, 0, 0, 0xFF, 0, 0, 0);
+        DM29DtcCounts packet72 = DM29DtcCounts.create(0x07, 0, 1, 0xFF, 0, 0, 0);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(packet71));
         when(diagnosticMessageModule.requestDM29(any(), eq(7))).thenReturn(BusResult.of(packet72));
@@ -257,7 +257,7 @@ public class Part02Step12ControllerTest extends AbstractControllerTest {
         OBDModuleInformation module0 = new OBDModuleInformation(0);
         module0.set(dm27(0), 1);
         dataRepository.putObdModule(module0);
-        DM29DtcCounts packet0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 0);
+        DM29DtcCounts packet0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 0, 0);
 
         // Module 4 will not respond at all
         dataRepository.putObdModule(new OBDModuleInformation(4));

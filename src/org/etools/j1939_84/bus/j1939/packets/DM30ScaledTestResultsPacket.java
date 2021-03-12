@@ -25,14 +25,14 @@ public class DM30ScaledTestResultsPacket extends GenericPacket {
         super(packet);
     }
 
-    public static DM30ScaledTestResultsPacket create(int source, ScaledTestResult... testResults) {
+    public static DM30ScaledTestResultsPacket create(int source, int destination, ScaledTestResult... testResults) {
 
         int[] data = new int[0];
         for (ScaledTestResult testResult : testResults) {
             data = join(data, testResult.getData());
         }
 
-        return new DM30ScaledTestResultsPacket(Packet.create(PGN, source, data));
+        return new DM30ScaledTestResultsPacket(Packet.create(PGN | destination, source, data));
     }
 
     @Override

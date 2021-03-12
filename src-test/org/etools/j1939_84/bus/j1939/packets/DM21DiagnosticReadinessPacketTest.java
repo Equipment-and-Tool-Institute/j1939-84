@@ -90,7 +90,7 @@ public class DM21DiagnosticReadinessPacketTest {
 
     @Test
     public void testValue() {
-        DM21DiagnosticReadinessPacket instance = DM21DiagnosticReadinessPacket.create(0, 10000, 20000, 30000, 40000);
+        DM21DiagnosticReadinessPacket instance = DM21DiagnosticReadinessPacket.create(0, 0, 10000, 20000, 30000, 40000);
         assertEquals(20000, instance.getKmSinceDTCsCleared(), 0.0);
         assertEquals(12427.423799999999, instance.getMilesSinceDTCsCleared(), 0.0);
         assertEquals(40000, instance.getMinutesSinceDTCsCleared(), 0.0);

@@ -82,7 +82,7 @@ public class Part04Step07ControllerTest extends AbstractControllerTest {
     private static DM31DtcToLampAssociation createDM31(int spn, LampStatus milStatus) {
         var dtc = DiagnosticTroubleCode.create(spn, 12, 0, 5);
         var lampStatus = DTCLampStatus.create(dtc, OFF, milStatus, OFF, OFF);
-        return DM31DtcToLampAssociation.create(0, lampStatus);
+        return DM31DtcToLampAssociation.create(0, 0, lampStatus);
     }
 
     private static DM12MILOnEmissionDTCPacket createDM12(int sourceAddress, int spn, int fmi) {

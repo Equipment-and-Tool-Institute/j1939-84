@@ -140,7 +140,7 @@ public class Part06Step09ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm31 = DM31DtcToLampAssociation.create(0, DTCLampStatus.create(dtc, OFF, ON, OFF, OFF));
+        var dm31 = DM31DtcToLampAssociation.create(0, 0, DTCLampStatus.create(dtc, OFF, ON, OFF, OFF));
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(RequestResult.of(dm31));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
@@ -166,7 +166,7 @@ public class Part06Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation);
 
         var dtc1 = DiagnosticTroubleCode.create(456, 12, 0, 1);
-        var dm31 = DM31DtcToLampAssociation.create(0, DTCLampStatus.create(dtc1, OFF, ON, OFF, OFF));
+        var dm31 = DM31DtcToLampAssociation.create(0, 0, DTCLampStatus.create(dtc1, OFF, ON, OFF, OFF));
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(RequestResult.of(dm31));
 
         runTest();
@@ -188,7 +188,7 @@ public class Part06Step09ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm31 = DM31DtcToLampAssociation.create(0, DTCLampStatus.create(dtc, OFF, OFF, OFF, OFF));
+        var dm31 = DM31DtcToLampAssociation.create(0, 0, DTCLampStatus.create(dtc, OFF, OFF, OFF, OFF));
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(RequestResult.of(dm31));
 
         runTest();
@@ -210,7 +210,7 @@ public class Part06Step09ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm31 = DM31DtcToLampAssociation.create(0, DTCLampStatus.create(dtc, OFF, ON, OFF, OFF));
+        var dm31 = DM31DtcToLampAssociation.create(0, 0, DTCLampStatus.create(dtc, OFF, ON, OFF, OFF));
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(RequestResult.of(dm31));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));

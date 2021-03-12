@@ -137,9 +137,10 @@ public class Part09Step07ControllerTest extends AbstractControllerTest {
         dataRepository.setVehicleInformation(vehicleInformation);
 
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM33EmissionIncreasingAECDActiveTime.create(0, EngineHoursTimer.create(0, 1, 1)), 2);
+        obdModuleInformation0.set(DM33EmissionIncreasingAECDActiveTime.create(0, 0, EngineHoursTimer.create(0, 1, 1)),
+                                  2);
         dataRepository.putObdModule(obdModuleInformation0);
-        var dm33_0 = DM33EmissionIncreasingAECDActiveTime.create(0, EngineHoursTimer.create(0, 1, 1));
+        var dm33_0 = DM33EmissionIncreasingAECDActiveTime.create(0, 0, EngineHoursTimer.create(0, 1, 1));
 
         when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.of(dm33_0));
 
@@ -182,12 +183,12 @@ public class Part09Step07ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         EngineHoursTimer timer0 = EngineHoursTimer.create(0, 0, 0);
         EngineHoursTimer timer1 = EngineHoursTimer.create(1, 1, 1);
-        obdModuleInformation0.set(DM33EmissionIncreasingAECDActiveTime.create(0, timer0, timer1), 2);
+        obdModuleInformation0.set(DM33EmissionIncreasingAECDActiveTime.create(0, 0, timer0, timer1), 2);
         dataRepository.putObdModule(obdModuleInformation0);
-        var dm33_0 = DM33EmissionIncreasingAECDActiveTime.create(0, EngineHoursTimer.create(0, 1, 1));
+        var dm33_0 = DM33EmissionIncreasingAECDActiveTime.create(0, 0, EngineHoursTimer.create(0, 1, 1));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
-        var dm33_1 = DM33EmissionIncreasingAECDActiveTime.create(1, EngineHoursTimer.create(0, 1, 1));
+        var dm33_1 = DM33EmissionIncreasingAECDActiveTime.create(1, 0, EngineHoursTimer.create(0, 1, 1));
 
         when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.of(dm33_0, dm33_1));
 
@@ -217,12 +218,12 @@ public class Part09Step07ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         EngineHoursTimer timer0 = EngineHoursTimer.create(0, 0, 0);
         EngineHoursTimer timer1 = EngineHoursTimer.create(1, 1, 1);
-        obdModuleInformation0.set(DM33EmissionIncreasingAECDActiveTime.create(0, timer0, timer1), 2);
+        obdModuleInformation0.set(DM33EmissionIncreasingAECDActiveTime.create(0, 0, timer0, timer1), 2);
         dataRepository.putObdModule(obdModuleInformation0);
-        var dm33_0 = DM33EmissionIncreasingAECDActiveTime.create(0, EngineHoursTimer.create(0, 1, 1));
+        var dm33_0 = DM33EmissionIncreasingAECDActiveTime.create(0, 0, EngineHoursTimer.create(0, 1, 1));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
-        var dm33_1 = DM33EmissionIncreasingAECDActiveTime.create(1, EngineHoursTimer.create(0, 1, 1));
+        var dm33_1 = DM33EmissionIncreasingAECDActiveTime.create(1, 0, EngineHoursTimer.create(0, 1, 1));
 
         when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.of(dm33_0, dm33_1));
 
@@ -252,12 +253,12 @@ public class Part09Step07ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         EngineHoursTimer timer0 = EngineHoursTimer.create(0, 0, 0);
         EngineHoursTimer timer1 = EngineHoursTimer.create(1, 1, 1);
-        obdModuleInformation0.set(DM33EmissionIncreasingAECDActiveTime.create(0, timer0, timer1), 2);
+        obdModuleInformation0.set(DM33EmissionIncreasingAECDActiveTime.create(0, 0, timer0, timer1), 2);
         dataRepository.putObdModule(obdModuleInformation0);
-        var dm33_0 = DM33EmissionIncreasingAECDActiveTime.create(0, EngineHoursTimer.create(0, 1, 1));
+        var dm33_0 = DM33EmissionIncreasingAECDActiveTime.create(0, 0, EngineHoursTimer.create(0, 1, 1));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
-        var dm33_1 = DM33EmissionIncreasingAECDActiveTime.create(1, EngineHoursTimer.create(0, 1, 1));
+        var dm33_1 = DM33EmissionIncreasingAECDActiveTime.create(1, 0, EngineHoursTimer.create(0, 1, 1));
 
         when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.of(dm33_0, dm33_1));
 

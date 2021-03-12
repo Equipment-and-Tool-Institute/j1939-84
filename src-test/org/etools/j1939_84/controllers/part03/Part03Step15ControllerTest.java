@@ -136,7 +136,7 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
         dataRepository.putObdModule(obdModule);
 
-        DM21DiagnosticReadinessPacket dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 0);
 
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, dm21));
 
@@ -160,10 +160,10 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule2);
         dataRepository.putObdModule(obdModule3);
 
-        DM21DiagnosticReadinessPacket dm21 = DM21DiagnosticReadinessPacket.create(0, 1000, 0, 0, 0);
+        DM21DiagnosticReadinessPacket dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 1000, 0, 0, 0);
         AcknowledgmentPacket ackPacket = AcknowledgmentPacket.create(1, NACK);
-        DM21DiagnosticReadinessPacket dm21_2 = DM21DiagnosticReadinessPacket.create(2, 0, 0, 90, 0);
-        DM21DiagnosticReadinessPacket dm21_3 = DM21DiagnosticReadinessPacket.create(3, 0, 0, 90, 0);
+        DM21DiagnosticReadinessPacket dm21_2 = DM21DiagnosticReadinessPacket.create(2, 0, 0, 0, 90, 0);
+        DM21DiagnosticReadinessPacket dm21_3 = DM21DiagnosticReadinessPacket.create(3, 0, 0, 0, 90, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, dm21));
         when(diagnosticMessageModule.requestDM21(any(), eq(1))).thenReturn(new BusResult<>(false, ackPacket));
         when(diagnosticMessageModule.requestDM21(any(), eq(2))).thenReturn(new BusResult<>(false, dm21_2));
@@ -200,7 +200,7 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(2));
 
-        DM21DiagnosticReadinessPacket dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 0);
 
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, dm21));
         when(diagnosticMessageModule.requestDM21(any(), eq(1))).thenReturn(new BusResult<>(true));

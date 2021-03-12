@@ -12,7 +12,7 @@ import org.etools.j1939_84.bus.Packet;
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  */
 public class DM2PreviouslyActiveDTC extends DiagnosticTroubleCodePacket {
-    public static final int PGN = 65227;
+    public static final int PGN = 65227; // 0xFECB
 
     public DM2PreviouslyActiveDTC(Packet packet) {
         super(packet);

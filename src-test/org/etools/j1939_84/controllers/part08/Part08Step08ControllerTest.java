@@ -142,10 +142,10 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 1, 1, 1);
+        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 1, 1, 1);
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
-        var dm29_1 = DM29DtcCounts.create(1, 0, 0xFF, 0, 0, 0);
+        var dm29_1 = DM29DtcCounts.create(1, 0, 0, 0xFF, 0, 0, 0);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0, dm29_1));
 
@@ -189,7 +189,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm29 = DM29DtcCounts.create(0, 1, 0, 1, 1, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 1, 0, 1, 1, 1);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
@@ -214,7 +214,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 1, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 0, 1, 1);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
@@ -236,7 +236,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 1, 1, 1);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
@@ -261,7 +261,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 0, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 1, 0, 1);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
@@ -286,7 +286,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 1, 1, 1);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
@@ -311,7 +311,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF), 8);
         obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 0);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 1, 1, 0);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
@@ -336,7 +336,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF), 8);
         obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 1, 1, 1);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
@@ -361,7 +361,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm29 = DM29DtcCounts.create(0, 0, 1, 1, 1, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 1, 1);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
@@ -385,7 +385,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 1, 1, 1);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
@@ -411,7 +411,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
         obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm29 = DM29DtcCounts.create(0, 0, 0, 2, 1, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 2, 1, 1);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
@@ -436,7 +436,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0), 8);
         obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc0), 8);
         dataRepository.putObdModule(obdModuleInformation0);
-        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 1, 1, 1);
+        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 1, 1, 1);
 
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
         var dtc1 = DiagnosticTroubleCode.create(456, 12, 1, 0);
@@ -445,7 +445,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation1.set(DM28PermanentEmissionDTCPacket.create(1, ON, OFF, OFF, OFF), 8);
         obdModuleInformation1.set(DM27AllPendingDTCsPacket.create(1, ON, OFF, OFF, OFF), 8);
         dataRepository.putObdModule(obdModuleInformation1);
-        var dm29_1 = DM29DtcCounts.create(1, 0, 0, 1, 0, 0);
+        var dm29_1 = DM29DtcCounts.create(1, 0, 0, 0, 1, 0, 0);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0, dm29_1));
 
@@ -471,7 +471,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
         obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 2, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 1, 2, 1);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
@@ -496,7 +496,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0), 8);
         obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc0), 8);
         dataRepository.putObdModule(obdModuleInformation0);
-        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 1, 1, 1);
+        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 1, 1, 1);
 
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
         var dtc1 = DiagnosticTroubleCode.create(456, 12, 1, 0);
@@ -505,7 +505,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation1.set(DM28PermanentEmissionDTCPacket.create(1, ON, OFF, OFF, OFF), 8);
         obdModuleInformation1.set(DM27AllPendingDTCsPacket.create(1, ON, OFF, OFF, OFF), 8);
         dataRepository.putObdModule(obdModuleInformation1);
-        var dm29_1 = DM29DtcCounts.create(1, 0, 0, 0, 1, 0);
+        var dm29_1 = DM29DtcCounts.create(1, 0, 0, 0, 0, 1, 0);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0, dm29_1));
 
@@ -531,7 +531,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2), 8);
         obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 2);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 1, 1, 2);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
@@ -556,7 +556,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0), 8);
         obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc0), 8);
         dataRepository.putObdModule(obdModuleInformation0);
-        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 1, 1, 1);
+        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 1, 1, 1);
 
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
         var dtc1 = DiagnosticTroubleCode.create(456, 12, 1, 0);
@@ -565,7 +565,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation1.set(DM28PermanentEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc1), 8);
         obdModuleInformation1.set(DM27AllPendingDTCsPacket.create(1, ON, OFF, OFF, OFF), 8);
         dataRepository.putObdModule(obdModuleInformation1);
-        var dm29_1 = DM29DtcCounts.create(1, 0, 0, 0, 0, 1);
+        var dm29_1 = DM29DtcCounts.create(1, 0, 0, 0, 0, 0, 1);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0, dm29_1));
 

@@ -26,7 +26,7 @@ public class DM30ScaledTestResultsPacketTest {
     @Test
     public void testWithOne() {
         ScaledTestResult testResult0 = ScaledTestResult.create(247, 3362, 31, 208, 951, 1000, 800);
-        DM30ScaledTestResultsPacket instance = DM30ScaledTestResultsPacket.create(0, testResult0);
+        DM30ScaledTestResultsPacket instance = DM30ScaledTestResultsPacket.create(0, 0, testResult0);
         List<ScaledTestResult> testResults = instance.getTestResults();
         assertEquals(1, testResults.size());
         {

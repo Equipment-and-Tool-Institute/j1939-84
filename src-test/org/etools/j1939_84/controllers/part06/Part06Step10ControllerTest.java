@@ -141,7 +141,7 @@ public class Part06Step10ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation);
 
-        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 1, 0);
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
@@ -166,7 +166,7 @@ public class Part06Step10ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation);
 
-        var dm21 = DM21DiagnosticReadinessPacket.create(0, 1, 0, 1, 0);
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 1, 0, 1, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
 
         runTest();
@@ -189,7 +189,7 @@ public class Part06Step10ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation);
 
-        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0xFFFF, 0, 1, 0);
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0xFFFF, 0, 1, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
 
         runTest();
@@ -208,7 +208,7 @@ public class Part06Step10ControllerTest extends AbstractControllerTest {
     public void testFailureForNoDTC() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 1, 0);
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
 
         runTest();
@@ -251,7 +251,7 @@ public class Part06Step10ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation);
 
-        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 1, 0);
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
@@ -278,7 +278,7 @@ public class Part06Step10ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation);
 
-        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0);
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
 
         runTest();
@@ -301,7 +301,7 @@ public class Part06Step10ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation);
 
-        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 1, 0);
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
 
         var dtc_1 = DiagnosticTroubleCode.create(234, 12, 0, 1);
@@ -310,7 +310,7 @@ public class Part06Step10ControllerTest extends AbstractControllerTest {
         obdModuleInformation1.set(DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc_1), 6);
         dataRepository.putObdModule(obdModuleInformation1);
 
-        var dm21_1 = DM21DiagnosticReadinessPacket.create(1, 0, 0, 3, 0);
+        var dm21_1 = DM21DiagnosticReadinessPacket.create(1, 0, 0, 0, 3, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(1))).thenReturn(BusResult.of(dm21_1));
 
         runTest();

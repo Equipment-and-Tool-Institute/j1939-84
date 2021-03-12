@@ -151,7 +151,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForMILCountGreaterThanZero() {
-        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 1, 1, 0, 0);
+        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 1, 0, 0);
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
@@ -175,7 +175,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForPreviousMILCountGreaterThanZero() {
-        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 1, 0, 1, 0);
+        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 1, 0);
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
@@ -199,7 +199,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForPermanentDTCCountGreaterThanZero() {
-        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 1, 0, 0, 1);
+        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 0, 1);
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
@@ -223,7 +223,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForNoEmissionPendingCount() {
-        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 0, 0, 0, 0);
+        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
@@ -245,7 +245,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForDifferenceFromDM6WithMore() {
-        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 1, 0, 0, 0);
+        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 0, 0);
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
@@ -270,7 +270,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForDifferenceFromDM6WithLess() {
-        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 1, 0, 0, 0);
+        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 0, 0);
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
@@ -293,7 +293,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForDifferencePendingCounts() {
-        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 0, 0, 0, 0);
+        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
@@ -317,7 +317,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForLessThanDM27DTCs() {
-        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 1, 0, 0, 0);
+        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 0, 0);
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
@@ -342,7 +342,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForWrongNotSupportedValue() {
-        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 1, 0, 0, 0);
+        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 0, 0);
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
@@ -365,7 +365,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForNonOBD() {
-        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 1, 1, 1, 1);
+        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 1, 1, 1);
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         runTest();
@@ -413,7 +413,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForMoreThanOnePendingCounts() {
-        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 2, 2, 0, 0, 0);
+        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 2, 2, 0, 0, 0);
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
@@ -442,8 +442,8 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForMoreThanOneModuleReportingPendingCounts() {
-        DM29DtcCounts dm29_0 = DM29DtcCounts.create(0, 1, 1, 0, 0, 0);
-        DM29DtcCounts dm29_1 = DM29DtcCounts.create(1, 1, 1, 0, 0, 0);
+        DM29DtcCounts dm29_0 = DM29DtcCounts.create(0, 0, 1, 1, 0, 0, 0);
+        DM29DtcCounts dm29_1 = DM29DtcCounts.create(1, 0, 1, 1, 0, 0, 0);
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0, dm29_1));
 
         OBDModuleInformation moduleInfo0 = new OBDModuleInformation(0);
@@ -477,7 +477,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testNoFailures() {
-        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 1, 0, 0, 0);
+        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 0, 0);
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo0 = new OBDModuleInformation(0);

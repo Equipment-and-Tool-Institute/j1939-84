@@ -147,7 +147,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        var dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 0, 1);
         when(diagnosticMessageModule.requestDM29(any(), eq(0))).thenReturn(BusResult.of(dm29));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
@@ -175,7 +175,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        var dm29 = DM29DtcCounts.create(0, 1, 1, 1, 0, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 1, 1, 1, 0, 1);
         when(diagnosticMessageModule.requestDM29(any(), eq(0))).thenReturn(BusResult.of(dm29));
 
         runTest();
@@ -201,7 +201,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        var dm29 = DM29DtcCounts.create(0, 0, 1, 1, 1, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 1, 1);
         when(diagnosticMessageModule.requestDM29(any(), eq(0))).thenReturn(BusResult.of(dm29));
 
         runTest();
@@ -227,7 +227,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        var dm29 = DM29DtcCounts.create(0, 0, 1, 0, 0, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 0, 0, 1);
         when(diagnosticMessageModule.requestDM29(any(), eq(0))).thenReturn(BusResult.of(dm29));
 
         runTest();
@@ -251,7 +251,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        var dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 0, 1);
         when(diagnosticMessageModule.requestDM29(any(), eq(0))).thenReturn(BusResult.of(dm29));
 
         runTest();
@@ -277,7 +277,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        var dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 0);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 0, 0);
         when(diagnosticMessageModule.requestDM29(any(), eq(0))).thenReturn(BusResult.of(dm29));
 
         runTest();
@@ -304,7 +304,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        var dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 0, 1);
         when(diagnosticMessageModule.requestDM29(any(), eq(0))).thenReturn(BusResult.of(dm29));
 
         runTest();
@@ -331,7 +331,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc, dtc1), 6);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        var dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 0, 1);
         when(diagnosticMessageModule.requestDM29(any(), eq(0))).thenReturn(BusResult.of(dm29));
 
         runTest();
@@ -356,7 +356,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        var dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 0, 1);
         when(diagnosticMessageModule.requestDM29(any(), eq(0))).thenReturn(BusResult.of(dm29));
 
         runTest();
@@ -382,7 +382,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        var dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 0, 1);
         when(diagnosticMessageModule.requestDM29(any(), eq(0))).thenReturn(BusResult.of(dm29));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
@@ -413,7 +413,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        var dm29 = DM29DtcCounts.create(0, 0, 1, 2, 0, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 2, 0, 1);
         when(diagnosticMessageModule.requestDM29(any(), eq(0))).thenReturn(BusResult.of(dm29));
 
         runTest();
@@ -439,7 +439,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        var dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 0, 1);
         when(diagnosticMessageModule.requestDM29(any(), eq(0))).thenReturn(BusResult.of(dm29));
 
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
@@ -448,7 +448,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation1.set(DM6PendingEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation1);
 
-        var dm29_1 = DM29DtcCounts.create(1, 0, 1, 1, 0, 0);
+        var dm29_1 = DM29DtcCounts.create(1, 0, 0, 1, 1, 0, 0);
         when(diagnosticMessageModule.requestDM29(any(), eq(1))).thenReturn(BusResult.of(dm29_1));
 
         runTest();
@@ -476,7 +476,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        var dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 2);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 0, 2);
         when(diagnosticMessageModule.requestDM29(any(), eq(0))).thenReturn(BusResult.of(dm29));
 
         runTest();
@@ -502,7 +502,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        var dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 0, 1);
         when(diagnosticMessageModule.requestDM29(any(), eq(0))).thenReturn(BusResult.of(dm29));
 
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
@@ -511,7 +511,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation1.set(DM6PendingEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc), 6);
         dataRepository.putObdModule(obdModuleInformation1);
 
-        var dm29_1 = DM29DtcCounts.create(1, 0, 1, 0, 0, 1);
+        var dm29_1 = DM29DtcCounts.create(1, 0, 0, 1, 0, 0, 1);
         when(diagnosticMessageModule.requestDM29(any(), eq(1))).thenReturn(BusResult.of(dm29_1));
 
         runTest();

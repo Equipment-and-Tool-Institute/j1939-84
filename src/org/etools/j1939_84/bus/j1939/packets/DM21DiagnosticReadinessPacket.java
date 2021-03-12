@@ -15,13 +15,14 @@ import org.etools.j1939_84.bus.Packet;
  */
 public class DM21DiagnosticReadinessPacket extends GenericPacket {
 
-    public static final int PGN = 49408;
+    public static final int PGN = 49408; // 0xC100
 
     public DM21DiagnosticReadinessPacket(Packet packet) {
         super(packet);
     }
 
     public static DM21DiagnosticReadinessPacket create(int source,
+                                                       int destination,
                                                        int kmWithMIL,
                                                        int kmSinceCodeClear,
                                                        int minutesWithMIL,
@@ -30,7 +31,7 @@ public class DM21DiagnosticReadinessPacket extends GenericPacket {
                             to2Bytes(kmSinceCodeClear),
                             to2Bytes(minutesWithMIL),
                             to2Bytes(minutesSinceCodeClear));
-        return new DM21DiagnosticReadinessPacket(Packet.create(PGN, source, bytes));
+        return new DM21DiagnosticReadinessPacket(Packet.create(PGN | destination, source, bytes));
     }
 
     private String getDistanceSinceDTCsClearedAsString() {

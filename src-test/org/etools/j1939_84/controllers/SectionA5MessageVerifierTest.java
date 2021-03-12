@@ -292,7 +292,7 @@ public class SectionA5MessageVerifierTest {
 
     @Test
     public void checkDM29AsErasedSuccess() {
-        var packet = DM29DtcCounts.create(0, 0, 0, 0, 0, 0);
+        var packet = DM29DtcCounts.create(0, 0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM29(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM29(listener, SECTION, 0, true, true));
@@ -302,7 +302,7 @@ public class SectionA5MessageVerifierTest {
 
     @Test
     public void checkDM29AsErasedFailureWithPending() {
-        var packet = DM29DtcCounts.create(0, 1, 0, 0, 0, 0);
+        var packet = DM29DtcCounts.create(0, 0, 1, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM29(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM29(listener, SECTION, 0, true, true));
@@ -316,7 +316,7 @@ public class SectionA5MessageVerifierTest {
 
     @Test
     public void checkDM29AsErasedFailureWithActive() {
-        var packet = DM29DtcCounts.create(0, 0, 0, 1, 0, 0);
+        var packet = DM29DtcCounts.create(0, 0, 0, 0, 1, 0, 0);
         when(diagnosticMessageModule.requestDM29(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM29(listener, SECTION, 0, true, true));
@@ -330,7 +330,7 @@ public class SectionA5MessageVerifierTest {
 
     @Test
     public void checkDM29AsErasedFailureWithPrevious() {
-        var packet = DM29DtcCounts.create(0, 0, 0, 0, 1, 0);
+        var packet = DM29DtcCounts.create(0, 0, 0, 0, 0, 1, 0);
         when(diagnosticMessageModule.requestDM29(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM29(listener, SECTION, 0, true, true));
@@ -344,7 +344,7 @@ public class SectionA5MessageVerifierTest {
 
     @Test
     public void checkDM29AsNotErasedSuccess() {
-        var packet = DM29DtcCounts.create(0, 0, 0, 1, 1, 0);
+        var packet = DM29DtcCounts.create(0, 0, 0, 0, 1, 1, 0);
         when(diagnosticMessageModule.requestDM29(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM29(listener, SECTION, 0, false, true));
@@ -354,7 +354,7 @@ public class SectionA5MessageVerifierTest {
 
     @Test
     public void checkDM29AsNotErasedFailure() {
-        var packet = DM29DtcCounts.create(0, 0, 0, 0, 0, 0);
+        var packet = DM29DtcCounts.create(0, 0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM29(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM29(listener, SECTION, 0, false, true));
@@ -490,7 +490,7 @@ public class SectionA5MessageVerifierTest {
 
     @Test
     public void checkDM31AsErasedSuccess() {
-        var packet = DM31DtcToLampAssociation.create(0);
+        var packet = DM31DtcToLampAssociation.create(0, 0);
         when(diagnosticMessageModule.requestDM31(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertTrue(instance.checkDM31(listener, SECTION, 0, true, true));
@@ -502,7 +502,7 @@ public class SectionA5MessageVerifierTest {
     public void checkDM31AsErasedFailure() {
         DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(1, 1, 1, 1);
         var dtcLampStatus = DTCLampStatus.create(dtc, OFF, ON, OFF, OFF);
-        var packet = DM31DtcToLampAssociation.create(0, dtcLampStatus);
+        var packet = DM31DtcToLampAssociation.create(0, 0, dtcLampStatus);
         when(diagnosticMessageModule.requestDM31(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertFalse(instance.checkDM31(listener, SECTION, 0, true, true));
@@ -518,7 +518,7 @@ public class SectionA5MessageVerifierTest {
     public void checkDM31AsNotErasedSuccess() {
         DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(1, 1, 1, 1);
         var dtcLampStatus = DTCLampStatus.create(dtc, OFF, ON, OFF, OFF);
-        var packet = DM31DtcToLampAssociation.create(0, dtcLampStatus);
+        var packet = DM31DtcToLampAssociation.create(0, 0, dtcLampStatus);
         when(diagnosticMessageModule.requestDM31(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertTrue(instance.checkDM31(listener, SECTION, 0, false, true));
@@ -528,7 +528,7 @@ public class SectionA5MessageVerifierTest {
 
     @Test
     public void checkDM31AsNotErasedFailure() {
-        var packet = DM31DtcToLampAssociation.create(0);
+        var packet = DM31DtcToLampAssociation.create(0, 0);
         when(diagnosticMessageModule.requestDM31(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertFalse(instance.checkDM31(listener, SECTION, 0, false, true));
@@ -539,7 +539,7 @@ public class SectionA5MessageVerifierTest {
 
     @Test
     public void checkDM21AsErasedSuccess() {
-        var packet = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0);
+        var packet = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM21(listener, SECTION, 0, true, true));
@@ -549,7 +549,7 @@ public class SectionA5MessageVerifierTest {
 
     @Test
     public void checkDM21AsErasedFailureWithDistanceMIL() {
-        var packet = DM21DiagnosticReadinessPacket.create(0, 1, 0, 0, 0);
+        var packet = DM21DiagnosticReadinessPacket.create(0, 0, 1, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM21(listener, SECTION, 0, true, true));
@@ -563,7 +563,7 @@ public class SectionA5MessageVerifierTest {
 
     @Test
     public void checkDM21AsErasedFailureTimeMIL() {
-        var packet = DM21DiagnosticReadinessPacket.create(0, 0, 0, 1, 0);
+        var packet = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1, 0);
         when(diagnosticMessageModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM21(listener, SECTION, 0, true, true));
@@ -577,7 +577,7 @@ public class SectionA5MessageVerifierTest {
 
     @Test
     public void checkDM21AsErasedFailureWithDistanceSCC() {
-        var packet = DM21DiagnosticReadinessPacket.create(0, 0, 1, 0, 0);
+        var packet = DM21DiagnosticReadinessPacket.create(0, 0, 0, 1, 0, 0);
         when(diagnosticMessageModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM21(listener, SECTION, 0, true, true));
@@ -591,7 +591,7 @@ public class SectionA5MessageVerifierTest {
 
     @Test
     public void checkDM21AsErasedFailureTimeSCC() {
-        var packet = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1);
+        var packet = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 1);
         when(diagnosticMessageModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM21(listener, SECTION, 0, true, true));
@@ -605,7 +605,7 @@ public class SectionA5MessageVerifierTest {
 
     @Test
     public void checkDM21AsNotErasedSuccess() {
-        var packet = DM21DiagnosticReadinessPacket.create(0, 0, 0, 1, 0);
+        var packet = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1, 0);
         when(diagnosticMessageModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM21(listener, SECTION, 0, false, true));
@@ -615,7 +615,7 @@ public class SectionA5MessageVerifierTest {
 
     @Test
     public void checkDM21AsNotErasedFailure() {
-        var packet = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0);
+        var packet = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM21(listener, SECTION, 0, false, true));
@@ -768,11 +768,11 @@ public class SectionA5MessageVerifierTest {
     public void checkDM33AsNotErasedSuccess() {
         var moduleInfo = new OBDModuleInformation(0);
         var timer0 = EngineHoursTimer.create(1, 2, 3);
-        moduleInfo.set(DM33EmissionIncreasingAECDActiveTime.create(0, timer0), 1);
+        moduleInfo.set(DM33EmissionIncreasingAECDActiveTime.create(0, 0, timer0), 1);
         dataRepository.putObdModule(moduleInfo);
 
         var timer = EngineHoursTimer.create(1, 2, 3);
-        var packet = DM33EmissionIncreasingAECDActiveTime.create(0, timer);
+        var packet = DM33EmissionIncreasingAECDActiveTime.create(0, 0, timer);
         when(diagnosticMessageModule.requestDM33(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertTrue(instance.checkDM33(listener, SECTION, 0, true));
@@ -784,11 +784,11 @@ public class SectionA5MessageVerifierTest {
     public void checkDM33AsNotErasedFailure() {
         var moduleInfo = new OBDModuleInformation(0);
         var timer0 = EngineHoursTimer.create(1, 2, 3);
-        moduleInfo.set(DM33EmissionIncreasingAECDActiveTime.create(0, timer0), 1);
+        moduleInfo.set(DM33EmissionIncreasingAECDActiveTime.create(0, 0, timer0), 1);
         dataRepository.putObdModule(moduleInfo);
 
         var timer = EngineHoursTimer.create(1, 0, 0);
-        var packet = DM33EmissionIncreasingAECDActiveTime.create(0, timer);
+        var packet = DM33EmissionIncreasingAECDActiveTime.create(0, 0, timer);
         when(diagnosticMessageModule.requestDM33(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertFalse(instance.checkDM33(listener, SECTION, 0, true));
@@ -811,11 +811,11 @@ public class SectionA5MessageVerifierTest {
     public void checkDM33AsNotErasedWithoutZeroTimers() {
         var moduleInfo = new OBDModuleInformation(0);
         var timer0 = EngineHoursTimer.create(1, 0, 0);
-        moduleInfo.set(DM33EmissionIncreasingAECDActiveTime.create(0, timer0), 1);
+        moduleInfo.set(DM33EmissionIncreasingAECDActiveTime.create(0, 0, timer0), 1);
         dataRepository.putObdModule(moduleInfo);
 
         var timer = EngineHoursTimer.create(1, 0, 0);
-        var packet = DM33EmissionIncreasingAECDActiveTime.create(0, timer);
+        var packet = DM33EmissionIncreasingAECDActiveTime.create(0, 0, timer);
         when(diagnosticMessageModule.requestDM33(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertTrue(instance.checkDM33(listener, SECTION, 0, true));
@@ -830,7 +830,7 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var tr = ScaledTestResult.create(247, 123, 12, 1, 0, 0, 0);
-        var packet = DM30ScaledTestResultsPacket.create(0, tr);
+        var packet = DM30ScaledTestResultsPacket.create(0, 0, tr);
         when(diagnosticMessageModule.requestTestResult(listener, 0, 247, 123, 31)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkTestResults(listener, SECTION, 0, true, true));
@@ -845,7 +845,7 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var tr = ScaledTestResult.create(247, 123, 12, 1, 1, 0, 0);
-        var packet = DM30ScaledTestResultsPacket.create(0, tr);
+        var packet = DM30ScaledTestResultsPacket.create(0, 0, tr);
         when(diagnosticMessageModule.requestTestResult(listener, 0, 247, 123, 31)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkTestResults(listener, SECTION, 0, true, true));
@@ -865,7 +865,7 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var tr = ScaledTestResult.create(247, 123, 12, 1, 1, 0, 0);
-        var packet = DM30ScaledTestResultsPacket.create(0, tr);
+        var packet = DM30ScaledTestResultsPacket.create(0, 0, tr);
         when(diagnosticMessageModule.requestTestResult(listener, 0, 247, 123, 31)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkTestResults(listener, SECTION, 0, false, true));
@@ -880,7 +880,7 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var tr = ScaledTestResult.create(247, 123, 12, 1, 0xFB00, 0xFFFF, 0xFFFF);
-        var packet = DM30ScaledTestResultsPacket.create(0, tr);
+        var packet = DM30ScaledTestResultsPacket.create(0, 0, tr);
         when(diagnosticMessageModule.requestTestResult(listener, 0, 247, 123, 31)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkTestResults(listener, SECTION, 0, false, true));

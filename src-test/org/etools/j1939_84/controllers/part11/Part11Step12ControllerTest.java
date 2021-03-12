@@ -131,10 +131,10 @@ public class Part11Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0), 11);
+        obdModuleInformation.set(DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 0), 11);
         obdModuleInformation.setDeltaEngineStart(600.0);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 10);
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 10);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
@@ -154,10 +154,10 @@ public class Part11Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferenceTooMuch() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0), 11);
+        obdModuleInformation.set(DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 0), 11);
         obdModuleInformation.setDeltaEngineStart(600.0);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 11);
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 11);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
 
         runTest();
@@ -175,10 +175,10 @@ public class Part11Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferenceTooLittle() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0), 11);
+        obdModuleInformation.set(DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 0), 11);
         obdModuleInformation.setDeltaEngineStart(600.0);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 9);
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 9);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
 
         runTest();
@@ -196,10 +196,10 @@ public class Part11Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDistanceSCC() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.set(DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0), 11);
+        obdModuleInformation.set(DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 0), 11);
         obdModuleInformation.setDeltaEngineStart(600.0);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 1, 0, 10);
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 1, 0, 10);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
 
         runTest();

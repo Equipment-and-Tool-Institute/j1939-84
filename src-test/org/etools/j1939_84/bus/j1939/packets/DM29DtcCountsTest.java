@@ -20,7 +20,7 @@ public class DM29DtcCountsTest {
 
     @Before
     public void setUp() {
-        instance = DM29DtcCounts.create(0, 9, 32, 71, 49, 1);
+        instance = DM29DtcCounts.create(0, 0, 9, 32, 71, 49, 1);
     }
 
     /**

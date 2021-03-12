@@ -131,11 +131,11 @@ public class Part09Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPathNoFailures() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
-        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0);
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
-        var dm21_1 = DM21DiagnosticReadinessPacket.create(1, 0, 0, 0xFFFF, 0xFFFF);
+        var dm21_1 = DM21DiagnosticReadinessPacket.create(1, 0, 0, 0, 0xFFFF, 0xFFFF);
         when(diagnosticMessageModule.requestDM21(any(), eq(1))).thenReturn(BusResult.of(dm21_1));
 
         dataRepository.putObdModule(new OBDModuleInformation(2));
@@ -156,7 +156,7 @@ public class Part09Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForMIL() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
-        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 1, 0);
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
 
         runTest();
@@ -174,7 +174,7 @@ public class Part09Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForTSCC() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
-        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1);
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 1);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
 
         runTest();
@@ -210,7 +210,7 @@ public class Part09Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNoNACK() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
-        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0);
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
 
         dataRepository.putObdModule(new OBDModuleInformation(2));

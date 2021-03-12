@@ -133,7 +133,7 @@ public class Part11Step03ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPathNoFailures() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
-        var dm21 = DM21DiagnosticReadinessPacket.create(0, 1, 2, 3, 4);
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 1, 2, 3, 4);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));

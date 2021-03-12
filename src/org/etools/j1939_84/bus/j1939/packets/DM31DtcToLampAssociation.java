@@ -20,15 +20,14 @@ import org.etools.j1939_84.bus.Packet;
  *         DTC to Lamp Association
  */
 public class DM31DtcToLampAssociation extends GenericPacket {
-    // Hex value of PGN = 00A300
-    public static final int PGN = 41728;
+    public static final int PGN = 41728; // 0xA300
     private List<DTCLampStatus> dtcLampStatuses;
 
     public DM31DtcToLampAssociation(Packet packet) {
         super(packet);
     }
 
-    public static DM31DtcToLampAssociation create(int sourceAddress, DTCLampStatus... lampStatuses) {
+    public static DM31DtcToLampAssociation create(int sourceAddress, int destination, DTCLampStatus... lampStatuses) {
         int[] data = new int[0];
         if (lampStatuses.length > 0) {
             for (DTCLampStatus dtcLampStatus : lampStatuses) {
@@ -37,7 +36,7 @@ public class DM31DtcToLampAssociation extends GenericPacket {
         } else {
             data = new int[] { 0, 0, 0, 0, 0, 0xFF, 0xFF, 0xFF };
         }
-        return new DM31DtcToLampAssociation(Packet.create(PGN, sourceAddress, data));
+        return new DM31DtcToLampAssociation(Packet.create(PGN | destination, sourceAddress, data));
     }
 
     /**
