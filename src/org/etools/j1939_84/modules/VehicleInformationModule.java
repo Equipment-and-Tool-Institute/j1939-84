@@ -5,6 +5,7 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
+import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
 import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
@@ -23,7 +24,6 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
@@ -254,7 +254,7 @@ public class VehicleInformationModule extends FunctionalModule {
     public BusResult<ComponentIdentificationPacket> requestComponentIdentification(ResultsListener listener,
                                                                                    int address) {
         return getJ1939().requestDS("Destination Specific Component Identification Request to "
-                + Lookup.getAddressName(address),
+                + getAddressName(address),
                                     ComponentIdentificationPacket.class,
                                     address,
                                     listener);
@@ -291,14 +291,14 @@ public class VehicleInformationModule extends FunctionalModule {
     }
 
     public BusResult<EngineHoursPacket> requestEngineHours(ResultsListener listener, int address) {
-        return getJ1939().requestDS("Destination Specific Engine Hours Request to " + Lookup.getAddressName(address),
+        return getJ1939().requestDS("Destination Specific Engine Hours Request to " + getAddressName(address),
                                     EngineHoursPacket.class,
                                     address,
                                     listener);
     }
 
     public BusResult<IdleOperationPacket> requestIdleOperation(ResultsListener listener, int address) {
-        return getJ1939().requestDS("Destination Specific Idle Operation Request to " + Lookup.getAddressName(address),
+        return getJ1939().requestDS("Destination Specific Idle Operation Request to " + getAddressName(address),
                                     IdleOperationPacket.class,
                                     address,
                                     listener);
@@ -311,13 +311,17 @@ public class VehicleInformationModule extends FunctionalModule {
      * @return List of source addresses
      */
     public List<Integer> getOBDModules(ResultsListener listener) {
-        return requestDMPackets("DM5", DM5DiagnosticReadinessPacket.class, GLOBAL_ADDR, listener).getPackets()
-                                                                                                 .stream()
-                                                                                                 .filter(DM5DiagnosticReadinessPacket::isHdObd)
-                                                                                                 .map(ParsedPacket::getSourceAddress)
-                                                                                                 .sorted()
-                                                                                                 .distinct()
-                                                                                                 .collect(Collectors.toList());
+        return requestDMPackets("DM5",
+                                DM5DiagnosticReadinessPacket.class,
+                                GLOBAL_ADDR,
+                                listener)
+                                         .getPackets()
+                                         .stream()
+                                         .filter(DM5DiagnosticReadinessPacket::isHdObd)
+                                         .map(ParsedPacket::getSourceAddress)
+                                         .sorted()
+                                         .distinct()
+                                         .collect(Collectors.toList());
     }
 
     public void changeKeyState(ResultsListener listener, KeyState keyState) {
@@ -333,6 +337,22 @@ public class VehicleInformationModule extends FunctionalModule {
         }
 
         getJ1939().requestGlobal("Requesting " + keyState + " - REPORT IF SEEN IN THE FIELD",
+                                 pgn,
+                                 getJ1939().createRequestPacket(pgn, GLOBAL_ADDR),
+                                 listener);
+    }
+
+    public void implantFaultA(ResultsListener listener) {
+        int pgn = 0x1FFFA;
+        getJ1939().requestGlobal("Requesting Fault A to be implanted - REPORT IF SEEN IN THE FIELD",
+                                 pgn,
+                                 getJ1939().createRequestPacket(pgn, GLOBAL_ADDR),
+                                 listener);
+    }
+
+    public void implantFaultB(ResultsListener listener) {
+        int pgn = 0x1FFFB;
+        getJ1939().requestGlobal("Requesting Fault B to be implanted - REPORT IF SEEN IN THE FIELD",
                                  pgn,
                                  getJ1939().createRequestPacket(pgn, GLOBAL_ADDR),
                                  listener);

@@ -18,7 +18,7 @@ public class EngineSpeedPacket extends GenericPacket {
 
     public static EngineSpeedPacket create(int sourceAddress, int engineRPMs) {
         int[] data = new int[] { 0xFF, 0xFF, 0xFF };
-        data = CollectionUtils.join(data, toInts(engineRPMs * 8)); // Bytes 4 & 5
+        data = CollectionUtils.join(data, to2Ints(engineRPMs * 8)); // Bytes 4 & 5
         data = CollectionUtils.join(data, new int[] { 0xFF, 0xFF, 0xFF });
         return new EngineSpeedPacket(Packet.create(PGN, sourceAddress, data));
     }

@@ -52,8 +52,17 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
         int[] data = new int[2];
         data[0] = milData[0] << 6 | stopData[0] << 4 | amberData[0] << 2 | protectData[0];
         data[1] = milData[1] << 6 | stopData[1] << 4 | amberData[1] << 2 | protectData[1];
-        for (DiagnosticTroubleCode dtc : dtcs) {
-            data = join(data, dtc.getData());
+
+        if (dtcs.length == 0) {
+            data = join(data, new int[] { 0, 0, 0, 0 });
+        } else {
+            for (DiagnosticTroubleCode dtc : dtcs) {
+                data = join(data, dtc.getData());
+            }
+        }
+
+        if (data.length < 8) {
+            data = join(data, new int[] { 0xFF, 0xFF });
         }
 
         return Packet.create(pgn, address, data);

@@ -4,8 +4,27 @@
 package org.etools.j1939_84.bus.simulated;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.AC_SYSTEM_REFRIGERANT;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.BOOST_PRESSURE_CONTROL_SYS;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.CATALYST;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.COLD_START_AID_SYSTEM;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.COMPREHENSIVE_COMPONENT;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.DIESEL_PARTICULATE_FILTER;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.EGR_VVT_SYSTEM;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.EVAPORATIVE_SYSTEM;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.EXHAUST_GAS_SENSOR;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.EXHAUST_GAS_SENSOR_HEATER;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.FUEL_SYSTEM;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.HEATED_CATALYST;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.MISFIRE;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.NMHC_CONVERTING_CATALYST;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.NOX_CATALYST_ABSORBER;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.SECONDARY_AIR_SYSTEM;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
+import static org.etools.j1939_84.bus.j1939.packets.ParsedPacket.to2Bytes;
+import static org.etools.j1939_84.bus.j1939.packets.ParsedPacket.to4Bytes;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -26,6 +45,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
@@ -41,9 +61,15 @@ import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM7CommandTestsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
+import org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket;
+import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
+import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
+import org.etools.j1939_84.model.KeyState;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Simulated Engine used for System Testing
@@ -54,16 +80,17 @@ public class Engine implements AutoCloseable {
     private static final Charset A_UTF8 = StandardCharsets.UTF_8;
     private final static int ADDR = 0x00;
     private static final byte[] COMPONENT_ID = "INT*570261221315646M13*570HM2U3545277**".getBytes(A_UTF8);
-    private static final byte[] DISTANCE = as4Bytes(256345 * 8); // km
+    private static final byte[] DISTANCE = to4Bytes(256345L * 8); // km
+
     /*
      * Calibration ID must be 16 bytes
      */
     private static final byte[] ENGINE_CAL_ID1 = "PBT5MPR3        ".getBytes(A_UTF8);
-    private static final byte[] ENGINE_CVN1 = as4Bytes(0x40DCBF96);
+    private static final byte[] ENGINE_CVN1 = to4Bytes(0x40DCBF96L);
 
-    private static final byte[] ENGINE_HOURS = as4Bytes(3564 * 20); // hrs
-    private static final byte[] ENGINE_SPEED = as2Bytes(1400 * 8); // rpm
-    private static final byte[] ENGINE_SPEED_ZERO = as2Bytes(0); // rpm
+    private static final byte[] ENGINE_SPEED = to2Bytes(1400 * 8); // rpm
+    private static final byte[] ENGINE_SPEED_ZERO = to2Bytes(0); // rpm
+
     private static final byte NA = (byte) 0xFF;
     private static final byte[] NA3 = new byte[] { NA, NA, NA };
     private static final byte[] NA4 = new byte[] { NA, NA, NA, NA };
@@ -73,19 +100,23 @@ public class Engine implements AutoCloseable {
      * VIN can be any length up to 200 bytes, but should end with *
      */
     private static final byte[] VIN = "3HAMKSTN0FL575012*".getBytes(A_UTF8);
-    private final Boolean[] engineOn = { false };
-    private final Boolean[] keyOn = { false };
+    private KeyState keyState = KeyState.KEY_ON_ENGINE_OFF;
+
     private final Sim sim;
-    private boolean dtcsCleared = false;
 
     private final List<DiagnosticTroubleCode> activeDTCs = new ArrayList<>();
     private final List<DiagnosticTroubleCode> previouslyActiveDTCs = new ArrayList<>();
     private final List<DiagnosticTroubleCode> pendingActiveDTCs = new ArrayList<>();
     private final List<DiagnosticTroubleCode> permanentActiveDTCs = new ArrayList<>();
-    private final int ignitionCycles = 0;
+
+    private int ignitionCycles = 0;
     private final int obdConditions = 0;
-    private final long millisecondsSCC = 0;
+    private int secondsSCC = 0;
+    private int secondsWithMIL = 0;
     private final int warmUpsSCC = 0;
+    private int secondsRunning = 0;
+
+    private DiagnosticTroubleCode nextFault;
 
     public Engine(Bus bus) throws BusException {
         sim = new Sim(bus);
@@ -96,11 +127,14 @@ public class Engine implements AutoCloseable {
                      TimeUnit.MILLISECONDS,
                      () -> {
                          if (!isKeyOn()) {
+                             // Rather then stopping the schedule, just send a different message
                              return Packet.create(0x1FFFF, ADDR, NA8);
                          } else {
-                             return Packet.create(61444,
+                             return Packet.create(EngineSpeedPacket.PGN,
                                                   ADDR,
-                                                  combine(NA3, isEngineOn() ? ENGINE_SPEED : ENGINE_SPEED_ZERO, NA3));
+                                                  combine(NA3,
+                                                          isEngineOn() ? ENGINE_SPEED : ENGINE_SPEED_ZERO,
+                                                          NA3));
                          }
                      });
 
@@ -109,120 +143,124 @@ public class Engine implements AutoCloseable {
         sim.schedule(50,
                      50,
                      TimeUnit.MILLISECONDS,
-                     () -> Packet.create(0x0C, 0xF00A, ADDR, false, combine(as4Bytes(0), NA4)));
+                     () -> Packet.create(0x0C, 0xF00A, ADDR, false, combine(to4Bytes(0L), NA4)));
 
         sim.response(p -> isRequestFor(65259, p), () -> Packet.create(65259, ADDR, COMPONENT_ID));
 
         sim.response(p -> isRequestFor(0x1FFFF, p), p -> {
-            setKeyState(0x1FFFF);
+            setKeyState(KEY_ON_ENGINE_RUNNING);
             return Packet.create(0x1FFFF, ADDR, getKeyStateAsBytes());
         });
 
         sim.response(p -> isRequestFor(0x1FFFE, p), () -> {
-            setKeyState(0x1FFFE);
+            setKeyState(KeyState.KEY_ON_ENGINE_OFF);
             return Packet.create(0x1FFFE, ADDR, getKeyStateAsBytes());
         });
 
         sim.response(p -> isRequestFor(0x1FFFC, p), () -> {
-            setKeyState(0x1FFFC);
+            setKeyState(KeyState.KEY_OFF);
             return Packet.create(0x1FFFC, ADDR, getKeyStateAsBytes());
+        });
+
+        sim.response(p -> isRequestFor(0x1FFFA, p), () -> {
+            nextFault = DiagnosticTroubleCode.create(0xFA, 0x0A, 0, 1);
+            return Packet.create(0x1FFFA, ADDR, NA8);
+        });
+
+        sim.response(p -> isRequestFor(0x1FFFB, p), () -> {
+            nextFault = DiagnosticTroubleCode.create(0xFB, 0x0B, 0, 1);
+            return Packet.create(0x1FFFB, ADDR, NA8);
         });
 
         // 65278, Auxiliary Water Pump Pressure, AWPP, 1 s, 1, 73, Auxiliary Pump Pressure,4 9
         sim.response(p -> isRequestFor(65278, p), () -> Packet.create(65278, ADDR, NA8));
 
-        sim.response(p -> isRequestFor(65253, p),
-                     () -> {
-                         // Start a timer that will increment the numerators and
-                         // denominators for UI demo purposes startTimer();
-                         return Packet.create(65253, ADDR, combine(ENGINE_HOURS, NA4));
-                     });
+        sim.schedule(1, 1, SECONDS, () -> {
+            if (isEngineOn()) {
+                secondsRunning++;
+                secondsSCC++;
+                if (getMilStatus() == ON) {
+                    secondsWithMIL++;
+                }
+            }
+        });
+
+        sim.response(p -> isRequestFor(EngineHoursPacket.PGN, p),
+                     EngineHoursPacket.create(ADDR, secondsRunning)::getPacket);
 
         // Address Claim
         sim.response(p -> isRequestFor(0xEE00, p),
-                     () -> Packet.create(0xEEFF, ADDR, 0x00, 0x00, 0x40, 0x05, 0x00, 0x00, 0x65, 0x14));
+                     p -> Packet.create(0xEEFF, ADDR, 0x00, 0x00, 0x40, 0x05, 0x00, 0x00, 0x65, 0x14));
 
-        sim.response(p -> isRequestFor(65260, p), () -> Packet.create(65260, ADDR, VIN));
+        sim.response(p -> isRequestFor(VehicleIdentificationPacket.PGN, p),
+                     p -> Packet.create(VehicleIdentificationPacket.PGN, ADDR, VIN));
 
         // DM1
         sim.schedule(1,
                      1,
                      SECONDS,
                      () -> DM1ActiveDTCsPacket.create(ADDR,
+                                                      getMilStatus(),
                                                       OFF,
                                                       OFF,
                                                       OFF,
-                                                      OFF,
-                                                      activeDTCs.toArray(new DiagnosticTroubleCode[0])));
+                                                      activeDTCs.toArray(new DiagnosticTroubleCode[0]))
+                                              .getPacket());
 
         // DM 2
         sim.response(p -> isRequestFor(DM2PreviouslyActiveDTC.PGN, p),
-                     () -> {
-                         return DM2PreviouslyActiveDTC.create(ADDR,
-                                                              OFF,
-                                                              OFF,
-                                                              OFF,
-                                                              OFF,
-                                                              previouslyActiveDTCs.toArray(new DiagnosticTroubleCode[0]))
-                                                      .getPacket();
-                     });
+                     p -> DM2PreviouslyActiveDTC.create(ADDR,
+                                                        getMilStatus(),
+                                                        OFF,
+                                                        OFF,
+                                                        OFF,
+                                                        previouslyActiveDTCs.toArray(new DiagnosticTroubleCode[0]))
+                                                .getPacket());
 
         // DM5
         sim.response(p -> isRequestFor(DM5DiagnosticReadinessPacket.PGN, p),
-                     () -> {
-                         var supportedSystems = List.of(CompositeSystem.BOOST_PRESSURE_CONTROL_SYS,
-                                                        CompositeSystem.COMPREHENSIVE_COMPONENT,
-                                                        CompositeSystem.DIESEL_PARTICULATE_FILTER,
-                                                        CompositeSystem.EGR_VVT_SYSTEM,
-                                                        CompositeSystem.EXHAUST_GAS_SENSOR,
-                                                        CompositeSystem.EXHAUST_GAS_SENSOR_HEATER,
-                                                        CompositeSystem.FUEL_SYSTEM,
-                                                        CompositeSystem.MISFIRE,
-                                                        CompositeSystem.NMHC_CONVERTING_CATALYST,
-                                                        CompositeSystem.NOX_CATALYST_ABSORBER);
-
-                         var completeSystems = List.of(CompositeSystem.AC_SYSTEM_REFRIGERANT,
-                                                       CompositeSystem.CATALYST,
-                                                       CompositeSystem.COLD_START_AID_SYSTEM,
-                                                       CompositeSystem.COMPREHENSIVE_COMPONENT,
-                                                       CompositeSystem.EVAPORATIVE_SYSTEM,
-                                                       CompositeSystem.HEATED_CATALYST,
-                                                       CompositeSystem.SECONDARY_AIR_SYSTEM);
-
-                         return DM5DiagnosticReadinessPacket.create(ADDR,
-                                                                    activeDTCs.size(),
-                                                                    previouslyActiveDTCs.size(),
-                                                                    0x14,
-                                                                    supportedSystems,
-                                                                    completeSystems)
-                                                            .getPacket();
-                     });
+                     p -> DM5DiagnosticReadinessPacket.create(ADDR,
+                                                              activeDTCs.size(),
+                                                              previouslyActiveDTCs.size(),
+                                                              0x14,
+                                                              getEnabledSystems(),
+                                                              getCompleteDM5Systems())
+                                                      .getPacket());
 
         // DM6
-        sim.response(p -> isRequestFor(65231, p),
-                     () -> DM6PendingEmissionDTCPacket.create(0,
-                                                              ON,
-                                                              OFF,
-                                                              ON,
-                                                              ON,
-                                                              DiagnosticTroubleCode.create(123, 12, 0, 1))
-                                                      .getPacket());
+        sim.response(p -> isRequestFor(DM6PendingEmissionDTCPacket.PGN, p),
+                     p -> {
+                         return DM6PendingEmissionDTCPacket.create(ADDR,
+                                                                   getMilStatus(),
+                                                                   OFF,
+                                                                   OFF,
+                                                                   OFF,
+                                                                   pendingActiveDTCs.toArray(new DiagnosticTroubleCode[0]))
+                                                           .getPacket();
+                     });
 
         // DM11
         sim.response(p -> isRequestFor(DM11ClearActiveDTCsPacket.PGN, p), p -> {
-            dtcsCleared = true;
+            activeDTCs.clear(); // DM1 & DM12
+            previouslyActiveDTCs.clear(); // DM2 & DM23
+
+            // pendingActiveDTCs.clear(); //reset by something else
+            // permanentActiveDTCs.clear(); // reset by 3 cycle and then by General Denom
+
+            // Clear DM25
+
             return Packet.create(0, ADDR, NA8); // Don't return anything
         });
 
         // DM12
         sim.response(p -> isRequestFor(DM12MILOnEmissionDTCPacket.PGN, p),
-                     () -> DM12MILOnEmissionDTCPacket.create(0,
-                                                             ON,
-                                                             OFF,
-                                                             ON,
-                                                             ON,
-                                                             DiagnosticTroubleCode.create(123, 12, 0, 1))
-                                                     .getPacket());
+                     p -> DM12MILOnEmissionDTCPacket.create(ADDR,
+                                                            getMilStatus(),
+                                                            OFF,
+                                                            OFF,
+                                                            OFF,
+                                                            activeDTCs.toArray(new DiagnosticTroubleCode[0]))
+                                                    .getPacket());
 
         // DM19
         sim.response(p -> isRequestFor(DM19CalibrationInformationPacket.PGN, p),
@@ -235,8 +273,8 @@ public class Engine implements AutoCloseable {
                      p -> {
                          return DM20MonitorPerformanceRatioPacket.create(ADDR,
                                                                          p.getSource(),
-                                                                         1,
-                                                                         1,
+                                                                         ignitionCycles,
+                                                                         obdConditions,
                                                                          new PerformanceRatio(5322, 0, 0, 0),
                                                                          new PerformanceRatio(5318, 0, 0, 0),
                                                                          new PerformanceRatio(3058, 0, 0, 0),
@@ -249,32 +287,35 @@ public class Engine implements AutoCloseable {
 
         // DM21
         sim.response(p -> isRequestFor(DM21DiagnosticReadinessPacket.PGN, p),
-                     p -> Packet.create(DM21DiagnosticReadinessPacket.PGN | p.getSource(),
-                                        ADDR,
-                                        0x00,
-                                        0x00,
-                                        0x00,
-                                        0x00,
-                                        0x00,
-                                        0x00,
-                                        dtcsCleared ? 0x00 : 0x10,
-                                        0x00));
+                     p -> DM21DiagnosticReadinessPacket.create(ADDR,
+                                                               0,
+                                                               0,
+                                                               (int) getMinutesWithMil(),
+                                                               (int) getMinutesSCC())
+                                                       .getPacket());
 
         // DM23
-        sim.response(p -> isRequestFor(64949, p), () -> Packet.create(64949, ADDR, 0x00, 0x00, 0x00, 0x00, 0x00));
+        sim.response(p -> isRequestFor(DM23PreviouslyMILOnEmissionDTCPacket.PGN, p),
+                     p -> DM23PreviouslyMILOnEmissionDTCPacket.create(ADDR,
+                                                                      getMilStatus(),
+                                                                      OFF,
+                                                                      OFF,
+                                                                      OFF,
+                                                                      previouslyActiveDTCs.toArray(new DiagnosticTroubleCode[0]))
+                                                              .getPacket());
 
         // DM24 supported SPNs
         sim.response(p -> isRequestFor(DM24SPNSupportPacket.PGN, p),
-                     () -> {
+                     p -> {
                          return DM24SPNSupportPacket.create(ADDR,
                                                             SupportedSPN.create(27, false, true, false, 1),
                                                             SupportedSPN.create(84, false, true, false, 1),
                                                             SupportedSPN.create(91, false, true, false, 1),
                                                             SupportedSPN.create(92, false, true, true, 1),
                                                             SupportedSPN.create(94, false, true, false, 1),
-                                                            SupportedSPN.create(102, true, false, false, 1),
+                                                            SupportedSPN.create(102, true, true, false, 1),
                                                             SupportedSPN.create(108, false, true, false, 1),
-                                                            SupportedSPN.create(110, false, true, false, 1),
+                                                            SupportedSPN.create(110, false, true, true, 1),
                                                             SupportedSPN.create(157, true, false, false, 1),
                                                             SupportedSPN.create(158, false, true, false, 1),
                                                             SupportedSPN.create(183, false, true, false, 1),
@@ -325,7 +366,7 @@ public class Engine implements AutoCloseable {
         // @formatter:off
         // DM25
         sim.response(p -> isRequestFor(DM25ExpandedFreezeFrame.PGN, p),
-                     () -> Packet.create(DM25ExpandedFreezeFrame.PGN,
+                     p -> Packet.create(DM25ExpandedFreezeFrame.PGN,
                                          ADDR,
                                          0x56, 0x9D, 0x00, 0x07, 0x7F, 0x00, 0x01, 0x7B,
                                          0x00, 0x00, 0x39, 0x3A, 0x5C, 0x0F, 0xC4, 0xFB,
@@ -342,72 +383,42 @@ public class Engine implements AutoCloseable {
 
         // DM26
         sim.response(p -> isRequestFor(DM26TripDiagnosticReadinessPacket.PGN, p),
-                     () -> {
-                         var enabledSystems = List.of(CompositeSystem.BOOST_PRESSURE_CONTROL_SYS,
-                                                      CompositeSystem.COMPREHENSIVE_COMPONENT,
-                                                      CompositeSystem.DIESEL_PARTICULATE_FILTER,
-                                                      CompositeSystem.EGR_VVT_SYSTEM,
-                                                      CompositeSystem.EXHAUST_GAS_SENSOR,
-                                                      CompositeSystem.EXHAUST_GAS_SENSOR_HEATER,
-                                                      CompositeSystem.FUEL_SYSTEM,
-                                                      CompositeSystem.MISFIRE,
-                                                      CompositeSystem.NMHC_CONVERTING_CATALYST,
-                                                      CompositeSystem.NOX_CATALYST_ABSORBER);
-
-                         var completeSystems = List.of(CompositeSystem.AC_SYSTEM_REFRIGERANT,
-                                                       CompositeSystem.CATALYST,
-                                                       CompositeSystem.COLD_START_AID_SYSTEM,
-                                                       CompositeSystem.COMPREHENSIVE_COMPONENT,
-                                                       CompositeSystem.EVAPORATIVE_SYSTEM,
-                                                       CompositeSystem.HEATED_CATALYST,
-                                                       CompositeSystem.SECONDARY_AIR_SYSTEM);
-
-                         return DM26TripDiagnosticReadinessPacket.create(ADDR,
-                                                                         (int) (millisecondsSCC / 1000),
-                                                                         warmUpsSCC,
-                                                                         enabledSystems,
-                                                                         completeSystems)
-                                                                 .getPacket();
-                     });
+                     p -> DM26TripDiagnosticReadinessPacket.create(ADDR,
+                                                                   secondsSCC,
+                                                                   warmUpsSCC,
+                                                                   getEnabledSystems(),
+                                                                   getCompleteDM26Systems())
+                                                           .getPacket());
 
         // DM27
         sim.response(p -> isRequestFor(DM27AllPendingDTCsPacket.PGN, p),
-                     () -> Packet.create(DM27AllPendingDTCsPacket.PGN,
-                                         ADDR,
-                                         0x03,
-                                         0xFF,
-                                         0x66,
-                                         0x00,
-                                         0x04,
-                                         0x01,
-                                         0xFF,
-                                         0xFF));
+                     p -> DM27AllPendingDTCsPacket.create(ADDR,
+                                                          getMilStatus(),
+                                                          OFF,
+                                                          OFF,
+                                                          OFF,
+                                                          pendingActiveDTCs.toArray(new DiagnosticTroubleCode[0]))
+                                                  .getPacket());
 
         // DM28
         sim.response(p -> isRequestFor(DM28PermanentEmissionDTCPacket.PGN, p),
-                     () -> Packet.create(DM28PermanentEmissionDTCPacket.PGN,
-                                         ADDR,
-                                         0x03,
-                                         0xFF,
-                                         0x00,
-                                         0x00,
-                                         0x00,
-                                         0x00,
-                                         0xFF,
-                                         0xFF));
+                     p -> DM28PermanentEmissionDTCPacket.create(ADDR,
+                                                                getMilStatus(),
+                                                                OFF,
+                                                                OFF,
+                                                                OFF,
+                                                                permanentActiveDTCs.toArray(new DiagnosticTroubleCode[0]))
+                                                        .getPacket());
 
         // DM29 response
         sim.response(p -> isRequestFor(DM29DtcCounts.PGN, p),
-                     p -> Packet.create(DM29DtcCounts.PGN | p.getSource(),
-                                        ADDR,
-                                        0x00,
-                                        0x00,
-                                        0x01,
-                                        0x00,
-                                        0x01,
-                                        0xFF,
-                                        0xFF,
-                                        0xFF));
+                     p -> DM29DtcCounts.create(ADDR,
+                                               pendingActiveDTCs.size(),
+                                               0,
+                                               activeDTCs.size(),
+                                               previouslyActiveDTCs.size(),
+                                               permanentActiveDTCs.size())
+                                       .getPacket());
 
         // DM30 response for DM7 Request
         sim.response(Engine::isRequestForDM30, p -> {
@@ -460,14 +471,14 @@ public class Engine implements AutoCloseable {
 
         // DM31 response
         sim.response(p -> isRequestFor(DM31DtcToLampAssociation.PGN, p),
-                     () -> Packet.create(DM31DtcToLampAssociation.PGN | 0xFF,
-                                         ADDR,
-                                         0x61,
-                                         0x02,
-                                         0x13,
-                                         0x81,
-                                         0x62,
-                                         0x1D));
+                     p -> Packet.create(DM31DtcToLampAssociation.PGN | 0xFF,
+                                        ADDR,
+                                        0x61,
+                                        0x02,
+                                        0x13,
+                                        0x81,
+                                        0x62,
+                                        0x1D));
 
         // @formatter:off
         // DM33 response for DM33 Global Request for PGN 41216
@@ -509,57 +520,20 @@ public class Engine implements AutoCloseable {
                              ));
         // @formatter:on
 
-        // @formatter:off
-        sim.response(p -> isRequestFor(DM33EmissionIncreasingAECDActiveTime.PGN, p),
-                     p -> Packet
-                             .create(DM33EmissionIncreasingAECDActiveTime.PGN | p.getSource(), 
-                                     ADDR,
-                                     0x01,
-                                     0x00, 0x00, 0x00, 0x00,
-                                     0xFF, 0xFF, 0xFF, 0xFF,
-                                     0x04,
-                                     0x00, 0x00, 0x00, 0x00,
-                                     0xFF, 0xFF, 0xFF, 0xFF,
-                                     0x06,
-                                     0x00, 0x00, 0x00, 0x00,
-                                     0xFF, 0xFF, 0xFF, 0xFF,
-                                     0x0B,
-                                     0x00, 0x00, 0x00, 0x00,
-                                     0xFF, 0xFF, 0xFF, 0xFF,
-                                     0x0C,
-                                     0x00, 0x00, 0x00, 0x00,
-                                     0xFF, 0xFF, 0xFF, 0xFF,
-                                     0x0D,
-                                     0x00, 0x00, 0x00, 0x00,
-                                     0xFF, 0xFF, 0xFF, 0xFF,
-                                     0x31,
-                                     0x01, 0x00, 0x00, 0x00,
-                                     0xFF, 0xFF, 0xFF, 0xFF,
-                                     0x38,
-                                     0x0D, 0x00, 0x00, 0x00,
-                                     0xFF, 0xFF, 0xFF, 0xFF
-                             ));
-        // @formatter:on
-
         // DM56 Engine Model Year
         sim.response(p -> isRequestFor(DM56EngineFamilyPacket.PGN, p),
                      DM56EngineFamilyPacket.create(ADDR, 2015, true, "US HD OBD    ")::getPacket);
     }
 
-    private static byte[] as2Bytes(int a) {
-        byte[] ret = new byte[4];
-        ret[0] = (byte) (a & 0xFF);
-        ret[1] = (byte) ((a >> 8) & 0xFF);
-        return ret;
-    }
-
-    private static byte[] as4Bytes(int a) {
-        byte[] ret = new byte[4];
-        ret[0] = (byte) (a & 0xFF);
-        ret[1] = (byte) ((a >> 8) & 0xFF);
-        ret[2] = (byte) ((a >> 16) & 0xFF);
-        ret[3] = (byte) ((a >> 24) & 0xFF);
-        return ret;
+    @NotNull
+    private List<CompositeSystem> getCompleteDM26Systems() {
+        return List.of(AC_SYSTEM_REFRIGERANT,
+                       CATALYST,
+                       COLD_START_AID_SYSTEM,
+                       COMPREHENSIVE_COMPONENT,
+                       EVAPORATIVE_SYSTEM,
+                       HEATED_CATALYST,
+                       SECONDARY_AIR_SYSTEM);
     }
 
     private static byte[] combine(byte[]... bytes) {
@@ -588,32 +562,75 @@ public class Engine implements AutoCloseable {
         sim.close();
     }
 
-    private void setKeyState(int pgn) {
-        if (pgn == 0x1FFFF) {
-            J1939_84.getLogger().log(Level.INFO, "to Key On, Engine Running");
-            engineOn[0] = true;
-            keyOn[0] = true;
-        } else if (pgn == 0x1FFFE) {
-            J1939_84.getLogger().log(Level.INFO, "to Key ON/Engine OFF");
-            engineOn[0] = false;
-            keyOn[0] = true;
-        } else if (pgn == 0x1FFFC) {
-            J1939_84.getLogger().log(Level.INFO, "to Key Off");
-            engineOn[0] = false;
-            keyOn[0] = false;
+    private void setKeyState(KeyState keyState) {
+        J1939_84.getLogger().log(Level.INFO, "to " + keyState);
+
+        if (this.keyState != KEY_ON_ENGINE_RUNNING && keyState == KEY_ON_ENGINE_RUNNING) {
+            ignitionCycles++;
+
+            if (!pendingActiveDTCs.isEmpty()) {
+                DiagnosticTroubleCode dtc = pendingActiveDTCs.get(0);
+                activeDTCs.add(dtc);
+                permanentActiveDTCs.add(dtc);
+                pendingActiveDTCs.clear();
+            }
+
+            if (nextFault != null) {
+                pendingActiveDTCs.add(nextFault);
+                nextFault = null;
+            }
+
         }
+
+        this.keyState = keyState;
+    }
+
+    private long getMinutesWithMil() {
+        return TimeUnit.SECONDS.toMinutes(secondsWithMIL);
+    }
+
+    private long getMinutesSCC() {
+        return TimeUnit.SECONDS.toMinutes(secondsSCC);
     }
 
     private boolean isEngineOn() {
-        return engineOn[0];
+        return keyState == KEY_ON_ENGINE_RUNNING;
     }
 
     private boolean isKeyOn() {
-        return keyOn[0];
+        return keyState != KeyState.KEY_OFF;
     }
 
     private byte[] getKeyStateAsBytes() {
-        return combine(as4Bytes(isKeyOn() ? 1 : 0), as4Bytes(isEngineOn() ? 1 : 0));
+        long a = isEngineOn() ? 1 : 0;
+        long a1 = isKeyOn() ? 1 : 0;
+        return combine(to4Bytes(a1), to4Bytes(a));
     }
 
+    private LampStatus getMilStatus() {
+        return activeDTCs.isEmpty() ? OFF : ON;
+    }
+
+    private List<CompositeSystem> getEnabledSystems() {
+        return List.of(BOOST_PRESSURE_CONTROL_SYS,
+                       COMPREHENSIVE_COMPONENT,
+                       DIESEL_PARTICULATE_FILTER,
+                       EGR_VVT_SYSTEM,
+                       EXHAUST_GAS_SENSOR,
+                       EXHAUST_GAS_SENSOR_HEATER,
+                       FUEL_SYSTEM,
+                       MISFIRE,
+                       NMHC_CONVERTING_CATALYST,
+                       NOX_CATALYST_ABSORBER);
+    }
+
+    private List<CompositeSystem> getCompleteDM5Systems() {
+        return List.of(AC_SYSTEM_REFRIGERANT,
+                       CATALYST,
+                       COLD_START_AID_SYSTEM,
+                       COMPREHENSIVE_COMPONENT,
+                       EVAPORATIVE_SYSTEM,
+                       HEATED_CATALYST,
+                       SECONDARY_AIR_SYSTEM);
+    }
 }

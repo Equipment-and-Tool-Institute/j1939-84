@@ -4,7 +4,6 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.etools.j1939_84.bus.j1939.packets.ParsedPacket.to3Ints;
-import static org.etools.j1939_84.bus.j1939.packets.ParsedPacket.toInts;
 
 import java.util.Comparator;
 import java.util.Objects;
@@ -52,8 +51,8 @@ public class PerformanceRatio implements Comparable<PerformanceRatio> {
     public int[] getData() {
         int[] data = new int[0];
         data = CollectionUtils.join(data, to3Ints(spn));
-        data = CollectionUtils.join(data, toInts(numerator));
-        data = CollectionUtils.join(data, toInts(denominator));
+        data = CollectionUtils.join(data, ParsedPacket.to2Ints(numerator));
+        data = CollectionUtils.join(data, ParsedPacket.to2Ints(denominator));
         return data;
     }
 

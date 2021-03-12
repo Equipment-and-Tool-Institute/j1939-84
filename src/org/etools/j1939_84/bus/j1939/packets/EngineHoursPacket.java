@@ -11,7 +11,7 @@ public class EngineHoursPacket extends GenericPacket {
 
     public static EngineHoursPacket create(int address, long engineHours) {
         long hours = (long) (engineHours / 0.05);
-        int[] data = ParsedPacket.toInts(hours);
+        int[] data = ParsedPacket.to4Ints(hours);
         return new EngineHoursPacket(Packet.create(PGN, address, data));
     }
     public EngineHoursPacket(Packet packet) {

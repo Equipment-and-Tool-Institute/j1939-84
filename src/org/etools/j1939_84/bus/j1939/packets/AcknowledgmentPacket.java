@@ -33,7 +33,7 @@ public class AcknowledgmentPacket extends GenericPacket {
         data[3] = 0xFF;
         data[4] = addressAcknowledged;
 
-        int[] pgnInts = toInts(pgnRequested);
+        int[] pgnInts = to4Ints(pgnRequested);
         data[5] = pgnInts[0];
         data[6] = pgnInts[1];
         data[7] = pgnInts[2];

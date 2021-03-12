@@ -13,7 +13,7 @@ public class IdleOperationPacket extends GenericPacket {
     public static IdleOperationPacket create(int address, long idleHours) {
         long hours = (long) (idleHours / 0.05);
         int[] data = new int[] { 0xFF, 0xFF, 0xFF, 0xFF };
-        data = CollectionUtils.join(data, ParsedPacket.toInts(hours));
+        data = CollectionUtils.join(data, ParsedPacket.to4Ints(hours));
         return new IdleOperationPacket(Packet.create(PGN, address, data));
     }
 
