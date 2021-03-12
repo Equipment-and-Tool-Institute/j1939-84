@@ -26,10 +26,10 @@ public class DM21DiagnosticReadinessPacket extends GenericPacket {
                                                        int kmSinceCodeClear,
                                                        int minutesWithMIL,
                                                        int minutesSinceCodeClear) {
-        byte[] bytes = join(toBytes(kmWithMIL),
-                            toBytes(kmSinceCodeClear),
-                            toBytes(minutesWithMIL),
-                            toBytes(minutesSinceCodeClear));
+        byte[] bytes = join(to2Bytes(kmWithMIL),
+                            to2Bytes(kmSinceCodeClear),
+                            to2Bytes(minutesWithMIL),
+                            to2Bytes(minutesSinceCodeClear));
         return new DM21DiagnosticReadinessPacket(Packet.create(PGN, source, bytes));
     }
 

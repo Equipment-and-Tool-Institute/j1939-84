@@ -61,7 +61,7 @@ public class EngineSpeedModuleTest {
 
     private static EngineSpeedPacket engineSpeedPacket(int speed, LocalDateTime timestamp) {
         int[] data = new int[] { 0xFF, 0xFF, 0xFF };
-        data = CollectionUtils.join(data, ParsedPacket.toInts(speed * 8)); // Bytes 4 & 5
+        data = CollectionUtils.join(data, ParsedPacket.to2Ints(speed * 8)); // Bytes 4 & 5
         data = CollectionUtils.join(data, new int[] { 0xFF, 0xFF, 0xFF });
         Packet packet = Packet.create(timestamp, 0, EngineSpeedPacket.PGN, 0, false, data);
         return new EngineSpeedPacket(packet);
@@ -70,7 +70,7 @@ public class EngineSpeedModuleTest {
     private static GenericPacket idleSpeedPacket(int idleSpeed) {
         int[] data = new int[38];
         Arrays.fill(data, 0xFF);
-        data = CollectionUtils.join(ParsedPacket.toInts(idleSpeed * 8), data);
+        data = CollectionUtils.join(ParsedPacket.to2Ints(idleSpeed * 8), data);
 
         return new GenericPacket(Packet.create(65251, 0, data));
     }

@@ -3,7 +3,7 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
-import static org.etools.j1939_84.bus.j1939.packets.ParsedPacket.toInts;
+import static org.etools.j1939_84.bus.j1939.packets.ParsedPacket.to4Ints;
 import static org.etools.j1939_84.utils.CollectionUtils.join;
 
 import java.util.Objects;
@@ -21,7 +21,7 @@ public class EngineHoursTimer {
     private final int[] data;
 
     public EngineHoursTimer(int[] bytes) {
-        this.data = bytes;
+        data = bytes;
         eiAecdNumber = bytes[0];
         eiAecdTimer1 = getScaledLongValue(bytes, 1);
         eiAecdTimer2 = getScaledLongValue(bytes, 5);
@@ -30,8 +30,8 @@ public class EngineHoursTimer {
     public static EngineHoursTimer create(int timerNumber, long timer1, long timer2) {
         int[] data = new int[1];
         data[0] = timerNumber;
-        data = join(data, toInts(timer1));
-        data = join(data, toInts(timer2));
+        data = join(data, to4Ints(timer1));
+        data = join(data, to4Ints(timer2));
         return new EngineHoursTimer(data);
     }
 

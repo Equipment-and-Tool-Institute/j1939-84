@@ -39,18 +39,18 @@ public class ParsedPacket {
         this.packet = packet;
     }
 
-    public static byte[] toBytes(int value) {
+    public static byte[] to2Bytes(int value) {
         return new byte[] { (byte) (value & 0xFF), (byte) ((value >> 8) & 0xFF) };
     }
 
-    public static byte[] toBytes(long value) {
+    public static byte[] to4Bytes(long value) {
         return new byte[] { (byte) (value & 0xFF),
                 (byte) ((value >> 8) & 0xFF),
                 (byte) ((value >> 16) & 0xFF),
                 (byte) ((value >> 24) & 0xFF) };
     }
 
-    public static int[] toInts(int value) {
+    public static int[] to2Ints(int value) {
         return new int[] { (value & 0xFF), ((value >> 8) & 0xFF) };
     }
 
@@ -58,7 +58,7 @@ public class ParsedPacket {
         return new int[] { (byte) (value & 0xFF), (byte) ((value >> 8) & 0xFF), (byte) ((value >> 16) & 0xFF) };
     }
 
-    public static int[] toInts(long value) {
+    public static int[] to4Ints(long value) {
         return new int[] { (int) (value & 0xFF),
                 (int) ((value >> 8) & 0xFF),
                 (int) ((value >> 16) & 0xFF),
@@ -369,7 +369,7 @@ public class ParsedPacket {
 
         ParsedPacket that = (ParsedPacket) obj;
 
-        return this.getClass() == that.getClass() && packet.equals(that.packet);
+        return getClass() == that.getClass() && packet.equals(that.packet);
     }
 
     @Override

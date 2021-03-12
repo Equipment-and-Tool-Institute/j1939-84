@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part02;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.J1939_84.isTesting;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 
@@ -66,6 +67,9 @@ public class Part02Step18Controller extends StepController {
         // discussion).
         incrementProgress("Waiting for implant of Fault A according to the engine manufacturer's instruction");
         waitForFaultA();
+        if (isTesting()) {
+            getVehicleInformationModule().implantFaultA(getListener());
+        }
 
         // 6.2.18.1.c. Turn ignition key to the ON position.
         // 6.2.18.1.d. Observe MIL and Wait to Start Lamps in Instrument Cluster

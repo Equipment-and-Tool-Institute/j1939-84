@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
-import static org.etools.j1939_84.bus.j1939.packets.ParsedPacket.toInts;
 import static org.etools.j1939_84.utils.CollectionUtils.join;
 
 import java.util.Arrays;
@@ -59,10 +58,10 @@ public class ScaledTestResult {
         data[2] = (byte) ((spn >> 8) & 0xFF);
         data[3] = (byte) (((spn >> 16 & 0xE0)) + (fmi & 0x1F));
 
-        data = join(data, toInts(slotNumber));
-        data = join(data, toInts(testValue));
-        data = join(data, toInts(testMaximum));
-        data = join(data, toInts(testMinimum));
+        data = join(data, ParsedPacket.to2Ints(slotNumber));
+        data = join(data, ParsedPacket.to2Ints(testValue));
+        data = join(data, ParsedPacket.to2Ints(testMaximum));
+        data = join(data, ParsedPacket.to2Ints(testMinimum));
 
         return new ScaledTestResult(data);
     }
@@ -215,7 +214,7 @@ public class ScaledTestResult {
     @Override
     public String toString() {
         String result = "SPN " + getSpn() + " FMI " + getFmi() + " (SLOT " + slotNumber + ") ";
-        final TestResult testResult = getTestResult();
+        TestResult testResult = getTestResult();
         result += "Result: " + testResult + ".";
         if (testResult == TestResult.PASSED || testResult == TestResult.FAILED) {
             String unit = getSlot() != null ? getSlot().getUnit() : null;

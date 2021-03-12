@@ -33,8 +33,8 @@ public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
                                                            int obdConditions,
                                                            PerformanceRatio... ratios) {
         int[] data = new int[0];
-        data = join(data, toInts(ignitionCycles));
-        data = join(data, toInts(obdConditions));
+        data = join(data, to2Ints(ignitionCycles));
+        data = join(data, to2Ints(obdConditions));
         for (PerformanceRatio ratio : ratios) {
             data = join(data, ratio.getData());
         }

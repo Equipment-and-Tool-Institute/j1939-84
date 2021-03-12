@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part07;
 
 import static java.lang.String.format;
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.J1939_84.isTesting;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
@@ -136,6 +137,10 @@ public class Part07Step18Controller extends StepController {
         String message = "Implant Fault B according to engine manufacturer’s instruction" + NL;
         message += "Press OK to continue the testing";
         displayInstructionAndWait(message, "Step 6.7.18.1.b", WARNING);
+        if (isTesting()) {
+            getVehicleInformationModule().implantFaultB(getListener());
+        }
+
     }
 
 }
