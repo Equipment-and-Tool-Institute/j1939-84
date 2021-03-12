@@ -148,7 +148,10 @@ public class Part05Step06ControllerTest extends AbstractControllerTest {
         var dm20Packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data));
         when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(BusResult.of(dm20Packet));
 
-        dataRepository.putObdModule(new OBDModuleInformation(0));
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        obdModuleInformation.set(dm20Packet, 1);
+        dataRepository.putObdModule(obdModuleInformation);
+        dataRepository.putObdModule(new OBDModuleInformation(1));
 
         runTest();
 
@@ -164,7 +167,24 @@ public class Part05Step06ControllerTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(BusResult.empty());
 
-        dataRepository.putObdModule(new OBDModuleInformation(0));
+        int[] data = {
+                0x04, // Ignition Cycle Counter
+                0x00, // Ignition Cycle Counter
+                0x5A, // OBD Monitoring Conditions Encountered
+                0x5A, // OBD Monitoring Conditions Encountered
+
+                0x11, // SPN of Applicable System Monitor
+                0x11, // SPN of Applicable System Monitor
+                0x11, // SPN of Applicable System Monitor
+                0xAA, // Applicable System Monitor Numerator
+                0xAA, // Applicable System Monitor Numerator
+                0xBB, // Applicable System Monitor Denominator
+                0xBB, // Applicable System Monitor Denominator
+        };
+        var dm20Packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data));
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        obdModuleInformation.set(dm20Packet, 1);
+        dataRepository.putObdModule(obdModuleInformation);
 
         runTest();
 
