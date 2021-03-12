@@ -143,10 +143,10 @@ public class Part08Step09ControllerTest extends AbstractControllerTest {
 
         var lampStatus1 = DTCLampStatus.create(dtc1, OFF, ON, OFF, OFF);
         var lampStatus2 = DTCLampStatus.create(dtc2, OFF, OFF, OFF, OFF);
-        var dm31_0 = DM31DtcToLampAssociation.create(0, lampStatus1, lampStatus2);
+        var dm31_0 = DM31DtcToLampAssociation.create(0, 0, lampStatus1, lampStatus2);
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
-        var dm31_1 = DM31DtcToLampAssociation.create(1);
+        var dm31_1 = DM31DtcToLampAssociation.create(1, 0);
 
         when(diagnosticMessageModule.requestDM31(any())).thenReturn(RequestResult.of(dm31_0, dm31_1));
 
@@ -192,7 +192,7 @@ public class Part08Step09ControllerTest extends AbstractControllerTest {
         var lampStatus2 = DTCLampStatus.create(dtc2, OFF, OFF, OFF, OFF);
         var dtc3 = DiagnosticTroubleCode.create(203, 7, 0, 1);
         var lampStatus3 = DTCLampStatus.create(dtc3, OFF, OFF, OFF, OFF);
-        var dm31 = DM31DtcToLampAssociation.create(0, lampStatus1, lampStatus2, lampStatus3);
+        var dm31 = DM31DtcToLampAssociation.create(0, 0, lampStatus1, lampStatus2, lampStatus3);
 
         when(diagnosticMessageModule.requestDM31(any())).thenReturn(RequestResult.of(dm31));
 
@@ -219,7 +219,7 @@ public class Part08Step09ControllerTest extends AbstractControllerTest {
 
         var lampStatus1 = DTCLampStatus.create(dtc1, OFF, NOT_SUPPORTED, OFF, OFF);
         var lampStatus2 = DTCLampStatus.create(dtc2, OFF, OFF, OFF, OFF);
-        var dm31 = DM31DtcToLampAssociation.create(0, lampStatus1, lampStatus2);
+        var dm31 = DM31DtcToLampAssociation.create(0, 0, lampStatus1, lampStatus2);
 
         when(diagnosticMessageModule.requestDM31(any())).thenReturn(RequestResult.of(dm31));
 
@@ -246,7 +246,7 @@ public class Part08Step09ControllerTest extends AbstractControllerTest {
 
         var lampStatus1 = DTCLampStatus.create(dtc1, OFF, ON, OFF, OFF);
         var lampStatus2 = DTCLampStatus.create(dtc2, OFF, NOT_SUPPORTED, OFF, OFF);
-        var dm31 = DM31DtcToLampAssociation.create(0, lampStatus1, lampStatus2);
+        var dm31 = DM31DtcToLampAssociation.create(0, 0, lampStatus1, lampStatus2);
 
         when(diagnosticMessageModule.requestDM31(any())).thenReturn(RequestResult.of(dm31));
 

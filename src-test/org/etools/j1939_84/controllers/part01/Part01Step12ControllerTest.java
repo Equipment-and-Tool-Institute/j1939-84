@@ -141,6 +141,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 147, 31, 1, 0, 0, 0);
         ScaledTestResult scaledTestResult2 = ScaledTestResult.create(247, 159, 31, 8, 0, 0, 0);
         DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0,
+                                                                                    0,
                                                                                     scaledTestResult,
                                                                                     scaledTestResult2);
 
@@ -176,6 +177,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 31, 1, 0, 0, 0);
         ScaledTestResult scaledTestResult2 = ScaledTestResult.create(247, 159, 31, 8, 0, 0, 0);
         DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0,
+                                                                                    0,
                                                                                     scaledTestResult,
                                                                                     scaledTestResult2);
 
@@ -256,7 +258,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(createOBDModuleInformation(supportedSPN));
 
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 242, 0, 0, 0);
-        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult);
+        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, 0, scaledTestResult);
 
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
@@ -284,7 +286,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(createOBDModuleInformation(supportedSPN));
 
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 242, 0, 0x88, 0);
-        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult);
+        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, 0, scaledTestResult);
 
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
@@ -322,7 +324,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(createOBDModuleInformation(supportedSPN));
 
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 242, 0xFB00, 0, 0x88);
-        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult);
+        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, 0, scaledTestResult);
 
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
@@ -358,7 +360,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(createOBDModuleInformation(supportedSPN));
 
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 242, 0x25, 0, 0);
-        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult);
+        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, 0, scaledTestResult);
 
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
@@ -396,7 +398,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 1, 0xFB00, 0xFFFF, 0xFFFF);
 
-        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult);
+        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, 0, scaledTestResult);
 
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
@@ -447,7 +449,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 8, 0, 0, 0);
 
-        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult);
+        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, 0, scaledTestResult);
 
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
@@ -483,6 +485,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         ScaledTestResult scaledTestResult2 = ScaledTestResult.create(247, 157, 0, 242, 0xFB00, 0xFF00, 0xFFFF);
 
         DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0,
+                                                                                    0,
                                                                                     scaledTestResult,
                                                                                     scaledTestResult2);
 
@@ -530,7 +533,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(createOBDModuleInformation(supportedSPN));
 
         ScaledTestResult scaledTestResult2 = ScaledTestResult.create(247, 159, 18, 8, 0, 0, 0);
-        DM30ScaledTestResultsPacket dm30Packet2 = DM30ScaledTestResultsPacket.create(0, scaledTestResult2);
+        DM30ScaledTestResultsPacket dm30Packet2 = DM30ScaledTestResultsPacket.create(0, 0, scaledTestResult2);
 
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),

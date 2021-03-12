@@ -136,7 +136,7 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
         SupportedSPN supportedSPN0 = SupportedSPN.create(157, true, true, true, 1);
         obdModuleInformation0.setSupportedSPNs(List.of(supportedSPN0));
         dataRepository.putObdModule(obdModuleInformation0);
-        var dm30_0 = DM30ScaledTestResultsPacket.create(0, str0);
+        var dm30_0 = DM30ScaledTestResultsPacket.create(0, 0, str0);
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(246), eq(5846), eq(31))).thenReturn(List.of(
                                                                                                                      dm30_0));
 
@@ -149,7 +149,7 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation1);
 
         when(diagnosticMessageModule.requestTestResults(any(), eq(1), eq(246), eq(5846), eq(31))).thenReturn(List.of());
-        var dm30_1 = DM30ScaledTestResultsPacket.create(1, str1);
+        var dm30_1 = DM30ScaledTestResultsPacket.create(1, 0, str1);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(1),
                                                         eq(247),
@@ -188,7 +188,7 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation0);
 
         ScaledTestResult str1 = ScaledTestResult.create(247, 159, 8, 129, 0, 0, 0);
-        var dm30_0 = DM30ScaledTestResultsPacket.create(0, str0, str1);
+        var dm30_0 = DM30ScaledTestResultsPacket.create(0, 0, str0, str1);
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(246), eq(5846), eq(31))).thenReturn(List.of(
                                                                                                                      dm30_0));
 
@@ -202,7 +202,7 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestTestResults(any(), eq(1), eq(246), eq(5846), eq(31))).thenReturn(List.of());
         ScaledTestResult str12 = ScaledTestResult.create(247, 200, 8, 129, 0, 0, 0);
-        var dm30_1 = DM30ScaledTestResultsPacket.create(1, str11, str12);
+        var dm30_1 = DM30ScaledTestResultsPacket.create(1, 0, str11, str12);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(1),
                                                         eq(247),

@@ -137,7 +137,7 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation);
 
         var str123 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
-        var dm30_123 = DM30ScaledTestResultsPacket.create(0, str123);
+        var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str123);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
                                                         eq(250),
@@ -145,7 +145,7 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
                                                         eq(14))).thenReturn(List.of(dm30_123));
 
         var str456 = ScaledTestResult.create(250, 456, 9, 0, 0, 0, 0);
-        var dm30_456 = DM30ScaledTestResultsPacket.create(0, str456, str456);
+        var dm30_456 = DM30ScaledTestResultsPacket.create(0, 0, str456, str456);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
                                                         eq(250),
@@ -173,7 +173,7 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation);
 
         var str123 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
-        var dm30_123 = DM30ScaledTestResultsPacket.create(0, str123);
+        var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str123);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
                                                         eq(250),
@@ -181,7 +181,7 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
                                                         eq(14))).thenReturn(List.of(dm30_123));
 
         var str456 = ScaledTestResult.create(250, 456, 9, 0, 5, 10, 0);
-        var dm30_456 = DM30ScaledTestResultsPacket.create(0, str456);
+        var dm30_456 = DM30ScaledTestResultsPacket.create(0, 0, str456);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
                                                         eq(250),
@@ -211,7 +211,7 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation);
 
         var str123 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
-        var dm30_123 = DM30ScaledTestResultsPacket.create(0, str123);
+        var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str123);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
                                                         eq(250),
@@ -220,7 +220,7 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
 
         var str456_1 = ScaledTestResult.create(250, 456, 9, 0, 0, 0, 0);
         var str456_2 = ScaledTestResult.create(250, 456, 1, 0, 0, 0, 0);
-        var dm30_456 = DM30ScaledTestResultsPacket.create(0, str456_1, str456_2);
+        var dm30_456 = DM30ScaledTestResultsPacket.create(0, 0, str456_1, str456_2);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
                                                         eq(250),
@@ -250,7 +250,7 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation);
 
         var str123 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
-        var dm30_123 = DM30ScaledTestResultsPacket.create(0, str123);
+        var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str123);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
                                                         eq(250),

@@ -24,7 +24,7 @@ public class DM31DtcToLampAssociationTest {
 
     @Test
     public void testEmptyDTCs() {
-        DM31DtcToLampAssociation instance = DM31DtcToLampAssociation.create(0);
+        DM31DtcToLampAssociation instance = DM31DtcToLampAssociation.create(0, 0);
         assertEquals("DM31", instance.getName());
         assertTrue(instance.getDtcLampStatuses().isEmpty());
         assertEquals(8, instance.getPacket().getBytes().length);
@@ -48,6 +48,7 @@ public class DM31DtcToLampAssociationTest {
         DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(609, 19, 1, 1);
         DTCLampStatus dtcLampStatus = DTCLampStatus.create(dtc, OFF, SLOW_FLASH, OTHER, OTHER);
         DM31DtcToLampAssociation instance2 = DM31DtcToLampAssociation.create(0,
+                                                                             0,
                                                                              dtcLampStatus);
         assertTrue(instance.equals(instance2));
 
@@ -150,6 +151,7 @@ public class DM31DtcToLampAssociationTest {
         assertEquals(LampStatus.OTHER, lampStatus2.getAmberWarningLampStatus());
 
         DM31DtcToLampAssociation instance2 = DM31DtcToLampAssociation.create(0,
+                                                                             0,
                                                                              DTCLampStatus.create(dtc0,
                                                                                                   OFF,
                                                                                                   SLOW_FLASH,

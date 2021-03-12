@@ -161,7 +161,7 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoFailuresWithPacketOff() {
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        var dm31 = DM31DtcToLampAssociation.create(0, DTCLampStatus.create(dtc, OFF, OFF, OFF, OFF));
+        var dm31 = DM31DtcToLampAssociation.create(0, 0, DTCLampStatus.create(dtc, OFF, OFF, OFF, OFF));
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(new RequestResult<>(false, dm31));
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
@@ -179,7 +179,7 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoFailuresWithPacketAlternativeOff() {
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        var dm31 = DM31DtcToLampAssociation.create(0, DTCLampStatus.create(dtc, OFF, ALTERNATE_OFF, OFF, OFF));
+        var dm31 = DM31DtcToLampAssociation.create(0, 0, DTCLampStatus.create(dtc, OFF, ALTERNATE_OFF, OFF, OFF));
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(new RequestResult<>(false, dm31));
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
@@ -241,7 +241,7 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForMilNotOff() {
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        var dm31 = DM31DtcToLampAssociation.create(0, DTCLampStatus.create(dtc, OFF, ON, OFF, OFF));
+        var dm31 = DM31DtcToLampAssociation.create(0, 0, DTCLampStatus.create(dtc, OFF, ON, OFF, OFF));
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(new RequestResult<>(false, dm31));
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);

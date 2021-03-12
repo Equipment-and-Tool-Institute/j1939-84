@@ -84,7 +84,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         for (int i = 0; i < count; i++) {
             calInfo[i] = new CalibrationInformation(calId, cvn);
         }
-        return DM19CalibrationInformationPacket.create(sourceAddress, calInfo);
+        return DM19CalibrationInformationPacket.create(sourceAddress, 0, calInfo);
     }
 
     @Before

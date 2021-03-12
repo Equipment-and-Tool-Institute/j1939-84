@@ -135,11 +135,11 @@ public class Part07Step17ControllerTest extends AbstractControllerTest {
         obdModuleInformation.setNonInitializedTests(List.of(str1, str2));
         dataRepository.putObdModule(obdModuleInformation);
 
-        var dm30_123_12 = DM30ScaledTestResultsPacket.create(0, str1);
+        var dm30_123_12 = DM30ScaledTestResultsPacket.create(0, 0, str1);
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(250), eq(123), eq(12)))
                                                                                                 .thenReturn(List.of(dm30_123_12));
 
-        var dm30_456_9 = DM30ScaledTestResultsPacket.create(0, str2);
+        var dm30_456_9 = DM30ScaledTestResultsPacket.create(0, 0, str2);
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(250), eq(456), eq(9)))
                                                                                                .thenReturn(List.of(dm30_456_9));
 
@@ -162,12 +162,12 @@ public class Part07Step17ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation);
 
         var str_123_12 = ScaledTestResult.create(247, 123, 12, 6, 0, 0, 0);
-        var dm30_123_12 = DM30ScaledTestResultsPacket.create(0, str_123_12);
+        var dm30_123_12 = DM30ScaledTestResultsPacket.create(0, 0, str_123_12);
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(250), eq(123), eq(12)))
                                                                                                 .thenReturn(List.of(dm30_123_12));
 
         var str_456_9 = ScaledTestResult.create(247, 456, 9, 4, 0xFB00, 0xFFFF, 0xFFFF);
-        var dm30_456_9 = DM30ScaledTestResultsPacket.create(0, str_456_9);
+        var dm30_456_9 = DM30ScaledTestResultsPacket.create(0, 0, str_456_9);
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(250), eq(456), eq(9)))
                                                                                                .thenReturn(List.of(dm30_456_9));
 

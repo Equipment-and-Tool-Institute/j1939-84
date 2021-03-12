@@ -145,7 +145,7 @@ public class Part07Step15ControllerTest extends AbstractControllerTest {
         obdModuleInformation.setScaledTestResults(List.of(scaledTestResult1, scaledTestResult2));
         dataRepository.putObdModule(obdModuleInformation);
 
-        var dm30 = DM30ScaledTestResultsPacket.create(0, scaledTestResult1, scaledTestResult2);
+        var dm30 = DM30ScaledTestResultsPacket.create(0, 0, scaledTestResult1, scaledTestResult2);
         when(diagnosticMessageModule.requestTestResult(any(),
                                                        eq(0),
                                                        eq(246),
@@ -183,11 +183,11 @@ public class Part07Step15ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestTestResult(any(), eq(0), eq(246), eq(5846), eq(31)))
                                                                                                 .thenReturn(BusResult.empty());
 
-        var dm30_123 = DM30ScaledTestResultsPacket.create(0, scaledTestResult1);
+        var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, scaledTestResult1);
         when(diagnosticMessageModule.requestTestResult(any(), eq(0), eq(247), eq(123), eq(31)))
                                                                                                .thenReturn(BusResult.of(dm30_123));
 
-        var dm30_456 = DM30ScaledTestResultsPacket.create(0, scaledTestResult2);
+        var dm30_456 = DM30ScaledTestResultsPacket.create(0, 0, scaledTestResult2);
         when(diagnosticMessageModule.requestTestResult(any(), eq(0), eq(247), eq(456), eq(31)))
                                                                                                .thenReturn(BusResult.of(dm30_456));
 
@@ -254,7 +254,7 @@ public class Part07Step15ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation);
 
         var scaledTestResult3 = ScaledTestResult.create(247, 9634, 31, 4, 0, 0, 0);
-        var dm30 = DM30ScaledTestResultsPacket.create(0, scaledTestResult1, scaledTestResult2, scaledTestResult3);
+        var dm30 = DM30ScaledTestResultsPacket.create(0, 0, scaledTestResult1, scaledTestResult2, scaledTestResult3);
         when(diagnosticMessageModule.requestTestResult(any(),
                                                        eq(0),
                                                        eq(246),
@@ -290,7 +290,7 @@ public class Part07Step15ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestTestResult(any(), eq(0), eq(246), eq(5846), eq(31)))
                                                                                                 .thenReturn(BusResult.empty());
 
-        var dm30_123 = DM30ScaledTestResultsPacket.create(0, scaledTestResult1);
+        var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, scaledTestResult1);
         when(diagnosticMessageModule.requestTestResult(any(), eq(0), eq(247), eq(123), eq(31)))
                                                                                                .thenReturn(BusResult.of(dm30_123));
 

@@ -139,7 +139,7 @@ public class Part09Step13ControllerTest extends AbstractControllerTest {
         var dtc0 = DiagnosticTroubleCode.create(123, 1, 0, 1);
         obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0), 9);
         dataRepository.putObdModule(obdModuleInformation0);
-        var dm31_0 = DM31DtcToLampAssociation.create(0, DTCLampStatus.create(dtc0, OFF, OFF, OFF, OFF));
+        var dm31_0 = DM31DtcToLampAssociation.create(0, 0, DTCLampStatus.create(dtc0, OFF, OFF, OFF, OFF));
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(RequestResult.of(dm31_0));
 
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
@@ -173,7 +173,7 @@ public class Part09Step13ControllerTest extends AbstractControllerTest {
         var dtc0 = DiagnosticTroubleCode.create(123, 1, 0, 1);
         obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0), 9);
         dataRepository.putObdModule(obdModuleInformation0);
-        var dm31_0 = DM31DtcToLampAssociation.create(0, DTCLampStatus.create(dtc0, OFF, ON, OFF, OFF));
+        var dm31_0 = DM31DtcToLampAssociation.create(0, 0, DTCLampStatus.create(dtc0, OFF, ON, OFF, OFF));
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(RequestResult.of(dm31_0));
 
         runTest();

@@ -287,6 +287,7 @@ public class Engine implements AutoCloseable {
         // DM21
         sim.response(p -> isRequestFor(DM21DiagnosticReadinessPacket.PGN, p),
                      p -> DM21DiagnosticReadinessPacket.create(ADDR,
+                                                               p.getSource(),
                                                                0,
                                                                0,
                                                                (int) getMinutesWithMil(),
@@ -412,6 +413,7 @@ public class Engine implements AutoCloseable {
         // DM29 response
         sim.response(p -> isRequestFor(DM29DtcCounts.PGN, p),
                      p -> DM29DtcCounts.create(ADDR,
+                                               p.getSource(),
                                                pendingActiveDTCs.size(),
                                                0,
                                                activeDTCs.size(),
@@ -465,7 +467,8 @@ public class Engine implements AutoCloseable {
                 results.add(ScaledTestResult.create(testId, spn, fmi, 385, 0, 0, 0));
             }
 
-            return DM30ScaledTestResultsPacket.create(ADDR, results.toArray(new ScaledTestResult[0])).getPacket();
+            return DM30ScaledTestResultsPacket.create(ADDR, p.getSource(), results.toArray(new ScaledTestResult[0]))
+                                              .getPacket();
         });
 
         // DM31 response

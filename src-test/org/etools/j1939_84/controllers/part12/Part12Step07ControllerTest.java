@@ -129,9 +129,9 @@ public class Part12Step07ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 10);
-        var dm21_1 = DM21DiagnosticReadinessPacket.create(1, 0, 0, 0, 0xFFFF);
-        var dm21_3 = DM21DiagnosticReadinessPacket.create(3, 0, 0, 0, 11);
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 10);
+        var dm21_1 = DM21DiagnosticReadinessPacket.create(1, 0, 0, 0, 0, 0xFFFF);
+        var dm21_3 = DM21DiagnosticReadinessPacket.create(3, 0, 0, 0, 0, 11);
 
         when(diagnosticMessageModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0, dm21_1, dm21_3));
 
@@ -165,7 +165,7 @@ public class Part12Step07ControllerTest extends AbstractControllerTest {
     public void testFailureForDistanceSCCNonZero() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 1, 0, 10);
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 1, 0, 10);
 
         when(diagnosticMessageModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0));
 
@@ -185,7 +185,7 @@ public class Part12Step07ControllerTest extends AbstractControllerTest {
     public void testFailureForTSCCLessThan10() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 9);
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 9);
 
         when(diagnosticMessageModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0));
 
@@ -205,8 +205,8 @@ public class Part12Step07ControllerTest extends AbstractControllerTest {
     public void testFailureDifferentTSCCs() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 10);
-        var dm21_3 = DM21DiagnosticReadinessPacket.create(3, 0, 0, 0, 12);
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 10);
+        var dm21_3 = DM21DiagnosticReadinessPacket.create(3, 0, 0, 0, 0, 12);
 
         when(diagnosticMessageModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0, dm21_3));
 
@@ -224,7 +224,7 @@ public class Part12Step07ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForNoOBDResponse() {
-        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 10);
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 10);
 
         when(diagnosticMessageModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0));
 

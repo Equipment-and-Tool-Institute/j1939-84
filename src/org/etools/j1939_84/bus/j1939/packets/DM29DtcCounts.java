@@ -31,6 +31,7 @@ public class DM29DtcCounts extends GenericPacket {
     }
 
     public static DM29DtcCounts create(int source,
+                                       int destination,
                                        int emissionPendingCount,
                                        int allPendingCount,
                                        int milOnCount,
@@ -46,7 +47,7 @@ public class DM29DtcCounts extends GenericPacket {
         data[6] = (byte) 0xFF;
         data[7] = (byte) 0xFF;
 
-        return new DM29DtcCounts(Packet.create(PGN, source, data));
+        return new DM29DtcCounts(Packet.create(PGN | destination, source, data));
     }
 
     public int getAllPendingDTCCount() {

@@ -121,11 +121,11 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM21(any()))
                                                         .thenReturn(new RequestResult<>(false, List.of(), List.of()));
 
-        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0)))
                                                                .thenReturn(new BusResult<>(false, packet4));
 
-        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(17)))
                                                                 .thenReturn(new BusResult<>(false, packet5));
 
@@ -189,17 +189,17 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                                                                         globalPackets,
                                                                                         List.of()));
 
-        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0)))
                                                                .thenReturn(new BusResult<>(false, packet4));
         globalPackets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(17)))
                                                                 .thenReturn(new BusResult<>(false, packet5));
         globalPackets.add(packet5);
 
-        DM21DiagnosticReadinessPacket packet3 = create(21, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet3 = create(21, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(21)))
                                                                 .thenReturn(new BusResult<>(false, packet3));
 
@@ -232,15 +232,15 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                                                                         globalPackets,
                                                                                         List.of()));
         // return the set of OBD module addresses when requested
-        DM21DiagnosticReadinessPacket packet1 = create(9, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet1 = create(9, 0, 0, 0, 0, 0);
         globalPackets.add(packet1);
 
-        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0)))
                                                                .thenReturn(new BusResult<>(false, packet4));
         globalPackets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(17)))
                                                                 .thenReturn(new BusResult<>(false, packet5));
         globalPackets.add(packet5);
@@ -251,7 +251,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(packet2.getResponse()).thenReturn(Response.NACK);
         when(packet2.getSourceAddress()).thenReturn(9);
 
-        DM21DiagnosticReadinessPacket packet3 = create(21, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet3 = create(21, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(21)))
                                                                 .thenReturn(new BusResult<>(false, packet3));
 
@@ -285,15 +285,15 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                                                                         globalPackets,
                                                                                         List.of()));
         // return the set of OBD module addresses when requested
-        DM21DiagnosticReadinessPacket packet1 = create(9, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet1 = create(9, 0, 0, 0, 0, 0);
         globalPackets.add(packet1);
 
-        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0)))
                                                                .thenReturn(new BusResult<>(false, packet4));
         globalPackets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(17)))
                                                                 .thenReturn(new BusResult<>(false, packet5));
         globalPackets.add(packet5);
@@ -304,7 +304,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(packet2.getResponse()).thenReturn(Response.NACK);
         when(packet2.getSourceAddress()).thenReturn(16);
 
-        DM21DiagnosticReadinessPacket packet3 = create(21, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet3 = create(21, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(21)))
                                                                 .thenReturn(new BusResult<>(false, packet3));
 
@@ -341,12 +341,12 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                                         .thenReturn(new RequestResult<>(false, packets, List.of()));
         // return the set of OBD module addresses when requested
 
-        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0)))
                                                                .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(17)))
                                                                 .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
@@ -380,13 +380,13 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                                         .thenReturn(new RequestResult<>(false, packets, List.of()));
         // return the set of OBD module addresses when requested
 
-        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0)))
                                                                .thenReturn(new BusResult<>(false, packet4));
 
         packets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 15, 0, 0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 15, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(17)))
                                                                 .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
@@ -428,12 +428,12 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM21(any()))
                                                         .thenReturn(new RequestResult<>(false, packets, List.of()));
 
-        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0)))
                                                                .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = create(17, 10, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 10, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(17)))
                                                                 .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
@@ -479,12 +479,12 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM21(any()))
                                                         .thenReturn(new RequestResult<>(false, packets, List.of()));
 
-        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0)))
                                                                .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 20);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0, 20);
         when(diagnosticMessageModule.requestDM21(any(), eq(17)))
                                                                 .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
@@ -528,17 +528,17 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                                         .thenReturn(new RequestResult<>(false, packets, List.of()));
         // return the set of OBD module addresses when requested
 
-        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 25, 0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 25, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0)))
                                                                .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(17)))
                                                                 .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
-        DM21DiagnosticReadinessPacket packet6 = create(21, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet6 = create(21, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(21)))
                                                                 .thenReturn(new BusResult<>(false, packet6));
         packets.add(packet6);

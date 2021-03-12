@@ -129,6 +129,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(247), eq(5319), eq(31)))
                                                                                                  .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0,
+                                                                                                                                                        0,
                                                                                                                                                         testResult1)));
 
         runTest();
@@ -157,8 +158,8 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule0);
 
-        DM30ScaledTestResultsPacket dm30_1 = DM30ScaledTestResultsPacket.create(0, testResult1);
-        DM30ScaledTestResultsPacket dm30_2 = DM30ScaledTestResultsPacket.create(0, testResult2);
+        DM30ScaledTestResultsPacket dm30_1 = DM30ScaledTestResultsPacket.create(0, 0, testResult1);
+        DM30ScaledTestResultsPacket dm30_2 = DM30ScaledTestResultsPacket.create(0, 0, testResult2);
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(247), eq(spn1.getSpn()), eq(31)))
                                                                                                           .thenReturn(List.of(dm30_1,
                                                                                                                               dm30_2));
@@ -210,9 +211,11 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(247), eq(spn1.getSpn()), eq(31)))
                                                                                                           .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0,
+                                                                                                                                                                 0,
                                                                                                                                                                  testResult1)));
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(247), eq(spn2.getSpn()), eq(31)))
                                                                                                           .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0,
+                                                                                                                                                                 0,
                                                                                                                                                                  testResult2)));
 
         runTest();
@@ -250,9 +253,11 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(247), eq(spn1.getSpn()), eq(31)))
                                                                                                           .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0,
+                                                                                                                                                                 0,
                                                                                                                                                                  testResult1)));
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(247), eq(spn2.getSpn()), eq(31)))
                                                                                                           .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0,
+                                                                                                                                                                 0,
                                                                                                                                                                  testResult2)));
 
         runTest();

@@ -132,7 +132,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
-        var dsPacket = create(0, EngineHoursTimer.create(1, 4, 10));
+        var dsPacket = create(0, 0, EngineHoursTimer.create(1, 4, 10));
 
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
         obdModule.set(dsPacket, 2);
@@ -166,7 +166,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
         dataRepository.setVehicleInformation(vehInfo);
 
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        var previousPacket = create(0, EngineHoursTimer.create(1, 4, 10));
+        var previousPacket = create(0, 0, EngineHoursTimer.create(1, 4, 10));
         obdModule.set(previousPacket, 2);
         obdModule.set(previousPacket, 9);
         dataRepository.putObdModule(obdModule);
@@ -188,8 +188,8 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
     public void testdifferntNumberOfTimers() {
         var timer1 = EngineHoursTimer.create(1, 4, 10);
         var timer2 = EngineHoursTimer.create(1, 7, 9);
-        var previousPacket = create(0, timer1);
-        var packet = create(0, timer1, timer2);
+        var previousPacket = create(0, 0, timer1);
+        var packet = create(0, 0, timer1, timer2);
 
         when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(packet));
 
@@ -220,7 +220,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
     public void testWarnValueOfFB() {
         var timer1 = EngineHoursTimer.create(1, 4, 10);
         var timer2 = EngineHoursTimer.create(1, 7, 9);
-        var packet = create(0, timer1);
+        var packet = create(0, 0, timer1);
 
         when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(packet));
 
@@ -229,8 +229,8 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
         vehInfo.setFuelType(DSL);
         dataRepository.setVehicleInformation(vehInfo);
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(create(0, timer2), 2);
-        obdModule.set(create(0, timer2), 9);
+        obdModule.set(create(0, 0, timer2), 2);
+        obdModule.set(create(0, 0, timer2), 9);
         dataRepository.putObdModule(obdModule);
 
         runTest();
@@ -248,8 +248,8 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailTimer2Values() {
-        var globalPacket = create(0, EngineHoursTimer.create(1, 4, 10));
-        var dsPacket = create(0, EngineHoursTimer.create(1, 7, 9));
+        var globalPacket = create(0, 0, EngineHoursTimer.create(1, 4, 10));
+        var dsPacket = create(0, 0, EngineHoursTimer.create(1, 7, 9));
 
         when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(dsPacket));
 
@@ -278,8 +278,8 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailTimer1Values() {
-        var globalPacket = create(0, EngineHoursTimer.create(1, 7, 9));
-        var dsPacket = create(0, EngineHoursTimer.create(1, 3, 10));
+        var globalPacket = create(0, 0, EngineHoursTimer.create(1, 7, 9));
+        var dsPacket = create(0, 0, EngineHoursTimer.create(1, 3, 10));
 
         when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(dsPacket));
 
@@ -308,8 +308,8 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testEngineModelYearGreaterThan2024() {
-        var globalPacket = create(0, EngineHoursTimer.create(1, 7, 9));
-        var dsPacket = create(0, EngineHoursTimer.create(1, 3, 10));
+        var globalPacket = create(0, 0, EngineHoursTimer.create(1, 7, 9));
+        var dsPacket = create(0, 0, EngineHoursTimer.create(1, 3, 10));
 
         when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(dsPacket));
 

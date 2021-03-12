@@ -196,14 +196,17 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
         DiagnosticTroubleCode dtc = create(609, 19, 1, 1);
         DTCLampStatus dtcLampStatus = create(dtc, OFF, SLOW_FLASH, OTHER, OTHER);
         DM31DtcToLampAssociation packet = DM31DtcToLampAssociation.create(0,
+                                                                          0,
                                                                           dtcLampStatus);
         DiagnosticTroubleCode dtc1 = create(4334, 77, 0, 23);
         DTCLampStatus dtcLampStatus1 = create(dtc1, ON, SLOW_FLASH, OTHER, OTHER);
         DM31DtcToLampAssociation packet1 = DM31DtcToLampAssociation.create(1,
+                                                                           0,
                                                                            dtcLampStatus1);
         DiagnosticTroubleCode dtc2 = create(62002, 77, 0, 23);
         DTCLampStatus dtcLampStatus2 = create(dtc2, ON, ON, ON, ON);
         DM31DtcToLampAssociation packet2 = DM31DtcToLampAssociation.create(2,
+                                                                           0,
                                                                            dtcLampStatus2);
 
         when(diagnosticMessageModule.requestDM31(any(), eq(0x00)))

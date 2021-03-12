@@ -21,14 +21,16 @@ import org.etools.j1939_84.utils.CollectionUtils;
  *
  */
 public class DM19CalibrationInformationPacket extends GenericPacket {
-    public static final int PGN = 54016;
+    public static final int PGN = 54016; // 0xD300
 
-    public static DM19CalibrationInformationPacket create(int address, CalibrationInformation... calInfos) {
+    public static DM19CalibrationInformationPacket create(int address,
+                                                          int destination,
+                                                          CalibrationInformation... calInfos) {
         byte[] data = new byte[0];
         for (CalibrationInformation calInfo : calInfos) {
             data = CollectionUtils.join(data, calInfo.getBytes());
         }
-        return new DM19CalibrationInformationPacket(Packet.create(PGN, address, data));
+        return new DM19CalibrationInformationPacket(Packet.create(PGN | destination, address, data));
     }
 
     private List<CalibrationInformation> info;

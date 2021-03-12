@@ -105,8 +105,8 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testDifferentInPacketsFailure() {
 
-        var packet0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1);
-        var packet1 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 2);
+        var packet0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 1);
+        var packet1 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 2);
 
         var globalResults = new RequestResult<>(false, packet0);
 
@@ -133,8 +133,8 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoFailures() {
 
-        var packet0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1);
-        var packet17 = DM21DiagnosticReadinessPacket.create(17, 0, 0, 0, 2);
+        var packet0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 1);
+        var packet17 = DM21DiagnosticReadinessPacket.create(17, 0, 0, 0, 0, 2);
 
         var globalResults = new RequestResult<>(false, packet0, packet17);
 
@@ -156,7 +156,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoNackFailure() {
 
-        var packet0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1);
+        var packet0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 1);
 
         var globalResults = new RequestResult<>(false, packet0);
 
@@ -186,7 +186,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testNonZeroDistanceSCCFailure() {
 
-        var packet0 = DM21DiagnosticReadinessPacket.create(0, 1, 0, 0, 1);
+        var packet0 = DM21DiagnosticReadinessPacket.create(0, 0, 1, 0, 0, 1);
 
         var globalResults = new RequestResult<>(false, packet0);
 
@@ -213,7 +213,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testNonZeroTimeSCCFailure() {
 
-        var packet0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 1, 1);
+        var packet0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1, 1);
 
         var globalResults = new RequestResult<>(false, packet0);
 
@@ -264,7 +264,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testTimeWithSCCAsNotAvailableFailure() {
 
-        var packet0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0xFF00);
+        var packet0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 0xFF00);
 
         var globalResults = new RequestResult<>(false, packet0);
 
@@ -291,7 +291,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testZeroTimeWithSCCFailure() {
 
-        var packet0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0);
+        var packet0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 0);
 
         var globalResults = new RequestResult<>(false, packet0);
 

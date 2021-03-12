@@ -131,8 +131,8 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
-        var globalPacket = create(0, EngineHoursTimer.create(1, 4, 10));
-        var dsPacket = create(0, EngineHoursTimer.create(1, 4, 10));
+        var globalPacket = create(0, 0, EngineHoursTimer.create(1, 4, 10));
+        var dsPacket = create(0, 0, EngineHoursTimer.create(1, 4, 10));
 
         when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.of(globalPacket));
 
@@ -259,7 +259,7 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailNoGlobalResponse() {
-        var packet = create(0, EngineHoursTimer.create(0, 0, 0));
+        var packet = create(0, 0, EngineHoursTimer.create(0, 0, 0));
 
         when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.empty());
 
@@ -293,7 +293,7 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testWarnValueOfFB() {
-        var packet = create(0, EngineHoursTimer.create(0xFB, 0, 0));
+        var packet = create(0, 0, EngineHoursTimer.create(0xFB, 0, 0));
 
         when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.of(packet));
 
@@ -321,8 +321,8 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailTimerValues() {
-        var globalPacket = create(0, EngineHoursTimer.create(1, 4, 10));
-        var dsPacket = create(0, EngineHoursTimer.create(1, 7, 13));
+        var globalPacket = create(0, 0, EngineHoursTimer.create(1, 4, 10));
+        var dsPacket = create(0, 0, EngineHoursTimer.create(1, 7, 13));
 
         when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.of(globalPacket));
 

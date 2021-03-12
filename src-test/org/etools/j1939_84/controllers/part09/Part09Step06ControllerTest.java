@@ -136,14 +136,14 @@ public class Part09Step06ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        var dm30_123 = DM30ScaledTestResultsPacket.create(0, str1);
+        var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str1);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
                                                         eq(247),
                                                         eq(123),
                                                         eq(14))).thenReturn(List.of(dm30_123));
 
-        var dm30_456 = DM30ScaledTestResultsPacket.create(0, str2);
+        var dm30_456 = DM30ScaledTestResultsPacket.create(0, 0, str2);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
                                                         eq(247),
@@ -170,7 +170,7 @@ public class Part09Step06ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        var dm30_123 = DM30ScaledTestResultsPacket.create(0, str2);
+        var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str2);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
                                                         eq(247),

@@ -132,7 +132,7 @@ public class Part07Step14ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
-        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 1, 0);
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
@@ -154,7 +154,7 @@ public class Part07Step14ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         dataRepository.putObdModule(obdModuleInformation);
 
-        var dm21 = DM21DiagnosticReadinessPacket.create(0, 1, 0, 0, 0);
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 1, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
 
         runTest();
@@ -174,7 +174,7 @@ public class Part07Step14ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         dataRepository.putObdModule(obdModuleInformation);
 
-        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 1, 0);
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
