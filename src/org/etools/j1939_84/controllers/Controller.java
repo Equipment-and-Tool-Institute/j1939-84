@@ -31,7 +31,10 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  */
 public abstract class Controller {
 
-    private static final List<Ending> INTERUPPTABLE_ENDINGS = List.of(Ending.STOPPED, Ending.ABORTED, Ending.FAILED);
+    private static final List<Ending> INTERUPPTABLE_ENDINGS = List.of(Ending.STOPPED,
+                                                                      Ending.ABORTED,
+                                                                      Ending.FAILED,
+                                                                      Ending.COMPLETED);
     private static int currentStep;
     private static Ending ending;
     private static int maxSteps;

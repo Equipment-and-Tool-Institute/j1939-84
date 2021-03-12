@@ -165,11 +165,11 @@ public class BusService {
         new Thread(() -> {
             long secondsToGo = seconds;
             while (secondsToGo > 0) {
-                secondsToGo = (stopTime - dateTimeModule.getTimeAsLong()) / 1000;
-                listener.onProgress(String.format(message, secondsToGo));
-                dateTimeModule.pauseFor(1000);
                 try {
+                    secondsToGo = (stopTime - dateTimeModule.getTimeAsLong()) / 1000;
                     Controller.checkEnding();
+                    listener.onProgress(String.format(message, secondsToGo));
+                    dateTimeModule.pauseFor(1000);
                 } catch (InterruptedException e) {
                     secondsToGo = 0;
                 }
