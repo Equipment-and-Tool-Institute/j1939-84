@@ -20,6 +20,7 @@ import org.etools.j1939_84.bus.j1939.packets.model.Spn;
 import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.controllers.BroadcastValidator;
 import org.etools.j1939_84.controllers.BusService;
+import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TableA1Validator;
@@ -146,9 +147,17 @@ public class Part01Step26Controller extends StepController {
         // 6.1.26.1.a. Gather broadcast data for all SPNs that are supported for data
         // stream in the OBD ECU DM24 responses.
         // we need 3 samples plus time for a BAM, to 4 * maxPeriod
-        Stream<GenericPacket> packetStream = busService.readBus(broadcastValidator.getMaximumBroadcastPeriod() * 4);
+        Stream<GenericPacket> packetStream = busService.readBus(broadcastValidator.getMaximumBroadcastPeriod() * 4,
+                                                                "6.1.26.1.a");
 
         List<GenericPacket> packets = packetStream
+                                                  .peek(p -> {
+                                                      try {
+                                                          Controller.checkEnding();
+                                                      } catch (InterruptedException e) {
+                                                          packetStream.close();
+                                                      }
+                                                  })
                                                   .peek(p ->
                                                   // 6.1.26.2.a. Fail if unsupported (received as not available (as
                                                   // described in SAE J1939-71))
@@ -205,7 +214,6 @@ public class Part01Step26Controller extends StepController {
         // Find and report any Supported SPNs which should have been received but weren't
         for (OBDModuleInformation obdModule : getDataRepository().getObdModules()) {
             int moduleAddress = obdModule.getSourceAddress();
-            updateProgress("Verifying " + Lookup.getAddressName(moduleAddress));
 
             // Get the SPNs which are supported by the module
             List<Integer> dataStreamSPNs = obdModule.getFilteredDataStreamSPNs()
@@ -243,6 +251,7 @@ public class Part01Step26Controller extends StepController {
             dataStreamSPNs.removeAll(receivedSPNs);
 
             for (int pgn : requestPGNs) {
+                updateProgress("Test 1.26 Verifying " + Lookup.getAddressName(moduleAddress));
                 String spns = j1939DaRepository.findPgnDefinition(pgn)
                                                .getSpnDefinitions()
                                                .stream()

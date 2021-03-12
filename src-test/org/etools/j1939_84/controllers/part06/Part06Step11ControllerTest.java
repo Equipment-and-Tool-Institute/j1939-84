@@ -375,7 +375,6 @@ verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
         expectedMessages += "Step 6.6.11.1.c - Turn the ignition key in the on position" + NL;
         expectedMessages += "Waiting for Key OFF..." + NL;
         expectedMessages += "Waiting for Key OFF..." + NL;
-        expectedMessages += "Waiting for Key OFF..." + NL;
         expectedMessages += "User cancelled testing at Part 6 Step 11";
         assertEquals(expectedMessages, listener.getMessages());
 

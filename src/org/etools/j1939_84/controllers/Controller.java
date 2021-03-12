@@ -31,7 +31,10 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  */
 public abstract class Controller {
 
-    private static final List<Ending> INTERUPPTABLE_ENDINGS = List.of(Ending.STOPPED, Ending.ABORTED, Ending.FAILED);
+    private static final List<Ending> INTERUPPTABLE_ENDINGS = List.of(Ending.STOPPED,
+                                                                      Ending.ABORTED,
+                                                                      Ending.FAILED,
+                                                                      Ending.COMPLETED);
     private static int currentStep;
     private static Ending ending;
     private static int maxSteps;
@@ -88,7 +91,7 @@ public abstract class Controller {
      * @throws InterruptedException
      *                                  if the ending has been set
      */
-    private void checkEnding() throws InterruptedException {
+    public static void checkEnding() throws InterruptedException {
         if (getEnding() != null && INTERUPPTABLE_ENDINGS.contains(getEnding())) {
             throw new InterruptedException(getEnding().toString());
         }
@@ -97,7 +100,7 @@ public abstract class Controller {
     /**
      * @return the ending
      */
-    protected Ending getEnding() {
+    protected static Ending getEnding() {
         return ending;
     }
 
@@ -261,13 +264,15 @@ public abstract class Controller {
                 run();
             } catch (Throwable e) {
                 getLogger().log(Level.SEVERE, "Error", e);
-                if (!(e instanceof InterruptedException)) {
-                    String message = e.getMessage();
-                    if (message == null) {
-                        message = "An Error Occurred";
-                    }
-                    getListener().onMessage(message, "Error", MessageType.ERROR);
+                if (e instanceof InterruptedException || e.getCause() instanceof InterruptedException) {
+                    return;
                 }
+
+                String message = e.getMessage();
+                if (message == null) {
+                    message = "An Error Occurred";
+                }
+                getListener().onMessage(message, "Error", MessageType.ERROR);
             }
         };
     }
@@ -302,8 +307,8 @@ public abstract class Controller {
      *                                  if the operation has been Stopped
      */
     protected void incrementProgress(String message) throws InterruptedException {
-        getListener().onProgress(++currentStep, maxSteps, message);
         checkEnding();
+        getListener().onProgress(++currentStep, maxSteps, message);
     }
 
     /**
@@ -369,8 +374,8 @@ public abstract class Controller {
      *                                  if the operation has been Stopped
      */
     protected void updateProgress(String message) throws InterruptedException {
-        getListener().onProgress(currentStep, maxSteps, message);
         checkEnding();
+        getListener().onProgress(currentStep, maxSteps, message);
     }
 
     protected enum Ending {

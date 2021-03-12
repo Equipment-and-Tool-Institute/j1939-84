@@ -179,8 +179,7 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         for (int i = 1; i <= 300; i++) {
             expectedMessages.append("Requesting DM6 Attempt ").append(i).append(NL);
         }
-        expectedMessages.append("User cancelled testing at Part 3 Step 2").append(NL);
-        expectedMessages.append("Requesting DM6 Attempt 1");
+        expectedMessages.append("User cancelled testing at Part 3 Step 2");
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
         StringBuilder expectedResults = new StringBuilder();

@@ -268,7 +268,6 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Step 1.1.a - c Displaying Warning Message" + NL;
         expectedMessages += "Step 1.1.d Ensuring Key ON/Engine OFF" + NL;
-        expectedMessages += "Step 1.1.e Collecting Vehicle Information" + NL;
         expectedMessages += "Step 1.1.e Collecting Vehicle Information";
         assertEquals(expectedMessages, listener.getMessages());
 
@@ -315,7 +314,6 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Step 1.1.a - c Displaying Warning Message" + NL;
         expectedMessages += "Step 1.1.d Ensuring Key ON/Engine OFF" + NL;
-        expectedMessages += "Waiting for Key ON/Engine OFF..." + NL;
         expectedMessages += "Waiting for Key ON/Engine OFF...";
         assertEquals(expectedMessages, listener.getMessages());
 

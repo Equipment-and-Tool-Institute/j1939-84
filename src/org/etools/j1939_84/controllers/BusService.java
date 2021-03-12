@@ -30,7 +30,7 @@ public class BusService {
 
     public BusService(J1939DaRepository j1939DaRepository) {
         this.j1939DaRepository = j1939DaRepository;
-        this.dateTimeModule = DateTimeModule.getInstance();
+        dateTimeModule = DateTimeModule.getInstance();
     }
 
     /**
@@ -146,8 +146,8 @@ public class BusService {
      *                     the number of seconds to read the bus
      * @return         the Stream of GenericPackets that were received
      */
-    public Stream<GenericPacket> readBus(int seconds) {
-        return readBus(seconds, genericPacket -> true);
+    public Stream<GenericPacket> readBus(int seconds, String section) {
+        return readBus(seconds, section, genericPacket -> true);
     }
 
     /**
@@ -158,15 +158,21 @@ public class BusService {
      *                     the number of seconds to read the bus
      * @return         the Steam of GenericPackets that were received
      */
-    public Stream<GenericPacket> readBus(int seconds, Predicate<GenericPacket> filter) {
-        listener.onResult("Reading bus for " + seconds + " seconds");
+    public Stream<GenericPacket> readBus(int seconds, String step, Predicate<GenericPacket> filter) {
+        String message = "Step " + step + " Reading bus for %1$d seconds";
+        listener.onResult(String.format(message, seconds));
         long stopTime = dateTimeModule.getTimeAsLong() + seconds * 1000L;
         new Thread(() -> {
             long secondsToGo = seconds;
             while (secondsToGo > 0) {
-                secondsToGo = (stopTime - dateTimeModule.getTimeAsLong()) / 1000;
-                listener.onProgress(String.format("Reading bus for %1$d seconds", secondsToGo));
-                dateTimeModule.pauseFor(1000);
+                try {
+                    secondsToGo = (stopTime - dateTimeModule.getTimeAsLong()) / 1000;
+                    Controller.checkEnding();
+                    listener.onProgress(String.format(message, secondsToGo));
+                    dateTimeModule.pauseFor(1000);
+                } catch (InterruptedException e) {
+                    secondsToGo = 0;
+                }
             }
         }).start();
 

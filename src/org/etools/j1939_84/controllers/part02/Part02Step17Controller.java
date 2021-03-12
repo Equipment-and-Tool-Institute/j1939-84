@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.Lookup;
@@ -19,6 +20,7 @@ import org.etools.j1939_84.bus.j1939.packets.model.Spn;
 import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.controllers.BroadcastValidator;
 import org.etools.j1939_84.controllers.BusService;
+import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TableA1Validator;
@@ -103,43 +105,48 @@ public class Part02Step17Controller extends StepController {
 
         // 6.2.17.1.a. Gather broadcast data for all SPNs that are supported for data stream in the OBD ECU responses.
         // x2 to ensure all necessary messages have been received
-        List<GenericPacket> packets = busService.readBus(broadcastValidator.getMaximumBroadcastPeriod() * 2)
-                                                .peek(p ->
-                                                // 6.2.17.2.a. Fail if unsupported (received as not available (as
-                                                // described in SAE J1939-71))
-                                                // for any broadcast SPN indicated as supported by the OBD ECU in DM24
-                                                // with the Source Address matching the received message) in DM24.
-                                                tableA1Validator.reportNotAvailableSPNs(p,
-                                                                                        getListener(),
-                                                                                        "6.2.17.2.a"))
-                                                .peek(p ->
-                                                // 6.2.17.2.b. Fail/warn if any broadcast data is not valid for KOER
-                                                // conditions
-                                                // as per Table A-1, Minimum Data Stream Support.
-                                                tableA1Validator.reportImplausibleSPNValues(p,
-                                                                                            getListener(),
-                                                                                            true,
-                                                                                            "6.2.17.2.b"))
-                                                .peek(p ->
-                                                // 6.2.17.2.c. Fail/warn per Table A-1 if an expected SPN from the DM24
-                                                // support list
-                                                // is provided by a non-OBD ECU.
-                                                tableA1Validator.reportNonObdModuleProvidedSPNs(p,
-                                                                                                getListener(),
-                                                                                                "6.2.17.2.c"))
-                                                .peek(p ->
+        Stream<GenericPacket> packetStream = busService.readBus(broadcastValidator.getMaximumBroadcastPeriod() * 2,
+                                                                "6.2.17.1.a");
+        var packets = packetStream
+                                  .peek(p -> {
+                                      try {
+                                          Controller.checkEnding();
+                                      } catch (InterruptedException e) {
+                                          packetStream.close();
+                                      }
+                                  })
+                                  .peek(p -> {
+                                      // 6.2.17.2.a. Fail if unsupported (received as not available (as
+                                      // described in SAE J1939-71))
+                                      // for any broadcast SPN indicated as supported by the OBD ECU in DM24
+                                      // with the Source Address matching the received message) in DM24.
+                                      tableA1Validator.reportNotAvailableSPNs(p, getListener(), "6.2.17.2.a");
+                                  })
+                                  .peek(p -> {
+                                      // 6.2.17.2.b. Fail/warn if any broadcast data is not valid for KOER
+                                      // conditions
+                                      // as per Table A-1, Minimum Data Stream Support.
+                                      tableA1Validator.reportImplausibleSPNValues(p, getListener(), true, "6.2.17.2.b");
+                                  })
+                                  .peek(p -> {
+                                      // 6.2.17.2.c. Fail/warn per Table A-1 if an expected SPN from the
+                                      // DM24 support list is provided by a non-OBD ECU.
+                                      tableA1Validator.reportNonObdModuleProvidedSPNs(p, getListener(), "6.2.17.2.c");
+                                  })
+                                  .peek(p -> {
 
-                                                // 6.2.17.3.a. Identify SPNs provided in the data stream that are listed
-                                                // in Table A-1 but not supported by any OBD ECU in its DM24 response.
-                                                // 6.2.17.4.a. Fail/warn per Table A-1 column, “Action if SPN provided
-                                                // but not included in DM24”.
-                                                tableA1Validator.reportProvidedButNotSupportedSPNs(p,
-                                                                                                   getListener(),
-                                                                                                   "6.2.17.4.a"))
-                                                .peek(p -> tableA1Validator.reportPacketIfNotReported(p,
-                                                                                                      getListener(),
-                                                                                                      false))
-                                                .collect(Collectors.toList());
+                                      // 6.2.17.3.a. Identify SPNs provided in the data stream that are listed
+                                      // in Table A-1 but not supported by any OBD ECU in its DM24 response.
+                                      // 6.2.17.4.a. Fail/warn per Table A-1 column, “Action if SPN provided
+                                      // but not included in DM24”.
+                                      tableA1Validator.reportProvidedButNotSupportedSPNs(p,
+                                                                                         getListener(),
+                                                                                         "6.2.17.4.a");
+                                  })
+                                  .peek(p -> {
+                                      tableA1Validator.reportPacketIfNotReported(p, getListener(), false);
+                                  })
+                                  .collect(Collectors.toList());
 
         // 6.2.17.2.d. Fail/warn per Table A-1, if two or more ECUs provide an SPN listed.
         tableA1Validator.reportDuplicateSPNs(packets, getListener(), "6.2.17.2.d");
@@ -157,7 +164,6 @@ public class Part02Step17Controller extends StepController {
         // Find and report any Supported SPNs which should have been received but weren't
         for (OBDModuleInformation obdModule : getDataRepository().getObdModules()) {
             int moduleAddress = obdModule.getSourceAddress();
-            updateProgress("Verifying " + Lookup.getAddressName(moduleAddress));
 
             // Get the SPNs which are supported by the module
             List<Integer> dataStreamSPNs = obdModule.getFilteredDataStreamSPNs()
@@ -196,6 +202,7 @@ public class Part02Step17Controller extends StepController {
             dataStreamSPNs.removeAll(receivedSPNs);
 
             for (int pgn : requestPGNs) {
+                updateProgress("Test 2.17 Verifying " + Lookup.getAddressName(moduleAddress));
                 String spns = j1939DaRepository.findPgnDefinition(pgn)
                                                .getSpnDefinitions()
                                                .stream()

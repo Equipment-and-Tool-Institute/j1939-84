@@ -77,13 +77,13 @@ public class BusServiceTest {
         packets.add(Either.nullable(packet(44444), null));
         when(j1939.read(GenericPacket.class, 1, TimeUnit.SECONDS)).thenReturn(packets.stream());
 
-        List<GenericPacket> actual = instance.readBus(1).collect(Collectors.toList());
+        List<GenericPacket> actual = instance.readBus(1, "6.1.2.3.a").collect(Collectors.toList());
         assertEquals(4, actual.size());
 
         verify(j1939).read(GenericPacket.class, 1, TimeUnit.SECONDS);
 
-        verify(listener).onResult("Reading bus for 1 seconds");
-        verify(listener).onProgress("Reading bus for 0 seconds");
+        verify(listener).onResult("Step 6.1.2.3.a Reading bus for 1 seconds");
+        verify(listener).onProgress("Step 6.1.2.3.a Reading bus for 0 seconds");
 
         assertEquals(11111, actual.get(0).getPacket().getPgn());
         assertEquals(22222, actual.get(1).getPacket().getPgn());
