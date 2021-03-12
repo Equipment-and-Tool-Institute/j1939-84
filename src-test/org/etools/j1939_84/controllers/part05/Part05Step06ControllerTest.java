@@ -151,6 +151,7 @@ public class Part05Step06ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         obdModuleInformation.set(dm20Packet, 1);
         dataRepository.putObdModule(obdModuleInformation);
+        dataRepository.putObdModule(new OBDModuleInformation(1));
 
         runTest();
 
