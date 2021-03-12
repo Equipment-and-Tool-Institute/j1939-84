@@ -287,7 +287,11 @@ public class Engine implements AutoCloseable {
 
         // DM21
         sim.response(p -> isRequestFor(DM21DiagnosticReadinessPacket.PGN, p),
-                     p -> DM21DiagnosticReadinessPacket.create(ADDR, 0, 0, getMinutesWithMil(), getMinutesSCC())
+                     p -> DM21DiagnosticReadinessPacket.create(ADDR,
+                                                               0,
+                                                               0,
+                                                               (int) getMinutesWithMil(),
+                                                               (int) getMinutesSCC())
                                                        .getPacket());
 
         // DM23
@@ -309,9 +313,9 @@ public class Engine implements AutoCloseable {
                                                             SupportedSPN.create(91, false, true, false, 1),
                                                             SupportedSPN.create(92, false, true, true, 1),
                                                             SupportedSPN.create(94, false, true, false, 1),
-                                                            SupportedSPN.create(102, true, false, false, 1),
+                                                            SupportedSPN.create(102, true, true, false, 1),
                                                             SupportedSPN.create(108, false, true, false, 1),
-                                                            SupportedSPN.create(110, false, true, false, 1),
+                                                            SupportedSPN.create(110, false, true, true, 1),
                                                             SupportedSPN.create(157, true, false, false, 1),
                                                             SupportedSPN.create(158, false, true, false, 1),
                                                             SupportedSPN.create(183, false, true, false, 1),
@@ -468,13 +472,13 @@ public class Engine implements AutoCloseable {
         // DM31 response
         sim.response(p -> isRequestFor(DM31DtcToLampAssociation.PGN, p),
                      p -> Packet.create(DM31DtcToLampAssociation.PGN | 0xFF,
-                                         ADDR,
-                                         0x61,
-                                         0x02,
-                                         0x13,
-                                         0x81,
-                                         0x62,
-                                         0x1D));
+                                        ADDR,
+                                        0x61,
+                                        0x02,
+                                        0x13,
+                                        0x81,
+                                        0x62,
+                                        0x1D));
 
         // @formatter:off
         // DM33 response for DM33 Global Request for PGN 41216
@@ -581,12 +585,12 @@ public class Engine implements AutoCloseable {
         this.keyState = keyState;
     }
 
-    private int getMinutesWithMil() {
-        return secondsWithMIL / 60;
+    private long getMinutesWithMil() {
+        return TimeUnit.SECONDS.toMinutes(secondsWithMIL);
     }
 
-    private int getMinutesSCC() {
-        return secondsSCC / 60;
+    private long getMinutesSCC() {
+        return TimeUnit.SECONDS.toMinutes(secondsSCC);
     }
 
     private boolean isEngineOn() {

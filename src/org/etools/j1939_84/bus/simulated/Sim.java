@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.simulated;
@@ -79,12 +79,16 @@ public class Sim implements AutoCloseable {
      */
     public Sim response(Predicate<Packet> predicate, Function<Packet, Packet> supplier) {
         responses.add(request -> {
-            if (predicate.test(request)) {
-                Packet response = supplier.apply(request);
-                send(response);
-                // if request is not to broadcast, only accept first
-                // response
-                return response.getPgn() < 0xF000 && request.getDestination() != 0xFF;
+            try {
+                if (predicate.test(request)) {
+                    Packet response = supplier.apply(request);
+                    send(response);
+                    // if request is not to broadcast, only accept first
+                    // response
+                    return response.getPgn() < 0xF000 && request.getDestination() != 0xFF;
+                }
+            } catch (Throwable t) {
+                J1939_84.getLogger().log(Level.SEVERE, "Error in Response", t);
             }
             return false;
         });
@@ -137,9 +141,6 @@ public class Sim implements AutoCloseable {
     /**
      * Sends a {@link Packet} from the given {@link Supplier} catching any
      * exceptions. Should only be called from the exec.
-     *
-     * @param supplier
-     *                     the {@link Supplier} for the {@link Packet}
      */
     private void send(Packet p) {
         try {
