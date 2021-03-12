@@ -69,7 +69,6 @@ import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.model.KeyState;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Simulated Engine used for System Testing
@@ -525,7 +524,6 @@ public class Engine implements AutoCloseable {
                      DM56EngineFamilyPacket.create(ADDR, 2015, true, "US HD OBD    ")::getPacket);
     }
 
-    @NotNull
     private List<CompositeSystem> getCompleteDM26Systems() {
         return List.of(AC_SYSTEM_REFRIGERANT,
                        CATALYST,

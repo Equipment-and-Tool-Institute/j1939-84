@@ -19,7 +19,6 @@ import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * 6.12.2 DM26: Diagnostic Readiness 3
@@ -99,7 +98,6 @@ public class Part12Step02Controller extends StepController {
                    });
     }
 
-    @NotNull
     private List<CompositeSystem> getPreviouslyCompleteSupportedSystems(int address) {
         var supportedSystems = getSupportedSystems(address);
         return get(DM26TripDiagnosticReadinessPacket.class, address, 11)
