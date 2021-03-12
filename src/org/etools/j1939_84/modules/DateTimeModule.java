@@ -13,6 +13,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.concurrent.TimeUnit;
 
+import org.etools.j1939_84.controllers.Controller;
+
 /**
  * The Module responsible for the Date/Time
  *
@@ -93,8 +95,10 @@ public class DateTimeModule {
 
     public void pauseFor(long milliseconds) {
         try {
+            Controller.checkEnding();
             Thread.sleep(milliseconds);
-        } catch (InterruptedException ignored) {
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
