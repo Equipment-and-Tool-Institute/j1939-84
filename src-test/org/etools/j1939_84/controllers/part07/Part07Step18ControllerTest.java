@@ -563,8 +563,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                 + NL;
         expectedMessages += "Step 6.7.18.1.g - Turn Engine Off and keep the ignition key in the off position" + NL;
         expectedMessages += "Waiting for Key OFF..." + NL;
-        expectedMessages += "Waiting for Key OFF..." + NL;
-        expectedMessages += "Step 6.7.18.1.i - Turn Engine on with the ignition key in the on position";
+        expectedMessages += "Waiting for Key OFF...";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;

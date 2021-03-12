@@ -196,7 +196,7 @@ public class Part10Step01ControllerTest extends AbstractControllerTest {
                                              any());
 
         String userCancelledMessage = "User cancelled testing at Part " + PART_NUMBER + " Step " + STEP_NUMBER;
-        assertEquals(userCancelledMessage + NL + "Waiting for Key ON/Engine RUNNING...", listener.getMessages());
+        assertEquals(userCancelledMessage, listener.getMessages());
 
         assertEquals("Initial Engine Speed = 0.0 RPMs" + NL, listener.getResults());
 

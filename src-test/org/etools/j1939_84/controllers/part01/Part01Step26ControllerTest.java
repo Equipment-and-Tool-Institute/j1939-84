@@ -209,7 +209,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packets.add(packet1);
         GenericPacket packet3 = packet(333, true);
         packets.add(packet3);
-        when(busService.readBus(12)).thenReturn(packets.stream());
+        when(busService.readBus(12, "6.1.26.1.a")).thenReturn(packets.stream());
 
         Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = new HashMap<>();
         packetMap.put(11111, Map.of(0, List.of(packet1)));
@@ -269,7 +269,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         // eq(1),
         // eq(26));
         verify(broadcastValidator).getMaximumBroadcastPeriod();
-        verify(busService).readBus(12);
+        verify(busService).readBus(12, "6.1.26.1.a");
         verify(broadcastValidator).buildPGNPacketsMap(packets);
         verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
                                                          any(),
@@ -363,7 +363,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         List<GenericPacket> packets = new ArrayList<>();
         GenericPacket packet1 = packet(111, false);
         packets.add(packet1);
-        when(busService.readBus(12)).thenReturn(packets.stream());
+        when(busService.readBus(12, "6.1.26.1.a")).thenReturn(packets.stream());
 
         Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = new HashMap<>();
         packetMap.put(11111, Map.of(0, List.of(packet1)));
@@ -383,7 +383,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         verify(dataRepository, atLeastOnce()).getObdModules();
 
         verify(broadcastValidator).getMaximumBroadcastPeriod();
-        verify(busService).readBus(12);
+        verify(busService).readBus(12, "6.1.2.3.a");
         verify(broadcastValidator).buildPGNPacketsMap(packets);
         verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
                                                          any(),

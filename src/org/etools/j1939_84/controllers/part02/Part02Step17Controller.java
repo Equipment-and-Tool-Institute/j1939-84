@@ -103,7 +103,8 @@ public class Part02Step17Controller extends StepController {
 
         // 6.2.17.1.a. Gather broadcast data for all SPNs that are supported for data stream in the OBD ECU responses.
         // x2 to ensure all necessary messages have been received
-        List<GenericPacket> packets = busService.readBus(broadcastValidator.getMaximumBroadcastPeriod() * 2)
+        List<GenericPacket> packets = busService.readBus(broadcastValidator.getMaximumBroadcastPeriod() * 2,
+                                                         "6.2.17.1.a")
                                                 .peek(p ->
                                                 // 6.2.17.2.a. Fail if unsupported (received as not available (as
                                                 // described in SAE J1939-71))
@@ -157,7 +158,6 @@ public class Part02Step17Controller extends StepController {
         // Find and report any Supported SPNs which should have been received but weren't
         for (OBDModuleInformation obdModule : getDataRepository().getObdModules()) {
             int moduleAddress = obdModule.getSourceAddress();
-            updateProgress("Verifying " + Lookup.getAddressName(moduleAddress));
 
             // Get the SPNs which are supported by the module
             List<Integer> dataStreamSPNs = obdModule.getFilteredDataStreamSPNs()
@@ -196,6 +196,7 @@ public class Part02Step17Controller extends StepController {
             dataStreamSPNs.removeAll(receivedSPNs);
 
             for (int pgn : requestPGNs) {
+                updateProgress("Test 2.17 Verifying " + Lookup.getAddressName(moduleAddress));
                 String spns = j1939DaRepository.findPgnDefinition(pgn)
                                                .getSpnDefinitions()
                                                .stream()
