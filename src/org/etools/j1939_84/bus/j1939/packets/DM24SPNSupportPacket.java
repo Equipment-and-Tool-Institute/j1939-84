@@ -44,7 +44,9 @@ public class DM24SPNSupportPacket extends GenericPacket {
         if (supportedSPNs.isEmpty()) {
             sb.append("  No Supported SPNs").append(NL);
         } else {
-            supportedSPNs.forEach(supportedSPN -> sb.append("  ").append(supportedSPN).append(NL));
+            supportedSPNs.forEach(supportedSPN -> {
+                sb.append("  ").append(supportedSPN).append(NL);
+            });
         }
         sb.append("]").append(NL);
         return sb.toString();
