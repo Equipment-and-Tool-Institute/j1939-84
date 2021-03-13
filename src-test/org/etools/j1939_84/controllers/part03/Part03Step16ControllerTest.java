@@ -224,8 +224,8 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages3 = "6.3.16.1.d - Turn ignition key to the ON position." + NL;
-        urgentMessages3 += "6.3.16.1.e - Observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster."
+        String urgentMessages3 = "Step 6.3.16.1.d - Turn ignition key to the ON position." + NL;
+        urgentMessages3 += "Step6.3.16.1.e - Observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster."
                 + NL;
         urgentMessages3 += "6.3.16.1.f - Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished."
                 + NL;
