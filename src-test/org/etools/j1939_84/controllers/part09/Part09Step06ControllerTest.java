@@ -141,19 +141,19 @@ public class Part09Step06ControllerTest extends AbstractControllerTest {
                                                         eq(0),
                                                         eq(247),
                                                         eq(123),
-                                                        eq(14))).thenReturn(List.of(dm30_123));
+                                                        eq(31))).thenReturn(List.of(dm30_123));
 
         var dm30_456 = DM30ScaledTestResultsPacket.create(0, 0, str2);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
                                                         eq(247),
                                                         eq(456),
-                                                        eq(3))).thenReturn(List.of(dm30_456));
+                                                        eq(31))).thenReturn(List.of(dm30_456));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(123), eq(14));
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(456), eq(3));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(123), eq(31));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(456), eq(31));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -163,7 +163,7 @@ public class Part09Step06ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForInitializeTest() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        ScaledTestResult str1 = ScaledTestResult.create(247, 123, 14, 0, 5, 10, 1);
+        ScaledTestResult str1 = ScaledTestResult.create(247, 123, 13, 0, 5, 10, 1);
         ScaledTestResult str2 = ScaledTestResult.create(247, 123, 14, 0, 0, 0, 0);
         obdModuleInformation.setNonInitializedTests(List.of(str1));
         dataRepository.putObdModule(obdModuleInformation);
@@ -175,11 +175,11 @@ public class Part09Step06ControllerTest extends AbstractControllerTest {
                                                         eq(0),
                                                         eq(247),
                                                         eq(123),
-                                                        eq(14))).thenReturn(List.of(dm30_123));
+                                                        eq(31))).thenReturn(List.of(dm30_123));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(123), eq(14));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(123), eq(31));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

@@ -64,6 +64,8 @@ public abstract class PartController extends Controller {
         getListener().onResult("");
 
         for (StepController controller : getStepControllers()) {
+            checkEnding();
+
             StepResult stepResult = getPartResult().getStepResult(controller.getStepNumber());
 
             getListener().onResult("Start " + stepResult);

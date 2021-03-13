@@ -67,7 +67,7 @@ public class StepResult implements IResult {
         return stepNumber;
     }
 
-    private boolean hasOutcome(Outcome expectedOutcome) {
+    public boolean hasOutcome(Outcome expectedOutcome) {
         return results.stream().map(ActionOutcome::getOutcome).anyMatch(o -> o == expectedOutcome);
     }
 

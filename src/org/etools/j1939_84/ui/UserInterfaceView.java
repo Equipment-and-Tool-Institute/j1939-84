@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.ui;
 
+import static org.etools.j1939_84.J1939_84.isAutoMode;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -15,6 +17,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDateTime;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.prefs.Preferences;
@@ -92,6 +95,8 @@ public class UserInterfaceView implements UserInterfaceContract.View {
     private JLabel vinLabel;
 
     private JTextField vinTextField;
+
+    private File file = null; // For the auto mode
 
     /**
      * Default Constructor
@@ -246,7 +251,12 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      */
     @Override
     public void setReadVehicleInfoButtonEnabled(boolean enabled) {
-        refreshUI(() -> getReadVehicleInfoButton().setEnabled(enabled));
+        refreshUI(() -> {
+            getReadVehicleInfoButton().setEnabled(enabled);
+            if (isAutoMode() && enabled && getVinTextField().getText().isEmpty()) {
+                controller.onReadVehicleInfoButtonClicked();
+            }
+        });
     }
 
     /*
@@ -258,7 +268,17 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      */
     @Override
     public void setSelectFileButtonEnabled(boolean enabled) {
-        refreshUI(() -> getSelectFileButton().setEnabled(enabled));
+        refreshUI(() -> {
+            getSelectFileButton().setEnabled(enabled);
+            if (isAutoMode() && enabled && file == null) {
+                var dir = new File("reports");
+                if (!dir.exists() && !dir.mkdir()) {
+                    return;
+                }
+                file = new File(dir, LocalDateTime.now().toString());
+                controller.onFileChosen(file);
+            }
+        });
     }
 
     /*
@@ -276,6 +296,9 @@ public class UserInterfaceView implements UserInterfaceContract.View {
     @Override
     public void setStartButtonEnabled(boolean enabled) {
         getStartButton().setEnabled(enabled);
+        if (isAutoMode() && enabled) {
+            refreshUI(() -> getController().onStartButtonClicked());
+        }
     }
 
     @Override
@@ -306,6 +329,10 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             }
             adapterComboBox.setToolTipText("RP1210 Communications Adapter");
             adapterComboBox.setSelectedIndex(-1);
+            if (isAutoMode()) {
+                adapterComboBox.setSelectedIndex(0);
+                getController().onAdapterComboBoxItemSelected(adapterComboBox.getItemAt(0));
+            }
             adapterComboBox.addItemListener(e -> {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     getController().onAdapterComboBoxItemSelected((String) e.getItem());
@@ -400,15 +427,15 @@ public class UserInterfaceView implements UserInterfaceContract.View {
     JFileChooser getFileChooser() {
         if (fileChooser == null) {
             final String KEY = "directory";
-            final String dir = Preferences.userNodeForPackage(getClass()).get(KEY, "");
+            String dir = Preferences.userNodeForPackage(getClass()).get(KEY, "");
             fileChooser = new JFileChooser(dir);
-            final FileNameExtensionFilter filter = new FileNameExtensionFilter("J1939-84 Data Files",
-                                                                               UserInterfacePresenter.FILE_SUFFIX);
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("J1939-84 Data Files",
+                                                                         UserInterfacePresenter.FILE_SUFFIX);
             fileChooser.setFileFilter(filter);
             fileChooser.setDialogTitle("Create Report File");
             fileChooser.addActionListener(
                                           e -> {
-                                              final File file = fileChooser.getSelectedFile();
+                                              File file = fileChooser.getSelectedFile();
                                               if (file != null) {
                                                   Preferences.userNodeForPackage(getClass())
                                                              .put(KEY,

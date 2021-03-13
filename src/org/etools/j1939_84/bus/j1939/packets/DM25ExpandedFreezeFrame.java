@@ -83,16 +83,20 @@ public class DM25ExpandedFreezeFrame extends GenericPacket {
         while (!done) {
 
             int[] bytes = getPacket().getData(index + 1, index + chunkLength + 1);
-            DiagnosticTroubleCode dtc = new DiagnosticTroubleCode(bytes);
-            int[] data = Arrays.copyOfRange(bytes, 4, bytes.length);
-            FreezeFrame freezeFrame = new FreezeFrame(dtc, data);
-            freezeFrames.add(freezeFrame);
-
-            if (getPacket().getLength() > index + chunkLength + 1) {
-                index += chunkLength + 1;
-                chunkLength = getPacket().getData(index, index + 1)[0];
-            } else {
+            if (bytes.length == 0) {
                 done = true;
+            } else {
+                DiagnosticTroubleCode dtc = new DiagnosticTroubleCode(bytes);
+                int[] data = Arrays.copyOfRange(bytes, 4, bytes.length);
+                FreezeFrame freezeFrame = new FreezeFrame(dtc, data);
+                freezeFrames.add(freezeFrame);
+
+                if (getPacket().getLength() > index + chunkLength + 1) {
+                    index += chunkLength + 1;
+                    chunkLength = getPacket().getData(index, index + 1)[0];
+                } else {
+                    done = true;
+                }
             }
         }
     }

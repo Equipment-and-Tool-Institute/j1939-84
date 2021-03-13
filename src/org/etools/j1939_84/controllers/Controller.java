@@ -3,6 +3,9 @@
  */
 package org.etools.j1939_84.controllers;
 
+import static org.etools.j1939_84.model.Outcome.ABORT;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -265,6 +268,14 @@ public abstract class Controller {
             } catch (Throwable e) {
                 getLogger().log(Level.SEVERE, "Error", e);
                 if (e instanceof InterruptedException || e.getCause() instanceof InterruptedException) {
+                    if (this instanceof StepController) {
+                        int partNumber = ((StepController) this).getPartNumber();
+                        int stepNumber = ((StepController) this).getStepNumber();
+                        if (getOutcome(partNumber, stepNumber) != ABORT) {
+                            String message = "User cancelled testing at Part " + partNumber + " Step " + stepNumber;
+                            getListener().addOutcome(partNumber, stepNumber, ABORT, message);
+                        }
+                    }
                     return;
                 }
 
@@ -275,6 +286,10 @@ public abstract class Controller {
                 getListener().onMessage(message, "Error", MessageType.ERROR);
             }
         };
+    }
+
+    private Outcome getOutcome(int partNumber, int stepNumber) {
+        return getPartResult(partNumber).getStepResult(stepNumber).getOutcome();
     }
 
     /**
@@ -349,11 +364,14 @@ public abstract class Controller {
 
     public void setupRun(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
         setJ1939(j1939);
+
+        List<ResultsListener> listeners = new ArrayList<>(List.of(listener, partResultRepository));
         if (reportFileModule != null) {
-            compositeListener = new CompositeResultsListener(listener, reportFileModule);
-        } else {
-            compositeListener = new CompositeResultsListener(listener);
+            listeners.add(reportFileModule);
         }
+
+        compositeListener = new CompositeResultsListener(listeners.toArray(new ResultsListener[0]));
+
         ending = null;
     }
 
@@ -394,8 +412,7 @@ public abstract class Controller {
     }
 
     /**
-     * The {@link ResultsListener} that combines other listeners for easier
-     * reporting
+     * The {@link ResultsListener} that combines other listeners for easier reporting
      */
     private static class CompositeResultsListener implements ResultsListener {
 

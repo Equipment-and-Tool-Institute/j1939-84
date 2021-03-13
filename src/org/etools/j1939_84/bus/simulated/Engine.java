@@ -20,6 +20,7 @@ import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.MISFIRE;
 import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.NMHC_CONVERTING_CATALYST;
 import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.NOX_CATALYST_ABSORBER;
 import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.SECONDARY_AIR_SYSTEM;
+import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.AreaStatus.OUTSIDE;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
 import static org.etools.j1939_84.bus.j1939.packets.ParsedPacket.to2Bytes;
@@ -30,7 +31,9 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -56,19 +59,23 @@ import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
+import org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM7CommandTestsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DTCLampStatus;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
 import org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket;
+import org.etools.j1939_84.bus.j1939.packets.FreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.model.KeyState;
+import org.etools.j1939_84.model.SpnFmi;
 
 /**
  * Simulated Engine used for System Testing
@@ -104,15 +111,17 @@ public class Engine implements AutoCloseable {
     private final Sim sim;
 
     private final List<DiagnosticTroubleCode> activeDTCs = new ArrayList<>();
-    private final List<DiagnosticTroubleCode> previouslyActiveDTCs = new ArrayList<>();
-    private final List<DiagnosticTroubleCode> pendingActiveDTCs = new ArrayList<>();
-    private final List<DiagnosticTroubleCode> permanentActiveDTCs = new ArrayList<>();
+    private final List<DiagnosticTroubleCode> previousDTCs = new ArrayList<>();
+    private final List<DiagnosticTroubleCode> pendingDTCs = new ArrayList<>();
+    private final List<DiagnosticTroubleCode> permanentDTCs = new ArrayList<>();
+
+    private final Map<SpnFmi, ScaledTestResult> scaledTestResultMap = new HashMap<>();
 
     private int ignitionCycles = 0;
-    private final int obdConditions = 0;
-    private int secondsSCC = 0;
+    private int obdConditions = 0;
+    private int secondsSCC = 100000;
     private int secondsWithMIL = 0;
-    private final int warmUpsSCC = 0;
+    private int warmUpsSCC = 132948;
     private int secondsRunning = 0;
 
     private DiagnosticTroubleCode nextFault;
@@ -213,14 +222,14 @@ public class Engine implements AutoCloseable {
                                                         OFF,
                                                         OFF,
                                                         OFF,
-                                                        previouslyActiveDTCs.toArray(new DiagnosticTroubleCode[0]))
+                                                        previousDTCs.toArray(new DiagnosticTroubleCode[0]))
                                                 .getPacket());
 
         // DM5
         sim.response(p -> isRequestFor(DM5DiagnosticReadinessPacket.PGN, p),
                      p -> DM5DiagnosticReadinessPacket.create(ADDR,
                                                               activeDTCs.size(),
-                                                              previouslyActiveDTCs.size(),
+                                                              previousDTCs.size(),
                                                               0x14,
                                                               getEnabledSystems(),
                                                               getCompleteDM5Systems())
@@ -234,22 +243,26 @@ public class Engine implements AutoCloseable {
                                                                    OFF,
                                                                    OFF,
                                                                    OFF,
-                                                                   pendingActiveDTCs.toArray(new DiagnosticTroubleCode[0]))
+                                                                   pendingDTCs.toArray(new DiagnosticTroubleCode[0]))
                                                            .getPacket();
                      });
 
         // DM11
-        sim.response(p -> isRequestFor(DM11ClearActiveDTCsPacket.PGN, p), p -> {
-            activeDTCs.clear(); // DM1 & DM12
-            previouslyActiveDTCs.clear(); // DM2 & DM23
+        sim.response(p -> (p.getId(0xFFFF) == 0xEAFF) && p.get24(0) == DM11ClearActiveDTCsPacket.PGN,
+                     p -> {
+                         System.err.println("!!!!!CLEARING CODES!!!!!!");
+                         activeDTCs.clear(); // DM1 & DM12
+                         previousDTCs.clear(); // DM2 & DM23
+                         secondsWithMIL = 0;
+                         secondsSCC = 0;
+                         warmUpsSCC = 0;
+                         // pendingActiveDTCs.clear(); //reset by something else
+                         // permanentActiveDTCs.clear(); // reset by 3 cycle and then by General Denom
 
-            // pendingActiveDTCs.clear(); //reset by something else
-            // permanentActiveDTCs.clear(); // reset by 3 cycle and then by General Denom
+                         // Clear DM25
 
-            // Clear DM25
-
-            return Packet.create(0, ADDR, NA8); // Don't return anything
-        });
+                         return Packet.create(0, ADDR, NA8); // Don't return anything
+                     });
 
         // DM12
         sim.response(p -> isRequestFor(DM12MILOnEmissionDTCPacket.PGN, p),
@@ -274,7 +287,10 @@ public class Engine implements AutoCloseable {
                                                                          p.getSource(),
                                                                          ignitionCycles,
                                                                          obdConditions,
-                                                                         new PerformanceRatio(5322, 0, 0, 0),
+                                                                         new PerformanceRatio(5322,
+                                                                                              0,
+                                                                                              obdConditions,
+                                                                                              0),
                                                                          new PerformanceRatio(5318, 0, 0, 0),
                                                                          new PerformanceRatio(3058, 0, 0, 0),
                                                                          new PerformanceRatio(3064, 0, 0, 0),
@@ -286,13 +302,16 @@ public class Engine implements AutoCloseable {
 
         // DM21
         sim.response(p -> isRequestFor(DM21DiagnosticReadinessPacket.PGN, p),
-                     p -> DM21DiagnosticReadinessPacket.create(ADDR,
-                                                               p.getSource(),
-                                                               0,
-                                                               0,
-                                                               (int) getMinutesWithMil(),
-                                                               (int) getMinutesSCC())
-                                                       .getPacket());
+                     p -> {
+                         System.out.println("TimeSCC " + secondsSCC);
+                         return DM21DiagnosticReadinessPacket.create(ADDR,
+                                                                     p.getSource(),
+                                                                     0,
+                                                                     0,
+                                                                     (int) getMinutesWithMil(),
+                                                                     (int) getMinutesSCC())
+                                                             .getPacket();
+                     });
 
         // DM23
         sim.response(p -> isRequestFor(DM23PreviouslyMILOnEmissionDTCPacket.PGN, p),
@@ -301,7 +320,7 @@ public class Engine implements AutoCloseable {
                                                                       OFF,
                                                                       OFF,
                                                                       OFF,
-                                                                      previouslyActiveDTCs.toArray(new DiagnosticTroubleCode[0]))
+                                                                      previousDTCs.toArray(new DiagnosticTroubleCode[0]))
                                                               .getPacket());
 
         // DM24 supported SPNs
@@ -319,7 +338,7 @@ public class Engine implements AutoCloseable {
                                                             SupportedSPN.create(157, true, false, false, 1),
                                                             SupportedSPN.create(158, false, true, false, 1),
                                                             SupportedSPN.create(183, false, true, false, 1),
-                                                            SupportedSPN.create(190, false, true, true, 1),
+                                                            SupportedSPN.create(190, false, true, true, 2),
                                                             SupportedSPN.create(235, false, true, false, 1),
                                                             SupportedSPN.create(247, false, true, false, 1),
                                                             SupportedSPN.create(248, false, true, false, 1),
@@ -345,7 +364,7 @@ public class Engine implements AutoCloseable {
                                                             SupportedSPN.create(3058, true, false, false, 1),
                                                             SupportedSPN.create(3226, true, true, false, 1),
                                                             SupportedSPN.create(3251, true, false, false, 1),
-                                                            SupportedSPN.create(3301, false, false, true, 1),
+                                                            SupportedSPN.create(3301, false, false, true, 2),
                                                             SupportedSPN.create(3361, true, false, false, 1),
                                                             SupportedSPN.create(3516, false, true, false, 1),
                                                             SupportedSPN.create(3609, false, true, false, 1),
@@ -363,23 +382,23 @@ public class Engine implements AutoCloseable {
                                                     .getPacket();
                      });
 
-        // @formatter:off
         // DM25
         sim.response(p -> isRequestFor(DM25ExpandedFreezeFrame.PGN, p),
-                     p -> Packet.create(DM25ExpandedFreezeFrame.PGN,
-                                         ADDR,
-                                         0x56, 0x9D, 0x00, 0x07, 0x7F, 0x00, 0x01, 0x7B,
-                                         0x00, 0x00, 0x39, 0x3A, 0x5C, 0x0F, 0xC4, 0xFB,
-                                         0x00, 0x00, 0x00, 0xF1, 0x26, 0x00, 0x00, 0x00,
-                                         0x12, 0x7A, 0x7D, 0x80, 0x65, 0x00, 0x00, 0x32,
-                                         0x00, 0x00, 0x00, 0x00, 0x84, 0xAD, 0x00, 0x39,
-                                         0x2C, 0x30, 0x39, 0xFC, 0x38, 0xC6, 0x35, 0xE0,
-                                         0x34, 0x2C, 0x2F, 0x00, 0x00, 0x7D, 0x7D, 0x8A,
-                                         0x28, 0xA0, 0x0F, 0xA0, 0x0F, 0xD1, 0x37, 0x00,
-                                         0xCA, 0x28, 0x01, 0xA4, 0x0D, 0x00, 0xA8, 0xC3,
-                                         0xB2, 0xC2, 0xC3, 0x00, 0x00, 0x00, 0x00, 0x7E,
-                                         0xD0, 0x07, 0x00, 0x7D, 0x04, 0xFF, 0xFA));
-        // @formatter:on
+                     p -> {
+                         DiagnosticTroubleCode dtc = null;
+                         if (!pendingDTCs.isEmpty()) {
+                             dtc = pendingDTCs.get(0);
+                         } else if (!activeDTCs.isEmpty()) {
+                             dtc = activeDTCs.get(0);
+                         }
+
+                         if (dtc == null) {
+                             return DM25ExpandedFreezeFrame.create(ADDR).getPacket();
+                         } else {
+                             var freezeFrame = new FreezeFrame(dtc, new int[8]);
+                             return DM25ExpandedFreezeFrame.create(ADDR, freezeFrame).getPacket();
+                         }
+                     });
 
         // DM26
         sim.response(p -> isRequestFor(DM26TripDiagnosticReadinessPacket.PGN, p),
@@ -397,7 +416,7 @@ public class Engine implements AutoCloseable {
                                                           OFF,
                                                           OFF,
                                                           OFF,
-                                                          pendingActiveDTCs.toArray(new DiagnosticTroubleCode[0]))
+                                                          pendingDTCs.toArray(new DiagnosticTroubleCode[0]))
                                                   .getPacket());
 
         // DM28
@@ -407,18 +426,18 @@ public class Engine implements AutoCloseable {
                                                                 OFF,
                                                                 OFF,
                                                                 OFF,
-                                                                permanentActiveDTCs.toArray(new DiagnosticTroubleCode[0]))
+                                                                permanentDTCs.toArray(new DiagnosticTroubleCode[0]))
                                                         .getPacket());
 
         // DM29 response
         sim.response(p -> isRequestFor(DM29DtcCounts.PGN, p),
                      p -> DM29DtcCounts.create(ADDR,
                                                p.getSource(),
-                                               pendingActiveDTCs.size(),
-                                               0,
+                                               pendingDTCs.size(),
+                                               pendingDTCs.size(),
                                                activeDTCs.size(),
-                                               previouslyActiveDTCs.size(),
-                                               permanentActiveDTCs.size())
+                                               previousDTCs.size(),
+                                               permanentDTCs.size())
                                        .getPacket());
 
         // DM30 response for DM7 Request
@@ -432,7 +451,7 @@ public class Engine implements AutoCloseable {
 
             if (testId == 247 && fmi == 31) {
                 if (spn == 157) {
-                    results.add(ScaledTestResult.create(testId, spn, 18, 385, 0, 0, 0));
+                    results.add(ScaledTestResult.create(testId, spn, 18, 385, isEngineOn() ? secondsSCC : 0, 0, 0));
                     results.add(ScaledTestResult.create(testId, spn, 16, 385, 0, 0, 0));
                 } else if (spn == 651) {
                     results.add(ScaledTestResult.create(testId, spn, 7, 385, 0, 0, 0));
@@ -463,8 +482,17 @@ public class Engine implements AutoCloseable {
                 } else {
                     results.add(ScaledTestResult.create(testId, spn, fmi, 385, 0, 0, 0));
                 }
-            } else {
-                results.add(ScaledTestResult.create(testId, spn, fmi, 385, 0, 0, 0));
+            } else if (testId == 246 && spn == 5846 && fmi == 31) {
+                results.addAll(scaledTestResultMap.values());
+            } else if (testId == 250) {
+                results.add(scaledTestResultMap.get(SpnFmi.of(spn, fmi)));
+            }
+
+            if (testId == 247) {
+                // Save the test results for later
+                for (ScaledTestResult result : results) {
+                    scaledTestResultMap.put(SpnFmi.of(result), result);
+                }
             }
 
             return DM30ScaledTestResultsPacket.create(ADDR, p.getSource(), results.toArray(new ScaledTestResult[0]))
@@ -473,14 +501,14 @@ public class Engine implements AutoCloseable {
 
         // DM31 response
         sim.response(p -> isRequestFor(DM31DtcToLampAssociation.PGN, p),
-                     p -> Packet.create(DM31DtcToLampAssociation.PGN | 0xFF,
-                                        ADDR,
-                                        0x61,
-                                        0x02,
-                                        0x13,
-                                        0x81,
-                                        0x62,
-                                        0x1D));
+                     p -> {
+                         if (activeDTCs.isEmpty()) {
+                             return DM31DtcToLampAssociation.create(ADDR, p.getSource()).getPacket();
+                         } else {
+                             var lampStatus = DTCLampStatus.create(activeDTCs.get(0), OFF, getMilStatus(), OFF, OFF);
+                             return DM31DtcToLampAssociation.create(ADDR, p.getSource(), lampStatus).getPacket();
+                         }
+                     });
 
         // @formatter:off
         // DM33 response for DM33 Global Request for PGN 41216
@@ -521,6 +549,17 @@ public class Engine implements AutoCloseable {
                                      0xFF, 0xFF, 0xFF, 0xFF //Timer2
                              ));
         // @formatter:on
+
+        sim.response(p -> isRequestFor(DM34NTEStatus.PGN, p),
+                     p -> DM34NTEStatus.create(ADDR,
+                                               p.getSource(),
+                                               OUTSIDE,
+                                               OUTSIDE,
+                                               OUTSIDE,
+                                               OUTSIDE,
+                                               OUTSIDE,
+                                               OUTSIDE)
+                                       .getPacket());
 
         // DM56 Engine Model Year
         sim.response(p -> isRequestFor(DM56EngineFamilyPacket.PGN, p),
@@ -568,16 +607,26 @@ public class Engine implements AutoCloseable {
 
         if (this.keyState != KEY_ON_ENGINE_RUNNING && keyState == KEY_ON_ENGINE_RUNNING) {
             ignitionCycles++;
+            System.out.println("Ign Cycles are " + ignitionCycles);
+            secondsSCC += 60; // Because there are "human delays" in this testing
 
-            if (!pendingActiveDTCs.isEmpty()) {
-                DiagnosticTroubleCode dtc = pendingActiveDTCs.get(0);
+            if (TimeUnit.SECONDS.toMinutes(secondsRunning) > 9) {
+                obdConditions++;
+                activeDTCs.clear();
+                permanentDTCs.clear();
+            }
+
+            if (!pendingDTCs.isEmpty() && ignitionCycles == 3) {
+                System.out.println("Found Pending DTC & IgnCycles = " + ignitionCycles);
+                DiagnosticTroubleCode dtc = pendingDTCs.get(0);
                 activeDTCs.add(dtc);
-                permanentActiveDTCs.add(dtc);
-                pendingActiveDTCs.clear();
+                permanentDTCs.add(dtc);
+                pendingDTCs.clear();
             }
 
             if (nextFault != null) {
-                pendingActiveDTCs.add(nextFault);
+                System.out.println("Setting Pending Fault");
+                pendingDTCs.add(nextFault);
                 nextFault = null;
             }
 

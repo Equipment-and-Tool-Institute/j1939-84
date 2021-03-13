@@ -180,7 +180,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailNotOutsideControlAreas() {
-        var packet = create(0, INSIDE, INSIDE, INSIDE, INSIDE, INSIDE, INSIDE);
+        var packet = create(0, 0, INSIDE, INSIDE, INSIDE, INSIDE, INSIDE, INSIDE);
 
         when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, packet));
 
@@ -227,8 +227,8 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailForDifference() {
-        var globalPacket = create(0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
-        var dsPacket = create(0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, NOT_AVAILABLE);
+        var globalPacket = create(0, 0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
+        var dsPacket = create(0, 0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, NOT_AVAILABLE);
 
         when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
 
@@ -255,7 +255,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailForNACK() {
-        var globalPacket = create(0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
+        var globalPacket = create(0, 0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
         var dsPacket = AcknowledgmentPacket.create(0, NACK, 0, 0xF9, DM34NTEStatus.PGN);
 
         when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));

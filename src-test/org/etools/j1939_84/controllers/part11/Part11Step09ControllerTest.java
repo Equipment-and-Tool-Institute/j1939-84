@@ -168,7 +168,7 @@ public class Part11Step09ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.11.9.2.a - NO ECU reported a permanent DTC");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.11.9.2.a - No ECU reported a permanent DTC");
     }
 
     @Test

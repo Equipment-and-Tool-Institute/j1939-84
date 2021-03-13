@@ -117,7 +117,7 @@ public class Part11Step07Controller extends StepController {
         }, 0L, 1L, TimeUnit.MINUTES);
 
         // 6.11.7.1.b. Wait 3 minutes.
-        pause("Step 6.11.7.1.b Waiting %1$d seconds", 3 * 60);
+        pause("Step 6.11.7.1.b - Waiting %1$d seconds", 3 * 60);
 
         // 6.11.7.1.c. Increase engine speed over 1150 rpm (a minimum of 300 seconds at this speed is required).
         final long TOTAL_TIME_AT_SPEED = 300;
@@ -128,7 +128,7 @@ public class Part11Step07Controller extends StepController {
         displayInstructionAndWait(format(msg, TOTAL_TIME_AT_SPEED), "Step 6.11.7.1.c", WARNING);
 
         long secondsToGo = TOTAL_TIME_AT_SPEED;
-        String message = "Increase engine speed over 1150 rpm for %1$d seconds";
+        String message = "Step 6.11.7.1.c - Increase engine speed over 1150 rpm for %1$d seconds";
         do {
             updateProgress(format(message, secondsToGo));
 
@@ -150,7 +150,8 @@ public class Part11Step07Controller extends StepController {
         // of engine operation over 1150 rpm), end periodic DM20 and DM28 and continue with test 6.11.8.
         secondsToGo = calculateSecondsRemaining();
         do {
-            updateProgress(format("Continue to run engine at idle for an additional %1$d seconds", secondsToGo));
+            updateProgress(format("Step 6.11.7.4.a - Continue to run engine at idle for an additional %1$d seconds",
+                                  secondsToGo));
             getDateTimeModule().pauseFor(1000);
             secondsToGo = calculateSecondsRemaining();
         } while (secondsToGo > 0);

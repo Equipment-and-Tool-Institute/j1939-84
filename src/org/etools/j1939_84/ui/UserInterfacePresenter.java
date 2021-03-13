@@ -24,7 +24,6 @@ import org.etools.j1939_84.bus.RP1210;
 import org.etools.j1939_84.bus.RP1210Bus;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.J1939TP;
-import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.OverallController;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -64,7 +63,6 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      */
     private List<Adapter> adapters;
     private Bus bus;
-    private J1939 j1939;
     /**
      * The {@link File} where the report is stored
      */
@@ -188,7 +186,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
     @Override
     public J1939 getNewJ1939() {
-        j1939 = new J1939(bus);
+        J1939 j1939 = new J1939(bus);
         if (bus instanceof J1939TP) {
             ((J1939TP) bus).setJ1939(j1939);
         }
@@ -514,20 +512,18 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      * @throws IOException
      *                         if the file cannot be used
      */
-
     private static File setupReportFile(File file) throws IOException {
-        File reportFile = file;
         if (!file.exists()) {
             // Append the file extension if the file doesn't have one.
             if (!file.getName().endsWith("." + FILE_SUFFIX)) {
                 return setupReportFile(new File(file.getAbsolutePath() + "." + FILE_SUFFIX));
             }
-            if (!reportFile.createNewFile()) {
+            if (!file.createNewFile()) {
                 throw new IOException("File cannot be created");
             }
         } else {
             throw new IOException("File already exists");
         }
-        return reportFile;
+        return file;
     }
 }

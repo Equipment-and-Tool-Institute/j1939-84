@@ -84,7 +84,7 @@ public class Part09Step06Controller extends StepController {
                                                                moduleInformation.getSourceAddress(),
                                                                247,
                                                                str.getSpn(),
-                                                               str.getFmi());
+                                                               31);
     }
 
 }

@@ -103,6 +103,10 @@ public class J1939_84 {
         System.setProperty(DEV_PROPERTY_NAME, Boolean.toString(isDevEnv));
     }
 
+    public static boolean isAutoMode() {
+        return isDevEnv() && isTesting();
+    }
+
     /**
      * Launch the application.
      *

@@ -62,14 +62,15 @@ public class Part02Step09Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.2.9.1 a. Global DM21 (send Request (PGN 59904) for PGN 49408 (SPNs 3069, 3294-3296)).
-        var globalResponse = getDiagnosticMessageModule().requestDM21(getListener());
-        var globalPackets = globalResponse.getPackets();
+        var globalPackets = getDiagnosticMessageModule().requestDM21(getListener()).getPackets();
 
         // 6.2.9.2 a. Fail if any ECU reports > 0 distance SCC (SPN 3294).
         globalPackets.stream()
                      .filter(p -> p.getKmSinceDTCsCleared() > 0)
-                     .forEach(p -> addFailure("6.2.9.2.a - " + getAddressName(p.getSourceAddress())
-                             + " reported > 0 distance SCC (SPN 3294)"));
+                     .forEach(p -> {
+                         addFailure("6.2.9.2.a - " + getAddressName(p.getSourceAddress())
+                                 + " reported > 0 distance SCC (SPN 3294)");
+                     });
 
         // 6.2.9.2 b. Fail if no ECU reports time (SPN 3295) or distance (SPN 3069) with MIL on.
         boolean timeReported = globalPackets.stream()
@@ -90,16 +91,20 @@ public class Part02Step09Controller extends StepController {
                          double value = p.getMinutesWhileMILIsActivated();
                          return value > 0 && value < 0xFF00;
                      })
-                     .forEach(p -> addFailure("6.2.9.2.c - " + getAddressName(p.getSourceAddress())
-                             + " reported > 0 time with MIL on"));
+                     .forEach(p -> {
+                         addFailure("6.2.9.2.c - " + getAddressName(p.getSourceAddress())
+                                 + " reported > 0 time with MIL on");
+                     });
 
         globalPackets.stream()
                      .filter(p -> {
                          double value = p.getKmWhileMILIsActivated();
                          return value > 0 && !ParsedPacket.isNotAvailable(value);
                      })
-                     .forEach(p -> addFailure("6.2.9.2.c - " + getAddressName(p.getSourceAddress())
-                             + " reported > 0 distance with MIL on"));
+                     .forEach(p -> {
+                         addFailure("6.2.9.2.c - " + getAddressName(p.getSourceAddress())
+                                 + " reported > 0 distance with MIL on");
+                     });
 
         // 6.2.9.2 d. Fail if any ECU reports zero time SCC (SPN 3296) (if supported).
         globalPackets.stream()
@@ -107,8 +112,10 @@ public class Part02Step09Controller extends StepController {
                          double timeScc = p.getMinutesSinceDTCsCleared();
                          return timeScc >= 0.0 && timeScc < 1.0;
                      })
-                     .forEach(p -> addFailure("6.2.9.2.d - " + getAddressName(p.getSourceAddress())
-                             + " reported zero time SCC (SPN 3296)"));
+                     .forEach(p -> {
+                         addFailure("6.2.9.2.d - " + getAddressName(p.getSourceAddress())
+                                 + " reported zero time SCC (SPN 3296)");
+                     });
 
         // 6.2.9.2 e. Warn if no OBD ECU reports time (SPN 3296) for DM21.
         boolean timeNotSupported = globalPackets.stream()
@@ -133,9 +140,9 @@ public class Part02Step09Controller extends StepController {
         });
 
         // 6.2.9.4.a. Fail if any difference compared to data received from global request.
-        compareRequestPackets(globalResponse.getPackets(), dsPackets, "6.2.9.4.a");
+        compareRequestPackets(globalPackets, dsPackets, "6.2.9.4.a");
 
         // 6.2.9.4.b. Fail if NACK not received from OBD ECUs that did not respond to global query.
-        checkForNACKsGlobal(globalResponse.getPackets(), dsAcks, "6.2.9.4.b");
+        checkForNACKsGlobal(globalPackets, dsAcks, "6.2.9.4.b");
     }
 }
