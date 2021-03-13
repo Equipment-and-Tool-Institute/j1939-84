@@ -6,7 +6,7 @@ package org.etools.j1939_84.controllers.part11;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.YES;
-import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+import static org.etools.j1939_84.controllers.ResultsListener.MessageType.INFO;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -183,7 +183,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
         doAnswer((Answer<Void>) invocation -> {
             ((QuestionListener) invocation.getArguments()[3]).answered(YES);
             return null;
-        }).when(mockListener).onUrgentMessage(any(), any(), eq(WARNING), any());
+        }).when(mockListener).onUrgentMessage(any(), any(), eq(INFO), any());
 
         when(engineSpeedModule.currentEngineSpeed()).thenReturn(1400.0);
         when(engineSpeedModule.averagedEngineSpeed()).thenReturn(1000.0);
@@ -219,16 +219,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule, atLeastOnce()).requestDM20(any(), eq(0));
         verify(diagnosticMessageModule, atLeastOnce()).requestDM28(any(), eq(0));
 
-        String urgentMessage0 = "Please increase engine speed over 1150 rpm for a minimum of 300 seconds" + NL;
-        urgentMessage0 += "Press OK to continue";
-        verify(mockListener).onUrgentMessage(eq(urgentMessage0), eq("Step 6.11.7.1.c"), eq(WARNING), any());
-
-        String urgentMessage1 = "Please reduce engine speed back to idle" + NL;
-        urgentMessage1 += "Test will continue for an additional 437 seconds" + NL;
-        urgentMessage1 += "Press OK to continue";
-        verify(mockListener).onUrgentMessage(eq(urgentMessage1), eq("Step 6.11.7.1.f"), eq(WARNING), any());
-
-        // verify(mockListener).onUrgentMessage(eq(""), eq(""), eq(WARNING), any());
+        verify(mockListener, times(2)).onUrgentMessage(any(), any(), eq(INFO), any());
 
         StringBuilder expectedMessages = new StringBuilder();
         for (int i = 180; i > 0; i--) {
@@ -274,7 +265,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
         doAnswer((Answer<Void>) invocation -> {
             ((QuestionListener) invocation.getArguments()[3]).answered(YES);
             return null;
-        }).when(mockListener).onUrgentMessage(any(), any(), eq(WARNING), any());
+        }).when(mockListener).onUrgentMessage(any(), any(), eq(INFO), any());
 
         when(engineSpeedModule.secondsAtSpeed()).thenReturn(299L).thenReturn(300L);
 
@@ -290,17 +281,13 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule, times(2)).requestDM20(any(), eq(0));
 
-        verify(mockListener, times(2)).onUrgentMessage(any(), any(), eq(WARNING), any());
+        verify(mockListener, times(2)).onUrgentMessage(any(), any(), eq(INFO), any());
 
+        assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.11.7.2.a - Engine #1 (0) DM20 response indicates a denominator is greater than the value it was earlier in this part");
-        String expectedMessage = "Please increase engine speed over 1150 rpm for a minimum of 300 seconds" + NL
-                + "Press OK to continue";
-        verify(mockListener).onUrgentMessage(eq(expectedMessage), eq("Step 6.11.7.1.c"), eq(WARNING), any());
-        assertEquals("", listener.getResults());
-
     }
 
     @Test
@@ -318,7 +305,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
         doAnswer((Answer<Void>) invocation -> {
             ((QuestionListener) invocation.getArguments()[3]).answered(YES);
             return null;
-        }).when(mockListener).onUrgentMessage(any(), any(), eq(WARNING), any());
+        }).when(mockListener).onUrgentMessage(any(), any(), eq(INFO), any());
 
         when(engineSpeedModule.secondsAtSpeed()).thenReturn(299L).thenReturn(300L);
 
@@ -334,17 +321,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule, times(2)).requestDM28(any(), eq(0));
 
-        String urgentMessage0 = "Please increase engine speed over 1150 rpm for a minimum of 300 seconds" + NL;
-        urgentMessage0 += "Press OK to continue";
-        verify(mockListener).onUrgentMessage(eq(urgentMessage0), eq("Step 6.11.7.1.c"), eq(WARNING), any());
-
-        String urgentMessage1 = "6.11.7.2.b - Engine #1 (0) DM28 response indicates the permanent DTC is no longer present";
-        verify(mockListener).addOutcome(eq(PART_NUMBER), eq(STEP_NUMBER), eq(FAIL), eq(urgentMessage1));
-
-        String urgentMessage2 = "Please reduce engine speed back to idle" + NL;
-        urgentMessage2 += "Test will continue for an additional 438 seconds" + NL;
-        urgentMessage2 += "Press OK to continue";
-        verify(mockListener).onUrgentMessage(eq(urgentMessage2), eq("Step 6.11.7.1.f"), eq(WARNING), any());
+        verify(mockListener, times(2)).onUrgentMessage(any(), any(), eq(INFO), any());
 
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
