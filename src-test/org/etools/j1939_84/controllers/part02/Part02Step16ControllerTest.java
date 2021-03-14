@@ -5,6 +5,7 @@
 package org.etools.j1939_84.controllers.part02;
 
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.PGN;
 import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.create;
 import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.AreaStatus.INSIDE;
 import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.AreaStatus.NOT_AVAILABLE;
@@ -20,6 +21,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus;
@@ -137,18 +139,27 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
     public void testNoResponsesSIEngine() {
 
         when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setFuelType(FuelType.GAS);
         dataRepository.setVehicleInformation(vehInfo);
-        dataRepository.putObdModule(new OBDModuleInformation(0));
+        OBDModuleInformation obdModule = new OBDModuleInformation(0);
+        var packet = create(0, INSIDE, INSIDE, INSIDE, INSIDE, INSIDE, INSIDE);
+        obdModule.set(packet, 1);
+        dataRepository.putObdModule(obdModule);
 
         runTest();
 
         verify(diagnosticMessageModule).requestDM34(any());
+        verify(diagnosticMessageModule).requestDM34(any(), eq(0));
+
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.2.16.4.b - OBD module Engine #1 (0) did not provide a NACK for the DS query");
 
         String expected = "";
-
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
 
@@ -157,12 +168,13 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoResponsesCIEngine() {
 
-        when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, List.of()));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setFuelType(FuelType.DSL);
         dataRepository.setVehicleInformation(vehInfo);
-        dataRepository.putObdModule(new OBDModuleInformation(0));
+        OBDModuleInformation obdModule = new OBDModuleInformation(0);
+        dataRepository.putObdModule(obdModule);
 
         runTest();
 
@@ -184,8 +196,6 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, packet));
 
-        when(diagnosticMessageModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, packet));
-
         var vehInfo = new VehicleInformation();
         vehInfo.setFuelType(FuelType.DSL);
         dataRepository.setVehicleInformation(vehInfo);
@@ -193,7 +203,6 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM34(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM34(any());
 
         assertEquals("", listener.getResults());
@@ -232,17 +241,38 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
 
+        var vehInfo = new VehicleInformation();
+        vehInfo.setFuelType(FuelType.DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM34(any());
+
+        assertEquals("", listener.getResults());
+        assertEquals("", listener.getMessages());
+    }
+
+    @Test
+    public void testFailForNoxControl() {
+        var globalPacket = create(0, INSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
+        var dsPacket = AcknowledgmentPacket.create(0, NACK, 0, 0xF9, DM34NTEStatus.PGN);
+
+        when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
         when(diagnosticMessageModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setFuelType(FuelType.DSL);
         dataRepository.setVehicleInformation(vehInfo);
-        dataRepository.putObdModule(new OBDModuleInformation(0));
+        OBDModuleInformation obdModule = new OBDModuleInformation(0);
+        obdModule.set(globalPacket, 1);
+        dataRepository.putObdModule(obdModule);
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM34(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM34(any());
+        verify(diagnosticMessageModule).requestDM34(any(), eq(0));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -250,30 +280,28 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
-                                        "6.1.16.4.a - Difference compared to data received during global request from Engine #1 (0)");
+                                        "6.2.16.2.b - Engine #1 (0) reported NOx control area != 0b00");
     }
 
     @Test
-    public void testFailForNACK() {
-        var globalPacket = create(0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
+    public void testFailForCarveOut() {
+        var globalPacket = create(0, OUTSIDE, INSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
         var dsPacket = AcknowledgmentPacket.create(0, NACK, 0, 0xF9, DM34NTEStatus.PGN);
 
         when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
-
-        when(diagnosticMessageModule.requestDM34(any(), eq(0)))
-                                                               .thenReturn(new RequestResult<>(false,
-                                                                                               List.of(),
-                                                                                               List.of(dsPacket)));
+        when(diagnosticMessageModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setFuelType(FuelType.DSL);
         dataRepository.setVehicleInformation(vehInfo);
-        dataRepository.putObdModule(new OBDModuleInformation(0));
+        OBDModuleInformation obdModule = new OBDModuleInformation(0);
+        obdModule.set(globalPacket, 1);
+        dataRepository.putObdModule(obdModule);
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM34(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM34(any());
+        verify(diagnosticMessageModule).requestDM34(any(), eq(0));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -281,6 +309,82 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
-                                        "6.2.16.4.b - NACK received from Engine #1 (0) which responded to the global query");
+                                        "6.2.16.2.c - Engine #1 (0) reported NOx carve-out area != 0b00 or 0b11");
+    }
+
+    @Test
+    public void testFailForPmControl() {
+        var globalPacket = create(0, OUTSIDE, OUTSIDE, OUTSIDE, INSIDE, OUTSIDE, OUTSIDE);
+        var dsPacket = AcknowledgmentPacket.create(0, NACK, 0, 0xF9, DM34NTEStatus.PGN);
+
+        when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
+        when(diagnosticMessageModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
+
+        var vehInfo = new VehicleInformation();
+        vehInfo.setFuelType(FuelType.DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+        OBDModuleInformation obdModule = new OBDModuleInformation(0);
+        obdModule.set(globalPacket, 1);
+        dataRepository.putObdModule(obdModule);
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM34(any());
+        verify(diagnosticMessageModule).requestDM34(any(), eq(0));
+
+        assertEquals("", listener.getResults());
+        assertEquals("", listener.getMessages());
+
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.2.16.2.b - Engine #1 (0) reported PM control area != 0b00");
+    }
+
+    @Test
+    public void testFailFor() {
+        var packet = new DM34NTEStatus(Packet.create(PGN, 0x01, 0x05, 0x05, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF));
+        var globalPacket = create(0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
+        var dsPacket = AcknowledgmentPacket.create(0, NACK, 0, 0xF9, DM34NTEStatus.PGN);
+        System.out.println(globalPacket.getPacket());
+        System.out.println(packet.getPacket());
+        when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, packet));
+        when(diagnosticMessageModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
+
+        var vehInfo = new VehicleInformation();
+        vehInfo.setFuelType(FuelType.DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+        OBDModuleInformation obdModule = new OBDModuleInformation(0);
+        obdModule.set(packet, 1);
+        dataRepository.putObdModule(obdModule);
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM34(any());
+        verify(diagnosticMessageModule).requestDM34(any(), eq(0));
+
+        assertEquals("", listener.getResults());
+        assertEquals("", listener.getMessages());
+
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.2.16.2.c - Engine #2 (1) reported NOx deficiency area != 0b00 or 0b11");
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.2.16.2.c - Engine #2 (1) reported PM deficiency area != 0b00 or 0b11");
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.2.16.2.d - Engine #2 (1) reported byte 1 bit 1-2 != 0b11");
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.2.16.2.d - Engine #2 (1) reported byte 2 bit 1-2 != 0b11");
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.2.16.2.d - Engine #2 (1) reported reserve bytes 3-8 != 0xFF");
     }
 }

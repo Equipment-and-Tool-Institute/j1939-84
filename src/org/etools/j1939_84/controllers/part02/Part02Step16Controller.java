@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.AreaStatus.NOT_AVAILABLE;
 import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.AreaStatus.OUTSIDE;
 
@@ -14,10 +13,12 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.Lookup;
+import org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus;
 import org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.AreaStatus;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -162,31 +163,29 @@ public class Part02Step16Controller extends StepController {
                          addFailure("6.2.16.2.d - " + moduleName + " reported reserve bytes 3-8 != 0xFF");
                      });
 
-        var obdAddresses = globalPackets.stream()
-                                        .map(ParsedPacket::getSourceAddress)
-                                        .filter(getDataRepository()::isObdModule)
-                                        .distinct()
-                                        .sorted()
-                                        .collect(Collectors.toList());
+        var obdAddresses = getDataRepository().getObdModules()
+                                              .stream()
+                                              .filter(m -> m.get(DM34NTEStatus.class, 1) != null)
+                                              .map(OBDModuleInformation::getSourceAddress)
+                                              .collect(Collectors.toList());
 
         // 6.2.16.3.a. DS DM34 to each OBD ECU which responded to the DM34 global request in step 1.
-        var dsResponses = obdAddresses.stream()
-                                      .map(a -> getDiagnosticMessageModule().requestDM34(getListener(), a))
+        var dsResponses = getDataRepository().getObdModules()
+                                             .stream()
+                                             .filter(m -> {
+                                                 return m.get(DM34NTEStatus.class, 1) != null;
+                                             })
+                                             .map(m -> getDiagnosticMessageModule().requestDM34(getListener(),
+                                                                                                m.getSourceAddress()))
                                       .collect(Collectors.toList());
 
         // 6.2.16.4.a. Fail if any difference compared to data received from global request.
-        compareRequestPackets(globalPackets, filterRequestResultPackets(dsResponses), "6.1.16.4.a");
+        compareRequestPackets(globalPackets, filterRequestResultPackets(dsResponses), "6.2.16.4.a");
 
         // 6.2.16.4.b. Fail if NACK received from OBD ECUs that responded to the global query in part 1.
-        dsResponses.stream()
-                   .flatMap(r -> r.getAcks().stream())
-                   .filter(a -> a.getResponse() == NACK)
-                   .map(ParsedPacket::getModuleName)
-                   .forEach(moduleName -> {
-                       addFailure("6.2.16.4.b - NACK received from " + moduleName
-                               + " which responded to the global query");
-                   });
-
+        checkForNACKsDS(filterRequestResultPackets(dsResponses),
+                        filterRequestResultAcks(dsResponses),
+                        "6.2.16.4.b",
+                        obdAddresses);
     }
-
 }
