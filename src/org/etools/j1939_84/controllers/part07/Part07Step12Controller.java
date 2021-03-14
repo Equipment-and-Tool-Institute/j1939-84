@@ -67,6 +67,7 @@ public class Part07Step12Controller extends StepController {
                                            .collect(Collectors.toList());
 
         var packets = filterPackets(dsResults);
+        packets.forEach(this::save);
 
         // 6.7.12.2.a. Fail if no ECU reports Freeze Frame data.
         boolean hasFreezeFrame = packets.stream()

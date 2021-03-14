@@ -61,6 +61,8 @@ public class Part08Step08Controller extends StepController {
         // 6.8.8.1.a. Global DM29 [(send Request (PGN 59904) for PGN 40448 (SPNs 4104-4108)]).
         var packets = getDiagnosticMessageModule().requestDM29(getListener()).getPackets();
 
+        packets.forEach(this::save);
+
         // 6.8.8.2.a. Fail if any ECU reports > 0 for emission-related pending.
         packets.stream()
                .filter(p -> p.getEmissionRelatedPendingDTCCount() > 0)

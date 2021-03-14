@@ -60,6 +60,8 @@ public class Part07Step08Controller extends StepController {
         // 6.7.8.1.a Global DM27 [(send Request (PGN 59904) for PGN 64898 (SPNs 1213-1215, 1706, and 3038)]).
         var globalPackets = getDiagnosticMessageModule().requestDM27(getListener()).getPackets();
 
+        globalPackets.forEach(this::save);
+
         // 6.7.8.2.a (if supported) Fail if any OBD ECU reports a pending DTC.
         globalPackets.stream()
                      .filter(p -> isObdModule(p.getSourceAddress()))
