@@ -93,8 +93,10 @@ public class Part06Step08Controller extends StepController {
         packets.stream()
                .filter(p -> p.getEmissionRelatedMILOnDTCCount() != getDM12DTCs(p.getSourceAddress()).size())
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.6.8.2.c - " + moduleName
-                       + " reported a different number for MIL on than what it reported in DM12"));
+               .forEach(moduleName -> {
+                   addFailure("6.6.8.2.c - " + moduleName
+                           + " reported a different number for MIL on than what it reported in DM12");
+               });
 
         // 6.6.8.2.d. Fail if no ECU reports > 0 for permanent.
         boolean noPerm = packets.stream()
@@ -108,8 +110,10 @@ public class Part06Step08Controller extends StepController {
         packets.stream()
                .filter(p -> p.getEmissionRelatedPermanentDTCCount() != getDM28DTCs(p.getSourceAddress()).size())
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.6.8.2.e - " + moduleName
-                       + " reported a different number for MIL on than what it reported in DM28"));
+               .forEach(moduleName -> {
+                   addFailure("6.6.8.2.e - " + moduleName
+                           + " reported a different number for MIL on than what it reported in DM28");
+               });
 
         // 6.6.8.2.f. For ECUs that support DM27, fail if any ECU reports an all pending DTC (DM27) (SPN 4105) count
         // that is less than its pending DTC (DM6) count.
@@ -117,8 +121,10 @@ public class Part06Step08Controller extends StepController {
                .filter(p -> supportsDM27(p.getSourceAddress()))
                .filter(p -> p.getAllPendingDTCCount() < getDM6DTCs(p.getSourceAddress()).size())
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.6.8.2.f - " + moduleName
-                       + " reported an for all pending DTC count that is less than its pending DTC (DM6) count"));
+               .forEach(moduleName -> {
+                   addFailure("6.6.8.2.f - " + moduleName
+                           + " reported an for all pending DTC count that is less than its pending DTC (DM6) count");
+               });
 
         // 6.6.8.2.g. For ECUs that do not support DM27, fail if any ECU does not report number of all pending DTCs =
         // 0xFF.
@@ -126,8 +132,10 @@ public class Part06Step08Controller extends StepController {
                .filter(p -> !supportsDM27(p.getSourceAddress()))
                .filter(p -> p.getAllPendingDTCCount() != 0xFF)
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.6.8.2.g - " + moduleName
-                       + " did not report number of all pending DTCs = 0xFF"));
+               .forEach(moduleName -> {
+                   addFailure("6.6.8.2.g - " + moduleName
+                           + " did not report number of all pending DTCs = 0xFF");
+               });
 
         // 6.6.8.2.h. Fail if NACK not received from OBD ECUs that did not provide a DM29 message.
         checkForNACKsDS(packets, filterAcks(dsResults), "6.6.8.2.h");
@@ -136,7 +144,9 @@ public class Part06Step08Controller extends StepController {
         packets.stream()
                .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 1)
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addWarning("6.6.8.3.a - " + moduleName + " reported > 1 for MIL on"));
+               .forEach(moduleName -> {
+                   addWarning("6.6.8.3.a - " + moduleName + " reported > 1 for MIL on");
+               });
 
         // 6.6.8.3.b. Warn if more than one ECU reports > 0 for MIL on.
         long milOnCount = packets.stream()
@@ -150,7 +160,9 @@ public class Part06Step08Controller extends StepController {
         packets.stream()
                .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 1)
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addWarning("6.6.8.3.c - " + moduleName + " reported > 1 for permanent"));
+               .forEach(moduleName -> {
+                   addWarning("6.6.8.3.c - " + moduleName + " reported > 1 for permanent");
+               });
 
         // 6.6.8.3.d. Warn if more than one ECU reports > 0 for permanent
         long permCount = packets.stream()

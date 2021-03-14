@@ -97,38 +97,49 @@ public class Part01Step12Controller extends StepController {
             int sourceAddress = obdModule.getSourceAddress();
             String moduleName = obdModule.getModuleName();
 
-            for (SupportedSPN spn : obdModule.getTestResultSPNs()) {
-                int spnId = spn.getSpn();
-                var dm30Packets = getDiagnosticMessageModule().requestTestResults(getListener(),
-                                                                                  sourceAddress,
-                                                                                  247,
-                                                                                  spnId,
-                                                                                  31);
-                if (dm30Packets.isEmpty()) {
-                    addFailure("6.1.12.1.a - No test result for Supported SPN " + spnId + " from " + moduleName);
-                } else {
-                    List<ScaledTestResult> testResults = dm30Packets
-                                                                    .stream()
-                                                                    .peek(p -> verifyDM30PacketSupported(p, spnId))
-                                                                    .flatMap(p -> p.getTestResults().stream())
-                                                                    .collect(Collectors.toList());
+            obdModule.getTestResultSPNs()
+                     .stream()
+                     .mapToInt(SupportedSPN::getSpn)
+                     .forEachOrdered(spnId -> {
+                         var dm30Packets = getDiagnosticMessageModule().requestTestResults(getListener(),
+                                                                                           sourceAddress,
+                                                                                           247,
+                                                                                           spnId,
+                                                                                           31);
+                         if (dm30Packets.isEmpty()) {
+                             addFailure("6.1.12.1.a - No test result for Supported SPN " + spnId + " from "
+                                     + moduleName);
+                         } else {
+                             var testResults = dm30Packets
+                                                          .stream()
+                                                          .peek(p -> verifyDM30PacketSupported(p, spnId))
+                                                          .flatMap(p -> p.getTestResults().stream())
+                                                          .collect(Collectors.toList());
 
-                    // 6.1.12.1.d. Warn if any ECU reports more than one set of test results for the same SPN+FMI.
-                    tableA7Validator.findDuplicates(testResults)
-                                    .forEach(dup -> {
-                                        addWarning("6.1.12.2.a (A7.2.b) - " + moduleName
-                                                + " returned duplicate test results for SPN " + dup.getSpn()
-                                                + " FMI " + dup.getFmi());
-                                    });
+                             // 6.1.12.1.d. Warn if any ECU reports more than one set of test results for the same
+                             // SPN+FMI.
+                             tableA7Validator.findDuplicates(testResults)
+                                             .forEach(dup -> {
+                                                 addWarning("6.1.12.2.a (A7.2.b) - " + moduleName
+                                                         + " returned duplicate test results for SPN " + dup.getSpn()
+                                                         + " FMI " + dup.getFmi());
+                                             });
 
-                    moduleTestResults.addAll(testResults);
-                }
-                getListener().onResult("");
+                             moduleTestResults.addAll(testResults);
+                         }
+                         getListener().onResult("");
+                     });
+
+            if (!moduleTestResults.isEmpty()) {
+                getListener().onResult(moduleName + " Test Results:");
+                getListener().onResult(moduleTestResults.stream()
+                                                        .map(ScaledTestResult::toString)
+                                                        .collect(Collectors.toList()));
+
+                obdModule.setScaledTestResults(moduleTestResults);
+                getDataRepository().putObdModule(obdModule);
+                vehicleTestResults.addAll(moduleTestResults);
             }
-
-            obdModule.setScaledTestResults(moduleTestResults);
-            getDataRepository().putObdModule(obdModule);
-            vehicleTestResults.addAll(moduleTestResults);
         }
 
         // Create list of ECU address+SPN+FMI supported test results.

@@ -5,7 +5,6 @@ package org.etools.j1939_84.controllers;
 
 import static org.etools.j1939_84.model.Outcome.ABORT;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -362,16 +361,13 @@ public abstract class Controller {
         getListener().onProgress(currentStep, maxSteps, "");
     }
 
-    public void setupRun(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
+    private void setupRun(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
         setJ1939(j1939);
-
-        List<ResultsListener> listeners = new ArrayList<>(List.of(listener, partResultRepository));
         if (reportFileModule != null) {
-            listeners.add(reportFileModule);
+            compositeListener = new CompositeResultsListener(listener, reportFileModule, partResultRepository);
+        } else {
+            compositeListener = new CompositeResultsListener(listener, partResultRepository);
         }
-
-        compositeListener = new CompositeResultsListener(listeners.toArray(new ResultsListener[0]));
-
         ending = null;
     }
 

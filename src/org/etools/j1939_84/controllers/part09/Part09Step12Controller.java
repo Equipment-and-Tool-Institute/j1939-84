@@ -3,13 +3,14 @@
  */
 package org.etools.j1939_84.controllers.part09;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.LampStatus;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -89,17 +90,16 @@ public class Part09Step12Controller extends StepController {
 
         // 6.9.12.3.a. Warn if permanent DTC is different than DM12 DTC earlier in this part.
         dsPackets.stream()
-                 .filter(p -> p.getMalfunctionIndicatorLampStatus() != getMIL(p.getSourceAddress()))
+                 .filter(p -> !p.getDtcs().equals(getDTCs(p.getSourceAddress())))
                  .map(ParsedPacket::getModuleName)
                  .forEach(moduleName -> {
-                     addFailure("6.9.12.3.a - " + moduleName
-                             + " reported different MIL status than DM12 response earlier in test 6.9.2.1.b");
+                     addWarning("6.9.12.3.a - " + moduleName
+                             + " reported different DTC than DM12 response earlier in step 6.9.2.1.b");
                  });
 
     }
 
-    private LampStatus getMIL(int moduleAddress) {
-        var dm12 = get(DM12MILOnEmissionDTCPacket.class, moduleAddress, 9);
-        return dm12 == null ? null : dm12.getMalfunctionIndicatorLampStatus();
+    private List<DiagnosticTroubleCode> getDTCs(int address) {
+        return getDTCs(DM12MILOnEmissionDTCPacket.class, address, 9);
     }
 }

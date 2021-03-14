@@ -137,11 +137,11 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
         var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc_1);
 
         var obdModule0 = new OBDModuleInformation(0);
-        obdModule0.set(DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF), 4);
+        obdModule0.set(DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF), 3);
         dataRepository.putObdModule(obdModule0);
 
         var obdModule1 = new OBDModuleInformation(1);
-        obdModule1.set(DM6PendingEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc_1), 4);
+        obdModule1.set(DM6PendingEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc_1), 3);
         dataRepository.putObdModule(obdModule1);
 
         when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12, dm12_1));
@@ -163,11 +163,11 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12, dm12_1));
 
         var obdModule0 = new OBDModuleInformation(0);
-        obdModule0.set(DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF), 4);
+        obdModule0.set(DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF), 3);
         dataRepository.putObdModule(obdModule0);
 
         var obdModule1 = new OBDModuleInformation(1);
-        obdModule1.set(DM6PendingEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc_1), 4);
+        obdModule1.set(DM6PendingEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc_1), 3);
         dataRepository.putObdModule(obdModule1);
 
         runTest();
@@ -181,7 +181,7 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.5.2.2.c - OBD module Engine #2 (1) had a discrepancy between reported DM12 DTCs and DM6 DTCs reported in 6.4.2");
+                                        "6.5.2.2.c - OBD module Engine #2 (1) had a discrepancy between reported DM12 DTCs and DM6 DTCs reported in 6.3.2");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -197,7 +197,7 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
         var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF);
 
         var obdModule0 = new OBDModuleInformation(0);
-        obdModule0.set(DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF), 4);
+        obdModule0.set(DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF), 3);
         dataRepository.putObdModule(obdModule0);
 
         var obdModule1 = new OBDModuleInformation(1);
@@ -235,7 +235,7 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule0);
 
         var obdModule1 = new OBDModuleInformation(1);
-        obdModule1.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc_1, dtc_2), 4);
+        obdModule1.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc_1, dtc_2), 3);
         dataRepository.putObdModule(obdModule1);
 
         when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12, dm12_1));
@@ -251,7 +251,7 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.5.2.2.c - OBD module Engine #2 (1) had a discrepancy between reported DM12 DTCs and DM6 DTCs reported in 6.4.2");
+                                        "6.5.2.2.c - OBD module Engine #2 (1) had a discrepancy between reported DM12 DTCs and DM6 DTCs reported in 6.3.2");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,

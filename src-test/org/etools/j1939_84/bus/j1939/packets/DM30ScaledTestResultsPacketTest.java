@@ -65,9 +65,9 @@ public class DM30ScaledTestResultsPacketTest {
         }
 
         String expected = "DM30 from 0: [" + NL
+                + "  SPN 724 FMI 2 (SLOT 132) Result: Test Passed. Min: 0, Value: 0, Max: 0 ms" + NL
                 + "  SPN 724 FMI 20 (SLOT 318) Result: Test Passed. Min: -3.92, Value: -3.92, Max: -3.92" + NL
                 + "  SPN 724 FMI 21 (SLOT 318) Result: Test Passed. Min: -3.92, Value: -3.92, Max: -3.92" + NL
-                + "  SPN 724 FMI 2 (SLOT 132) Result: Test Passed. Min: 0, Value: 0, Max: 0 ms" + NL
                 + "]";
         assertEquals(expected, instance.toString());
     }

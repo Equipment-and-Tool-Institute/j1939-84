@@ -70,7 +70,7 @@ public class Part10Step04Controller extends StepController {
                  .filter(p -> isNotOff(p.getMalfunctionIndicatorLampStatus()))
                  .map(ParsedPacket::getModuleName)
                  .forEach(moduleName -> {
-                     addFailure("6.10.4.2.b. - ECU " + moduleName + "did not report MIL 'off'");
+                     addFailure("6.10.4.2.b. - ECU " + moduleName + " did not report MIL 'off'");
                  });
 
         // 6.10.4.2.a. Fail if no ECU reports a permanent DTC.

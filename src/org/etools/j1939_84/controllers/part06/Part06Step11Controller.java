@@ -4,9 +4,11 @@
 package org.etools.j1939_84.controllers.part06;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.J1939_84.isDevEnv;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -63,22 +65,23 @@ public class Part06Step11Controller extends StepController {
         ensureKeyStateIs(KEY_OFF);
 
         // 6.6.11.1.b Wait engine manufacturer’s recommended interval.
-        incrementProgress("Step 6.6.11.1.b - Waiting manufacturer’s recommended interval with the key in the off position");
         waitForManufacturerInterval("Step 6.6.11.1.b", KEY_OFF);
 
         // 6.6.11.1.c Turn key to on position.
         incrementProgress("Step 6.6.11.1.c - Turn the ignition key in the on position");
         ensureKeyStateIs(KEY_ON_ENGINE_OFF);
 
-        // 6.6.11.1.d If required by engine manufacturer, start the engine for start to start operating cycle effects.
+        // 6.6.11.1.d If required by engine manufacturer, start the engine to start operating cycle effects.
         // 6.6.11.1.e Otherwise, Proceed with part 7.
         displayQuestionMessage();
+        if (isDevEnv()) {
+            ensureKeyStateIs(KEY_ON_ENGINE_RUNNING);
+        }
 
         // 6.6.11.1.f Turn engine off.
         ensureKeyStateIs(KEY_OFF);
 
         // 6.6.11.1.g Wait engine manufacturer’s recommended interval.
-        incrementProgress("Step 6.6.11.g - Waiting manufacturer’s recommended interval with the key in the off position");
         waitForManufacturerInterval("Step 6.6.11.1.g", KEY_OFF);
 
         // 6.6.11.1.h Turn the key to the on position.

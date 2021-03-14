@@ -69,7 +69,6 @@ public abstract class PartController extends Controller {
             StepResult stepResult = getPartResult().getStepResult(controller.getStepNumber());
 
             getListener().onResult("Start " + stepResult);
-            getListener().onResult("");
 
             incrementProgress(stepResult.toString());
             controller.run(getListener(), getJ1939());

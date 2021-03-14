@@ -55,35 +55,36 @@ public class Part05Step07Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.5.7.1.a Turn the engine off to complete the first1st cycle.
+        // 6.5.7.1.a Turn the engine off to complete the first cycle.
         incrementProgress("Step 6.5.7.1.a - Turn Engine Off and keep the ignition key in the off position");
         ensureKeyStateIs(KEY_OFF);
 
         // 6.5.7.1.b Wait manufacturer’s recommended interval with the key in the off position.
-        incrementProgress("Step 6.5.7.1.b - Waiting manufacturer’s recommended interval with the key in the off position");
         waitForManufacturerInterval("Step 6.5.7.1.b", KEY_OFF);
 
         // 6.5.7.1.c Start Engine for second cycle.
-        incrementProgress("Step 6.5.7.1.c Turn Engine on and keep the ignition key in the on position");
+        incrementProgress("Step 6.5.7.1.c - Turn Engine on and keep the ignition key in the on position");
         ensureKeyStateIs(KEY_ON_ENGINE_RUNNING);
 
         // 6.5.7.1.d Wait for manufacturer’s recommended time for Fault A to be detected as passed.
-        incrementProgress("Waiting manufacturer’s recommended time for Fault A to be detected as passed");
-        waitForManufacturerInterval("Step 6.5.7.1.d", KEY_ON_ENGINE_RUNNING);
+        incrementProgress("Step 6.5.7.1.d - Waiting manufacturer’s recommended time for Fault A to be detected as passed");
+        String message = "Wait the manufacturer's recommended time for Fault A to be detected as passed" + NL;
+        message += "Press OK to continue the testing.";
+        displayInstructionAndWait(message, "Step 6.5.7.1.d", WARNING);
 
         // 6.5.7.1.e Turn the engine off to complete the second cycle.
-        // 6.5.7.1.f Wait manufacturer’s recommended interval with the key in the off position.
-        // 6.5.7.1.g Start the engine for part 6.
-        // 6.5.7.1.h Wait for manufacturer’s recommended time for Fault A to be detected as passed
-        waitForEngineStart();
-    }
+        ensureKeyStateIs(KEY_OFF);
 
-    private void waitForEngineStart() {
-        String message = "Turn the engine off to complete the second cycle" + NL;
-        message += "Wait for manufacturer’s recommended interval with the key in the off position" + NL;
-        message += "Start the engine for part 6" + NL;
-        message += "Wait for manufacturer’s recommended time for Fault A to be detected as passed" + NL;
-        message += "Press OK to continue testing";
-        displayInstructionAndWait(message, "Step 6.5.7.1.e - g", WARNING);
+        // 6.5.7.1.f Wait manufacturer’s recommended interval with the key in the off position.
+        waitForManufacturerInterval("Step 6.5.7.1.f", KEY_OFF);
+
+        // 6.5.7.1.g Start the engine for part 6.
+        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING);
+
+        // 6.5.7.1.h Wait for manufacturer’s recommended time for Fault A to be detected as passed
+        incrementProgress("Step 6.5.7.1.h - Waiting manufacturer’s recommended time for Fault A to be detected as passed");
+        String message2 = "Wait the manufacturer's recommended time for Fault A to be detected as passed" + NL;
+        message2 += "Press OK to continue the testing.";
+        displayInstructionAndWait(message2, "Step 6.5.7.1.h", WARNING);
     }
 }

@@ -245,6 +245,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                 + NL;
         expectedMessages += "Step 6.7.18.1.g - Turn Engine Off and keep the ignition key in the off position" + NL;
         expectedMessages += "Waiting for Key OFF..." + NL;
+        expectedMessages += "Step 6.7.18.1.h - Waiting manufacturer’s recommended interval with the Key OFF" + NL;
         expectedMessages += "Step 6.7.18.1.i - Turn Engine on with the ignition key in the on position" + NL;
         expectedMessages += "Step 6.7.18.1.j - Fault B is a single trip fault; proceeding with part 8 immediately";
         assertEquals(expectedMessages, listener.getMessages());
@@ -410,11 +411,13 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                 + NL;
         expectedMessages += "Step 6.7.18.1.g - Turn Engine Off and keep the ignition key in the off position" + NL;
         expectedMessages += "Waiting for Key OFF..." + NL;
+        expectedMessages += "Step 6.7.18.1.h - Waiting manufacturer’s recommended interval with the Key OFF" + NL;
         expectedMessages += "Step 6.7.18.1.i - Turn Engine on with the ignition key in the on position" + NL;
         expectedMessages += "Step 6.7.18.1.j - Running fault B trip #2 of 2 total fault trips" + NL;
         expectedMessages += "Step 6.7.18.1.k - Waiting for manufacturer’s recommended time for Fault B to be detected as failed"
                 + NL;
         expectedMessages += "Step 6.7.18.1.l - Turn Engine Off and keep the ignition key in the off position." + NL;
+        expectedMessages += "Step 6.7.18.1.m - Waiting manufacturer’s recommended interval with the Key OFF" + NL;
         expectedMessages += "Step 6.7.18.1.n & o - With the ignition key on and engine on proceeding to Part 8";
         assertEquals(expectedMessages, listener.getMessages());
 

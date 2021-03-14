@@ -74,19 +74,16 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
 
     private TestResultsListener listener;
 
-    private DataRepository dataRepository;
-
     private StepController instance;
 
     @Before
     public void setUp() throws Exception {
-        dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
 
         instance = new Part08Step16Controller(executor,
                                               bannerModule,
                                               new TestDateTimeModule(),
-                                              dataRepository,
+                                              DataRepository.newInstance(),
                                               engineSpeedModule,
                                               vehicleInformationModule,
                                               diagnosticMessageModule);
@@ -209,8 +206,8 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Waiting for Key OFF..." + NL;
         expectedMessages += "Waiting for Key OFF..." + NL;
-        expectedMessages += "Step 6.8.16.1.c - With Key OFF, remove the implanted Fault B"
-                + NL;
+        expectedMessages += "Step 6.8.16.1.b - Waiting manufacturer’s recommended interval with the Key OFF" + NL;
+        expectedMessages += "Step 6.8.16.1.c - With Key OFF, remove the implanted Fault B" + NL;
         expectedMessages += "Waiting for Key ON/Engine OFF..." + NL;
         expectedMessages += "Step 6.8.16.1.e & f - Do Not Start Engine - proceeding with part 9";
         assertEquals(expectedMessages, listener.getMessages());
@@ -303,6 +300,7 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Waiting for Key OFF..." + NL;
         expectedMessages += "Waiting for Key OFF..." + NL;
+        expectedMessages += "Step 6.8.16.1.b - Waiting manufacturer’s recommended interval with the Key OFF" + NL;
         expectedMessages += "Step 6.8.16.1.c - With Key OFF, remove the implanted Fault B"
                 + NL;
         expectedMessages += "Waiting for Key ON/Engine OFF..." + NL;

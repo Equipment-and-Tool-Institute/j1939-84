@@ -161,14 +161,14 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        var dm22_1 = create(1, CLR_ACT_NACK, GENERAL_NACK, 0x7FFFF, 0x31);
+        var dm22_1 = create(1, 0, CLR_ACT_NACK, GENERAL_NACK, 0x7FFFF, 0x31);
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(1),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
                                                  eq(0x31))).thenReturn(BusResult.of(dm22_1));
 
-        var dm22_0 = create(0, CLR_PA_NACK, GENERAL_NACK, 123, 10);
+        var dm22_0 = create(0, 0, CLR_PA_NACK, GENERAL_NACK, 123, 10);
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(0),
                                                  eq(CLR_PA_REQ),
@@ -204,7 +204,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
     public void testFailureForCLR_PA_ACK() {
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        var dm22_1 = create(1, CLR_PA_ACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
+        var dm22_1 = create(1, 0, CLR_PA_ACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(1),
                                                  eq(CLR_ACT_REQ),
@@ -247,7 +247,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
     public void testFailureForCLR_ACT_ACK() {
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        var dm22_1 = create(1, CLR_ACT_ACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
+        var dm22_1 = create(1, 0, CLR_ACT_ACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(1),
                                                  eq(CLR_ACT_REQ),
@@ -333,7 +333,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
     public void testFailureForCLR_ACT_NACKWithNonZeroAck() {
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        var dm22_1 = create(1, CLR_ACT_NACK, ACCESS_DENIED, 0x7FFFF, 0x31);
+        var dm22_1 = create(1, 0, CLR_ACT_NACK, ACCESS_DENIED, 0x7FFFF, 0x31);
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(1),
                                                  eq(CLR_ACT_REQ),
@@ -376,7 +376,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
     public void testFailureForCLR_PA_NACKWithNonZeroAck() {
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        var dm22_1 = create(1, CLR_PA_NACK, ACCESS_DENIED, 0x7FFFF, 0x31);
+        var dm22_1 = create(1, 0, CLR_PA_NACK, ACCESS_DENIED, 0x7FFFF, 0x31);
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(1),
                                                  eq(CLR_ACT_REQ),
@@ -465,7 +465,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 9);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        var dm22_0 = create(0, CLR_PA_ACK, NOT_SUPPORTED, 123, 10);
+        var dm22_0 = create(0, 0, CLR_PA_ACK, NOT_SUPPORTED, 123, 10);
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(0),
                                                  eq(CLR_PA_REQ),
@@ -511,7 +511,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 9);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        var dm22_0 = create(0, CLR_ACT_ACK, NOT_SUPPORTED, 123, 10);
+        var dm22_0 = create(0, 0, CLR_ACT_ACK, NOT_SUPPORTED, 123, 10);
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(0),
                                                  eq(CLR_PA_REQ),
@@ -603,7 +603,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 9);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        var dm22_0 = create(0, CLR_ACT_NACK, ACCESS_DENIED, 123, 10);
+        var dm22_0 = create(0, 0, CLR_ACT_NACK, ACCESS_DENIED, 123, 10);
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(0),
                                                  eq(CLR_PA_REQ),
@@ -691,7 +691,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForCLR_PA_ACK3() {
 
-        var dm22_0 = create(0, CLR_PA_ACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
+        var dm22_0 = create(0, 0, CLR_PA_ACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
@@ -723,7 +723,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForCLR_ACT_ACK3() {
 
-        var dm22_0 = create(0, CLR_ACT_ACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
+        var dm22_0 = create(0, 0, CLR_ACT_ACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
@@ -785,7 +785,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForCLR_ACT_NACKWithNonZeroAck3() {
 
-        var dm22_0 = create(0, CLR_ACT_NACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
+        var dm22_0 = create(0, 0, CLR_ACT_NACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
@@ -817,7 +817,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForCLR_PA_NACKWithNonZeroAck3() {
 
-        var dm22_0 = create(0, CLR_PA_NACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
+        var dm22_0 = create(0, 0, CLR_PA_NACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
@@ -849,7 +849,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForCLR_PA_ACK4() {
 
-        var dm22_0 = create(0, CLR_PA_ACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
+        var dm22_0 = create(0, 0, CLR_PA_ACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
@@ -881,7 +881,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForCLR_ACT_ACK4() {
 
-        var dm22_0 = create(0, CLR_ACT_ACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
+        var dm22_0 = create(0, 0, CLR_ACT_ACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
@@ -944,7 +944,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForCLR_ACT_NACKWithNonZeroAck4() {
 
-        var dm22_0 = create(0, CLR_ACT_NACK, UNKNOWN_DTC, 0x7FFFF, 0x31);
+        var dm22_0 = create(0, 0, CLR_ACT_NACK, UNKNOWN_DTC, 0x7FFFF, 0x31);
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
@@ -976,7 +976,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForCLR_PA_NACKWithNonZeroAck4() {
 
-        var dm22_0 = create(0, CLR_PA_NACK, DTC_NOT_PA, 0x7FFFF, 0x31);
+        var dm22_0 = create(0, 0, CLR_PA_NACK, DTC_NOT_PA, 0x7FFFF, 0x31);
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),

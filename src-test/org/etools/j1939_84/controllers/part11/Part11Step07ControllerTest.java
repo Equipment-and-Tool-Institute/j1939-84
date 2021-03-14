@@ -6,7 +6,7 @@ package org.etools.j1939_84.controllers.part11;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.YES;
-import static org.etools.j1939_84.controllers.ResultsListener.MessageType.INFO;
+import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -183,7 +183,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
         doAnswer((Answer<Void>) invocation -> {
             ((QuestionListener) invocation.getArguments()[3]).answered(YES);
             return null;
-        }).when(mockListener).onUrgentMessage(any(), any(), eq(INFO), any());
+        }).when(mockListener).onUrgentMessage(any(), any(), eq(WARNING), any());
 
         when(engineSpeedModule.currentEngineSpeed()).thenReturn(1400.0);
         when(engineSpeedModule.averagedEngineSpeed()).thenReturn(1000.0);
@@ -219,17 +219,19 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule, atLeastOnce()).requestDM20(any(), eq(0));
         verify(diagnosticMessageModule, atLeastOnce()).requestDM28(any(), eq(0));
 
-        verify(mockListener, times(2)).onUrgentMessage(any(), any(), eq(INFO), any());
+        verify(mockListener, times(2)).onUrgentMessage(any(), any(), eq(WARNING), any());
 
         StringBuilder expectedMessages = new StringBuilder();
         for (int i = 180; i > 0; i--) {
-            expectedMessages.append("Step 6.11.7.1.b Waiting ").append(i).append(" seconds").append(NL);
+            expectedMessages.append("Step 6.11.7.1.b - Waiting ").append(i).append(" seconds").append(NL);
         }
-        expectedMessages.append("Increase engine speed over 1150 rpm for 300 seconds").append(NL);
-        expectedMessages.append("Increase engine speed over 1150 rpm for 2 seconds").append(NL);
-        expectedMessages.append("Increase engine speed over 1150 rpm for 1 seconds").append(NL);
+        expectedMessages.append("Step 6.11.7.1.c - Increase engine speed over 1150 rpm for 300 seconds").append(NL);
+        expectedMessages.append("Step 6.11.7.1.c - Increase engine speed over 1150 rpm for 2 seconds").append(NL);
+        expectedMessages.append("Step 6.11.7.1.c - Increase engine speed over 1150 rpm for 1 seconds").append(NL);
         for (int i = 437; i > 0; i--) {
-            expectedMessages.append("Continue to run engine at idle for an additional ").append(i).append(" seconds");
+            expectedMessages.append("Step 6.11.7.4.a - Continue to run engine at idle for an additional ")
+                            .append(i)
+                            .append(" seconds");
             if (i != 1) {
                 expectedMessages.append(NL);
             }
@@ -265,7 +267,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
         doAnswer((Answer<Void>) invocation -> {
             ((QuestionListener) invocation.getArguments()[3]).answered(YES);
             return null;
-        }).when(mockListener).onUrgentMessage(any(), any(), eq(INFO), any());
+        }).when(mockListener).onUrgentMessage(any(), any(), eq(WARNING), any());
 
         when(engineSpeedModule.secondsAtSpeed()).thenReturn(299L).thenReturn(300L);
 
@@ -281,7 +283,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule, times(2)).requestDM20(any(), eq(0));
 
-        verify(mockListener, times(2)).onUrgentMessage(any(), any(), eq(INFO), any());
+        verify(mockListener, times(2)).onUrgentMessage(any(), any(), eq(WARNING), any());
 
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -305,7 +307,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
         doAnswer((Answer<Void>) invocation -> {
             ((QuestionListener) invocation.getArguments()[3]).answered(YES);
             return null;
-        }).when(mockListener).onUrgentMessage(any(), any(), eq(INFO), any());
+        }).when(mockListener).onUrgentMessage(any(), any(), eq(WARNING), any());
 
         when(engineSpeedModule.secondsAtSpeed()).thenReturn(299L).thenReturn(300L);
 
@@ -321,7 +323,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule, times(2)).requestDM28(any(), eq(0));
 
-        verify(mockListener, times(2)).onUrgentMessage(any(), any(), eq(INFO), any());
+        verify(mockListener, times(2)).onUrgentMessage(any(), any(), eq(WARNING), any());
 
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,

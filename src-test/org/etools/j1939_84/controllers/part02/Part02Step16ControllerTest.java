@@ -22,7 +22,6 @@ import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -256,7 +255,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailForNACK() {
         var globalPacket = create(0, 0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
-        var dsPacket = AcknowledgmentPacket.create(0, NACK, 0, 0xF9, DM34NTEStatus.PGN);
+        var dsPacket = AcknowledgmentPacket.create(0, NACK);
 
         when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
 

@@ -7,6 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.utils.CollectionUtils.join;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -90,7 +91,7 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
         if (dtcs == null) {
             dtcs = parseDTCs();
         }
-        return dtcs;
+        return Collections.unmodifiableList(dtcs);
     }
 
     public boolean hasDTCs() {

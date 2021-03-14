@@ -72,6 +72,10 @@ public class PartResultRepository implements ResultsListener {
 
     @Override
     public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
-        getStepResult(partNumber, stepNumber).addResult(new ActionOutcome(outcome, message));
+        ActionOutcome actionOutcome = new ActionOutcome(outcome, message);
+        boolean isAdded = getStepResult(partNumber, stepNumber).addResult(actionOutcome);
+        if (isAdded) {
+            System.out.println(actionOutcome);
+        }
     }
 }

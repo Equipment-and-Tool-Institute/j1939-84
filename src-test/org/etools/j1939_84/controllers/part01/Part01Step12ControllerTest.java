@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
@@ -89,7 +90,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
     private static OBDModuleInformation createOBDModuleInformation(SupportedSPN... testResultSpns) {
         OBDModuleInformation module = new OBDModuleInformation(0);
-        module.setSupportedSPNs(List.of(testResultSpns));
+        module.set(DM24SPNSupportPacket.create(0, testResultSpns), 1);
         return module;
     }
 
@@ -162,7 +163,11 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("" + NL, listener.getResults());
+        String expected = "";
+        expected += NL + "Engine #1 (0) Test Results:" + NL;
+        expected += "SPN 147 FMI 31 (SLOT 1) Result: Test Passed. Min: 0, Value: 0, Max: 0 kPa" + NL;
+        expected += "SPN 159 FMI 31 (SLOT 8) Result: Test Passed. Min: -200, Value: -200, Max: -200 deg" + NL;
+        assertEquals(expected, listener.getResults());
     }
 
     @Test
@@ -198,7 +203,11 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("" + NL, listener.getResults());
+        String expected = "";
+        expected += NL + "Engine #1 (0) Test Results:" + NL;
+        expected += "SPN 157 FMI 31 (SLOT 1) Result: Test Passed. Min: 0, Value: 0, Max: 0 kPa" + NL;
+        expected += "SPN 159 FMI 31 (SLOT 8) Result: Test Passed. Min: -200, Value: -200, Max: -200 deg" + NL;
+        assertEquals(expected, listener.getResults());
     }
 
     @Test
@@ -207,13 +216,13 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         vehicleInformation.setFuelType(BI_GAS);
         dataRepository.setVehicleInformation(vehicleInformation);
 
-        SupportedSPN supportedSPN = SupportedSPN.create(0, true, true, true, 1);
+        SupportedSPN supportedSPN = SupportedSPN.create(99, true, true, true, 1);
         dataRepository.putObdModule(createOBDModuleInformation(supportedSPN));
 
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
                                                         eq(247),
-                                                        eq(supportedSPN.getSpn()),
+                                                        eq(99),
                                                         eq(31))).thenReturn(List.of());
 
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
@@ -223,9 +232,9 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.12.1.a - No test result for Supported SPN 0 from Engine #1 (0)");
+                                        "6.1.12.1.a - No test result for Supported SPN 99 from Engine #1 (0)");
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(99), eq(31));
 
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
@@ -273,7 +282,10 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).findDuplicates(any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("" + NL, listener.getResults());
+        String expected = "";
+        expected += NL + "Engine #1 (0) Test Results:" + NL;
+        expected += "SPN 157 FMI 0 (SLOT 242) Result: Test Passed. Min: -64, Value: -64, Max: -64 deg" + NL;
+        assertEquals(expected, listener.getResults());
     }
 
     @Test
@@ -309,9 +321,11 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
-        // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("" + NL, listener.getResults());
+        String expected = "";
+        expected += NL + "Engine #1 (0) Test Results:" + NL;
+        expected += "SPN 157 FMI 0 (SLOT 242) Result: Test Passed. Min: -64, Value: -64, Max: -63.728 deg" + NL;
+        assertEquals(expected, listener.getResults());
     }
 
     @Test
@@ -347,7 +361,10 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("" + NL, listener.getResults());
+        String expected = "";
+        expected += NL + "Engine #1 (0) Test Results:" + NL;
+        expected += "SPN 157 FMI 0 (SLOT 242) Result: Test Not Complete." + NL;
+        assertEquals(expected, listener.getResults());
     }
 
     @Test
@@ -384,7 +401,10 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("" + NL, listener.getResults());
+        String expected = "";
+        expected += NL + "Engine #1 (0) Test Results:" + NL;
+        expected += "SPN 157 FMI 0 (SLOT 242) Result: Test Failed. Min: -64, Value: -63.926, Max: -64 deg" + NL;
+        assertEquals(expected, listener.getResults());
     }
 
     @Test
@@ -421,7 +441,10 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("" + NL, listener.getResults());
+        String expected = "";
+        expected += NL + "Engine #1 (0) Test Results:" + NL;
+        expected += "SPN 157 FMI 0 (SLOT 1) Result: Test Not Complete." + NL;
+        assertEquals(expected, listener.getResults());
     }
 
     @Test
@@ -468,7 +491,10 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("" + NL, listener.getResults());
+        String expected = "";
+        expected += NL + "Engine #1 (0) Test Results:" + NL;
+        expected += "SPN 157 FMI 0 (SLOT 8) Result: Test Passed. Min: -200, Value: -200, Max: -200 deg" + NL;
+        assertEquals(expected, listener.getResults());
         assertEquals(List.of(), listener.getOutcomes());
     }
 
@@ -518,9 +544,12 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
-        // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("" + NL, listener.getResults());
+        String expected = "";
+        expected += NL + "Engine #1 (0) Test Results:" + NL;
+        expected += "SPN 157 FMI 18 (SLOT 242) Result: Test Failed. Min: 64.512, Value: -64, Max: N/A deg" + NL;
+        expected += "SPN 157 FMI 0 (SLOT 242) Result: Test Not Complete." + NL;
+        assertEquals(expected, listener.getResults());
     }
 
     @Test
@@ -554,6 +583,9 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("" + NL, listener.getResults());
+        String expected = "";
+        expected += NL + "Engine #1 (0) Test Results:" + NL;
+        expected += "SPN 159 FMI 18 (SLOT 8) Result: Test Passed. Min: -200, Value: -200, Max: -200 deg" + NL;
+        assertEquals(expected, listener.getResults());
     }
 }

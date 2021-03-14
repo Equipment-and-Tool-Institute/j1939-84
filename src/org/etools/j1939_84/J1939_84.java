@@ -25,18 +25,22 @@ public class J1939_84 {
      * System independent New Line
      */
     public static final String NL = System.lineSeparator();
+
     /** Page break including text for editors that do not support page break. */
     public static final String PAGE_BREAK = " <<PAGE BREAK>> " + NL + "\f";
+
     /**
      * The name of the property that is set when the application is being used
      * in a testing mode
      */
     public static final String TESTING_PROPERTY_NAME = "TESTING";
+
     /**
      * The name of the property that is set when the application is being used
      * in a development mode
      */
     public static final String DEV_PROPERTY_NAME = "DEV";
+
     private static final Logger logger = Logger.getGlobal();
 
     static {

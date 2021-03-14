@@ -68,7 +68,6 @@ public class Part03Step16Controller extends StepController {
         confirmFault();
 
         // 6.3.16.1.c. Wait manufacturer’s recommended interval with the key in the off position.
-        incrementProgress("Waiting for manufacturer's recommended interval with the key in off position");
         waitForManufacturerInterval("Step 6.3.16.1.c", KEY_OFF);
 
         // 6.3.16.1.d. Turn ignition key to the ON position.

@@ -193,9 +193,10 @@ public class Part09Step25ControllerTest extends AbstractControllerTest {
                                                             eq(WARNING),
                                                             any());
 
-        String expectedMessages = "Waiting for Key OFF..." + NL +
-                "Waiting for Key OFF..." + NL +
-                "Waiting for Key ON/Engine OFF...";
+        String expectedMessages = "Waiting for Key OFF..." + NL
+                + "Waiting for Key OFF..." + NL
+                + "6.9.25.1.b - Waiting manufacturer’s recommended interval with the Key OFF" + NL
+                + "Waiting for Key ON/Engine OFF...";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
@@ -271,10 +272,11 @@ public class Part09Step25ControllerTest extends AbstractControllerTest {
                                                             any());
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 9 Step 25");
 
-        String expectedMessages = "Waiting for Key OFF..." + NL +
-                "Waiting for Key OFF..." + NL +
-                "Waiting for Key ON/Engine OFF..." + NL +
-                "User cancelled testing at Part 9 Step 25";
+        String expectedMessages = "Waiting for Key OFF..." + NL
+                + "Waiting for Key OFF..." + NL
+                + "6.9.25.1.b - Waiting manufacturer’s recommended interval with the Key OFF" + NL
+                + "Waiting for Key ON/Engine OFF..." + NL
+                + "User cancelled testing at Part 9 Step 25";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
