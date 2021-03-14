@@ -253,6 +253,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
     public void setReadVehicleInfoButtonEnabled(boolean enabled) {
         refreshUI(() -> {
             getReadVehicleInfoButton().setEnabled(enabled);
+            getReadVehicleInfoButton().requestFocus();
             if (isAutoMode() && enabled && getVinTextField().getText().isEmpty()) {
                 controller.onReadVehicleInfoButtonClicked();
             }
@@ -270,6 +271,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
     public void setSelectFileButtonEnabled(boolean enabled) {
         refreshUI(() -> {
             getSelectFileButton().setEnabled(enabled);
+            getSelectFileButton().requestFocus();
             if (isAutoMode() && enabled && file == null) {
                 var dir = new File("reports");
                 if (!dir.exists() && !dir.mkdir()) {
@@ -296,6 +298,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
     @Override
     public void setStartButtonEnabled(boolean enabled) {
         getStartButton().setEnabled(enabled);
+        getStartButton().requestFocus();
         if (isAutoMode() && enabled) {
             refreshUI(() -> getController().onStartButtonClicked());
         }

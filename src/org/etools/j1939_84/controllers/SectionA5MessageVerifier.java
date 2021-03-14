@@ -133,6 +133,7 @@ public class SectionA5MessageVerifier {
                                                               .stream()
                                                               .filter(s -> s.getId() != CompositeSystem.COMPREHENSIVE_COMPONENT)
                                                               .map(MonitoredSystem::getStatus)
+                                                              .filter(MonitoredSystemStatus::isEnabled)
                                                               .noneMatch(MonitoredSystemStatus::isComplete);
 
                                 boolean noCodes = p.getActiveCodeCount() == 0 && p.getPreviouslyActiveCodeCount() == 0;
