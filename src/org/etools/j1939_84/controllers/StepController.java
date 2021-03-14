@@ -251,7 +251,8 @@ public abstract class StepController extends Controller {
     protected void checkForNACKsDS(List<? extends GenericPacket> packets,
                                    List<? extends AcknowledgmentPacket> acks,
                                    String section,
-                                   List<Integer> addresses) {
+                                   List<Integer> addressList) {
+        List<Integer> addresses = new ArrayList<>(addressList);
         packets.stream().map(ParsedPacket::getSourceAddress).forEach(addresses::remove);
         acks.stream()
             .filter(a -> a.getResponse() == NACK)

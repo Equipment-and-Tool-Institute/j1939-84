@@ -122,8 +122,7 @@ public class Part11Step07Controller extends StepController {
         // 6.11.7.1.c. Increase engine speed over 1150 rpm (a minimum of 300 seconds at this speed is required).
         final long TOTAL_TIME_AT_SPEED = 300;
 
-        String msg = "";
-        msg += "Please increase engine speed over 1150 rpm for a minimum of %1$d seconds" + NL;
+        String msg = "Please increase engine speed over 1150 rpm for a minimum of %1$d seconds" + NL;
         msg += "Press OK to continue";
         displayInstructionAndWait(format(msg, TOTAL_TIME_AT_SPEED), "Step 6.11.7.1.c", WARNING);
 
@@ -140,8 +139,7 @@ public class Part11Step07Controller extends StepController {
         } while (secondsToGo > 0);
 
         // 6.11.7.1.f. After 300 seconds have been exceeded, reduce the engine speed back to idle.
-        String msg2 = "";
-        msg2 += "Please reduce engine speed back to idle" + NL;
+        String msg2 = "Please reduce engine speed back to idle" + NL;
         msg2 += "Test will continue for an additional %1$d seconds" + NL;
         msg2 += "Press OK to continue";
         displayInstructionAndWait(format(msg2, calculateSecondsRemaining()), "Step 6.11.7.1.f", WARNING);
