@@ -15,6 +15,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.SpnFmi;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -102,19 +103,19 @@ public class Part04Step12Controller extends StepController {
                     getDataRepository().putObdModule(obdModuleInformation);
                 }
 
-                // 6.4.12.2.a. Fail if there is any difference in each ECU’s provided test result labels (SPN and FMI
-                // combinations)
+                // 6.4.12.2.a. Fail if there is any difference in each ECU’s provided
+                // test result labels (SPN and FMI combinations)
                 // from the test results received in part 1 test 11, paragraph 6.1.12
-                String currentTestResults = packets.stream()
-                                                   .map(DM30ScaledTestResultsPacket::getTestResults)
-                                                   .flatMap(Collection::stream)
-                                                   .map(r -> r.getSpn() + ":" + r.getFmi())
-                                                   .collect(Collectors.joining(","));
+                var currentTestResults = packets.stream()
+                                                .map(DM30ScaledTestResultsPacket::getTestResults)
+                                                .flatMap(Collection::stream)
+                                                .map(SpnFmi::of)
+                                                .collect(Collectors.toSet());
 
-                String previousTestResults = obdModuleInformation.getScaledTestResults()
-                                                                 .stream()
-                                                                 .map(r -> r.getSpn() + ":" + r.getFmi())
-                                                                 .collect(Collectors.joining(","));
+                var previousTestResults = obdModuleInformation.getScaledTestResults()
+                                                              .stream()
+                                                              .map(SpnFmi::of)
+                                                              .collect(Collectors.toSet());
 
                 if (!previousTestResults.equals(currentTestResults)) {
                     addFailure("6.4.12.2.a - " + Lookup.getAddressName(moduleAddress)

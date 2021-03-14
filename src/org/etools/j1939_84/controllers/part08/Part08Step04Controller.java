@@ -67,6 +67,8 @@ public class Part08Step04Controller extends StepController {
                                                   .filter(p -> isObdModule(p.getSourceAddress()))
                                                   .collect(Collectors.toList());
 
+        packets.forEach(this::save);
+
         // 6.8.4.2.a Fail if no OBD ECU reports a previously active DTC.
         boolean noDTCs = packets.stream().allMatch(p -> p.getDtcs().isEmpty());
         if (noDTCs) {
@@ -94,7 +96,7 @@ public class Part08Step04Controller extends StepController {
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int address) {
-        return getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class, address, 8);
+        return getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class, address, 7);
     }
 
     private LampStatus getMIL(int address) {

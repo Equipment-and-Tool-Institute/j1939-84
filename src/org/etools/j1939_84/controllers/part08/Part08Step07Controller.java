@@ -62,6 +62,8 @@ public class Part08Step07Controller extends StepController {
         // 6.8.7.1.a. Global DM28 [(send Request (PGN 59904) for PGN 64896 (SPNs 1213-1215, 1706, and 3038)]).
         var globalPackets = getDiagnosticMessageModule().requestDM28(getListener()).getPackets();
 
+        globalPackets.forEach(this::save);
+
         // 6.8.7.2.a. Fail if no OBD ECU reports a permanent DTC.
         boolean noDTCs = globalPackets.stream().allMatch(p -> p.getDtcs().isEmpty());
         if (noDTCs) {

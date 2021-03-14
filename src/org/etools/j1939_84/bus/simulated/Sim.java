@@ -48,11 +48,19 @@ public class Sim implements AutoCloseable {
     }, "Sim Thread"));
 
     public Sim(Bus bus) throws BusException {
+        this(bus, false);
+    }
+
+    public Sim(Bus bus, boolean logPackets) throws BusException {
         this.bus = bus;
         // stream is collected in the current thread to avoid missing any
-        // packets during
-        // the Thread startup.
-        Stream<Packet> stream = bus.read(365, TimeUnit.DAYS);
+        // packets during the Thread startup.
+        Stream<Packet> stream = bus.read(365, TimeUnit.DAYS)
+                                   .peek(p -> {
+                                       if (logPackets) {
+                                           J1939_84.getLogger().log(Level.FINE, p.toTimeString());
+                                       }
+                                   });
         exec.submit(() -> stream.parallel().forEach(packet -> {
             for (var r : responses) {
                 if (r.apply(packet)) {

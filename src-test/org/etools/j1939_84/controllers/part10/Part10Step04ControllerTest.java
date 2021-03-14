@@ -190,7 +190,7 @@ public class Part10Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.10.4.2.b. - ECU Engine #1 (0)did not report MIL 'off'");
+                                        "6.10.4.2.b. - ECU Engine #1 (0) did not report MIL 'off'");
     }
 
     @Test

@@ -62,6 +62,8 @@ public class Part05Step02Controller extends StepController {
         // 6.5.2.1.a Global DM12 [(send Request (PGN 59904) for PGN 65236 (SPNs 1213-1215, 1706, and 3038)]).
         var globalPackets = getDiagnosticMessageModule().requestDM12(getListener()).getPackets();
 
+        globalPackets.forEach(this::save);
+
         // 6.5.2.2.a Fail if no OBD ECU reporting MIL on. See Section A.8 for allowed values.
         boolean noMilOn = globalPackets.stream().noneMatch(p -> (p.getMalfunctionIndicatorLampStatus() == ON));
         if (noMilOn) {
@@ -74,12 +76,12 @@ public class Part05Step02Controller extends StepController {
             addFailure("6.5.2.2.b - All OBD ECUs report no DM12 DTCs");
         }
 
-        // 6.5.2.2.c Fail if DM12 DTC reported does not match the DM6 DTC SPN and FMI reported from step 6.4.2.
+        // 6.5.2.2.c Fail if DM12 DTC reported does not match the DM6 DTC SPN and FMI reported from step 6.3.2.
         globalPackets.forEach(packet -> {
-            var dm6DTCs = getDTCs(DM6PendingEmissionDTCPacket.class, packet.getSourceAddress(), 4);
+            var dm6DTCs = getDTCs(DM6PendingEmissionDTCPacket.class, packet.getSourceAddress(), 3);
             if (!packet.getDtcs().equals(dm6DTCs)) {
                 addFailure("6.5.2.2.c - OBD module " + packet.getModuleName() +
-                        " had a discrepancy between reported DM12 DTCs and DM6 DTCs reported in 6.4.2");
+                        " had a discrepancy between reported DM12 DTCs and DM6 DTCs reported in 6.3.2");
             }
         });
 

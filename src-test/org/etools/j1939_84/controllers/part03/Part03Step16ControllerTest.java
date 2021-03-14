@@ -182,7 +182,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         String expectedMessages = "Test 6.3.16 - Turn Engine Off and keep the ignition key in the off position" +
                 NL;
         expectedMessages += "Confirming Fault A is still implanted according to the manufacturer's instruction" + NL;
-        expectedMessages += "Waiting for manufacturer's recommended interval with the key in off position" + NL;
+        expectedMessages += "Step 6.3.16.1.c - Waiting manufacturer’s recommended interval with the Key OFF" + NL;
         expectedMessages += "User cancelled testing at Part 3 Step 16";
         assertEquals(expectedMessages, listener.getMessages());
 
@@ -242,7 +242,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         String expectedMessages = "Test 6.3.16 - Turn Engine Off and keep the ignition key in the off position" +
                 NL;
         expectedMessages += "Confirming Fault A is still implanted according to the manufacturer's instruction" + NL;
-        expectedMessages += "Waiting for manufacturer's recommended interval with the key in off position";
+        expectedMessages += "Step 6.3.16.1.c - Waiting manufacturer’s recommended interval with the Key OFF";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
@@ -298,7 +298,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Test 6.3.16 - Turn Engine Off and keep the ignition key in the off position" + NL;
         expectedMessages += "Confirming Fault A is still implanted according to the manufacturer's instruction" + NL;
-        expectedMessages += "Waiting for manufacturer's recommended interval with the key in off position" + NL;
+        expectedMessages += "Step 6.3.16.1.c - Waiting manufacturer’s recommended interval with the Key OFF" + NL;
         expectedMessages += "User cancelled testing at Part 3 Step 16";
         assertEquals(expectedMessages, listener.getMessages());
 

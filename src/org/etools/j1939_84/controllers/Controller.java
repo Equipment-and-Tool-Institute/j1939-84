@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.controllers;
 
+import static org.etools.j1939_84.model.Outcome.ABORT;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -265,6 +267,14 @@ public abstract class Controller {
             } catch (Throwable e) {
                 getLogger().log(Level.SEVERE, "Error", e);
                 if (e instanceof InterruptedException || e.getCause() instanceof InterruptedException) {
+                    if (this instanceof StepController) {
+                        int partNumber = ((StepController) this).getPartNumber();
+                        int stepNumber = ((StepController) this).getStepNumber();
+                        if (getOutcome(partNumber, stepNumber) != ABORT) {
+                            String message = "User cancelled testing at Part " + partNumber + " Step " + stepNumber;
+                            getListener().addOutcome(partNumber, stepNumber, ABORT, message);
+                        }
+                    }
                     return;
                 }
 
@@ -275,6 +285,10 @@ public abstract class Controller {
                 getListener().onMessage(message, "Error", MessageType.ERROR);
             }
         };
+    }
+
+    private Outcome getOutcome(int partNumber, int stepNumber) {
+        return getPartResult(partNumber).getStepResult(stepNumber).getOutcome();
     }
 
     /**
@@ -347,12 +361,12 @@ public abstract class Controller {
         getListener().onProgress(currentStep, maxSteps, "");
     }
 
-    public void setupRun(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
+    private void setupRun(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
         setJ1939(j1939);
         if (reportFileModule != null) {
-            compositeListener = new CompositeResultsListener(listener, reportFileModule);
+            compositeListener = new CompositeResultsListener(listener, reportFileModule, partResultRepository);
         } else {
-            compositeListener = new CompositeResultsListener(listener);
+            compositeListener = new CompositeResultsListener(listener, partResultRepository);
         }
         ending = null;
     }
@@ -394,8 +408,7 @@ public abstract class Controller {
     }
 
     /**
-     * The {@link ResultsListener} that combines other listeners for easier
-     * reporting
+     * The {@link ResultsListener} that combines other listeners for easier reporting
      */
     private static class CompositeResultsListener implements ResultsListener {
 

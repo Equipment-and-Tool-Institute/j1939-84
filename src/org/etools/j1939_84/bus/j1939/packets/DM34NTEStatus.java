@@ -25,6 +25,7 @@ public class DM34NTEStatus extends GenericPacket {
     }
 
     public static DM34NTEStatus create(int source,
+                                       int destination,
                                        AreaStatus noxNTEControlAreaStatus,
                                        AreaStatus noxNTECarveOutAreaStatus,
                                        AreaStatus noxNTEDeficiencyAreaStatus,
@@ -47,10 +48,10 @@ public class DM34NTEStatus extends GenericPacket {
         data[1] |= (byte) (pmNTEDeficiencyAreaStatus.value << 2);
         data[1] |= 3;
 
-        return new DM34NTEStatus(Packet.create(PGN, source, data));
+        return new DM34NTEStatus(Packet.create(PGN | destination, source, data));
     }
 
-    public String getName() {
+    @Override public String getName() {
         return "DM34 NTE Status";
     }
 

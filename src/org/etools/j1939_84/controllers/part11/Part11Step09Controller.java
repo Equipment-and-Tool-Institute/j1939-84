@@ -70,7 +70,7 @@ public class Part11Step09Controller extends StepController {
         // 6.11.9.2.a. Fail if no ECU reports a permanent DTC.
         boolean noDTCs = packets.stream().noneMatch(DiagnosticTroubleCodePacket::hasDTCs);
         if (noDTCs) {
-            addFailure("6.11.9.2.a - NO ECU reported a permanent DTC");
+            addFailure("6.11.9.2.a - No ECU reported a permanent DTC");
         }
 
         // 6.11.9.2.b. Fail if the permanent DTC reported is not the same DTC as reported in DM28 in part 10.

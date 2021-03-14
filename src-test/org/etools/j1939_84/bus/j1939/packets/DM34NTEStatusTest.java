@@ -17,6 +17,7 @@ public class DM34NTEStatusTest {
     @Test
     public void test() {
         DM34NTEStatus instance = DM34NTEStatus.create(0,
+                                                      0,
                                                       OUTSIDE,
                                                       INSIDE,
                                                       NOT_AVAILABLE,

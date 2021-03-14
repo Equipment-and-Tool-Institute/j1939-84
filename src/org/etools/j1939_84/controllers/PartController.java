@@ -64,10 +64,11 @@ public abstract class PartController extends Controller {
         getListener().onResult("");
 
         for (StepController controller : getStepControllers()) {
+            checkEnding();
+
             StepResult stepResult = getPartResult().getStepResult(controller.getStepNumber());
 
             getListener().onResult("Start " + stepResult);
-            getListener().onResult("");
 
             incrementProgress(stepResult.toString());
             controller.run(getListener(), getJ1939());

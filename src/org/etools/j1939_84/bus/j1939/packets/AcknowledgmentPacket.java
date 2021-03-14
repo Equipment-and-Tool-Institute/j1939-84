@@ -4,6 +4,7 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
@@ -38,7 +39,8 @@ public class AcknowledgmentPacket extends GenericPacket {
         data[6] = pgnInts[1];
         data[7] = pgnInts[2];
 
-        return new AcknowledgmentPacket(Packet.create(PGN, sourceAddress, data));
+        Packet packet = Packet.create(PGN | J1939.GLOBAL_ADDR, sourceAddress, data);
+        return new AcknowledgmentPacket(packet);
     }
 
     public int getAddressAcknowledged() {

@@ -171,7 +171,7 @@ public class Part02Step16Controller extends StepController {
 
         // 6.2.16.3.a. DS DM34 to each OBD ECU which responded to the DM34 global request in step 1.
         var dsResponses = obdAddresses
-                                             .stream()
+                                      .stream()
                                       .map(a -> getDiagnosticMessageModule().requestDM34(getListener(), a))
                                       .collect(Collectors.toList());
 

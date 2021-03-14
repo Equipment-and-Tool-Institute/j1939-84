@@ -252,7 +252,6 @@ public class AbstractPartControllerTest {
                            .append(" ")
                            .append(stepName)
                            .append(NL)
-                           .append(NL)
                            .append(NL);
             expectedResults.append("End Test ")
                            .append(partNumber)

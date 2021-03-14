@@ -83,6 +83,7 @@ public class DiagnosticMessageModule extends FunctionalModule {
     }
 
     public List<DM1ActiveDTCsPacket> readDM1(ResultsListener listener) {
+        listener.onResult("");
         String title = " Reading the bus for published DM1 messages";
         listener.onResult(getTime() + title);
 

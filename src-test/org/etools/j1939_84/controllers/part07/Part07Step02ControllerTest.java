@@ -20,8 +20,8 @@ import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -135,9 +135,9 @@ public class Part07Step02ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPathNoFailures() {
         var dtc = DiagnosticTroubleCode.create(1569, 31, 0, 0);
-        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(dm6, 6);
+        obdModule.set(dm12, 6);
         dataRepository.putObdModule(obdModule);
 
         var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
@@ -159,9 +159,9 @@ public class Part07Step02ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDTCs() {
         var dtc = DiagnosticTroubleCode.create(1569, 31, 0, 0);
-        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(dm6, 6);
+        obdModule.set(dm12, 6);
         dataRepository.putObdModule(obdModule);
 
         var dtc23 = DiagnosticTroubleCode.create(123, 12, 0, 4);
@@ -189,9 +189,9 @@ public class Part07Step02ControllerTest extends AbstractControllerTest {
     public void testFailureForMoreThanOneDtc() {
         var dtc = DiagnosticTroubleCode.create(609, 19, 0, 0);
         var dtc1 = DiagnosticTroubleCode.create(1569, 31, 0, 0);
-        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc, dtc1);
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc, dtc1);
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(dm6, 6);
+        obdModule.set(dm12, 6);
         dataRepository.putObdModule(obdModule);
 
         var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc, dtc1);
@@ -214,10 +214,10 @@ public class Part07Step02ControllerTest extends AbstractControllerTest {
     public void testFailureForDtcDuplicate() {
         var dtc = DiagnosticTroubleCode.create(609, 19, 0, 0);
         var dtc1 = DiagnosticTroubleCode.create(1569, 31, 0, 0);
-        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
-        var dm6_1 = DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1);
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+        var dm6_1 = DM12MILOnEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1);
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(dm6, 6);
+        obdModule.set(dm12, 6);
         dataRepository.putObdModule(obdModule);
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
@@ -246,9 +246,9 @@ public class Part07Step02ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForEmptyDtcs() {
-        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(dm6, 6);
+        obdModule.set(dm12, 6);
         dataRepository.putObdModule(obdModule);
 
         var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
@@ -270,9 +270,9 @@ public class Part07Step02ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNoNACK() {
         var dtc = DiagnosticTroubleCode.create(1569, 31, 0, 0);
-        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(dm6, 6);
+        obdModule.set(dm12, 6);
         dataRepository.putObdModule(obdModule);
 
         var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
@@ -280,7 +280,7 @@ public class Part07Step02ControllerTest extends AbstractControllerTest {
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
         var dtc1 = DiagnosticTroubleCode.create(1569, 31, 0, 0);
-        var dm6_1 = DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1);
+        var dm6_1 = DM12MILOnEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1);
         obdModule.set(dm6_1, 6);
         dataRepository.putObdModule(obdModule1);
         when(diagnosticMessageModule.requestDM23(any(), eq(1))).thenReturn(new BusResult<>(true));

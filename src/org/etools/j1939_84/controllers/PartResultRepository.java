@@ -10,19 +10,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.StepResult;
 
-public class PartResultRepository {
+public class PartResultRepository implements ResultsListener {
 
     private static PartResultRepository instance;
     private final Map<Integer, PartResult> partResultsMap = new HashMap<>();
     private final PartResultFactory partResultFactory;
 
     private PartResultRepository() {
-        this.partResultFactory = new PartResultFactory();
+        partResultFactory = new PartResultFactory();
     }
 
     public static PartResultRepository getInstance() {
@@ -61,14 +62,6 @@ public class PartResultRepository {
         return results;
     }
 
-    public boolean partHasFailure(int partNumber) {
-        return getStepResults(partNumber).stream().anyMatch(s -> s.getOutcome() == Outcome.FAIL);
-    }
-
-    public void addPartResult(int partNumber, PartResult partResult) {
-        partResultsMap.put(partNumber, partResult);
-    }
-
     public StepResult getStepResult(int partNumber, int stepNumber) {
         return getPartResult(partNumber).getStepResult(stepNumber);
     }
@@ -77,4 +70,12 @@ public class PartResultRepository {
         getPartResult(partNumber).addResult(stepResult);
     }
 
+    @Override
+    public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
+        ActionOutcome actionOutcome = new ActionOutcome(outcome, message);
+        boolean isAdded = getStepResult(partNumber, stepNumber).addResult(actionOutcome);
+        if (isAdded) {
+            System.out.println(actionOutcome);
+        }
+    }
 }

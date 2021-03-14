@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers;
@@ -19,56 +19,10 @@ import org.etools.j1939_84.model.VehicleInformationListener;
  */
 public interface ResultsListener {
     ResultsListener NOOP = new ResultsListener() {
-
-        @Override
-        public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
-        }
-
-        @Override
-        public void onComplete(boolean success) {
-        }
-
-        @Override
-        public void onMessage(String message, String title, MessageType type) {
-        }
-
-        @Override
-        public void onProgress(int currentStep, int totalSteps, String message) {
-        }
-
-        @Override
-        public void onProgress(String message) {
-        }
-
-        @Override
-        public void onResult(List<String> results) {
-        }
-
-        @Override
-        public void onResult(String result) {
-        }
-
-        @Override
-        public void onUrgentMessage(String message, String title, MessageType type) {
-        }
-
-        @Override
-        public void onUrgentMessage(String message, String title, MessageType type, QuestionListener listener) {
-        }
-
-        @Override
-        public void onVehicleInformationNeeded(VehicleInformationListener listener) {
-        }
-
-        @Override
-        public void onVehicleInformationReceived(VehicleInformation vehicleInformation) {
-        }
     };
 
-    void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message);
-
-
-
+    default void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
+    }
 
     /**
      * Called when the {@link Controller} has completed
@@ -77,7 +31,8 @@ public interface ResultsListener {
      *                    true if the completion was normal; false if the process was
      *                    Stopped
      */
-    void onComplete(boolean success);
+    default void onComplete(boolean success) {
+    }
 
     /**
      * Called when a dialog needs to be displayed to the user
@@ -89,7 +44,8 @@ public interface ResultsListener {
      * @param type
      *                    the type of dialog to display (Error, Warning, Info, etc)
      */
-    void onMessage(String message, String title, MessageType type);
+    default void onMessage(String message, String title, MessageType type) {
+    }
 
     /**
      * Called when the {@link Controller} has progressed
@@ -101,7 +57,8 @@ public interface ResultsListener {
      * @param message
      *                        the message about the current step
      */
-    void onProgress(int currentStep, int totalSteps, String message);
+    default void onProgress(int currentStep, int totalSteps, String message) {
+    }
 
     /**
      * Called when the {@link Controller} has progressed but only updates the
@@ -110,7 +67,8 @@ public interface ResultsListener {
      * @param message
      *                    the message about the current step
      */
-    void onProgress(String message);
+    default void onProgress(String message) {
+    }
 
     /**
      * Called when the {@link Controller} has results to report
@@ -118,7 +76,8 @@ public interface ResultsListener {
      * @param results
      *                    the results
      */
-    void onResult(List<String> results);
+    default void onResult(List<String> results) {
+    }
 
     /**
      * Called when the {@link Controller} has a result to report
@@ -126,7 +85,8 @@ public interface ResultsListener {
      * @param result
      *                   the result
      */
-    void onResult(String result);
+    default void onResult(String result) {
+    }
 
     /**
      * Called when a dialog needs to be displayed to the user that will force
@@ -139,7 +99,8 @@ public interface ResultsListener {
      * @param type
      *                    the type of dialog to display (Error, Warning, Info, etc)
      */
-    void onUrgentMessage(String message, String title, MessageType type);
+    default void onUrgentMessage(String message, String title, MessageType type) {
+    }
 
     /**
      * Called to gather {@link QuestionListener} from the user. This will
@@ -155,7 +116,8 @@ public interface ResultsListener {
      *                     the {@link QuestionListener} that will be called
      *                     once the user has entered the {@link QuestionListener}
      */
-    void onUrgentMessage(String message, String title, MessageType type, QuestionListener listener);
+    default void onUrgentMessage(String message, String title, MessageType type, QuestionListener listener) {
+    }
 
     /**
      * Called to gather {@link VehicleInformation} from the user. This will
@@ -165,9 +127,11 @@ public interface ResultsListener {
      *                     the {@link VehicleInformationListener} that will be called
      *                     once the user has entered the {@link VehicleInformation}
      */
-    void onVehicleInformationNeeded(VehicleInformationListener listener);
+    default void onVehicleInformationNeeded(VehicleInformationListener listener) {
+    }
 
-    void onVehicleInformationReceived(VehicleInformation vehicleInformation);
+    default void onVehicleInformationReceived(VehicleInformation vehicleInformation) {
+    }
 
     /**
      * The different types of messages which can be displayed to the user

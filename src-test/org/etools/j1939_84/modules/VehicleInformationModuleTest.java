@@ -462,7 +462,7 @@ public class VehicleInformationModuleTest {
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "10:15:30.0000 Global VIN Request" + NL;
+        String expected = NL + "10:15:30.0000 Global VIN Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] EC FE 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
 

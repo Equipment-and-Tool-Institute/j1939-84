@@ -195,8 +195,8 @@ public class Part09Step12ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        FAIL,
-                                        "6.9.12.3.a - Engine #1 (0) reported different MIL status than DM12 response earlier in test 6.9.2.1.b");
+                                        WARN,
+                                        "6.9.12.3.a - Engine #1 (0) reported different DTC than DM12 response earlier in step 6.9.2.1.b");
     }
 
     @Test

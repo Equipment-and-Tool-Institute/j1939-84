@@ -145,7 +145,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
         vehInfo.setFuelType(FuelType.GAS);
         dataRepository.setVehicleInformation(vehInfo);
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        var packet = create(0, INSIDE, INSIDE, INSIDE, INSIDE, INSIDE, INSIDE);
+        var packet = create(0, 0, INSIDE, INSIDE, INSIDE, INSIDE, INSIDE, INSIDE);
         obdModule.set(packet, 1);
         dataRepository.putObdModule(obdModule);
 
@@ -192,17 +192,23 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailNotOutsideControlAreas() {
-        var packet = create(0, INSIDE, INSIDE, INSIDE, INSIDE, INSIDE, INSIDE);
+        var packet = create(0, 0, INSIDE, INSIDE, INSIDE, INSIDE, INSIDE, INSIDE);
+
+        OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
+        moduleInfo.set(packet, 1);
+        dataRepository.putObdModule(moduleInfo);
 
         when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, packet));
+
+        when(diagnosticMessageModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, packet));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setFuelType(FuelType.DSL);
         dataRepository.setVehicleInformation(vehInfo);
-        dataRepository.putObdModule(new OBDModuleInformation(0));
 
         runTest();
 
+        verify(diagnosticMessageModule).requestDM34(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM34(any());
 
         assertEquals("", listener.getResults());
@@ -236,27 +242,36 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailForDifference() {
-        var globalPacket = create(0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
-        var dsPacket = create(0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, NOT_AVAILABLE);
+        var globalPacket = create(0, 0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
+        var dsPacket = create(0, 0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, NOT_AVAILABLE);
 
         when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
+
+        when(diagnosticMessageModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setFuelType(FuelType.DSL);
         dataRepository.setVehicleInformation(vehInfo);
-        dataRepository.putObdModule(new OBDModuleInformation(0));
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        obdModuleInformation.set(globalPacket, 1);
+        dataRepository.putObdModule(obdModuleInformation);
 
         runTest();
 
         verify(diagnosticMessageModule).requestDM34(any());
+        verify(diagnosticMessageModule).requestDM34(any(), eq(0));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.2.16.4.a - Difference compared to data received during global request from Engine #1 (0)");
     }
 
     @Test
     public void testFailForNoxControl() {
-        var globalPacket = create(0, INSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
+        var globalPacket = create(0, 0, INSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
         var dsPacket = AcknowledgmentPacket.create(0, NACK, 0, 0xF9, DM34NTEStatus.PGN);
 
         when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
@@ -285,7 +300,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailForCarveOut() {
-        var globalPacket = create(0, OUTSIDE, INSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
+        var globalPacket = create(0, 0, OUTSIDE, INSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
         var dsPacket = AcknowledgmentPacket.create(0, NACK, 0, 0xF9, DM34NTEStatus.PGN);
 
         when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
@@ -314,7 +329,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailForPmControl() {
-        var globalPacket = create(0, OUTSIDE, OUTSIDE, OUTSIDE, INSIDE, OUTSIDE, OUTSIDE);
+        var globalPacket = create(0, 0, OUTSIDE, OUTSIDE, OUTSIDE, INSIDE, OUTSIDE, OUTSIDE);
         var dsPacket = AcknowledgmentPacket.create(0, NACK, 0, 0xF9, DM34NTEStatus.PGN);
 
         when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
@@ -344,7 +359,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailFor() {
         var packet = new DM34NTEStatus(Packet.create(PGN, 0x01, 0x05, 0x05, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF));
-        var globalPacket = create(0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
+        var globalPacket = create(0, 0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
         var dsPacket = AcknowledgmentPacket.create(0, NACK, 0, 0xF9, DM34NTEStatus.PGN);
         System.out.println(globalPacket.getPacket());
         System.out.println(packet.getPacket());

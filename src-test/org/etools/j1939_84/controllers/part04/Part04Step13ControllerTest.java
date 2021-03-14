@@ -185,7 +185,8 @@ public class Part04Step13ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
         when(diagnosticMessageModule.requestDM3(any(), eq(0)))
-                                                              .thenReturn(List.of(AcknowledgmentPacket.create(0, ACK)));
+                                                              .thenReturn(List.of(AcknowledgmentPacket.create(0,
+                                                                                                              ACK)));
 
         runTest();
 

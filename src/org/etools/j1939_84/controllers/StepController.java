@@ -324,11 +324,11 @@ public abstract class StepController extends Controller {
         }
     }
 
-    protected void waitForManufacturerInterval(String boxTitle, KeyState keyState) {
-        String message = format("Wait for the manufacturer's recommended interval with the %s."
-                + NL, keyState.name);
+    protected void waitForManufacturerInterval(String section, KeyState keyState) throws InterruptedException {
+        updateProgress(format(section + " - Waiting manufacturer’s recommended interval with the %s", keyState.name));
+        String message = format("Wait for the manufacturer's recommended interval with the %s." + NL, keyState.name);
         message += "Press OK to continue the testing.";
-        displayInstructionAndWait(message, boxTitle, WARNING);
+        displayInstructionAndWait(message, section, WARNING);
     }
 
     protected boolean isNotOff(LampStatus lampStatus) {
@@ -337,5 +337,4 @@ public abstract class StepController extends Controller {
         }
         return lampStatus != OFF && lampStatus != ALTERNATE_OFF;
     }
-
 }

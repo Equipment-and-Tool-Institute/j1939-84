@@ -487,6 +487,7 @@ public class J1939 {
                                                             int pgn,
                                                             Packet request,
                                                             ResultsListener listener) {
+        listener.onResult("");
         if (title != null) {
             listener.onResult(getDateTimeModule().getTime() + " " + title);
         }
@@ -552,6 +553,7 @@ public class J1939 {
     }
 
     public List<AcknowledgmentPacket> requestForAcks(ResultsListener listener, String title, int pgn) {
+        listener.onResult("");
         listener.onResult(getDateTimeModule().getTime() + " " + title);
         Packet requestPacket = createRequestPacket(pgn, GLOBAL_ADDR);
         return requestGlobalOnce(pgn, requestPacket, listener)
@@ -561,6 +563,7 @@ public class J1939 {
     }
 
     public List<AcknowledgmentPacket> requestForAcks(ResultsListener listener, String title, int pgn, int address) {
+        listener.onResult("");
         listener.onResult(getDateTimeModule().getTime() + " " + title);
         Packet requestPacket = createRequestPacket(pgn, address);
         return requestDSOnce(pgn, requestPacket, listener)
@@ -582,6 +585,8 @@ public class J1939 {
                                                                     Packet requestPacket,
                                                                     ResultsListener listener) {
         boolean retry = false;
+
+        listener.onResult("");
         if (title != null) {
             listener.onResult(getDateTimeModule().getTime() + " " + title);
         }
@@ -718,6 +723,7 @@ public class J1939 {
 
         Packet request = DM7CommandTestsPacket.create(getBusAddress(), address, tid, spn, fmi).getPacket();
 
+        listener.onResult("");
         String title = "Sending DM7 for DM30 to " + Lookup.getAddressName(address) + " for SPN " + spn;
         listener.onResult(getDateTimeModule().getTime() + " " + title);
 

@@ -177,7 +177,7 @@ public class Part04Step15ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Step 6.4.15.1.a - Turn Engine Off and keep the ignition key in the off position"
                 + NL;
-        expectedMessages += "Step 6.4.15.1.b - Waiting for manufacturer's recommended interval with the key in off position"
+        expectedMessages += "Step 6.4.15.1.b - Waiting manufacturer’s recommended interval with the Key OFF"
                 + NL;
         expectedMessages += "Step 6.4.15.1.c - Remove implanted fault per manufacturer's instructions" + NL;
         expectedMessages += "User cancelled testing at Part 4 Step 15";
@@ -240,7 +240,7 @@ public class Part04Step15ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Step 6.4.15.1.a - Turn Engine Off and keep the ignition key in the off position"
                 + NL;
-        expectedMessages += "Step 6.4.15.1.b - Waiting for manufacturer's recommended interval with the key in off position"
+        expectedMessages += "Step 6.4.15.1.b - Waiting manufacturer’s recommended interval with the Key OFF"
                 + NL;
         expectedMessages += "Step 6.4.15.1.c - Remove implanted fault per manufacturer's instructions";
         assertEquals(expectedMessages, listener.getMessages());
@@ -300,7 +300,7 @@ public class Part04Step15ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Step 6.4.15.1.a - Turn Engine Off and keep the ignition key in the off position"
                 + NL;
-        expectedMessages += "Step 6.4.15.1.b - Waiting for manufacturer's recommended interval with the key in off position"
+        expectedMessages += "Step 6.4.15.1.b - Waiting manufacturer’s recommended interval with the Key OFF"
                 + NL;
         expectedMessages += "Step 6.4.15.1.c - Remove implanted fault per manufacturer's instructions" + NL;
         expectedMessages += "User cancelled testing at Part 4 Step 15";

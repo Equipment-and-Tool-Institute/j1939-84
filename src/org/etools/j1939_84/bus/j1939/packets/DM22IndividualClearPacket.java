@@ -15,6 +15,7 @@ public class DM22IndividualClearPacket extends GenericPacket {
     public static final int PGN = 49920; // 0xC300
 
     public static DM22IndividualClearPacket create(int source,
+                                                   int destination,
                                                    ControlByte controlByte,
                                                    ControlByteSpecificIndicator acknowledgementCode,
                                                    int spn,
@@ -28,7 +29,7 @@ public class DM22IndividualClearPacket extends GenericPacket {
         data[5] = spn & 0xFF;
         data[6] = (spn >> 8) & 0xFF;
         data[7] = (((spn >> 16) & 0x07) << 5) | (fmi & 0x1F);
-        return new DM22IndividualClearPacket(Packet.create(PGN, source, data));
+        return new DM22IndividualClearPacket(Packet.create(PGN | destination, source, data));
     }
 
     public static Packet createRequest(int source, int destination, ControlByte controlByte, int spn, int fmi) {

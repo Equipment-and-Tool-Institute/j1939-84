@@ -65,6 +65,7 @@ public class Part09Step02Controller extends StepController {
                                                   .stream()
                                                   .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                                                   .collect(Collectors.toList());
+
         // 6.9.2.1.b Create list of which OBD ECU(s) have a DM12 active MIL on DTC and which do not.
         packets.forEach(this::save);
 

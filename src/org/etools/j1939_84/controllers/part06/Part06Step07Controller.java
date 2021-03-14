@@ -68,6 +68,8 @@ public class Part06Step07Controller extends StepController {
 
         var packets = filterPackets(dsResults);
 
+        packets.forEach(this::save);
+
         // 6.6.7.2.a. Fail if no ECU reports permanent DTC present.
         boolean noDTCs = packets.stream().map(DiagnosticTroubleCodePacket::getDtcs).allMatch(List::isEmpty);
         if (noDTCs) {
