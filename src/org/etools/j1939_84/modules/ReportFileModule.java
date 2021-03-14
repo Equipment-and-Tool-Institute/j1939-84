@@ -75,7 +75,6 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
 
     @Override
     public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
-        summaryModule.addOutcome(partNumber, stepNumber, outcome, message);
         onResult(new ActionOutcome(outcome, message).toString());
     }
 

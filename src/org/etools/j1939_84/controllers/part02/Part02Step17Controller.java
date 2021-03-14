@@ -104,8 +104,8 @@ public class Part02Step17Controller extends StepController {
         tableA1Validator.reportExpectedMessages(getListener());
 
         // 6.2.17.1.a. Gather broadcast data for all SPNs that are supported for data stream in the OBD ECU responses.
-        // x2 to ensure all necessary messages have been received
-        Stream<GenericPacket> packetStream = busService.readBus(broadcastValidator.getMaximumBroadcastPeriod() * 2,
+        // x4 to ensure all necessary messages have been received
+        Stream<GenericPacket> packetStream = busService.readBus(broadcastValidator.getMaximumBroadcastPeriod() * 4,
                                                                 "6.2.17.1.a");
         var packets = packetStream
                                   .peek(p -> {

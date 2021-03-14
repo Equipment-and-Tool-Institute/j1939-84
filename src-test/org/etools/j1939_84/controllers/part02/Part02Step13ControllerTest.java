@@ -161,11 +161,7 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         dataRepository.putObdModule(obdModuleInformation);
 
-        AcknowledgmentPacket ackPacket0x00 = AcknowledgmentPacket.create(0x0,
-                                                                         NACK,
-                                                                         0,
-                                                                         0xF9,
-                                                                         PGN);
+        AcknowledgmentPacket ackPacket0x00 = AcknowledgmentPacket.create(0, NACK);
 
         when(diagnosticMessageModule.requestDM31(any(), eq(0x00)))
                                                                   .thenReturn(new RequestResult<>(false,

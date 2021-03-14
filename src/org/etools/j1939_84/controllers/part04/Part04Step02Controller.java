@@ -16,8 +16,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
@@ -129,19 +127,22 @@ public class Part04Step02Controller extends StepController {
 
         // 6.4.2.2.b. Fail if DM12 DTC(s) is (are) not the same SPN+FMI(s) as DM6 pending DTC in part 3.
         globalPackets.stream()
-                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                     .filter(p -> !p.getDtcs().equals(getDTCs(p.getSourceAddress())))
+                     .filter(p -> isObdModule(p.getSourceAddress()))
+                     .filter(p -> !p.getDtcs().containsAll(getDTCs(p.getSourceAddress())))
                      .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.4.2.2.b - " + moduleName
-                             + " reported DM12 DTC(s) different than DM6 pending DTC(s) in part 3"));
+                     .forEach(moduleName -> {
+                         addFailure("6.4.2.2.b - " + moduleName
+                                 + " reported DM12 DTC(s) different than DM6 pending DTC(s) in part 3");
+                     });
 
         // 6.4.2.3.a. Warn if any ECU reports > 1 confirmed and active DTC.
         globalPackets.stream()
                      .filter(p -> p.getDtcs().size() > 1)
-                     .map(ParsedPacket::getSourceAddress)
-                     .map(Lookup::getAddressName)
-                     .forEach(moduleName -> addWarning("6.4.2.3.a - " + moduleName
-                             + " reported > 1 confirmed and active DTC"));
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> {
+                         addWarning("6.4.2.3.a - " + moduleName
+                                 + " reported > 1 confirmed and active DTC");
+                     });
 
         // 6.4.2.3.b. Warn if more than one ECU reports a confirmed and active DTC.
         long modulesWithFaults = globalPackets.stream()
@@ -154,18 +155,15 @@ public class Part04Step02Controller extends StepController {
         // 6.4.2.4.a. DS DM12 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(address -> getDiagnosticMessageModule().requestDM12(getListener(),
-                                                                                                    address))
+                                           .map(a -> getDiagnosticMessageModule().requestDM12(getListener(), a))
                                            .map(BusResult::requestResult)
                                            .collect(Collectors.toList());
 
         // 6.4.2.5.a. Fail if any difference compared to data received from global request.
-        List<DM12MILOnEmissionDTCPacket> dsPackets = filterRequestResultPackets(dsResults);
-        compareRequestPackets(globalPackets, dsPackets, "6.4.2.5.a");
+        compareRequestPackets(globalPackets, filterRequestResultPackets(dsResults), "6.4.2.5.a");
 
         // 6.4.2.5.b. Fail if NACK not received from OBD ECUs that did not respond to global query.
-        List<AcknowledgmentPacket> dsAcks = filterRequestResultAcks(dsResults);
-        checkForNACKsGlobal(globalPackets, dsAcks, "6.4.2.5.b");
+        checkForNACKsGlobal(globalPackets, filterRequestResultAcks(dsResults), "6.4.2.5.b");
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int moduleAddress) {

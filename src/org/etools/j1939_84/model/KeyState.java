@@ -6,15 +6,19 @@ package org.etools.j1939_84.model;
 
 public enum KeyState {
 
-    KEY_OFF("Key OFF"),
-    KEY_ON_ENGINE_OFF("Key ON/Engine OFF"),
-    KEY_ON_ENGINE_RUNNING("Key ON/Engine RUNNING"),
-    UNKNOWN("Unknown");
+    KEY_OFF("Key OFF", false, false),
+    KEY_ON_ENGINE_OFF("Key ON/Engine OFF", true, false),
+    KEY_ON_ENGINE_RUNNING("Key ON/Engine RUNNING", true, true),
+    UNKNOWN("UNKNOWN", false, false);
 
     public final String name;
+    public final boolean isKeyOn;
+    public final boolean isEngineOn;
 
-    KeyState(String name) {
+    KeyState(String name, boolean isKeyOn, boolean isEngineOn) {
         this.name = name;
+        this.isKeyOn = isKeyOn;
+        this.isEngineOn = isEngineOn;
     }
 
     @Override

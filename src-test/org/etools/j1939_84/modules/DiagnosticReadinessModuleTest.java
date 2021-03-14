@@ -130,7 +130,7 @@ public class DiagnosticReadinessModuleTest {
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM20 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 C2 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
@@ -185,7 +185,7 @@ public class DiagnosticReadinessModuleTest {
                                                                                           .read(anyLong(),
                                                                                                 any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM20 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 C2 00 (TX)" + NL;
         expected += "10:15:30.0000 18C2A500 [8] 11 22 33 44 55 66 77 88" + NL;
@@ -258,7 +258,7 @@ public class DiagnosticReadinessModuleTest {
                                                                                           .read(anyLong(),
                                                                                                 any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM20 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 C2 00 (TX)" + NL;
         expected += "10:15:30.0000 18C2A501 [8] 11 22 33 44 55 66 77 88" + NL;
@@ -296,7 +296,7 @@ public class DiagnosticReadinessModuleTest {
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM21 Request to Instrument Cluster #1 (23)" + NL;
         expected += "10:15:30.0000 18EA17A5 [3] 00 C1 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
@@ -328,7 +328,7 @@ public class DiagnosticReadinessModuleTest {
                                                                                                 0x80));
         doReturn(Stream.of(packet3.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM21 Request to Body Controller (33)" + NL;
         expected += "10:15:30.0000 18EA21A5 [3] 00 C1 00 (TX)" + NL;
         expected += "10:15:30.0000 18C1A521 [8] 10 20 30 40 50 60 70 80" + NL;
@@ -357,7 +357,7 @@ public class DiagnosticReadinessModuleTest {
                                                                                 .when(j1939)
                                                                                 .read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM21 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 C1 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
@@ -412,7 +412,7 @@ public class DiagnosticReadinessModuleTest {
                                                                                           .read(anyLong(),
                                                                                                 any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM21 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 C1 00 (TX)" + NL;
         expected += "10:15:30.0000 18C1A500 [8] 11 22 33 44 55 66 77 88" + NL;
@@ -488,7 +488,7 @@ public class DiagnosticReadinessModuleTest {
                                                                                           .read(anyLong(),
                                                                                                 any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM21 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 C1 00 (TX)" + NL;
         expected += "10:15:30.0000 18C1A501 [8] 11 22 33 44 55 66 77 88" + NL;
@@ -564,7 +564,7 @@ public class DiagnosticReadinessModuleTest {
                                                                                           .read(anyLong(),
                                                                                                 any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM5 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
         expected += "10:15:30.0000 18FECE00 [8] 11 22 33 44 55 66 77 88" + NL;
@@ -592,7 +592,7 @@ public class DiagnosticReadinessModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM5 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;

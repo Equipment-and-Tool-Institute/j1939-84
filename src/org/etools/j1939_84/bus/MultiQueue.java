@@ -34,7 +34,9 @@ public class MultiQueue<T> implements AutoCloseable {
     @Override
     public void close() {
         // close all of the spliterators.
-        spliterators.values().forEach(s -> s.end = 0);
+        spliterators.values().forEach(s -> {
+            s.end = 0;
+        });
     }
 
     /**
@@ -134,8 +136,8 @@ public class MultiQueue<T> implements AutoCloseable {
         }
 
         public SpliteratorImplementation(MultiQueue.SpliteratorImplementation<T> that) {
-            this.item = that.item;
-            this.end = that.end;
+            item = that.item;
+            end = that.end;
         }
 
         public void setTimeout(long timeout, TimeUnit unit) {

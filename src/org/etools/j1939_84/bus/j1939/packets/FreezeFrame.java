@@ -66,14 +66,14 @@ public class FreezeFrame {
     public String toString() {
         StringBuilder result = new StringBuilder("Freeze Frame: {");
         result.append(NL);
-        result.append(dtc).append(NL);
+        result.append(getDtc()).append(NL);
         result.append("SPN Data: ")
-              .append(Arrays.stream(spnData)
+              .append(Arrays.stream(getSpnData())
                             .mapToObj(x -> String.format("%02X", x))
                             .collect(Collectors.joining(" ")))
               .append(NL);
 
-        spns.stream().sorted().forEach(spn -> {
+        getSPNs().stream().sorted().forEach(spn -> {
             result.append(spn.toString()).append(NL);
         });
 

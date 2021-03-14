@@ -114,7 +114,7 @@ public class DiagnosticMessageModuleTest {
 
         assertEquals(List.of(packet), instance.readDM1(listener));
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Reading the bus for published DM1 messages" + NL;
         expected += "" + NL;
         expected += "10:15:30.0000 18FECA00 [14] 11 01 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
@@ -138,7 +138,7 @@ public class DiagnosticMessageModuleTest {
 
         assertEquals(List.of(), instance.readDM1(listener));
 
-        String expected = "10:15:30.0000 Reading the bus for published DM1 messages" + NL;
+        String expected = NL + "10:15:30.0000 Reading the bus for published DM1 messages" + NL;
 
         assertEquals(expected, listener.getResults());
         verify(j1939).read(DM1ActiveDTCsPacket.class, 3, TimeUnit.SECONDS);
@@ -195,7 +195,7 @@ public class DiagnosticMessageModuleTest {
 
         assertEquals(List.of(packet1, packet2), instance.readDM1(listener));
 
-        String expected = "10:15:30.0000 Reading the bus for published DM1 messages" + NL;
+        String expected = NL + "10:15:30.0000 Reading the bus for published DM1 messages" + NL;
         expected += "" + NL;
         expected += "10:15:30.0000 18FECA00 [14] 11 01 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
         expected += "DM1 from Engine #1 (0): MIL: alternate off, RSL: slow flash, AWL: alternate off, PL: fast flash"
@@ -240,7 +240,7 @@ public class DiagnosticMessageModuleTest {
 
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM11 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] D3 FE 00 (TX)" + NL;
         expected += "10:15:30.0000 18E8A500 [8] 00 FF FF FF A5 D3 FE 00" + NL;
@@ -278,7 +278,7 @@ public class DiagnosticMessageModuleTest {
 
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM11 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] D3 FE 00 (TX)" + NL;
         expected += "10:15:30.0000 18E8A500 [8] 00 FF FF FF A5 D3 FE 00" + NL;
@@ -314,7 +314,7 @@ public class DiagnosticMessageModuleTest {
                                                                                           0x00));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM12 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] D4 FE 00 (TX)" + NL;
         expected += "10:15:30.0000 18FED400 [8] 00 FF 00 00 00 00 00 00" + NL;
@@ -356,7 +356,7 @@ public class DiagnosticMessageModuleTest {
                                                                                           0x00));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM12 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] D4 FE 00 (TX)" + NL;
         expected += "10:15:30.0000 18FED400 [14] 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
@@ -385,7 +385,7 @@ public class DiagnosticMessageModuleTest {
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM12 Request to Instrument Cluster #1 (23)" + NL;
         expected += "10:15:30.0000 18EA17A5 [3] D4 FE 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
@@ -442,7 +442,7 @@ public class DiagnosticMessageModuleTest {
                                                                                           .read(anyLong(),
                                                                                                 any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM12 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] D4 FE 00 (TX)" + NL;
         expected += "10:15:30.0000 18FED400 [8] 00 FF 00 00 00 00 00 00" + NL;
@@ -489,7 +489,7 @@ public class DiagnosticMessageModuleTest {
         TestResultsListener listener = new TestResultsListener();
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM12 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] D4 FE 00 (TX)" + NL;
         expected += "10:15:30.0000 18FED400 [14] 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
@@ -517,7 +517,7 @@ public class DiagnosticMessageModuleTest {
         TestResultsListener listener = new TestResultsListener();
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM12 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] D4 FE 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
@@ -537,7 +537,8 @@ public class DiagnosticMessageModuleTest {
 
         doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "10:15:30.0000 Destination Specific DM21 Request to Engine #1 (0)" + NL;
+        String expected = NL;
+        expected += "10:15:30.0000 Destination Specific DM21 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] 00 C1 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
 
@@ -566,7 +567,8 @@ public class DiagnosticMessageModuleTest {
         TestResultsListener listener = new TestResultsListener();
         BusResult<DM21DiagnosticReadinessPacket> result = new BusResult<>(false, packet1);
 
-        String expected = "10:15:30.0000 Destination Specific DM21 Request to Engine #1 (0)" + NL;
+        String expected = NL;
+        expected += "10:15:30.0000 Destination Specific DM21 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] 00 C1 00 (TX)" + NL;
         expected += "10:15:30.0000 18C1A500 [8] 10 27 20 4E 30 75 40 9C" + NL;
         expected += "DM21 from Engine #1 (0): [" + NL;
@@ -597,7 +599,8 @@ public class DiagnosticMessageModuleTest {
                                                                                   List.of(packet1),
                                                                                   List.of());
 
-        String expected = "10:15:30.0000 Global DM21 Request" + NL;
+        String expected = NL;
+        expected += "10:15:30.0000 Global DM21 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 C1 00 (TX)" + NL;
         expected += "10:15:30.0000 18C1A500 [8] 10 27 20 4E 30 75 40 9C" + NL;
         expected += "DM21 from Engine #1 (0): [" + NL;
@@ -630,7 +633,8 @@ public class DiagnosticMessageModuleTest {
                                                                                   List.of(packet1),
                                                                                   List.of());
 
-        String expected = "10:15:30.0000 Global DM21 Request" + NL;
+        String expected = NL;
+        expected += "10:15:30.0000 Global DM21 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 C1 00 (TX)" + NL;
         expected += "10:15:30.0000 18C1A500 [8] 10 27 20 4E 30 75 40 9C" + NL;
         expected += "DM21 from Engine #1 (0): [" + NL;
@@ -667,7 +671,7 @@ public class DiagnosticMessageModuleTest {
                                                                                                               0x00));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM23 Request to Body Controller (33)" + NL;
         expected += "10:15:30.0000 18EA21A5 [3] B5 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 18FDB521 [8] 00 FF 00 00 00 00 00 00" + NL;
@@ -708,7 +712,7 @@ public class DiagnosticMessageModuleTest {
                                                                                                               0x00));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM23 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] B5 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 18FDB500 [14] 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
@@ -735,7 +739,7 @@ public class DiagnosticMessageModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x17);
         doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM23 Request to Instrument Cluster #1 (23)" + NL;
         expected += "10:15:30.0000 18EA17A5 [3] B5 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
@@ -793,7 +797,7 @@ public class DiagnosticMessageModuleTest {
                                                                                           .read(anyLong(),
                                                                                                 any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM23 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] B5 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 18FDB500 [8] 00 FF 00 00 00 00 00 00" + NL;
@@ -838,7 +842,7 @@ public class DiagnosticMessageModuleTest {
                                                                                                               0x00));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM23 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] B5 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 18FDB500 [14] 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
@@ -868,7 +872,7 @@ public class DiagnosticMessageModuleTest {
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM23 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] B5 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
@@ -902,7 +906,8 @@ public class DiagnosticMessageModuleTest {
 
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "10:15:30.0000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
+        String expected = NL;
+        expected += "10:15:30.0000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] B7 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 18E8FF00 [8] 01 FF FF FF A5 B7 FD 00" + NL;
         expected += "Acknowledgment from Engine #1 (0): Response: NACK, Group Function: 255, Address Acknowledged: 165, PGN Requested: 64951"
@@ -925,7 +930,8 @@ public class DiagnosticMessageModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
-        String expected = "10:15:30.0000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
+        String expected = NL;
+        expected += "10:15:30.0000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] B7 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
 
@@ -961,7 +967,8 @@ public class DiagnosticMessageModuleTest {
         DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(pgn, 0x00, realData));
         doReturn(Stream.of(packet.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "10:15:30.0000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
+        String expected = NL;
+        expected += "10:15:30.0000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] B7 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 18FDB700 [87] 56 9D 00 07 7F 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF FA"
                 + NL;
@@ -1005,7 +1012,7 @@ public class DiagnosticMessageModuleTest {
                                                                                                         0));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM26 Request to Body Controller (33)" + NL;
         expected += "10:15:30.0000 18EA21A5 [3] B8 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 18FDB821 [8] 00 00 00 00 00 00 00 00" + NL;
@@ -1048,7 +1055,7 @@ public class DiagnosticMessageModuleTest {
 
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM26 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] B8 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 18FDB800 [14] 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
@@ -1076,7 +1083,7 @@ public class DiagnosticMessageModuleTest {
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM26 Request to Instrument Cluster #1 (23)" + NL;
         expected += "10:15:30.0000 18EA17A5 [3] B8 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
@@ -1137,7 +1144,7 @@ public class DiagnosticMessageModuleTest {
                                                                                           .read(anyLong(),
                                                                                                 any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM26 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] B8 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 18FDB800 [8] 00 00 00 00 00 00 00 00" + NL;
@@ -1185,7 +1192,7 @@ public class DiagnosticMessageModuleTest {
                                                                                                                 .read(anyLong(),
                                                                                                                       any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM26 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] B8 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 18FDB811 [8] 22 33 44 55 66 77 88 FF" + NL;
@@ -1208,7 +1215,7 @@ public class DiagnosticMessageModuleTest {
         Packet requestPacket = Packet.create(REQUEST_PGN | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0xFF);
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM26 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] B8 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
@@ -1242,7 +1249,7 @@ public class DiagnosticMessageModuleTest {
                                                                                       0x00));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM27 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] 82 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 18FD8200 [8] 00 FF 00 00 00 00 00 00" + NL;
@@ -1284,7 +1291,7 @@ public class DiagnosticMessageModuleTest {
                                                                                       0x00));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM27 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] 82 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 18FD8200 [14] 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
@@ -1314,7 +1321,7 @@ public class DiagnosticMessageModuleTest {
 
         doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM27 Request to Instrument Cluster #1 (23)" + NL;
         expected += "10:15:30.0000 18EA17A5 [3] 82 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
@@ -1370,7 +1377,7 @@ public class DiagnosticMessageModuleTest {
                                                                                           .read(anyLong(),
                                                                                                 any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM27 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 82 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 18FD8200 [8] 00 FF 00 00 00 00 00 00" + NL;
@@ -1423,7 +1430,7 @@ public class DiagnosticMessageModuleTest {
                                                                                       0x00));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM27 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 82 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 18FD8200 [14] 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
@@ -1454,7 +1461,7 @@ public class DiagnosticMessageModuleTest {
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM27 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 82 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
@@ -1493,7 +1500,7 @@ public class DiagnosticMessageModuleTest {
 
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM28 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 80 FD 00 (TX)" + NL;
         expected += "10:15:30.0000 18FD8000 [14] 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
@@ -1521,7 +1528,8 @@ public class DiagnosticMessageModuleTest {
         Packet requestPacket = Packet.create(REQUEST_PGN, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
 
-        String expected = "10:15:30.0000 Destination Specific DM29 Request to Engine #1 (0)" + NL;
+        String expected = NL;
+        expected += "10:15:30.0000 Destination Specific DM29 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] 00 9E 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response"
                 + NL;
@@ -1543,7 +1551,8 @@ public class DiagnosticMessageModuleTest {
         Packet requestPacket = Packet.create(REQUEST_PGN, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
 
-        String expected = "10:15:30.0000 Destination Specific DM29 Request to Engine #1 (0)" + NL;
+        String expected = NL;
+        expected += "10:15:30.0000 Destination Specific DM29 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] 00 9E 00 (TX)" + NL;
         expected += "10:15:30.0000 189EA500 [8] 09 20 47 31 01 FF FF FF" + NL;
         expected += "DM29 from Engine #1 (0): " + NL;
@@ -1580,7 +1589,8 @@ public class DiagnosticMessageModuleTest {
     public void testRequestDM29GlobalNoResponse() throws BusException {
         final int pgn = DM29DtcCounts.PGN;
 
-        String expected = "10:15:30.0000 Global DM29 Request" + NL;
+        String expected = NL;
+        expected += "10:15:30.0000 Global DM29 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 9E 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
 
@@ -1599,7 +1609,8 @@ public class DiagnosticMessageModuleTest {
     public void testRequestDM29GlobalResponse() throws BusException {
         final int pgn = DM29DtcCounts.PGN;
 
-        String expected = "10:15:30.0000 Global DM29 Request" + NL;
+        String expected = NL;
+        expected += "10:15:30.0000 Global DM29 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 9E 00 (TX)" + NL;
         expected += "10:15:30.0000 189EFF00 [8] 09 20 47 31 01 FF FF FF" + NL;
         expected += "DM29 from Engine #1 (0): " + NL;
@@ -1643,7 +1654,7 @@ public class DiagnosticMessageModuleTest {
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM2 Request to Instrument Cluster #1 (23)" + NL;
         expected += "10:15:30.0000 18EA17A5 [3] CB FE 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
@@ -1677,7 +1688,7 @@ public class DiagnosticMessageModuleTest {
                                                                                   0x88));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM2 Request to Engine #2 (1)" + NL;
         expected += "10:15:30.0000 18EA01A5 [3] CB FE 00 (TX)" + NL;
         expected += "10:15:30.0000 18FECB01 [8] 22 DD 33 44 55 66 77 88" + NL;
@@ -1740,7 +1751,7 @@ public class DiagnosticMessageModuleTest {
                                                                                           .read(anyLong(),
                                                                                                 any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM2 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] CB FE 00 (TX)" + NL;
         expected += "10:15:30.0000 18FECB00 [8] 22 DD 33 44 55 66 77 88" + NL;
@@ -1790,7 +1801,7 @@ public class DiagnosticMessageModuleTest {
                                                                                   0x00));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM2 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] CB FE 00 (TX)" + NL;
         expected += "10:15:30.0000 18FECB00 [14] 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
@@ -1821,7 +1832,7 @@ public class DiagnosticMessageModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM2 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] CB FE 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
@@ -1841,7 +1852,8 @@ public class DiagnosticMessageModuleTest {
         Packet requestPacket = Packet.create(REQUEST_PGN, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
 
-        String expected = "10:15:30.0000 Destination Specific DM31 Request to Engine #1 (0)" + NL;
+        String expected = NL;
+        expected += "10:15:30.0000 Destination Specific DM31 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] 00 A3 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
 
@@ -1865,7 +1877,8 @@ public class DiagnosticMessageModuleTest {
         Packet requestPacket = Packet.create(REQUEST_PGN | 0x21, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x21);
 
-        String expected = "10:15:30.0000 Destination Specific DM31 Request to Body Controller (33)" + NL;
+        String expected = NL;
+        expected += "10:15:30.0000 Destination Specific DM31 Request to Body Controller (33)" + NL;
         expected += "10:15:30.0000 18EA21A5 [3] 00 A3 00 (TX)" + NL;
         expected += "10:15:30.0000 18A3A521 [18] 61 02 13 81 62 1D 21 06 1F 23 22 DD EE 10 04 00 AA 55" + NL;
         expected += "DM31 from Body Controller (33): " + NL;
@@ -1923,7 +1936,8 @@ public class DiagnosticMessageModuleTest {
     public void testRequestDM31GlobalNoResponse() throws BusException {
         final int pgn = DM31DtcToLampAssociation.PGN;
 
-        String expected = "10:15:30.0000 Global DM31 Request" + NL;
+        String expected = NL;
+        expected += "10:15:30.0000 Global DM31 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 A3 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
 
@@ -1942,7 +1956,8 @@ public class DiagnosticMessageModuleTest {
     public void testRequestDM31GlobalResponse() throws BusException {
         final int pgn = DM31DtcToLampAssociation.PGN;
 
-        String expected = "10:15:30.0000 Global DM31 Request" + NL;
+        String expected = NL;
+        expected += "10:15:30.0000 Global DM31 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 A3 00 (TX)" + NL;
         expected += "10:15:30.0000 18A30021 [18] 61 02 13 81 62 1D 21 06 1F 23 22 DD EE 10 04 00 AA 55" + NL;
         expected += "DM31 from Body Controller (33): " + NL;
@@ -2013,7 +2028,7 @@ public class DiagnosticMessageModuleTest {
         TestResultsListener listener = new TestResultsListener();
         assertEquals(new RequestResult<>(false, packet1), instance.requestDM33(listener));
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM33 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 A1 00 (TX)" + NL;
         expected += "10:15:30.0000 18A10000 [36] 01 2B 0B 01 00 2B C4 0B 00 02 FE FE FE FE FF FF FF FF 03 FE FE FE FE 2C 0B 03 00 04 FF FF FF FE FE FE FE FF"
@@ -2042,7 +2057,7 @@ public class DiagnosticMessageModuleTest {
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM33 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] 00 A1 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
@@ -2072,7 +2087,7 @@ public class DiagnosticMessageModuleTest {
         var packet1 = new DM33EmissionIncreasingAECDActiveTime(Packet.create(pgn, 0, data));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM33 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 A1 00 (TX)" + NL;
         expected += "10:15:30.0000 18A10000 [36] 01 2B 0B 01 00 2B C4 0B 00 02 FE FE FE FE FF FF FF FF 03 FE FE FE FE 2C 0B 03 00 04 FF FF FF FE FE FE FE FF"
@@ -2101,7 +2116,7 @@ public class DiagnosticMessageModuleTest {
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM33 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 A1 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
@@ -2135,7 +2150,7 @@ public class DiagnosticMessageModuleTest {
                                                                                             0x00));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM6 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] CF FE 00 (TX)" + NL;
         expected += "10:15:30.0000 18FECF00 [8] 00 FF 00 00 00 00 00 00" + NL;
@@ -2177,7 +2192,7 @@ public class DiagnosticMessageModuleTest {
                                                                                             0x00));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM6 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] CF FE 00 (TX)" + NL;
         expected += "10:15:30.0000 18FECF00 [14] 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
@@ -2207,7 +2222,7 @@ public class DiagnosticMessageModuleTest {
 
         doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM6 Request to Body Controller (33)" + NL;
         expected += "10:15:30.0000 18EA21A5 [3] CF FE 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
@@ -2260,7 +2275,7 @@ public class DiagnosticMessageModuleTest {
                                                                                           .read(anyLong(),
                                                                                                 any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM6 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] CF FE 00 (TX)" + NL;
         expected += "10:15:30.0000 18FECF00 [3] 00 FF 61" + NL;
@@ -2304,7 +2319,7 @@ public class DiagnosticMessageModuleTest {
                                                                                             0x00));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM6 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] CF FE 00 (TX)" + NL;
         expected += "10:15:30.0000 18FECF00 [14] 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
@@ -2332,7 +2347,8 @@ public class DiagnosticMessageModuleTest {
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "10:15:30.0000 Global DM6 Request" + NL;
+        String expected = NL;
+        expected += "10:15:30.0000 Global DM6 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] CF FE 00 (TX)" + NL;
         expected += "10:15:30.0000 Timeout - No Response" + NL;
 

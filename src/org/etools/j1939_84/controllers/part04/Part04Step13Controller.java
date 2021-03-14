@@ -91,8 +91,10 @@ public class Part04Step13Controller extends StepController {
                      return r != NACK && r != DENIED && r != BUSY;
                  })
                  .map(ParsedPacket::getModuleName)
-                 .forEach(moduleName -> addFailure("6.4.13.2.a - " + moduleName
-                         + " did not NACK with control byte 1 or 2 or 3"));
+                 .forEach(moduleName -> {
+                     addFailure("6.4.13.2.a - " + moduleName
+                             + " did not NACK with control byte 1 or 2 or 3");
+                 });
 
         // 6.4.13.2.a. Fail if any ECU erases any diagnostic information. See Section A.5 for more information.
         verifier.verifyDataNotErased(getListener(), "6.4.13.2.a");
@@ -101,7 +103,9 @@ public class Part04Step13Controller extends StepController {
         dsPackets.stream()
                  .filter(p -> p.getResponse() == BUSY)
                  .map(ParsedPacket::getModuleName)
-                 .forEach(moduleName -> addWarning("6.4.13.2.b - " + moduleName + " NACKs with control = 3"));
+                 .forEach(moduleName -> {
+                     addWarning("6.4.13.2.b - " + moduleName + " NACKs with control = 3");
+                 });
 
         // 6.4.13.3.a. Global DM3
         getDiagnosticMessageModule().requestDM3(getListener());

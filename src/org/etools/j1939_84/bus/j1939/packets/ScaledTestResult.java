@@ -15,7 +15,7 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
-public class ScaledTestResult {
+public class ScaledTestResult implements Comparable<ScaledTestResult> {
 
     private final int[] data;
     private final int fmi;
@@ -222,6 +222,15 @@ public class ScaledTestResult {
             result += " Min: " + (hasMinimum() ? NumberFormatter.format(getScaledTestMinimum()) : "N/A") + ",";
             result += " Value: " + NumberFormatter.format(getScaledTestValue()) + ",";
             result += " Max: " + (hasMaximum() ? NumberFormatter.format(getScaledTestMaximum()) : "N/A") + unit + "";
+        }
+        return result;
+    }
+
+    @Override
+    public int compareTo(ScaledTestResult other) {
+        int result = Integer.compare(getSpn(), other.getSpn());
+        if (result == 0) {
+            result = Integer.compare(getFmi(), other.getFmi());
         }
         return result;
     }

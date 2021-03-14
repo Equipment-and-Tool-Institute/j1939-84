@@ -184,11 +184,15 @@ public class Part11Step13ControllerTest extends AbstractControllerTest {
 
         StringBuilder expectedMessages = new StringBuilder();
         expectedMessages.append("Waiting for Key OFF...").append(NL);
+        expectedMessages.append("Step 6.11.31.1.b - Waiting manufacturer’s recommended interval with the Key OFF")
+                        .append(NL);
         expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
         for (int i = 60; i > 0; i--) {
             expectedMessages.append("Step 6.11.13.1.e - Waiting ").append(i).append(" seconds").append(NL);
         }
         expectedMessages.append("Waiting for Key OFF...").append(NL);
+        expectedMessages.append("Step 6.11.31.1.g - Waiting manufacturer’s recommended interval with the Key OFF")
+                        .append(NL);
         expectedMessages.append("Waiting for Key ON/Engine OFF...");
         assertEquals(expectedMessages.toString(), listener.getMessages());
 

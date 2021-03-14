@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part03;
 
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -202,7 +203,7 @@ public class Part03Step13Controller extends StepController {
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int address) {
-        return getDTCs(DM6PendingEmissionDTCPacket.class, address, 3);
+        return new ArrayList<>(getDTCs(DM6PendingEmissionDTCPacket.class, address, 3));
     }
 
 }

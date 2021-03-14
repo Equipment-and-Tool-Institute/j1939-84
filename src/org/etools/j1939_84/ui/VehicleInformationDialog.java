@@ -30,6 +30,7 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.text.AbstractDocument;
 
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.VehicleInformationListener;
@@ -517,6 +518,9 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     @Override
     public void setOkButtonEnabled(boolean isEnabled) {
         getOkButton().setEnabled(isEnabled);
+        if (isEnabled && J1939_84.isAutoMode()) {
+            presenter.onOkButtonClicked();
+        }
     }
 
     @Override

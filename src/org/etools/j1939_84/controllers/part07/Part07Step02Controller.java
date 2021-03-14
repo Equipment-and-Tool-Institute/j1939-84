@@ -10,8 +10,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -82,7 +82,7 @@ public class Part07Step02Controller extends StepController {
 
         // 6.7.2.2.b Fail if reported previously active DTC does not match DM12 active DTC from part 6.
         packets.forEach(p -> {
-            List<DiagnosticTroubleCode> dm6DTCs = getDTCs(DM6PendingEmissionDTCPacket.class, p.getSourceAddress(), 6);
+            List<DiagnosticTroubleCode> dm6DTCs = getDTCs(DM12MILOnEmissionDTCPacket.class, p.getSourceAddress(), 6);
             if (!p.getDtcs().equals(dm6DTCs)) {
                 addFailure("6.7.2.2.b - OBD module " + p.getModuleName()
                         + " reported a different DTCs from the DM12 DTCs");

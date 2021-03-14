@@ -200,7 +200,7 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testNoFailuresWithNack() {
-        var ack = AcknowledgmentPacket.create(0, NACK, 0, 0xF9, DM31DtcToLampAssociation.PGN);
+        var ack = AcknowledgmentPacket.create(0, NACK);
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(new RequestResult<>(false, ack));
 
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);

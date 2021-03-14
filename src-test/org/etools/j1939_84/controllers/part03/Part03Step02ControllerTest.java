@@ -191,7 +191,10 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
         verify(diagnosticMessageModule, times(300)).requestDM6(any());
         verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 3 Step 2");
+        verify(mockListener, times(2)).addOutcome(PART_NUMBER,
+                                                  STEP_NUMBER,
+                                                  ABORT,
+                                                  "User cancelled testing at Part 3 Step 2");
 
         assertEquals(299000, dateTimeModule.getTimeAsLong());
     }

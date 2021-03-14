@@ -12,6 +12,10 @@ public class SpnFmi {
     public final int spn;
     public final int fmi;
 
+    public static SpnFmi of(int spn, int fmi) {
+        return new SpnFmi(spn, fmi);
+    }
+
     public static SpnFmi of(ScaledTestResult str) {
         return new SpnFmi(str.getSpn(), str.getFmi());
     }

@@ -46,11 +46,11 @@ public class DM30ScaledTestResultsPacket extends GenericPacket {
         sb.append(getStringPrefix());
         boolean moreThanOne = getTestResults().size() > 1;
         sb.append(moreThanOne ? "[" + NL : "");
-        for (ScaledTestResult testResult : getTestResults()) {
+        getTestResults().stream().sorted().forEach(testResult -> {
             sb.append(moreThanOne ? "  " : "");
             sb.append(testResult);
             sb.append(moreThanOne ? NL : "");
-        }
+        });
         sb.append(moreThanOne ? "]" : "");
         return sb.toString();
     }

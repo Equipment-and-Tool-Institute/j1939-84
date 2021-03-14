@@ -98,7 +98,8 @@ public class Part02Step04Controller extends StepController {
                      .filter(p -> p.getIgnitionCycles() != getPart1IgnitionCycles(p.getSourceAddress()) + 1)
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> {
-                         addFailure("6.2.4.2.a - ECU " + moduleName + " reported ignition cycle is invalid");
+                         addFailure("6.2.4.2.a - " + moduleName
+                                 + " reported value for ignition cycle is not one cycle greater than the value reported in part 1");
                      });
 
         // 6.2.4.3.a. DS DM20 to ECUs that responded to global DM20 in part 1.

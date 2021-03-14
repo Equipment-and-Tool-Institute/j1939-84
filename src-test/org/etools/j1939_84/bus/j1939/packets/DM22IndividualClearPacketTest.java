@@ -34,6 +34,7 @@ public class DM22IndividualClearPacketTest {
     @Test
     public void testResponse() {
         DM22IndividualClearPacket instance = DM22IndividualClearPacket.create(0,
+                                                                              0,
                                                                               CLR_PA_ACK,
                                                                               ControlByteSpecificIndicator.NOT_SUPPORTED,
                                                                               1208,

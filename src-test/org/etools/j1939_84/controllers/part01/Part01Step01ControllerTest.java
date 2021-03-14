@@ -28,6 +28,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.FuelType;
+import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
@@ -276,6 +277,11 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "User cancelled testing at Part 1 Test 1" + NL;
         assertEquals(expectedResults, listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        Outcome.ABORT,
+                                        "User cancelled testing at Part 1 Step 1");
     }
 
     @Test
@@ -320,6 +326,11 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expectedResults, listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        Outcome.ABORT,
+                                        "User cancelled testing at Part 1 Step 1");
     }
 
 }

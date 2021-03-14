@@ -63,7 +63,6 @@ public class Part04Step15Controller extends StepController {
         ensureKeyStateIs(KEY_OFF);
 
         // 6.4.15.1.b Wait engine manufacturer’s recommended interval.
-        incrementProgress("Step 6.4.15.1.b - Waiting for manufacturer's recommended interval with the key in off position");
         waitForManufacturerInterval("Step 6.4.15.1.b", KEY_OFF);
 
         // 6.4.15.1.c With the key in the off position remove the implanted Fault A according to the
