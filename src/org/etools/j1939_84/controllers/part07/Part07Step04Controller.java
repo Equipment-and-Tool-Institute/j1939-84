@@ -68,7 +68,9 @@ public class Part07Step04Controller extends StepController {
         packets.stream()
                .filter(p -> !p.getDtcs().isEmpty())
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.7.4.2.a - " + moduleName + " reported an active DTC"));
+               .forEach(moduleName -> {
+                   addFailure("6.7.4.2.a - " + moduleName + " reported an active DTC");
+               });
 
         // 6.7.4.2.b Fail if any OBD ECU does not report MIL off.
         packets.stream()

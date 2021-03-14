@@ -420,57 +420,79 @@ public abstract class Controller {
 
         @Override
         public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
-            Arrays.stream(listeners).forEach(l -> l.addOutcome(partNumber, stepNumber, outcome, message));
+            Arrays.stream(listeners).forEach(l -> {
+                l.addOutcome(partNumber, stepNumber, outcome, message);
+            });
         }
 
         @Override
         public void onComplete(boolean success) {
-            Arrays.stream(listeners).forEach(l -> l.onComplete(success));
+            Arrays.stream(listeners).forEach(l -> {
+                l.onComplete(success);
+            });
         }
 
         @Override
         public void onMessage(String message, String title, MessageType type) {
-            Arrays.stream(listeners).forEach(l -> l.onMessage(message, title, type));
+            Arrays.stream(listeners).forEach(l -> {
+                l.onMessage(message, title, type);
+            });
         }
 
         @Override
         public void onProgress(int currentStep, int totalSteps, String message) {
-            Arrays.stream(listeners).forEach(l -> l.onProgress(currentStep, totalSteps, message));
+            Arrays.stream(listeners).forEach(l -> {
+                l.onProgress(currentStep, totalSteps, message);
+            });
         }
 
         @Override
         public void onProgress(String message) {
-            Arrays.stream(listeners).forEach(l -> l.onProgress(message));
+            Arrays.stream(listeners).forEach(l -> {
+                l.onProgress(message);
+            });
         }
 
         @Override
         public void onResult(List<String> results) {
-            Arrays.stream(listeners).forEach(l -> l.onResult(results));
+            Arrays.stream(listeners).forEach(l -> {
+                l.onResult(results);
+            });
         }
 
         @Override
         public void onResult(String result) {
-            Arrays.stream(listeners).forEach(l -> l.onResult(result));
+            Arrays.stream(listeners).forEach(l -> {
+                l.onResult(result);
+            });
         }
 
         @Override
         public void onUrgentMessage(String message, String title, MessageType type) {
-            Arrays.stream(listeners).forEach(l -> l.onUrgentMessage(message, title, type));
+            Arrays.stream(listeners).forEach(l -> {
+                l.onUrgentMessage(message, title, type);
+            });
         }
 
         @Override
         public void onUrgentMessage(String message, String title, MessageType type, QuestionListener listener) {
-            Arrays.stream(listeners).forEach(l -> l.onUrgentMessage(message, title, type, listener));
+            Arrays.stream(listeners).forEach(l -> {
+                l.onUrgentMessage(message, title, type, listener);
+            });
         }
 
         @Override
         public void onVehicleInformationNeeded(VehicleInformationListener listener) {
-            Arrays.stream(listeners).forEach(l -> l.onVehicleInformationNeeded(listener));
+            Arrays.stream(listeners).forEach(l -> {
+                l.onVehicleInformationNeeded(listener);
+            });
         }
 
         @Override
         public void onVehicleInformationReceived(VehicleInformation vehicleInformation) {
-            Arrays.stream(listeners).forEach(l -> l.onVehicleInformationReceived(vehicleInformation));
+            Arrays.stream(listeners).forEach(l -> {
+                l.onVehicleInformationReceived(vehicleInformation);
+            });
         }
     }
 }

@@ -100,7 +100,9 @@ public class TestResultsListener implements ResultsListener {
 
     public String getResults() {
         StringBuilder sb = new StringBuilder();
-        results.forEach(t -> sb.append(t).append(NL));
+        results.forEach(t -> {
+            sb.append(t).append(NL);
+        });
         return sb.toString();
     }
 

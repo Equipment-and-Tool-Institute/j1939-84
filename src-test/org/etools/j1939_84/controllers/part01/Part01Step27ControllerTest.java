@@ -235,8 +235,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
 
-        String urgentMessages = "";
-        urgentMessages += "Ready to transition from Part 1 to Part 2 of the test" + NL;
+        String urgentMessages = "Ready to transition from Part 1 to Part 2 of the test" + NL;
         urgentMessages += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1."
                 + NL;
         urgentMessages += "   Vehicles with the MIL on will fail subsequent tests." + NL + NL;
