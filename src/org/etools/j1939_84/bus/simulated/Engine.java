@@ -45,9 +45,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
-import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Packet;
@@ -143,6 +141,48 @@ public class Engine implements AutoCloseable {
     public Engine(Bus bus) throws BusException {
         sim = new Sim(bus, false);
 
+        // One second timer to create ticks
+        sim.schedule(1, 1, SECONDS, () -> {
+            if (isEngineOn()) {
+                secondsRunning++;
+                secondsSCC++;
+                if (getMilStatus() == ON) {
+                    secondsWithMIL++;
+                }
+
+                if (secondsRunning > 180 && obdConditions == 0) {
+                    obdConditions++;
+                }
+            }
+        });
+
+        // Listeners for key state change
+        sim.response(p -> isRequestFor(0x1FFFF, p), p -> {
+            setKeyState(KEY_ON_ENGINE_RUNNING);
+            return Packet.create(0x1FFFF, ADDR, getKeyStateAsBytes());
+        });
+
+        sim.response(p -> isRequestFor(0x1FFFE, p), () -> {
+            setKeyState(KeyState.KEY_ON_ENGINE_OFF);
+            return Packet.create(0x1FFFE, ADDR, getKeyStateAsBytes());
+        });
+
+        sim.response(p -> isRequestFor(0x1FFFC, p), () -> {
+            setKeyState(KEY_OFF);
+            return Packet.create(0x1FFFC, ADDR, getKeyStateAsBytes());
+        });
+
+        // Listeners to implant faults
+        sim.response(p -> isRequestFor(0x1FFFA, p), () -> {
+            nextFault = DiagnosticTroubleCode.create(0xFA, 0x0A, 0, 1);
+            return Packet.create(0x1FFFA, ADDR, NA8);
+        });
+
+        sim.response(p -> isRequestFor(0x1FFFB, p), () -> {
+            nextFault = DiagnosticTroubleCode.create(0xFB, 0x0B, 0, 1);
+            return Packet.create(0x1FFFB, ADDR, NA8);
+        });
+
         // BCT PGN 61444 from Engine #1 (0) with SPNs 190, 512, 513
         // xmsn rate is actually engine speed dependent
         sim.schedule(50,
@@ -173,45 +213,6 @@ public class Engine implements AutoCloseable {
         sim.schedule(100, 100, MILLISECONDS, () -> Packet.create(65248, ADDR, combine(NA4, DISTANCE)));
 
         sim.response(p -> isRequestFor(65259, p), () -> Packet.create(65259, ADDR, COMPONENT_ID));
-
-        sim.response(p -> isRequestFor(0x1FFFF, p), p -> {
-            setKeyState(KEY_ON_ENGINE_RUNNING);
-            return Packet.create(0x1FFFF, ADDR, getKeyStateAsBytes());
-        });
-
-        sim.response(p -> isRequestFor(0x1FFFE, p), () -> {
-            setKeyState(KeyState.KEY_ON_ENGINE_OFF);
-            return Packet.create(0x1FFFE, ADDR, getKeyStateAsBytes());
-        });
-
-        sim.response(p -> isRequestFor(0x1FFFC, p), () -> {
-            setKeyState(KEY_OFF);
-            return Packet.create(0x1FFFC, ADDR, getKeyStateAsBytes());
-        });
-
-        sim.response(p -> isRequestFor(0x1FFFA, p), () -> {
-            nextFault = DiagnosticTroubleCode.create(0xFA, 0x0A, 0, 1);
-            return Packet.create(0x1FFFA, ADDR, NA8);
-        });
-
-        sim.response(p -> isRequestFor(0x1FFFB, p), () -> {
-            nextFault = DiagnosticTroubleCode.create(0xFB, 0x0B, 0, 1);
-            return Packet.create(0x1FFFB, ADDR, NA8);
-        });
-
-        // 65278, Auxiliary Water Pump Pressure, AWPP, 1 s, 1, 73, Auxiliary Pump Pressure,4 9
-        sim.response(p -> isRequestFor(65278, p), () -> Packet.create(65278, ADDR, NA8));
-
-        sim.schedule(1, 1, SECONDS, () -> {
-            if (isEngineOn()) {
-                secondsRunning++;
-                // System.out.println("Seconds Running " + secondsRunning);
-                secondsSCC++;
-                if (getMilStatus() == ON) {
-                    secondsWithMIL++;
-                }
-            }
-        });
 
         sim.response(p -> isRequestFor(EngineHoursPacket.PGN, p),
                      EngineHoursPacket.create(ADDR, secondsRunning)::getPacket);
@@ -266,32 +267,30 @@ public class Engine implements AutoCloseable {
 
         // DM6
         sim.response(p -> isRequestFor(DM6PendingEmissionDTCPacket.PGN, p),
-                     p -> {
-                         return DM6PendingEmissionDTCPacket.create(ADDR,
-                                                                   getMilStatus(),
-                                                                   OFF,
-                                                                   OFF,
-                                                                   OFF,
-                                                                   pendingDTCs.toArray(new DiagnosticTroubleCode[0]))
-                                                           .getPacket();
-                     });
+                     p -> DM6PendingEmissionDTCPacket.create(ADDR,
+                                                             getMilStatus(),
+                                                             OFF,
+                                                             OFF,
+                                                             OFF,
+                                                             pendingDTCs.toArray(new DiagnosticTroubleCode[0]))
+                                                     .getPacket());
 
-        // DM11
+        // DM11 Global Request
         sim.response(p -> (p.getId(0xFFFF) == 0xEAFF) && p.get24(0) == DM11ClearActiveDTCsPacket.PGN,
                      p -> {
-                         System.err.println("!!!!!CLEARING CODES!!!!!!");
                          activeDTCs.clear(); // DM1 & DM12
                          previousDTCs.clear(); // DM2 & DM23
                          secondsWithMIL = 0;
                          secondsSCC = 0;
                          warmUpsSCC = 0;
-                         // pendingActiveDTCs.clear(); //reset by something else
-                         // permanentActiveDTCs.clear(); // reset by 3 cycle and then by General Denom
-
-                         // Clear DM25
 
                          return Packet.create(0, ADDR, NA8); // Don't return anything
                      });
+
+        // DM11 DS Request
+        sim.response(p -> p.getId(0xFFFF) == (0xEA00 | Engine.ADDR) && p.get24(0) == DM11ClearActiveDTCsPacket.PGN,
+                     p -> AcknowledgmentPacket.create(ADDR, NACK, 0, p.getSource(), DM11ClearActiveDTCsPacket.PGN)
+                                              .getPacket());
 
         // DM12
         sim.response(p -> isRequestFor(DM12MILOnEmissionDTCPacket.PGN, p),
@@ -311,36 +310,49 @@ public class Engine implements AutoCloseable {
 
         // DM 20
         sim.response(p -> isRequestFor(DM20MonitorPerformanceRatioPacket.PGN, p),
-                     p -> {
-                         return DM20MonitorPerformanceRatioPacket.create(ADDR,
-                                                                         p.getSource(),
-                                                                         ignitionCycles,
-                                                                         obdConditions,
-                                                                         new PerformanceRatio(5322,
-                                                                                              0,
-                                                                                              obdConditions,
-                                                                                              0),
-                                                                         new PerformanceRatio(5318, 0, 0, 0),
-                                                                         new PerformanceRatio(3058, 0, 0, 0),
-                                                                         new PerformanceRatio(3064, 0, 0, 0),
-                                                                         new PerformanceRatio(5321, 0, 0, 0),
-                                                                         new PerformanceRatio(3055, 0, 0, 0),
-                                                                         new PerformanceRatio(4792, 0, 0, 0))
-                                                                 .getPacket();
-                     });
+                     p -> DM20MonitorPerformanceRatioPacket.create(ADDR,
+                                                                   p.getSource(),
+                                                                   ignitionCycles,
+                                                                   obdConditions,
+                                                                   new PerformanceRatio(5322,
+                                                                                        0,
+                                                                                        obdConditions,
+                                                                                        0),
+                                                                   new PerformanceRatio(5318,
+                                                                                        0,
+                                                                                        obdConditions,
+                                                                                        0),
+                                                                   new PerformanceRatio(3058,
+                                                                                        0,
+                                                                                        obdConditions,
+                                                                                        0),
+                                                                   new PerformanceRatio(3064,
+                                                                                        0,
+                                                                                        obdConditions,
+                                                                                        0),
+                                                                   new PerformanceRatio(5321,
+                                                                                        0,
+                                                                                        obdConditions,
+                                                                                        0),
+                                                                   new PerformanceRatio(3055,
+                                                                                        0,
+                                                                                        obdConditions,
+                                                                                        0),
+                                                                   new PerformanceRatio(4792,
+                                                                                        0,
+                                                                                        obdConditions,
+                                                                                        0))
+                                                           .getPacket());
 
         // DM21
         sim.response(p -> isRequestFor(DM21DiagnosticReadinessPacket.PGN, p),
-                     p -> {
-                         System.out.println("TimeSCC " + secondsSCC);
-                         return DM21DiagnosticReadinessPacket.create(ADDR,
-                                                                     p.getSource(),
-                                                                     0,
-                                                                     0,
-                                                                     (int) getMinutesWithMil(),
-                                                                     (int) getMinutesSCC())
-                                                             .getPacket();
-                     });
+                     p -> DM21DiagnosticReadinessPacket.create(ADDR,
+                                                               p.getSource(),
+                                                               0,
+                                                               0,
+                                                               (int) getMinutesWithMil(),
+                                                               (int) getMinutesSCC())
+                                                       .getPacket());
 
         // DM22
         sim.response(p -> p.getPgn() == DM22IndividualClearPacket.PGN && p.getDestination() == ADDR,
@@ -372,62 +384,60 @@ public class Engine implements AutoCloseable {
 
         // DM24 supported SPNs
         sim.response(p -> isRequestFor(DM24SPNSupportPacket.PGN, p),
-                     p -> {
-                         return DM24SPNSupportPacket.create(ADDR,
-                                                            SupportedSPN.create(27, false, true, false, 1),
-                                                            SupportedSPN.create(84, false, true, false, 1),
-                                                            SupportedSPN.create(91, false, true, false, 1),
-                                                            SupportedSPN.create(92, false, true, true, 1),
-                                                            SupportedSPN.create(94, false, true, false, 1),
-                                                            SupportedSPN.create(102, true, true, false, 1),
-                                                            SupportedSPN.create(108, false, true, false, 1),
-                                                            SupportedSPN.create(110, false, true, true, 1),
-                                                            SupportedSPN.create(157, true, false, false, 1),
-                                                            SupportedSPN.create(158, false, true, false, 1),
-                                                            SupportedSPN.create(183, false, true, false, 1),
-                                                            SupportedSPN.create(190, false, true, true, 2),
-                                                            SupportedSPN.create(235, false, true, false, 1),
-                                                            SupportedSPN.create(247, false, true, false, 1),
-                                                            SupportedSPN.create(248, false, true, false, 1),
-                                                            SupportedSPN.create(512, false, true, true, 1),
-                                                            SupportedSPN.create(513, false, true, true, 1),
-                                                            SupportedSPN.create(514, false, true, false, 1),
-                                                            SupportedSPN.create(539, false, true, false, 1),
-                                                            SupportedSPN.create(540, false, true, false, 1),
-                                                            SupportedSPN.create(541, false, true, false, 1),
-                                                            SupportedSPN.create(542, false, true, false, 1),
-                                                            SupportedSPN.create(543, false, true, false, 1),
-                                                            SupportedSPN.create(544, false, true, false, 1),
-                                                            SupportedSPN.create(651, true, false, false, 1),
-                                                            SupportedSPN.create(1323, true, false, false, 1),
-                                                            SupportedSPN.create(1324, true, false, false, 1),
-                                                            SupportedSPN.create(1325, true, false, false, 1),
-                                                            SupportedSPN.create(1326, true, false, false, 1),
-                                                            SupportedSPN.create(1413, false, true, false, 1),
-                                                            SupportedSPN.create(2630, true, false, false, 1),
-                                                            SupportedSPN.create(2791, false, true, false, 1),
-                                                            SupportedSPN.create(2978, false, true, false, 1),
-                                                            SupportedSPN.create(3031, false, true, false, 1),
-                                                            SupportedSPN.create(3058, true, false, false, 1),
-                                                            SupportedSPN.create(3226, true, true, false, 1),
-                                                            SupportedSPN.create(3251, true, false, false, 1),
-                                                            SupportedSPN.create(3301, false, false, true, 2),
-                                                            SupportedSPN.create(3361, true, false, false, 1),
-                                                            SupportedSPN.create(3516, false, true, false, 1),
-                                                            SupportedSPN.create(3609, false, true, false, 1),
-                                                            SupportedSPN.create(3700, false, true, false, 1),
-                                                            SupportedSPN.create(3713, true, false, false, 1),
-                                                            SupportedSPN.create(4364, true, false, false, 1),
-                                                            SupportedSPN.create(4752, true, false, false, 1),
-                                                            SupportedSPN.create(5018, true, false, false, 1),
-                                                            SupportedSPN.create(5466, false, true, false, 1),
-                                                            SupportedSPN.create(5827, false, true, false, 1),
-                                                            SupportedSPN.create(5829, false, true, false, 1),
-                                                            SupportedSPN.create(5837, false, true, false, 1),
-                                                            SupportedSPN.create(6895, false, true, false, 1),
-                                                            SupportedSPN.create(7333, false, true, false, 1))
-                                                    .getPacket();
-                     });
+                     p -> DM24SPNSupportPacket.create(ADDR,
+                                                      SupportedSPN.create(27, false, true, false, 1),
+                                                      SupportedSPN.create(84, false, true, false, 1),
+                                                      SupportedSPN.create(91, false, true, false, 1),
+                                                      SupportedSPN.create(92, false, true, true, 1),
+                                                      SupportedSPN.create(94, false, true, false, 1),
+                                                      SupportedSPN.create(102, true, true, false, 1),
+                                                      SupportedSPN.create(108, false, true, false, 1),
+                                                      SupportedSPN.create(110, false, true, true, 1),
+                                                      SupportedSPN.create(157, true, false, false, 1),
+                                                      SupportedSPN.create(158, false, true, false, 1),
+                                                      SupportedSPN.create(183, false, true, false, 1),
+                                                      SupportedSPN.create(190, false, true, true, 2),
+                                                      SupportedSPN.create(235, false, true, false, 1),
+                                                      SupportedSPN.create(247, false, true, false, 1),
+                                                      SupportedSPN.create(248, false, true, false, 1),
+                                                      SupportedSPN.create(512, false, true, true, 1),
+                                                      SupportedSPN.create(513, false, true, true, 1),
+                                                      SupportedSPN.create(514, false, true, false, 1),
+                                                      SupportedSPN.create(539, false, true, false, 1),
+                                                      SupportedSPN.create(540, false, true, false, 1),
+                                                      SupportedSPN.create(541, false, true, false, 1),
+                                                      SupportedSPN.create(542, false, true, false, 1),
+                                                      SupportedSPN.create(543, false, true, false, 1),
+                                                      SupportedSPN.create(544, false, true, false, 1),
+                                                      SupportedSPN.create(651, true, false, false, 1),
+                                                      SupportedSPN.create(1323, true, false, false, 1),
+                                                      SupportedSPN.create(1324, true, false, false, 1),
+                                                      SupportedSPN.create(1325, true, false, false, 1),
+                                                      SupportedSPN.create(1326, true, false, false, 1),
+                                                      SupportedSPN.create(1413, false, true, false, 1),
+                                                      SupportedSPN.create(2630, true, false, false, 1),
+                                                      SupportedSPN.create(2791, false, true, false, 1),
+                                                      SupportedSPN.create(2978, false, true, false, 1),
+                                                      SupportedSPN.create(3031, false, true, false, 1),
+                                                      SupportedSPN.create(3058, true, false, false, 1),
+                                                      SupportedSPN.create(3226, true, true, false, 1),
+                                                      SupportedSPN.create(3251, true, false, false, 1),
+                                                      SupportedSPN.create(3301, false, false, true, 2),
+                                                      SupportedSPN.create(3361, true, false, false, 1),
+                                                      SupportedSPN.create(3516, false, true, false, 1),
+                                                      SupportedSPN.create(3609, false, true, false, 1),
+                                                      SupportedSPN.create(3700, false, true, false, 1),
+                                                      SupportedSPN.create(3713, true, false, false, 1),
+                                                      SupportedSPN.create(4364, true, false, false, 1),
+                                                      SupportedSPN.create(4752, true, false, false, 1),
+                                                      SupportedSPN.create(5018, true, false, false, 1),
+                                                      SupportedSPN.create(5466, false, true, false, 1),
+                                                      SupportedSPN.create(5827, false, true, false, 1),
+                                                      SupportedSPN.create(5829, false, true, false, 1),
+                                                      SupportedSPN.create(5837, false, true, false, 1),
+                                                      SupportedSPN.create(6895, false, true, false, 1),
+                                                      SupportedSPN.create(7333, false, true, false, 1))
+                                              .getPacket());
 
         // DM25
         sim.response(p -> isRequestFor(DM25ExpandedFreezeFrame.PGN, p),
@@ -442,10 +452,6 @@ public class Engine implements AutoCloseable {
                              dtcs.add(activeDTCs.get(0));
                          }
 
-                         // if (!permanentDTCs.isEmpty()) {
-                         // dtcs.add(permanentDTCs.get(0));
-                         // }
-                         //
                          if (!previousDTCs.isEmpty()) {
                              dtcs.add(previousDTCs.get(0));
                          }
@@ -488,7 +494,7 @@ public class Engine implements AutoCloseable {
                                                                 permanentDTCs.toArray(new DiagnosticTroubleCode[0]))
                                                         .getPacket());
 
-        // DM29 response
+        // DM29
         sim.response(p -> isRequestFor(DM29DtcCounts.PGN, p),
                      p -> DM29DtcCounts.create(ADDR,
                                                p.getSource(),
@@ -558,7 +564,7 @@ public class Engine implements AutoCloseable {
                                               .getPacket();
         });
 
-        // DM31 response
+        // DM31
         sim.response(p -> isRequestFor(DM31DtcToLampAssociation.PGN, p),
                      p -> {
                          List<DTCLampStatus> lampStatuses = new ArrayList<>();
@@ -580,8 +586,7 @@ public class Engine implements AutoCloseable {
         // @formatter:off
         // DM33
         sim.response(p -> isRequestFor(DM33EmissionIncreasingAECDActiveTime.PGN, p),
-                     p -> Packet
-                             .create(DM33EmissionIncreasingAECDActiveTime.PGN | p.getSource(),
+                     p -> Packet.create(DM33EmissionIncreasingAECDActiveTime.PGN | p.getSource(),
                                      ADDR,
                                      0x01, //Number
                                      0x00, 0x00, 0x00, 0x00, //Timer1
@@ -735,70 +740,20 @@ public class Engine implements AutoCloseable {
                                          0));
 
         // BCT PGN 65251 from Engine #1 (0) with SPNs 539, 540, 541, 542, 543, 544
+        // @formatter:off
         sim.schedule(5000,
                      5000,
                      MILLISECONDS,
                      () -> Packet.create(65251,
                                          ADDR,
-                                         0,
-                                         0,
-                                         0xA5,
-                                         0,
-                                         0,
-                                         0xA5,
-                                         0,
-                                         0,
-
-                                         0xA5,
-                                         0,
-                                         0,
-                                         0xA5,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-
-                                         0,
-                                         0,
-                                         0,
-                                         0xA5,
-                                         0x01,
-                                         0,
-                                         0,
-                                         0,
-
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0,
-                                         0));
+                                         0, 0, 0xA5, 0, 0, 0xA5, 0, 0,
+                                         0xA5, 0, 0, 0xA5, 0, 0, 0, 0,
+                                         0, 0, 0, 0xA5, 0x01, 0, 0, 0,
+                                         0, 0, 0, 0, 0, 0, 0, 0,
+                                         0, 0, 0, 0, 0, 0, 0, 0,
+                                         0, 0, 0, 0, 0, 0, 0, 0,
+                                         0, 0, 0, 0, 0, 0, 0, 0));
+        // @formatter:on
 
         // BCT PGN 65262 from Engine #1 (0) with SPNs 110
         sim.schedule(1000,
@@ -881,11 +836,8 @@ public class Engine implements AutoCloseable {
     }
 
     private void setKeyState(KeyState keyState) {
-        J1939_84.getLogger().log(Level.INFO, "to " + keyState);
-
         if (this.keyState != KEY_ON_ENGINE_RUNNING && keyState == KEY_ON_ENGINE_RUNNING) {
             ignitionCycles++;
-            System.out.println("Ign Cycles are " + ignitionCycles);
 
             secondsSCC += 60; // Because there are "human delays" in this testing
             if (getMilStatus() == ON) {
@@ -899,7 +851,6 @@ public class Engine implements AutoCloseable {
             }
 
             if (!pendingDTCs.isEmpty() && (ignitionCycles == 4 || ignitionCycles == 10)) {
-                System.out.println("Found Pending DTC & IgnCycles = " + ignitionCycles);
                 DiagnosticTroubleCode dtc = pendingDTCs.get(0);
                 activeDTCs.add(dtc);
                 permanentDTCs.add(dtc);
@@ -907,7 +858,6 @@ public class Engine implements AutoCloseable {
             }
 
             if (nextFault != null) {
-                System.out.println("Setting Pending Fault");
                 pendingDTCs.add(nextFault);
                 nextFault = null;
             }
@@ -925,7 +875,6 @@ public class Engine implements AutoCloseable {
     }
 
     private long getMinutesWithMil() {
-        System.out.println("Seconds With MIL " + secondsWithMIL);
         return TimeUnit.SECONDS.toMinutes(secondsWithMIL);
     }
 
