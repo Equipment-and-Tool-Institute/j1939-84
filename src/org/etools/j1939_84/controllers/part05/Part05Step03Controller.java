@@ -88,8 +88,10 @@ public class Part05Step03Controller extends StepController {
                .filter(p -> p.getMalfunctionIndicatorLampStatus() != Objects.requireNonNull(getDTCPacket(p.getSourceAddress()))
                                                                             .getMalfunctionIndicatorLampStatus())
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.5.3.2.b - " + moduleName
-                       + " DM1 response has a different MIL status than the previous DM12 response"));
+               .forEach(moduleName -> {
+                   addFailure("6.5.3.2.b - " + moduleName
+                           + " DM1 response has a different MIL status than the previous DM12 response");
+               });
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int moduleAddress) {

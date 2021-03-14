@@ -693,7 +693,9 @@ public class J1939 {
                            .filter(Objects::nonNull)
                            .collect(Collectors.toList());
             /* Log late fragments as raw packets. */
-            lateBam.forEach(p -> listener.onResult(LATE_BAM_RESPONSE + " " + p.getFragments().get(0).toTimeString()));
+            lateBam.forEach(p -> {
+                listener.onResult(LATE_BAM_RESPONSE + " " + p.getFragments().get(0).toTimeString());
+            });
 
             if (result.isEmpty()) {
                 listener.onResult(getDateTimeModule().getTime() + " " + TIMEOUT_MESSAGE);
