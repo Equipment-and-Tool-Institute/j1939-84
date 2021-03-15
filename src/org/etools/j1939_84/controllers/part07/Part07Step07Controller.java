@@ -61,6 +61,8 @@ public class Part07Step07Controller extends StepController {
         // 6.7.7.1.a Global DM6 [(send Request (PGN 59904) for PGN 65227 (SPNs 1213-1215, 1706, and 3038)]).
         var globalPackets = getDiagnosticMessageModule().requestDM6(getListener()).getPackets();
 
+        globalPackets.forEach(this::save);
+
         // 6.7.7.2.a Fail if any ECU reports a pending DTC.
         globalPackets.stream()
                      .filter(p -> !p.getDtcs().isEmpty())

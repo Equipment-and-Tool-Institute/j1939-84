@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
-import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -12,7 +11,6 @@ import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -66,9 +64,8 @@ public class Part07Step13Controller extends StepController {
                            .stream()
                            .filter(a -> getIgnCycles(a) != -1)
                            .map(a -> getDiagnosticMessageModule().requestDM20(getListener(), a))
-                           .map(BusResult::requestResult)
-                           .map(RequestResult::getPackets)
-                           .flatMap(Collection::stream)
+                           .flatMap(BusResult::toPacketStream)
+                           .peek(this::save)
                            .filter(p -> p.getIgnitionCycles() != getIgnCycles(p.getSourceAddress()) + 3)
                            .map(ParsedPacket::getModuleName)
                            .forEach(moduleName -> {

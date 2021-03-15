@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Packet;
@@ -135,7 +136,16 @@ public class Engine implements AutoCloseable {
     private int secondsWithMIL = 0;
     private int warmUpsSCC = 132948;
     private int secondsRunning = 0;
+    private int ignitionCycleSecondsRunning = 0;
+    private boolean warmedUp = false;
 
+    private final List<CompositeSystem> completedDM5Systems = new ArrayList<>(List.of(AC_SYSTEM_REFRIGERANT,
+                                                                                      CATALYST,
+                                                                                      COLD_START_AID_SYSTEM,
+                                                                                      COMPREHENSIVE_COMPONENT,
+                                                                                      EVAPORATIVE_SYSTEM,
+                                                                                      HEATED_CATALYST,
+                                                                                      SECONDARY_AIR_SYSTEM));
     private DiagnosticTroubleCode nextFault;
 
     public Engine(Bus bus) throws BusException {
@@ -148,6 +158,12 @@ public class Engine implements AutoCloseable {
                 secondsSCC++;
                 if (getMilStatus() == ON) {
                     secondsWithMIL++;
+                }
+
+                ignitionCycleSecondsRunning++;
+                if (ignitionCycleSecondsRunning > 5 && !warmedUp) {
+                    warmedUp = true;
+                    warmUpsSCC++;
                 }
 
                 if (secondsRunning > 180 && obdConditions == 0) {
@@ -262,7 +278,7 @@ public class Engine implements AutoCloseable {
                                                               previousDTCs.size(),
                                                               0x14,
                                                               getEnabledSystems(),
-                                                              getCompleteDM5Systems())
+                                                              completedDM5Systems)
                                                       .getPacket());
 
         // DM6
@@ -315,31 +331,31 @@ public class Engine implements AutoCloseable {
                                                                    ignitionCycles,
                                                                    obdConditions,
                                                                    new PerformanceRatio(5322,
-                                                                                        0,
+                                                                                        1,
                                                                                         obdConditions,
                                                                                         0),
                                                                    new PerformanceRatio(5318,
-                                                                                        0,
+                                                                                        1,
                                                                                         obdConditions,
                                                                                         0),
                                                                    new PerformanceRatio(3058,
-                                                                                        0,
+                                                                                        1,
                                                                                         obdConditions,
                                                                                         0),
                                                                    new PerformanceRatio(3064,
-                                                                                        0,
+                                                                                        1,
                                                                                         obdConditions,
                                                                                         0),
                                                                    new PerformanceRatio(5321,
-                                                                                        0,
+                                                                                        1,
                                                                                         obdConditions,
                                                                                         0),
                                                                    new PerformanceRatio(3055,
-                                                                                        0,
+                                                                                        1,
                                                                                         obdConditions,
                                                                                         0),
                                                                    new PerformanceRatio(4792,
-                                                                                        0,
+                                                                                        1,
                                                                                         obdConditions,
                                                                                         0))
                                                            .getPacket());
@@ -838,8 +854,13 @@ public class Engine implements AutoCloseable {
     private void setKeyState(KeyState keyState) {
         if (this.keyState != KEY_ON_ENGINE_RUNNING && keyState == KEY_ON_ENGINE_RUNNING) {
             ignitionCycles++;
+            ignitionCycleSecondsRunning = 0;
+            warmedUp = false;
 
-            secondsSCC += 60; // Because there are "human delays" in this testing
+            if (J1939_84.isAutoMode()) {
+                secondsSCC += 60; // Because there are "human delays" in this testing
+            }
+
             if (getMilStatus() == ON) {
                 secondsWithMIL += 60;
             }
@@ -913,13 +934,4 @@ public class Engine implements AutoCloseable {
                        NOX_CATALYST_ABSORBER);
     }
 
-    private List<CompositeSystem> getCompleteDM5Systems() {
-        return List.of(AC_SYSTEM_REFRIGERANT,
-                       CATALYST,
-                       COLD_START_AID_SYSTEM,
-                       COMPREHENSIVE_COMPONENT,
-                       EVAPORATIVE_SYSTEM,
-                       HEATED_CATALYST,
-                       SECONDARY_AIR_SYSTEM);
-    }
 }

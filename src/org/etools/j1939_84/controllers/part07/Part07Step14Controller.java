@@ -62,6 +62,7 @@ public class Part07Step14Controller extends StepController {
                                            .collect(Collectors.toList());
 
         var packets = filterPackets(dsResults);
+        packets.forEach(this::save);
 
         // 6.7.14.2.a. Fail if no ECU reports time with MIL on (SPN 3295) greater than or equal to 1 minute.
         long milOn1MinCount = packets.stream()

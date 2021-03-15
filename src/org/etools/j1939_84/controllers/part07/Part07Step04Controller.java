@@ -64,6 +64,9 @@ public class Part07Step04Controller extends StepController {
                                            .collect(Collectors.toList());
 
         var packets = filterPackets(dsResults);
+
+        packets.forEach(this::save);
+
         // 6.7.4.2.a Fail if any OBD ECU reports an active DTC.
         packets.stream()
                .filter(p -> !p.getDtcs().isEmpty())

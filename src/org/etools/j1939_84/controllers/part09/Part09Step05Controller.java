@@ -63,6 +63,7 @@ public class Part09Step05Controller extends StepController {
                                            .collect(Collectors.toList());
 
         var packets = filterPackets(dsResults);
+        packets.forEach(this::save);
 
         // 6.9.5.2.a. Fail if any ECU reports distance SCC (SPN 3294) > 0.
         packets.stream()

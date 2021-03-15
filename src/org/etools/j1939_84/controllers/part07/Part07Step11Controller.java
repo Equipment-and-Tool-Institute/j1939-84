@@ -67,7 +67,9 @@ public class Part07Step11Controller extends StepController {
                                            .map(a -> getDiagnosticMessageModule().requestDM31(getListener(), a))
                                            .collect(Collectors.toList());
 
-        List<DM31DtcToLampAssociation> packets = filterRequestResultPackets(dsResults);
+        var packets = filterRequestResultPackets(dsResults);
+
+        packets.forEach(this::save);
 
         // 6.7.11.2.a. (if supported) Fail if any ECU response includes the same DTC as it reported by DM23 earlier in
         // this part.

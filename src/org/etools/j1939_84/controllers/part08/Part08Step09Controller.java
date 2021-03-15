@@ -65,6 +65,8 @@ public class Part08Step09Controller extends StepController {
         // 6.8.9.1.a. Global DM31 [(send Request (PGN 59904) for PGN 41728 (SPNs 1214, 1215, 4113, 4117)]).
         var packets = getDiagnosticMessageModule().requestDM31(getListener()).getPackets();
 
+        packets.forEach(this::save);
+
         // 6.8.9.2.a. (if supported) Fail if no ECU reports same DTC as MIL on for as was reported in DM12 earlier
         // in this part.
         boolean noDM12Match = true;

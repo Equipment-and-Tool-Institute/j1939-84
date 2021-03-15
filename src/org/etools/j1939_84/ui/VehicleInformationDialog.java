@@ -146,17 +146,12 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
      *
      * @param  gridy
      *                   the y coordinate in the grid
-     * @param  fill
-     *                   true to completely fill the cel
      * @return       {@link GridBagConstraints}
      */
-    private static GridBagConstraints getValueGbc(int gridy, boolean fill) {
+    private static GridBagConstraints getValueGbc(int gridy) {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
-        if (fill) {
-            gbc.fill = GridBagConstraints.BOTH;
-        }
         gbc.gridx = 1;
         gbc.gridy = gridy;
         return gbc;
@@ -326,41 +321,41 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
             mainPanel.add(getHeaderLabel(), headerLabelGbc);
 
             mainPanel.add(getVinLabel(), getLabelGbc(2));
-            GridBagConstraints vinValueGbc = getValueGbc(2, false);
+            GridBagConstraints vinValueGbc = getValueGbc(2);
             vinValueGbc.gridwidth = 2;
             mainPanel.add(getVinTextField(), vinValueGbc);
             mainPanel.add(getVinValidationLabel(), getValidationGbc(3, 2));
 
             mainPanel.add(getVehicleModelYearLabel(), getLabelGbc(3));
-            mainPanel.add(getVehicleModelYearSpinner(), getValueGbc(3, false));
+            mainPanel.add(getVehicleModelYearSpinner(), getValueGbc(3));
             GridBagConstraints vehicleMyValidationGbc = getValidationGbc(2, 3);
             vehicleMyValidationGbc.gridwidth = 2;
             mainPanel.add(getVehicleModelYearValidationLabel(), vehicleMyValidationGbc);
 
             mainPanel.add(getEngineModelYearLabel(), getLabelGbc(4));
-            mainPanel.add(getEngineModelYearSpinner(), getValueGbc(4, false));
+            mainPanel.add(getEngineModelYearSpinner(), getValueGbc(4));
 
             mainPanel.add(getFuelTypeLabel(), getLabelGbc(5));
-            GridBagConstraints fuelTypeGbc = getValueGbc(5, false);
+            GridBagConstraints fuelTypeGbc = getValueGbc(5);
             fuelTypeGbc.gridwidth = 3;
             mainPanel.add(getFuelTypeComboBox(), fuelTypeGbc);
 
             mainPanel.add(getEmissionUnitsLabel(), getLabelGbc(6));
-            mainPanel.add(getEmissionUnitsJSpinner(), getValueGbc(6, false));
+            mainPanel.add(getEmissionUnitsJSpinner(), getValueGbc(6));
 
             mainPanel.add(new JLabel("Calibration IDs"), getLabelGbc(7));
-            mainPanel.add(getCalIdsJSpinner(), getValueGbc(7, false));
+            mainPanel.add(getCalIdsJSpinner(), getValueGbc(7));
 
             mainPanel.add(getCertificationLabel(), getLabelGbc(8));
-            GridBagConstraints certificationGbc = getValueGbc(8, false);
+            GridBagConstraints certificationGbc = getValueGbc(8);
             certificationGbc.gridwidth = 3;
             mainPanel.add(getCertificationScrollPane(), certificationGbc);
 
             mainPanel.add(new JLabel("Number Of Trips For Fault B Implant"), getLabelGbc(9));
-            mainPanel.add(getNumberOfTripsForFaultBImplantJSpinner(), getValueGbc(9, false));
+            mainPanel.add(getNumberOfTripsForFaultBImplantJSpinner(), getValueGbc(9));
 
             mainPanel.add(getOverrideLabel(), getLabelGbc(10));
-            mainPanel.add(getOverrideControl(), getValueGbc(10, false));
+            mainPanel.add(getOverrideControl(), getValueGbc(10));
 
             GridBagConstraints buttonPanelGbc = new GridBagConstraints();
             buttonPanelGbc.insets = new Insets(0, 0, 0, 5);
@@ -369,6 +364,7 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
             buttonPanelGbc.gridx = 1;
             buttonPanelGbc.gridy = 11;
             mainPanel.add(getButtonPanel(), buttonPanelGbc);
+            getRootPane().setDefaultButton(getOkButton());
         }
         return mainPanel;
     }
@@ -518,6 +514,7 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     @Override
     public void setOkButtonEnabled(boolean isEnabled) {
         getOkButton().setEnabled(isEnabled);
+        getOkButton().requestFocus();
         if (isEnabled && J1939_84.isAutoMode()) {
             presenter.onOkButtonClicked();
         }

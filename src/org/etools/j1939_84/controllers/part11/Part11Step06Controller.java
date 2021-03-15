@@ -59,6 +59,8 @@ public class Part11Step06Controller extends StepController {
         // 6.11.6.1.a. Global DM28 [(send Request (PGN 59904) for PGN 64896 (SPNs 1213-1215, 1706, and 3038)]).
         var packets = getDiagnosticMessageModule().requestDM28(getListener()).getPackets();
 
+        packets.forEach(this::save);
+
         // 6.11.6.2.a. Fail if no ECU reports a permanent DTC.
         boolean noDTCs = packets.stream().noneMatch(DiagnosticTroubleCodePacket::hasDTCs);
         if (noDTCs) {
