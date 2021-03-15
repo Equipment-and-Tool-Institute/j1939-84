@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 
 import java.util.HashSet;
@@ -39,22 +40,17 @@ public class SectionA5Verifier {
     }
 
     public void verifyDataErased(ResultsListener listener, String section) {
-        for (int address : dataRepository.getObdModuleAddresses()) {
-            if (!checkModuleData(listener, section, address, true)) {
-                addFailure(listener, section + " - " + Lookup.getAddressName(address) + " did not erase data");
-            }
-        }
+        listener.onResult(NL + section + " - Checking for erased diagnostic information");
+        dataRepository.getObdModuleAddresses().forEach(a -> checkModuleData(listener, section, a, true));
     }
 
     public void verifyDataNotErased(ResultsListener listener, String section) {
-        for (int address : dataRepository.getObdModuleAddresses()) {
-            if (!checkModuleData(listener, section, address, false)) {
-                addFailure(listener, section + " - " + Lookup.getAddressName(address) + " erased data");
-            }
-        }
+        listener.onResult(NL + section + " - Checking for erased diagnostic information");
+        dataRepository.getObdModuleAddresses().forEach(a -> checkModuleData(listener, section, a, false));
     }
 
     public void verifyDataNotPartialErased(ResultsListener listener, String section1, String section2) {
+        listener.onResult(NL + section1 + " - Checking for erased diagnostic information");
 
         Set<Boolean> results = new HashSet<>();
 
@@ -77,30 +73,28 @@ public class SectionA5Verifier {
         }
     }
 
-    private boolean checkModuleData(ResultsListener listener,
-                                    String section,
-                                    int address,
-                                    boolean asErased) {
+    private void checkModuleData(ResultsListener listener,
+                                 String section,
+                                 int address,
+                                 boolean asErased) {
 
-        boolean result = true;
-        result &= verifier.checkDM6(listener, section, address, asErased, true);
-        result &= verifier.checkDM12(listener, section, address, asErased, true);
-        result &= verifier.checkDM23(listener, section, address, asErased, true);
-        result &= verifier.checkDM29(listener, section, address, asErased, true);
-        result &= verifier.checkDM5(listener, section, address, asErased, true);
-        result &= verifier.checkDM25(listener, section, address, asErased, true);
-        result &= verifier.checkDM31(listener, section, address, asErased, true);
-        result &= verifier.checkDM21(listener, section, address, asErased, true);
-        result &= verifier.checkDM26(listener, section, address, asErased, true);
-        result &= verifier.checkTestResults(listener, section, address, asErased, true);
+        verifier.checkDM6(listener, section, address, asErased, true);
+        verifier.checkDM12(listener, section, address, asErased, true);
+        verifier.checkDM23(listener, section, address, asErased, true);
+        verifier.checkDM29(listener, section, address, asErased, true);
+        verifier.checkDM5(listener, section, address, asErased, true);
+        verifier.checkDM25(listener, section, address, asErased, true);
+        verifier.checkDM31(listener, section, address, asErased, true);
+        verifier.checkDM21(listener, section, address, asErased, true);
+        verifier.checkDM26(listener, section, address, asErased, true);
+        verifier.checkTestResults(listener, section, address, asErased, true);
         if (!asErased) {
-            result &= verifier.checkDM20(listener, section, address, true);
-            result &= verifier.checkDM28(listener, section, address, true);
-            result &= verifier.checkDM33(listener, section, address, true);
-            result &= verifier.checkEngineRunTime(listener, section, address, true);
-            result &= verifier.checkEngineIdleTime(listener, section, address, true);
+            verifier.checkDM20(listener, section, address, true);
+            verifier.checkDM28(listener, section, address, true);
+            verifier.checkDM33(listener, section, address, true);
+            verifier.checkEngineRunTime(listener, section, address, true);
+            verifier.checkEngineIdleTime(listener, section, address, true);
         }
-        return result;
     }
 
     private Result checkModuleDataAsSame(ResultsListener listener, int address) {
