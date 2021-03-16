@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
@@ -134,10 +135,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(verifier).checkDM26(listener, SECTION, 0, true, true);
         verify(verifier).checkTestResults(listener, SECTION, 0, true, true);
 
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.2.3.a - Engine #1 (0) did not erase data");
+        assertEquals(NL + SECTION + " - Checking for erased diagnostic information" + NL, listener.getResults());
     }
 
     @Test
@@ -219,10 +217,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(verifier).checkEngineRunTime(listener, SECTION, 0, true);
         verify(verifier).checkEngineIdleTime(listener, SECTION, 0, true);
 
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.2.3.a - Engine #1 (0) erased data");
+        assertEquals(NL + SECTION + " - Checking for erased diagnostic information" + NL, listener.getResults());
     }
 
     @Test
@@ -297,6 +292,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(verifier).checkEngineIdleTime(listener, null, 1, false);
 
         assertEquals(List.of(), listener.getOutcomes());
+        assertEquals(NL + SECTION + " - Checking for erased diagnostic information" + NL, listener.getResults());
     }
 
     @Test
@@ -371,6 +367,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(verifier).checkEngineIdleTime(listener, null, 1, false);
 
         assertEquals(List.of(), listener.getOutcomes());
+        assertEquals(NL + SECTION + " - Checking for erased diagnostic information" + NL, listener.getResults());
     }
 
     @Test
@@ -411,6 +408,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(verifier).checkEngineRunTime(listener, null, 0, false);
         verify(verifier).checkEngineIdleTime(listener, null, 0, false);
 
+        assertEquals(NL + SECTION + " - Checking for erased diagnostic information" + NL, listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -487,6 +485,8 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(verifier).checkDM33(listener, null, 1, false);
         verify(verifier).checkEngineRunTime(listener, null, 1, false);
         verify(verifier).checkEngineIdleTime(listener, null, 1, false);
+
+        assertEquals(NL + SECTION + " - Checking for erased diagnostic information" + NL, listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
