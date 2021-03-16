@@ -71,7 +71,7 @@ public class ScriptedEngine implements AutoCloseable {
                         return;
                     }
                     ResponseProvider responseProvider = new ResponseProvider(o);
-                    sim.schedule(period,
+                    sim.schedule(
                                  period,
                                  TimeUnit.MILLISECONDS,
                                  () -> sim.sendNow(responseProvider.get()));

@@ -152,7 +152,7 @@ public class Engine implements AutoCloseable {
         sim = new Sim(bus, false);
 
         // One second timer to create ticks
-        sim.schedule(1, 1, SECONDS, () -> {
+        sim.schedule(1, SECONDS, () -> {
             if (isEngineOn()) {
                 secondsRunning++;
                 secondsSCC++;
@@ -202,7 +202,6 @@ public class Engine implements AutoCloseable {
         // BCT PGN 61444 from Engine #1 (0) with SPNs 190, 512, 513
         // xmsn rate is actually engine speed dependent
         sim.schedule(50,
-                     50,
                      MILLISECONDS,
                      () -> {
                          if (!isKeyOn()) {
@@ -226,7 +225,7 @@ public class Engine implements AutoCloseable {
                          }
                      });
 
-        sim.schedule(100, 100, MILLISECONDS, () -> Packet.create(65248, ADDR, combine(NA4, DISTANCE)));
+        sim.schedule(100, MILLISECONDS, () -> Packet.create(65248, ADDR, combine(NA4, DISTANCE)));
 
         sim.response(p -> isRequestFor(65259, p), () -> Packet.create(65259, ADDR, COMPONENT_ID));
 
@@ -242,7 +241,6 @@ public class Engine implements AutoCloseable {
 
         // DM1
         sim.schedule(1,
-                     1,
                      SECONDS,
                      () -> DM1ActiveDTCsPacket.create(ADDR,
                                                       getMilStatus(),
@@ -700,49 +698,41 @@ public class Engine implements AutoCloseable {
 
         // BCT PGN 61443 from Engine #1 (0) with SPNs 91, 92
         sim.schedule(50,
-                     50,
                      MILLISECONDS,
                      () -> Packet.create(61443, ADDR, 0, 0, 0, 0, 0, 0, 0, 0));
 
         // BCT PGN 61455 from Engine #1 (0) with SPNs 3226
         sim.schedule(50,
-                     50,
                      MILLISECONDS,
                      () -> Packet.create(61455, ADDR, 0, 0, 0, 0, 0, 0, 0, 0));
 
         // BCT PGN 64892 from Engine #1 (0) with SPNs 3700
         sim.schedule(1000,
-                     1000,
                      MILLISECONDS,
                      () -> Packet.create(64892, ADDR, 0, 0, 0, 0, 0, 0, 0, 0));
 
         // BCT PGN 64908 from Engine #1 (0) with SPNs 3609
         sim.schedule(500,
-                     500,
                      MILLISECONDS,
                      () -> Packet.create(64908, ADDR, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF));
 
         // BCT PGN 64916 from Engine #1 (0) with SPNs 27
         sim.schedule(100,
-                     100,
                      MILLISECONDS,
                      () -> Packet.create(64916, ADDR, 0, 0, 0, 0, 0, 0, 0, 0));
 
         // BCT PGN 64923 from Engine #1 (0) with SPNs 3516
         sim.schedule(1000,
-                     1000,
                      MILLISECONDS,
                      () -> Packet.create(64923, ADDR, 0xFF, 0, 0xFF, 0, 0, 0, 0xFF, 0xFF));
 
         // BCT PGN 65110 from Engine #1 (0) with SPNs 3031
         sim.schedule(1000,
-                     1000,
                      MILLISECONDS,
                      () -> Packet.create(65110, ADDR, 0, 0x7F, 0, 0, 0, 0, 0, 0));
 
         // BCT PGN 65247 from Engine #1 (0) with SPNs 514, 2978
         sim.schedule(250,
-                     250,
                      MILLISECONDS,
                      () -> Packet.create(65247,
                                          ADDR,
@@ -758,7 +748,6 @@ public class Engine implements AutoCloseable {
         // BCT PGN 65251 from Engine #1 (0) with SPNs 539, 540, 541, 542, 543, 544
         // @formatter:off
         sim.schedule(5000,
-                     5000,
                      MILLISECONDS,
                      () -> Packet.create(65251,
                                          ADDR,
@@ -773,43 +762,36 @@ public class Engine implements AutoCloseable {
 
         // BCT PGN 65262 from Engine #1 (0) with SPNs 110
         sim.schedule(1000,
-                     1000,
                      MILLISECONDS,
                      () -> Packet.create(65262, ADDR, 0x7F, 0, 0xFF, 0xFF, 0, 0, 0, 0));
 
         // BCT PGN 65263 from Engine #1 (0) with SPNs 94
         sim.schedule(500,
-                     500,
                      MILLISECONDS,
                      () -> Packet.create(65263, ADDR, 0, 0, 0, 0, 0, 0, 0, 0));
 
         // BCT PGN 65265 from Engine #1 (0) with SPNs 84
         sim.schedule(100,
-                     100,
                      MILLISECONDS,
                      () -> Packet.create(65265, ADDR, 0, 0, 0, 0, 0, 0, 0, 0));
 
         // BCT PGN 65266 from Engine #1 (0) with SPNs 183
         sim.schedule(100,
-                     100,
                      MILLISECONDS,
                      () -> Packet.create(65266, ADDR, (isEngineOn() ? 40 : 0), 0, 0, 0, 0, 0, 0, 0));
 
         // BCT PGN 65269 from Engine #1 (0) with SPNs 108
         sim.schedule(1000,
-                     1000,
                      MILLISECONDS,
                      () -> Packet.create(65269, ADDR, 0x7F, 0, 0, 0, 0, 0, 0, 0));
 
         // BCT PGN 65270 from Engine #1 (0) with SPNs 102
         sim.schedule(500,
-                     500,
                      MILLISECONDS,
                      () -> Packet.create(65270, ADDR, 0, 0, 0, 0xFF, 0, 0, 0, 0));
 
         // BCT PGN 65271 from Engine #1 (0) with SPNs 158
         sim.schedule(1000,
-                     1000,
                      MILLISECONDS,
                      () -> Packet.create(65271, ADDR, 0, 0, 0, 0, 0xFF, 0xFF, 0, 0x7F));
 

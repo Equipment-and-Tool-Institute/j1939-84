@@ -32,10 +32,12 @@ public class Sim implements AutoCloseable {
      * other responses.
      */
     public final Collection<Function<Packet, Boolean>> responses = new ArrayList<>();
+
     /**
      * The communications bus
      */
     private final Bus bus;
+
     /**
      * The executor
      */
@@ -116,16 +118,14 @@ public class Sim implements AutoCloseable {
      *
      * @param  period
      *                    how often the {@link Runnable} should be run
-     * @param  delay
-     *                    how long to wait until running the first {@link Runnable}
      * @param  unit
      *                    the {@link TimeUnit} for the delay and period
      * @param  run
      *                    the {@link Runnable} to run
      * @return        this
      */
-    public Sim schedule(int period, int delay, TimeUnit unit, Runnable run) {
-        exec.scheduleAtFixedRate(run, delay, period, unit);
+    public Sim schedule(int period, TimeUnit unit, Runnable run) {
+        exec.scheduleWithFixedDelay(run, period, period, unit);
         return this;
     }
 
@@ -134,16 +134,14 @@ public class Sim implements AutoCloseable {
      *
      * @param  period
      *                      how often the {@link Packet} should be sent
-     * @param  delay
-     *                      how long to wait until sending the first {@link Packet}
      * @param  unit
      *                      the {@link TimeUnit} for the delay and period
      * @param  supplier
      *                      the {@link Supplier} of the {@link Packet} to send
      * @return          this
      */
-    public Sim schedule(int period, int delay, TimeUnit unit, Supplier<Packet> supplier) {
-        return schedule(period, delay, unit, () -> send(supplier.get()));
+    public Sim schedule(int period, TimeUnit unit, Supplier<Packet> supplier) {
+        return schedule(period, unit, () -> send(supplier.get()));
     }
 
     /**
