@@ -74,6 +74,8 @@ public class Part12Step03Controller extends StepController {
                                          .flatMap(Collection::stream)
                                          .collect(Collectors.toList());
 
+        packets.forEach(this::save);
+
         // 6.12.3.1.b. Display monitor readiness composite value in log.
         getListener().onResult("");
         getListener().onResult("Vehicle Composite of DM5:");

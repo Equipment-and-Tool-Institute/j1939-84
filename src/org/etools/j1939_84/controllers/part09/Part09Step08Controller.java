@@ -81,7 +81,7 @@ public class Part09Step08Controller extends StepController {
         // 6.9.8.2.a Fail if any ECU partially erases diagnostic information (pass if it erases either all or none).
         // 6.9.8.2.b Fail if one or more than one ECU erases diagnostic information and one or more other ECUs do not
         // erase diagnostic information. See Section A.5.
-        verifier.verifyDataNotPartialErased(getListener(), "6.9.8.2.a", "6.9.8.2.b");
+        verifier.verifyDataNotPartialErased(getListener(), "6.9.8.2.a", "6.9.8.2.b", false);
 
         // 6.9.8.3.a DS DM11 to each OBD ECU with DM12 active MIL on DTC, based on the list created in step 6.9.2.1.
         getDataRepository().getObdModules()
@@ -98,7 +98,7 @@ public class Part09Step08Controller extends StepController {
         // 6.9.8.4.a Fail if any ECU partially erases diagnostic information (pass if it erases either all or none).
         // 6.9.8.4.b For systems with multiple ECU’s, fail if one ECU or more than one ECU erases diagnostic information
         // and one or more other ECUs do not erase diagnostic information.
-        verifier.verifyDataNotPartialErased(getListener(), "6.9.8.4.a", "6.9.8.4.b");
+        verifier.verifyDataNotPartialErased(getListener(), "6.9.8.4.a", "6.9.8.4.b", false);
 
         // 6.9.8.5.a Global DM11 ([send Request (PGN 59904) for PGN 65235]).
         var packets = getDiagnosticMessageModule().requestDM11(getListener());

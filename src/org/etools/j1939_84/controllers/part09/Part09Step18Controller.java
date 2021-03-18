@@ -56,14 +56,14 @@ public class Part09Step18Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.9.18.1.a. DS DM23 [(send Request (PGN 59904) for PGN 64949 (SPNs 1213-1215, 1706, and 3038)]) to each OBD
-        // ECU.
+        // 6.9.18.1.a. DS DM23 [send Request (PGN 59904) for PGN 64949 (SPNs 1213-1215, 1706, and 3038)] to each OBD ECU
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
                                            .map(a -> getDiagnosticMessageModule().requestDM23(getListener(), a))
                                            .collect(Collectors.toList());
 
         var packets = filterPackets(dsResults);
+        packets.forEach(this::save);
 
         // 6.9.18.2.a. Fail if any ECU reports a previously active DTC.
         packets.stream()

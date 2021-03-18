@@ -63,6 +63,7 @@ public class Part12Step04Controller extends StepController {
                                            .collect(Collectors.toList());
 
         var packets = filterPackets(dsResults);
+        packets.forEach(this::save);
 
         // 6.12.4.2.a. Fail if any ECU reports a permanent DTC.
         packets.stream()

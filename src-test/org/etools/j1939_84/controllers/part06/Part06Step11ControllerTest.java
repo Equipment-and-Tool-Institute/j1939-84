@@ -160,7 +160,7 @@ public class Part06Step11ControllerTest extends AbstractControllerTest {
         String expectedTitle1 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING), any());
 
-        String urgentMessages2 = "If required by engine manufacturer, start the engine for start to start operating cycle effects"
+        String urgentMessages2 = "If required by engine manufacturer, start the engine for start-to-start operating cycle effects"
                 + NL;
         urgentMessages2 += "Press OK when ready to continue testing";
         String expectedTitle2 = "Step 6.6.11.d & e";

@@ -68,7 +68,10 @@ public class Part03Step15Controller extends StepController {
                                                                            .getPacket()
                                                                            .ifPresentOrElse(packet -> {
                                                                                if (packet.left.isPresent()) {
+
                                                                                    DM21DiagnosticReadinessPacket dm21 = packet.left.get();
+                                                                                   save(dm21);
+
                                                                                    // 6.3.15.2.a. Fail if any ECU
                                                                                    // reports distance (SPN 3069) or
                                                                                    // time (SPN 3295) with MIL on > 0.

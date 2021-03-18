@@ -211,7 +211,7 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.4.5.2.c - NACK not received from  Engine #2 (1) and did not provide a response to DS DM23 query");
+                                        "6.4.5.2.c - OBD module Engine #2 (1) did not provide a NACK for the DS query");
     }
 
     @Test
@@ -279,7 +279,7 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.4.5.2.c - NACK not received from  Engine #1 (0) and did not provide a response to DS DM23 query");
+                                        "6.4.5.2.c - OBD module Engine #2 (1) did not provide a NACK for the DS query");
     }
 
     @Test
@@ -305,7 +305,7 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.4.5.2.c - NACK not received from  Engine #1 (0) and did not provide a response to DS DM23 query");
+                                        "6.4.5.2.c - OBD module Engine #1 (0) did not provide a NACK for the DS query");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
