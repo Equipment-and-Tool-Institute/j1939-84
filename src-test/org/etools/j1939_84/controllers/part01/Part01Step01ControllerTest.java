@@ -222,7 +222,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         vehicleInfoCaptor.getValue().onResult(vehicleInfo);
 
         String expectedMessages = "Step 6.1.1.1.a - Vehicle Data Collection" + NL;
-        expectedMessages += "Step 6.1.1.1.d - Waiting for Key ON/Engine OFF" + NL;
+        expectedMessages += "Step 6.1.1.1.d - Waiting for key on with engine off" + NL;
         expectedMessages += "Step 6.1.1.1.e - Collecting Vehicle Information";
         assertEquals(expectedMessages, listener.getMessages());
 
@@ -272,7 +272,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         vehicleInfoCaptor.getValue().onResult(vehicleInfo);
 
         String expectedMessages = "Step 6.1.1.1.a - Vehicle Data Collection" + NL;
-        expectedMessages += "Step 6.1.1.1.d - Waiting for Key ON/Engine OFF" + NL;
+        expectedMessages += "Step 6.1.1.1.d - Waiting for key on with engine off" + NL;
         expectedMessages += "Step 6.1.1.1.e - Collecting Vehicle Information" + NL;
         expectedMessages += "User cancelled testing at Part 1 Step 1";
         assertEquals(expectedMessages, listener.getMessages());
@@ -318,12 +318,11 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
                                              any());
 
         String expectedMessages = "Step 6.1.1.1.a - Vehicle Data Collection" + NL;
-        expectedMessages += "Step 6.1.1.1.d - Waiting for Key ON/Engine OFF" + NL;
+        expectedMessages += "Step 6.1.1.1.d - Waiting for key on with engine off" + NL;
         expectedMessages += "Step 6.1.1.1.d - Waiting for Key ON/Engine OFF...";
         assertEquals(expectedMessages, listener.getMessages());
 
-        String expectedResults = "";
-        expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
+        String expectedResults = "Initial Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
