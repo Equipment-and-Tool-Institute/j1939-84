@@ -176,7 +176,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         int minuteCounter = 60;
         for (int i = minuteCounter; i > 0; i--) {
             expectedMessages.append(NL)
-                            .append("Step 1.27.b.iii - Allowing engine to idle for ")
+                            .append("Step 6.1.27.b.iii - Allowing engine to idle for ")
                             .append(i)
                             .append(" seconds");
         }
@@ -255,7 +255,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         int minuteCounter = 60;
         for (int i = minuteCounter; i > 0; i--) {
             expectedMessages.append(NL)
-                            .append("Step 1.27.b.iii - Allowing engine to idle for ")
+                            .append("Step 6.1.27.b.iii - Allowing engine to idle for ")
                             .append(i)
                             .append(" seconds");
         }
@@ -315,7 +315,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         int minuteCounter = 60;
         for (int i = minuteCounter; i > 0; i--) {
             expectedMessages.append(NL)
-                            .append("Step 1.27.b.iii - Allowing engine to idle for ")
+                            .append("Step 6.1.27.b.iii - Allowing engine to idle for ")
                             .append(i)
                             .append(" seconds");
         }
