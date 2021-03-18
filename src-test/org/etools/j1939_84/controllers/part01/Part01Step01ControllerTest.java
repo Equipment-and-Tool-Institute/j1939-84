@@ -208,7 +208,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
 
         verify(engineSpeedModule, times(2)).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
-        verify(mockListener).onUrgentMessage(eq("Please turn Key ON/Engine OFF"),
+        verify(mockListener).onUrgentMessage(eq("Please turn the key on with the engine off"),
                                              eq("Step 6.1.1.1.d"),
                                              eq(WARNING),
                                              questionCaptor.capture());
@@ -222,6 +222,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         vehicleInfoCaptor.getValue().onResult(vehicleInfo);
 
         String expectedMessages = "Step 6.1.1.1.a - Vehicle Data Collection" + NL;
+        expectedMessages += "Step 6.1.1.1.d - Waiting for key on with engine off" + NL;
         expectedMessages += "Step 6.1.1.1.d - Waiting for key on with engine off" + NL;
         expectedMessages += "Step 6.1.1.1.e - Collecting Vehicle Information";
         assertEquals(expectedMessages, listener.getMessages());
@@ -257,7 +258,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
 
         verify(engineSpeedModule, times(2)).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
-        verify(mockListener).onUrgentMessage(eq("Please turn Key ON/Engine OFF"),
+        verify(mockListener).onUrgentMessage(eq("Please turn the key on with the engine off"),
                                              eq("Step 6.1.1.1.d"),
                                              eq(WARNING),
                                              questionCaptor.capture());
@@ -272,6 +273,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         vehicleInfoCaptor.getValue().onResult(vehicleInfo);
 
         String expectedMessages = "Step 6.1.1.1.a - Vehicle Data Collection" + NL;
+        expectedMessages += "Step 6.1.1.1.d - Waiting for key on with engine off" + NL;
         expectedMessages += "Step 6.1.1.1.d - Waiting for key on with engine off" + NL;
         expectedMessages += "Step 6.1.1.1.e - Collecting Vehicle Information" + NL;
         expectedMessages += "User cancelled testing at Part 1 Step 1";
@@ -312,14 +314,15 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
                 + NL + NL;
         urgentMessages += "Please press OK to continue";
         verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Step 6.1.1.1.a, b & c"), eq(WARNING), any());
-        verify(mockListener).onUrgentMessage(eq("Please turn Key ON/Engine OFF"),
+        verify(mockListener).onUrgentMessage(eq("Please turn the key on with the engine off"),
                                              eq("Step 6.1.1.1.d"),
                                              eq(WARNING),
                                              any());
 
         String expectedMessages = "Step 6.1.1.1.a - Vehicle Data Collection" + NL;
         expectedMessages += "Step 6.1.1.1.d - Waiting for key on with engine off" + NL;
-        expectedMessages += "Step 6.1.1.1.d - Waiting for Key ON/Engine OFF...";
+        expectedMessages += "Step 6.1.1.1.d - Waiting for key on with engine off" + NL;
+        expectedMessages += "Step 6.1.1.1.d - Waiting for key on with engine off...";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedResults = "Initial Engine Speed = 0.0 RPMs" + NL;
