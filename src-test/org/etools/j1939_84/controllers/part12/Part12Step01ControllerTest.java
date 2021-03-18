@@ -128,7 +128,7 @@ public class Part12Step01ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testEngineAlreadyOff() {
+    public void testEngineAtKeyState() {
         when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
@@ -146,7 +146,7 @@ public class Part12Step01ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testKeyOnTransitionsToKeyOff() {
+    public void testIntoKeyState() {
         when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_RUNNING,
                                                          KEY_ON_ENGINE_RUNNING,
                                                          KEY_ON_ENGINE_OFF);
