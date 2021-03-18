@@ -62,27 +62,22 @@ public class Part01Step27Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        incrementProgress("Part 1, Step 27 - Part 1 to Part 2 Transition");
         // 6.1.27.1 Actions:
         // a. Testing may be stopped for vehicles with failed tests and for
         // vehicles with the MIL on or a non-emissions related fault displayed
         // in DM1. Vehicles with the MIL on will fail subsequent tests.
-        if (!isDevEnv()) {
-            displayQuestionMessage();
-        }
+        displayQuestionMessage();
 
         // b. The transition from part 1 to part 2 shall be as provided below.
         // i. The engine shall be started without turning the key off.
         // ii. Or, an electric drive or hybrid drive system shall be placed in the operating
         // mode used to provide power to the drive system without moving the vehicle, if not
         // automatically provided during the initial key off to key on operation.
-        incrementProgress("Part 1, Step 27 b.i - Ensuring Key ON/Engine RUNNING");
-        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING);
+        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.1.27.1.b");
 
         // iii. The engine shall be allowed to idle one minute
-        incrementProgress("Part 1, Step 27 b.iii - Allowing engine to idle one minute");
         if (!isDevEnv()) {
-            pause("Step 1.27.b.iii Allowing engine to idle for %1$d seconds", 60L);
+            pause("Step 1.27.b.iii - Allowing engine to idle for %1$d seconds", 60L);
         }
     }
 

@@ -163,22 +163,20 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
 
         questionCaptor.getValue().answered(NO);
 
-        String urgentMessages2 = "Please turn Key ON/Engine RUNNING";
-        String expectedTitle2 = "Adjust Key Switch";
+        String urgentMessages2 = "Please start the engine";
+        String expectedTitle2 = "Step 6.1.27.1.b";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING), any());
 
         String outcomeMessage = "User cancelled testing at Part 1 Step 27";
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, outcomeMessage);
 
-        StringBuilder expectedMessages = new StringBuilder("Part 1, Step 27 - Part 1 to Part 2 Transition" + NL);
-        expectedMessages.append("Part 1, Step 27 b.i - Ensuring Key ON/Engine RUNNING").append(NL);
-        expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
-        expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
-        expectedMessages.append("Part 1, Step 27 b.iii - Allowing engine to idle one minute");
+        StringBuilder expectedMessages = new StringBuilder("Step 6.1.27.1.b - Waiting for engine start" + NL);
+        expectedMessages.append("Step 6.1.27.1.b - Waiting for engine start...").append(NL);
+        expectedMessages.append("Step 6.1.27.1.b - Waiting for engine start...");
         int minuteCounter = 60;
         for (int i = minuteCounter; i > 0; i--) {
             expectedMessages.append(NL)
-                            .append("Step 1.27.b.iii Allowing engine to idle for ")
+                            .append("Step 1.27.b.iii - Allowing engine to idle for ")
                             .append(i)
                             .append(" seconds");
         }
@@ -247,19 +245,17 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages2 = "Please turn Key ON/Engine RUNNING";
-        String expectedTitle2 = "Adjust Key Switch";
+        String urgentMessages2 = "Please start the engine";
+        String expectedTitle2 = "Step 6.1.27.1.b";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING), any());
 
-        StringBuilder expectedMessages = new StringBuilder("Part 1, Step 27 - Part 1 to Part 2 Transition" + NL);
-        expectedMessages.append("Part 1, Step 27 b.i - Ensuring Key ON/Engine RUNNING").append(NL);
-        expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
-        expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
-        expectedMessages.append("Part 1, Step 27 b.iii - Allowing engine to idle one minute");
+        StringBuilder expectedMessages = new StringBuilder("Step 6.1.27.1.b - Waiting for engine start" + NL);
+        expectedMessages.append("Step 6.1.27.1.b - Waiting for engine start...").append(NL);
+        expectedMessages.append("Step 6.1.27.1.b - Waiting for engine start...");
         int minuteCounter = 60;
         for (int i = minuteCounter; i > 0; i--) {
             expectedMessages.append(NL)
-                            .append("Step 1.27.b.iii Allowing engine to idle for ")
+                            .append("Step 1.27.b.iii - Allowing engine to idle for ")
                             .append(i)
                             .append(" seconds");
         }
@@ -309,19 +305,17 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
                                              eq(expectedTitle),
                                              eq(QUESTION),
                                              any());
-        String urgentMessages2 = "Please turn Key ON/Engine RUNNING";
-        String expectedTitle2 = "Adjust Key Switch";
+        String urgentMessages2 = "Please start the engine";
+        String expectedTitle2 = "Step 6.1.27.1.b";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING), any());
 
-        StringBuilder expectedMessages = new StringBuilder("Part 1, Step 27 - Part 1 to Part 2 Transition" + NL);
-        expectedMessages.append("Part 1, Step 27 b.i - Ensuring Key ON/Engine RUNNING").append(NL);
-        expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
-        expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
-        expectedMessages.append("Part 1, Step 27 b.iii - Allowing engine to idle one minute");
+        StringBuilder expectedMessages = new StringBuilder("Step 6.1.27.1.b - Waiting for engine start" + NL);
+        expectedMessages.append("Step 6.1.27.1.b - Waiting for engine start...").append(NL);
+        expectedMessages.append("Step 6.1.27.1.b - Waiting for engine start...");
         int minuteCounter = 60;
         for (int i = minuteCounter; i > 0; i--) {
             expectedMessages.append(NL)
-                            .append("Step 1.27.b.iii Allowing engine to idle for ")
+                            .append("Step 1.27.b.iii - Allowing engine to idle for ")
                             .append(i)
                             .append(" seconds");
         }
