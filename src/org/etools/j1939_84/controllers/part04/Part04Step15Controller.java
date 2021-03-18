@@ -63,7 +63,7 @@ public class Part04Step15Controller extends StepController {
         ensureKeyStateIs(KEY_OFF);
 
         // 6.4.15.1.b Wait engine manufacturer’s recommended interval.
-        waitForManufacturerInterval("Step 6.4.15.1.b", KEY_OFF);
+        waitMfgIntervalWithKeyOff("Step 6.4.15.1.b");
 
         // 6.4.15.1.c With the key in the off position remove the implanted Fault A according to the
         // manufacturer’s instructions for restoring the system to a fault- free operating condition.
@@ -81,7 +81,7 @@ public class Part04Step15Controller extends StepController {
         String message = "Step 6.4.15.1.c - With Key OFF, remove the implanted Fault A according to the"
                 + NL;
         message += "manufacturer’s instructions for restoring the system to a fault- free operating condition" + NL;
-        message += "Press OK to continue testing.";
+        message += "Press OK to continue";
         displayInstructionAndWait(message, "Test 6.4.15", WARNING);
     }
 
@@ -94,7 +94,7 @@ public class Part04Step15Controller extends StepController {
                     + NL;
             message += "Step 6.4.15.1.g - Please wait as indicated by the engine manufacturer’s recommendations for Fault A."
                     + NL;
-            message += "Press OK to continue testing.";
+            message += "Press OK to continue";
             displayInstructionAndWait(message, "Test 6.4.15", WARNING);
         }
     }

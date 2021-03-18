@@ -68,7 +68,7 @@ public class Part03Step16Controller extends StepController {
         confirmFault();
 
         // 6.3.16.1.c. Wait manufacturer’s recommended interval with the key in the off position.
-        waitForManufacturerInterval("Step 6.3.16.1.c", KEY_OFF);
+        waitMfgIntervalWithKeyOff("Step 6.3.16.1.c");
 
         // 6.3.16.1.d. Turn ignition key to the ON position.
         // 6.3.16.1.e. Observe MIL and Wait to Start Lamp in Instrument Cluster
@@ -79,7 +79,7 @@ public class Part03Step16Controller extends StepController {
 
     private void confirmFault() {
         String message = "Confirm Fault A is still implanted according to the manufacturer's instruction." + NL;
-        message += "Press OK to continue testing.";
+        message += "Press OK to continue";
         displayInstructionAndWait(message, "Step 6.3.16.1.b", WARNING);
     }
 
@@ -92,7 +92,7 @@ public class Part03Step16Controller extends StepController {
                     + NL;
             message += "Step 6.3.16.1.g - Wait as indicated by the engine manufacturer’s recommendations for Fault A."
                     + NL;
-            message += "Press OK to continue testing.";
+            message += "Press OK to continue";
             displayInstructionAndWait(message, "Step 6.3.16.1.d - g", WARNING);
         }
     }

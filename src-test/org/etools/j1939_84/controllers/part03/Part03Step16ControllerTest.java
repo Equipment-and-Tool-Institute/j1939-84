@@ -146,7 +146,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
 
         String urgentMessages = "Confirm Fault A is still implanted according to the manufacturer's instruction."
                 + NL;
-        urgentMessages += "Press OK to continue testing.";
+        urgentMessages += "Press OK to continue";
         String expectedTitle = "Step 6.3.16.1.b";
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
@@ -156,9 +156,9 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
 
         questionCaptor.getValue().answered(NO);
 
-        String urgentMessages2 = "Wait for the manufacturer's recommended interval with the Key OFF."
+        String urgentMessages2 = "Wait for the manufacturer's recommended interval with the key off" + NL
                 + NL;
-        urgentMessages2 += "Press OK to continue the testing.";
+        urgentMessages2 += "Press OK to continue";
         String expectedTitle2 = "Step 6.3.16.1.c";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2),
                                              eq(expectedTitle2),
@@ -172,7 +172,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
                 + NL;
         urgentMessages3 += "Step 6.3.16.1.g - Wait as indicated by the engine manufacturer’s recommendations for Fault A."
                 + NL;
-        urgentMessages3 += "Press OK to continue testing.";
+        urgentMessages3 += "Press OK to continue";
         String expectedTitle3 = "Step 6.3.16.1.d - g";
         verify(mockListener).onUrgentMessage(eq(urgentMessages3), eq(expectedTitle3), eq(WARNING), any());
 
@@ -182,7 +182,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         String expectedMessages = "Test 6.3.16 - Turn Engine Off and keep the ignition key in the off position" +
                 NL;
         expectedMessages += "Confirming Fault A is still implanted according to the manufacturer's instruction" + NL;
-        expectedMessages += "Step 6.3.16.1.c - Waiting manufacturer’s recommended interval with the Key OFF" + NL;
+        expectedMessages += "Step 6.3.16.1.c - Waiting manufacturer’s recommended interval with the key off" + NL;
         expectedMessages += "User cancelled testing at Part 3 Step 16";
         assertEquals(expectedMessages, listener.getMessages());
 
@@ -206,7 +206,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
 
         String urgentMessages = "Confirm Fault A is still implanted according to the manufacturer's instruction."
                 + NL;
-        urgentMessages += "Press OK to continue testing.";
+        urgentMessages += "Press OK to continue";
         String expectedTitle = "Step 6.3.16.1.b";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq(expectedTitle),
@@ -214,9 +214,9 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages2 = "Wait for the manufacturer's recommended interval with the Key OFF."
+        String urgentMessages2 = "Wait for the manufacturer's recommended interval with the key off" + NL
                 + NL;
-        urgentMessages2 += "Press OK to continue the testing.";
+        urgentMessages2 += "Press OK to continue";
         String expectedTitle2 = "Step 6.3.16.1.c";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2),
                                              eq(expectedTitle2),
@@ -231,7 +231,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
                 + NL;
         urgentMessages3 += "Step 6.3.16.1.g - Wait as indicated by the engine manufacturer’s recommendations for Fault A."
                 + NL;
-        urgentMessages3 += "Press OK to continue testing.";
+        urgentMessages3 += "Press OK to continue";
         String expectedTitle3 = "Step 6.3.16.1.d - g";
         verify(mockListener).onUrgentMessage(eq(urgentMessages3),
                                              eq(expectedTitle3),
@@ -242,7 +242,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         String expectedMessages = "Test 6.3.16 - Turn Engine Off and keep the ignition key in the off position" +
                 NL;
         expectedMessages += "Confirming Fault A is still implanted according to the manufacturer's instruction" + NL;
-        expectedMessages += "Step 6.3.16.1.c - Waiting manufacturer’s recommended interval with the Key OFF";
+        expectedMessages += "Step 6.3.16.1.c - Waiting manufacturer’s recommended interval with the key off";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
@@ -265,7 +265,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
 
         String urgentMessages = "Confirm Fault A is still implanted according to the manufacturer's instruction."
                 + NL;
-        urgentMessages += "Press OK to continue testing.";
+        urgentMessages += "Press OK to continue";
         String expectedTitle = "Step 6.3.16.1.b";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq(expectedTitle),
@@ -273,9 +273,9 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages2 = "Wait for the manufacturer's recommended interval with the Key OFF."
+        String urgentMessages2 = "Wait for the manufacturer's recommended interval with the key off" + NL
                 + NL;
-        urgentMessages2 += "Press OK to continue the testing.";
+        urgentMessages2 += "Press OK to continue";
         String expectedTitle2 = "Step 6.3.16.1.c";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2),
                                              eq(expectedTitle2),
@@ -290,7 +290,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
                 + NL;
         urgentMessages3 += "Step 6.3.16.1.g - Wait as indicated by the engine manufacturer’s recommendations for Fault A."
                 + NL;
-        urgentMessages3 += "Press OK to continue testing.";
+        urgentMessages3 += "Press OK to continue";
         String expectedTitle3 = "Step 6.3.16.1.d - g";
         verify(mockListener).onUrgentMessage(eq(urgentMessages3), eq(expectedTitle3), eq(WARNING), any());
 
@@ -298,7 +298,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Test 6.3.16 - Turn Engine Off and keep the ignition key in the off position" + NL;
         expectedMessages += "Confirming Fault A is still implanted according to the manufacturer's instruction" + NL;
-        expectedMessages += "Step 6.3.16.1.c - Waiting manufacturer’s recommended interval with the Key OFF" + NL;
+        expectedMessages += "Step 6.3.16.1.c - Waiting manufacturer’s recommended interval with the key off" + NL;
         expectedMessages += "User cancelled testing at Part 3 Step 16";
         assertEquals(expectedMessages, listener.getMessages());
 

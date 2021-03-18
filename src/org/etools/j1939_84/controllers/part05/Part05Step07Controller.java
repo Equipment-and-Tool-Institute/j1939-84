@@ -60,7 +60,7 @@ public class Part05Step07Controller extends StepController {
         ensureKeyStateIs(KEY_OFF);
 
         // 6.5.7.1.b Wait manufacturer’s recommended interval with the key in the off position.
-        waitForManufacturerInterval("Step 6.5.7.1.b", KEY_OFF);
+        waitMfgIntervalWithKeyOff("Step 6.5.7.1.b");
 
         // 6.5.7.1.c Start Engine for second cycle.
         incrementProgress("Step 6.5.7.1.c - Turn Engine on and keep the ignition key in the on position");
@@ -69,14 +69,14 @@ public class Part05Step07Controller extends StepController {
         // 6.5.7.1.d Wait for manufacturer’s recommended time for Fault A to be detected as passed.
         incrementProgress("Step 6.5.7.1.d - Waiting manufacturer’s recommended time for Fault A to be detected as passed");
         String message = "Wait the manufacturer's recommended time for Fault A to be detected as passed" + NL;
-        message += "Press OK to continue the testing.";
+        message += "Press OK to continue";
         displayInstructionAndWait(message, "Step 6.5.7.1.d", WARNING);
 
         // 6.5.7.1.e Turn the engine off to complete the second cycle.
         ensureKeyStateIs(KEY_OFF);
 
         // 6.5.7.1.f Wait manufacturer’s recommended interval with the key in the off position.
-        waitForManufacturerInterval("Step 6.5.7.1.f", KEY_OFF);
+        waitMfgIntervalWithKeyOff("Step 6.5.7.1.f");
 
         // 6.5.7.1.g Start the engine for part 6.
         ensureKeyStateIs(KEY_ON_ENGINE_RUNNING);
@@ -84,7 +84,7 @@ public class Part05Step07Controller extends StepController {
         // 6.5.7.1.h Wait for manufacturer’s recommended time for Fault A to be detected as passed
         incrementProgress("Step 6.5.7.1.h - Waiting manufacturer’s recommended time for Fault A to be detected as passed");
         String message2 = "Wait the manufacturer's recommended time for Fault A to be detected as passed" + NL;
-        message2 += "Press OK to continue the testing.";
+        message2 += "Press OK to continue";
         displayInstructionAndWait(message2, "Step 6.5.7.1.h", WARNING);
     }
 }

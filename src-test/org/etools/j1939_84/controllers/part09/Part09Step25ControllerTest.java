@@ -166,9 +166,9 @@ public class Part09Step25ControllerTest extends AbstractControllerTest {
         questionCaptor.getValue().answered(YES);
 
         // 6.9.25.1.b. Wait manufacturer’s recommended interval.
-        String urgentMessages = "Wait for the manufacturer's recommended interval with the Key OFF."
+        String urgentMessages = "Wait for the manufacturer's recommended interval with the key off" + NL
                 + NL;
-        urgentMessages += "Press OK to continue the testing.";
+        urgentMessages += "Press OK to continue";
         String expectedTitle = "6.9.25.1.b";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq(expectedTitle),
@@ -195,7 +195,7 @@ public class Part09Step25ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Waiting for Key OFF..." + NL
                 + "Waiting for Key OFF..." + NL
-                + "6.9.25.1.b - Waiting manufacturer’s recommended interval with the Key OFF" + NL
+                + "6.9.25.1.b - Waiting manufacturer’s recommended interval with the key off" + NL
                 + "Waiting for Key ON/Engine OFF...";
         assertEquals(expectedMessages, listener.getMessages());
 
@@ -245,9 +245,9 @@ public class Part09Step25ControllerTest extends AbstractControllerTest {
         questionCaptor.getValue().answered(YES);
 
         // 6.9.25.1.b. Wait manufacturer’s recommended interval
-        String urgentMessages = "Wait for the manufacturer's recommended interval with the Key OFF."
+        String urgentMessages = "Wait for the manufacturer's recommended interval with the key off" + NL
                 + NL;
-        urgentMessages += "Press OK to continue the testing.";
+        urgentMessages += "Press OK to continue";
         String expectedTitle = "6.9.25.1.b";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq(expectedTitle),
@@ -274,7 +274,7 @@ public class Part09Step25ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Waiting for Key OFF..." + NL
                 + "Waiting for Key OFF..." + NL
-                + "6.9.25.1.b - Waiting manufacturer’s recommended interval with the Key OFF" + NL
+                + "6.9.25.1.b - Waiting manufacturer’s recommended interval with the key off" + NL
                 + "Waiting for Key ON/Engine OFF..." + NL
                 + "User cancelled testing at Part 9 Step 25";
         assertEquals(expectedMessages, listener.getMessages());

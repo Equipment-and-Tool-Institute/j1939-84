@@ -145,8 +145,8 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
 
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
 
-        String urgentMessages = "Wait for the manufacturer's recommended interval with the Key OFF." + NL;
-        urgentMessages += "Press OK to continue the testing.";
+        String urgentMessages = "Wait for the manufacturer's recommended interval with the key off" + NL + NL;
+        urgentMessages += "Press OK to continue";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq("Step 6.5.7.1.b"),
                                              eq(WARNING),
@@ -155,15 +155,15 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
 
         String urgentMessages2 = "Wait the manufacturer's recommended time for Fault A to be detected as passed"
                 + NL;
-        urgentMessages2 += "Press OK to continue the testing.";
+        urgentMessages2 += "Press OK to continue";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2),
                                              eq("Step 6.5.7.1.d"),
                                              eq(WARNING),
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages3 = "Wait for the manufacturer's recommended interval with the Key OFF." + NL;
-        urgentMessages3 += "Press OK to continue the testing.";
+        String urgentMessages3 = "Wait for the manufacturer's recommended interval with the key off" + NL + NL;
+        urgentMessages3 += "Press OK to continue";
         verify(mockListener).onUrgentMessage(eq(urgentMessages3),
                                              eq("Step 6.5.7.1.f"),
                                              eq(WARNING),
@@ -172,7 +172,7 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
 
         String urgentMessages4 = "Wait the manufacturer's recommended time for Fault A to be detected as passed"
                 + NL;
-        urgentMessages4 += "Press OK to continue the testing.";
+        urgentMessages4 += "Press OK to continue";
         verify(mockListener).onUrgentMessage(eq(urgentMessages4),
                                              eq("Step 6.5.7.1.h"),
                                              eq(WARNING),
@@ -181,11 +181,11 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "";
         expectedMessages += "Step 6.5.7.1.a - Turn Engine Off and keep the ignition key in the off position" + NL;
-        expectedMessages += "Step 6.5.7.1.b - Waiting manufacturer’s recommended interval with the Key OFF" + NL;
+        expectedMessages += "Step 6.5.7.1.b - Waiting manufacturer’s recommended interval with the key off" + NL;
         expectedMessages += "Step 6.5.7.1.c - Turn Engine on and keep the ignition key in the on position" + NL;
         expectedMessages += "Step 6.5.7.1.d - Waiting manufacturer’s recommended time for Fault A to be detected as passed"
                 + NL;
-        expectedMessages += "Step 6.5.7.1.f - Waiting manufacturer’s recommended interval with the Key OFF" + NL;
+        expectedMessages += "Step 6.5.7.1.f - Waiting manufacturer’s recommended interval with the key off" + NL;
         expectedMessages += "Step 6.5.7.1.h - Waiting manufacturer’s recommended time for Fault A to be detected as passed";
         assertEquals(expectedMessages, listener.getMessages());
 
