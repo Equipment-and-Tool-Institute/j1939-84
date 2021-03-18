@@ -164,7 +164,7 @@ public abstract class StepController extends Controller {
                                               getQuestionListener());
             }
             while (getCurrentKeyState() != requestedKeyState) {
-                updateProgress("Waiting for " + requestedKeyState + "...");
+                updateProgress("Step " + section + " - Waiting for " + requestedKeyState + "...");
                 getDateTimeModule().pauseFor(500);
                 if (isTesting()) {
                     getVehicleInformationModule().changeKeyState(getListener(), requestedKeyState);
