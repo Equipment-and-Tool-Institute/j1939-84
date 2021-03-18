@@ -58,6 +58,8 @@ public class Part12Step07Controller extends StepController {
         // 6.12.7.1.a. Global DM21 (send Request (PGN 59904) for PGN 49408 (SPNs 3294, 3296)].
         var dm21s = getDiagnosticMessageModule().requestDM21(getListener()).getPackets();
 
+        dm21s.forEach(this::save);
+
         // 6.12.7.2.a. Fail if any ECU reports distance SCC (SPN 3294) > 0.
         dm21s.stream()
              .filter(p -> p.getKmSinceDTCsCleared() > 0)

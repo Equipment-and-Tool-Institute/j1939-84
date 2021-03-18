@@ -65,6 +65,8 @@ public class Part03Step04Controller extends StepController {
         // 6.3.4.1.a Global DM29 (send Request (PGN 59904) for PGN 40448 (SPNs 4104-4108)).
         var packets = getDiagnosticMessageModule().requestDM29(getListener()).getPackets();
 
+        packets.forEach(this::save);
+
         // 6.3.4.2.a Fail if any ECU reports > 0 for MIL on, previous MIL on, or permanent fault counts.
         packets.stream()
                .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 0)

@@ -102,7 +102,7 @@ public class Part06Step11Controller extends StepController {
         // 6.6.11.1.e Otherwise, Proceed with part 7.
         // a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on
         // or a non-emissions related fault displayed in DM1. Vehicles with the MIL on will fail subsequent tests.
-        String message = "If required by engine manufacturer, start the engine for start to start operating cycle effects"
+        String message = "If required by engine manufacturer, start the engine for start-to-start operating cycle effects"
                 + NL;
         message += "Press OK when ready to continue testing";
         displayInstructionAndWait(message, "Step 6.6.11.d & e", WARNING);

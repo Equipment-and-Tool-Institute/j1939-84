@@ -11,7 +11,6 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -68,7 +67,8 @@ public class Part07Step02Controller extends StepController {
                                            .map(a -> getDiagnosticMessageModule().requestDM23(getListener(), a))
                                            .collect(Collectors.toList());
 
-        List<DM23PreviouslyMILOnEmissionDTCPacket> packets = filterPackets(dsResults);
+        var packets = filterPackets(dsResults);
+        packets.forEach(this::save);
 
         // 6.7.2.2.b Fail if no OBD ECU reports previously active DTC.
         boolean noObdDtc = packets.stream()
@@ -77,8 +77,6 @@ public class Part07Step02Controller extends StepController {
         if (noObdDtc) {
             addFailure("6.7.2.2.b - No OBD ECU reported a previously active DTC");
         }
-
-        packets.forEach(this::save);
 
         // 6.7.2.2.b Fail if reported previously active DTC does not match DM12 active DTC from part 6.
         packets.forEach(p -> {

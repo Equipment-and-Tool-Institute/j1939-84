@@ -74,7 +74,11 @@ public class Part04Step07Controller extends StepController {
             }
 
             var response = getDiagnosticMessageModule().requestDM31(getListener(), moduleAddress);
-            if (response.getPackets().isEmpty()) {
+
+            var packets = response.getPackets();
+            packets.forEach(this::save);
+
+            if (packets.isEmpty()) {
                 boolean isNacked = response.getAcks()
                                            .stream()
                                            .map(AcknowledgmentPacket::getResponse)
@@ -87,7 +91,7 @@ public class Part04Step07Controller extends StepController {
                 // 6.4.7.2.a Fail if an OBD ECU does not include the same SPN and FMI from its DM12 response earlier in
                 // this part
                 // and report MIL on Status for that SPN and FMI in its DM31 response (if DM31 is supported).
-                response.getPackets().forEach(dm31 -> {
+                packets.forEach(dm31 -> {
                     for (DiagnosticTroubleCode dtc : getDTCs(moduleAddress)) {
                         var lampStatus = dm31.findLampStatusForDTC(dtc);
                         if (lampStatus == null) {

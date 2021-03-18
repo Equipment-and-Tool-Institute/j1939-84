@@ -62,6 +62,7 @@ public class Part09Step17Controller extends StepController {
                                            .map(a -> getDiagnosticMessageModule().requestDM25(getListener(), a))
                                            .collect(Collectors.toList());
         var packets = filterPackets(dsResults);
+        packets.forEach(this::save);
 
         // 6.9.17.2.a. Fail if any OBD ECU reports other than no Freeze Frame data stored (bytes 1-5 = 0x00, 6-8= 0xFF).
         packets.stream()

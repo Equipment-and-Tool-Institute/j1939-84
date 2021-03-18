@@ -66,6 +66,7 @@ public class Part09Step19Controller extends StepController {
                                            .collect(Collectors.toList());
 
         var packets = filterPackets(dsResults);
+        packets.forEach(this::save);
 
         // 6.9.19.2.a. Fail if any ECU reports an active MIL DTC.
         packets.stream()

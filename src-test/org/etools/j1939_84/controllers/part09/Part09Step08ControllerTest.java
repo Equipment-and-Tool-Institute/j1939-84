@@ -163,8 +163,8 @@ public class Part09Step08ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM11(any(), eq(1));
         verify(diagnosticMessageModule).requestDM11(any());
 
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.2.a"), eq("6.9.8.2.b"));
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.4.a"), eq("6.9.8.4.b"));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.2.a"), eq("6.9.8.2.b"), eq(false));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.4.a"), eq("6.9.8.4.b"), eq(false));
         verify(verifier).verifyDataErased(any(), eq("6.9.8.6.c"));
 
         String expected = getExpectedMessages();
@@ -193,8 +193,8 @@ public class Part09Step08ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM11(any(), eq(0));
         verify(diagnosticMessageModule).requestDM11(any());
 
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.2.a"), eq("6.9.8.2.b"));
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.4.a"), eq("6.9.8.4.b"));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.2.a"), eq("6.9.8.2.b"), eq(false));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.4.a"), eq("6.9.8.4.b"), eq(false));
         verify(verifier).verifyDataErased(any(), eq("6.9.8.6.c"));
 
         assertEquals(getExpectedMessages(), listener.getMessages());
@@ -225,8 +225,8 @@ public class Part09Step08ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM11(any(), eq(0));
         verify(diagnosticMessageModule).requestDM11(any());
 
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.2.a"), eq("6.9.8.2.b"));
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.4.a"), eq("6.9.8.4.b"));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.2.a"), eq("6.9.8.2.b"), eq(false));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.4.a"), eq("6.9.8.4.b"), eq(false));
         verify(verifier).verifyDataErased(any(), eq("6.9.8.6.c"));
 
         assertEquals(getExpectedMessages(), listener.getMessages());

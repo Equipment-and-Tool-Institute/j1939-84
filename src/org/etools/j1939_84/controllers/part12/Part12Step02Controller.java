@@ -66,6 +66,7 @@ public class Part12Step02Controller extends StepController {
                                            .collect(Collectors.toList());
 
         var packets = filterRequestResultPackets(dsResults);
+        packets.forEach(this::save);
 
         // 6.12.2.2.a. Fail if any supported monitor (except CCM) that was “0 = complete this cycle” in part 11 is not
         // reporting “1 = not complete this cycle.”.
@@ -73,9 +74,6 @@ public class Part12Step02Controller extends StepController {
 
         // 6.12.2.2.b. Fail if NACK not received from OBD ECUs that did not provide a DM26 message
         checkForNACKsDS(packets, filterRequestResultAcks(dsResults), "6.12.2.2.b");
-
-        // Save packets for next step
-        packets.forEach(this::save);
     }
 
     private void reportNotCompleteSystems(DM26TripDiagnosticReadinessPacket currentDM26) {

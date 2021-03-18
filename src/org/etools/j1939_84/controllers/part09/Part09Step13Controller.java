@@ -72,6 +72,7 @@ public class Part09Step13Controller extends StepController {
                                .collect(Collectors.toList());
 
         var packets = filterRequestResultPackets(results);
+        packets.forEach(this::save);
 
         // 6.9.13.2.a. (if supported) Fail if MIL is not reported off for all reported DTCs.
         for (int address : addresses) {
