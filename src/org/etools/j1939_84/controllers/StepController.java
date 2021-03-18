@@ -157,7 +157,7 @@ public abstract class StepController extends Controller {
     protected void ensureKeyStateIs(KeyState requestedKeyState, String section) throws InterruptedException {
         getListener().onResult("Initial Engine Speed = " + getEngineSpeedAsString());
 
-        incrementProgress("Step " + section + " - " + getWaitingKeyStateAsString(requestedKeyState));
+        updateProgress("Step " + section + " - " + getWaitingKeyStateAsString(requestedKeyState));
 
         if (getCurrentKeyState() != requestedKeyState) {
             if (!isDevEnv()) {
@@ -167,7 +167,7 @@ public abstract class StepController extends Controller {
                                               getQuestionListener());
             }
             while (getCurrentKeyState() != requestedKeyState) {
-                incrementProgress("Step " + section + " - " + getWaitingKeyStateAsString(requestedKeyState) + "...");
+                updateProgress("Step " + section + " - " + getWaitingKeyStateAsString(requestedKeyState) + "...");
                 getDateTimeModule().pauseFor(500);
                 if (isTesting()) {
                     getVehicleInformationModule().changeKeyState(getListener(), requestedKeyState);
