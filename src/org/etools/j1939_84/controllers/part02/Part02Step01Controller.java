@@ -57,7 +57,7 @@ public class Part02Step01Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.2.1.1.a. Gather broadcast data for engine speed (e.g., SPN 190).
-        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING);
+        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.2.1.1.a");
     }
 
 }
