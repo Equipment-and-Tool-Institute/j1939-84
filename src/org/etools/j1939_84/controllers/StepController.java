@@ -133,6 +133,7 @@ public abstract class StepController extends Controller {
         return obdModuleInformation == null ? null : obdModuleInformation.get(packetClass, partNumber);
     }
 
+    @Deprecated
     protected void ensureKeyStateIs(KeyState requestedKeyState) throws InterruptedException {
         getListener().onResult("Initial Engine Speed = " + getEngineSpeedAsString());
         if (getCurrentKeyState() != requestedKeyState) {
@@ -144,6 +145,26 @@ public abstract class StepController extends Controller {
             }
             while (getCurrentKeyState() != requestedKeyState) {
                 updateProgress("Waiting for " + requestedKeyState + "...");
+                getDateTimeModule().pauseFor(500);
+                if (isTesting()) {
+                    getVehicleInformationModule().changeKeyState(getListener(), requestedKeyState);
+                }
+            }
+        }
+        getListener().onResult("Final Engine Speed = " + getEngineSpeedAsString());
+    }
+
+    protected void ensureKeyStateIs(KeyState requestedKeyState, String section) throws InterruptedException {
+        getListener().onResult("Initial Engine Speed = " + getEngineSpeedAsString());
+        if (getCurrentKeyState() != requestedKeyState) {
+            if (!isDevEnv()) {
+                getListener().onUrgentMessage("Please turn " + requestedKeyState,
+                                              "Step " + section,
+                                              WARNING,
+                                              getQuestionListener());
+            }
+            while (getCurrentKeyState() != requestedKeyState) {
+                updateProgress("Step " + section + " - Waiting for " + requestedKeyState + "...");
                 getDateTimeModule().pauseFor(500);
                 if (isTesting()) {
                     getVehicleInformationModule().changeKeyState(getListener(), requestedKeyState);
