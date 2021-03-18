@@ -156,15 +156,18 @@ public abstract class StepController extends Controller {
 
     protected void ensureKeyStateIs(KeyState requestedKeyState, String section) throws InterruptedException {
         getListener().onResult("Initial Engine Speed = " + getEngineSpeedAsString());
+
+        updateProgress("Step " + section + " - " + getWaitingKeyStateAsString(requestedKeyState));
+
         if (getCurrentKeyState() != requestedKeyState) {
             if (!isDevEnv()) {
-                getListener().onUrgentMessage("Please turn " + requestedKeyState,
+                getListener().onUrgentMessage(getCurrentKeyStateAsString(requestedKeyState),
                                               "Step " + section,
                                               WARNING,
                                               getQuestionListener());
             }
             while (getCurrentKeyState() != requestedKeyState) {
-                updateProgress("Step " + section + " - Waiting for " + requestedKeyState + "...");
+                updateProgress("Step " + section + " - " + getWaitingKeyStateAsString(requestedKeyState) + "...");
                 getDateTimeModule().pauseFor(500);
                 if (isTesting()) {
                     getVehicleInformationModule().changeKeyState(getListener(), requestedKeyState);
@@ -172,6 +175,38 @@ public abstract class StepController extends Controller {
             }
         }
         getListener().onResult("Final Engine Speed = " + getEngineSpeedAsString());
+    }
+
+    private String getWaitingKeyStateAsString(KeyState keyState) {
+        String keyStateString = "Waiting for ";
+        switch (keyState) {
+            case KEY_ON_ENGINE_RUNNING:
+                keyStateString += "engine start";
+                break;
+            case KEY_ON_ENGINE_OFF:
+                keyStateString += "key on with engine off";
+                break;
+            case KEY_OFF:
+                keyStateString += "key off";
+                break;
+        }
+        return keyStateString;
+    }
+
+    private String getCurrentKeyStateAsString(KeyState keyState) {
+        String keyStateString = "Please ";
+        switch (keyState) {
+            case KEY_ON_ENGINE_RUNNING:
+                keyStateString += "start the engine";
+                break;
+            case KEY_ON_ENGINE_OFF:
+                keyStateString += "turn the key on with the engine off";
+                break;
+            case KEY_OFF:
+                keyStateString += "turn key off";
+                break;
+        }
+        return keyStateString;
     }
 
     private String getEngineSpeedAsString() {

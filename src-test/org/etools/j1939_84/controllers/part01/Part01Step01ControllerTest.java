@@ -4,9 +4,12 @@
 package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
+import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.YES;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
+import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -24,6 +27,7 @@ import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.controllers.DataRepository;
+import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -182,7 +186,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testRun() {
 
-        String expectedTitle = "Start Part 1";
+        String expectedTitle = "Step 6.1.1.1.a, b & c";
         VehicleInformation vehicleInfo = new VehicleInformation();
         vehicleInfo.setFuelType(FuelType.DSL);
         AddressClaimPacket addressClaimPacket = mock(AddressClaimPacket.class);
@@ -193,20 +197,23 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF, KEY_ON_ENGINE_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
+        ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
         runTest();
 
-        String urgentMessages = "Ready to begin Part 1" + NL;
-        urgentMessages += "a. Confirm the vehicle is in a safe location and condition for the test" + NL;
-        urgentMessages += "b. Confirm that the vehicle battery is well charged. (Battery voltage >> 12 volts)" + NL;
+        String urgentMessages = "a. Confirm the vehicle is in a safe location and condition for the test" + NL;
+        urgentMessages += "b. Confirm the vehicle battery is well charged. (Battery voltage >> 12 volts)" + NL;
         urgentMessages += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions"
-                + NL;
+                + NL + NL;
+        urgentMessages += "Please press OK to continue";
 
         verify(engineSpeedModule, times(2)).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
-        verify(mockListener).onUrgentMessage(eq("Please turn Key ON/Engine OFF"),
-                                             eq("Adjust Key Switch"),
+        verify(mockListener).onUrgentMessage(eq("Please turn the key on with the engine off"),
+                                             eq("Step 6.1.1.1.d"),
                                              eq(WARNING),
-                                             any());
+                                             questionCaptor.capture());
+        questionCaptor.getValue().answered(YES);
+
         verify(mockListener).onUrgentMessage(eq(urgentMessages), eq(expectedTitle), eq(WARNING), any());
         verify(mockListener).onVehicleInformationReceived(vehicleInfo);
 
@@ -214,9 +221,10 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         verify(mockListener).onVehicleInformationNeeded(vehicleInfoCaptor.capture());
         vehicleInfoCaptor.getValue().onResult(vehicleInfo);
 
-        String expectedMessages = "Step 1.1.a - c Displaying Warning Message" + NL;
-        expectedMessages += "Step 1.1.d Ensuring Key ON/Engine OFF" + NL;
-        expectedMessages += "Step 1.1.e Collecting Vehicle Information";
+        String expectedMessages = "Step 6.1.1.1.a - Vehicle Data Collection" + NL;
+        expectedMessages += "Step 6.1.1.1.d - Waiting for key on with engine off" + NL;
+        expectedMessages += "Step 6.1.1.1.d - Waiting for key on with engine off" + NL;
+        expectedMessages += "Step 6.1.1.1.e - Collecting Vehicle Information";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedResults = "Initial Engine Speed = 0.0 RPMs" + NL;
@@ -225,63 +233,56 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         assertEquals(expectedResults, listener.getResults());
     }
 
-    /**
-     * Test method for {@link Part01Step01Controller#run()}.
-     */
     @Test
-    @TestDoc(value = {
-            @TestItem(verifies = "6.1.1.1.a,b,c", dependsOn = "UserInterfacePresenterTest"),
-            @TestItem(verifies = "6.1.1.1.d", dependsOn = "EngineSpeedModuleTest"),
-            @TestItem(verifies = "6.1.1.1.e", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
-    }, description = "Verify vehicle data collection is empty when the engine is not running and no data is collected.")
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
-    public void testRunVehicleInfoNull() {
-        when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_OFF);
+    public void testCancelButton() {
+
+        String expectedTitle = "Step 6.1.1.1.a, b & c";
+        VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setFuelType(FuelType.DSL);
+        AddressClaimPacket addressClaimPacket = mock(AddressClaimPacket.class);
+        RequestResult<AddressClaimPacket> requestResult = new RequestResult<>(false, addressClaimPacket);
+        vehicleInfo.setAddressClaim(requestResult);
+
+        DataRepository.getInstance().setVehicleInformation(vehicleInfo);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF, KEY_ON_ENGINE_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
-        var vehicleInfoCaptor = ArgumentCaptor.forClass(VehicleInformationListener.class);
 
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    verify(mockListener).onVehicleInformationNeeded(vehicleInfoCaptor.capture());
-                    vehicleInfoCaptor.getValue().onResult(null);
-                    timer.cancel();
-                } catch (Throwable t) {
-                    // Expected
-                }
-            }
-        }, 10, 10);
-
+        ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
         runTest();
 
-        String urgentMessages = "Ready to begin Part 1" + NL;
-        urgentMessages += "a. Confirm the vehicle is in a safe location and condition for the test" + NL;
-        urgentMessages += "b. Confirm that the vehicle battery is well charged. (Battery voltage >> 12 volts)" + NL;
+        String urgentMessages = "a. Confirm the vehicle is in a safe location and condition for the test" + NL;
+        urgentMessages += "b. Confirm the vehicle battery is well charged. (Battery voltage >> 12 volts)" + NL;
         urgentMessages += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions"
-                + NL;
+                + NL + NL;
+        urgentMessages += "Please press OK to continue";
 
-        verify(engineSpeedModule).getKeyState();
+        verify(engineSpeedModule, times(2)).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
+        verify(mockListener).onUrgentMessage(eq("Please turn the key on with the engine off"),
+                                             eq("Step 6.1.1.1.d"),
+                                             eq(WARNING),
+                                             questionCaptor.capture());
+        questionCaptor.getValue().answered(NO);
 
-        verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Start Part 1"), eq(WARNING), any());
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 1 Step 1");
+        verify(mockListener).onUrgentMessage(eq(urgentMessages), eq(expectedTitle), eq(WARNING), any());
+        verify(mockListener).onVehicleInformationReceived(vehicleInfo);
 
-        String expectedMessages = "Step 1.1.a - c Displaying Warning Message" + NL;
-        expectedMessages += "Step 1.1.d Ensuring Key ON/Engine OFF" + NL;
-        expectedMessages += "Step 1.1.e Collecting Vehicle Information";
+        var vehicleInfoCaptor = ArgumentCaptor.forClass(VehicleInformationListener.class);
+        verify(mockListener).onVehicleInformationNeeded(vehicleInfoCaptor.capture());
+        vehicleInfoCaptor.getValue().onResult(vehicleInfo);
+
+        String expectedMessages = "Step 6.1.1.1.a - Vehicle Data Collection" + NL;
+        expectedMessages += "Step 6.1.1.1.d - Waiting for key on with engine off" + NL;
+        expectedMessages += "Step 6.1.1.1.d - Waiting for key on with engine off" + NL;
+        expectedMessages += "Step 6.1.1.1.e - Collecting Vehicle Information" + NL;
+        expectedMessages += "User cancelled testing at Part 1 Step 1";
         assertEquals(expectedMessages, listener.getMessages());
 
-        String expectedResults = "";
-        expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
+        String expectedResults = "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
-        expectedResults += "User cancelled testing at Part 1 Test 1" + NL;
+        expectedResults += vehicleInfo + NL;
         assertEquals(expectedResults, listener.getResults());
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        Outcome.ABORT,
-                                        "User cancelled testing at Part 1 Step 1");
     }
 
     @Test
@@ -307,24 +308,24 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Ready to begin Part 1" + NL;
-        urgentMessages += "a. Confirm the vehicle is in a safe location and condition for the test" + NL;
-        urgentMessages += "b. Confirm that the vehicle battery is well charged. (Battery voltage >> 12 volts)" + NL;
+        String urgentMessages = "a. Confirm the vehicle is in a safe location and condition for the test" + NL;
+        urgentMessages += "b. Confirm the vehicle battery is well charged. (Battery voltage >> 12 volts)" + NL;
         urgentMessages += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions"
-                + NL;
-        verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Start Part 1"), eq(WARNING), any());
-        verify(mockListener).onUrgentMessage(eq("Please turn Key ON/Engine OFF"),
-                                             eq("Adjust Key Switch"),
+                + NL + NL;
+        urgentMessages += "Please press OK to continue";
+        verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Step 6.1.1.1.a, b & c"), eq(WARNING), any());
+        verify(mockListener).onUrgentMessage(eq("Please turn the key on with the engine off"),
+                                             eq("Step 6.1.1.1.d"),
                                              eq(WARNING),
                                              any());
 
-        String expectedMessages = "Step 1.1.a - c Displaying Warning Message" + NL;
-        expectedMessages += "Step 1.1.d Ensuring Key ON/Engine OFF" + NL;
-        expectedMessages += "Waiting for Key ON/Engine OFF...";
+        String expectedMessages = "Step 6.1.1.1.a - Vehicle Data Collection" + NL;
+        expectedMessages += "Step 6.1.1.1.d - Waiting for key on with engine off" + NL;
+        expectedMessages += "Step 6.1.1.1.d - Waiting for key on with engine off" + NL;
+        expectedMessages += "Step 6.1.1.1.d - Waiting for key on with engine off...";
         assertEquals(expectedMessages, listener.getMessages());
 
-        String expectedResults = "";
-        expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
+        String expectedResults = "Initial Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
