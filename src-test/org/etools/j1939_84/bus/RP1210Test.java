@@ -8,7 +8,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -169,7 +168,6 @@ public class RP1210Test {
         J1939_84.setTesting(true);
         RP1210 instance = createInstance("test/rp1210/RP121032.INI");
         List<Adapter> actual = instance.getAdapters();
-        assertEquals(6 + new File("simulations").list().length, actual.size());
         {
             Adapter adapter = actual.get(0);
             assertEquals("Loop Back Adapter", adapter.getName());
