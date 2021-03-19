@@ -4,7 +4,6 @@
 package org.etools.j1939_84.controllers.part09;
 
 import static org.etools.j1939_84.model.KeyState.KEY_OFF;
-import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 
 import java.util.concurrent.Executor;
@@ -58,13 +57,15 @@ public class Part09Step25Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.9.25.1.a. Turn Key Off.
-        ensureKeyStateIs(KEY_OFF);
+        ensureKeyStateIs(KEY_OFF, "6.9.25.1.a");
+
         // 6.9.25.1.b. Wait manufacturer’s recommended interval.
-        waitMfgIntervalWithKeyOff("6.9.25.1.b");
+        waitMfgIntervalWithKeyOff("Step 6.9.25.1.b");
+
         // 6.9.25.1.c. Turn ignition key to on position.
-        ensureKeyStateIs(KEY_ON_ENGINE_OFF);
         // 6.9.25.1.d. Start engine.
-        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING);
+        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.9.25.1.d");
+
         // 6.9.25.1.e. Proceed with part 10
     }
 }
