@@ -263,7 +263,7 @@ public class VehicleInformationModuleTest {
                                                                     listener);
 
         instance.reportAddressClaim(listener);
-        assertEquals("Error: No module reported Function 0" + NL, listener.getResults());
+        assertEquals("Error: No ECU reported Function 0" + NL, listener.getResults());
         verify(j1939).requestGlobal("Global Request for Address Claim", AddressClaimPacket.class, listener);
     }
 

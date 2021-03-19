@@ -99,7 +99,7 @@ public class Part03Step02Controller extends StepController {
                     // and fail if user says 'no' and no ECU reports a pending DTC.
 
                     // This will throw an exception if the user chooses 'no'
-                    displayInstructionAndWait("No module has reported a Pending Emission DTC." + NL + NL +
+                    displayInstructionAndWait("No ECU has reported a Pending Emission DTC." + NL + NL +
                             "Do you wish to continue?",
                                               "No Pending Emission DTCs Found",
                                               QUESTION);

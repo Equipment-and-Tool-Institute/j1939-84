@@ -211,7 +211,7 @@ public class VehicleInformationModule extends FunctionalModule {
                                                                                listener);
         if (!responses.getPackets().isEmpty()
                 && responses.getPackets().stream().noneMatch(p -> p.getFunctionId() == 0)) {
-            listener.onResult("Error: No module reported Function 0");
+            listener.onResult("Error: No ECU reported Function 0");
         }
         return responses;
     }

@@ -194,7 +194,7 @@ public class BroadcastValidator {
                                        partNumber,
                                        stepNumber,
                                        FAIL,
-                                       "Broadcast period of PGN " + pgn + " (" + diff + " ms) by module " + moduleName
+                                       "Broadcast period of PGN " + pgn + " (" + diff + " ms) by ECU " + moduleName
                                                + " is less than 90% specified broadcast period of " + broadcastPeriod
                                                + " ms.");
                         }
@@ -209,7 +209,7 @@ public class BroadcastValidator {
                                        partNumber,
                                        stepNumber,
                                        FAIL,
-                                       "Broadcast period of PGN " + pgn + " (" + diff + " ms) by module " + moduleName
+                                       "Broadcast period of PGN " + pgn + " (" + diff + " ms) by ECU " + moduleName
                                                + " is beyond 110% specified broadcast period of " + broadcastPeriod
                                                + " ms.");
                         }

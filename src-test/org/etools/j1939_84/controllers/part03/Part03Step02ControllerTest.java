@@ -164,7 +164,7 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
         when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6));
 
-        String promptMsg = "No module has reported a Pending Emission DTC." + NL + NL + "Do you wish to continue?";
+        String promptMsg = "No ECU has reported a Pending Emission DTC." + NL + NL + "Do you wish to continue?";
         String promptTitle = "No Pending Emission DTCs Found";
 
         doAnswer(invocationOnMock -> {

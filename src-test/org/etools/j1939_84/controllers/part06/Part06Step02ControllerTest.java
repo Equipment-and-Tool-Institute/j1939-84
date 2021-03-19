@@ -305,11 +305,11 @@ public class Part06Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.6.2.3.a - ECU module Body Controller (33) reported a count of > 1 for previously active DTCs");
+                                        "6.6.2.3.a - OBD ECU Body Controller (33) reported a count of > 1 for previously active DTCs");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.6.2.3.a - ECU module Body Controller (33) reported a count of > 1 active DTCs");
+                                        "6.6.2.3.a - OBD ECU Body Controller (33) reported a count of > 1 active DTCs");
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
     }
