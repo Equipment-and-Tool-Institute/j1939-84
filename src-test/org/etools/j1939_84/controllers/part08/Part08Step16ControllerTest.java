@@ -173,7 +173,8 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
 
         // 6.8.16.1.c With the key in the off position remove the implanted Fault B, according to the manufacturer’s
         // instructions for restoring the system to a fault- free operating condition.
-        String urgentMessages3 = "With the key in the off position remove the implanted Fault B, according to the manufacturer’s instructions for restoring the system to a fault-free operating condition";
+        String urgentMessages3 = "With the key in the off position remove the implanted Fault B, according to the"
+                + NL + "manufacturer’s instructions for restoring the system to a fault-free operating condition";
         urgentMessages3 += NL + NL + "Press OK to continue";
         String expectedTitle3 = "Step 6.8.16.1.c";
         verify(mockListener).onUrgentMessage(eq(urgentMessages3),
@@ -189,7 +190,6 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
                                                             eq(expectedTitle4),
                                                             eq(WARNING),
                                                             any());
-
 
         String expectedMessages = "Step 6.8.16.1.a - Waiting for key off" + NL;
         expectedMessages += "Step 6.8.16.1.a - Waiting for key off..." + NL;
@@ -208,6 +208,5 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
 
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
     }
-
 
 }
