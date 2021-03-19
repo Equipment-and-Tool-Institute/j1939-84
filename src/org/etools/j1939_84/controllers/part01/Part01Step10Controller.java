@@ -70,7 +70,7 @@ public class Part01Step10Controller extends StepController {
                                                                          .collect(Collectors.toList());
 
         // 6.1.10.1.c. Allow 5 s to elapse before proceeding with test step 6.1.10.2.
-        pause("Step 1.10.1.c. Waiting for %1$d seconds", 5L);
+        pause("Step 6.1.10.1.c - Waiting for %1$d seconds", 5L);
 
         // 6.1.10.2.a. Fail if NACK received from any HD OBD ECU
         packets.stream()

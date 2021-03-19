@@ -127,7 +127,6 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testUserAbortForFail() {
-        String expectedTitle = "Test 6.1.27";
         PartResultRepository partResultRepository = PartResultRepository.getInstance();
         StepResult stepResult = new StepResult(1, 3, "Testing Result");
         stepResult.addResult(new ActionOutcome(PASS, "6.1.2.1.a - Pass for testing"));
@@ -147,17 +146,18 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Ready to transition from Part 1 to Part 2 of the test" + NL;
-        urgentMessages += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1."
-                + NL;
-        urgentMessages += "   Vehicles with the MIL on will fail subsequent tests." + NL + NL;
-        urgentMessages += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?"
-                + NL;
-        verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Test 6.1.27"), eq(QUESTION), any());
+        String urgentMessages = "Testing may be stopped for vehicles with failed tests " + NL +
+                "and for vehicles with the MIL on or a non-emissions related fault displayed in DM1." + NL +
+                "Vehicles with the MIL on will fail subsequent tests." + NL +
+                "" + NL +
+                "This vehicle has had failures and will likely fail subsequent tests." + NL +
+                "" + NL +
+                "Would you like to continue?\n";
+        verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Step 6.1.27.1.a"), eq(QUESTION), any());
 
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
-                                             eq(expectedTitle),
+                                             eq("Step 6.1.27.1.a"),
                                              eq(QUESTION),
                                              questionCaptor.capture());
 
@@ -212,7 +212,6 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testRun() throws InterruptedException {
-        String expectedTitle = "Test 6.1.27";
         PartResultRepository partResultRepository = PartResultRepository.getInstance();
         StepResult stepResult = new StepResult(1, 3, "Testing Result");
         stepResult.addResult(new ActionOutcome(PASS, "6.1.2.1.a - Pass for testing"));
@@ -233,14 +232,15 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
 
-        String urgentMessages = "Ready to transition from Part 1 to Part 2 of the test" + NL;
-        urgentMessages += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1."
-                + NL;
-        urgentMessages += "   Vehicles with the MIL on will fail subsequent tests." + NL + NL;
-        urgentMessages += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?"
-                + NL;
+        String urgentMessages = "Testing may be stopped for vehicles with failed tests " + NL +
+                "and for vehicles with the MIL on or a non-emissions related fault displayed in DM1." + NL +
+                "Vehicles with the MIL on will fail subsequent tests." + NL +
+                "" + NL +
+                "This vehicle has had failures and will likely fail subsequent tests." + NL +
+                "" + NL +
+                "Would you like to continue?\n";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
-                                             eq(expectedTitle),
+                                             eq("Step 6.1.27.1.a"),
                                              eq(QUESTION),
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
@@ -270,7 +270,6 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
     // FIXME - this needs to be fixed when we figure out how to throw the InterruptedException.
     @Test
     public void testEngineThrowInterruptedException() {
-        String expectedTitle = "Test 6.1.27";
         PartResultRepository partResultRepository = PartResultRepository.getInstance();
         StepResult stepResult = new StepResult(PART_NUMBER, STEP_NUMBER, "Testing Result");
         stepResult.addResult(new ActionOutcome(FAIL, "6.1.2.1.b - Fail for testing"));
@@ -295,14 +294,15 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Ready to transition from Part 1 to Part 2 of the test" + NL;
-        urgentMessages += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1."
-                + NL;
-        urgentMessages += "   Vehicles with the MIL on will fail subsequent tests." + NL + NL;
-        urgentMessages += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?"
-                + NL;
+        String urgentMessages = "Testing may be stopped for vehicles with failed tests " + NL +
+                "and for vehicles with the MIL on or a non-emissions related fault displayed in DM1." + NL +
+                "Vehicles with the MIL on will fail subsequent tests." + NL +
+                "" + NL +
+                "This vehicle has had failures and will likely fail subsequent tests." + NL +
+                "" + NL +
+                "Would you like to continue?\n";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
-                                             eq(expectedTitle),
+                                             eq("Step 6.1.27.1.a"),
                                              eq(QUESTION),
                                              any());
         String urgentMessages2 = "Please start the engine";

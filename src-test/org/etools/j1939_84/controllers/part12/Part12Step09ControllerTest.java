@@ -261,16 +261,16 @@ public class Part12Step09ControllerTest extends AbstractControllerTest {
 
     private static String getExpectedMessages() {
         String expected = "";
-        expected += "Step 6.12.9.1.b Waiting 5 seconds before checking for erased data." + NL;
-        expected += "Step 6.12.9.1.b Waiting 4 seconds before checking for erased data." + NL;
-        expected += "Step 6.12.9.1.b Waiting 3 seconds before checking for erased data." + NL;
-        expected += "Step 6.12.9.1.b Waiting 2 seconds before checking for erased data." + NL;
-        expected += "Step 6.12.9.1.b Waiting 1 seconds before checking for erased data." + NL;
-        expected += "Step 6.12.9.3.b Waiting 5 seconds before checking for erased data." + NL;
-        expected += "Step 6.12.9.3.b Waiting 4 seconds before checking for erased data." + NL;
-        expected += "Step 6.12.9.3.b Waiting 3 seconds before checking for erased data." + NL;
-        expected += "Step 6.12.9.3.b Waiting 2 seconds before checking for erased data." + NL;
-        expected += "Step 6.12.9.3.b Waiting 1 seconds before checking for erased data.";
+        expected += "Step 6.12.9.1.b - Waiting 5 seconds before checking for erased data" + NL;
+        expected += "Step 6.12.9.1.b - Waiting 4 seconds before checking for erased data" + NL;
+        expected += "Step 6.12.9.1.b - Waiting 3 seconds before checking for erased data" + NL;
+        expected += "Step 6.12.9.1.b - Waiting 2 seconds before checking for erased data" + NL;
+        expected += "Step 6.12.9.1.b - Waiting 1 seconds before checking for erased data" + NL;
+        expected += "Step 6.12.9.3.b - Waiting 5 seconds before checking for erased data" + NL;
+        expected += "Step 6.12.9.3.b - Waiting 4 seconds before checking for erased data" + NL;
+        expected += "Step 6.12.9.3.b - Waiting 3 seconds before checking for erased data" + NL;
+        expected += "Step 6.12.9.3.b - Waiting 2 seconds before checking for erased data" + NL;
+        expected += "Step 6.12.9.3.b - Waiting 1 seconds before checking for erased data";
         return expected;
     }
 

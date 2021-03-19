@@ -80,7 +80,7 @@ public class Part04Step02Controller extends StepController {
             // reports a confirmed and active DTC.
 
             attempts++;
-            updateProgress("Step 6.4.2.1.a Requesting DM12 Attempt " + attempts);
+            updateProgress("Step 6.4.2.1.a - Requesting DM12 Attempt " + attempts);
 
             getListener().onResult(NL + "Attempt " + attempts);
             globalPackets = getDiagnosticMessageModule().requestDM12(getListener()).getPackets();

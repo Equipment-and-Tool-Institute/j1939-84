@@ -59,7 +59,7 @@ public class Part10Step05Controller extends StepController {
     protected void run() throws Throwable {
         // 6.10.5.1.a. Wait for manufacturer’s recommended time for Fault B to be detected as passed.
         updateProgress("Step 6.10.5.1.a - Waiting for manufacturer’s recommended time for Fault B to be detected as passed");
-        String message = "Step 6.10.5.1.a - Wait for manufacturer’s recommended time for Fault B to be detected as passed";
+        String message = "Wait for manufacturer’s recommended time for Fault B to be detected as passed";
         message += NL + NL + "Press OK to continue";
         displayInstructionAndWait(message, "Step 6.10.5.1.a", WARNING);
 

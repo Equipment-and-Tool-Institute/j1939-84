@@ -68,7 +68,7 @@ public class Part07Step16Controller extends StepController {
         getDiagnosticMessageModule().requestDM3(getListener());
 
         // 6.7.16.1.b. Wait 5 seconds before checking for erased information.
-        pause("Step 6.7.16.1.b Waiting %1$d seconds", 5L);
+        pause("Step 6.7.16.1.b - Waiting %1$d seconds before checking for erased information", 5L);
 
         // 6.7.16.2.a. Fail if any OBD ECU erases any diagnostic information as discussed in Section A.5.
         verifier.verifyDataNotErased(getListener(), "6.7.16.2.a");
@@ -81,7 +81,7 @@ public class Part07Step16Controller extends StepController {
                                            .collect(Collectors.toList());
 
         // 6.7.16.3.b. Wait 5 seconds before checking for erased information.
-        pause("Step 6.7.16.3.b Waiting %1$d seconds", 5L);
+        pause("Step 6.7.16.3.b - Waiting %1$d seconds before checking for erased information", 5L);
 
         // 6.7.16.4.a. Fail if any ECU does not NACK
         checkForNACKsDS(List.of(), dsPackets, "6.7.16.4.a");

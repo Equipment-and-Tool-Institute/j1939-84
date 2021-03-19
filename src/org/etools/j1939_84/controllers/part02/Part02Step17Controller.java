@@ -202,7 +202,7 @@ public class Part02Step17Controller extends StepController {
             dataStreamSPNs.removeAll(receivedSPNs);
 
             for (int pgn : requestPGNs) {
-                updateProgress("Test 2.17 Verifying " + Lookup.getAddressName(moduleAddress));
+                updateProgress("Test 2.17 - Verifying " + Lookup.getAddressName(moduleAddress));
                 String spns = j1939DaRepository.findPgnDefinition(pgn)
                                                .getSpnDefinitions()
                                                .stream()

@@ -122,8 +122,6 @@ public class Part01Step26Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        updateProgress("Start Part 1 Step 26");
-
         busService.setup(getJ1939(), getListener());
 
         // This will listen for all Broadcast PGNs in hopes of finding all Data
@@ -251,7 +249,7 @@ public class Part01Step26Controller extends StepController {
             dataStreamSPNs.removeAll(receivedSPNs);
 
             for (int pgn : requestPGNs) {
-                updateProgress("Test 1.26 Verifying " + Lookup.getAddressName(moduleAddress));
+                updateProgress("Test 1.26 - Verifying " + Lookup.getAddressName(moduleAddress));
                 String spns = j1939DaRepository.findPgnDefinition(pgn)
                                                .getSpnDefinitions()
                                                .stream()
@@ -334,8 +332,6 @@ public class Part01Step26Controller extends StepController {
         tableA1Validator.reportDuplicateSPNs(onRequestPackets,
                                              getListener(),
                                              "6.1.26.6.f");
-
-        updateProgress("End Part 1 Step 26");
     }
 
 }

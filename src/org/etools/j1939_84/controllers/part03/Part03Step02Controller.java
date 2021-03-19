@@ -72,7 +72,7 @@ public class Part03Step02Controller extends StepController {
             // 6.3.2.1.a.i. Repeat request for DM6 no more frequently than once per s until one or more ECUs reports a
             // pending DTC.
             attempts++;
-            updateProgress("Requesting DM6 Attempt " + attempts);
+            updateProgress("Step 6.3.2.1.a - Requesting DM6 Attempt " + attempts);
 
             getListener().onResult(NL + "Attempt " + attempts);
             globalPackets = getDiagnosticMessageModule().requestDM6(getListener()).getPackets();
@@ -99,7 +99,7 @@ public class Part03Step02Controller extends StepController {
                     // and fail if user says 'no' and no ECU reports a pending DTC.
 
                     // This will throw an exception if the user chooses 'no'
-                    displayInstructionAndWait("No module has reported a Pending Emission DTC." + NL +
+                    displayInstructionAndWait("No module has reported a Pending Emission DTC." + NL + NL +
                             "Do you wish to continue?",
                                               "No Pending Emission DTCs Found",
                                               QUESTION);

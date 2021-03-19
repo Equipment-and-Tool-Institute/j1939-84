@@ -236,7 +236,7 @@ public class AbstractPartControllerTest {
                             .append(partNumber)
                             .append(".")
                             .append(i)
-                            .append(" ")
+                            .append(" - ")
                             .append(Lookup.getStepName(partNumber, i));
         }
         assertEquals(expectedMessages.toString(), listener.getMessages());
@@ -249,7 +249,7 @@ public class AbstractPartControllerTest {
                            .append(partNumber)
                            .append(".")
                            .append(i)
-                           .append(" ")
+                           .append(" - ")
                            .append(stepName)
                            .append(NL)
                            .append(NL);
@@ -257,7 +257,7 @@ public class AbstractPartControllerTest {
                            .append(partNumber)
                            .append(".")
                            .append(i)
-                           .append(" ")
+                           .append(" - ")
                            .append(stepName)
                            .append(NL);
         }

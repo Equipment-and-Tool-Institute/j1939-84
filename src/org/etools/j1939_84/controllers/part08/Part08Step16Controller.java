@@ -66,7 +66,7 @@ public class Part08Step16Controller extends StepController {
 
         // 6.8.16.1.c With the key in the off position remove the implanted Fault B, according to the manufacturer’s
         // instructions for restoring the system to a fault-free operating condition.
-        incrementProgress("Step 6.8.16.1.c - Waiting for implanted Fault B to be removed");
+        updateProgress("Step 6.8.16.1.c - Waiting for implanted Fault B to be removed");
         String message = "With the key in the off position remove the implanted Fault B, according to the"
                 + NL + "manufacturer’s instructions for restoring the system to a fault-free operating condition";
         message += NL + NL + "Press OK to continue";

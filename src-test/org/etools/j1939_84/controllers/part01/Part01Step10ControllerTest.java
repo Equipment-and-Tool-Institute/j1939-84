@@ -141,11 +141,11 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
 
         String expectedMessages = "";
-        expectedMessages += "Step 1.10.1.c. Waiting for 5 seconds" + NL;
-        expectedMessages += "Step 1.10.1.c. Waiting for 4 seconds" + NL;
-        expectedMessages += "Step 1.10.1.c. Waiting for 3 seconds" + NL;
-        expectedMessages += "Step 1.10.1.c. Waiting for 2 seconds" + NL;
-        expectedMessages += "Step 1.10.1.c. Waiting for 1 seconds";
+        expectedMessages += "Step 6.1.10.1.c - Waiting for 5 seconds" + NL;
+        expectedMessages += "Step 6.1.10.1.c - Waiting for 4 seconds" + NL;
+        expectedMessages += "Step 6.1.10.1.c - Waiting for 3 seconds" + NL;
+        expectedMessages += "Step 6.1.10.1.c - Waiting for 2 seconds" + NL;
+        expectedMessages += "Step 6.1.10.1.c - Waiting for 1 seconds";
         assertEquals(expectedMessages, listener.getMessages());
     }
 
@@ -182,11 +182,11 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
         verify(dataRepository).isObdModule(0);
 
         String expectedMessages = "";
-        expectedMessages += "Step 1.10.1.c. Waiting for 5 seconds" + NL;
-        expectedMessages += "Step 1.10.1.c. Waiting for 4 seconds" + NL;
-        expectedMessages += "Step 1.10.1.c. Waiting for 3 seconds" + NL;
-        expectedMessages += "Step 1.10.1.c. Waiting for 2 seconds" + NL;
-        expectedMessages += "Step 1.10.1.c. Waiting for 1 seconds";
+        expectedMessages += "Step 6.1.10.1.c - Waiting for 5 seconds" + NL;
+        expectedMessages += "Step 6.1.10.1.c - Waiting for 4 seconds" + NL;
+        expectedMessages += "Step 6.1.10.1.c - Waiting for 3 seconds" + NL;
+        expectedMessages += "Step 6.1.10.1.c - Waiting for 2 seconds" + NL;
+        expectedMessages += "Step 6.1.10.1.c - Waiting for 1 seconds";
         assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getResults());
     }

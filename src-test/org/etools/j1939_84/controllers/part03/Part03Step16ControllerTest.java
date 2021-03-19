@@ -141,7 +141,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        verify(mockListener).onUrgentMessage(eq("Please turn key off"),
+        verify(mockListener).onUrgentMessage(eq("Please turn the key off"),
                                              eq("Step 6.3.16.1.a"),
                                              eq(WARNING),
                                              any());

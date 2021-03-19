@@ -79,7 +79,7 @@ public class Part08Step13Controller extends StepController {
         }
 
         // 6.8.13.1.b. Wait 5 seconds before checking for erased information.
-        pause("Step 6.8.13.1.b. Waiting %1$d seconds before checking for erased information", 5);
+        pause("Step 6.8.13.1.b - Waiting %1$d seconds before checking for erased information", 5);
 
         // 6.8.13.2.a. Fail if any diagnostic information erased.
         verifier.verifyDataNotErased(getListener(), "6.8.13.2.a");
@@ -88,7 +88,7 @@ public class Part08Step13Controller extends StepController {
         getDiagnosticMessageModule().requestDM3(getListener());
 
         // 6.8.13.3.b. Wait 5 seconds before checking for erased information.
-        pause("Step 6.8.13.3.b. Waiting %1$d seconds before checking for erased information", 5);
+        pause("Step 6.8.13.3.b - Waiting %1$d seconds before checking for erased information", 5);
 
         // 6.8.13.4.a. Fail if any OBD ECU erases any diagnostic information.
         verifier.verifyDataNotErased(getListener(), "6.8.13.4.a");

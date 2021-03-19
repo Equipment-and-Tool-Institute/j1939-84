@@ -152,7 +152,7 @@ public class Part08Step16ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         // 6.8.16.1.a Turn the engine off.
-        String urgentMessages1 = "Please turn key off";
+        String urgentMessages1 = "Please turn the key off";
         String expectedTitle1 = "Step 6.8.16.1.a";
         verify(mockListener).onUrgentMessage(eq(urgentMessages1),
                                              eq(expectedTitle1),

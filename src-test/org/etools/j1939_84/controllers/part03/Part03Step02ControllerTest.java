@@ -143,7 +143,7 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedMessages = "Requesting DM6 Attempt 1";
+        String expectedMessages = "Step 6.3.2.1.a - Requesting DM6 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedResults = "" + NL;
@@ -164,7 +164,7 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
         when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6));
 
-        String promptMsg = "No module has reported a Pending Emission DTC." + NL + "Do you wish to continue?";
+        String promptMsg = "No module has reported a Pending Emission DTC." + NL + NL + "Do you wish to continue?";
         String promptTitle = "No Pending Emission DTCs Found";
 
         doAnswer(invocationOnMock -> {
@@ -177,7 +177,7 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         StringBuilder expectedMessages = new StringBuilder();
         for (int i = 1; i <= 300; i++) {
-            expectedMessages.append("Requesting DM6 Attempt ").append(i).append(NL);
+            expectedMessages.append("Step 6.3.2.1.a - Requesting DM6 Attempt ").append(i).append(NL);
         }
         expectedMessages.append("User cancelled testing at Part 3 Step 2");
         assertEquals(expectedMessages.toString(), listener.getMessages());
@@ -211,7 +211,7 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedMessages = "Requesting DM6 Attempt 1";
+        String expectedMessages = "Step 6.3.2.1.a - Requesting DM6 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedResults = "" + NL;
@@ -241,7 +241,7 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedMessages = "Requesting DM6 Attempt 1";
+        String expectedMessages = "Step 6.3.2.1.a - Requesting DM6 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedResults = "" + NL;
@@ -269,7 +269,7 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedMessages = "Requesting DM6 Attempt 1";
+        String expectedMessages = "Step 6.3.2.1.a - Requesting DM6 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedResults = "" + NL;
@@ -298,7 +298,7 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedMessages = "Requesting DM6 Attempt 1";
+        String expectedMessages = "Step 6.3.2.1.a - Requesting DM6 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedResults = "" + NL;
@@ -328,7 +328,7 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedMessages = "Requesting DM6 Attempt 1";
+        String expectedMessages = "Step 6.3.2.1.a - Requesting DM6 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedResults = "" + NL;

@@ -242,21 +242,21 @@ public class Part09Step08ControllerTest extends AbstractControllerTest {
 
     private static String getExpectedMessages() {
         String expected = "";
-        expected += "Step 6.9.8.1.b Waiting 5 seconds before checking for erased data." + NL;
-        expected += "Step 6.9.8.1.b Waiting 4 seconds before checking for erased data." + NL;
-        expected += "Step 6.9.8.1.b Waiting 3 seconds before checking for erased data." + NL;
-        expected += "Step 6.9.8.1.b Waiting 2 seconds before checking for erased data." + NL;
-        expected += "Step 6.9.8.1.b Waiting 1 seconds before checking for erased data." + NL;
-        expected += "Step 6.9.8.3.b Waiting 5 seconds before checking for erased data." + NL;
-        expected += "Step 6.9.8.3.b Waiting 4 seconds before checking for erased data." + NL;
-        expected += "Step 6.9.8.3.b Waiting 3 seconds before checking for erased data." + NL;
-        expected += "Step 6.9.8.3.b Waiting 2 seconds before checking for erased data." + NL;
-        expected += "Step 6.9.8.3.b Waiting 1 seconds before checking for erased data." + NL;
-        expected += "Step 6.9.8.5.b Waiting 5 seconds before checking for erased data." + NL;
-        expected += "Step 6.9.8.5.b Waiting 4 seconds before checking for erased data." + NL;
-        expected += "Step 6.9.8.5.b Waiting 3 seconds before checking for erased data." + NL;
-        expected += "Step 6.9.8.5.b Waiting 2 seconds before checking for erased data." + NL;
-        expected += "Step 6.9.8.5.b Waiting 1 seconds before checking for erased data.";
+        expected += "Step 6.9.8.1.b - Waiting 5 seconds before checking for erased data" + NL;
+        expected += "Step 6.9.8.1.b - Waiting 4 seconds before checking for erased data" + NL;
+        expected += "Step 6.9.8.1.b - Waiting 3 seconds before checking for erased data" + NL;
+        expected += "Step 6.9.8.1.b - Waiting 2 seconds before checking for erased data" + NL;
+        expected += "Step 6.9.8.1.b - Waiting 1 seconds before checking for erased data" + NL;
+        expected += "Step 6.9.8.3.b - Waiting 5 seconds before checking for erased data" + NL;
+        expected += "Step 6.9.8.3.b - Waiting 4 seconds before checking for erased data" + NL;
+        expected += "Step 6.9.8.3.b - Waiting 3 seconds before checking for erased data" + NL;
+        expected += "Step 6.9.8.3.b - Waiting 2 seconds before checking for erased data" + NL;
+        expected += "Step 6.9.8.3.b - Waiting 1 seconds before checking for erased data" + NL;
+        expected += "Step 6.9.8.5.b - Waiting 5 seconds before checking for erased data" + NL;
+        expected += "Step 6.9.8.5.b - Waiting 4 seconds before checking for erased data" + NL;
+        expected += "Step 6.9.8.5.b - Waiting 3 seconds before checking for erased data" + NL;
+        expected += "Step 6.9.8.5.b - Waiting 2 seconds before checking for erased data" + NL;
+        expected += "Step 6.9.8.5.b - Waiting 1 seconds before checking for erased data";
         return expected;
     }
 }
