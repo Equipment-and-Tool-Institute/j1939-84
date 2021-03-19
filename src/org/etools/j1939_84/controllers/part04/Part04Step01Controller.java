@@ -58,7 +58,7 @@ public class Part04Step01Controller extends StepController {
         // 6.4.1.1.a. Gather broadcast data for engine speed (e.g., SPN 190).
         // 6.4.1.2.a. If engine speed is <400 rpm, prompt/warn operator to confirm engine is running and then press
         // enter.
-        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING);
+        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.4.1.2.a");
     }
 
 }
