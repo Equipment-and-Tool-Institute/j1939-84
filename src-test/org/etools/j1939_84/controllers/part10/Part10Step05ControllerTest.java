@@ -162,10 +162,10 @@ public class Part10Step05ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Step 6.10.5.1.a - Wait for manufacturer’s recommended time for Fault B to be detected as passed."
-                + NL;
+        String urgentMessages = "Step 6.10.5.1.a - Wait for manufacturer’s recommended time for Fault B to be detected as passed"
+                + NL + NL;
         urgentMessages += "Press OK to continue";
-        String expectedTitle = "Test 6.10.5";
+        String expectedTitle = "Step 6.10.5.1.a";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq(expectedTitle),
                                              eq(WARNING),
@@ -173,8 +173,8 @@ public class Part10Step05ControllerTest extends AbstractControllerTest {
         questionCaptor.getValue().answered(YES);
 
         // 6.10.5.1.c. Turn engine off.
-        String urgentMessages1 = "Please turn Key OFF";
-        String expectedTitle1 = "Adjust Key Switch";
+        String urgentMessages1 = "Please turn key off";
+        String expectedTitle1 = "Step 6.10.5.1.c";
         verify(mockListener).onUrgentMessage(eq(urgentMessages1),
                                              eq(expectedTitle1),
                                              eq(WARNING),
@@ -182,8 +182,8 @@ public class Part10Step05ControllerTest extends AbstractControllerTest {
         questionCaptor.getValue().answered(YES);
 
         // 6.10.5.1.e. Start engine.
-        String urgentMessages1_5 = "Please turn Key ON/Engine RUNNING";
-        String expectedTitle1_5 = "Adjust Key Switch";
+        String urgentMessages1_5 = "Please start the engine";
+        String expectedTitle1_5 = "Step 6.10.5.1.e";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages1_5),
                                                             eq(expectedTitle1_5),
                                                             eq(WARNING),
@@ -193,16 +193,19 @@ public class Part10Step05ControllerTest extends AbstractControllerTest {
                                                            "Step 6.10.5.1.a - Waiting for manufacturer’s recommended time for Fault B to be detected as passed"
                                                                    + NL);
         for (int i = 120; i > 0; i--) {
-            expectedMessages.append(format("Step 6.10.5.1.b - Waiting %1$d seconds", i)).append(NL);
+            expectedMessages.append(format("Step 6.10.5.1.b - Waiting %1$d seconds to establish second cycle", i))
+                            .append(NL);
         }
-        expectedMessages.append("Waiting for Key OFF...").append(NL);
-        expectedMessages.append("Waiting for Key OFF...").append(NL);
+        expectedMessages.append("Step 6.10.5.1.c - Waiting for key off").append(NL);
+        expectedMessages.append("Step 6.10.5.1.c - Waiting for key off...").append(NL);
+        expectedMessages.append("Step 6.10.5.1.c - Waiting for key off...").append(NL);
         for (int i = 60; i > 0; i--) {
             expectedMessages.append(format("Step 6.10.5.1.d - Waiting %1$d seconds", i)).append(NL);
         }
-        expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
-        expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
-        expectedMessages.append("Waiting for Key ON/Engine RUNNING...");
+        expectedMessages.append("Step 6.10.5.1.e - Waiting for engine start").append(NL);
+        expectedMessages.append("Step 6.10.5.1.e - Waiting for engine start...").append(NL);
+        expectedMessages.append("Step 6.10.5.1.e - Waiting for engine start...").append(NL);
+        expectedMessages.append("Step 6.10.5.1.e - Waiting for engine start...");
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
@@ -243,10 +246,10 @@ public class Part10Step05ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Step 6.10.5.1.a - Wait for manufacturer’s recommended time for Fault B to be detected as passed."
-                + NL;
+        String urgentMessages = "Step 6.10.5.1.a - Wait for manufacturer’s recommended time for Fault B to be detected as passed"
+                + NL + NL;
         urgentMessages += "Press OK to continue";
-        String expectedTitle = "Test 6.10.5";
+        String expectedTitle = "Step 6.10.5.1.a";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq(expectedTitle),
                                              eq(WARNING),
@@ -254,8 +257,8 @@ public class Part10Step05ControllerTest extends AbstractControllerTest {
         questionCaptor.getValue().answered(YES);
 
         // 6.10.5.1.c. Turn engine off.
-        String urgentMessages1 = "Please turn Key OFF";
-        String expectedTitle1 = "Adjust Key Switch";
+        String urgentMessages1 = "Please turn key off";
+        String expectedTitle1 = "Step 6.10.5.1.c";
         verify(mockListener).onUrgentMessage(eq(urgentMessages1),
                                              eq(expectedTitle1),
                                              eq(WARNING),
@@ -263,8 +266,8 @@ public class Part10Step05ControllerTest extends AbstractControllerTest {
         questionCaptor.getValue().answered(NO);
 
         // 6.10.5.1.e. Start engine.
-        String urgentMessages1_5 = "Please turn Key ON/Engine RUNNING";
-        String expectedTitle1_5 = "Adjust Key Switch";
+        String urgentMessages1_5 = "Please start the engine";
+        String expectedTitle1_5 = "Step 6.10.5.1.e";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages1_5),
                                                             eq(expectedTitle1_5),
                                                             eq(WARNING),
@@ -274,16 +277,19 @@ public class Part10Step05ControllerTest extends AbstractControllerTest {
         StringBuilder expectedMessages = new StringBuilder("Step 6.10.5.1.a - Waiting for manufacturer’s recommended time for Fault B to be detected as passed"
                                                                    + NL);
         for (int i = 120; i > 0; i--) {
-            expectedMessages.append(format("Step 6.10.5.1.b - Waiting %1$d seconds", i)).append(NL);
+            expectedMessages.append(format("Step 6.10.5.1.b - Waiting %1$d seconds to establish second cycle", i))
+                            .append(NL);
         }
-        expectedMessages.append("Waiting for Key OFF...").append(NL);
-        expectedMessages.append("Waiting for Key OFF...").append(NL);
+        expectedMessages.append("Step 6.10.5.1.c - Waiting for key off").append(NL);
+        expectedMessages.append("Step 6.10.5.1.c - Waiting for key off...").append(NL);
+        expectedMessages.append("Step 6.10.5.1.c - Waiting for key off...").append(NL);
         for (int i = 60; i > 0; i--) {
             expectedMessages.append(format("Step 6.10.5.1.d - Waiting %1$d seconds", i)).append(NL);
         }
-        expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
-        expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
-        expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
+        expectedMessages.append("Step 6.10.5.1.e - Waiting for engine start").append(NL);
+        expectedMessages.append("Step 6.10.5.1.e - Waiting for engine start...").append(NL);
+        expectedMessages.append("Step 6.10.5.1.e - Waiting for engine start...").append(NL);
+        expectedMessages.append("Step 6.10.5.1.e - Waiting for engine start...").append(NL);
         expectedMessages.append("User cancelled testing at Part 10 Step 5");
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
