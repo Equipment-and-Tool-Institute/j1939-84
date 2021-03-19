@@ -4,11 +4,10 @@
 package org.etools.j1939_84.controllers.part04;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.YES;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.KeyState.KEY_OFF;
-import static org.etools.j1939_84.model.Outcome.ABORT;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -128,188 +127,76 @@ public class Part04Step15ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testUserAbortForFail() {
+    public void testHappyPathNoFailures() {
 
-        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_RUNNING,
+                                                         KEY_ON_ENGINE_RUNNING,
+                                                         KEY_OFF,
+                                                         KEY_OFF,
+                                                         KEY_OFF,
+                                                         KEY_ON_ENGINE_RUNNING);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
+        ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
         runTest();
 
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Wait for the manufacturer's recommended interval with the key off" + NL
-                + NL;
-        urgentMessages += "Press OK to continue";
-        String expectedTitle = "Step 6.4.15.1.b";
-        ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
-        verify(mockListener).onUrgentMessage(eq(urgentMessages),
-                                             eq(expectedTitle),
-                                             eq(WARNING),
-                                             questionCaptor.capture());
-
-        questionCaptor.getValue().answered(NO);
-
-        String urgentMessages2 = "Step 6.4.15.1.c - With Key OFF, remove the implanted Fault A according to the"
-                + NL;
-        urgentMessages2 += "manufacturer’s instructions for restoring the system to a fault- free operating condition"
-                + NL;
-        urgentMessages2 += "Press OK to continue";
-        String expectedTitle2 = "Test 6.4.15";
-        verify(mockListener).onUrgentMessage(eq(urgentMessages2),
-                                             eq(expectedTitle2),
+        verify(mockListener).onUrgentMessage(eq("Please turn key off"),
+                                             eq("Step 6.4.15.1.a"),
                                              eq(WARNING),
                                              any());
 
-        String urgentMessages3 = "Step 6.4.15.1.d - Turn ignition key to the ON position." + NL;
-        urgentMessages3 += "Step 6.4.15.1.e - Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster."
-                + NL;
-        urgentMessages3 += "Step 6.4.15.1.f - Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished."
-                + NL;
-        urgentMessages3 += "Step 6.4.15.1.g - Please wait as indicated by the engine manufacturer’s recommendations for Fault A."
-                + NL;
-        urgentMessages3 += "Press OK to continue";
-        String expectedTitle3 = "Test 6.4.15";
-        verify(mockListener).onUrgentMessage(eq(urgentMessages3), eq(expectedTitle3), eq(WARNING), any());
-
-        String outcomeMessage = "User cancelled testing at Part 4 Step 15";
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, outcomeMessage);
-
-        String expectedMessages = "Step 6.4.15.1.a - Turn Engine Off and keep the ignition key in the off position"
-                + NL;
-        expectedMessages += "Step 6.4.15.1.b - Waiting manufacturer’s recommended interval with the key off"
-                + NL;
-        expectedMessages += "Step 6.4.15.1.c - Remove implanted fault per manufacturer's instructions" + NL;
-        expectedMessages += "User cancelled testing at Part 4 Step 15";
-        assertEquals(expectedMessages, listener.getMessages());
-
-        String expectedResults = "";
-        expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
-        expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
-        assertEquals(expectedResults, listener.getResults());
-    }
-
-    @Test
-    public void testRun() throws InterruptedException {
-
-        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF);
-        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
-
-        ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
-        runTest();
-
-        verify(engineSpeedModule, atLeastOnce()).getKeyState();
-        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
-
         String urgentMessages = "Wait for the manufacturer's recommended interval with the key off" + NL
                 + NL;
         urgentMessages += "Press OK to continue";
-        String expectedTitle = "Step 6.4.15.1.b";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
-                                             eq(expectedTitle),
+                                             eq("Step 6.4.15.1.b"),
                                              eq(WARNING),
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages2 = "Step 6.4.15.1.c - With Key OFF, remove the implanted Fault A according to the"
+        String urgentMessages2 = "With the key in the off position, remove the implanted Fault A according to the"
                 + NL;
-        urgentMessages2 += "manufacturer’s instructions for restoring the system to a fault- free operating condition"
-                + NL;
+        urgentMessages2 += "manufacturer’s instructions for restoring the system to a fault-free operating condition"
+                + NL + NL;
         urgentMessages2 += "Press OK to continue";
-        String expectedTitle2 = "Test 6.4.15";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2),
-                                             eq(expectedTitle2),
+                                             eq("Step 6.4.15.1.c"),
                                              eq(WARNING),
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages3 = "Step 6.4.15.1.d - Turn ignition key to the ON position." + NL;
-        urgentMessages3 += "Step 6.4.15.1.e - Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster."
-                + NL;
-        urgentMessages3 += "Step 6.4.15.1.f - Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished."
-                + NL;
-        urgentMessages3 += "Step 6.4.15.1.g - Please wait as indicated by the engine manufacturer’s recommendations for Fault A."
-                + NL;
+        verify(mockListener).onUrgentMessage(eq("Please start the engine"),
+                                             eq("Step 6.4.15.1.f"),
+                                             eq(WARNING),
+                                             any());
+
+        String urgentMessages3 = "Wait for manufacturer’s recommended time for Fault A to be detected (as passed)"
+                + NL + NL;
         urgentMessages3 += "Press OK to continue";
-        String expectedTitle3 = "Test 6.4.15";
         verify(mockListener).onUrgentMessage(eq(urgentMessages3),
-                                             eq(expectedTitle3),
+                                             eq("Step 6.4.15.1.g"),
                                              eq(WARNING),
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String expectedMessages = "Step 6.4.15.1.a - Turn Engine Off and keep the ignition key in the off position"
-                + NL;
-        expectedMessages += "Step 6.4.15.1.b - Waiting manufacturer’s recommended interval with the key off"
-                + NL;
-        expectedMessages += "Step 6.4.15.1.c - Remove implanted fault per manufacturer's instructions";
+        String expectedMessages = "Step 6.4.15.1.a - Waiting for key off" + NL +
+                "Step 6.4.15.1.a - Waiting for key off..." + NL +
+                "Step 6.4.15.1.b - Waiting manufacturer’s recommended interval with the key off" + NL +
+                "Step 6.4.15.1.c - Waiting for implanted Fault A to be removed" + NL +
+                "Step 6.4.15.1.f - Waiting for engine start" + NL +
+                "Step 6.4.15.1.f - Waiting for engine start..." + NL +
+                "Step 6.4.15.1.g - Waiting for manufacturer’s recommended time for Fault A to be detected (as passed)";
         assertEquals(expectedMessages, listener.getMessages());
 
-        String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
+        String expected = "";
+        expected += "Initial Engine Speed = 0.0 RPMs" + NL;
+        expected += "Final Engine Speed = 0.0 RPMs" + NL;
+        expected += "Initial Engine Speed = 0.0 RPMs" + NL;
         expected += "Final Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expected, listener.getResults());
-    }
-
-    @Test
-    public void testEngineThrowInterruptedException() {
-
-        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF);
-        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
-
-        ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
-        runTest();
-
-        verify(engineSpeedModule).setJ1939(j1939);
-        verify(engineSpeedModule, atLeastOnce()).getKeyState();
-        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
-
-        String urgentMessages = "Wait for the manufacturer's recommended interval with the key off" + NL
-                + NL;
-        urgentMessages += "Press OK to continue";
-        String expectedTitle = "Step 6.4.15.1.b";
-        verify(mockListener).onUrgentMessage(eq(urgentMessages),
-                                             eq(expectedTitle),
-                                             eq(WARNING),
-                                             questionCaptor.capture());
-        questionCaptor.getValue().answered(YES);
-
-        String urgentMessages2 = "Step 6.4.15.1.c - With Key OFF, remove the implanted Fault A according to the"
-                + NL;
-        urgentMessages2 += "manufacturer’s instructions for restoring the system to a fault- free operating condition"
-                + NL;
-        urgentMessages2 += "Press OK to continue";
-        String expectedTitle2 = "Test 6.4.15";
-        verify(mockListener).onUrgentMessage(eq(urgentMessages2),
-                                             eq(expectedTitle2),
-                                             eq(WARNING),
-                                             questionCaptor.capture());
-        questionCaptor.getValue().answered(NO);
-
-        String urgentMessages3 = "Step 6.4.15.1.d - Turn ignition key to the ON position." + NL;
-        urgentMessages3 += "Step 6.4.15.1.e - Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster."
-                + NL;
-        urgentMessages3 += "Step 6.4.15.1.f - Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished."
-                + NL;
-        urgentMessages3 += "Step 6.4.15.1.g - Please wait as indicated by the engine manufacturer’s recommendations for Fault A."
-                + NL;
-        urgentMessages3 += "Press OK to continue";
-        String expectedTitle3 = "Test 6.4.15";
-        verify(mockListener).onUrgentMessage(eq(urgentMessages3), eq(expectedTitle3), eq(WARNING), any());
-
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 4 Step 15");
-
-        String expectedMessages = "Step 6.4.15.1.a - Turn Engine Off and keep the ignition key in the off position"
-                + NL;
-        expectedMessages += "Step 6.4.15.1.b - Waiting manufacturer’s recommended interval with the key off"
-                + NL;
-        expectedMessages += "Step 6.4.15.1.c - Remove implanted fault per manufacturer's instructions" + NL;
-        expectedMessages += "User cancelled testing at Part 4 Step 15";
-        assertEquals(expectedMessages, listener.getMessages());
-
-        String expectedResults = "";
-        expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
-        expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
-        assertEquals(expectedResults, listener.getResults());
     }
 
 }
