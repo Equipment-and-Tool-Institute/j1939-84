@@ -128,7 +128,7 @@ public class EngineSpeedModuleTest {
     public void testEngineNotCommunicating() {
         when(j1939.read(EngineSpeedPacket.class, 0x00, 300, MILLISECONDS)).thenReturn(Optional.empty());
         assertEquals(KEY_OFF, instance.getKeyState());
-        assertEquals("---- RPMs", instance.getEngineSpeedAsString());
+        assertEquals("Key Off", instance.getEngineSpeedAsString());
         verify(j1939, atLeastOnce()).read(EngineSpeedPacket.class, 0x00, 300, MILLISECONDS);
     }
 

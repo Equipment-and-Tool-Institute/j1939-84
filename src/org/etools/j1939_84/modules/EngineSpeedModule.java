@@ -69,7 +69,7 @@ public class EngineSpeedModule extends FunctionalModule {
     public String getEngineSpeedAsString() {
         EngineSpeedPacket packet = getEngineSpeedPacket();
         if (packet == null) {
-            return "---- RPMs";
+            return "Key Off";
         } else if (packet.isError()) {
             return "Error RPMs";
         } else if (packet.isNotAvailable()) {
