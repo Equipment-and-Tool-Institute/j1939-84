@@ -9,7 +9,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
@@ -47,10 +49,6 @@ public class PartResultRepository implements ResultsListener {
         return partResult;
     }
 
-    public List<StepResult> getStepResults(int partNumber) {
-        return getPartResult(partNumber).getStepResults();
-    }
-
     public List<PartResult> getPartResults() {
         List<Integer> keys = new ArrayList<>(partResultsMap.keySet());
         Collections.sort(keys);
@@ -75,7 +73,8 @@ public class PartResultRepository implements ResultsListener {
         ActionOutcome actionOutcome = new ActionOutcome(outcome, message);
         boolean isAdded = getStepResult(partNumber, stepNumber).addResult(actionOutcome);
         if (isAdded) {
-            System.out.println(actionOutcome);
+            // Write the value to the logs, so it's intermixed with the packet data
+            J1939_84.getLogger().log(Level.INFO, actionOutcome.toString());
         }
     }
 }
