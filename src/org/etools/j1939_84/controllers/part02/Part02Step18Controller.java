@@ -7,6 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.J1939_84.isTesting;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.KeyState.KEY_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -60,12 +61,10 @@ public class Part02Step18Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.2.18.1.a. Turn Engine Off and keep the ignition key in the off position.
-        incrementProgress("Part 2, Step 18 Turn Engine Off and keep the ignition key in the off position");
-        ensureKeyStateIs(KEY_OFF);
+        ensureKeyStateIs(KEY_OFF, "6.2.18.1.a");
 
         // 6.2.18.1.b. Implant Fault A according to engine manufacturer’s instruction (See section 5 for additional
         // discussion).
-        incrementProgress("Waiting for implant of Fault A according to the engine manufacturer's instruction");
         waitForFaultA();
         if (isTesting()) {
             getVehicleInformationModule().implantFaultA(getListener());
@@ -74,23 +73,16 @@ public class Part02Step18Controller extends StepController {
         // 6.2.18.1.c. Turn ignition key to the ON position.
         // 6.2.18.1.d. Observe MIL and Wait to Start Lamps in Instrument Cluster
         // 6.2.18.1.e. Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished.
-        incrementProgress("Part 2, Step 18 Turn ignition key to the ON position after MIL & WSL have cleared");
-        waitForEngineStart();
+        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.2.18.1.c");
 
     }
 
-    private void waitForFaultA() {
-        String message = "Implant Fault A according to engine manufacturer’s instruction" + NL;
-        message += "Press OK to continue testing" + NL;
+    private void waitForFaultA() throws InterruptedException {
+        incrementProgress("Step 6.2.18.1.b - Waiting for implant of Fault A according to the engine manufacturer's instruction");
+
+        String message = "Implant Fault A according to engine manufacturer’s instruction" + NL + NL;
+        message += "Press OK to continue";
         displayInstructionAndWait(message, "Step 6.2.18.1.b", WARNING);
-    }
-
-    private void waitForEngineStart() {
-        String message = "Turn ignition key to the ON position" + NL;
-        message += "Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster" + NL;
-        message += "Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished" + NL;
-        message += "Press OK to continue testing" + NL;
-        displayInstructionAndWait(message, "Step 6.2.18.1.c-e", WARNING);
     }
 
 }
