@@ -1,9 +1,7 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.modules;
-
-import static org.etools.j1939_84.J1939_84.NL;
 
 import org.etools.j1939_84.BuildNumber;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -38,10 +36,8 @@ public class BannerModule extends FunctionalModule {
     /**
      * Constructor exposed to for testing
      *
-     * @param dateTimeModule
-     *                           the {@link DateTimeModule}
      * @param buildNumber
-     *                           the {@link BuildNumber}
+     *                        the {@link BuildNumber}
      */
     public BannerModule(BuildNumber buildNumber) {
         super();
@@ -53,11 +49,7 @@ public class BannerModule extends FunctionalModule {
     }
 
     public String getHeader() {
-        return getTime() + " " + TOOL_NAME + " version " + buildNumber.getVersionNumber();
-    }
-
-    public String getSummaryHeader() {
-        return "Summary of " + BannerModule.TOOL_NAME + " Execution" + NL;
+        return TOOL_NAME + " version " + buildNumber.getVersionNumber();
     }
 
     /**

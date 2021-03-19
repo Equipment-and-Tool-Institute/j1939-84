@@ -422,7 +422,6 @@ public class TableA1Validator {
                 listener.onResult("PGN " + pgn + " with Supported SPNs " + String.join(", ", supportedSPNs));
                 listener.onResult(packet.getPacket().toTimeString());
                 listener.onResult("Found: " + packet.toString());
-                listener.onResult("");
             }
 
             Set<Integer> modulePackets = getReportedPGNs(moduleAddress);

@@ -21,12 +21,11 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.J1939_84;
-import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.VehicleInformation;
-import org.etools.j1939_84.model.VehicleInformationListener;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The {@link FunctionalModule} that's responsible for the log file
@@ -84,21 +83,6 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
     }
 
     @Override
-    public void onMessage(String message, String title, MessageType type) {
-        // Don't care
-    }
-
-    @Override
-    public void onProgress(int currentStep, int totalSteps, String message) {
-        // Don't care
-    }
-
-    @Override
-    public void onProgress(String message) {
-        // Don't care
-    }
-
-    @Override
     public void onResult(List<String> results) {
         for (String result : results) {
             onResult(result);
@@ -111,31 +95,13 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
             write(result);
             writer.flush();
         } catch (Exception e) {
-            getLogger().log(Level.SEVERE, "Error Writing to file", e);
+            logger.log(Level.SEVERE, "Error Writing to file", e);
         }
-    }
-
-    @Override
-    public void onUrgentMessage(String message, String title, MessageType type) {
-        // Don't care
-    }
-
-    @Override
-    public void onUrgentMessage(String message, String title, MessageType type, QuestionListener listener) {
-        // Don't care
-    }
-
-    @Override
-    public void onVehicleInformationNeeded(VehicleInformationListener listener) {
     }
 
     @Override
     public void onVehicleInformationReceived(VehicleInformation vehicleInformation) {
         this.vehicleInformation = vehicleInformation;
-    }
-
-    private Logger getLogger() {
-        return logger;
     }
 
     /**
@@ -149,7 +115,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
                 writer.close();
             }
         } catch (IOException e) {
-            getLogger().log(Level.SEVERE, "Error writing end of program statement", e);
+            logger.log(Level.SEVERE, "Error writing end of program statement", e);
         }
     }
 
@@ -198,63 +164,78 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
 
     private void writeFinalReport() {
         try {
+            String pageHeader = bannerModule.getHeader() + NL
+                    + "Generated: " + getDate() + " " + getTime() + NL
+                    + "Log File Name: " + reportFile;
+
             Path tempFilePath = Files.createTempFile("report", "J1939-84");
-            Writer tempFileWriter = Files.newBufferedWriter(tempFilePath);
-            tempFileWriter.write(bannerModule.getHeader() + NL);
-            tempFileWriter.write(NL);
-            tempFileWriter.write(bannerModule.getSummaryHeader() + NL);
-            tempFileWriter.write("Generated " + getDate() + " " + getTime() + NL);
-            tempFileWriter.write("Log File Name: " + reportFile + NL);
-            tempFileWriter.write(NL);
-            tempFileWriter.write(vehicleInformation + NL);
-            tempFileWriter.write(NL);
-            tempFileWriter.write("Addresses Claimed" + NL);
+            Writer tempWriter = Files.newBufferedWriter(tempFilePath);
+
+            tempWriter.write("Summary of " + BannerModule.TOOL_NAME + " Execution" + NL);
+            tempWriter.write(NL);
+
+            tempWriter.write(pageHeader + NL);
+            tempWriter.write(NL);
+
+            tempWriter.write("TEST SUMMARY REPORT" + NL);
+            tempWriter.write("OUTCOME: " + NL);
+            tempWriter.write("Failures:    " + summaryModule.getOutcomeCount(Outcome.FAIL) + NL);
+            tempWriter.write("Warnings:    " + summaryModule.getOutcomeCount(Outcome.WARN) + NL);
+            tempWriter.write("Information: " + summaryModule.getOutcomeCount(Outcome.INFO) + NL);
+            tempWriter.write("Incomplete:  " + summaryModule.getOutcomeCount(Outcome.INCOMPLETE) + NL);
+            tempWriter.write("Timing:      " + getJ1939().getWarnings() + NL);
+            tempWriter.write("Passes:      " + summaryModule.getOutcomeCount(Outcome.PASS) + NL);
+            tempWriter.write(NL);
+
+            tempWriter.write(vehicleInformation + NL);
+            tempWriter.write(NL);
+
+            tempWriter.write("Addresses Claimed" + NL);
             if (vehicleInformation != null && vehicleInformation.getAddressClaim() != null) {
-                tempFileWriter
-                              .write(vehicleInformation.getAddressClaim()
-                                                       .getPackets()
-                                                       .stream()
-                                                       .filter(Objects::nonNull)
-                                                       .map(a -> "    " + a.getPacket() + " " + a.getSource())
-                                                       .collect(Collectors.joining(NL))
-                                      + NL); // FIXME
+                tempWriter.write(getAddressClaimReport() + NL);
             } else {
-                tempFileWriter.write(" IS EMPTY" + NL);
+                tempWriter.write("Error: No addresses were claimed" + NL);
             }
-            tempFileWriter.write(PAGE_BREAK);
 
-            tempFileWriter.write("TEST SUMMARY REPORT" + NL);
-            tempFileWriter.write("OUTCOME: " + NL);
-            tempFileWriter.write("Failures:    " + summaryModule.getOutcomeCount(Outcome.FAIL) + NL);
-            tempFileWriter.write("Warnings:    " + summaryModule.getOutcomeCount(Outcome.WARN) + NL);
-            tempFileWriter.write("Information: " + summaryModule.getOutcomeCount(Outcome.INFO) + NL);
-            tempFileWriter.write("Incomplete:  " + summaryModule.getOutcomeCount(Outcome.INCOMPLETE) + NL);
-            tempFileWriter.write("Timing:      " + getJ1939().getWarnings() + NL);
-            tempFileWriter.write("Passes:      " + summaryModule.getOutcomeCount(Outcome.PASS) + NL);
-            tempFileWriter.write(NL);
-            tempFileWriter.write(vehicleInformation + NL);
+            tempWriter.write(PAGE_BREAK);
+            tempWriter.write(pageHeader + NL);
+            tempWriter.write(NL);
 
-            tempFileWriter.write(summaryModule.generateSummary());
-            tempFileWriter
-                          .write(bannerModule.getDate() + " " + bannerModule.getTime() + " END TEST SUMMARY REPORT"
-                                  + NL);
+            tempWriter.write(summaryModule.generateSummary());
+            tempWriter.write("End Summary of " + BannerModule.TOOL_NAME + " Execution" + NL);
 
-            tempFileWriter.write(PAGE_BREAK);
-            tempFileWriter.flush();
+            tempWriter.write(PAGE_BREAK);
+            tempWriter.write(pageHeader + NL);
+            tempWriter.write(NL);
 
-            tempFileWriter.write("TEST LOG REPORT" + NL + NL);
-            tempFileWriter.write(vehicleInformation + NL);
+            tempWriter.flush();
+
+            tempWriter.write("TEST LOG REPORT" + NL + NL);
             try (Reader reportFileReader = Files.newBufferedReader(reportFile.toPath())) {
-                reportFileReader.transferTo(tempFileWriter);
+                reportFileReader.transferTo(tempWriter);
             }
-            tempFileWriter.flush();
-            tempFileWriter.close();
+            tempWriter.write("END TEST LOG REPORT");
+
+            tempWriter.flush();
+            tempWriter.close();
+
             File raw = new File(reportFile + ".raw");
             reportFile.renameTo(raw);
             Files.copy(tempFilePath, reportFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             raw.delete();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @NotNull
+    private String getAddressClaimReport() {
+        return vehicleInformation.getAddressClaim()
+                                 .getPackets()
+                                 .stream()
+                                 .filter(Objects::nonNull)
+                                 .map(a -> "    " + a.getPacket() + " " + a.getSource())
+                                 .collect(Collectors.joining(NL));
     }
 }

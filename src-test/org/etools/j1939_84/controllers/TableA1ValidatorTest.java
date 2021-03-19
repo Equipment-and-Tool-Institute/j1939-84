@@ -221,11 +221,9 @@ public class TableA1ValidatorTest {
         expected += "PGN 11111 with Supported SPNs " + NL;
         expected += "packet1 packet" + NL;
         expected += "Found: packet1" + NL;
-        expected += "" + NL;
         expected += "PGN 22222 with Supported SPNs " + NL;
         expected += "packet2 packet" + NL;
         expected += "Found: packet2" + NL;
-        expected += "" + NL;
         assertEquals(expected, listener.getResults());
 
         verify(mockListener).addOutcome(1,
@@ -290,7 +288,6 @@ public class TableA1ValidatorTest {
         expected += "PGN 61445 with Supported SPNs 92, 96, 158, 190, 544" + NL;
         expected += "packet1 packet" + NL;
         expected += "Found: packet1" + NL;
-        expected += "" + NL;
         expected += "" + NL;
         expected += "" + NL;
         expected += "" + NL;
