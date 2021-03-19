@@ -112,11 +112,9 @@ public class Part01Step01Controller extends StepController {
         message += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions"
                 + NL + NL;
         message += "Please press OK to continue";
-
         displayInstructionAndWait(message, "Step 6.1.1.1.a, b & c", WARNING);
 
         // 6.1.1.1.d. Turn the ignition key to on.
-        incrementProgress("Step 6.1.1.1.d - Waiting for key on with engine off");
         ensureKeyStateIs(KEY_ON_ENGINE_OFF, "6.1.1.1.d");
 
         incrementProgress("Step 6.1.1.1.e - Collecting Vehicle Information");
