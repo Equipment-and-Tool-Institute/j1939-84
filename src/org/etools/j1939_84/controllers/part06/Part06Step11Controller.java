@@ -61,51 +61,34 @@ public class Part06Step11Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.6.11.1.a Turn engine off.
-        incrementProgress("Step 6.6.11.1.a - Turn Engine Off and keep the ignition key in the off position");
-        ensureKeyStateIs(KEY_OFF);
+        ensureKeyStateIs(KEY_OFF, "6.6.11.1.a");
 
         // 6.6.11.1.b Wait engine manufacturer’s recommended interval.
         waitMfgIntervalWithKeyOff("Step 6.6.11.1.b");
 
         // 6.6.11.1.c Turn key to on position.
-        incrementProgress("Step 6.6.11.1.c - Turn the ignition key in the on position");
-        ensureKeyStateIs(KEY_ON_ENGINE_OFF);
+        ensureKeyStateIs(KEY_ON_ENGINE_OFF, "6.6.11.1.c");
 
-        // 6.6.11.1.d If required by engine manufacturer, start the engine to start operating cycle effects.
+        // 6.6.11.1.d If required by engine manufacturer, start the engine for start to start operating cycle effects.
         // 6.6.11.1.e Otherwise, Proceed with part 7.
-        displayQuestionMessage();
+        // a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on
+        // or a non-emissions related fault displayed in DM1. Vehicles with the MIL on will fail subsequent tests.
+        String message = "If required by engine manufacturer, start the engine for start-to-start operating cycle effects";
+        message += NL + NL + "Press OK to continue";
+        displayInstructionAndWait(message, "Step 6.6.11.1.d", WARNING);
         if (isTesting()) {
-            ensureKeyStateIs(KEY_ON_ENGINE_RUNNING);
+            ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.6.11.1.d");
         }
 
         // 6.6.11.1.f Turn engine off.
-        ensureKeyStateIs(KEY_OFF);
+        ensureKeyStateIs(KEY_OFF, "6.6.11.1.f");
 
         // 6.6.11.1.g Wait engine manufacturer’s recommended interval.
         waitMfgIntervalWithKeyOff("Step 6.6.11.1.g");
 
         // 6.6.11.1.h Turn the key to the on position.
         // 6.6.11.1.i Proceed with part 7.
-        waitForEngineStart();
-    }
-
-    private void waitForEngineStart() {
-        String message = "Turn the key to the on position" + NL;
-        message += "Proceeding with Part 7" + NL;
-        message += "Press OK when ready to continue testing";
-        displayInstructionAndWait(message, "Step 6.6.11.1.h - i", WARNING);
-    }
-
-    private void displayQuestionMessage() {
-
-        // 6.6.11.1.d If required by engine manufacturer, start the engine for start to start operating cycle effects.
-        // 6.6.11.1.e Otherwise, Proceed with part 7.
-        // a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on
-        // or a non-emissions related fault displayed in DM1. Vehicles with the MIL on will fail subsequent tests.
-        String message = "If required by engine manufacturer, start the engine for start-to-start operating cycle effects"
-                + NL;
-        message += "Press OK when ready to continue testing";
-        displayInstructionAndWait(message, "Step 6.6.11.d & e", WARNING);
+        ensureKeyStateIs(KEY_ON_ENGINE_OFF, "6.6.11.1.h");
     }
 
 }
