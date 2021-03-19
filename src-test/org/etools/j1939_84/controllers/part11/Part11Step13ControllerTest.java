@@ -12,7 +12,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -164,36 +163,44 @@ public class Part11Step13ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
 
-        verify(mockListener, times(2)).onUrgentMessage(eq("Please turn " + KEY_OFF),
-                                                       eq("Adjust Key Switch"),
+        verify(mockListener).onUrgentMessage(eq("Please turn key off"),
+                                             eq("Step 6.11.13.1.a"),
                                                        eq(WARNING),
                                                        any());
-        verify(mockListener).onUrgentMessage(eq("Please turn " + KEY_ON_ENGINE_RUNNING),
-                                             eq("Adjust Key Switch"),
+        verify(mockListener).onUrgentMessage(eq("Please start the engine"),
+                                             eq("Step 6.11.13.1.d"),
                                              eq(WARNING),
                                              any());
-        verify(mockListener).onUrgentMessage(eq("Please turn " + KEY_ON_ENGINE_OFF),
-                                             eq("Adjust Key Switch"),
+        verify(mockListener).onUrgentMessage(eq("Please turn key off"),
+                                             eq("Step 6.11.13.1.f"),
+                                             eq(WARNING),
+                                             any());
+        verify(mockListener).onUrgentMessage(eq("Please turn the key on with the engine off"),
+                                             eq("Step 6.11.13.1.h"),
                                              eq(WARNING),
                                              any());
 
-        verify(mockListener).onUrgentMessage(eq(OFF_MSG), eq("Step 6.11.31.1.b"), eq(WARNING), any());
-        verify(mockListener).onUrgentMessage(eq(OFF_MSG), eq("Step 6.11.31.1.g"), eq(WARNING), any());
+        verify(mockListener).onUrgentMessage(eq(OFF_MSG), eq("Step 6.11.13.1.b"), eq(WARNING), any());
+        verify(mockListener).onUrgentMessage(eq(OFF_MSG), eq("Step 6.11.13.1.g"), eq(WARNING), any());
 
         assertEquals(62000, dateTimeModule.getTimeAsLong());
 
         StringBuilder expectedMessages = new StringBuilder();
-        expectedMessages.append("Waiting for Key OFF...").append(NL);
-        expectedMessages.append("Step 6.11.31.1.b - Waiting manufacturer’s recommended interval with the key off")
+        expectedMessages.append("Step 6.11.13.1.a - Waiting for key off").append(NL);
+        expectedMessages.append("Step 6.11.13.1.a - Waiting for key off...").append(NL);
+        expectedMessages.append("Step 6.11.13.1.b - Waiting manufacturer’s recommended interval with the key off")
                         .append(NL);
-        expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
+        expectedMessages.append("Step 6.11.13.1.d - Waiting for engine start").append(NL);
+        expectedMessages.append("Step 6.11.13.1.d - Waiting for engine start...").append(NL);
         for (int i = 60; i > 0; i--) {
             expectedMessages.append("Step 6.11.13.1.e - Waiting ").append(i).append(" seconds").append(NL);
         }
-        expectedMessages.append("Waiting for Key OFF...").append(NL);
-        expectedMessages.append("Step 6.11.31.1.g - Waiting manufacturer’s recommended interval with the key off")
+        expectedMessages.append("Step 6.11.13.1.f - Waiting for key off").append(NL);
+        expectedMessages.append("Step 6.11.13.1.f - Waiting for key off...").append(NL);
+        expectedMessages.append("Step 6.11.13.1.g - Waiting manufacturer’s recommended interval with the key off")
                         .append(NL);
-        expectedMessages.append("Waiting for Key ON/Engine OFF...");
+        expectedMessages.append("Step 6.11.13.1.h - Waiting for key on with engine off").append(NL);
+        expectedMessages.append("Step 6.11.13.1.h - Waiting for key on with engine off...");
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
         String expectedResults = "";
