@@ -202,7 +202,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         // 6.7.18.1.f.
         String urgentMessages2 = "Wait for manufacturer’s recommended time for Fault B to be detected as failed."
                 + NL;
-        urgentMessages2 += "Press OK to continue the testing.";
+        urgentMessages2 += "Press OK to continue";
         String expectedTitle2 = "Step 6.7.18.1.f";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2),
                                              eq(expectedTitle2),
@@ -219,9 +219,9 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                                                             any());
 
         // 6.7.18.1.h.
-        String urgentMessages3 = "Wait for the manufacturer's recommended interval with the Key OFF."
+        String urgentMessages3 = "Wait for the manufacturer's recommended interval with the key off" + NL
                 + NL;
-        urgentMessages3 += "Press OK to continue the testing.";
+        urgentMessages3 += "Press OK to continue";
         String expectedTitle3 = "Step 6.7.18.1.h";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages3),
                                                             eq(expectedTitle3),
@@ -245,7 +245,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                 + NL;
         expectedMessages += "Step 6.7.18.1.g - Turn Engine Off and keep the ignition key in the off position" + NL;
         expectedMessages += "Waiting for Key OFF..." + NL;
-        expectedMessages += "Step 6.7.18.1.h - Waiting manufacturer’s recommended interval with the Key OFF" + NL;
+        expectedMessages += "Step 6.7.18.1.h - Waiting manufacturer’s recommended interval with the key off" + NL;
         expectedMessages += "Step 6.7.18.1.i - Turn Engine on with the ignition key in the on position" + NL;
         expectedMessages += "Step 6.7.18.1.j - Fault B is a single trip fault; proceeding with part 8 immediately";
         assertEquals(expectedMessages, listener.getMessages());
@@ -345,7 +345,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         // 6.7.18.1.f.
         String urgentMessages2 = "Wait for manufacturer’s recommended time for Fault B to be detected as failed."
                 + NL;
-        urgentMessages2 += "Press OK to continue the testing.";
+        urgentMessages2 += "Press OK to continue";
         String expectedTitle2 = "Step 6.7.18.1.f";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2),
                                              eq(expectedTitle2),
@@ -362,9 +362,9 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                                                             any());
 
         // 6.7.18.1.h.
-        String urgentMessages3 = "Wait for the manufacturer's recommended interval with the Key OFF."
+        String urgentMessages3 = "Wait for the manufacturer's recommended interval with the key off" + NL
                 + NL;
-        urgentMessages3 += "Press OK to continue the testing.";
+        urgentMessages3 += "Press OK to continue";
         String expectedTitle3 = "Step 6.7.18.1.h";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages3),
                                                             eq(expectedTitle3),
@@ -378,7 +378,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
 
         String urgentMessages4 = "Wait for manufacturer’s recommended time for Fault B to be detected as failed."
                 + NL;
-        urgentMessages4 += "Press OK to continue the testing.";
+        urgentMessages4 += "Press OK to continue";
         String expectedTitle4 = "Step 6.7.18.1.k";
         verify(mockListener).onUrgentMessage(eq(urgentMessages4),
                                              eq(expectedTitle4),
@@ -386,9 +386,9 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages5 = "Wait for the manufacturer's recommended interval with the Key OFF."
+        String urgentMessages5 = "Wait for the manufacturer's recommended interval with the key off" + NL
                 + NL;
-        urgentMessages5 += "Press OK to continue the testing.";
+        urgentMessages5 += "Press OK to continue";
         String expectedTitle5 = "Step 6.7.18.1.m";
         verify(mockListener).onUrgentMessage(eq(urgentMessages5),
                                              eq(expectedTitle5),
@@ -411,13 +411,13 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                 + NL;
         expectedMessages += "Step 6.7.18.1.g - Turn Engine Off and keep the ignition key in the off position" + NL;
         expectedMessages += "Waiting for Key OFF..." + NL;
-        expectedMessages += "Step 6.7.18.1.h - Waiting manufacturer’s recommended interval with the Key OFF" + NL;
+        expectedMessages += "Step 6.7.18.1.h - Waiting manufacturer’s recommended interval with the key off" + NL;
         expectedMessages += "Step 6.7.18.1.i - Turn Engine on with the ignition key in the on position" + NL;
         expectedMessages += "Step 6.7.18.1.j - Running fault B trip #2 of 2 total fault trips" + NL;
         expectedMessages += "Step 6.7.18.1.k - Waiting for manufacturer’s recommended time for Fault B to be detected as failed"
                 + NL;
         expectedMessages += "Step 6.7.18.1.l - Turn Engine Off and keep the ignition key in the off position." + NL;
-        expectedMessages += "Step 6.7.18.1.m - Waiting manufacturer’s recommended interval with the Key OFF" + NL;
+        expectedMessages += "Step 6.7.18.1.m - Waiting manufacturer’s recommended interval with the key off" + NL;
         expectedMessages += "Step 6.7.18.1.n & o - With the ignition key on and engine on proceeding to Part 8";
         assertEquals(expectedMessages, listener.getMessages());
 

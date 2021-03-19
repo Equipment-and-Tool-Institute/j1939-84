@@ -177,36 +177,30 @@ public abstract class StepController extends Controller {
         getListener().onResult("Final Engine Speed = " + getEngineSpeedAsString());
     }
 
-    private String getWaitingKeyStateAsString(KeyState keyState) {
-        String keyStateString = "Waiting for ";
+    private static String getWaitingKeyStateAsString(KeyState keyState) {
         switch (keyState) {
             case KEY_ON_ENGINE_RUNNING:
-                keyStateString += "engine start";
-                break;
+                return "Waiting for engine start";
             case KEY_ON_ENGINE_OFF:
-                keyStateString += "key on with engine off";
-                break;
+                return "Waiting for key on with engine off";
             case KEY_OFF:
-                keyStateString += "key off";
-                break;
+                return "Waiting for key off";
+            default:
+                return "Waiting for unknown";
         }
-        return keyStateString;
     }
 
-    private String getCurrentKeyStateAsString(KeyState keyState) {
-        String keyStateString = "Please ";
+    private static String getCurrentKeyStateAsString(KeyState keyState) {
         switch (keyState) {
             case KEY_ON_ENGINE_RUNNING:
-                keyStateString += "start the engine";
-                break;
+                return "Please start the engine";
             case KEY_ON_ENGINE_OFF:
-                keyStateString += "turn the key on with the engine off";
-                break;
+                return "Please turn the key on with the engine off";
             case KEY_OFF:
-                keyStateString += "turn key off";
-                break;
+                return "Please turn key off";
+            default:
+                return "Please report this error.";
         }
-        return keyStateString;
     }
 
     private String getEngineSpeedAsString() {
@@ -381,10 +375,10 @@ public abstract class StepController extends Controller {
         }
     }
 
-    protected void waitForManufacturerInterval(String section, KeyState keyState) throws InterruptedException {
-        updateProgress(format(section + " - Waiting manufacturer’s recommended interval with the %s", keyState.name));
-        String message = format("Wait for the manufacturer's recommended interval with the %s." + NL, keyState.name);
-        message += "Press OK to continue the testing.";
+    protected void waitMfgIntervalWithKeyOff(String section) throws InterruptedException {
+        updateProgress(section + " - Waiting manufacturer’s recommended interval with the key off");
+        String message = "Wait for the manufacturer's recommended interval with the key off" + NL + NL;
+        message += "Press OK to continue";
         displayInstructionAndWait(message, section, WARNING);
     }
 

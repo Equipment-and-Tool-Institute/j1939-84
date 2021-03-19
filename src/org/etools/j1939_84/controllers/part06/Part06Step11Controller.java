@@ -65,7 +65,7 @@ public class Part06Step11Controller extends StepController {
         ensureKeyStateIs(KEY_OFF);
 
         // 6.6.11.1.b Wait engine manufacturer’s recommended interval.
-        waitForManufacturerInterval("Step 6.6.11.1.b", KEY_OFF);
+        waitMfgIntervalWithKeyOff("Step 6.6.11.1.b");
 
         // 6.6.11.1.c Turn key to on position.
         incrementProgress("Step 6.6.11.1.c - Turn the ignition key in the on position");
@@ -82,7 +82,7 @@ public class Part06Step11Controller extends StepController {
         ensureKeyStateIs(KEY_OFF);
 
         // 6.6.11.1.g Wait engine manufacturer’s recommended interval.
-        waitForManufacturerInterval("Step 6.6.11.1.g", KEY_OFF);
+        waitMfgIntervalWithKeyOff("Step 6.6.11.1.g");
 
         // 6.6.11.1.h Turn the key to the on position.
         // 6.6.11.1.i Proceed with part 7.

@@ -62,7 +62,7 @@ public class Part08Step16Controller extends StepController {
         ensureKeyStateIs(KEY_OFF);
 
         // 6.8.16.1.b Wait manufacturer's recommended interval.
-        waitForManufacturerInterval("Step 6.8.16.1.b", KEY_OFF);
+        waitMfgIntervalWithKeyOff("Step 6.8.16.1.b");
 
         // 6.8.16.1.c With the key in the off position remove the implanted Fault B, according to the manufacturer’s
         // instructions for restoring the system to a fault- free operating condition.
@@ -80,7 +80,7 @@ public class Part08Step16Controller extends StepController {
         incrementProgress("Step 6.8.16.1.c - With Key OFF, remove the implanted Fault B");
         String message = "Step 6.8.16.1.c - With the key in the off position remove the implanted Fault B, according to the manufacturer’s"
                 + NL + "instructions for restoring the system to a fault- free operating condition." + NL;
-        message += "Press OK to continue the testing.";
+        message += "Press OK to continue";
         displayInstructionAndWait(message, "Test 6.8.16", WARNING);
     }
 
@@ -88,7 +88,7 @@ public class Part08Step16Controller extends StepController {
         incrementProgress("Step 6.8.16.1.e & f - Do Not Start Engine - proceeding with part 9");
         String message = "Step 6.8.16.1.e - Do Not Start Engine." + NL;
         message += "Step 6.8.16.1.f - Proceeding with part 9." + NL;
-        message += "Press OK to continue the testing.";
+        message += "Press OK to continue";
         displayInstructionAndWait(message, "Test 6.8.16", WARNING);
     }
 }

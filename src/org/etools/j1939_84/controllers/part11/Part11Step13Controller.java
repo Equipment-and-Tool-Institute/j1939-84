@@ -60,7 +60,7 @@ public class Part11Step13Controller extends StepController {
         ensureKeyStateIs(KEY_OFF);
 
         // 6.11.13.1.b. Wait manufacturer's recommended interval.
-        waitForManufacturerInterval("Step 6.11.31.1.b", KEY_OFF);
+        waitMfgIntervalWithKeyOff("Step 6.11.31.1.b");
 
         // 6.11.13.1.c. Turn Key On.
         // 6.11.13.1.d. Start Engine Immediately.
@@ -73,7 +73,7 @@ public class Part11Step13Controller extends StepController {
         ensureKeyStateIs(KEY_OFF);
 
         // 6.11.13.1.g. Wait manufacturer's recommended interval.
-        waitForManufacturerInterval("Step 6.11.31.1.g", KEY_OFF);
+        waitMfgIntervalWithKeyOff("Step 6.11.31.1.g");
 
         // 6.11.13.1.h. Turn Key On.
         ensureKeyStateIs(KeyState.KEY_ON_ENGINE_OFF);

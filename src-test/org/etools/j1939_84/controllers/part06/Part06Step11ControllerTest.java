@@ -146,9 +146,9 @@ public class Part06Step11ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Wait for the manufacturer's recommended interval with the Key OFF."
+        String urgentMessages = "Wait for the manufacturer's recommended interval with the key off" + NL
                 + NL;
-        urgentMessages += "Press OK to continue the testing.";
+        urgentMessages += "Press OK to continue";
         String expectedTitle = "Step 6.6.11.1.b";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq(expectedTitle),
@@ -174,9 +174,9 @@ public class Part06Step11ControllerTest extends AbstractControllerTest {
         String expectedTitle3 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages3), eq(expectedTitle3), eq(WARNING), any());
 
-        String urgentMessages4 = "Wait for the manufacturer's recommended interval with the Key OFF."
+        String urgentMessages4 = "Wait for the manufacturer's recommended interval with the key off" + NL
                 + NL;
-        urgentMessages4 += "Press OK to continue the testing.";
+        urgentMessages4 += "Press OK to continue";
         String expectedTitle4 = "Step 6.6.11.1.g";
         verify(mockListener).onUrgentMessage(eq(urgentMessages4),
                                              eq(expectedTitle4),
@@ -196,9 +196,9 @@ public class Part06Step11ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Step 6.6.11.1.a - Turn Engine Off and keep the ignition key in the off position"
                 + NL;
-        expectedMessages += "Step 6.6.11.1.b - Waiting manufacturer’s recommended interval with the Key OFF" + NL;
+        expectedMessages += "Step 6.6.11.1.b - Waiting manufacturer’s recommended interval with the key off" + NL;
         expectedMessages += "Step 6.6.11.1.c - Turn the ignition key in the on position" + NL;
-        expectedMessages += "Step 6.6.11.1.g - Waiting manufacturer’s recommended interval with the Key OFF";
+        expectedMessages += "Step 6.6.11.1.g - Waiting manufacturer’s recommended interval with the key off";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;

@@ -164,7 +164,7 @@ public class Part10Step05ControllerTest extends AbstractControllerTest {
 
         String urgentMessages = "Step 6.10.5.1.a - Wait for manufacturer’s recommended time for Fault B to be detected as passed."
                 + NL;
-        urgentMessages += "Press OK to continue the testing.";
+        urgentMessages += "Press OK to continue";
         String expectedTitle = "Test 6.10.5";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq(expectedTitle),
@@ -245,7 +245,7 @@ public class Part10Step05ControllerTest extends AbstractControllerTest {
 
         String urgentMessages = "Step 6.10.5.1.a - Wait for manufacturer’s recommended time for Fault B to be detected as passed."
                 + NL;
-        urgentMessages += "Press OK to continue the testing.";
+        urgentMessages += "Press OK to continue";
         String expectedTitle = "Test 6.10.5";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq(expectedTitle),

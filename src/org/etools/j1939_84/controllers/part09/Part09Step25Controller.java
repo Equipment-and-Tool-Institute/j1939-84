@@ -60,7 +60,7 @@ public class Part09Step25Controller extends StepController {
         // 6.9.25.1.a. Turn Key Off.
         ensureKeyStateIs(KEY_OFF);
         // 6.9.25.1.b. Wait manufacturer’s recommended interval.
-        waitForManufacturerInterval("6.9.25.1.b", KEY_OFF);
+        waitMfgIntervalWithKeyOff("6.9.25.1.b");
         // 6.9.25.1.c. Turn ignition key to on position.
         ensureKeyStateIs(KEY_ON_ENGINE_OFF);
         // 6.9.25.1.d. Start engine.
