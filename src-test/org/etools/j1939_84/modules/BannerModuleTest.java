@@ -55,7 +55,7 @@ public class BannerModuleTest {
     public void testHeader() {
         instance = new BannerModule(buildNumber);
         String expected = "";
-        expected += "10:15:30.0000 J1939-84 Tool version 1.2.0" + NL;
+        expected += "J1939-84 Tool version 1.2.0" + NL;
         instance.reportHeader(listener);
         assertEquals(expected, listener.getResults());
     }

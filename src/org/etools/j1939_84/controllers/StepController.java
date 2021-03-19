@@ -352,6 +352,11 @@ public abstract class StepController extends Controller {
                 break;
             }
         }
+
+        long timeLeftToWait = stopTime - getDateTimeModule().getTimeAsLong();
+        if (timeLeftToWait > 0) {
+            getDateTimeModule().pauseFor(timeLeftToWait);
+        }
     }
 
     protected void waitMfgIntervalWithKeyOff(String section) throws InterruptedException {

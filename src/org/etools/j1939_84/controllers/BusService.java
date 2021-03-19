@@ -4,6 +4,8 @@
 
 package org.etools.j1939_84.controllers;
 
+import static org.etools.j1939_84.J1939_84.NL;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -79,7 +81,6 @@ public class BusService {
     public Stream<GenericPacket> dsRequest(int pgn, int moduleAddress, String spns) {
         String message = "DS Request for PGN " + pgn + " to " + Lookup.getAddressName(moduleAddress) + " for SPNs "
                 + spns;
-        listener.onResult("");
         Packet requestPacket = j1939.createRequestPacket(pgn, moduleAddress);
         return j1939.requestDS(message, pgn, requestPacket, listener)
                     .getPacket()
@@ -159,7 +160,7 @@ public class BusService {
      * @return         the Steam of GenericPackets that were received
      */
     public Stream<GenericPacket> readBus(int seconds, String step, Predicate<GenericPacket> filter) {
-        String message = "Step " + step + " - Reading bus for %1$d seconds";
+        String message = NL + "Step " + step + " - Reading bus for %1$d seconds" + NL;
         listener.onResult(String.format(message, seconds));
         long stopTime = dateTimeModule.getTimeAsLong() + seconds * 1000L;
         new Thread(() -> {
