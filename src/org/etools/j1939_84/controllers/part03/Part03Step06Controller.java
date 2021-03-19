@@ -97,7 +97,7 @@ public class Part03Step06Controller extends StepController {
                })
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
-                   addFailure("6.3.6.2.d - Non-OBD module " + moduleName
+                   addFailure("6.3.6.2.d - Non-OBD ECU " + moduleName
                            + " did not report MIL off or not supported");
                });
     }

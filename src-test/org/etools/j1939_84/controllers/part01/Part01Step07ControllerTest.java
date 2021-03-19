@@ -220,7 +220,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         when(vehicleInformationModule.requestDM19(any(), eq(0x0A))).thenReturn(BusResult.of(dm190A));
         globalDM19s.add(dm190A);
 
-        // Module 0B - Missing CalId and Different DS value as OBD Module
+        // Module 0B - Missing CalId and Different DS value as OBD ECU
         dataRepository.putObdModule(new OBDModuleInformation(0x0B));
         DM19CalibrationInformationPacket dm190B2 = createDM19(0x0B, "ABCD", "1234", 1);
         when(vehicleInformationModule.requestDM19(any(), eq(0x0B))).thenReturn(BusResult.of(dm190B2));
@@ -228,7 +228,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         globalDM19s.add(dm190B);
 
 
-        // Module 1B - Missing CVN as non-OBD Module
+        // Module 1B - Missing CVN as non-OBD ECU
         DM19CalibrationInformationPacket dm191B = createDM19(0x1B, "", "1234", 1);
         when(vehicleInformationModule.requestDM19(any(), eq(0x1B))).thenReturn(BusResult.of(dm191B));
         globalDM19s.add(dm191B);

@@ -211,7 +211,7 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.4.5.2.c - OBD module Engine #2 (1) did not provide a NACK for the DS query");
+                                        "6.4.5.2.c - OBD ECU Engine #2 (1) did not provide a NACK for the DS query");
     }
 
     @Test
@@ -235,7 +235,7 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.4.5.2.a - OBD module Engine #1 (0) reported > 0 previously active DTC");
+                                        "6.4.5.2.a - OBD ECU Engine #1 (0) reported > 0 previously active DTC");
     }
 
     @Test
@@ -275,11 +275,11 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.4.5.2.b - OBD module Engine #1 (0) reported a MIL status different from the DM12 response earlier in this part");
+                                        "6.4.5.2.b - OBD ECU Engine #1 (0) reported a MIL status different from the DM12 response earlier in this part");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.4.5.2.c - OBD module Engine #2 (1) did not provide a NACK for the DS query");
+                                        "6.4.5.2.c - OBD ECU Engine #2 (1) did not provide a NACK for the DS query");
     }
 
     @Test
@@ -305,11 +305,11 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.4.5.2.c - OBD module Engine #1 (0) did not provide a NACK for the DS query");
+                                        "6.4.5.2.c - OBD ECU Engine #1 (0) did not provide a NACK for the DS query");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.4.5.2.d - No OBD module provided a DM23");
+                                        "6.4.5.2.d - No OBD ECU provided a DM23");
     }
 
 }

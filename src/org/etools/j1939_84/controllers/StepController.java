@@ -266,7 +266,7 @@ public abstract class StepController extends Controller {
                  .distinct()
                  .sorted()
                  .map(Lookup::getAddressName)
-                 .map(moduleName -> section + " - OBD module " + moduleName
+                 .map(moduleName -> section + " - OBD ECU " + moduleName
                          + " did not provide a response to Global query and did not provide a NACK for the DS query")
                  .forEach(this::addFailure);
     }
@@ -292,7 +292,7 @@ public abstract class StepController extends Controller {
                  .distinct()
                  .sorted()
                  .map(Lookup::getAddressName)
-                 .map(moduleName -> section + " - OBD module " + moduleName
+                 .map(moduleName -> section + " - OBD ECU " + moduleName
                          + " did not provide a NACK for the DS query")
                  .forEach(this::addFailure);
     }

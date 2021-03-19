@@ -278,7 +278,7 @@ public class Part02Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
-                                        "6.2.12.4.b - OBD module Transmission #2 (4) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.2.12.4.b - OBD ECU Transmission #2 (4) did not provide a response to Global query and did not provide a NACK for the DS query");
     }
 
     @Test
@@ -298,7 +298,7 @@ public class Part02Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
-                                        "6.2.12.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.2.12.4.b - OBD ECU Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

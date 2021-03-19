@@ -66,7 +66,7 @@ public class SectionA6Validator {
                  .distinct()
                  .sorted()
                  .map(Lookup::getAddressName)
-                 .map(moduleName -> section + " (A6.1.a) - OBD module " + moduleName
+                 .map(moduleName -> section + " (A6.1.a) - OBD ECU " + moduleName
                          + " did not provide a response to Global query")
                  .forEach(msg -> {
                      listener.addOutcome(partNumber, stepNumber, FAIL, msg);

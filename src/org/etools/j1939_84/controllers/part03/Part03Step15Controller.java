@@ -76,12 +76,12 @@ public class Part03Step15Controller extends StepController {
                                                                                    // reports distance (SPN 3069) or
                                                                                    // time (SPN 3295) with MIL on > 0.
                                                                                    if (dm21.getKmWhileMILIsActivated() > 0) {
-                                                                                       addFailure("6.3.15.2.a - OBD module "
+                                                                                       addFailure("6.3.15.2.a - OBD ECU "
                                                                                                + dm21.getModuleName()
                                                                                                + " reported active distance > 0");
                                                                                    }
                                                                                    if (dm21.getMinutesWhileMILIsActivated() > 0) {
-                                                                                       addFailure("6.3.15.2.a - OBD module "
+                                                                                       addFailure("6.3.15.2.a - OBD ECU "
                                                                                                + dm21.getModuleName()
                                                                                                + " reported active time > 0");
                                                                                    }

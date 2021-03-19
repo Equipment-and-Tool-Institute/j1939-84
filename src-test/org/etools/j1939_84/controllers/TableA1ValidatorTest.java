@@ -299,11 +299,11 @@ public class TableA1ValidatorTest {
         verify(mockListener).addOutcome(1,
                                         26,
                                         FAIL,
-                                        "6.1.26 - N.6 SPN 544 provided by non-OBD Module Turbocharger (2)");
+                                        "6.1.26 - N.6 SPN 544 provided by non-OBD ECU Turbocharger (2)");
         verify(mockListener).addOutcome(1,
                                         26,
                                         WARN,
-                                        "6.1.26 - N.6 SPN 190 provided by non-OBD Module Turbocharger (2)");
-        verify(mockListener).addOutcome(1, 26, INFO, "6.1.26 - N.6 SPN 96 provided by non-OBD Module Turbocharger (2)");
+                                        "6.1.26 - N.6 SPN 190 provided by non-OBD ECU Turbocharger (2)");
+        verify(mockListener).addOutcome(1, 26, INFO, "6.1.26 - N.6 SPN 96 provided by non-OBD ECU Turbocharger (2)");
     }
 }

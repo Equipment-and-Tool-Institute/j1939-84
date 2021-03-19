@@ -475,11 +475,11 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.2.2.3.a - OBD module Engine #1 (0) did not return a response to a destination specific DM5 request");
+                                        "6.2.2.3.a - OBD ECU Engine #1 (0) did not return a response to a destination specific DM5 request");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.2.2.3.a - OBD module Instrument Cluster #1 (23) did not return a response to a destination specific DM5 request");
+                                        "6.2.2.3.a - OBD ECU Instrument Cluster #1 (23) did not return a response to a destination specific DM5 request");
 
         verify(sectionA6Validator).verify(any(), eq("6.2.2.2.a"), eq(globalRequestResponse));
 

@@ -181,11 +181,11 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.5.2.2.c - OBD module Engine #2 (1) had a discrepancy between reported DM12 DTCs and DM6 DTCs reported in 6.3.2");
+                                        "6.5.2.2.c - OBD ECU Engine #2 (1) had a discrepancy between reported DM12 DTCs and DM6 DTCs reported in 6.3.2");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.5.2.2.d - OBD module Engine #2 (1) reported a MIL as slow flash");
+                                        "6.5.2.2.d - OBD ECU Engine #2 (1) reported a MIL as slow flash");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -251,11 +251,11 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.5.2.2.c - OBD module Engine #2 (1) had a discrepancy between reported DM12 DTCs and DM6 DTCs reported in 6.3.2");
+                                        "6.5.2.2.c - OBD ECU Engine #2 (1) had a discrepancy between reported DM12 DTCs and DM6 DTCs reported in 6.3.2");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.5.2.2.d - OBD module Engine #2 (1) reported a MIL as fast flash");
+                                        "6.5.2.2.d - OBD ECU Engine #2 (1) reported a MIL as fast flash");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

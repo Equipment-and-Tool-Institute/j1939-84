@@ -72,7 +72,7 @@ public class Part01Step15Controller extends StepController {
                .filter(DiagnosticTroubleCodePacket::hasDTCs)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
-                   addFailure("6.1.15.2.a - OBD Module " + moduleName + " reported an active DTC");
+                   addFailure("6.1.15.2.a - OBD ECU " + moduleName + " reported an active DTC");
                });
 
         // 6.1.15.2.b. Fail if any OBD ECU does not report MIL off. See section A.8
@@ -84,7 +84,7 @@ public class Part01Step15Controller extends StepController {
                .filter(p -> isNotOff(p.getMalfunctionIndicatorLampStatus())) // This warns for ALT_OFF
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
-                   addFailure("6.1.15.2.b - OBD Module " + moduleName + " did not report MIL 'off'");
+                   addFailure("6.1.15.2.b - OBD ECU " + moduleName + " did not report MIL 'off'");
                });
 
         // 6.1.15.2.c. Fail if any non-OBD ECU does not report MIL off or not
@@ -97,7 +97,7 @@ public class Part01Step15Controller extends StepController {
                })
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
-                   addFailure("6.1.15.2.c - Non-OBD Module " + moduleName + " did not report MIL off or not supported");
+                   addFailure("6.1.15.2.c - Non-OBD ECU " + moduleName + " did not report MIL off or not supported");
                });
 
         // 6.1.15.2.d. Fail if any OBD ECU reports SPN conversion method (SPN 1706) equal to binary 1.
@@ -106,7 +106,7 @@ public class Part01Step15Controller extends StepController {
                .filter(Part01Step15Controller::isConversionMethod1)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
-                   addFailure("6.1.15.2.d - OBD Module " + moduleName
+                   addFailure("6.1.15.2.d - OBD ECU " + moduleName
                            + " reported SPN conversion method (SPN 1706) equal to binary 1");
                });
 
@@ -116,7 +116,7 @@ public class Part01Step15Controller extends StepController {
                .filter(Part01Step15Controller::isConversionMethod1)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
-                   addWarning("6.1.15.3.b - Non-OBD Module " + moduleName
+                   addWarning("6.1.15.3.b - Non-OBD ECU " + moduleName
                            + " reported SPN conversion method (SPN 1706) equal to 1");
                });
 

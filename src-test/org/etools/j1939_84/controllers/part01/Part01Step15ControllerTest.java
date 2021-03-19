@@ -231,21 +231,21 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.15.2.a - OBD Module Engine #2 (1) reported an active DTC");
+                                        "6.1.15.2.a - OBD ECU Engine #2 (1) reported an active DTC");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.15.2.a - OBD Module Transmission #1 (3) reported an active DTC");
+                                        "6.1.15.2.a - OBD ECU Transmission #1 (3) reported an active DTC");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.15.2.b - OBD Module Engine #2 (1) did not report MIL 'off'");
+                                        "6.1.15.2.b - OBD ECU Engine #2 (1) did not report MIL 'off'");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.15.2.b - OBD Module Transmission #1 (3) did not report MIL 'off'");
+                                        "6.1.15.2.b - OBD ECU Transmission #1 (3) did not report MIL 'off'");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -255,37 +255,37 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.1.15.3.a - OBD Module Engine #2 (1) reported the non-preferred MIL off format per Section A.8");
+                                        "6.1.15.3.a - OBD ECU Engine #2 (1) reported the non-preferred MIL off format per Section A.8");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.15.2.d - OBD Module Engine #2 (1) reported SPN conversion method (SPN 1706) equal to binary 1");
+                                        "6.1.15.2.d - OBD ECU Engine #2 (1) reported SPN conversion method (SPN 1706) equal to binary 1");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.15.2.d - OBD Module Transmission #1 (3) reported SPN conversion method (SPN 1706) equal to binary 1");
+                                        "6.1.15.2.d - OBD ECU Transmission #1 (3) reported SPN conversion method (SPN 1706) equal to binary 1");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.15.2.c - Non-OBD Module Instrument Cluster #1 (23) did not report MIL off or not supported");
+                                        "6.1.15.2.c - Non-OBD ECU Instrument Cluster #1 (23) did not report MIL off or not supported");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.15.2.c - Non-OBD Module Engine #1 (0) did not report MIL off or not supported");
+                                        "6.1.15.2.c - Non-OBD ECU Engine #1 (0) did not report MIL off or not supported");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.1.15.3.b - Non-OBD Module Instrument Cluster #1 (23) reported SPN conversion method (SPN 1706) equal to 1");
+                                        "6.1.15.3.b - Non-OBD ECU Instrument Cluster #1 (23) reported SPN conversion method (SPN 1706) equal to 1");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.1.15.3.b - Non-OBD Module Engine #1 (0) reported SPN conversion method (SPN 1706) equal to 1");
+                                        "6.1.15.3.b - Non-OBD ECU Engine #1 (0) reported SPN conversion method (SPN 1706) equal to 1");
 
         assertEquals("", listener.getResults());
     }

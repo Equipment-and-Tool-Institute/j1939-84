@@ -226,6 +226,6 @@ public class Part09Step09ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.9.9.2.d - OBD module Turbocharger (2) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.9.9.2.d - OBD ECU Turbocharger (2) did not provide a response to Global query and did not provide a NACK for the DS query");
     }
 }

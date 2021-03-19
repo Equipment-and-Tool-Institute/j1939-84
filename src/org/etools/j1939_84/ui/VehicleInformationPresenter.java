@@ -208,7 +208,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
                                                                                                   "MISSING")))
                                            .collect(Collectors.toList());
         } catch (Exception e) {
-            getLogger().log(INFO, "Error reading getting OBD Modules", e);
+            getLogger().log(INFO, "Error reading OBD ECUs", e);
         }
 
         try {

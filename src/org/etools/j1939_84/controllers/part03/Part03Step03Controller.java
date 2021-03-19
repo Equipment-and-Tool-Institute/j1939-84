@@ -69,7 +69,7 @@ public class Part03Step03Controller extends StepController {
             List<DiagnosticTroubleCode> obdDTCs = getDTCs(packet.getSourceAddress());
 
             if (packetDTCs.size() != obdDTCs.size() || !packetDTCs.equals(obdDTCs)) {
-                addFailure("6.3.3.2.a - OBD module " + packet.getModuleName() +
+                addFailure("6.3.3.2.a - OBD ECU " + packet.getModuleName() +
                         " reported different DTC than observed in Step 6.3.2.1");
             }
         });
@@ -81,7 +81,7 @@ public class Part03Step03Controller extends StepController {
             // 6.3.3.3.a. Warn if (if supported) any ECU additional DTCs are provided than the DTC observed in step
             // 6.3.2.1 in a positive DM27 response.
             if (packetDTCs.size() > obdDTCs.size()) {
-                addWarning("6.3.3.3.a - OBD module " + packet.getModuleName() +
+                addWarning("6.3.3.3.a - OBD ECU " + packet.getModuleName() +
                         "reported " + obdDTCs.size() + " DTCs in response to DM6 in 6.3.2.1 and " +
                         packetDTCs.size() + " DTCs when responding to DM27");
             }
