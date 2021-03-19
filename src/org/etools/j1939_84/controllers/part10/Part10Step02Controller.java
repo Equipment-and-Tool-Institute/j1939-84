@@ -59,23 +59,22 @@ public class Part10Step02Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.10.2.1.a. Wait for manufacturer’s recommended time for Fault B to be detected as passed.
-        waitForFault();
+        updateProgress("Step 6.10.2.1.a - Waiting for manufacturer’s recommended time for Fault B to be detected as passed");
+        String message = "Step 6.10.2.1.a - Wait for manufacturer’s recommended time for Fault B to be detected as passed";
+        message += NL + NL + "Press OK to continue";
+        displayInstructionAndWait(message, "Step 6.10.2.1.a", WARNING);
+
         // 6.10.2.1.b. Wait a total of at least 2 minutes to establish cycle.
-        pause("Step 6.10.2.1.b - Waiting %1$d seconds", 120L);
+        pause("Step 6.10.2.1.b - Waiting %1$d seconds to establish cycle", 120L);
+
         // 6.10.2.1.c. Turn engine off.
-        ensureKeyStateIs(KEY_OFF);
+        ensureKeyStateIs(KEY_OFF, "6.10.2.1.c");
+
         // 6.10.2.1.d. Wait 1 minute.
         pause("Step 6.10.2.1.d - Waiting %1$d seconds", 60L);
-        // 6.10.2.1.e. Start engine.
-        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING);
-    }
 
-    private void waitForFault() throws InterruptedException {
-        incrementProgress("Step 6.10.2.1.a - Waiting for manufacturer’s recommended time for Fault B to be detected as passed");
-        String message = "Step 6.10.2.1.a - Wait for manufacturer’s recommended time for Fault B to be detected as passed."
-                + NL;
-        message += "Press OK to continue";
-        displayInstructionAndWait(message, "Test 6.10.2", WARNING);
+        // 6.10.2.1.e. Start engine.
+        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.10.2.1.e");
     }
 
 }
