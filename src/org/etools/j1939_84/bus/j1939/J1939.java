@@ -87,11 +87,10 @@ public class J1939 {
      */
     public static final int GLOBAL_ADDR = 0xFF;
     /**
-     * The time to wait for a response from a destination specific request (200
-     * ms + 10% + fudge factor) This time come from J1939-21, 5.12.3 Device
-     * Response Time and Timeout Defaults
+     * The time to wait for a response from a global request. This time come
+     * from Eric. It is based on 200 ms + a delay due to a scheduled DM1.
      */
-    private static final int DS_TIMEOUT = 230; // milliseconds
+    private static final int DS_TIMEOUT = 600; // milliseconds
     /**
      * The time to wait for a response from a global request. This time come
      * from Eric. It is based on 200 ms + a delay due to a scheduled DM1.
@@ -105,6 +104,8 @@ public class J1939 {
     private static final long GLOBAL_WARN_TIMEOUT = 200;// milliseconds
 
     private static final String LATE_BAM_RESPONSE = "Warning: Late BAM response: ";
+
+    private static final String LATE_DS_RESPONSE = "Warning: Late DS response: ";
 
     private static final String TIMEOUT_MESSAGE = "Timeout - No Response";
 
@@ -511,7 +512,6 @@ public class J1939 {
             }
         }
         return new BusResult<>(retry);
-
     }
 
     /**
@@ -532,16 +532,22 @@ public class J1939 {
                                                                                                             getBusAddress()))
                                                                                            .map(this::process);
             Packet sent = bus.send(request);
+            LocalDateTime lateTime;
             if (sent != null) {
                 listener.onResult(sent.toTimeString());
+                lateTime = sent.getTimestamp().plus(GLOBAL_WARN_TIMEOUT, ChronoUnit.MILLIS);
             } else {
                 warn("Failed to send: " + request);
+                lateTime = null;
             }
             Optional<Either<T, AcknowledgmentPacket>> result = stream.findFirst();
             result.ifPresentOrElse(p -> {
                 ParsedPacket pp = p.resolve();
                 listener.onResult(pp.getPacket().toTimeString());
                 listener.onResult(pp.toString());
+
+                if (lateTime != null && pp.getPacket().getFragments().get(0).getTimestamp().isAfter(lateTime))
+                    listener.onResult(LATE_DS_RESPONSE + " " + pp.getPacket().getFragments().get(0).toTimeString());
             },
                                    () -> listener.onResult(getDateTimeModule().getTime() + " " + TIMEOUT_MESSAGE));
 

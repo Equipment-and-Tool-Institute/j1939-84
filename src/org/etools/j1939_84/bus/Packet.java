@@ -35,7 +35,7 @@ public class Packet {
     private final int source;
     private final boolean transmitted;
     private int[] data;
-    private List<Packet> fragments = Collections.emptyList();
+    private List<Packet> fragments = Collections.singletonList(this);
     private LocalDateTime timestamp;
 
     /**

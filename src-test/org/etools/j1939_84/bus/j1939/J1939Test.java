@@ -374,7 +374,7 @@ public class J1939Test {
         long start = System.currentTimeMillis();
         var result = j1939.requestTestResults(247, 123, 31, 0, NOOP).getPacket();
         assertFalse(result.isPresent());
-        assertEquals(220 * 3, System.currentTimeMillis() - start, 40);
+        assertEquals(600 * 3, System.currentTimeMillis() - start, 40);
     }
 
     /**
@@ -537,6 +537,58 @@ public class J1939Test {
                                     "(?s).*Warning: Late BAM response:  [\\d:.]+ 18ECFF00 \\[8] 20 11 00 03 FF EC FE 00.*"));
     }
 
+    /**
+     * Request the VIN with a delay and verify the warning.
+     */
+    @Test
+    public void testDSTimeoutWarn() throws Exception {
+        EchoBus bus2 = new EchoBus(0);
+        bus2.log(p -> p.toTimeString());
+        J1939TP bus = new J1939TP(bus2, 0);
+
+        Stream<Packet> requestStream = bus.read(1, TimeUnit.HOURS);
+        new Thread(() -> {
+            try {
+                // wait for request
+                requestStream.findAny();
+                // wait to cause warning
+                Thread.sleep(300);
+                bus.sendDestinationSpecific(0xF9,
+                                            Packet.create(VehicleIdentificationPacket.PGN,
+                                                          0x00,
+                                                          1,
+                                                          2,
+                                                          3,
+                                                          4,
+                                                          5,
+                                                          6,
+                                                          7,
+                                                          8,
+                                                          9,
+                                                          10,
+                                                          11,
+                                                          12,
+                                                          13,
+                                                          14,
+                                                          15,
+                                                          16,
+                                                          17));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+        TestResultsListener listener = new TestResultsListener();
+        BusResult<VehicleIdentificationPacket> response = new J1939(new J1939TP(bus2, 0xF9))
+                                                                                            .requestDS("VIN",
+                                                                                                       VehicleIdentificationPacket.class,
+                                                                                                       0,
+                                                                                                       listener);
+        /* verify there is a warning */
+        assertTrue(listener.getResults()
+                           .matches(
+                                    "(?s).*Warning: Late DS response:  [\\d:.]+ 18ECF900 \\[8] 10 11 00 03 FF EC FE 00.*"));
+    }
+
     @Test
     public void testCreateRequestPacket() {
         Packet actual = instance.createRequestPacket(12345, 0x99);
@@ -584,7 +636,7 @@ public class J1939Test {
     public void testRequestDM7WillTryThreeTimes() throws Exception {
         Packet packet1 = Packet.create(DM30ScaledTestResultsPacket.PGN
                 | BUS_ADDR, 0x00, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0x0A, 0x0B, 0x0C, 0x0D);
-        when(bus.read(230, MILLISECONDS)).thenReturn(Stream.of())
+        when(bus.read(600, MILLISECONDS)).thenReturn(Stream.of())
                                          .thenReturn(Stream.of())
                                          .thenReturn(Stream.of(packet1));
 

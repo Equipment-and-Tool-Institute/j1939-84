@@ -151,7 +151,7 @@ public class J1939TP implements Bus {
         } else if (packet.getPgn() >= 0xF000) {
             return sendBam(packet);
         } else {
-            return sendDestinationSpecific(packet);
+            return sendDestinationSpecific(packet.getDestination(), packet);
         }
     }
 
@@ -284,6 +284,8 @@ public class J1939TP implements Bus {
         int source = rts.getSource();
         int id = pgn < 0xF000 ? pgn | rts.getDestination() : pgn;
         Packet packet = Packet.create(id, source, (int[]) null);
+        packet.setFragments(new ArrayList<>());
+        packet.getFragments().add(rts);
         synchronized (packet) {
             inbound.send(packet);
             long key = ((long) pgn << 32) | source;
@@ -348,6 +350,7 @@ public class J1939TP implements Bus {
                 bus.send(cts);
                 try {
                     stream.forEach(p -> {
+                        packet.getFragments().add(p);
                         fine("rx DT", rts);
                         received.set(p.get(0));
                         packet.setTimestamp(p.getTimestamp());
@@ -418,16 +421,15 @@ public class J1939TP implements Bus {
         return response;
     }
 
-    private Packet sendDestinationSpecific(Packet packet) throws BusException {
+    public Packet sendDestinationSpecific(int destinationAddress, Packet packet) throws BusException {
         int pgn = packet.getPgn();
-        int destinationAddress = packet.getDestination();
         Predicate<Packet> controlMessageFilter = p -> //
         p.getSource() == destinationAddress
                 && p.getId(0xFFFF) == (CM | packet.getSource());
 
         // send RTS
         int totalPacketsToSend = packet.getLength() / 7 + 1;
-        Packet rts = Packet.create(CM | packet.getDestination(),
+        Packet rts = Packet.create(CM | destinationAddress,
                                    getAddress(),
                                    CM_RTS,
                                    packet.getLength(),
