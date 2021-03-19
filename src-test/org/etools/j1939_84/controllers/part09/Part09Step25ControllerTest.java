@@ -152,7 +152,7 @@ public class Part09Step25ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         // 6.9.25.1.a. Turn key off.
-        String urgentMessages1 = "Please turn key off";
+        String urgentMessages1 = "Please turn the key off";
         String expectedTitle1 = "Step 6.9.25.1.a";
         verify(mockListener).onUrgentMessage(eq(urgentMessages1),
                                              eq(expectedTitle1),
@@ -223,7 +223,7 @@ public class Part09Step25ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         // 6.9.25.1.a. Turn key off.
-        String urgentMessages1 = "Please turn key off";
+        String urgentMessages1 = "Please turn the key off";
         String expectedTitle1 = "Step 6.9.25.1.a";
         verify(mockListener).onUrgentMessage(eq(urgentMessages1),
                                              eq(expectedTitle1),

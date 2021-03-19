@@ -11,7 +11,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -302,8 +301,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testMoreFailures() {
-        AcknowledgmentPacket ackPacket = new AcknowledgmentPacket(
-                                                                  Packet.create(PGN,
+        AcknowledgmentPacket ackPacket = new AcknowledgmentPacket(Packet.create(PGN,
                                                                                 0x01,
                                                                                 0x11,
                                                                                 0x22,
@@ -314,8 +312,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
                                                                                 0x77,
                                                                                 0x88));
 
-        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
-                                                                        Packet.create(PGN,
+        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(Packet.create(PGN,
                                                                                       0x01,
                                                                                       0x11,
                                                                                       0x22,
@@ -325,8 +322,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
                                                                                       0x66,
                                                                                       0x77,
                                                                                       0x88));
-        DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
-                                                                        Packet.create(PGN,
+        DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(Packet.create(PGN,
                                                                                       0x03,
                                                                                       0x11,
                                                                                       0x22,
@@ -340,8 +336,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
-        DM27AllPendingDTCsPacket packet3b = new DM27AllPendingDTCsPacket(
-                                                                         Packet.create(PGN,
+        DM27AllPendingDTCsPacket packet3b = new DM27AllPendingDTCsPacket(Packet.create(PGN,
                                                                                        0x03,
                                                                                        0x00,
                                                                                        0x00,
@@ -400,8 +395,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testMoreNackFailures() {
-        AcknowledgmentPacket ackPacket = new AcknowledgmentPacket(
-                                                                  Packet.create(PGN,
+        AcknowledgmentPacket ackPacket = new AcknowledgmentPacket(Packet.create(PGN,
                                                                                 0x03,
                                                                                 0x11,
                                                                                 0x22,
@@ -412,8 +406,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
                                                                                 0x77,
                                                                                 0x88));
 
-        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
-                                                                        Packet.create(PGN,
+        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(Packet.create(PGN,
                                                                                       0x01,
                                                                                       0x11,
                                                                                       0x22,
@@ -423,8 +416,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
                                                                                       0x66,
                                                                                       0x77,
                                                                                       0x88));
-        DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
-                                                                        Packet.create(PGN,
+        DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(Packet.create(PGN,
                                                                                       0x03,
                                                                                       0x11,
                                                                                       0x22,
@@ -480,8 +472,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoErrors() {
 
-        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
-                                                                        Packet.create(PGN,
+        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(Packet.create(PGN,
                                                                                       0x01,
                                                                                       0x00,
                                                                                       0xFF,
@@ -494,12 +485,8 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(diagnosticMessageModule.requestDM27(any()))
-                                                        .thenReturn(new RequestResult<>(false,
-                                                                                        List.of(packet1),
-                                                                                        List.of()));
-        when(diagnosticMessageModule.requestDM27(any(), eq(0x01)))
-                                                                  .thenReturn(new BusResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM27(any())).thenReturn(RequestResult.of(packet1));
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(BusResult.of(packet1));
 
         runTest();
 
@@ -514,8 +501,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
     @Test
     public void testPacketWithDTCsErrors() {
 
-        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
-                                                                        Packet.create(PGN,
+        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(Packet.create(PGN,
                                                                                       0x01,
                                                                                       0x00,
                                                                                       0xFF,
@@ -525,8 +511,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
                                                                                       0x02,
                                                                                       0x13,
                                                                                       0x81));
-        DM27AllPendingDTCsPacket packet2 = new DM27AllPendingDTCsPacket(
-                                                                        Packet.create(PGN,
+        DM27AllPendingDTCsPacket packet2 = new DM27AllPendingDTCsPacket(Packet.create(PGN,
                                                                                       0x02,
                                                                                       0x00,
                                                                                       0xFF,
@@ -539,12 +524,8 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(diagnosticMessageModule.requestDM27(any()))
-                                                        .thenReturn(new RequestResult<>(false,
-                                                                                        Arrays.asList(packet1, packet2),
-                                                                                        List.of()));
-        when(diagnosticMessageModule.requestDM27(any(), eq(0x01)))
-                                                                  .thenReturn(new BusResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM27(any())).thenReturn(RequestResult.of(packet1, packet2));
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(BusResult.of(packet1));
 
         runTest();
 

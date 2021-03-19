@@ -70,14 +70,17 @@ public class Part06Step11Controller extends StepController {
         ensureKeyStateIs(KEY_ON_ENGINE_OFF, "6.6.11.1.c");
 
         // 6.6.11.1.d If required by engine manufacturer, start the engine for start to start operating cycle effects.
-        // 6.6.11.1.e Otherwise, Proceed with part 7.
-        // a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on
-        // or a non-emissions related fault displayed in DM1. Vehicles with the MIL on will fail subsequent tests.
         String message = "If required by engine manufacturer, start the engine for start-to-start operating cycle effects";
         message += NL + NL + "Press OK to continue";
         displayInstructionAndWait(message, "Step 6.6.11.1.d", WARNING);
         if (isTesting()) {
+            // The Simulated engine requires an engine start
             ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.6.11.1.d");
+        }
+
+        // 6.6.11.1.e Otherwise, Proceed with part 7.
+        if (getEngineSpeedModule().getKeyState() != KEY_ON_ENGINE_RUNNING) {
+            return;
         }
 
         // 6.6.11.1.f Turn engine off.

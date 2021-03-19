@@ -163,7 +163,7 @@ public class Part11Step13ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
 
-        verify(mockListener).onUrgentMessage(eq("Please turn key off"),
+        verify(mockListener).onUrgentMessage(eq("Please turn the key off"),
                                              eq("Step 6.11.13.1.a"),
                                                        eq(WARNING),
                                                        any());
@@ -171,7 +171,7 @@ public class Part11Step13ControllerTest extends AbstractControllerTest {
                                              eq("Step 6.11.13.1.d"),
                                              eq(WARNING),
                                              any());
-        verify(mockListener).onUrgentMessage(eq("Please turn key off"),
+        verify(mockListener).onUrgentMessage(eq("Please turn the key off"),
                                              eq("Step 6.11.13.1.f"),
                                              eq(WARNING),
                                              any());

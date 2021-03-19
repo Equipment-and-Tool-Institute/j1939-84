@@ -79,7 +79,7 @@ public class Part04Step13Controller extends StepController {
                                            .collect(Collectors.toList());
 
         // 6.4.13.1.b. Wait 5 seconds before checking for erased information.
-        pause("Step 4.13.1.b Waiting %1$d seconds", 5L);
+        pause("Step 6.4.13.1.b - Waiting %1$d seconds before checking for erased information", 5L);
 
         // 6.4.13.2.a. Fail if any OBD ECU does not NACK with control byte = 1 or 2 or 3,
         // 1 - Negative Acknowledgment (NACK)
@@ -111,7 +111,7 @@ public class Part04Step13Controller extends StepController {
         getDiagnosticMessageModule().requestDM3(getListener());
 
         // 6.4.13.3.b. Wait 5 seconds before checking for erased information.
-        pause("Step 4.13.3.b Waiting %1$d seconds", 5L);
+        pause("Step 6.4.13.3.b - Waiting %1$d seconds before checking for erased information", 5L);
 
         // 6.4.13.4.a. Fail if any OBD ECU erases OBD diagnostic information.
         verifier.verifyDataNotErased(getListener(), "6.4.13.4.a");

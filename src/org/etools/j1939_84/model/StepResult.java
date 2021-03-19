@@ -74,7 +74,7 @@ public class StepResult implements IResult {
 
     @Override
     public String toString() {
-        return "Test " + partNumber + "." + stepNumber + " " + getName();
+        return "Test " + partNumber + "." + stepNumber + " - " + getName();
     }
 
 }

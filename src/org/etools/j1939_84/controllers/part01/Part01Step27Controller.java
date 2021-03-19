@@ -4,7 +4,6 @@
 package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.J1939_84.isDevEnv;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.etools.j1939_84.model.Outcome.FAIL;
@@ -76,9 +75,7 @@ public class Part01Step27Controller extends StepController {
         ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.1.27.1.b");
 
         // iii. The engine shall be allowed to idle one minute
-        if (!isDevEnv()) {
-            pause("Step 6.1.27.b.iii - Allowing engine to idle for %1$d seconds", 60L);
-        }
+        pause("Step 6.1.27.b.iii - Allowing engine to idle for %1$d seconds", 60L);
     }
 
     /**
@@ -95,13 +92,15 @@ public class Part01Step27Controller extends StepController {
         if (hasFailure) {
             // a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on
             // or a non-emissions related fault displayed in DM1. Vehicles with the MIL on will fail subsequent tests.
-            String message = "Ready to transition from Part 1 to Part 2 of the test" + NL;
-            message += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1."
-                    + NL;
-            message += "   Vehicles with the MIL on will fail subsequent tests." + NL + NL;
-            message += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?"
-                    + NL;
-            displayInstructionAndWait(message, "Test 6.1.27", QUESTION);
+            String message = "";
+            message += "Testing may be stopped for vehicles with failed tests " + NL;
+            message += "and for vehicles with the MIL on or a non-emissions related fault displayed in DM1." + NL;
+            message += "Vehicles with the MIL on will fail subsequent tests." + NL;
+            message += NL;
+            message += "This vehicle has had failures and will likely fail subsequent tests." + NL;
+            message += NL;
+            message += "Would you like to continue?" + NL;
+            displayInstructionAndWait(message, "Step 6.1.27.1.a", QUESTION);
         }
     }
 }

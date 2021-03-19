@@ -162,30 +162,25 @@ public class Part10Step02ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Step 6.10.2.1.a - Wait for manufacturer’s recommended time for Fault B to be detected as passed"
+        String urgentMessages = "Wait for manufacturer’s recommended time for Fault B to be detected as passed"
                 + NL + NL;
         urgentMessages += "Press OK to continue";
-        String expectedTitle = "Step 6.10.2.1.a";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
-                                             eq(expectedTitle),
+                                             eq("Step 6.10.2.1.a"),
                                              eq(WARNING),
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
         // 6.10.2.1.c. Turn engine off.
-        String urgentMessages1 = "Please turn key off";
-        String expectedTitle1 = "Step 6.10.2.1.c";
-        verify(mockListener).onUrgentMessage(eq(urgentMessages1),
-                                             eq(expectedTitle1),
+        verify(mockListener).onUrgentMessage(eq("Please turn the key off"),
+                                             eq("Step 6.10.2.1.c"),
                                              eq(WARNING),
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
         // 6.10.2.1.e. Start engine.
-        String urgentMessages1_5 = "Please start the engine";
-        String expectedTitle1_5 = "Step 6.10.2.1.e";
-        verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages1_5),
-                                                            eq(expectedTitle1_5),
+        verify(mockListener, atLeastOnce()).onUrgentMessage(eq("Please start the engine"),
+                                                            eq("Step 6.10.2.1.e"),
                                                             eq(WARNING),
                                                             any());
 
@@ -246,30 +241,25 @@ public class Part10Step02ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Step 6.10.2.1.a - Wait for manufacturer’s recommended time for Fault B to be detected as passed"
+        String urgentMessages = "Wait for manufacturer’s recommended time for Fault B to be detected as passed"
                 + NL + NL;
         urgentMessages += "Press OK to continue";
-        String expectedTitle = "Step 6.10.2.1.a";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
-                                             eq(expectedTitle),
+                                             eq("Step 6.10.2.1.a"),
                                              eq(WARNING),
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
         // 6.10.2.1.c. Turn engine off.
-        String urgentMessages1 = "Please turn key off";
-        String expectedTitle1 = "Step 6.10.2.1.c";
-        verify(mockListener).onUrgentMessage(eq(urgentMessages1),
-                                             eq(expectedTitle1),
+        verify(mockListener).onUrgentMessage(eq("Please turn the key off"),
+                                             eq("Step 6.10.2.1.c"),
                                              eq(WARNING),
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(NO);
 
         // 6.10.2.1.e. Start engine.
-        String urgentMessages1_5 = "Please start the engine";
-        String expectedTitle1_5 = "Step 6.10.2.1.e";
-        verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages1_5),
-                                                            eq(expectedTitle1_5),
+        verify(mockListener, atLeastOnce()).onUrgentMessage(eq("Please start the engine"),
+                                                            eq("Step 6.10.2.1.e"),
                                                             eq(WARNING),
                                                             any());
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 10 Step 2");

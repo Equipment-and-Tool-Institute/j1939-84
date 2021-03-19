@@ -157,16 +157,16 @@ public class Part08Step13ControllerTest extends AbstractControllerTest {
         assertEquals(10000, dateTimeModule.getTimeAsLong());
 
         String expected = "";
-        expected += "Step 6.8.13.1.b. Waiting 5 seconds before checking for erased information" + NL;
-        expected += "Step 6.8.13.1.b. Waiting 4 seconds before checking for erased information" + NL;
-        expected += "Step 6.8.13.1.b. Waiting 3 seconds before checking for erased information" + NL;
-        expected += "Step 6.8.13.1.b. Waiting 2 seconds before checking for erased information" + NL;
-        expected += "Step 6.8.13.1.b. Waiting 1 seconds before checking for erased information" + NL;
-        expected += "Step 6.8.13.3.b. Waiting 5 seconds before checking for erased information" + NL;
-        expected += "Step 6.8.13.3.b. Waiting 4 seconds before checking for erased information" + NL;
-        expected += "Step 6.8.13.3.b. Waiting 3 seconds before checking for erased information" + NL;
-        expected += "Step 6.8.13.3.b. Waiting 2 seconds before checking for erased information" + NL;
-        expected += "Step 6.8.13.3.b. Waiting 1 seconds before checking for erased information";
+        expected += "Step 6.8.13.1.b - Waiting 5 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.1.b - Waiting 4 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.1.b - Waiting 3 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.1.b - Waiting 2 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.1.b - Waiting 1 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b - Waiting 5 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b - Waiting 4 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b - Waiting 3 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b - Waiting 2 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b - Waiting 1 seconds before checking for erased information";
         assertEquals(expected, listener.getMessages());
         assertEquals("", listener.getResults());
     }
@@ -194,16 +194,16 @@ public class Part08Step13ControllerTest extends AbstractControllerTest {
         assertEquals(10000, dateTimeModule.getTimeAsLong());
 
         String expected = "";
-        expected += "Step 6.8.13.1.b. Waiting 5 seconds before checking for erased information" + NL;
-        expected += "Step 6.8.13.1.b. Waiting 4 seconds before checking for erased information" + NL;
-        expected += "Step 6.8.13.1.b. Waiting 3 seconds before checking for erased information" + NL;
-        expected += "Step 6.8.13.1.b. Waiting 2 seconds before checking for erased information" + NL;
-        expected += "Step 6.8.13.1.b. Waiting 1 seconds before checking for erased information" + NL;
-        expected += "Step 6.8.13.3.b. Waiting 5 seconds before checking for erased information" + NL;
-        expected += "Step 6.8.13.3.b. Waiting 4 seconds before checking for erased information" + NL;
-        expected += "Step 6.8.13.3.b. Waiting 3 seconds before checking for erased information" + NL;
-        expected += "Step 6.8.13.3.b. Waiting 2 seconds before checking for erased information" + NL;
-        expected += "Step 6.8.13.3.b. Waiting 1 seconds before checking for erased information";
+        expected += "Step 6.8.13.1.b - Waiting 5 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.1.b - Waiting 4 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.1.b - Waiting 3 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.1.b - Waiting 2 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.1.b - Waiting 1 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b - Waiting 5 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b - Waiting 4 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b - Waiting 3 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b - Waiting 2 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b - Waiting 1 seconds before checking for erased information";
         assertEquals(expected, listener.getMessages());
         assertEquals("", listener.getResults());
 

@@ -75,7 +75,7 @@ public class Part08Step02Controller extends StepController {
             // 6.8.2.1.b. Repeat request until one or more ECUs reports an active DTC.
 
             attempts++;
-            updateProgress("Step 6.8.2.1.a Requesting DM12 Attempt " + attempts);
+            updateProgress("Step 6.8.2.1.a - Requesting DM12 Attempt " + attempts);
 
             getListener().onResult(NL + "Attempt " + attempts);
             globalPackets = getDiagnosticMessageModule().requestDM12(getListener()).getPackets();

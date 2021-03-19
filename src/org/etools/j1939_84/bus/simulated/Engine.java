@@ -46,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Packet;
@@ -838,10 +837,6 @@ public class Engine implements AutoCloseable {
             ignitionCycles++;
             ignitionCycleSecondsRunning = 0;
             warmedUp = false;
-
-            if (J1939_84.isAutoMode()) {
-                secondsSCC += 60; // Because there are "human delays" in this testing
-            }
 
             if (getMilStatus() == ON) {
                 secondsWithMIL += 60;

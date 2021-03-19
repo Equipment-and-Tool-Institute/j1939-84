@@ -168,7 +168,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         // ensureKeyOffEngineOff()
-        String urgentMessages_5 = "Please turn key off";
+        String urgentMessages_5 = "Please turn the key off";
         String expectedTitle_5 = "Step 6.7.18.1.a";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages_5),
                                                             eq(expectedTitle_5),
@@ -205,7 +205,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         questionCaptor.getValue().answered(YES);
 
         // 6.7.18.1.g.
-        String urgentMessages2_5 = "Please turn key off";
+        String urgentMessages2_5 = "Please turn the key off";
         String expectedTitle2_5 = "Step 6.7.18.1.g";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages2_5),
                                                             eq(expectedTitle2_5),
@@ -314,7 +314,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         // ensureKeyOffEngineOff()
-        String urgentMessages_5 = "Please turn key off";
+        String urgentMessages_5 = "Please turn the key off";
         String expectedTitle_5 = "Step 6.7.18.1.a";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages_5),
                                                             eq(expectedTitle_5),
@@ -348,7 +348,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         questionCaptor.getValue().answered(YES);
 
         // 6.7.18.1.g.
-        String urgentMessages2_5 = "Please turn key off";
+        String urgentMessages2_5 = "Please turn the key off";
         String expectedTitle2_5 = "Step 6.7.18.1.g";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages2_5),
                                                             eq(expectedTitle2_5),
@@ -380,7 +380,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        verify(mockListener).onUrgentMessage(eq("Please turn key off"),
+        verify(mockListener).onUrgentMessage(eq("Please turn the key off"),
                                              eq("Step 6.7.18.1.l"),
                                              eq(WARNING),
                                              any());

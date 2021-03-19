@@ -76,7 +76,7 @@ public class Part09Step08Controller extends StepController {
                            });
 
         // 6.9.8.1.b Wait 5 seconds before checking for erased data.
-        pause("Step 6.9.8.1.b Waiting %1$d seconds before checking for erased data.", 5);
+        pause("Step 6.9.8.1.b - Waiting %1$d seconds before checking for erased data", 5);
 
         // 6.9.8.2.a Fail if any ECU partially erases diagnostic information (pass if it erases either all or none).
         // 6.9.8.2.b Fail if one or more than one ECU erases diagnostic information and one or more other ECUs do not
@@ -93,7 +93,7 @@ public class Part09Step08Controller extends StepController {
                            });
 
         // 6.9.8.3.b Wait 5 seconds before checking for erased data.
-        pause("Step 6.9.8.3.b Waiting %1$d seconds before checking for erased data.", 5);
+        pause("Step 6.9.8.3.b - Waiting %1$d seconds before checking for erased data", 5);
 
         // 6.9.8.4.a Fail if any ECU partially erases diagnostic information (pass if it erases either all or none).
         // 6.9.8.4.b For systems with multiple ECU’s, fail if one ECU or more than one ECU erases diagnostic information
@@ -104,7 +104,7 @@ public class Part09Step08Controller extends StepController {
         var packets = getDiagnosticMessageModule().requestDM11(getListener());
 
         // 6.9.8.5.b Wait 5 seconds before checking for erased data.
-        pause("Step 6.9.8.5.b Waiting %1$d seconds before checking for erased data.", 5);
+        pause("Step 6.9.8.5.b - Waiting %1$d seconds before checking for erased data", 5);
 
         // 6.9.8.6.a Fail if any OBD ECU provides a NACK to the global DM11 request.
         packets.stream()

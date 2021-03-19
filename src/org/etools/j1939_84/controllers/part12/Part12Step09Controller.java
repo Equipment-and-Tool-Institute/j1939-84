@@ -74,7 +74,7 @@ public class Part12Step09Controller extends StepController {
                                            .collect(Collectors.toList());
 
         // 6.12.9.1.b. Wait 5 seconds before checking for erased data.
-        pause("Step 6.12.9.1.b Waiting %1$d seconds before checking for erased data.", 5);
+        pause("Step 6.12.9.1.b - Waiting %1$d seconds before checking for erased data", 5);
 
         // 6.12.9.2.a. Fail if any OBD ECU does not respond with a NACK.
         checkForNACKsDS(List.of(), dsPackets, "6.12.9.2.a");
@@ -89,7 +89,7 @@ public class Part12Step09Controller extends StepController {
         var globalPackets = getDiagnosticMessageModule().requestDM11(getListener());
 
         // 6.12.9.3.b. Wait 5 seconds before checking for erased data.
-        pause("Step 6.12.9.3.b Waiting %1$d seconds before checking for erased data.", 5);
+        pause("Step 6.12.9.3.b - Waiting %1$d seconds before checking for erased data", 5);
 
         // 6.12.9.4.a. Fail if any OBD ECU responds with a NACK.
         globalPackets.stream()

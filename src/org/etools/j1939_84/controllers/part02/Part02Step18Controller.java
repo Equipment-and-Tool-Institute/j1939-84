@@ -78,7 +78,7 @@ public class Part02Step18Controller extends StepController {
     }
 
     private void waitForFaultA() throws InterruptedException {
-        incrementProgress("Step 6.2.18.1.b - Waiting for implant of Fault A according to the engine manufacturer's instruction");
+        updateProgress("Step 6.2.18.1.b - Waiting for implant of Fault A according to the engine manufacturer's instruction");
 
         String message = "Implant Fault A according to engine manufacturer’s instruction" + NL + NL;
         message += "Press OK to continue";

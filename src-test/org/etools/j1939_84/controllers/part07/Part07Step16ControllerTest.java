@@ -154,16 +154,16 @@ public class Part07Step16ControllerTest extends AbstractControllerTest {
         verify(verifier).verifyDataNotErased(any(), eq("6.7.16.4.a"));
 
         String expected = "";
-        expected += "Step 6.7.16.1.b Waiting 5 seconds" + NL;
-        expected += "Step 6.7.16.1.b Waiting 4 seconds" + NL;
-        expected += "Step 6.7.16.1.b Waiting 3 seconds" + NL;
-        expected += "Step 6.7.16.1.b Waiting 2 seconds" + NL;
-        expected += "Step 6.7.16.1.b Waiting 1 seconds" + NL;
-        expected += "Step 6.7.16.3.b Waiting 5 seconds" + NL;
-        expected += "Step 6.7.16.3.b Waiting 4 seconds" + NL;
-        expected += "Step 6.7.16.3.b Waiting 3 seconds" + NL;
-        expected += "Step 6.7.16.3.b Waiting 2 seconds" + NL;
-        expected += "Step 6.7.16.3.b Waiting 1 seconds";
+        expected += "Step 6.7.16.1.b - Waiting 5 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.1.b - Waiting 4 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.1.b - Waiting 3 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.1.b - Waiting 2 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.1.b - Waiting 1 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.3.b - Waiting 5 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.3.b - Waiting 4 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.3.b - Waiting 3 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.3.b - Waiting 2 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.3.b - Waiting 1 seconds before checking for erased information";
         assertEquals(expected, listener.getMessages());
         assertEquals("", listener.getResults());
     }
@@ -187,16 +187,16 @@ public class Part07Step16ControllerTest extends AbstractControllerTest {
         verify(verifier).verifyDataNotErased(any(), eq("6.7.16.4.a"));
 
         String expected = "";
-        expected += "Step 6.7.16.1.b Waiting 5 seconds" + NL;
-        expected += "Step 6.7.16.1.b Waiting 4 seconds" + NL;
-        expected += "Step 6.7.16.1.b Waiting 3 seconds" + NL;
-        expected += "Step 6.7.16.1.b Waiting 2 seconds" + NL;
-        expected += "Step 6.7.16.1.b Waiting 1 seconds" + NL;
-        expected += "Step 6.7.16.3.b Waiting 5 seconds" + NL;
-        expected += "Step 6.7.16.3.b Waiting 4 seconds" + NL;
-        expected += "Step 6.7.16.3.b Waiting 3 seconds" + NL;
-        expected += "Step 6.7.16.3.b Waiting 2 seconds" + NL;
-        expected += "Step 6.7.16.3.b Waiting 1 seconds";
+        expected += "Step 6.7.16.1.b - Waiting 5 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.1.b - Waiting 4 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.1.b - Waiting 3 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.1.b - Waiting 2 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.1.b - Waiting 1 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.3.b - Waiting 5 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.3.b - Waiting 4 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.3.b - Waiting 3 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.3.b - Waiting 2 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.3.b - Waiting 1 seconds before checking for erased information";
         assertEquals(expected, listener.getMessages());
         assertEquals("", listener.getResults());
 
