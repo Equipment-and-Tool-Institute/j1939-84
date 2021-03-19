@@ -59,36 +59,23 @@ public class Part08Step16Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.8.16.1.a Turn the engine off.
-        ensureKeyStateIs(KEY_OFF);
+        ensureKeyStateIs(KEY_OFF, "6.8.16.1.a");
 
         // 6.8.16.1.b Wait manufacturer's recommended interval.
         waitMfgIntervalWithKeyOff("Step 6.8.16.1.b");
 
         // 6.8.16.1.c With the key in the off position remove the implanted Fault B, according to the manufacturer’s
-        // instructions for restoring the system to a fault- free operating condition.
-        waitForFaultRemoval();
+        // instructions for restoring the system to a fault-free operating condition.
+        incrementProgress("Step 6.8.16.1.c - Waiting for implanted Fault B to be removed");
+        String message = "With the key in the off position remove the implanted Fault B, according to the manufacturer’s instructions for restoring the system to a fault-free operating condition";
+        message += NL + NL + "Press OK to continue";
+        displayInstructionAndWait(message, "Step 6.8.16.1.c", WARNING);
 
         // 6.8.16.1.d Turn the ignition key to the ON position.
-        ensureKeyStateIs(KEY_ON_ENGINE_OFF);
+        ensureKeyStateIs(KEY_ON_ENGINE_OFF, "6.8.16.1.d");
 
         // 6.8.16.1.e Do not start engine.
         // 6.8.16.1.f Proceed with part 9.
-        displayDoNotStartEngine();
     }
 
-    private void waitForFaultRemoval() throws InterruptedException {
-        incrementProgress("Step 6.8.16.1.c - With Key OFF, remove the implanted Fault B");
-        String message = "Step 6.8.16.1.c - With the key in the off position remove the implanted Fault B, according to the manufacturer’s"
-                + NL + "instructions for restoring the system to a fault- free operating condition." + NL;
-        message += "Press OK to continue";
-        displayInstructionAndWait(message, "Test 6.8.16", WARNING);
-    }
-
-    private void displayDoNotStartEngine() throws InterruptedException {
-        incrementProgress("Step 6.8.16.1.e & f - Do Not Start Engine - proceeding with part 9");
-        String message = "Step 6.8.16.1.e - Do Not Start Engine." + NL;
-        message += "Step 6.8.16.1.f - Proceeding with part 9." + NL;
-        message += "Press OK to continue";
-        displayInstructionAndWait(message, "Test 6.8.16", WARNING);
-    }
 }
