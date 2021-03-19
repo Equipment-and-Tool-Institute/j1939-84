@@ -105,7 +105,7 @@ public class SectionA6ValidatorTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.2.3.a (A6.1.a) - OBD module Engine #1 (0) did not provide a response to Global query");
+                                        "6.1.2.3.a (A6.1.a) - OBD ECU Engine #1 (0) did not provide a response to Global query");
 
     }
 

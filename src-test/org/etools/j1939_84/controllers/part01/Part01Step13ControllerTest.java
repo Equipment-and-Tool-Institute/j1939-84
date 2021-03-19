@@ -267,15 +267,15 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.13.4.b. - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.1.13.4.b. - OBD ECU Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.13.4.b. - OBD module Instrument Cluster #1 (23) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.1.13.4.b. - OBD ECU Instrument Cluster #1 (23) did not provide a response to Global query and did not provide a NACK for the DS query");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.13.4.b. - OBD module Body Controller (33) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.1.13.4.b. - OBD ECU Body Controller (33) did not provide a response to Global query and did not provide a NACK for the DS query");
 
         verify(sectionA6Validator).verify(any(), eq("6.1.13.2.a"), eq(globalRequestResponse));
 
@@ -423,12 +423,12 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                                         1,
                                         13,
                                         FAIL,
-                                        "6.1.13.4.b. - OBD module Instrument Cluster #1 (23) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.1.13.4.b. - OBD ECU Instrument Cluster #1 (23) did not provide a response to Global query and did not provide a NACK for the DS query");
         verify(mockListener).addOutcome(
                                         1,
                                         13,
                                         FAIL,
-                                        "6.1.13.4.b. - OBD module Hitch Control (35) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.1.13.4.b. - OBD ECU Hitch Control (35) did not provide a response to Global query and did not provide a NACK for the DS query");
 
         verify(sectionA6Validator).verify(any(), eq("6.1.13.2.a"), eq(globalResponse));
 

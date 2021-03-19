@@ -82,7 +82,7 @@ public class Part07Step02Controller extends StepController {
         packets.forEach(p -> {
             List<DiagnosticTroubleCode> dm6DTCs = getDTCs(DM12MILOnEmissionDTCPacket.class, p.getSourceAddress(), 6);
             if (!p.getDtcs().equals(dm6DTCs)) {
-                addFailure("6.7.2.2.b - OBD module " + p.getModuleName()
+                addFailure("6.7.2.2.b - OBD ECU " + p.getModuleName()
                         + " reported a different DTCs from the DM12 DTCs");
             }
         });
@@ -90,14 +90,14 @@ public class Part07Step02Controller extends StepController {
         // 6.7.2.2.c. Fail if any ECU does not report MIL off and not flashing.
         packets.forEach(p -> {
             if (p.getMalfunctionIndicatorLampStatus() != OFF) {
-                addFailure("6.7.2.2.c - OBD module " + p.getModuleName() + " reported MIL off and not flashing");
+                addFailure("6.7.2.2.c - OBD ECU " + p.getModuleName() + " reported MIL off and not flashing");
             }
         });
 
         // 6.7.2.3.a Warn if any ECU reports > 1 previously active DTC.
         packets.forEach(p -> {
             if (p.getDtcs().size() > 1) {
-                addWarning("6.7.2.3.c - OBD module " + p.getModuleName() + " reported > 1 previously active DTCs");
+                addWarning("6.7.2.3.c - OBD ECU " + p.getModuleName() + " reported > 1 previously active DTCs");
             }
         });
 

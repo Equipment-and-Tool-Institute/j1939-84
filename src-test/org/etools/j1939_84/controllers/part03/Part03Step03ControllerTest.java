@@ -159,7 +159,7 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.3.5.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.3.3.5.b - OBD ECU Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
     }
 
     @Test
@@ -207,11 +207,11 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.3.5.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.3.3.5.b - OBD ECU Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.3.5.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.3.3.5.b - OBD ECU Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query");
     }
 
     @Test
@@ -336,17 +336,17 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.3.2.a - OBD module Engine #2 (1) reported different DTC than observed in Step 6.3.2.1");
+                                        "6.3.3.2.a - OBD ECU Engine #2 (1) reported different DTC than observed in Step 6.3.2.1");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.3.3.3.a - OBD module Engine #2 (1)reported 1 DTCs in response to DM6 in 6.3.2.1 and 2 DTCs when responding to DM27");
+                                        "6.3.3.3.a - OBD ECU Engine #2 (1)reported 1 DTCs in response to DM6 in 6.3.2.1 and 2 DTCs when responding to DM27");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.3.2.a - OBD module Turbocharger (2) reported different DTC than observed in Step 6.3.2.1");
+                                        "6.3.3.2.a - OBD ECU Turbocharger (2) reported different DTC than observed in Step 6.3.2.1");
 
         // verify we did NOT update the obd's dtc values set in the data repo
         assertEquals(List.of(dtc1),

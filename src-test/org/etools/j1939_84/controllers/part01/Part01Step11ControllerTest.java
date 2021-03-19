@@ -151,11 +151,11 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         11,
                                         FAIL,
-                                        "6.1.11.4.f - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.1.11.4.f - OBD ECU Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
         verify(mockListener).addOutcome(1,
                                         11,
                                         FAIL,
-                                        "6.1.11.4.f - OBD module Cruise Control (17) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.1.11.4.f - OBD ECU Cruise Control (17) did not provide a response to Global query and did not provide a NACK for the DS query");
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
     }
@@ -215,7 +215,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         11,
                                         FAIL,
-                                        "6.1.11.4.f - OBD module Suspension - Drive Axle #1 (21) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.1.11.4.f - OBD ECU Suspension - Drive Axle #1 (21) did not provide a response to Global query and did not provide a NACK for the DS query");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -268,7 +268,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         11,
                                         FAIL,
-                                        "6.1.11.4.f - OBD module Suspension - Drive Axle #1 (21) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.1.11.4.f - OBD ECU Suspension - Drive Axle #1 (21) did not provide a response to Global query and did not provide a NACK for the DS query");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -321,7 +321,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         11,
                                         FAIL,
-                                        "6.1.11.4.f - OBD module Suspension - Drive Axle #1 (21) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.1.11.4.f - OBD ECU Suspension - Drive Axle #1 (21) did not provide a response to Global query and did not provide a NACK for the DS query");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

@@ -362,7 +362,7 @@ public class TableA1Validator {
                           addOutcome(listener,
                                      section,
                                      outcome,
-                                     "N.6 SPN " + id + " provided by non-OBD Module " + moduleName);
+                                     "N.6 SPN " + id + " provided by non-OBD ECU " + moduleName);
                           listener.onResult("");
                           reported.add(id);
                           nonObdProvidedSPNs.put(sourceAddress, reported);

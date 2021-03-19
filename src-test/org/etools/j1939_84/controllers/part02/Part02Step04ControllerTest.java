@@ -279,7 +279,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.2.4.4.b - OBD module Instrument Cluster #1 (23) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.2.4.4.b - OBD ECU Instrument Cluster #1 (23) did not provide a response to Global query and did not provide a NACK for the DS query");
     }
 
     @Test

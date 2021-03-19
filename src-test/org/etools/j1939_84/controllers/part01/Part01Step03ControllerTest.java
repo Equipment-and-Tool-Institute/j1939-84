@@ -186,7 +186,7 @@ public class Part01Step03ControllerTest {
 
     @Test
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
-    @TestDoc(value = @TestItem(verifies = "6.1.3.2.a"), description = "There needs to be at least one OBD Module.")
+    @TestDoc(value = @TestItem(verifies = "6.1.3.2.a"), description = "There needs to be at least one OBD ECU.")
     public void testModulesEmpty() {
         var packets = new ArrayList<DM5DiagnosticReadinessPacket>();
         List<AcknowledgmentPacket> acks = new ArrayList<>();

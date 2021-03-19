@@ -178,11 +178,11 @@ public class Part07Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.7.2.2.b - OBD module Engine #1 (0) reported a different DTCs from the DM12 DTCs");
+                                        "6.7.2.2.b - OBD ECU Engine #1 (0) reported a different DTCs from the DM12 DTCs");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.7.2.2.c - OBD module Engine #1 (0) reported MIL off and not flashing");
+                                        "6.7.2.2.c - OBD ECU Engine #1 (0) reported MIL off and not flashing");
     }
 
     @Test
@@ -207,7 +207,7 @@ public class Part07Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.7.2.3.c - OBD module Engine #1 (0) reported > 1 previously active DTCs");
+                                        "6.7.2.3.c - OBD ECU Engine #1 (0) reported > 1 previously active DTCs");
     }
 
     @Test
@@ -296,7 +296,7 @@ public class Part07Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.7.2.2.d - OBD module Engine #2 (1) did not provide a NACK for the DS query");
+                                        "6.7.2.2.d - OBD ECU Engine #2 (1) did not provide a NACK for the DS query");
 
     }
 }

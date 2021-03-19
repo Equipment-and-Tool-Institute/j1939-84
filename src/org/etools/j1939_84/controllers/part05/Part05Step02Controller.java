@@ -80,7 +80,7 @@ public class Part05Step02Controller extends StepController {
         globalPackets.forEach(packet -> {
             var dm6DTCs = getDTCs(DM6PendingEmissionDTCPacket.class, packet.getSourceAddress(), 3);
             if (!packet.getDtcs().equals(dm6DTCs)) {
-                addFailure("6.5.2.2.c - OBD module " + packet.getModuleName() +
+                addFailure("6.5.2.2.c - OBD ECU " + packet.getModuleName() +
                         " had a discrepancy between reported DM12 DTCs and DM6 DTCs reported in 6.3.2");
             }
         });
@@ -89,7 +89,7 @@ public class Part05Step02Controller extends StepController {
         globalPackets.forEach(packet -> {
             if (packet.getMalfunctionIndicatorLampStatus() == FAST_FLASH ||
                     packet.getMalfunctionIndicatorLampStatus() == SLOW_FLASH) {
-                addFailure("6.5.2.2.d - OBD module " + packet.getModuleName() +
+                addFailure("6.5.2.2.d - OBD ECU " + packet.getModuleName() +
                         " reported a MIL as " + packet.getMalfunctionIndicatorLampStatus());
 
             }

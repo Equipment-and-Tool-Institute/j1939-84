@@ -85,7 +85,7 @@ public class Part04Step07Controller extends StepController {
                                            .anyMatch(r -> r == NACK);
                 if (!isNacked) {
                     // 6.4.7.2.b Fail if NACK not received from OBD ECU that did not provide DM31 response.
-                    addFailure("6.4.7.2.b - OBD module " + moduleName + " did not provide a NACK for the DS query");
+                    addFailure("6.4.7.2.b - OBD ECU " + moduleName + " did not provide a NACK for the DS query");
                 }
             } else {
                 // 6.4.7.2.a Fail if an OBD ECU does not include the same SPN and FMI from its DM12 response earlier in

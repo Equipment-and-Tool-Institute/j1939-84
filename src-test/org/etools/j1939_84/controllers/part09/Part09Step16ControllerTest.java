@@ -196,7 +196,7 @@ public class Part09Step16ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.9.16.2.b - OBD module Engine #2 (1) did not provide a NACK for the DS query");
+                                        "6.9.16.2.b - OBD ECU Engine #2 (1) did not provide a NACK for the DS query");
     }
 
 }

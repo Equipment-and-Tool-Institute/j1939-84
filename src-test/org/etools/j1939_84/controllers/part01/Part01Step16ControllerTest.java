@@ -258,7 +258,7 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         16,
                                         FAIL,
-                                        "6.1.16.4.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.1.16.4.b - OBD ECU Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

@@ -72,7 +72,7 @@ public class Part04Step05Controller extends StepController {
                .filter(DiagnosticTroubleCodePacket::hasDTCs)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
-                   addFailure("6.4.5.2.a - OBD module " + moduleName + " reported > 0 previously active DTC");
+                   addFailure("6.4.5.2.a - OBD ECU " + moduleName + " reported > 0 previously active DTC");
                });
 
         // 6.4.5.2.b Fail if any ECU reports a different MIL status than it did in DM12 response earlier in this part.
@@ -80,7 +80,7 @@ public class Part04Step05Controller extends StepController {
                .filter(p -> p.getMalfunctionIndicatorLampStatus() != getMILStatus(p.getSourceAddress()))
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
-                   addFailure("6.4.5.2.b - OBD module " + moduleName
+                   addFailure("6.4.5.2.b - OBD ECU " + moduleName
                            + " reported a MIL status different from the DM12 response earlier in this part");
                });
 
@@ -89,7 +89,7 @@ public class Part04Step05Controller extends StepController {
 
         // 6.4.5.2.d Fail if no OBD ECU provides DM23.
         if (packets.isEmpty()) {
-            addFailure("6.4.5.2.d - No OBD module provided a DM23");
+            addFailure("6.4.5.2.d - No OBD ECU provided a DM23");
         }
     }
 

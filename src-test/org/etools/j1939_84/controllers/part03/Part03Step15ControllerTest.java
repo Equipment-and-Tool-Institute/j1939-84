@@ -183,15 +183,15 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.15.2.a - OBD module Engine #1 (0) reported active distance > 0");
+                                        "6.3.15.2.a - OBD ECU Engine #1 (0) reported active distance > 0");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.15.2.a - OBD module Turbocharger (2) reported active time > 0");
+                                        "6.3.15.2.a - OBD ECU Turbocharger (2) reported active time > 0");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.15.2.a - OBD module Transmission #1 (3) reported active time > 0");
+                                        "6.3.15.2.a - OBD ECU Transmission #1 (3) reported active time > 0");
     }
 
     @Test

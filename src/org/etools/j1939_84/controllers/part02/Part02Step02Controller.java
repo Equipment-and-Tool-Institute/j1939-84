@@ -127,7 +127,7 @@ public class Part02Step02Controller extends StepController {
                                             // so, the acks are not needed
                                             packet.left.ifPresent(destinationSpecificPackets::add);
                                         },
-                                                         () -> addWarning("6.2.2.3.a - OBD module "
+                                                         () -> addWarning("6.2.2.3.a - OBD ECU "
                                                                  + getAddressName(address)
                                                                  + " did not return a response to a destination specific DM5 request"));
                            });

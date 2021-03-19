@@ -232,6 +232,6 @@ public class Part03Step06ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.6.2.d - Non-OBD module Body Controller (33) did not report MIL off or not supported");
+                                        "6.3.6.2.d - Non-OBD ECU Body Controller (33) did not report MIL off or not supported");
     }
 }

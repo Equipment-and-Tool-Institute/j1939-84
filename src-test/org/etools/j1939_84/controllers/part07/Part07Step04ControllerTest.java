@@ -217,7 +217,7 @@ public class Part07Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.7.4.1.d - OBD module Engine #1 (0) did not provide a NACK for the DS query");
+                                        "6.7.4.1.d - OBD ECU Engine #1 (0) did not provide a NACK for the DS query");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.7.4.2.c - No OBD ECU supports DM12");
     }
 
