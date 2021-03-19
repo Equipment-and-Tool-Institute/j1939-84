@@ -264,12 +264,12 @@ public class BroadcastValidatorTest {
         verify(mockListener).addOutcome(1,
                                         26,
                                         FAIL,
-                                        "6.1.26 - Broadcast period of PGN 55555 (1000 ms) by module Engine #1 (0) is less than 90% specified broadcast period of 5000 ms.");
+                                        "6.1.26 - Broadcast period of PGN 55555 (1000 ms) by ECU Engine #1 (0) is less than 90% specified broadcast period of 5000 ms.");
 
         verify(mockListener).addOutcome(1,
                                         26,
                                         FAIL,
-                                        "6.1.26 - Broadcast period of PGN 66666 (2500 ms) by module Engine #1 (0) is beyond 110% specified broadcast period of 2000 ms.");
+                                        "6.1.26 - Broadcast period of PGN 66666 (2500 ms) by ECU Engine #1 (0) is beyond 110% specified broadcast period of 2000 ms.");
 
         String expected = "" + NL;
         expected += "PGN 11111 from Engine #1 (0)" + NL;

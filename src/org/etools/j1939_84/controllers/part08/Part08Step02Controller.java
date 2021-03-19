@@ -99,7 +99,7 @@ public class Part08Step02Controller extends StepController {
                         }
                     };
 
-                    String msg = "No module has reported an active DTC." + NL + "Do you wish to continue?";
+                    String msg = "No ECU has reported an active DTC." + NL + "Do you wish to continue?";
                     getListener().onUrgentMessage(msg,
                                                   "No Active DTCs Found",
                                                   QUESTION,

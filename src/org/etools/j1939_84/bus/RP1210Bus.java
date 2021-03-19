@@ -201,8 +201,8 @@ public class RP1210Bus implements Bus {
                                                                            BLOCKING_NONE))
                             .get();
             verify(rtn);
-            final int id = tx.getId(0xFFFF);
-            final int source = tx.getSource();
+            int id = tx.getId(0xFFFF);
+            int source = tx.getSource();
             return stream
                          .filter(rx -> rx.isTransmitted() && id == rx.getId(0xFFFF) && rx.getSource() == source)
                          .findFirst()
@@ -291,7 +291,7 @@ public class RP1210Bus implements Bus {
                 if (rtn > 0) {
                     Packet packet = decode(data, rtn);
                     if (packet.getSource() == getAddress() && !packet.isTransmitted()) {
-                        getLogger().log(Level.WARNING, "Another module is using this address: " + packet);
+                        getLogger().log(Level.WARNING, "Another ECU is using this address: " + packet);
                     }
                     getLogger().log(Level.FINE, packet.toTimeString());
                     queue.add(packet);

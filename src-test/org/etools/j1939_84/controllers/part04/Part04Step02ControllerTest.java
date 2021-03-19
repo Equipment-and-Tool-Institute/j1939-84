@@ -145,7 +145,7 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(true));
 
-        String promptMsg = "No module has reported a confirmed and active DTC." + NL + "Do you wish to continue?";
+        String promptMsg = "No ECU has reported a confirmed and active DTC." + NL + "Do you wish to continue?";
         String promptTitle = "No Confirmed and Active DTCs Found";
 
         doAnswer(invocationOnMock -> {
@@ -193,7 +193,7 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
         var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
         when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12));
 
-        String promptMsg = "No module has reported a confirmed and active DTC." + NL + "Do you wish to continue?";
+        String promptMsg = "No ECU has reported a confirmed and active DTC." + NL + "Do you wish to continue?";
         String promptTitle = "No Confirmed and Active DTCs Found";
 
         doAnswer(invocationOnMock -> {

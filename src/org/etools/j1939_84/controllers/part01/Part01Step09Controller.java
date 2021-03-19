@@ -85,7 +85,7 @@ public class Part01Step09Controller extends StepController {
 
         int function0SourceAddress = getDataRepository().getFunctionZeroAddress();
         String function0Name = Lookup.getAddressName(function0SourceAddress);
-        getListener().onResult("Function 0 module is " + function0Name);
+        getListener().onResult("Function 0 ECU is " + function0Name);
 
         ComponentIdentificationPacket function0Packet = dsPackets.stream()
                                                                  .filter(p -> p.getSourceAddress() == function0SourceAddress)

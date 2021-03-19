@@ -82,12 +82,12 @@ public class Part06Step02Controller extends StepController {
         globalPackets.forEach(p -> {
             if (p.getPreviouslyActiveCodeCount() != (byte) 0xFF &&
                     p.getPreviouslyActiveCodeCount() > 1) {
-                addWarning("6.6.2.3.a - ECU module " + p.getModuleName()
+                addWarning("6.6.2.3.a - OBD ECU " + p.getModuleName()
                         + " reported a count of > 1 for previously active DTCs");
             }
             if (p.getActiveCodeCount() != (byte) 0xFF &&
                     p.getActiveCodeCount() > 1) {
-                addWarning("6.6.2.3.a - ECU module " + p.getModuleName()
+                addWarning("6.6.2.3.a - OBD ECU " + p.getModuleName()
                         + " reported a count of > 1 active DTCs");
             }
         });

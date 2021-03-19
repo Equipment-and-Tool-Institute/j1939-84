@@ -202,7 +202,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -244,7 +244,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -285,7 +285,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -363,7 +363,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -402,7 +402,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -440,7 +440,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -477,7 +477,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -514,7 +514,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -553,7 +553,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -590,7 +590,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -625,7 +625,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -721,7 +721,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -758,7 +758,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -795,6 +795,6 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 }

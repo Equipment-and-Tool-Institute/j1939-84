@@ -95,7 +95,7 @@ public class VehicleInformationTest {
     }
 
     @Test
-    @TestDoc(description = "Verify a vehicle module year is detected in comparison.")
+    @TestDoc(description = "Verify a vehicle ECU year is detected in comparison.")
     public void testNotEqualsVehicleModelYear() {
         instance2.setVehicleModelYear(0);
         assertFalse(instance.equals(instance2));

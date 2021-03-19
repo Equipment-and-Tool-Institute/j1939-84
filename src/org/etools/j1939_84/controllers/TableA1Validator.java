@@ -253,7 +253,7 @@ public class TableA1Validator {
                      .forEach(entry -> addOutcome(listener,
                                                   section,
                                                   entry.getValue(),
-                                                  "N.5 SPN " + entry.getKey() + " provided by more than one module"));
+                                                  "N.5 SPN " + entry.getKey() + " provided by more than one ECU"));
     }
 
     public void reportExpectedMessages(ResultsListener listener) {

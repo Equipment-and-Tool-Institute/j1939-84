@@ -127,8 +127,8 @@ public class TableA1ValidatorTest {
 
         instance.reportDuplicateSPNs(packets, listener, "6.1.26");
 
-        verify(mockListener).addOutcome(1, 26, FAIL, "6.1.26 - N.5 SPN 92 provided by more than one module");
-        verify(mockListener).addOutcome(1, 26, WARN, "6.1.26 - N.5 SPN 84 provided by more than one module");
+        verify(mockListener).addOutcome(1, 26, FAIL, "6.1.26 - N.5 SPN 92 provided by more than one ECU");
+        verify(mockListener).addOutcome(1, 26, WARN, "6.1.26 - N.5 SPN 84 provided by more than one ECU");
 
         assertEquals("", listener.getResults());
     }
