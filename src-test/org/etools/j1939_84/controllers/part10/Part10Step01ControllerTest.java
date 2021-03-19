@@ -138,7 +138,7 @@ public class Part10Step01ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
 
-        String expectedMessages = "";
+        String expectedMessages = "Step 6.10.1.2.a - Waiting for engine start";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedResults = "";
@@ -157,12 +157,13 @@ public class Part10Step01ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
 
-        verify(mockListener).onUrgentMessage(eq("Please turn Key ON/Engine RUNNING"),
-                                             eq("Adjust Key Switch"),
+        verify(mockListener).onUrgentMessage(eq("Please start the engine"),
+                                             eq("Step 6.10.1.2.a"),
                                              eq(WARNING),
                                              any());
 
-        String expectedMessages = "Waiting for Key ON/Engine RUNNING...";
+        String expectedMessages = "Step 6.10.1.2.a - Waiting for engine start" + NL;
+        expectedMessages += "Step 6.10.1.2.a - Waiting for engine start...";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedResults = "";
@@ -180,8 +181,8 @@ public class Part10Step01ControllerTest extends AbstractControllerTest {
             ((QuestionListener) invocation.getArguments()[3]).answered(CANCEL);
             return null;
         }).when(mockListener)
-          .onUrgentMessage(eq("Please turn Key ON/Engine RUNNING"),
-                           eq("Adjust Key Switch"),
+          .onUrgentMessage(eq("Please start the engine"),
+                           eq("Step 6.10.1.2.a"),
                            eq(WARNING),
                            any());
 
@@ -190,17 +191,21 @@ public class Part10Step01ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
 
-        verify(mockListener).onUrgentMessage(eq("Please turn Key ON/Engine RUNNING"),
-                                             eq("Adjust Key Switch"),
+        verify(mockListener).onUrgentMessage(eq("Please start the engine"),
+                                             eq("Step 6.10.1.2.a"),
                                              eq(WARNING),
                                              any());
 
-        String userCancelledMessage = "User cancelled testing at Part " + PART_NUMBER + " Step " + STEP_NUMBER;
-        assertEquals(userCancelledMessage, listener.getMessages());
+        String expectedMessages = "Step 6.10.1.2.a - Waiting for engine start" + NL;
+        expectedMessages += "User cancelled testing at Part " + PART_NUMBER + " Step " + STEP_NUMBER;
+        assertEquals(expectedMessages, listener.getMessages());
 
         assertEquals("Initial Engine Speed = 0.0 RPMs" + NL, listener.getResults());
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, userCancelledMessage);
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        ABORT,
+                                        "User cancelled testing at Part " + PART_NUMBER + " Step " + STEP_NUMBER);
     }
 
 }
