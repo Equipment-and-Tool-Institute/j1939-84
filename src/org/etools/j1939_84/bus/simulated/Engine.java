@@ -470,8 +470,10 @@ public class Engine implements AutoCloseable {
                          }
 
                          var freezeFrames = dtcs.stream()
-                                                .map(dtc -> new FreezeFrame(dtc,
-                                                                            new int[] { 0, 0x7F, 1, 0xFF, 0, 0, 0, 0 }))
+                                                .map(dtc -> {
+                                                    int[] data = { 0x80, 0x7F, 0x11, 0x22, 0x80, 0x80, 0x80, 0x80 };
+                                                    return new FreezeFrame(dtc, data);
+                                                })
                                                 .toArray(FreezeFrame[]::new);
 
                          var dm25 = DM25ExpandedFreezeFrame.create(ADDR, freezeFrames);
