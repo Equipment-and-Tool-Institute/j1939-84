@@ -154,7 +154,7 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
         questionCaptor.getValue().answered(YES);
 
         String urgentMessages2 = "Wait the manufacturer's recommended time for Fault A to be detected as passed"
-                + NL;
+                + NL + NL;
         urgentMessages2 += "Press OK to continue";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2),
                                              eq("Step 6.5.7.1.d"),
@@ -171,7 +171,7 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
         questionCaptor.getValue().answered(YES);
 
         String urgentMessages4 = "Wait the manufacturer's recommended time for Fault A to be detected as passed"
-                + NL;
+                + NL + NL;
         urgentMessages4 += "Press OK to continue";
         verify(mockListener).onUrgentMessage(eq(urgentMessages4),
                                              eq("Step 6.5.7.1.h"),
@@ -179,14 +179,14 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String expectedMessages = "";
-        expectedMessages += "Step 6.5.7.1.a - Turn Engine Off and keep the ignition key in the off position" + NL;
-        expectedMessages += "Step 6.5.7.1.b - Waiting manufacturer’s recommended interval with the key off" + NL;
-        expectedMessages += "Step 6.5.7.1.c - Turn Engine on and keep the ignition key in the on position" + NL;
-        expectedMessages += "Step 6.5.7.1.d - Waiting manufacturer’s recommended time for Fault A to be detected as passed"
-                + NL;
-        expectedMessages += "Step 6.5.7.1.f - Waiting manufacturer’s recommended interval with the key off" + NL;
-        expectedMessages += "Step 6.5.7.1.h - Waiting manufacturer’s recommended time for Fault A to be detected as passed";
+        String expectedMessages = "Step 6.5.7.1.a - Waiting for key off" + NL +
+                "Step 6.5.7.1.b - Waiting manufacturer’s recommended interval with the key off" + NL +
+                "Step 6.5.7.1.c - Waiting for engine start" + NL +
+                "Step 6.5.7.1.d - Waiting manufacturer’s recommended time for Fault A to be detected as passed" + NL +
+                "Step 6.5.7.1.e - Waiting for key off" + NL +
+                "Step 6.5.7.1.f - Waiting manufacturer’s recommended interval with the key off" + NL +
+                "Step 6.5.7.1.g - Waiting for engine start" + NL +
+                "Step 6.5.7.1.h - Waiting manufacturer’s recommended time for Fault A to be detected as passed";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expected = "";
