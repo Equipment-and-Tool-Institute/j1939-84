@@ -471,7 +471,7 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
         pack();
         setLocationRelativeTo(getOwner());
         setResizable(false);
-        setTitle("J1939-84 Tool Vehicle Information Form");
+        setTitle("Step 6.1.1.1.e");
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
