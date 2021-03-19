@@ -140,7 +140,7 @@ public class Part03Step01ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
 
-        String expectedMessages = "Step 6.3.1.1.a - Waiting for engine start";
+        String expectedMessages = "Step 6.3.1.2.a - Waiting for engine start";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedResults = "";
@@ -160,12 +160,12 @@ public class Part03Step01ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
 
         verify(mockListener).onUrgentMessage(eq("Please start the engine"),
-                                             eq("Step 6.3.1.1.a"),
+                                             eq("Step 6.3.1.2.a"),
                                              eq(WARNING),
                                              any());
 
-        String expectedMessages = "Step 6.3.1.1.a - Waiting for engine start" + NL;
-        expectedMessages += "Step 6.3.1.1.a - Waiting for engine start...";
+        String expectedMessages = "Step 6.3.1.2.a - Waiting for engine start" + NL;
+        expectedMessages += "Step 6.3.1.2.a - Waiting for engine start...";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedResults = "";
@@ -184,7 +184,7 @@ public class Part03Step01ControllerTest extends AbstractControllerTest {
             return null;
         }).when(mockListener)
           .onUrgentMessage(eq("Please start the engine"),
-                           eq("Step 6.3.1.1.a"),
+                           eq("Step 6.3.1.2.a"),
                            eq(WARNING),
                            any());
 
@@ -194,11 +194,11 @@ public class Part03Step01ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
 
         verify(mockListener).onUrgentMessage(eq("Please start the engine"),
-                                             eq("Step 6.3.1.1.a"),
+                                             eq("Step 6.3.1.2.a"),
                                              eq(WARNING),
                                              any());
 
-        String stepMessage = "Step 6.3.1.1.a - Waiting for engine start" + NL;
+        String stepMessage = "Step 6.3.1.2.a - Waiting for engine start" + NL;
         String userCancelledMessage = "User cancelled testing at Part " + PART_NUMBER + " Step " + STEP_NUMBER;
         assertEquals(stepMessage + userCancelledMessage, listener.getMessages());
 
