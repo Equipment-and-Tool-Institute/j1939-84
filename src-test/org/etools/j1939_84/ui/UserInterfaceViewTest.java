@@ -203,7 +203,7 @@ public class UserInterfaceViewTest {
     @Test
     public void testStopButton() {
         JButton button = instance.getStopButton();
-        assertEquals("Stop", button.getText());
+        assertEquals("Cancel", button.getText());
         assertFalse(button.isEnabled());
         instance.setStopButtonEnabled(true);
         assertTrue(button.isEnabled());

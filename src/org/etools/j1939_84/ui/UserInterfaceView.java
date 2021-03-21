@@ -693,7 +693,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      */
     JButton getStopButton() {
         if (abortButton == null) {
-            abortButton = new JButton("Stop");
+            abortButton = new JButton("Cancel");
             abortButton.setEnabled(false);
             abortButton.addActionListener(e -> getController().onStopButtonClicked());
         }
