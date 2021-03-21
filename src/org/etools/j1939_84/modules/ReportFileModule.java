@@ -25,7 +25,6 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.VehicleInformation;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * The {@link FunctionalModule} that's responsible for the log file
@@ -229,7 +228,6 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
         }
     }
 
-    @NotNull
     private String getAddressClaimReport() {
         return vehicleInformation.getAddressClaim()
                                  .getPackets()

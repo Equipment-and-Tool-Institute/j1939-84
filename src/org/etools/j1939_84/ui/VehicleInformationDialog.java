@@ -514,7 +514,6 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     @Override
     public void setOkButtonEnabled(boolean isEnabled) {
         getOkButton().setEnabled(isEnabled);
-        getOkButton().requestFocus();
         if (isEnabled && J1939_84.isAutoMode()) {
             presenter.onOkButtonClicked();
         }
