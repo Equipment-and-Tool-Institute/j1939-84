@@ -3,18 +3,46 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
-import static org.etools.j1939_84.bus.j1939.packets.ParsedPacket.toInts;
 import static org.etools.j1939_84.utils.CollectionUtils.join;
 
 import java.util.Arrays;
+
 import org.etools.j1939_84.NumberFormatter;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * Represents a Scaled Test Result from a {@link DM30ScaledTestResultsPacket}
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
-public class ScaledTestResult {
+public class ScaledTestResult implements Comparable<ScaledTestResult> {
+
+    private final int[] data;
+    private final int fmi;
+    private final int slotNumber;
+    private final int spn;
+    private final int testIdentifier;
+    private final int testMaximum;
+    private final int testMinimum;
+    private final int testValue;
+    private Slot slot;
+
+    /**
+     * Constructor
+     *
+     * @param data
+     *                 the data that contains the {@link ScaledTestResult}
+     */
+    public ScaledTestResult(int[] data) {
+        this.data = data;
+        testIdentifier = data[0];
+        spn = SupportedSPN.parseSPN(Arrays.copyOfRange(data, 1, 4));
+        fmi = data[3] & 0x1F;
+        slotNumber = ((data[5] << 8) | data[4]) & 0xFFFF;
+        testValue = ((data[7] << 8) | data[6]) & 0xFFFF;
+        testMaximum = ((data[9] << 8) | data[8]) & 0xFFFF;
+        testMinimum = ((data[11] << 8) | data[10]) & 0xFFFF;
+    }
 
     public static ScaledTestResult create(int testIdentifier,
                                           int spn,
@@ -30,63 +58,12 @@ public class ScaledTestResult {
         data[2] = (byte) ((spn >> 8) & 0xFF);
         data[3] = (byte) (((spn >> 16 & 0xE0)) + (fmi & 0x1F));
 
-        data = join(data, toInts(slotNumber));
-        data = join(data, toInts(testValue));
-        data = join(data, toInts(testMaximum));
-        data = join(data, toInts(testMinimum));
+        data = join(data, ParsedPacket.to2Ints(slotNumber));
+        data = join(data, ParsedPacket.to2Ints(testValue));
+        data = join(data, ParsedPacket.to2Ints(testMaximum));
+        data = join(data, ParsedPacket.to2Ints(testMinimum));
 
         return new ScaledTestResult(data);
-    }
-
-    /**
-     * The Possible Outcomes of the Test
-     *
-     * @author Matt Gumbel (matt@soliddesign.net)
-     */
-    public enum TestResult {
-
-        CANNOT_BE_PERFORMED("Test Cannot Be Performed"),
-        FAILED("Test Failed"),
-        NOT_COMPLETE("Test Not Complete"),
-        PASSED("Test Passed");
-
-        private final String string;
-
-        TestResult(String string) {
-            this.string = string;
-        }
-
-        @Override
-        public String toString() {
-            return string;
-        }
-    }
-
-    private final int fmi;
-    private Slot slot;
-    private final int slotNumber;
-    private final int spn;
-    private final int testIdentifier;
-    private final int testMaximum;
-    private final int testMinimum;
-    private final int testValue;
-    private final int[] data;
-
-    /**
-     * Constructor
-     *
-     * @param data
-     *         the data that contains the {@link ScaledTestResult}
-     */
-    public ScaledTestResult(int[] data) {
-        this.data = data;
-        testIdentifier = data[0];
-        spn = SupportedSPN.parseSPN(Arrays.copyOfRange(data, 1, 4));
-        fmi = data[3] & 0x1F;
-        slotNumber = (data[5] << 8) | data[4];
-        testValue = (data[7] << 8) | data[6];
-        testMaximum = (data[9] << 8) | data[8];
-        testMinimum = (data[11] << 8) | data[10];
     }
 
     public int[] getData() {
@@ -136,7 +113,7 @@ public class ScaledTestResult {
      */
     public Slot getSlot() {
         if (slot == null) {
-            slot = Slot.findSlot(slotNumber);
+            slot = J1939DaRepository.findSlot(slotNumber, spn);
         }
         return slot;
     }
@@ -228,10 +205,16 @@ public class ScaledTestResult {
         return getTestMinimum() != 0xFFFF;
     }
 
+    public boolean isInitialized() {
+        boolean initHigh = getTestValue() == 0xFB00 && getTestMinimum() == 0xFFFF && getTestMaximum() == 0xFFFF;
+        boolean initLow = getTestValue() == 0x0000 && getTestMinimum() == 0x0000 && getTestMaximum() == 0x0000;
+        return initHigh || initLow;
+    }
+
     @Override
     public String toString() {
         String result = "SPN " + getSpn() + " FMI " + getFmi() + " (SLOT " + slotNumber + ") ";
-        final TestResult testResult = getTestResult();
+        TestResult testResult = getTestResult();
         result += "Result: " + testResult + ".";
         if (testResult == TestResult.PASSED || testResult == TestResult.FAILED) {
             String unit = getSlot() != null ? getSlot().getUnit() : null;
@@ -241,6 +224,39 @@ public class ScaledTestResult {
             result += " Max: " + (hasMaximum() ? NumberFormatter.format(getScaledTestMaximum()) : "N/A") + unit + "";
         }
         return result;
+    }
+
+    @Override
+    public int compareTo(ScaledTestResult other) {
+        int result = Integer.compare(getSpn(), other.getSpn());
+        if (result == 0) {
+            result = Integer.compare(getFmi(), other.getFmi());
+        }
+        return result;
+    }
+
+    /**
+     * The Possible Outcomes of the Test
+     *
+     * @author Matt Gumbel (matt@soliddesign.net)
+     */
+    public enum TestResult {
+
+        CANNOT_BE_PERFORMED("Test Cannot Be Performed"),
+        FAILED("Test Failed"),
+        NOT_COMPLETE("Test Not Complete"),
+        PASSED("Test Passed");
+
+        private final String string;
+
+        TestResult(String string) {
+            this.string = string;
+        }
+
+        @Override
+        public String toString() {
+            return string;
+        }
     }
 
 }

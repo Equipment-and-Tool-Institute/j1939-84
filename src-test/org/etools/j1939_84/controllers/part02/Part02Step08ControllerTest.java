@@ -16,6 +16,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
@@ -25,8 +26,8 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -81,15 +82,22 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         dataRepository = DataRepository.newInstance();
 
         instance = new Part02Step08Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                diagnosticMessageModule,
-                dataRepository,
-                DateTimeModule.getInstance());
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              diagnosticMessageModule,
+                                              dataRepository,
+                                              DateTimeModule.getInstance());
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
@@ -123,12 +131,10 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM26(any());
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
@@ -139,7 +145,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM26(any());
         verify(diagnosticMessageModule).requestDM26(any(), eq(0x01));
 
@@ -152,62 +157,91 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
                                         INFO,
                                         "6.2.8.5 - No responses received from Engine #2 (1)");
 
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.2.8.2.c - Engine #2 (1) did not provide a NACK and did not provide a DM26 response" + NL;
-        expectedResults += "INFO: 6.2.8.5 - No responses received from Engine #2 (1)" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
     public void testFailures() {
-        //Module 0 has a different packet from the first time
+        // Module 0 has a different packet from the first time
         DM26TripDiagnosticReadinessPacket packet0 = new DM26TripDiagnosticReadinessPacket(
-                Packet.create(PGN, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                                          Packet.create(PGN,
+                                                                                                        0x00,
+                                                                                                        0x11,
+                                                                                                        0x22,
+                                                                                                        0x33,
+                                                                                                        0x44,
+                                                                                                        0x55,
+                                                                                                        0x66,
+                                                                                                        0x77,
+                                                                                                        0x88));
         OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
-        obdModule0.setLastDM26(packet0);
+        obdModule0.set(packet0, 1);
         dataRepository.putObdModule(obdModule0);
         DM26TripDiagnosticReadinessPacket packet00 = new DM26TripDiagnosticReadinessPacket(
-                Packet.create(PGN, 0x00, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x00));
+                                                                                           Packet.create(PGN,
+                                                                                                         0x00,
+                                                                                                         0x99,
+                                                                                                         0xAA,
+                                                                                                         0xBB,
+                                                                                                         0xCC,
+                                                                                                         0xDD,
+                                                                                                         0xEE,
+                                                                                                         0xFF,
+                                                                                                         0x00));
         when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(new RequestResult<>(false, packet00));
 
-        //Module 1 has the same both times and will not report an error
+        // Module 1 has the same both times and will not report an error
         DM26TripDiagnosticReadinessPacket packet1 = new DM26TripDiagnosticReadinessPacket(
-                Packet.create(PGN, 0x01, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
+                                                                                          Packet.create(PGN,
+                                                                                                        0x01,
+                                                                                                        0x00,
+                                                                                                        0x00,
+                                                                                                        0x04,
+                                                                                                        0x00,
+                                                                                                        0xFF,
+                                                                                                        0xFF,
+                                                                                                        0xFF,
+                                                                                                        0xFF));
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
-        obdModule1.setLastDM26(packet1);
+        obdModule1.set(packet1, 1);
         dataRepository.putObdModule(obdModule1);
         when(diagnosticMessageModule.requestDM26(any(), eq(1))).thenReturn(new RequestResult<>(false, packet1));
 
-        //Module 2 will not respond from the first time, but will respond this time
+        // Module 2 will not respond from the first time, but will respond this time
         dataRepository.putObdModule(new OBDModuleInformation(2));
         DM26TripDiagnosticReadinessPacket packet2 = new DM26TripDiagnosticReadinessPacket(
-                Packet.create(PGN, 0x02, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
+                                                                                          Packet.create(PGN,
+                                                                                                        0x02,
+                                                                                                        0x00,
+                                                                                                        0x00,
+                                                                                                        0x04,
+                                                                                                        0x00,
+                                                                                                        0xFF,
+                                                                                                        0xFF,
+                                                                                                        0xFF,
+                                                                                                        0xFF));
         when(diagnosticMessageModule.requestDM26(any(), eq(2))).thenReturn(new RequestResult<>(false, packet2));
 
-        //Module 3 will not respond
+        // Module 3 will not respond
         dataRepository.putObdModule(new OBDModuleInformation(3));
         when(diagnosticMessageModule.requestDM26(any(), eq(3))).thenReturn(new RequestResult<>(true));
 
-        when(diagnosticMessageModule.requestDM26(any())).thenReturn(new RequestResult<>(false, packet0, packet1, packet2));
+        when(diagnosticMessageModule.requestDM26(any()))
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        packet0,
+                                                                                        packet1,
+                                                                                        packet2));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM26(any());
         verify(diagnosticMessageModule).requestDM26(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM26(any(), eq(0x01));
         verify(diagnosticMessageModule).requestDM26(any(), eq(0x02));
         verify(diagnosticMessageModule).requestDM26(any(), eq(0x03));
 
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.2.8.2.a - Difference from Engine #1 (0) regarding readiness status this cycle compared to responses in part 1 after DM11." + NL;
-        expectedResults += "FAIL: 6.2.8.2.b - Engine #2 (1) indicates number of warm-ups since code clear greater than zero" + NL;
-        expectedResults += "FAIL: 6.2.8.2.a - Difference from Turbocharger (2) regarding readiness status this cycle compared to responses in part 1 after DM11." + NL;
-        expectedResults += "FAIL: 6.2.8.2.b - Turbocharger (2) indicates number of warm-ups since code clear greater than zero" + NL;
-        expectedResults += "FAIL: 6.2.8.2.c - Transmission #1 (3) did not provide a NACK and did not provide a DM26 response" + NL;
-        expectedResults += "" + NL;
+        String expectedResults = "" + NL;
         expectedResults += "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant         enabled, not complete" + NL;
         expectedResults += "    Boost pressure control sys     enabled, not complete" + NL;
@@ -226,144 +260,109 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         expectedResults += "    NOx catalyst/adsorber          enabled, not complete" + NL;
         expectedResults += "    Secondary air system           enabled, not complete" + NL;
         expectedResults += "" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor A/C system refrigerant is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor Boost pressure control sys is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor Catalyst is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor Cold start aid system is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor Diesel Particulate Filter is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor EGR/VVT system is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor Evaporative system is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor Exhaust Gas Sensor is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor Heated catalyst is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor NMHC converting catalyst is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor NOx catalyst/adsorber is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor Secondary air system is supported by more than one OBD ECU" + NL;
-        expectedResults += "FAIL: 6.2.8.5.a - Difference in data between DS and global responses from Engine #1 (0)" + NL;
-        expectedResults += "INFO: 6.2.8.5 - No responses received from Transmission #1 (3)" + NL;
 
         assertEquals(expectedResults, listener.getResults());
 
         verify(mockListener).addOutcome(
-                2,
-                8,
-                FAIL,
-                "6.2.8.2.a - Difference from Turbocharger (2) regarding readiness status this cycle compared to responses in part 1 after DM11."
-        );
+                                        2,
+                                        8,
+                                        FAIL,
+                                        "6.2.8.2.a - Difference from Turbocharger (2) regarding readiness status this cycle compared to responses in part 1 after DM11.");
         verify(mockListener).addOutcome(
-                2,
-                8,
-                FAIL,
-                "6.2.8.2.b - Turbocharger (2) indicates number of warm-ups since code clear greater than zero"
-        );
+                                        2,
+                                        8,
+                                        FAIL,
+                                        "6.2.8.2.b - Turbocharger (2) indicates number of warm-ups since code clear greater than zero");
         verify(mockListener).addOutcome(
-                2,
-                8,
-                FAIL,
-                "6.2.8.2.a - Difference from Engine #1 (0) regarding readiness status this cycle compared to responses in part 1 after DM11."
-        );
+                                        2,
+                                        8,
+                                        FAIL,
+                                        "6.2.8.2.a - Difference from Engine #1 (0) regarding readiness status this cycle compared to responses in part 1 after DM11.");
         verify(mockListener).addOutcome(
-                2,
-                8,
-                FAIL,
-                "6.2.8.2.c - Transmission #1 (3) did not provide a NACK and did not provide a DM26 response"
-        );
+                                        2,
+                                        8,
+                                        FAIL,
+                                        "6.2.8.2.c - Transmission #1 (3) did not provide a NACK and did not provide a DM26 response");
         verify(mockListener).addOutcome(
-                2,
-                8,
-                FAIL,
-                "6.2.8.2.b - Engine #2 (1) indicates number of warm-ups since code clear greater than zero"
-        );
+                                        2,
+                                        8,
+                                        FAIL,
+                                        "6.2.8.2.b - Engine #2 (1) indicates number of warm-ups since code clear greater than zero");
         verify(mockListener).addOutcome(
-                2,
-                8,
-                WARN,
-                "6.2.8.3.a - Required monitor A/C system refrigerant is supported by more than one OBD ECU"
-        );
+                                        2,
+                                        8,
+                                        WARN,
+                                        "6.2.8.3.a - Required monitor A/C system refrigerant is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                2,
-                8,
-                WARN,
-                "6.2.8.3.a - Required monitor Boost pressure control sys is supported by more than one OBD ECU"
-        );
+                                        2,
+                                        8,
+                                        WARN,
+                                        "6.2.8.3.a - Required monitor Boost pressure control sys is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                2,
-                8,
-                WARN,
-                "6.2.8.3.a - Required monitor Catalyst is supported by more than one OBD ECU"
-        );
+                                        2,
+                                        8,
+                                        WARN,
+                                        "6.2.8.3.a - Required monitor Catalyst is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                2,
-                8,
-                WARN,
-                "6.2.8.3.a - Required monitor Cold start aid system is supported by more than one OBD ECU"
-        );
+                                        2,
+                                        8,
+                                        WARN,
+                                        "6.2.8.3.a - Required monitor Cold start aid system is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                2,
-                8,
-                WARN,
-                "6.2.8.3.a - Required monitor Diesel Particulate Filter is supported by more than one OBD ECU"
-        );
+                                        2,
+                                        8,
+                                        WARN,
+                                        "6.2.8.3.a - Required monitor Diesel Particulate Filter is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                2,
-                8,
-                WARN,
-                "6.2.8.3.a - Required monitor EGR/VVT system is supported by more than one OBD ECU"
-        );
+                                        2,
+                                        8,
+                                        WARN,
+                                        "6.2.8.3.a - Required monitor EGR/VVT system is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                2,
-                8,
-                WARN,
-                "6.2.8.3.a - Required monitor Evaporative system is supported by more than one OBD ECU"
-        );
+                                        2,
+                                        8,
+                                        WARN,
+                                        "6.2.8.3.a - Required monitor Evaporative system is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                2,
-                8,
-                WARN,
-                "6.2.8.3.a - Required monitor Exhaust Gas Sensor is supported by more than one OBD ECU"
-        );
+                                        2,
+                                        8,
+                                        WARN,
+                                        "6.2.8.3.a - Required monitor Exhaust Gas Sensor is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                2,
-                8,
-                WARN,
-                "6.2.8.3.a - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU"
-        );
+                                        2,
+                                        8,
+                                        WARN,
+                                        "6.2.8.3.a - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                2,
-                8,
-                WARN,
-                "6.2.8.3.a - Required monitor Heated catalyst is supported by more than one OBD ECU"
-        );
+                                        2,
+                                        8,
+                                        WARN,
+                                        "6.2.8.3.a - Required monitor Heated catalyst is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                2,
-                8,
-                WARN,
-                "6.2.8.3.a - Required monitor NMHC converting catalyst is supported by more than one OBD ECU"
-        );
+                                        2,
+                                        8,
+                                        WARN,
+                                        "6.2.8.3.a - Required monitor NMHC converting catalyst is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                2,
-                8,
-                WARN,
-                "6.2.8.3.a - Required monitor NOx catalyst/adsorber is supported by more than one OBD ECU"
-        );
+                                        2,
+                                        8,
+                                        WARN,
+                                        "6.2.8.3.a - Required monitor NOx catalyst/adsorber is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                2,
-                8,
-                WARN,
-                "6.2.8.3.a - Required monitor Secondary air system is supported by more than one OBD ECU"
-        );
+                                        2,
+                                        8,
+                                        WARN,
+                                        "6.2.8.3.a - Required monitor Secondary air system is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                2,
-                8,
-                FAIL,
-                "6.2.8.5.a - Difference in data between DS and global responses from Engine #1 (0)"
-        );
+                                        2,
+                                        8,
+                                        FAIL,
+                                        "6.2.8.5.a - Difference in data between DS and global responses from Engine #1 (0)");
         verify(mockListener).addOutcome(
-                2,
-                8,
-                INFO,
-                "6.2.8.5 - No responses received from Transmission #1 (3)"
-        );
+                                        2,
+                                        8,
+                                        INFO,
+                                        "6.2.8.5 - No responses received from Transmission #1 (3)");
 
     }
 
@@ -371,10 +370,19 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
     public void testNoFailures() {
 
         DM26TripDiagnosticReadinessPacket packet1 = new DM26TripDiagnosticReadinessPacket(
-                Packet.create(PGN, 0x01, 0x00, 0x00, 0x00, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                                          Packet.create(PGN,
+                                                                                                        0x01,
+                                                                                                        0x00,
+                                                                                                        0x00,
+                                                                                                        0x00,
+                                                                                                        0x44,
+                                                                                                        0x55,
+                                                                                                        0x66,
+                                                                                                        0x77,
+                                                                                                        0x88));
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(0x01);
-        obdModule1.setLastDM26(packet1);
+        obdModule1.set(packet1, 1);
         dataRepository.putObdModule(obdModule1);
 
         when(diagnosticMessageModule.requestDM26(any())).thenReturn(new RequestResult<>(false, packet1));
@@ -382,7 +390,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM26(any());
         verify(diagnosticMessageModule).requestDM26(any(), eq(0x01));
 

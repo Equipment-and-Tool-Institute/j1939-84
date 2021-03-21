@@ -3,15 +3,27 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
+import static org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket.PGN;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
+
+import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -95,7 +107,8 @@ public class Part03Step14ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 mockListener);
+                                 mockListener,
+                                 diagnosticMessageModule);
     }
 
     @Test
@@ -121,5 +134,48 @@ public class Part03Step14ControllerTest extends AbstractControllerTest {
     @Test
     public void testRun() {
 
+        int[] data = {
+                0x04, // Ignition Cycle Counter
+                0x00, // Ignition Cycle Counter
+                0x5A, // OBD Monitoring Conditions Encountered
+                0x5A, // OBD Monitoring Conditions Encountered
+
+                0x11, // SPN of Applicable System Monitor
+                0x11, // SPN of Applicable System Monitor
+                0x11, // SPN of Applicable System Monitor
+                0xAA, // Applicable System Monitor Numerator
+                0xAA, // Applicable System Monitor Numerator
+                0xBB, // Applicable System Monitor Denominator
+                0xBB, // Applicable System Monitor Denominator
+        };
+        var dm20Packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data));
+        when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(BusResult.of(dm20Packet));
+
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        runTest();
+
+        assertSame(dm20Packet, dataRepository.getObdModule(0).get(DM20MonitorPerformanceRatioPacket.class, 3));
+        assertEquals("", listener.getResults());
+        assertEquals("", listener.getMessages());
+
+        verify(diagnosticMessageModule).requestDM20(any(), eq(0));
+    }
+
+    @Test
+    public void testEmptyPackets() {
+
+        when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(BusResult.empty());
+
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        runTest();
+
+        assertNull(dataRepository.getObdModule(0).get(DM20MonitorPerformanceRatioPacket.class, 3));
+
+        assertEquals("", listener.getResults());
+        assertEquals("", listener.getMessages());
+
+        verify(diagnosticMessageModule).requestDM20(any(), eq(0));
     }
 }

@@ -8,8 +8,8 @@ import static org.etools.j1939_84.J1939_84.NL;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.Lookup;
 
 /**
@@ -21,144 +21,73 @@ import org.etools.j1939_84.bus.j1939.Lookup;
 public class AddressClaimPacket extends GenericPacket {
 
     /**
-     * Class that parses the industry group, vehicle system and function into an
-     * SAE Name
+     * The Parameter Group Number for the Address Claim Packet
      */
-    private static class Name {
-
-        /**
-         * Finds the name of the Industry Group given the industryGroupId
-         *
-         * @param industryGroupId
-         *            the id of the Industry Group
-         * @return the name of the Industry Group
-         */
-        private static String findIndustryGroup(int industryGroupId) {
-            switch (industryGroupId) {
-            case 0:
-                return "Global";
-            case 1:
-                return "On-Highway Equipment";
-            case 2:
-                return "Agricultural and Forestry Equipment";
-            case 3:
-                return "Construction Equipment";
-            case 4:
-                return "Marine";
-            case 5:
-                return "Industrial-Process Control-Stationary (Gen-Sets)";
-            default:
-                return "Unknown (" + industryGroupId + ")";
-            }
-        }
-
-        /**
-         * Creates a unique ID for the Name given the industry group, vehicle
-         * system and function
-         *
-         * @param industryGroupId
-         *            the ID of the Industry Group
-         * @param vehicleSystemId
-         *            the ID of the Vehicle System
-         * @param functionId
-         *            the ID of the Function
-         * @return the unique ID
-         */
-        public static int getId(int industryGroupId, int vehicleSystemId, int functionId) {
-            return industryGroupId << 16 | vehicleSystemId << 8 | functionId;
-        }
-
-        /**
-         * The Function Name
-         */
-        private final String function;
-
-        /**
-         * The unique ID of the Name
-         */
-        private final int id;
-
-        /**
-         * The Industry Group Name
-         */
-        private final String industryGroup;
-
-        /**
-         * The Vehicle System Name
-         */
-        private final String vehicleSystem;
-
-        /**
-         * Constructor
-         *
-         * @param industryGroupId
-         *            the ID of the Industry Group
-         * @param vehicleSystemId
-         *            the ID of the Vehicle System
-         * @param vehicleSystem
-         *            the Name of the Vehicle System
-         * @param functionId
-         *            the ID of the Function
-         * @param function
-         *            the Name of the Function
-         */
-        public Name(int industryGroupId, int vehicleSystemId, String vehicleSystem, int functionId, String function) {
-            id = getId(industryGroupId, vehicleSystemId, functionId);
-            industryGroup = findIndustryGroup(industryGroupId);
-            this.vehicleSystem = vehicleSystem;
-            this.function = function;
-        }
-
-        /**
-         * Returns the Function Name
-         *
-         * @return the Function Name
-         */
-        public String getFunction() {
-            return function;
-        }
-
-        /**
-         * Returns the Industry Group Name
-         *
-         * @return the Industry Group Name
-         */
-        public String getIndustryGroup() {
-            return industryGroup;
-        }
-
-        /**
-         * Returns the Vehicle System Name
-         *
-         * @return the Vehicle System Name
-         */
-        public String getVehicleSystem() {
-            return vehicleSystem;
-        }
-
-    }
-
+    public static final int PGN = 0xEE00;
     /**
      * The cache of Industry Group/Vehicle System/Functional Names
      */
     private static Set<Name> names;
+    /**
+     * The ID of the Function
+     */
+    private final int functionId;
+    private final String source;
+    /**
+     * The String that's returned by the toString method
+     */
+    private final String string;
 
     /**
-     * The Parameter Group Number for the Address Claim Packet
+     * Constructor
+     *
+     * @param packet
+     *                   the {@link Packet} to parse
      */
-    public static final int PGN = 0xEE00;
+    public AddressClaimPacket(Packet packet) {
+        super(packet);
+
+        source = Lookup.getAddressName(getSourceAddress());
+        int identityNumber = (packet.get(0) & 0xFF) + ((packet.get(1) & 0xFF) << 8) + ((packet.get(2) & 0x1F) << 16);
+        int manufacturerId = ((packet.get(2) & 0xE0) >> 5) + ((packet.get(3) & 0xFF) << 3);
+
+        int functionInstance = (packet.get(4) & 0xF8) >> 3;
+        int ecuInstance = packet.get(4) & 0x07;
+
+        functionId = packet.get(5);
+
+        int vehicleSystemId = (packet.get(6) & 0xFE) >> 1;
+
+        boolean arbitraryAddressCapable = (packet.get(7) & 0x80) != 0;
+        int industryGroupId = (packet.get(7) & 0x70) >> 4;
+        int vehicleSystemInstance = packet.get(7) & 0x0F;
+
+        String manufacturer = Lookup.getManufacturer(manufacturerId);
+        Name name = findName(industryGroupId, vehicleSystemId, functionId);
+
+        String result = source + " reported as: {" + NL;
+        result += "  Industry Group: " + name.getIndustryGroup() + NL;
+        result += "  Vehicle System: " + name.getVehicleSystem() + ", System Instance: " + vehicleSystemInstance + NL;
+        result += "  Function: " + name.getFunction() + ", Functional Instance: " + functionInstance
+                + ", ECU Instance: "
+                + ecuInstance + NL;
+        result += "  Manufactured by: " + manufacturer + ", Identity Number: " + identityNumber + NL;
+        result += "  Is " + (arbitraryAddressCapable ? "" : "not ") + "arbitrary address capable." + NL;
+        result += "}";
+        string = result;
+    }
 
     /**
      * Helper method to lookup the {@link Name} for the Address Claim
      *
-     * @param industryGroupId
-     *            the ID of the Industry Group
-     * @param vehicleSystemId
-     *            the ID of the Vehicle System
-     * @param functionId
-     *            the ID of the Function
-     * @return the {@link Name} that corresponds to the Industry Group, Vehicle
-     *         System and Function
+     * @param  industryGroupId
+     *                             the ID of the Industry Group
+     * @param  vehicleSystemId
+     *                             the ID of the Vehicle System
+     * @param  functionId
+     *                             the ID of the Function
+     * @return                 the {@link Name} that corresponds to the Industry Group, Vehicle
+     *                         System and Function
      */
     private static Name findName(int industryGroupId, int vehicleSystemId, int functionId) {
         int id = Name.getId(industryGroupId, vehicleSystemId, functionId);
@@ -167,8 +96,11 @@ public class AddressClaimPacket extends GenericPacket {
                 return name;
             }
         }
-        return new Name(industryGroupId, vehicleSystemId, "Unknown System (" + vehicleSystemId + ")", functionId,
-                "Unknown Function (" + functionId + ")");
+        return new Name(industryGroupId,
+                        vehicleSystemId,
+                        "Unknown System (" + vehicleSystemId + ")",
+                        functionId,
+                        "Unknown Function (" + functionId + ")");
     }
 
     /**
@@ -500,8 +432,11 @@ public class AddressClaimPacket extends GenericPacket {
             names.add(new Name(4, 60, "Navigation systems", 160, "Turn Rate Indicator"));
             names.add(new Name(4, 60, "Navigation systems", 170, "Integrated Navigation"));
             names.add(new Name(4, 60, "Navigation systems", 200, "Radar and/or Radar Plotting"));
-            names.add(new Name(4, 60, "Navigation systems", 205,
-                    "Electronic Chart Display & Information System (ECDIS)"));
+            names.add(new Name(4,
+                               60,
+                               "Navigation systems",
+                               205,
+                               "Electronic Chart Display & Information System (ECDIS)"));
             names.add(new Name(4, 60, "Navigation systems", 210, "Electronic Chart System (ECS)"));
             names.add(new Name(4, 60, "Navigation systems", 220, "Direction Finder"));
             names.add(new Name(4, 70, "Communications systems", 130, "Emergency Position Indicating Beacon (EPIRB)"));
@@ -522,69 +457,27 @@ public class AddressClaimPacket extends GenericPacket {
             names.add(new Name(4, 90, "Environmental (HVAC) systems", 255, "Not Available"));
             names.add(new Name(4, 100, "Deck, cargo, and fishing equipment systems", 255, "Not Available"));
             names.add(new Name(4, 127, "Not Available", 255, "Not Available"));
-            names.add(new Name(5, 0, "Industrial-Process Control-Stationary (Gen-Sets)", 128,
-                    "Supplemental Engine Control Sensing"));
-            names.add(new Name(5, 0, "Industrial-Process Control-Stationary (Gen-Sets)", 129,
-                    "Generator Set Controller"));
-            names.add(new Name(5, 0, "Industrial-Process Control-Stationary (Gen-Sets)", 130,
-                    "Generator Voltage Regulator"));
+            names.add(new Name(5,
+                               0,
+                               "Industrial-Process Control-Stationary (Gen-Sets)",
+                               128,
+                               "Supplemental Engine Control Sensing"));
+            names.add(new Name(5,
+                               0,
+                               "Industrial-Process Control-Stationary (Gen-Sets)",
+                               129,
+                               "Generator Set Controller"));
+            names.add(new Name(5,
+                               0,
+                               "Industrial-Process Control-Stationary (Gen-Sets)",
+                               130,
+                               "Generator Voltage Regulator"));
             names.add(new Name(5, 0, "Industrial-Process Control-Stationary (Gen-Sets)", 131, "Choke Actuator"));
             names.add(new Name(5, 0, "", 132, "Well Stimulation Pump"));
             names.add(new Name(5, 0, "Industrial-Process Control-Stationary (Gen-Sets)", 255, "Not Available"));
             names.add(new Name(5, 127, "Not Available", 255, "Not Available"));
         }
         return names;
-    }
-
-    /**
-     * The ID of the Function
-     */
-    private final int functionId;
-
-    private final String source;
-
-    /**
-     * The String that's returned by the toString method
-     */
-    private final String string;
-
-    /**
-     * Constructor
-     *
-     * @param packet
-     *            the {@link Packet} to parse
-     */
-    public AddressClaimPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
-
-        source = Lookup.getAddressName(getSourceAddress());
-        int identityNumber = (packet.get(0) & 0xFF) + ((packet.get(1) & 0xFF) << 8) + ((packet.get(2) & 0x1F) << 16);
-        int manufacturerId = ((packet.get(2) & 0xE0) >> 5) + ((packet.get(3) & 0xFF) << 3);
-
-        int functionInstance = (packet.get(4) & 0xF8) >> 3;
-        int ecuInstance = packet.get(4) & 0x07;
-
-        functionId = packet.get(5);
-
-        int vehicleSystemId = (packet.get(6) & 0xFE) >> 1;
-
-        boolean arbitraryAddressCapable = (packet.get(7) & 0x80) != 0;
-        int industryGroupId = (packet.get(7) & 0x70) >> 4;
-        int vehicleSystemInstance = packet.get(7) & 0x0F;
-
-        String manufacturer = Lookup.getManufacturer(manufacturerId);
-        Name name = findName(industryGroupId, vehicleSystemId, functionId);
-
-        String result = source + " reported as: {" + NL;
-        result += "  Industry Group: " + name.getIndustryGroup() + NL;
-        result += "  Vehicle System: " + name.getVehicleSystem() + ", System Instance: " + vehicleSystemInstance + NL;
-        result += "  Function: " + name.getFunction() + ", Functional Instance: " + functionInstance
-                + ", ECU Instance: "
-                + ecuInstance + NL;
-        result += "  Manufactured by: " + manufacturer + ", Identity Number: " + identityNumber + NL;
-        result += "  Is " + (arbitraryAddressCapable ? "" : "not ") + "arbitrary address capable." + NL;
-        result += "}";
-        string = result;
     }
 
     /**
@@ -601,12 +494,127 @@ public class AddressClaimPacket extends GenericPacket {
         return "Address Claim";
     }
 
+    @Override
+    public String toString() {
+        return string;
+    }
+
     public String getSource() {
         return source;
     }
 
-    @Override
-    public String toString() {
-        return string;
+    /**
+     * Class that parses the industry group, vehicle system and function into an
+     * SAE Name
+     */
+    private static class Name {
+
+        /**
+         * The Function Name
+         */
+        private final String function;
+        /**
+         * The unique ID of the Name
+         */
+        private final int id;
+        /**
+         * The Industry Group Name
+         */
+        private final String industryGroup;
+        /**
+         * The Vehicle System Name
+         */
+        private final String vehicleSystem;
+
+        /**
+         * Constructor
+         *
+         * @param industryGroupId
+         *                            the ID of the Industry Group
+         * @param vehicleSystemId
+         *                            the ID of the Vehicle System
+         * @param vehicleSystem
+         *                            the Name of the Vehicle System
+         * @param functionId
+         *                            the ID of the Function
+         * @param function
+         *                            the Name of the Function
+         */
+        public Name(int industryGroupId, int vehicleSystemId, String vehicleSystem, int functionId, String function) {
+            id = getId(industryGroupId, vehicleSystemId, functionId);
+            industryGroup = findIndustryGroup(industryGroupId);
+            this.vehicleSystem = vehicleSystem;
+            this.function = function;
+        }
+
+        /**
+         * Finds the name of the Industry Group given the industryGroupId
+         *
+         * @param  industryGroupId
+         *                             the id of the Industry Group
+         * @return                 the name of the Industry Group
+         */
+        private static String findIndustryGroup(int industryGroupId) {
+            switch (industryGroupId) {
+                case 0:
+                    return "Global";
+                case 1:
+                    return "On-Highway Equipment";
+                case 2:
+                    return "Agricultural and Forestry Equipment";
+                case 3:
+                    return "Construction Equipment";
+                case 4:
+                    return "Marine";
+                case 5:
+                    return "Industrial-Process Control-Stationary (Gen-Sets)";
+                default:
+                    return "Unknown (" + industryGroupId + ")";
+            }
+        }
+
+        /**
+         * Creates a unique ID for the Name given the industry group, vehicle
+         * system and function
+         *
+         * @param  industryGroupId
+         *                             the ID of the Industry Group
+         * @param  vehicleSystemId
+         *                             the ID of the Vehicle System
+         * @param  functionId
+         *                             the ID of the Function
+         * @return                 the unique ID
+         */
+        public static int getId(int industryGroupId, int vehicleSystemId, int functionId) {
+            return industryGroupId << 16 | vehicleSystemId << 8 | functionId;
+        }
+
+        /**
+         * Returns the Function Name
+         *
+         * @return the Function Name
+         */
+        public String getFunction() {
+            return function;
+        }
+
+        /**
+         * Returns the Industry Group Name
+         *
+         * @return the Industry Group Name
+         */
+        public String getIndustryGroup() {
+            return industryGroup;
+        }
+
+        /**
+         * Returns the Vehicle System Name
+         *
+         * @return the Vehicle System Name
+         */
+        public String getVehicleSystem() {
+            return vehicleSystem;
+        }
+
     }
 }

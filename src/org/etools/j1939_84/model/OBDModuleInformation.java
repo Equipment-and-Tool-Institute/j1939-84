@@ -3,23 +3,18 @@
  */
 package org.etools.j1939_84.model;
 
-import static org.etools.j1939_84.J1939_84.NL;
+import static java.util.Comparator.comparingInt;
+import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
-import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
-import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
+import java.util.Map;
+
+import org.etools.j1939_84.bus.j1939.Lookup;
+import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
-import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
-import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
+import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 
@@ -28,43 +23,31 @@ import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
  */
 public class OBDModuleInformation implements Cloneable {
 
-    private final List<CalibrationInformation> calibrationInformation = new ArrayList<>();
-
-    private ComponentIdentification componentIdentification = null;
-
-    private int function;
-
-    private int ignitionCycleCounterValue;
-
-    private final Set<MonitoredSystem> monitoredSystems = new HashSet<>();
-
-    private byte obdCompliance;
-
-    private final Set<PerformanceRatio> performanceRatios = new HashSet<>();
-
-    private final List<ScaledTestResult> scaledTestResults = new ArrayList<>();
-
     private final int sourceAddress;
 
-    private final List<SupportedSPN> supportedSpns = new ArrayList<>();
-
-    private String engineFamilyName = "";
-
-    private String modelYear = "";
-
-    private DM25ExpandedFreezeFrame lastDM25;
-
-    private DM26TripDiagnosticReadinessPacket lastDM26;
-
-    private DM27AllPendingDTCsPacket lastDM27;
-
-    private final List<DiagnosticTroubleCode> emissionDTCs = new ArrayList<>();
+    private final int function;
 
     /** These SPNs represent SP which appear in multiple PGs. */
     private final List<Integer> omittedSPNs = new ArrayList<>(List.of(588, 1213, 1220, 12675, 12730, 12783, 12797));
 
+    // TODO this should be removed and tests re-factored to save a DM24 instead
+    private final List<SupportedSPN> supportedSPNs = new ArrayList<>();
+
+    private final List<ScaledTestResult> scaledTestResults = new ArrayList<>();
+
+    private final List<ScaledTestResult> nonInitializedTests = new ArrayList<>();
+
+    private Double deltaEngineStart = null;
+
+    private PacketArchive packetArchive = new PacketArchive();
+
     public OBDModuleInformation(int sourceAddress) {
+        this(sourceAddress, -1);
+    }
+
+    public OBDModuleInformation(int sourceAddress, int function) {
         this.sourceAddress = sourceAddress;
+        this.function = function;
     }
 
     @Override
@@ -73,180 +56,80 @@ public class OBDModuleInformation implements Cloneable {
             super.clone();
         } catch (CloneNotSupportedException ignored) {
         }
-        OBDModuleInformation obdInfo = new OBDModuleInformation(getSourceAddress());
-        obdInfo.setCalibrationInformation(getCalibrationInformation());
-        obdInfo.setComponentIdentification(getComponentIdentification());
-        obdInfo.setFunction(getFunction());
-        obdInfo.setIgnitionCycleCounterValue(getIgnitionCycleCounterValue());
-        obdInfo.setMonitoredSystems(getMonitoredSystems());
-        obdInfo.setObdCompliance(getObdCompliance());
-        obdInfo.setPerformanceRatios(getPerformanceRatios());
+        OBDModuleInformation obdInfo = new OBDModuleInformation(getSourceAddress(), getFunction());
         obdInfo.setScaledTestResults(getScaledTestResults());
-        obdInfo.setSupportedSpns(getSupportedSpns());
-        obdInfo.setEngineFamilyName(getEngineFamilyName());
-        obdInfo.setModelYear(getModelYear());
-        obdInfo.setLastDM26(getLastDM26());
-        obdInfo.setLastDM27(getLastDM27());
-        obdInfo.setEmissionDTCs(getEmissionDTCs());
+        obdInfo.setSupportedSPNs(getSupportedSPNs());
+        obdInfo.setNonInitializedTests(getNonInitializedTests());
+        obdInfo.setDeltaEngineStart(getDeltaEngineStart());
+        obdInfo.packetArchive = packetArchive;
 
         return obdInfo;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-
-        if (!(obj instanceof OBDModuleInformation)) {
-            return false;
-        }
-
-        OBDModuleInformation that = (OBDModuleInformation) obj;
-
-        return Objects.equals(calibrationInformation, that.calibrationInformation)
-                && Objects.equals(this.componentIdentification, that.componentIdentification)
-                && Objects.equals(function, that.function)
-                && Objects.equals(ignitionCycleCounterValue, that.ignitionCycleCounterValue)
-                && Objects.equals(monitoredSystems, that.monitoredSystems)
-                && Objects.equals(obdCompliance, that.obdCompliance)
-                && Objects.equals(performanceRatios, that.performanceRatios)
-                && Objects.equals(scaledTestResults, that.scaledTestResults)
-                && Objects.equals(sourceAddress, that.sourceAddress)
-                && Objects.equals(supportedSpns, that.supportedSpns)
-                && Objects.equals(engineFamilyName, that.engineFamilyName)
-                && Objects.equals(modelYear, that.modelYear)
-                && Objects.equals(lastDM25, that.lastDM25)
-                && Objects.equals(lastDM26, that.lastDM26)
-                && Objects.equals(lastDM27, that.lastDM27)
-                && Objects.equals(emissionDTCs, that.emissionDTCs);
-    }
-
-    public int getIgnitionCycleCounterValue() {
-        return ignitionCycleCounterValue;
-    }
-
-    public void setIgnitionCycleCounterValue(int ignitionCycleCounterValue) {
-        this.ignitionCycleCounterValue = ignitionCycleCounterValue;
-    }
-
-    public List<CalibrationInformation> getCalibrationInformation() {
-        return calibrationInformation;
-    }
-
-    public ComponentIdentification getComponentIdentification() {
-        return componentIdentification;
-    }
-
-    public List<SupportedSPN> getDataStreamSpns() {
-        return getSupportedSpns().stream()
-                .filter(SupportedSPN::supportsDataStream)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Returns the List of SupportedSPNs filtering out 'dis-allowed' SPNs
-     */
-    public List<SupportedSPN> getFilteredDataStreamSPNs() {
-        return getDataStreamSpns().stream()
-                .filter(s -> !getOmittedDataStreamSPNs().contains(s.getSpn()))
-                .collect(Collectors.toList());
-    }
-
-    public List<Integer> getOmittedDataStreamSPNs() {
-        return omittedSPNs.stream().distinct().sorted().collect(Collectors.toList());
-    }
-
-    public void addOmittedDataStreamSPN(int spn) {
-        omittedSPNs.add(spn);
-    }
-
-    public List<SupportedSPN> getFreezeFrameSpns() {
-        return getSupportedSpns().stream()
-                .filter(SupportedSPN::supportsExpandedFreezeFrame)
-                .collect(Collectors.toList());
-    }
-
-    public int getFunction() {
-        return function;
-    }
-
-    public Set<MonitoredSystem> getMonitoredSystems() {
-        return monitoredSystems;
-    }
-
-    public byte getObdCompliance() {
-        return obdCompliance;
-    }
-
-    public Set<PerformanceRatio> getPerformanceRatios() {
-        return performanceRatios;
-    }
-
-    public List<ScaledTestResult> getScaledTestResults() {
-        return scaledTestResults;
     }
 
     public int getSourceAddress() {
         return sourceAddress;
     }
 
-    public List<SupportedSPN> getSupportedSpns() {
-        return supportedSpns.stream()
-                .sorted(Comparator.comparingInt(SupportedSPN::getSpn))
-                .collect(Collectors.toList());
+    public String getModuleName() {
+        return Lookup.getAddressName(getSourceAddress());
     }
 
-    public List<SupportedSPN> getTestResultSpns() {
-        return getSupportedSpns().stream()
-                .filter(SupportedSPN::supportsScaledTestResults)
-                .collect(Collectors.toList());
+    public int getFunction() {
+        return function;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(sourceAddress,
-                            calibrationInformation,
-                            function,
-                            ignitionCycleCounterValue,
-                            monitoredSystems,
-                            obdCompliance,
-                            performanceRatios,
-                            scaledTestResults,
-                            supportedSpns,
-                            engineFamilyName,
-                            modelYear,
-                            lastDM25,
-                            lastDM26,
-                            lastDM27,
-                            emissionDTCs);
+    /**
+     * @deprecated Use a DM24 to set the support SPNs
+     */
+    @Deprecated
+    public void setSupportedSPNs(List<SupportedSPN> supportedSPNs) {
+        this.supportedSPNs.clear();
+        this.supportedSPNs.addAll(supportedSPNs);
     }
 
-    public void setCalibrationInformation(List<CalibrationInformation> calibrationInformation) {
-        this.calibrationInformation.clear();
-        this.calibrationInformation.addAll(calibrationInformation);
+    public List<SupportedSPN> getSupportedSPNs() {
+        DM24SPNSupportPacket dm24 = get(DM24SPNSupportPacket.class, 1);
+        List<SupportedSPN> spns = dm24 == null ? supportedSPNs : dm24.getSupportedSpns();
+        return spns.stream().sorted(comparingInt(SupportedSPN::getSpn)).collect(toList());
     }
 
-    public void setComponentIdentification(ComponentIdentification componentIdentification) {
-        this.componentIdentification = componentIdentification;
+    public List<SupportedSPN> getDataStreamSPNs() {
+        return getSupportedSPNs().stream()
+                                 .filter(SupportedSPN::supportsDataStream)
+                                 .collect(toList());
     }
 
-    public void setFunction(int function) {
-        this.function = function;
+    /**
+     * Returns the List of SupportedSPNs filtering out 'dis-allowed' SPNs
+     */
+    public List<SupportedSPN> getFilteredDataStreamSPNs() {
+        return getDataStreamSPNs().stream()
+                                  .filter(s -> !getOmittedDataStreamSPNs().contains(s.getSpn()))
+                                  .collect(toList());
     }
 
-    public void setMonitoredSystems(Set<MonitoredSystem> monitoredSystems) {
-        this.monitoredSystems.clear();
-        this.monitoredSystems.addAll(monitoredSystems);
+    public List<SupportedSPN> getFreezeFrameSPNs() {
+        return getSupportedSPNs().stream()
+                                 .filter(SupportedSPN::supportsExpandedFreezeFrame)
+                                 .collect(toList());
     }
 
-    public void setObdCompliance(byte obdCompliance) {
-        this.obdCompliance = obdCompliance;
+    public List<SupportedSPN> getTestResultSPNs() {
+        return getSupportedSPNs().stream()
+                                 .filter(SupportedSPN::supportsScaledTestResults)
+                                 .collect(toList());
     }
 
-    public void setPerformanceRatios(Collection<PerformanceRatio> performanceRatios) {
-        this.performanceRatios.clear();
-        this.performanceRatios.addAll(performanceRatios);
+    public List<Integer> getOmittedDataStreamSPNs() {
+        return omittedSPNs.stream().distinct().sorted().collect(toList());
+    }
+
+    public void addOmittedDataStreamSPN(int spn) {
+        omittedSPNs.add(spn);
+    }
+
+    public List<ScaledTestResult> getScaledTestResults() {
+        return scaledTestResults;
     }
 
     public void setScaledTestResults(List<ScaledTestResult> scaledTestResults) {
@@ -254,78 +137,75 @@ public class OBDModuleInformation implements Cloneable {
         this.scaledTestResults.addAll(scaledTestResults);
     }
 
-    public void setSupportedSpns(List<SupportedSPN> supportedSpns) {
-        this.supportedSpns.clear();
-        this.supportedSpns.addAll(supportedSpns);
+    public List<ScaledTestResult> getNonInitializedTests() {
+        return nonInitializedTests;
     }
 
-    public String getEngineFamilyName() {
-        return engineFamilyName;
+    public void setNonInitializedTests(List<ScaledTestResult> tests) {
+        nonInitializedTests.clear();
+        nonInitializedTests.addAll(tests);
     }
 
-    public void setEngineFamilyName(String engineFamilyName) {
-        this.engineFamilyName = engineFamilyName;
+    public void set(GenericPacket packet, int partNumber) {
+        packetArchive.put(packet, partNumber);
     }
 
-    public String getModelYear() {
-        return modelYear;
+    public <T extends GenericPacket> T get(Class<T> clazz, int partNumber) {
+        return packetArchive.get(clazz, partNumber);
     }
 
-    public void setModelYear(String modelYear) {
-        this.modelYear = modelYear;
+    public <T extends GenericPacket> T getLatest(Class<T> clazz) {
+        return packetArchive.getLatest(clazz);
     }
 
-    public DM25ExpandedFreezeFrame getLastDM25() {
-        return lastDM25;
+    public boolean supportsDM27() {
+        return getLatest(DM27AllPendingDTCsPacket.class) != null;
     }
 
-    public void setLastDM25(DM25ExpandedFreezeFrame lastDM25) {
-        this.lastDM25 = lastDM25;
+    public Double getDeltaEngineStart() {
+        return deltaEngineStart;
     }
 
-    public DM26TripDiagnosticReadinessPacket getLastDM26() {
-        return lastDM26;
+    public void setDeltaEngineStart(Double deltaEngineStart) {
+        this.deltaEngineStart = deltaEngineStart;
     }
 
-    public void setLastDM26(DM26TripDiagnosticReadinessPacket lastDM26) {
-        this.lastDM26 = lastDM26;
-    }
+    private static class PacketArchive {
 
-    public DM27AllPendingDTCsPacket getLastDM27() {
-        return lastDM27;
-    }
+        private final Map<Class<? extends GenericPacket>, GenericPacket[]> packetArchive = new HashMap<>();
 
-    public void setLastDM27(DM27AllPendingDTCsPacket lastDM27) {
-        this.lastDM27 = lastDM27;
-    }
+        public void put(GenericPacket packet, int partNumber) {
+            if (partNumber == 0) {
+                throw new IllegalArgumentException("0 is not a valid partNumber");
+            }
 
-    public List<DiagnosticTroubleCode> getEmissionDTCs() {
-        return emissionDTCs;
-    }
+            var packets = getPackets(packet.getClass());
+            packets[partNumber] = packet;
+            packetArchive.put(packet.getClass(), packets);
+        }
 
-    public void setEmissionDTCs(List<DiagnosticTroubleCode> emissionDTCs) {
-        this.emissionDTCs.clear();
-        this.emissionDTCs.addAll(emissionDTCs);
-    }
+        public <T extends GenericPacket> T getLatest(Class<T> clazz) {
+            for (int i = 12; i > 0; i--) {
+                var packet = get(clazz, i);
+                if (packet != null) {
+                    return packet;
+                }
+            }
+            return null;
+        }
 
-    @Override
-    public String toString() {
-        String result = "OBD Module Information: " + NL;
-        result += "sourceAddress is : " + sourceAddress + NL;
-        result += "obdCompliance is : " + getObdCompliance() + NL;
-        result += "function is : " + getFunction() + NL;
-        result += "ignition cycles is : " + getIgnitionCycleCounterValue() + NL;
-        result += "engine family name is : " + getEngineFamilyName() + NL;
-        result += "model year is : " + getModelYear() + NL;
-        result += "Scaled Test Results: " + getScaledTestResults() + NL;
-        result += "Performance Ratios: " + getPerformanceRatios() + NL;
-        result += "Monitored Systems: " + getMonitoredSystems() + NL;
-        result += "Supported SPNs: " + NL + formattedSupportedSpns();
-        return result;
-    }
+        public <T extends GenericPacket> T get(Class<T> clazz, int partNumber) {
+            if (partNumber == 0) {
+                throw new IllegalArgumentException("0 is not a valid partNumber");
+            }
 
-    private String formattedSupportedSpns() {
-        return getSupportedSpns().stream().map(SupportedSPN::toString).collect(Collectors.joining(", "));
+            return (T) getPackets(clazz)[partNumber];
+        }
+
+        private <T extends GenericPacket> GenericPacket[] getPackets(Class<T> clazz) {
+            return packetArchive.getOrDefault(clazz, new GenericPacket[13]);
+        }
+
     }
 
 }

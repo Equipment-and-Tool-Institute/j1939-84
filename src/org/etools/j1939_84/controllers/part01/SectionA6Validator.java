@@ -3,229 +3,217 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
-import org.etools.j1939_84.controllers.Validator;
 import org.etools.j1939_84.model.RequestResult;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 
 /**
  * @author Marianne Schaefer (marianne.schaefer@gmail.com)
- * <p>
- * The validation class for Section A.6 Criteria for Readiness 1
- * Evaluation
+ *         <p>
+ *         The validation class for Section A.6 Criteria for Readiness 1
+ *         Evaluation
  */
-public class SectionA6Validator extends Validator {
+public class SectionA6Validator {
 
     private final DataRepository dataRepository;
 
-    private final String SECTION_NAME = "Section A6 Validator";
-
     private final TableA6Validator tableA6Validator;
 
-    public SectionA6Validator(DataRepository dataRepository) {
-        this(dataRepository, new TableA6Validator(dataRepository));
+    private final int partNumber;
+
+    private final int stepNumber;
+
+    public SectionA6Validator(DataRepository dataRepository, int partNumber, int stepNumber) {
+        this(dataRepository, new TableA6Validator(dataRepository, partNumber, stepNumber), partNumber, stepNumber);
     }
 
     protected SectionA6Validator(DataRepository dataRepository,
-            TableA6Validator tableA6Validator) {
+                                 TableA6Validator tableA6Validator,
+                                 int partNumber,
+                                 int stepNumber) {
         this.dataRepository = dataRepository;
         this.tableA6Validator = tableA6Validator;
+        this.partNumber = partNumber;
+        this.stepNumber = stepNumber;
     }
 
-    public boolean verify(ResultsListener listener,
-            int partNumber,
-            int stepNumber,
-            RequestResult<DM5DiagnosticReadinessPacket> response) {
+    public void verify(ResultsListener listener,
+                       String section,
+                       RequestResult<DM5DiagnosticReadinessPacket> response) {
 
-        boolean[] passed = { true };
-
-        // 1. The response from each responding device shall be evaluated
+        // A6.1. The response from each responding device shall be evaluated
         // separately using a through d below:
-        List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
-        List<Integer> obdModuleAddresses2 = List.copyOf(obdModuleAddresses);
 
-        List<Integer> packets = response.getPackets().stream()
-                .filter(DM5DiagnosticReadinessPacket::isObd)
-                .map(ParsedPacket::getSourceAddress)
-                .collect(Collectors.toList());
-        packets.addAll(response.getAcks().stream().map(ParsedPacket::getSourceAddress).collect(Collectors.toList()));
-        obdModuleAddresses.removeAll(packets);
+        // A6.1.a. Fail if no response from an OBD ECU (ECUs that indicate 0x13, 0x14, 0x22, or 0x23 for OBD compliance)
+        List<Integer> addresses = new ArrayList<>(dataRepository.getObdModuleAddresses());
+        response.toPacketStream().map(ParsedPacket::getSourceAddress).forEach(addresses::remove);
+        addresses.stream()
+                 .distinct()
+                 .sorted()
+                 .map(Lookup::getAddressName)
+                 .map(moduleName -> section + " (A6.1.a) - OBD ECU " + moduleName
+                         + " did not provide a response to Global query")
+                 .forEach(msg -> {
+                     listener.addOutcome(partNumber, stepNumber, FAIL, msg);
+                 });
 
-        if (!obdModuleAddresses.isEmpty()) {
-            // a. Fail if no response from an OBD ECU (ECUs that indicate
-            // 0x13, 0x14, 0x22, or 0x23 for OBD compliance).
-            StringBuilder message1a = new StringBuilder(SECTION_NAME + NL);
-            message1a.append(
-                    " Step 1.a - No response from an OBD ECU (ECUs that indicate 0x13, 0x14, 0x22, or 0x23 for OBD compliance)");
-            obdModuleAddresses.forEach(address -> message1a.append(NL)
-                    .append("   ECU with source address :  ")
-                    .append(address)
-                    .append(" did not return a response"));
+        var obdPackets = response.toPacketStream()
+                                 .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                                 .collect(Collectors.toList());
 
-            addOutcome(partNumber, stepNumber, FAIL, message1a.toString(), listener);
-            passed[0] = false;
+        // A6.1.b. Fail if any response does not report supported and complete for
+        // comprehensive components support and status
+        // (SPN 1221, byte 4, bit 3 = 1 and bit 7 = 0),
+        // except when all the bits in SPNs 1221, 1222, and 1223 are sent as 0
+        // as defined in SAE J1939-73 paragraph 5.7.5.
+        obdPackets.stream()
+                  .filter(p -> !isZeros(p))
+                  .filter(p -> {
+                      return p.getMonitoredSystems()
+                              .stream()
+                              .filter(s -> s.getId() == CompositeSystem.COMPREHENSIVE_COMPONENT)
+                              .findFirst()
+                              .stream()
+                              .noneMatch(system -> system.getStatus().isEnabled() && system.getStatus().isComplete());
+                  })
+                  .map(ParsedPacket::getModuleName)
+                  .forEach(moduleName -> {
+                      listener.addOutcome(partNumber,
+                                          stepNumber,
+                                          FAIL,
+                                          section + " (A6.1.b) - " + moduleName
+                                                  + " did not report supported and complete for comprehensive components support and status");
+                  });
+
+        // A6.1.c. Fail if any response does not report 0 = ‘complete/not supported’ for the status bit
+        // for every unsupported monitors
+        // (i.e., any of the support bits in SPN 1221, byte 4 bits 1-3,
+        // 1222 byte 5 bits 1-8, or 1222 byte 6 bits 1-5 that report 0
+        // also report 0 in the corresponding status bit in SPN 1221 and 1223).
+        for (DM5DiagnosticReadinessPacket packet : obdPackets) {
+            packet.getMonitoredSystems()
+                  .stream()
+                  .filter(s -> !s.getStatus().isEnabled())
+                  .filter(s -> !s.getStatus().isComplete())
+                  .map(MonitoredSystem::getName)
+                  .map(String::trim)
+                  .forEach(monitorName -> {
+                      listener.addOutcome(partNumber,
+                                          stepNumber,
+                                          FAIL,
+                                          section + " (A6.1.c) - " + packet.getModuleName()
+                                                  + " did not 'complete/not supported' for the unsupported monitor "
+                                                  + monitorName);
+                  });
         }
 
-        response.getPackets().stream().filter(DM5DiagnosticReadinessPacket::isObd).forEach(packet -> {
-            // b. Fail if any response does not report supported and
-            // complete for comprehensive components support and status (SPN
-            // 1221, byte 4, bit 3 = 1 and bit 7 = 0), except when all the
-            // bits in SPNs 1221, 1222, and 1223 are sent as 0 as defined in
-            // SAE J1939-73 paragraph 5.7.5.
-            Set<MonitoredSystem> monitoredSystems = packet.getMonitoredSystems();
-            boolean isComplete = monitoredSystems.stream()
-                    .filter(monitoredSys -> monitoredSys.getId() == CompositeSystem.COMPREHENSIVE_COMPONENT)
-                    .anyMatch(system -> !system.getStatus().isEnabled() || !system.getStatus().isComplete());
-            int[] bytes = packet.getPacket().getData(3, 7);
-            int sum = 0;
-            for (int val : bytes) {
-                sum += val;
+        // A6.1.d. Fail if any response does not report 0 for reserved bits
+        // (SPN 1221 byte 4 bits 4 and 8,
+        // SPN 1222 byte 6 bits 6-8, and
+        // SPN 1223 byte 8 bits 6-8).
+        obdPackets.stream()
+                  .filter(p -> {
+                      var spn1221Ok = (p.getPacket().get(3) & 0x88) == 0;
+                      var spn1222Ok = (p.getPacket().get(5) & 0xE0) == 0;
+                      var spn1223Ok = (p.getPacket().get(7) & 0xE0) == 0;
+                      return !(spn1221Ok && spn1222Ok && spn1223Ok);
+                  })
+                  .map(ParsedPacket::getModuleName)
+                  .forEach(moduleName -> {
+                      listener.addOutcome(partNumber,
+                                          stepNumber,
+                                          FAIL,
+                                          section + " (A6.1.d) - " + moduleName
+                                                  + " did not report 0 for reserved bits");
+                  });
+
+        // A6.2. All responses received from all responding OBD devices shall
+        // be combined with appropriate ‘AND/OR’ logic to create a composite
+        // vehicle readiness response: [Do not use responses from non-OBD
+        // devices to create a composite vehicle readiness response.]
+
+        // A6.2.a. If one or more responses indicates 1 = supported in the support bit for a monitor,
+        // A6.2.a.i. Then the composite vehicle readiness shall indicate 1 = supported for that support bit/monitor,
+        // A6.2.a.ii. Else it shall indicate 0 = unsupported for that support bit/monitor;
+        // A6.2.b. If one or more responses indicates the status bit for a supported monitor is 1 = not complete,
+        // A6.2.b.i. Then the composite vehicle readiness shall indicate 1 = not complete for that status bit/monitor,
+        // A6.2..b.ii. Else it shall indicate 0 = complete for that status bit/monitor).
+        var compositeSystems = DiagnosticMessageModule.getCompositeSystems(obdPackets, true);
+
+        // A6.2.c. Fail if composite vehicle readiness does not meet any of the criteria in Table A-6.
+        tableA6Validator.verify(listener, compositeSystems, section + " (A6.2.c)");
+
+        // A6.2.d. Warn if any individual required monitor, except Continuous Component Monitoring (CCM)
+        // is supported by more than one OBD ECU.
+        List<CompositeSystem> supportedSystems = obdPackets.stream()
+                                                           .flatMap(p -> p.getMonitoredSystems().stream())
+                                                           .filter(s -> s.getId() != CompositeSystem.COMPREHENSIVE_COMPONENT)
+                                                           .filter(s -> s.getStatus().isEnabled())
+                                                           .map(MonitoredSystem::getId)
+                                                           .collect(Collectors.toList());
+
+        for (CompositeSystem system : CompositeSystem.values()) {
+            int freq = Collections.frequency(supportedSystems, system);
+            if (freq > 1) {
+                String warnMessage = section + " (A6.2.d) - " + system.getName().trim()
+                        + " is supported by more than one OBD ECU";
+                listener.addOutcome(partNumber, stepNumber, WARN, warnMessage);
             }
-
-            if (!isComplete && sum != 0) {
-                String message = SECTION_NAME + NL + "Step 1.b - A response does not report supported and" +
-                        NL +
-                        " complete for comprehensive components support and status (SPN" +
-                        NL +
-                        " 1221, byte 4, bit 3 = 1 and bit 7 = 0), except when all the" +
-                        NL +
-                        " bits in SPNs 1221, 1222, and 1223 are sent as 0 as defined in" +
-                        NL +
-                        " SAE J1939-73 paragraph 5.7.5";
-                addOutcome(partNumber, stepNumber, FAIL, message, listener);
-                passed[0] = false;
-            }
-
-            // c. Fail if any response does not report 0 = ‘complete/not
-            // supported’ for the status bit for every unsupported monitors
-            // (i.e., any of the support bits in SPN 1221, byte 4 bits 1-3,
-            // 1222 byte 5 bits 1-8, or 1222 byte 6 bits 1-5 that report 0
-            // also report 0 in the corresponding status bit in SPN 1221 and
-            // 1223).
-            if (monitoredSystems.stream()
-                    .anyMatch(system -> !system.getStatus().isEnabled() && !system.getStatus().isComplete())) {
-                String message = SECTION_NAME + NL + " Step 1.c - A response does not report 0 = ‘complete/not" +
-                        NL +
-                        "supported’ for the status bit for every unsupported monitors" +
-                        NL +
-                        "(i.e., any of the support bits in SPN 1221, byte 4 bits 1-3," +
-                        NL +
-                        "1222 byte 5 bits 1-8, or 1222 byte 6 bits 1-5 that report 0" +
-                        NL +
-                        "also report 0 in the corresponding status bit in SPN 1221 and" +
-                        NL +
-                        "1223";
-                addOutcome(partNumber, stepNumber, FAIL, message, listener);
-                passed[0] = false;
-            }
-
-            // d. Fail if any response does not report 0 for reserved bits
-            // (SPN 1221 byte 4 bits 4 and 8, SPN 1222 byte 6 bits 68, and
-            // SPN1223 byte 8 bits 6-8).
-            if ((packet.getPacket().getBytes()[3] & 0x88) != 0) {
-                String message = SECTION_NAME + NL + " Step 1.d - A response does not report 0 for reserved bits" +
-                        NL +
-                        "(SPN 1221 byte 4 bits 4 and 8, SPN 1222 byte 6 bits 6-8, and" +
-                        NL +
-                        "SPN 1223 byte 8 bits 6-8)";
-                addOutcome(partNumber, stepNumber, FAIL, message, listener);
-                passed[0] = false;
-            }
-
-            // 2. All responses received from all responding OBD devices shall
-            // be combined with appropriate ‘AND/OR’ logic to create a composite
-            // vehicle readiness response: [Do not use responses from non-OBD
-            // devices to create a composite vehicle readiness response.]
-
-            // c. Fail if composite vehicle readiness does not meet any of the
-            // criteria in Table A-6.
-            if (!tableA6Validator.verify(listener, packet, partNumber, stepNumber)) {
-                String failureMessage = SECTION_NAME + NL;
-                failureMessage += " Step 2.c - Composite vehicle readiness does not meet any of the criteria in Table A-6";
-                listener.addOutcome(partNumber, stepNumber, FAIL, failureMessage);
-                passed[0] = false;
-            }
-
-        });
-
-        // d. Warn if any individual required monitor, except Continuous
-        // Component Monitoring (CCM) is supported by more than one OBD ECU.
-        List<CompositeSystem> supportedSystems = response.getPackets().stream()
-                .filter(p -> obdModuleAddresses2.contains(p.getSourceAddress()))
-                .flatMap(p -> p.getMonitoredSystems().stream())
-                .filter(s -> s.getId() != CompositeSystem.COMPREHENSIVE_COMPONENT)
-                .filter(s -> s.getStatus().isEnabled())
-                .map(MonitoredSystem::getId)
-                .collect(Collectors.toList());
-        // Convert to a set so there's only one of each system
-        Set<CompositeSystem> systemsSet = new HashSet<>(supportedSystems);
-
-        if (supportedSystems.size() != systemsSet.size()) {
-            // Since the sizes aren't the same, the list contains a duplicate
-            String warnMessage = SECTION_NAME + NL
-                    + " Step 2.d An individual required monitor is supported by more than one OBD ECU";
-            addOutcome(partNumber, stepNumber, WARN, warnMessage, listener);
         }
 
-        // 3. All responses received from non-OBD ECU shall be evaluated
-        // using the criteria below:
-        List<DM5DiagnosticReadinessPacket> nonObdPackets = response.getPackets().stream()
-                .filter(packet -> !packet.isObd()).collect(Collectors.toList());
+        // A6.3. All responses received from non-OBD ECU shall be evaluated using the criteria below:
+        var nonObdPackets = response.getPackets()
+                                    .stream()
+                                    .filter(packet -> !packet.isObd())
+                                    .collect(Collectors.toList());
 
-        // a. Warn if any response from non-OBD ECU received.
-        if (!nonObdPackets.isEmpty()) {
-            // b. Warn if all the monitor status and support bits in any reply
-            // from a non-OBD ECU are not all binary zeros or all binary ones.
-            nonObdPackets.forEach(packet -> {
-                byte[] bytes = packet.getPacket().getBytes();
-                StringBuilder byteCheckMessage = new StringBuilder(SECTION_NAME + NL);
-                boolean warn = false;
-                if ((bytes[3] & 0x77) != 0 &&
-                        (bytes[3] & 0x77) != 0x77) {
-                    byteCheckMessage.append(" Step 3.b [byte 4] failed all binary zeros or all binary ones check")
-                            .append(NL);
-                    warn = true;
-                }
-                if (bytes[4] != 0x00) {
-                    byteCheckMessage.append(" Step 3.b [byte 5] failed all binary zeros or all binary ones check")
-                            .append(NL);
-                    warn = true;
-                }
-                if ((bytes[5] & 0xE0) != 0 &&
-                        (bytes[5] & 0xE0) != 0xE0) {
-                    byteCheckMessage.append(" Step 3.b [byte 6] failed all binary zeros or all binary ones check")
-                            .append(NL);
-                    warn = true;
-                }
-                if (bytes[6] != 0x00) {
-                    byteCheckMessage.append(" Step 3.b [byte 7] failed all binary zeros or all binary ones check")
-                            .append(NL);
-                    warn = true;
-                }
-                if ((bytes[7] & 0xE0) != 0 &&
-                        (bytes[7] & 0xE0) != 0xE0) {
-                    byteCheckMessage.append(" Step 3.b [byte 8] failed all binary zeros or all binary ones check")
-                            .append(NL);
-                    warn = true;
-                }
-                if (warn) {
-                    addOutcome(partNumber, stepNumber, WARN, byteCheckMessage.toString(), listener);
-                }
-            });
-        }
-        return passed[0];
+        // A6.3.a. Warn if any response from non-OBD ECU received.
+        nonObdPackets.stream()
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> {
+                         String warnMessage = section + " (A6.3.a) - Non-OBD ECU " + moduleName + " responded";
+                         listener.addOutcome(partNumber, stepNumber, WARN, warnMessage);
+                     });
+
+        // A6.3.b. Warn if all the monitor status and support bits in any reply
+        // from a non-OBD ECU are not all binary zeros or all binary ones.
+        nonObdPackets.stream()
+                     .filter(packet -> {
+                         byte[] bytes = packet.getPacket().getBytes();
+
+                         var allZeros = ((bytes[3] & 0x77) == 0) && (bytes[4] == 0) && ((bytes[5] & 0xE0) == 0)
+                                 && (bytes[6] == 0) && ((bytes[7] & 0xE0) == 0);
+
+                         var allOnes = ((bytes[3] & 0x77) == 0x77) && (bytes[4] == (byte) 0xFF)
+                                 && ((bytes[5] & 0xE0) == 0xE0) && (bytes[6] == (byte) 0xFF)
+                                 && ((bytes[7] & 0xE0) == 0xE0);
+                         return !allZeros && !allOnes;
+                     })
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> {
+                         String msg = "All the monitor status and support bits from " + moduleName
+                                 + " are not all binary zeros or all binary ones";
+                         listener.addOutcome(partNumber, stepNumber, WARN, msg);
+                     });
+    }
+
+    private boolean isZeros(DM5DiagnosticReadinessPacket packet) {
+        return Arrays.stream(packet.getPacket().getData(3, 7)).sum() == 0;
     }
 
 }

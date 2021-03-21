@@ -17,36 +17,36 @@ import org.junit.Test;
  */
 public class TextChangeListenerTest {
 
-	private TextChangeListener instance;
+    private TextChangeListener instance;
 
-	private boolean textChangeCalled;
+    private boolean textChangeCalled;
 
-	@Before
-	public void setUp() {
-		instance = new TextChangeListener() {
-			@Override
-			public void textChanged() {
-				textChangeCalled = true;
-			}
-		};
-	}
+    @Before
+    public void setUp() {
+        instance = new TextChangeListener() {
+            @Override
+            public void textChanged() {
+                textChangeCalled = true;
+            }
+        };
+    }
 
-	@Test
-	public void testChangedUpdate() {
-		instance.changedUpdate(null);
-		assertFalse(textChangeCalled);
-	}
+    @Test
+    public void testChangedUpdate() {
+        instance.changedUpdate(null);
+        assertFalse(textChangeCalled);
+    }
 
-	@Test
-	public void testInsertUpdate() {
-		instance.insertUpdate(null);
-		assertTrue(textChangeCalled);
-	}
+    @Test
+    public void testInsertUpdate() {
+        instance.insertUpdate(null);
+        assertTrue(textChangeCalled);
+    }
 
-	@Test
-	public void testRemoveUpdate() {
-		instance.removeUpdate(null);
-		assertTrue(textChangeCalled);
-	}
+    @Test
+    public void testRemoveUpdate() {
+        instance.removeUpdate(null);
+        assertTrue(textChangeCalled);
+    }
 
 }

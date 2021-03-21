@@ -12,7 +12,11 @@ import org.etools.j1939_84.bus.Packet;
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  */
 public class DM2PreviouslyActiveDTC extends DiagnosticTroubleCodePacket {
-    public static final int PGN = 65227;
+    public static final int PGN = 65227; // 0xFECB
+
+    public DM2PreviouslyActiveDTC(Packet packet) {
+        super(packet);
+    }
 
     public static DM2PreviouslyActiveDTC create(int address,
                                                 LampStatus mil,
@@ -21,10 +25,6 @@ public class DM2PreviouslyActiveDTC extends DiagnosticTroubleCodePacket {
                                                 LampStatus protect,
                                                 DiagnosticTroubleCode... dtcs) {
         return new DM2PreviouslyActiveDTC(create(address, PGN, mil, stop, amber, protect, dtcs));
-    }
-
-    public DM2PreviouslyActiveDTC(Packet packet) {
-        super(packet);
     }
 
     @Override

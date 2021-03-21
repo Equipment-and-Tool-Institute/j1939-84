@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+
 import org.etools.j1939_84.bus.Packet;
 import org.junit.Test;
 
@@ -23,8 +24,7 @@ public class DM31DtcToLampAssociationTest {
 
     @Test
     public void testEmptyDTCs() {
-        Packet packet = Packet.create(DM31DtcToLampAssociation.PGN, 0, 0, 0, 0, 0, 0, 255, 255, 255);
-        DM31DtcToLampAssociation instance = new DM31DtcToLampAssociation(packet);
+        DM31DtcToLampAssociation instance = DM31DtcToLampAssociation.create(0, 0);
         assertEquals("DM31", instance.getName());
         assertTrue(instance.getDtcLampStatuses().isEmpty());
         assertEquals(8, instance.getPacket().getBytes().length);
@@ -41,13 +41,14 @@ public class DM31DtcToLampAssociationTest {
                 0x2E, // Lamp Status/State
         };
         Packet packet = Packet.create(DM31DtcToLampAssociation.PGN,
-                0,
-                data);
+                                      0,
+                                      data);
         DM31DtcToLampAssociation instance = new DM31DtcToLampAssociation(packet);
         assertEquals(1, instance.getDtcLampStatuses().size());
-        DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(609,19,1,1);
+        DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(609, 19, 1, 1);
         DTCLampStatus dtcLampStatus = DTCLampStatus.create(dtc, OFF, SLOW_FLASH, OTHER, OTHER);
         DM31DtcToLampAssociation instance2 = DM31DtcToLampAssociation.create(0,
+                                                                             0,
                                                                              dtcLampStatus);
         assertTrue(instance.equals(instance2));
 
@@ -59,7 +60,7 @@ public class DM31DtcToLampAssociationTest {
         assertEquals(expected, instance.toString());
 
         DTCLampStatus dtcLampStatus0 = instance.getDtcLampStatuses().get(0);
-        DiagnosticTroubleCode actualDTC = dtcLampStatus0.getDtcs();
+        DiagnosticTroubleCode actualDTC = dtcLampStatus0.getDtc();
         assertEquals(0x0261, actualDTC.getSuspectParameterNumber());
         assertEquals(0x01, actualDTC.getConversionMethod());
         assertEquals(0x13, actualDTC.getFailureModeIndicator());
@@ -78,27 +79,27 @@ public class DM31DtcToLampAssociationTest {
     @Test
     public void testThreeDTCs() {
         Packet packet = Packet.create(DM31DtcToLampAssociation.PGN,
-                0,
-                0x61, // SPN least significant bit
-                0x02, // SPN most significant bit
-                0x13, // Failure mode indicator
-                0x81, // SPN Conversion Occurrence Count
-                0x73, // Lamp Status/Support
-                0x2E, // Lamp Status/State
+                                      0,
+                                      0x61, // SPN least significant bit
+                                      0x02, // SPN most significant bit
+                                      0x13, // Failure mode indicator
+                                      0x81, // SPN Conversion Occurrence Count
+                                      0x73, // Lamp Status/Support
+                                      0x2E, // Lamp Status/State
 
-                0x21, // SPN least significant bit
-                0x06, // SPN most significant bit
-                0x1F, // Failure mode indicator
-                0x23, // SPN Conversion Occurrence Count
-                0x33, // Lamp Status/Support
-                0xEE, // Lamp Status/State
+                                      0x21, // SPN least significant bit
+                                      0x06, // SPN most significant bit
+                                      0x1F, // Failure mode indicator
+                                      0x23, // SPN Conversion Occurrence Count
+                                      0x33, // Lamp Status/Support
+                                      0xEE, // Lamp Status/State
 
-                0xEE, // SPN least significant bit
-                0x10, // SPN most significant bit
-                0x04, // Failure mode indicator
-                0x00, // SPN Conversion Occurrence Count
-                0xFF, // Lamp Status/Support
-                0xAA);// Lamp Status/State
+                                      0xEE, // SPN least significant bit
+                                      0x10, // SPN most significant bit
+                                      0x04, // Failure mode indicator
+                                      0x00, // SPN Conversion Occurrence Count
+                                      0xFF, // Lamp Status/Support
+                                      0xAA);// Lamp Status/State
 
         DM31DtcToLampAssociation instance = new DM31DtcToLampAssociation(packet);
         assertEquals("DM31", instance.getName());
@@ -111,12 +112,13 @@ public class DM31DtcToLampAssociationTest {
         expected += "MIL: off, RSL: other, AWL: off, PL: other" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 35 times" + NL;
         expected += "MIL: other, RSL: other, AWL: other, PL: other" + NL;
-        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times" + NL;
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+                + NL;
         expected += "]";
         assertEquals(expected, instance.toString());
 
         DTCLampStatus lampStatus0 = lampStatuses.get(0);
-        DiagnosticTroubleCode dtc0 = lampStatus0.getDtcs();
+        DiagnosticTroubleCode dtc0 = lampStatus0.getDtc();
         assertEquals(0x01, dtc0.getConversionMethod());
         assertEquals(0x13, dtc0.getFailureModeIndicator());
         assertEquals(0x01, dtc0.getOccurrenceCount());
@@ -127,7 +129,7 @@ public class DM31DtcToLampAssociationTest {
         assertEquals(LampStatus.OFF, instance.getDtcLampStatuses().get(0).getAmberWarningLampStatus());
 
         DTCLampStatus lampStatus1 = lampStatuses.get(1);
-        DiagnosticTroubleCode dtc1 = lampStatus1.getDtcs();
+        DiagnosticTroubleCode dtc1 = lampStatus1.getDtc();
         assertEquals(0x0, dtc1.getConversionMethod());
         assertEquals(0x1F, dtc1.getFailureModeIndicator());
         assertEquals(0x23, dtc1.getOccurrenceCount());
@@ -138,7 +140,7 @@ public class DM31DtcToLampAssociationTest {
         assertEquals(LampStatus.OFF, lampStatus1.getAmberWarningLampStatus());
 
         DTCLampStatus lampStatus2 = lampStatuses.get(2);
-        DiagnosticTroubleCode dtc2 = lampStatus2.getDtcs();
+        DiagnosticTroubleCode dtc2 = lampStatus2.getDtc();
         assertEquals(0x00, dtc2.getConversionMethod());
         assertEquals(0x04, dtc2.getFailureModeIndicator());
         assertEquals(0x00, dtc2.getOccurrenceCount());
@@ -149,9 +151,22 @@ public class DM31DtcToLampAssociationTest {
         assertEquals(LampStatus.OTHER, lampStatus2.getAmberWarningLampStatus());
 
         DM31DtcToLampAssociation instance2 = DM31DtcToLampAssociation.create(0,
-                                                                             DTCLampStatus.create(dtc0, OFF, SLOW_FLASH, OTHER, OTHER),
-                                                                             DTCLampStatus.create(dtc1, OFF, OFF, OTHER, OTHER),
-                                                                             DTCLampStatus.create(dtc2, OTHER, OTHER, OTHER, OTHER));
+                                                                             0,
+                                                                             DTCLampStatus.create(dtc0,
+                                                                                                  OFF,
+                                                                                                  SLOW_FLASH,
+                                                                                                  OTHER,
+                                                                                                  OTHER),
+                                                                             DTCLampStatus.create(dtc1,
+                                                                                                  OFF,
+                                                                                                  OFF,
+                                                                                                  OTHER,
+                                                                                                  OTHER),
+                                                                             DTCLampStatus.create(dtc2,
+                                                                                                  OTHER,
+                                                                                                  OTHER,
+                                                                                                  OTHER,
+                                                                                                  OTHER));
         assertTrue(instance.equals(instance2));
 
     }

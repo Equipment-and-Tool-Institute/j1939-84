@@ -19,12 +19,11 @@ import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.SECONDARY_AI
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 
 /**
  * A Super class for Diagnostic Readiness Packets
@@ -33,28 +32,118 @@ import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
  */
 public abstract class DiagnosticReadinessPacket extends GenericPacket {
 
-    protected DiagnosticReadinessPacket(Packet packet, PgnDefinition pgnDefinition) {
-        super(packet, pgnDefinition);
+    protected DiagnosticReadinessPacket(Packet packet) {
+        super(packet);
     }
 
-    private MonitoredSystem createContinuouslyMonitoredSystem(CompositeSystem compositeSystem) {
-        String name = compositeSystem.getName();
-        int completedMask = compositeSystem.getMask();
-        int supportedMask = completedMask >> 4;
-        boolean notCompleted = (getByte(3) & completedMask) == completedMask;
-        boolean supported = isOBDModule() && (getByte(3) & supportedMask) == supportedMask;
-        MonitoredSystemStatus status = MonitoredSystemStatus.findStatus(isDM5(), supported, !notCompleted);
-        return new MonitoredSystem(name, status, getSourceAddress(), compositeSystem, isDM5());
-    }
-
-    private MonitoredSystem createNonContinuouslyMonitoredSystem(CompositeSystem compositeSystem) {
-        String name = compositeSystem.getName();
+    private MonitoredSystem createMonitoredSystem(CompositeSystem compositeSystem) {
         int lowerByte = compositeSystem.getLowerByte();
-        int mask = compositeSystem.getMask();
-        boolean notCompleted = (getByte(lowerByte + 2) & mask) == mask;
-        boolean supported = isOBDModule() && (getByte(lowerByte) & mask) == mask;
+        boolean notCompleted;
+        boolean supported;
+
+        if (compositeSystem.isContinuouslyMonitored()) {
+            int completedMask = compositeSystem.getMask();
+            int supportedMask = completedMask >> 4;
+            notCompleted = (getByte(lowerByte) & completedMask) == completedMask;
+            supported = isOBDModule() && (getByte(lowerByte) & supportedMask) == supportedMask;
+        } else {
+            int mask = compositeSystem.getMask();
+            notCompleted = (getByte(lowerByte + 2) & mask) == mask;
+            supported = isOBDModule() && (getByte(lowerByte) & mask) == mask;
+        }
+
         MonitoredSystemStatus status = MonitoredSystemStatus.findStatus(isDM5(), supported, !notCompleted);
-        return new MonitoredSystem(name, status, getSourceAddress(), compositeSystem, isDM5());
+        return new MonitoredSystem(compositeSystem, status, getSourceAddress(), isDM5());
+    }
+
+    protected static void populateData(CompositeSystem systemId, boolean isComplete, boolean isEnabled, int[] data) {
+        int index = systemId.getLowerByte();
+
+        if (systemId.isContinuouslyMonitored()) {
+            int completeMask = systemId.getMask();
+            if (!isComplete) {
+                data[index] |= completeMask;
+            } else {
+                data[index] &= ~completeMask;
+            }
+
+            int supportedMask = systemId.getMask() >> 4;
+            if (isEnabled) {
+                data[index] |= supportedMask;
+            } else {
+                data[index] &= ~supportedMask;
+            }
+        } else {
+            int mask = systemId.getMask();
+            if (!isComplete) {
+                data[index + 2] |= mask;
+            } else {
+                data[index + 2] &= ~mask;
+            }
+            if (isEnabled) {
+                data[index] |= mask;
+            } else {
+                data[index] &= ~mask;
+            }
+        }
+    }
+
+    /**
+     * Returns the List of Continuously monitored systems
+     *
+     * @return {@link List}
+     */
+    public List<MonitoredSystem> getContinuouslyMonitoredSystems() {
+        List<MonitoredSystem> systems = new ArrayList<>();
+        systems.add(createMonitoredSystem(CompositeSystem.COMPREHENSIVE_COMPONENT));
+        systems.add(createMonitoredSystem(CompositeSystem.FUEL_SYSTEM));
+        systems.add(createMonitoredSystem(CompositeSystem.MISFIRE));
+        return systems;
+    }
+
+    /**
+     * Returns the {@link Set} of Continuously and Non-continuously monitored
+     * systems
+     *
+     * @return {@link Set}
+     */
+    public List<MonitoredSystem> getMonitoredSystems() {
+        List<MonitoredSystem> systems = new ArrayList<>();
+        systems.addAll(getContinuouslyMonitoredSystems());
+        systems.addAll(getNonContinuouslyMonitoredSystems());
+        return systems;
+    }
+
+    /**
+     * Returns the List of Non-continuously monitored systems
+     *
+     * @return {@link List}
+     */
+    public List<MonitoredSystem> getNonContinuouslyMonitoredSystems() {
+        List<MonitoredSystem> systems = new ArrayList<>();
+
+        for (CompositeSystem compositeSystem : Arrays.asList(EGR_VVT_SYSTEM,
+                                                             EXHAUST_GAS_SENSOR_HEATER,
+                                                             EXHAUST_GAS_SENSOR,
+                                                             AC_SYSTEM_REFRIGERANT,
+                                                             SECONDARY_AIR_SYSTEM,
+                                                             EVAPORATIVE_SYSTEM,
+                                                             HEATED_CATALYST,
+                                                             CATALYST,
+                                                             NMHC_CONVERTING_CATALYST,
+                                                             NOX_CATALYST_ABSORBER,
+                                                             DIESEL_PARTICULATE_FILTER,
+                                                             BOOST_PRESSURE_CONTROL_SYS,
+                                                             COLD_START_AID_SYSTEM)) {
+            systems.add(createMonitoredSystem(compositeSystem));
+        }
+
+        return systems;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getContinuouslyMonitoredSystems(), getNonContinuouslyMonitoredSystems());
     }
 
     @Override
@@ -71,63 +160,6 @@ public abstract class DiagnosticReadinessPacket extends GenericPacket {
         return getSourceAddress() == that.getSourceAddress()
                 && Objects.equals(getContinuouslyMonitoredSystems(), that.getContinuouslyMonitoredSystems())
                 && Objects.equals(getNonContinuouslyMonitoredSystems(), that.getNonContinuouslyMonitoredSystems());
-    }
-
-    /**
-     * Returns the List of Continuously monitored systems
-     *
-     * @return {@link List}
-     */
-    public List<MonitoredSystem> getContinuouslyMonitoredSystems() {
-        List<MonitoredSystem> systems = new ArrayList<>();
-        systems.add(createContinuouslyMonitoredSystem(CompositeSystem.COMPREHENSIVE_COMPONENT));
-        systems.add(createContinuouslyMonitoredSystem(CompositeSystem.FUEL_SYSTEM));
-        systems.add(createContinuouslyMonitoredSystem(CompositeSystem.MISFIRE));
-        return systems;
-    }
-
-    /**
-     * Returns the {@link Set} of Continuously and Non-continuously monitored
-     * systems
-     *
-     * @return {@link Set}
-     */
-    public Set<MonitoredSystem> getMonitoredSystems() {
-        Set<MonitoredSystem> set = new HashSet<>();
-        set.addAll(getContinuouslyMonitoredSystems());
-        set.addAll(getNonContinuouslyMonitoredSystems());
-        return set;
-    }
-
-    /**
-     * Returns the List of Non-continuously monitored systems
-     *
-     * @return {@link List}
-     */
-    public List<MonitoredSystem> getNonContinuouslyMonitoredSystems() {
-        List<MonitoredSystem> systems = new ArrayList<>();
-        for (CompositeSystem compositeSystem : Arrays.asList(EGR_VVT_SYSTEM,
-                                                             EXHAUST_GAS_SENSOR_HEATER,
-                                                             EXHAUST_GAS_SENSOR,
-                                                             AC_SYSTEM_REFRIGERANT,
-                                                             SECONDARY_AIR_SYSTEM,
-                                                             EVAPORATIVE_SYSTEM,
-                                                             HEATED_CATALYST,
-                                                             CATALYST,
-                                                             NMHC_CONVERTING_CATALYST,
-                                                             NOX_CATALYST_ABSORBER,
-                                                             DIESEL_PARTICULATE_FILTER,
-                                                             BOOST_PRESSURE_CONTROL_SYS,
-                                                             COLD_START_AID_SYSTEM)) {
-            systems.add(createNonContinuouslyMonitoredSystem(compositeSystem));
-        }
-
-        return systems;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getContinuouslyMonitoredSystems(), getNonContinuouslyMonitoredSystems());
     }
 
     /**

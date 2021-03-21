@@ -3,26 +3,33 @@
  */
 package org.etools.j1939_84.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import static java.util.Map.Entry.comparingByKey;
+import static org.etools.j1939_84.model.Outcome.ABORT;
+import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INCOMPLETE;
+import static org.etools.j1939_84.model.Outcome.INFO;
+import static org.etools.j1939_84.model.Outcome.PASS;
+import static org.etools.j1939_84.model.Outcome.WARN;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class PartResult implements IResult {
 
-    private final String name;
-    private Outcome outcome;
-    private final int partNumber;
+    private static final StepResultFactory stepResultFactory = new StepResultFactory();
 
+    private final String name;
+    private final int partNumber;
     private final Map<Integer, StepResult> stepResults = new HashMap<>();
+    private Outcome outcome;
 
     public PartResult(int partNumber, String name) {
-        StepResultFactory stepResultFactory = new StepResultFactory();
+
         this.partNumber = partNumber;
         this.name = name;
 
@@ -48,22 +55,23 @@ public class PartResult implements IResult {
     @Override
     public Outcome getOutcome() {
         if (outcome == null) {
-            if (hasOutcome(Outcome.FAIL)) {
-                outcome = Outcome.FAIL;
-            } else if (hasOutcome(Outcome.WARN)) {
-                outcome = Outcome.WARN;
-            } else if (hasOutcome(Outcome.INCOMPLETE)) {
-                outcome = Outcome.INCOMPLETE;
+            if (hasOutcome(FAIL)) {
+                outcome = FAIL;
+            } else if (hasOutcome(WARN)) {
+                outcome = WARN;
+            } else if (hasOutcome(INFO)) {
+                outcome = INFO;
+            } else if (hasOutcome(INCOMPLETE)) {
+                outcome = INCOMPLETE;
+            } else if (hasOutcome(ABORT)) {
+                outcome = ABORT;
             } else {
-                outcome = Outcome.PASS;
+                outcome = PASS;
             }
         }
         return outcome;
     }
 
-    /**
-     * @return the partNumber
-     */
     public int getPartNumber() {
         return partNumber;
     }
@@ -73,21 +81,15 @@ public class PartResult implements IResult {
     }
 
     public List<StepResult> getStepResults() {
-        List<Integer> keys = new ArrayList<>(stepResults.keySet());
-        Collections.sort(keys);
-
-        List<StepResult> results = new ArrayList<>();
-        for (int key : keys) {
-            results.add(stepResults.get(key));
-        }
-        return results;
+        return stepResults.entrySet()
+                          .stream()
+                          .sorted(comparingByKey())
+                          .map(Map.Entry::getValue)
+                          .collect(Collectors.toList());
     }
 
-    /**
-     * @return
-     */
     private boolean hasOutcome(Outcome expectedOutcome) {
-        return stepResults.values().stream().anyMatch(r -> r.getOutcome() == expectedOutcome);
+        return stepResults.values().stream().map(StepResult::getOutcome).anyMatch(o -> o == expectedOutcome);
     }
 
     @Override

@@ -1,9 +1,8 @@
 /*
- * Copyright 2020 Equipment & Tool Institute
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -12,10 +11,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -27,8 +26,8 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -88,15 +87,22 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(null);
 
         instance = new Part01Step21Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                diagnosticMessageModule,
-                dataRepository,
-                DateTimeModule.getInstance());
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              diagnosticMessageModule,
+                                              dataRepository,
+                                              DateTimeModule.getInstance());
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
@@ -130,9 +136,9 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
         when(diagnosticMessageModule.requestDM27(any()))
-                .thenReturn(new RequestResult<>(false, List.of(), List.of()));
+                                                        .thenReturn(new RequestResult<>(false, List.of(), List.of()));
         when(diagnosticMessageModule.requestDM27(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
+                                                                  .thenReturn(new BusResult<>(false, Optional.empty()));
 
         runTest();
 
@@ -143,33 +149,60 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.1.21.4.b - OBD ECU Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
 
-        String expectedResults = "FAIL: 6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
     public void testFailures() {
         DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                        Packet.create(PGN,
+                                                                                      0x01,
+                                                                                      0x11,
+                                                                                      0x22,
+                                                                                      0x33,
+                                                                                      0x44,
+                                                                                      0x55,
+                                                                                      0x66,
+                                                                                      0x77,
+                                                                                      0x88));
         DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x03, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
+                                                                        Packet.create(PGN,
+                                                                                      0x03,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x04,
+                                                                                      0x00,
+                                                                                      0xFF,
+                                                                                      0xFF,
+                                                                                      0xFF,
+                                                                                      0xFF));
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
         DM27AllPendingDTCsPacket obdPacket3 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, 0x13, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                           Packet.create(PGN,
+                                                                                         0x03,
+                                                                                         0x11,
+                                                                                         0x22,
+                                                                                         0x13,
+                                                                                         0x44,
+                                                                                         0x55,
+                                                                                         0x66,
+                                                                                         0x77,
+                                                                                         0x88));
 
         when(diagnosticMessageModule.requestDM27(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet1, packet3), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(packet1, packet3),
+                                                                                        List.of()));
 
         when(diagnosticMessageModule.requestDM27(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, packet1));
+                                                                  .thenReturn(new BusResult<>(false, packet1));
         when(diagnosticMessageModule.requestDM27(any(), eq(0x03)))
-                .thenReturn(new BusResult<>(false, obdPacket3));
+                                                                  .thenReturn(new BusResult<>(false, obdPacket3));
 
         runTest();
 
@@ -178,58 +211,65 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x01));
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
+        assertEquals("", listener.getResults());
+
         verify(mockListener).addOutcome(
-                1,
-                21,
-                FAIL,
-                "6.1.21.2.a - Engine #2 (1) reported an all pending DTC"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.a - Engine #2 (1) reported an all pending DTC");
         verify(mockListener).addOutcome(
-                1,
-                21,
-                FAIL,
-                "6.1.21.2.a - Transmission #1 (3) reported an all pending DTC"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.a - Transmission #1 (3) reported an all pending DTC");
         verify(mockListener).addOutcome(
-                1,
-                21,
-                FAIL,
-                "6.1.21.2.b - Engine #2 (1) did not report MIL off"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.b - Engine #2 (1) did not report MIL off");
         verify(mockListener).addOutcome(
-                1,
-                21,
-                FAIL,
-                "6.1.21.2.b - Transmission #1 (3) did not report MIL off"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.b - Transmission #1 (3) did not report MIL off");
         verify(mockListener).addOutcome(
-                1,
-                21,
-                FAIL,
-                "6.1.21.4.a - Difference compared to data received during global request from Transmission #1 (3)"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.4.a - Difference compared to data received during global request from Transmission #1 (3)");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.1.21.4.a - Difference compared to data received during global request from Transmission #1 (3)");
 
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.1.21.2.a - Engine #2 (1) reported an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.1.21.2.a - Transmission #1 (3) reported an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.1.21.2.b - Engine #2 (1) did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.21.2.b - Transmission #1 (3) did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.21.4.a - Difference compared to data received during global request from Transmission #1 (3)" + NL;
-
-        assertEquals(expectedResults, listener.getResults());
     }
 
     @Test
     public void testMoreEmptyPacketNoFailures() {
         AcknowledgmentPacket ackPacket = new AcknowledgmentPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                  Packet.create(PGN,
+                                                                                0x01,
+                                                                                0x11,
+                                                                                0x22,
+                                                                                0x33,
+                                                                                0x44,
+                                                                                0x55,
+                                                                                0x66,
+                                                                                0x77,
+                                                                                0x88));
 
         DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, (byte) 0x0A, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                        Packet.create(PGN,
+                                                                                      0x03,
+                                                                                      0x11,
+                                                                                      0x22,
+                                                                                      (byte) 0x0A,
+                                                                                      0x44,
+                                                                                      0x55,
+                                                                                      0x66,
+                                                                                      0x77,
+                                                                                      0x88));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
@@ -250,34 +290,62 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.1.21.4.b - OBD ECU Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.21.4.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query");
-        String expected = "";
-        expected += "FAIL: 6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        expected += "FAIL: 6.1.21.4.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        assertEquals(expected, listener.getResults());
+                                        "6.1.21.4.b - OBD ECU Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query");
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
     public void testMoreFailures() {
-        AcknowledgmentPacket ackPacket = new AcknowledgmentPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+        AcknowledgmentPacket ackPacket = new AcknowledgmentPacket(Packet.create(PGN,
+                                                                                0x01,
+                                                                                0x11,
+                                                                                0x22,
+                                                                                0x33,
+                                                                                0x44,
+                                                                                0x55,
+                                                                                0x66,
+                                                                                0x77,
+                                                                                0x88));
 
-        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
-        DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, (byte) 0x0A, 0x44, 0x55, 0x66, 0x77, 0x88));
+        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(Packet.create(PGN,
+                                                                                      0x01,
+                                                                                      0x11,
+                                                                                      0x22,
+                                                                                      0x33,
+                                                                                      0x44,
+                                                                                      0x55,
+                                                                                      0x66,
+                                                                                      0x77,
+                                                                                      0x88));
+        DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(Packet.create(PGN,
+                                                                                      0x03,
+                                                                                      0x11,
+                                                                                      0x22,
+                                                                                      (byte) 0x0A,
+                                                                                      0x44,
+                                                                                      0x55,
+                                                                                      0x66,
+                                                                                      0x77,
+                                                                                      0x88));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
-        DM27AllPendingDTCsPacket packet3b = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x03, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
+        DM27AllPendingDTCsPacket packet3b = new DM27AllPendingDTCsPacket(Packet.create(PGN,
+                                                                                       0x03,
+                                                                                       0x00,
+                                                                                       0x00,
+                                                                                       0x00,
+                                                                                       0x00,
+                                                                                       0xFF,
+                                                                                       0xFF,
+                                                                                       0xFF,
+                                                                                       0xFF));
 
         when(diagnosticMessageModule.requestDM27(any())).thenReturn(new RequestResult<>(false,
                                                                                         List.of(packet3),
@@ -293,29 +361,25 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
         verify(mockListener).addOutcome(
-                1,
-                21,
-                FAIL,
-                "6.1.21.2.a - Transmission #1 (3) reported an all pending DTC"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.a - Transmission #1 (3) reported an all pending DTC");
         verify(mockListener).addOutcome(
-                1,
-                21,
-                FAIL,
-                "6.1.21.2.b - Transmission #1 (3) did not report MIL off"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.b - Transmission #1 (3) did not report MIL off");
         verify(mockListener).addOutcome(
-                1,
-                21,
-                FAIL,
-                "6.1.21.4.a - Difference compared to data received during global request from Transmission #1 (3)"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.4.a - Difference compared to data received during global request from Transmission #1 (3)");
         verify(mockListener).addOutcome(
-                1,
-                21,
-                FAIL,
-                "6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.4.b - OBD ECU Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -323,34 +387,53 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.1.21.4.b - OBD ECU Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
 
-        String expectedResults = "FAIL: 6.1.21.2.a - Transmission #1 (3) reported an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.1.21.2.b - Transmission #1 (3) did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.21.4.a - Difference compared to data received during global request from Transmission #1 (3)" + NL;
-        expectedResults += "FAIL: 6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
     public void testMoreNackFailures() {
-        AcknowledgmentPacket ackPacket = new AcknowledgmentPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+        AcknowledgmentPacket ackPacket = new AcknowledgmentPacket(Packet.create(PGN,
+                                                                                0x03,
+                                                                                0x11,
+                                                                                0x22,
+                                                                                0x33,
+                                                                                0x44,
+                                                                                0x55,
+                                                                                0x66,
+                                                                                0x77,
+                                                                                0x88));
 
-        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
-        DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, (byte) 0x0A, 0x44, 0x55, 0x66, 0x77,
-                              0x88));
+        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(Packet.create(PGN,
+                                                                                      0x01,
+                                                                                      0x11,
+                                                                                      0x22,
+                                                                                      0x33,
+                                                                                      0x44,
+                                                                                      0x55,
+                                                                                      0x66,
+                                                                                      0x77,
+                                                                                      0x88));
+        DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(Packet.create(PGN,
+                                                                                      0x03,
+                                                                                      0x11,
+                                                                                      0x22,
+                                                                                      (byte) 0x0A,
+                                                                                      0x44,
+                                                                                      0x55,
+                                                                                      0x66,
+                                                                                      0x77,
+                                                                                      0x88));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
         when(diagnosticMessageModule.requestDM27(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet1, packet3), List.of(ackPacket)));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(packet1, packet3),
+                                                                                        List.of(ackPacket)));
         when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
         when(diagnosticMessageModule.requestDM27(any(), eq(0x03))).thenReturn(new BusResult<>(false, Optional.empty()));
 
@@ -362,53 +445,48 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
         verify(mockListener).addOutcome(
-                1,
-                21,
-                FAIL,
-                "6.1.21.2.a - Engine #2 (1) reported an all pending DTC"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.a - Engine #2 (1) reported an all pending DTC");
         verify(mockListener).addOutcome(
-                1,
-                21,
-                FAIL,
-                "6.1.21.2.a - Transmission #1 (3) reported an all pending DTC"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.a - Transmission #1 (3) reported an all pending DTC");
         verify(mockListener).addOutcome(
-                1,
-                21,
-                FAIL,
-                "6.1.21.2.b - Engine #2 (1) did not report MIL off"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.b - Engine #2 (1) did not report MIL off");
         verify(mockListener).addOutcome(
-                1,
-                21,
-                FAIL,
-                "6.1.21.2.b - Transmission #1 (3) did not report MIL off"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.b - Transmission #1 (3) did not report MIL off");
 
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.1.21.2.a - Engine #2 (1) reported an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.1.21.2.a - Transmission #1 (3) reported an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.1.21.2.b - Engine #2 (1) did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.21.2.b - Transmission #1 (3) did not report MIL off" + NL;
-
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
     public void testNoErrors() {
 
-        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x01, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(Packet.create(PGN,
+                                                                                      0x01,
+                                                                                      0x00,
+                                                                                      0xFF,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(diagnosticMessageModule.requestDM27(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet1), List.of()));
-        when(diagnosticMessageModule.requestDM27(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM27(any())).thenReturn(RequestResult.of(packet1));
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(BusResult.of(packet1));
 
         runTest();
 
@@ -418,23 +496,36 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
     public void testPacketWithDTCsErrors() {
 
-        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x01, 0x00, 0xFF, 0x00, 0x00, 0x61, 0x02, 0x13, 0x81));
-        DM27AllPendingDTCsPacket packet2 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x02, 0x00, 0xFF, 0x00, 0x00, 0x61, 0x02, 0x13, 0x81));
+        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(Packet.create(PGN,
+                                                                                      0x01,
+                                                                                      0x00,
+                                                                                      0xFF,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x61,
+                                                                                      0x02,
+                                                                                      0x13,
+                                                                                      0x81));
+        DM27AllPendingDTCsPacket packet2 = new DM27AllPendingDTCsPacket(Packet.create(PGN,
+                                                                                      0x02,
+                                                                                      0x00,
+                                                                                      0xFF,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x61,
+                                                                                      0x02,
+                                                                                      0x13,
+                                                                                      0x81));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(diagnosticMessageModule.requestDM27(any()))
-                .thenReturn(new RequestResult<>(false, Arrays.asList(packet1, packet2), List.of()));
-        when(diagnosticMessageModule.requestDM27(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM27(any())).thenReturn(RequestResult.of(packet1, packet2));
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(BusResult.of(packet1));
 
         runTest();
 
@@ -447,10 +538,8 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.21.2.a - Engine #2 (1) reported an all pending DTC");
 
-        String expectedResults = "FAIL: 6.1.21.2.a - Engine #2 (1) reported an all pending DTC" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
 }

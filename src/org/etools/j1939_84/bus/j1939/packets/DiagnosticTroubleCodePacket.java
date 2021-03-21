@@ -7,9 +7,11 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.utils.CollectionUtils.join;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.Packet;
 
 /**
@@ -18,6 +20,22 @@ import org.etools.j1939_84.bus.Packet;
  * @author Matt Gumbel (matt@soliddesign.net)
  */
 public class DiagnosticTroubleCodePacket extends GenericPacket {
+
+    private LampStatus awlStatus;
+    private List<DiagnosticTroubleCode> dtcs;
+    private LampStatus milStatus;
+    private LampStatus plStatus;
+    private LampStatus rslStatus;
+
+    /**
+     * Constructor
+     *
+     * @param packet
+     *                   the {@link Packet} to parse
+     */
+    public DiagnosticTroubleCodePacket(Packet packet) {
+        super(packet);
+    }
 
     protected static Packet create(int address,
                                    int pgn,
@@ -35,27 +53,20 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
         int[] data = new int[2];
         data[0] = milData[0] << 6 | stopData[0] << 4 | amberData[0] << 2 | protectData[0];
         data[1] = milData[1] << 6 | stopData[1] << 4 | amberData[1] << 2 | protectData[1];
-        for (DiagnosticTroubleCode dtc : dtcs) {
-            data = join(data, dtc.getData());
+
+        if (dtcs.length == 0) {
+            data = join(data, new int[] { 0, 0, 0, 0 });
+        } else {
+            for (DiagnosticTroubleCode dtc : dtcs) {
+                data = join(data, dtc.getData());
+            }
+        }
+
+        if (data.length < 8) {
+            data = join(data, new int[] { 0xFF, 0xFF });
         }
 
         return Packet.create(pgn, address, data);
-    }
-
-    private LampStatus awlStatus;
-    private List<DiagnosticTroubleCode> dtcs;
-    private LampStatus milStatus;
-    private LampStatus plStatus;
-    private LampStatus rslStatus;
-
-    /**
-     * Constructor
-     *
-     * @param packet
-     *         the {@link Packet} to parse
-     */
-    public DiagnosticTroubleCodePacket(Packet packet) {
-        super(packet);
     }
 
     /**
@@ -80,17 +91,21 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
         if (dtcs == null) {
             dtcs = parseDTCs();
         }
-        return dtcs;
+        return Collections.unmodifiableList(dtcs);
+    }
+
+    public boolean hasDTCs() {
+        return !getDtcs().isEmpty();
     }
 
     /**
      * Helper method to get a {@link LampStatus}
      *
-     * @param mask
-     *         the bit mask
-     * @param shift
-     *         the number of bits to shift to the right
-     * @return the {@link LampStatus} that corresponds to the value
+     * @param  mask
+     *                   the bit mask
+     * @param  shift
+     *                   the number of bits to shift to the right
+     * @return       the {@link LampStatus} that corresponds to the value
      */
     private LampStatus getLampStatus(int mask, int shift) {
         int onOff = getShaveAndAHaircut(0, mask, shift);
@@ -113,6 +128,22 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
     @Override
     public String getName() {
         return "DM";
+    }
+
+    @Override
+    public String toString() {
+        String result = getStringPrefix() + "MIL: " + getMalfunctionIndicatorLampStatus() + ", RSL: "
+                + getRedStopLampStatus() + ", AWL: " + getAmberWarningLampStatus() + ", PL: " + getProtectLampStatus();
+
+        if (getDtcs().isEmpty()) {
+            result += ", No DTCs";
+        } else {
+            result += NL;
+            String joinedDtcs = getDtcs().stream().map(DiagnosticTroubleCode::toString).collect(Collectors.joining(NL));
+            result += joinedDtcs;
+        }
+
+        return result;
     }
 
     /**
@@ -152,10 +183,10 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
     private List<DiagnosticTroubleCode> parseDTCs() {
         List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
         // Every 4 bytes is a DTC; there might be two extra bytes
-        final int length = getPacket().getLength();
+        int length = getPacket().getLength();
         for (int i = 2; i + 4 <= length; i = i + 4) {
             DiagnosticTroubleCode dtc = parseDTC(i);
-            final int spn = dtc.getSuspectParameterNumber();
+            int spn = dtc.getSuspectParameterNumber();
             if (spn != 0 && spn != 524287) {
                 dtcs.add(dtc);
             }
@@ -163,7 +194,18 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
         return dtcs;
     }
 
-    @Override public boolean equals(Object o) {
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(),
+                            getAmberWarningLampStatus(),
+                            getDtcs(),
+                            getMalfunctionIndicatorLampStatus(),
+                            getProtectLampStatus(),
+                            getRedStopLampStatus());
+    }
+
+    @Override
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -180,30 +222,5 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
                 && getMalfunctionIndicatorLampStatus() == that.getMalfunctionIndicatorLampStatus()
                 && getProtectLampStatus() == that.getProtectLampStatus()
                 && getRedStopLampStatus() == that.getRedStopLampStatus();
-    }
-
-    @Override public int hashCode() {
-        return Objects.hash(super.hashCode(),
-                            getAmberWarningLampStatus(),
-                            getDtcs(),
-                            getMalfunctionIndicatorLampStatus(),
-                            getProtectLampStatus(),
-                            getRedStopLampStatus());
-    }
-
-    @Override
-    public String toString() {
-        String result = getStringPrefix() + "MIL: " + getMalfunctionIndicatorLampStatus() + ", RSL: "
-                + getRedStopLampStatus() + ", AWL: " + getAmberWarningLampStatus() + ", PL: " + getProtectLampStatus();
-
-        if (getDtcs().isEmpty()) {
-            result += ", No DTCs";
-        } else {
-            result += NL;
-            String joinedDtcs = getDtcs().stream().map(DiagnosticTroubleCode::toString).collect(Collectors.joining(NL));
-            result += joinedDtcs;
-        }
-
-        return result;
     }
 }

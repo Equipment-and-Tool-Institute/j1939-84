@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -14,21 +15,18 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
-/*
- * The controller for 6.2.10 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results
+/**
+ * 6.2.10 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results
  */
 public class Part02Step10Controller extends StepController {
 
     private static final int PART_NUMBER = 2;
     private static final int STEP_NUMBER = 10;
     private static final int TOTAL_STEPS = 0;
-
-    private final DataRepository dataRepository;
-    private final DiagnosticMessageModule diagnosticMessageModule;
 
     Part02Step10Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
@@ -48,33 +46,39 @@ public class Part02Step10Controller extends StepController {
                            DiagnosticMessageModule diagnosticMessageModule,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(), dateTimeModule,
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
-        this.diagnosticMessageModule = diagnosticMessageModule;
     }
 
     @Override
     protected void run() throws Throwable {
 
-        diagnosticMessageModule.setJ1939(getJ1939());
+        // getDiagnosticMessageModule().setJ1939(getJ1939());
 
-        for (OBDModuleInformation obdModule : dataRepository.getObdModules()) {
+        for (OBDModuleInformation obdModule : getDataRepository().getObdModules()) {
 
             int sourceAddress = obdModule.getSourceAddress();
             String moduleName = Lookup.getAddressName(sourceAddress);
 
-            //6.2.10.1.a. DS DM7 to each OBD ECU with TID 247+ for each DM24 SPN +FMI 31 provided by OBD ECU’s DM24 response.
-            List<ScaledTestResult> newTestResults = obdModule.getTestResultSpns()
-                    .stream()
-                    .flatMap(spn -> diagnosticMessageModule.getDM30Packets(getListener(), sourceAddress, spn).stream())
-                    .flatMap(p -> p.getTestResults().stream())
-                    .collect(Collectors.toList());
+            // 6.2.10.1.a. DS DM7 to each OBD ECU with TID 247+ for each DM24 SPN +FMI 31 provided by OBD ECU’s DM24
+            // response.
+            List<ScaledTestResult> newTestResults = obdModule.getTestResultSPNs()
+                                                             .stream()
+                                                             .flatMap(spn -> getDiagnosticMessageModule().requestTestResults(getListener(),
+                                                                                                                             sourceAddress,
+                                                                                                                             247,
+                                                                                                                             spn.getSpn(),
+                                                                                                                             31)
+                                                                                                         .stream())
+                                                             .flatMap(p -> p.getTestResults().stream())
+                                                             .collect(Collectors.toList());
 
             // 6.2.10.2.a. Fail if there is any difference in each ECU’s provided test result labels
             // (SPN and FMI combinations) from the test results received in part 1 test 12, paragraph 6.1.12.
@@ -83,21 +87,22 @@ public class Part02Step10Controller extends StepController {
             // or if any SPN and FMI combinations go missing.
 
             String oldResults = obdModule.getScaledTestResults()
-                    .stream()
-                    .map(r -> r.getSpn() + ":" + r.getFmi())
-                    .sorted()
-                    .collect(Collectors.joining(","));
+                                         .stream()
+                                         .map(r -> r.getSpn() + ":" + r.getFmi())
+                                         .sorted()
+                                         .collect(Collectors.joining(","));
             String newResults = newTestResults.stream()
-                    .map(r -> r.getSpn() + ":" + r.getFmi())
-                    .sorted()
-                    .collect(Collectors.joining(","));
+                                              .map(r -> r.getSpn() + ":" + r.getFmi())
+                                              .sorted()
+                                              .collect(Collectors.joining(","));
 
             if (!oldResults.equals(newResults)) {
-                addFailure("6.2.10.2.a - " + moduleName + " provided different test result labels from the test results received in part 1 test 12");
+                addFailure("6.2.10.2.a - " + moduleName
+                        + " provided different test result labels from the test results received in part 1 test 12");
             }
 
             if (!newTestResults.isEmpty()) {
-                //6.2.10.3.a. Warn if all test results show initialized (either 0xFB00/0xFFFF/0xFFFF
+                // 6.2.10.3.a. Warn if all test results show initialized (either 0xFB00/0xFFFF/0xFFFF
                 // or 0x0000/0x0000/0x0000) results across all SPNs requested.
                 boolean allInitialized = true;
                 for (ScaledTestResult result : newTestResults) {

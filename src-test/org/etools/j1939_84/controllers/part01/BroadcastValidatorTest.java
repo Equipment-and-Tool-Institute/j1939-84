@@ -48,6 +48,12 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class BroadcastValidatorTest {
 
+    @Mock
+    private DataRepository dataRepository;
+    private BroadcastValidator instance;
+    @Mock
+    private J1939DaRepository j1939DaRepository;
+
     private static String format(LocalDateTime timestamp) {
         return DateTimeModule.getInstance().getTimeFormatter().format(timestamp);
     }
@@ -106,14 +112,6 @@ public class BroadcastValidatorTest {
         return LocalDateTime.of(LocalDate.of(2020, 3, 15), time);
     }
 
-    @Mock
-    private DataRepository dataRepository;
-
-    private BroadcastValidator instance;
-
-    @Mock
-    private J1939DaRepository j1939DaRepository;
-
     @Test
     public void buildPGNPacketsMap() {
         List<GenericPacket> packets = new ArrayList<>();
@@ -135,24 +133,30 @@ public class BroadcastValidatorTest {
         assertEquals(3, actual.size());
 
         assertEquals(2, actual.get(11111).size());
-        long packets1 = actual.get(11111).get(0).stream()
-                .filter(p -> p.getPacket().getPgn() == 11111)
-                .filter(p -> p.getSourceAddress() == 0)
-                .count();
+        long packets1 = actual.get(11111)
+                              .get(0)
+                              .stream()
+                              .filter(p -> p.getPacket().getPgn() == 11111)
+                              .filter(p -> p.getSourceAddress() == 0)
+                              .count();
         assertEquals(1, packets1);
 
         assertEquals(2, actual.get(22222).size());
-        long packets2 = actual.get(22222).get(0).stream()
-                .filter(p -> p.getPacket().getPgn() == 22222)
-                .filter(p -> p.getSourceAddress() == 0)
-                .count();
+        long packets2 = actual.get(22222)
+                              .get(0)
+                              .stream()
+                              .filter(p -> p.getPacket().getPgn() == 22222)
+                              .filter(p -> p.getSourceAddress() == 0)
+                              .count();
         assertEquals(2, packets2);
 
         assertEquals(2, actual.get(33333).size());
-        long packets3 = actual.get(33333).get(0).stream()
-                .filter(p -> p.getPacket().getPgn() == 33333)
-                .filter(p -> p.getSourceAddress() == 0)
-                .count();
+        long packets3 = actual.get(33333)
+                              .get(0)
+                              .stream()
+                              .filter(p -> p.getPacket().getPgn() == 33333)
+                              .filter(p -> p.getSourceAddress() == 0)
+                              .count();
         assertEquals(3, packets3);
     }
 
@@ -248,34 +252,32 @@ public class BroadcastValidatorTest {
         instance.reportBroadcastPeriod(packetMap, supportedSPNs, listener, 1, 26);
 
         verify(mockListener).addOutcome(1,
-                26,
-                INFO,
-                "Unable to determine period for PGN 11111 from Engine #1 (0)");
+                                        26,
+                                        INFO,
+                                        "6.1.26 - Unable to determine period for PGN 11111 from Engine #1 (0)");
 
         verify(mockListener).addOutcome(1,
-                26,
-                INFO,
-                "Unable to determine period for PGN 22222 from Engine #1 (0)");
+                                        26,
+                                        INFO,
+                                        "6.1.26 - Unable to determine period for PGN 22222 from Engine #1 (0)");
 
         verify(mockListener).addOutcome(1,
-                26,
-                FAIL,
-                "Broadcast period of PGN 55555 (1000 ms) by module Engine #1 (0) is less than 90% specified broadcast period of 5000 ms.");
+                                        26,
+                                        FAIL,
+                                        "6.1.26 - Broadcast period of PGN 55555 (1000 ms) by ECU Engine #1 (0) is less than 90% specified broadcast period of 5000 ms.");
 
         verify(mockListener).addOutcome(1,
-                26,
-                FAIL,
-                "Broadcast period of PGN 66666 (2500 ms) by module Engine #1 (0) is beyond 110% specified broadcast period of 2000 ms.");
+                                        26,
+                                        FAIL,
+                                        "6.1.26 - Broadcast period of PGN 66666 (2500 ms) by ECU Engine #1 (0) is beyond 110% specified broadcast period of 2000 ms.");
 
         String expected = "" + NL;
         expected += "PGN 11111 from Engine #1 (0)" + NL;
         expected += "07:30:00.0000 - 11111" + NL;
-        expected += "INFO: 6.1.26 - Unable to determine period for PGN 11111 from Engine #1 (0)" + NL;
         expected += NL;
         expected += "PGN 22222 from Engine #1 (0)" + NL;
         expected += "07:30:00.1000 - 22222" + NL;
         expected += "07:30:00.2000 - 22222" + NL;
-        expected += "INFO: 6.1.26 - Unable to determine period for PGN 22222 from Engine #1 (0)" + NL;
         expected += NL;
         expected += "PGN 33333 from Engine #1 (0)" + NL;
         expected += "07:30:01.0000 - 33333" + NL;
@@ -291,15 +293,11 @@ public class BroadcastValidatorTest {
         expected += "07:30:01.0000 - 55555" + NL;
         expected += "07:30:02.0000 - 55555" + NL;
         expected += "07:30:03.0000 - 55555" + NL;
-        expected += "FAIL: 6.1.26 - Broadcast period of PGN 55555 (1000 ms) by module Engine #1 (0) is less than 90% specified broadcast period of 5000 ms."
-                + NL;
         expected += NL;
         expected += "PGN 66666 from Engine #1 (0)" + NL;
         expected += "07:30:02.0000 - 66666" + NL;
         expected += "07:30:04.5000 - 66666" + NL;
         expected += "07:30:07.0000 - 66666" + NL;
-        expected += "FAIL: 6.1.26 - Broadcast period of PGN 66666 (2500 ms) by module Engine #1 (0) is beyond 110% specified broadcast period of 2000 ms."
-                + NL;
 
         assertEquals(expected, listener.getResults());
 

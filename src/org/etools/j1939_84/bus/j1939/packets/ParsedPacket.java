@@ -5,6 +5,7 @@ package org.etools.j1939_84.bus.j1939.packets;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+
 import org.etools.j1939_84.NumberFormatter;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.Lookup;
@@ -16,32 +17,48 @@ import org.etools.j1939_84.bus.j1939.Lookup;
  */
 public class ParsedPacket {
 
+    public static final double ERROR = Double.MIN_VALUE;
+    public static final double NOT_AVAILABLE = Double.MAX_VALUE;
+    protected static final double KM_TO_MILES_FACTOR = 0.62137119;
     /**
      * The ASCII code for a *. It denotes the end of a field
      */
     private static final byte ASTERISK = 42;
+    /**
+     * The wrapped packet
+     */
+    private final Packet packet;
 
-    public static final double ERROR = Double.MIN_VALUE;
+    /**
+     * Constructor
+     *
+     * @param packet
+     *                   the {@link Packet} to wrap
+     */
+    public ParsedPacket(Packet packet) {
+        this.packet = packet;
+    }
 
-    protected static final double KM_TO_MILES_FACTOR = 0.62137119;
-    public static final double NOT_AVAILABLE = Double.MAX_VALUE;
-
-    public static byte[] toBytes(int value) {
+    public static byte[] to2Bytes(int value) {
         return new byte[] { (byte) (value & 0xFF), (byte) ((value >> 8) & 0xFF) };
     }
 
-    public static byte[] toBytes(long value) {
+    public static byte[] to4Bytes(long value) {
         return new byte[] { (byte) (value & 0xFF),
                 (byte) ((value >> 8) & 0xFF),
                 (byte) ((value >> 16) & 0xFF),
                 (byte) ((value >> 24) & 0xFF) };
     }
 
-    public static int[] toInts(int value) {
-        return new int[] { (byte) (value & 0xFF), (byte) ((value >> 8) & 0xFF) };
+    public static int[] to2Ints(int value) {
+        return new int[] { (value & 0xFF), ((value >> 8) & 0xFF) };
     }
 
-    public static int[] toInts(long value) {
+    public static int[] to3Ints(int value) {
+        return new int[] { (byte) (value & 0xFF), (byte) ((value >> 8) & 0xFF), (byte) ((value >> 16) & 0xFF) };
+    }
+
+    public static int[] to4Ints(long value) {
         return new int[] { (int) (value & 0xFF),
                 (int) ((value >> 8) & 0xFF),
                 (int) ((value >> 16) & 0xFF),
@@ -51,9 +68,9 @@ public class ParsedPacket {
     /**
      * Converts the given byte array into a {@link String}
      *
-     * @param bytes
-     *         the byte array to convert
-     * @return {@link String}
+     * @param  bytes
+     *                   the byte array to convert
+     * @return       {@link String}
      */
     protected static String format(byte[] bytes) {
         for (int i = 0; i < bytes.length; i++) {
@@ -68,9 +85,9 @@ public class ParsedPacket {
     /**
      * Finds and returns the index of the asterisk in the data
      *
-     * @param data
-     *         the data of interest
-     * @return the index of the asterisk, -1 if there is no asterisk
+     * @param  data
+     *                  the data of interest
+     * @return      the index of the asterisk, -1 if there is no asterisk
      */
     protected static int getAsteriskIndex(byte[] data) {
         int index = -1;
@@ -99,12 +116,12 @@ public class ParsedPacket {
      * If the value is NOT_AVAILABLE or ERROR, the string for those is returned
      * instead
      *
-     * @param value
-     *         the value to display as a string
-     * @param units
-     *         the units to append, can be null
-     * @return the value with units appended or "not available"/"error" as
-     * applicable.
+     * @param  value
+     *                   the value to display as a string
+     * @param  units
+     *                   the units to append, can be null
+     * @return       the value with units appended or "not available"/"error" as
+     *               applicable.
      */
     protected static String getValueWithUnits(byte value, String units) {
         if (value == (byte) 0xFF) {
@@ -121,12 +138,12 @@ public class ParsedPacket {
      * If the value is NOT_AVAILABLE or ERROR, the string for those is returned
      * instead
      *
-     * @param value
-     *         the value to display as a string
-     * @param units
-     *         the units to append, can be null
-     * @return the value with units appended or "not available"/"error" as
-     * applicable.
+     * @param  value
+     *                   the value to display as a string
+     * @param  units
+     *                   the units to append, can be null
+     * @return       the value with units appended or "not available"/"error" as
+     *               applicable.
      */
     protected static String getValueWithUnits(double value, String units) {
         if (isNotAvailable(value)) {
@@ -142,9 +159,9 @@ public class ParsedPacket {
     /**
      * Returns true if the given value equates to Error
      *
-     * @param value
-     *         the value to evaluate
-     * @return boolean
+     * @param  value
+     *                   the value to evaluate
+     * @return       boolean
      */
     protected static boolean isError(double value) {
         return value == ERROR;
@@ -153,9 +170,9 @@ public class ParsedPacket {
     /**
      * Returns true if the given value equates to Not Available
      *
-     * @param value
-     *         the value to evaluate
-     * @return boolean
+     * @param  value
+     *                   the value to evaluate
+     * @return       boolean
      */
     public static boolean isNotAvailable(double value) {
         return value == NOT_AVAILABLE;
@@ -166,9 +183,9 @@ public class ParsedPacket {
      * representation between the start of the data and the asterisk. If there
      * is no asterisk, then entire data is translated and returned as ASCII
      *
-     * @param data
-     *         the byte array containing the field
-     * @return the ASCII translation of the field data
+     * @param  data
+     *                  the byte array containing the field
+     * @return      the ASCII translation of the field data
      */
     protected static String parseField(byte[] data) {
         return parseField(data, true);
@@ -179,11 +196,11 @@ public class ParsedPacket {
      * representation between the start of the data and the asterisk. If there
      * is no asterisk, then entire data is translated and returned as ASCII
      *
-     * @param data
-     *         the byte array containing the field
-     * @param trim
-     *         true to indicate the results should be trimmed
-     * @return the ASCII translation of the field data
+     * @param  data
+     *                  the byte array containing the field
+     * @param  trim
+     *                  true to indicate the results should be trimmed
+     * @return      the ASCII translation of the field data
      */
     protected static String parseField(byte[] data, boolean trim) {
         // Find the location of the *
@@ -200,42 +217,11 @@ public class ParsedPacket {
     }
 
     /**
-     * The wrapped packet
-     */
-    private final Packet packet;
-
-    /**
-     * Constructor
-     *
-     * @param packet
-     *         the {@link Packet} to wrap
-     */
-    public ParsedPacket(Packet packet) {
-        this.packet = packet;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-
-        if (obj == this) {
-            return true;
-        }
-
-        if (!(obj instanceof ParsedPacket)) {
-            return false;
-        }
-
-        ParsedPacket that = (ParsedPacket) obj;
-
-        return this.getClass() == that.getClass() && packet.equals(that.packet);
-    }
-
-    /**
      * Helper method to get one byte at the given index
      *
-     * @param index
-     *         the index of the byte to get
-     * @return one byte
+     * @param  index
+     *                   the index of the byte to get
+     * @return       one byte
      */
     protected byte getByte(int index) {
         return (byte) (getPacket().get(index) & 0xFF);
@@ -244,9 +230,9 @@ public class ParsedPacket {
     /**
      * Helper method to get four bytes at the given index
      *
-     * @param index
-     *         the index of the byte to get
-     * @return four byte
+     * @param  index
+     *                   the index of the byte to get
+     * @return       four byte
      */
     protected long getInt(int index) {
         return getPacket().get32(index) & 0xFFFFFFFFL;
@@ -275,21 +261,21 @@ public class ParsedPacket {
      * the value is "Error" or "Not Available", those values are returned
      * instead
      *
-     * @param index
-     *         the index of the value
-     * @param divisor
-     *         the divisor for scaling
-     * @return double
+     * @param  index
+     *                     the index of the value
+     * @param  divisor
+     *                     the divisor for scaling
+     * @return         double
      */
     protected double getScaledIntValue(int index, double divisor) {
         byte upperByte = getByte(index + 3);
         switch (upperByte) {
-        case (byte) 0xFF:
-            return NOT_AVAILABLE;
-        case (byte) 0xFE:
-            return ERROR;
-        default:
-            return getInt(index) / divisor;
+            case (byte) 0xFF:
+                return NOT_AVAILABLE;
+            case (byte) 0xFE:
+                return ERROR;
+            default:
+                return getInt(index) / divisor;
         }
     }
 
@@ -298,35 +284,35 @@ public class ParsedPacket {
      * the value is "Error" or "Not Available", those values are returned
      * instead
      *
-     * @param index
-     *         the index of the value
-     * @param divisor
-     *         the divisor for scaling
-     * @return double
+     * @param  index
+     *                     the index of the value
+     * @param  divisor
+     *                     the divisor for scaling
+     * @return         double
      */
     protected double getScaledShortValue(int index, double divisor) {
         byte upperByte = getByte(index + 1);
         switch (upperByte) {
-        case (byte) 0xFF:
-            return NOT_AVAILABLE;
-        case (byte) 0xFE:
-            return ERROR;
-        default:
-            return getShort(index) / divisor;
+            case (byte) 0xFF:
+                return NOT_AVAILABLE;
+            case (byte) 0xFE:
+                return ERROR;
+            default:
+                return getShort(index) / divisor;
         }
     }
 
     /**
      * Helper method to get two bits at the given byte index
      *
-     * @param index
-     *         the index of the byte that contains the bits
-     * @param mask
-     *         the bit mask for the bits
-     * @param shift
-     *         the number bits to shift right so the two bits are fully right
-     *         shifted
-     * @return two bit value
+     * @param  index
+     *                   the index of the byte that contains the bits
+     * @param  mask
+     *                   the bit mask for the bits
+     * @param  shift
+     *                   the number bits to shift right so the two bits are fully right
+     *                   shifted
+     * @return       two bit value
      */
     protected int getShaveAndAHaircut(int index, int mask, int shift) {
         return (getByte(index) & mask) >> shift;
@@ -335,9 +321,9 @@ public class ParsedPacket {
     /**
      * Helper method to get two bytes at the given index
      *
-     * @param index
-     *         the index of the bytes to get
-     * @return two bytes
+     * @param  index
+     *                   the index of the bytes to get
+     * @return       two bytes
      */
     protected int getShort(int index) {
         return getPacket().get16(index) & 0xFFFF;
@@ -352,6 +338,10 @@ public class ParsedPacket {
         return getPacket().getSource();
     }
 
+    public String getModuleName() {
+        return Lookup.getAddressName(getSourceAddress());
+    }
+
     /**
      * Returns the prefix that's used in the toString methods
      *
@@ -364,6 +354,22 @@ public class ParsedPacket {
     @Override
     public int hashCode() {
         return packet.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof ParsedPacket)) {
+            return false;
+        }
+
+        ParsedPacket that = (ParsedPacket) obj;
+
+        return getClass() == that.getClass() && packet.equals(that.packet);
     }
 
     @Override

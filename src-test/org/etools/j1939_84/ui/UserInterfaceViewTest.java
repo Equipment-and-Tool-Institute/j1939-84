@@ -140,7 +140,7 @@ public class UserInterfaceViewTest {
     public void testReadVehicleInfoButton() {
         JButton button = instance.getReadVehicleInfoButton();
         assertEquals("<html><center>Read</center><center>Vehicle</center><center>Info</center><html>",
-                button.getText());
+                     button.getText());
         assertFalse(button.isEnabled());
         assertEquals("Queries the vehicle for VIN and Calibrations", button.getToolTipText());
 
@@ -203,7 +203,7 @@ public class UserInterfaceViewTest {
     @Test
     public void testStopButton() {
         JButton button = instance.getStopButton();
-        assertEquals("Stop", button.getText());
+        assertEquals("Cancel", button.getText());
         assertFalse(button.isEnabled());
         instance.setStopButtonEnabled(true);
         assertTrue(button.isEnabled());

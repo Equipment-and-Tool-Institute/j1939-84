@@ -24,9 +24,81 @@ import java.util.stream.StreamSupport;
  */
 public class MultiQueue<T> implements AutoCloseable {
 
+    private final WeakHashMap<Stream<T>, SpliteratorImplementation<T>> spliterators = new WeakHashMap<>();
+    private MultiQueue.Item<T> list = new MultiQueue.Item<>(null);
+
+    synchronized public void add(T v) {
+        list = list.add(v);
+    }
+
+    @Override
+    public void close() {
+        // close all of the spliterators.
+        spliterators.values().forEach(s -> {
+            s.end = 0;
+        });
+    }
+
+    /**
+     * Duplicates a stream. Remember, if the stream is not read before the timeout,
+     * then the stream will be empty.
+     *
+     * @param  stream Original stream.
+     * @param  time   New timeout for this stream.
+     * @param  unit
+     * @return        The new stream, independent of the original, but starting at the same
+     *                location the original is right now.
+     */
+    public Stream<T> duplicate(Stream<T> stream, int time, TimeUnit unit) {
+        SpliteratorImplementation<T> oldSpliterator = spliterators.get(stream);
+        if (oldSpliterator.item == null) {
+            throw new IllegalStateException("stream has already been closed.");
+        }
+        SpliteratorImplementation<T> newSpliterator = new SpliteratorImplementation<>(oldSpliterator);
+        Stream<T> newStream = StreamSupport.stream(newSpliterator, false);
+        spliterators.put(newStream, newSpliterator);
+        newSpliterator.setTimeout(time, unit);
+        newStream.onClose(() -> newSpliterator.end = 0);
+        return newStream;
+    }
+
+    /**
+     * Reset the timeout for the given stream. This is the original stream returned
+     * from stream(timeout, unit), not some stream derived from stream(timeout,
+     * unit).
+     *
+     * @param stream Stream created from stream(timeout, unit)
+     * @param time
+     * @param unit
+     */
+    public void resetTimeout(Stream<T> stream, int time, TimeUnit unit) {
+        MultiQueue.SpliteratorImplementation<T> spliterator = spliterators.get(stream);
+        if (spliterator == null) {
+            throw new IllegalArgumentException("Invalid stream.");
+        }
+        spliterator.setTimeout(time, unit);
+    }
+
+    /**
+     *
+     * @param  timeout
+     *                     The stream will be valid for a period of timeout. If the
+     *                     stream is not read prior to timeout, then it will be empty.
+     * @param  unit
+     *                     the TimeUnit for the timeout
+     * @return         the stream
+     */
+    synchronized public Stream<T> stream(long timeout, TimeUnit unit) {
+        SpliteratorImplementation<T> spliterator = new SpliteratorImplementation<>(list, timeout, unit);
+        Stream<T> stream = StreamSupport.stream(spliterator, false);
+        spliterators.put(stream, spliterator);
+        stream.onClose(() -> spliterator.end = 0);
+        return stream;
+    }
+
     static private class Item<T> {
-        MultiQueue.Item<T> next;
         final T value;
+        MultiQueue.Item<T> next;
 
         Item(T v) {
             value = v;
@@ -64,18 +136,8 @@ public class MultiQueue<T> implements AutoCloseable {
         }
 
         public SpliteratorImplementation(MultiQueue.SpliteratorImplementation<T> that) {
-            this.item = that.item;
-            this.end = that.end;
-        }
-
-        @Override
-        public int characteristics() {
-            return IMMUTABLE | ORDERED;
-        }
-
-        @Override
-        public long estimateSize() {
-            return Long.MAX_VALUE;
+            item = that.item;
+            end = that.end;
         }
 
         public void setTimeout(long timeout, TimeUnit unit) {
@@ -106,76 +168,15 @@ public class MultiQueue<T> implements AutoCloseable {
             // Do not split.
             return null;
         }
-    }
 
-    private MultiQueue.Item<T> list = new MultiQueue.Item<>(null);
-
-    private final WeakHashMap<Stream<T>, SpliteratorImplementation<T>> spliterators = new WeakHashMap<>();
-
-    synchronized public void add(T v) {
-        list = list.add(v);
-    }
-
-    @Override
-    public void close() {
-        // close all of the spliterators.
-        spliterators.values().forEach(s -> s.end = 0);
-    }
-
-    /**
-     * Duplicates a stream. Remember, if the stream is not read before the timeout,
-     * then the stream will be empty.
-     *
-     * @param stream Original stream.
-     * @param time   New timeout for this stream.
-     * @param unit
-     * @return The new stream, independent of the original, but starting at the same
-     *         location the original is right now.
-     */
-    public Stream<T> duplicate(Stream<T> stream, int time, TimeUnit unit) {
-        SpliteratorImplementation<T> oldSpliterator = spliterators.get(stream);
-        if (oldSpliterator.item == null) {
-            throw new IllegalStateException("stream has already been closed.");
+        @Override
+        public long estimateSize() {
+            return Long.MAX_VALUE;
         }
-        SpliteratorImplementation<T> newSpliterator = new SpliteratorImplementation<>(oldSpliterator);
-        Stream<T> newStream = StreamSupport.stream(newSpliterator, false);
-        spliterators.put(newStream, newSpliterator);
-        newSpliterator.setTimeout(time, unit);
-        newStream.onClose(() -> newSpliterator.end = 0);
-        return newStream;
-    }
 
-    /**
-     * Reset the timeout for the given stream. This is the original stream returned
-     * from stream(timeout, unit), not some stream derived from stream(timeout,
-     * unit).
-     *
-     * @param stream Stream created from stream(timeout, unit)
-     * @param time
-     * @param unit
-     */
-    public void resetTimeout(Stream<T> stream, int time, TimeUnit unit) {
-        MultiQueue.SpliteratorImplementation<T> spliterator = spliterators.get(stream);
-        if (spliterator == null) {
-            throw new IllegalArgumentException("Invalid stream.");
+        @Override
+        public int characteristics() {
+            return IMMUTABLE | ORDERED;
         }
-        spliterator.setTimeout(time, unit);
-    }
-
-    /**
-     *
-     * @param timeout
-     *                The stream will be valid for a period of timeout. If the
-     *                stream is not read prior to timeout, then it will be empty.
-     * @param unit
-     *                the TimeUnit for the timeout
-     * @return the stream
-     */
-    synchronized public Stream<T> stream(long timeout, TimeUnit unit) {
-        SpliteratorImplementation<T> spliterator = new SpliteratorImplementation<>(list, timeout, unit);
-        Stream<T> stream = StreamSupport.stream(spliterator, false);
-        spliterators.put(stream, spliterator);
-        stream.onClose(() -> spliterator.end = 0);
-        return stream;
     }
 }

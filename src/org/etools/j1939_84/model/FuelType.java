@@ -14,36 +14,59 @@ import static org.etools.j1939_84.model.IgnitionType.UNKNOWN;
  *
  */
 public enum FuelType {
-    BATT_ELEC(0x08, "Battery/electric vehicle", UNKNOWN), BI_CNG(0x0D, "Bi-fuel vehicle using CNG", SPARK), BI_DSL(0x19,
+    BATT_ELEC(0x08, "Battery/electric vehicle", UNKNOWN),
+    BI_CNG(0x0D, "Bi-fuel vehicle using CNG", SPARK),
+    BI_DSL(
+            0x19,
             "Bi-fuel vehicle using diesel",
             COMPRESSION),
-    BI_ELEC(0x0F, "Bi-fuel vehicle using battery", UNKNOWN), BI_ETH(0x0B,
+    BI_ELEC(0x0F, "Bi-fuel vehicle using battery", UNKNOWN),
+    BI_ETH(
+            0x0B,
             "Bi-fuel vehicle using ethanol",
             SPARK),
-    BI_GAS(0x09, "Bi-fuel vehicle using gasoline", SPARK), BI_LPG(0x0C,
+    BI_GAS(0x09, "Bi-fuel vehicle using gasoline", SPARK),
+    BI_LPG(
+            0x0C,
             "Bi-fuel vehicle using LPG",
             SPARK),
-    BI_METH(0x0A, "Bi-fuel vehicle using methanol", SPARK), BI_MIX(0x10,
-            "Bi-fuel vehicle using battery and combustion engine", UNKNOWN),
-    BI_NG(0x18,
+    BI_METH(0x0A, "Bi-fuel vehicle using methanol", SPARK),
+    BI_MIX(
+            0x10,
+            "Bi-fuel vehicle using battery and combustion engine",
+            UNKNOWN),
+    BI_NG(
+            0x18,
             "Bi-fuel vehicle using NG",
             SPARK),
-    BI_PROP(0x0E, "Bi-fuel vehicle using propane", SPARK), CNG(0x06,
+    BI_PROP(0x0E, "Bi-fuel vehicle using propane", SPARK),
+    CNG(
+            0x06,
             "Compressed Natural Gas vehicle",
             SPARK),
-    DSL(0x04, "Diesel vehicle", COMPRESSION), DSL_CNG(0x1B,
-            "Dual Fuel vehicle – Diesel and CNG", COMPRESSION),
-    DSL_LNG(
-            0x1C, "Dual Fuel vehicle – Diesel and LNG",
+    DSL(0x04, "Diesel vehicle", COMPRESSION),
+    DSL_CNG(
+            0x1B,
+            "Dual Fuel vehicle – Diesel and CNG",
             COMPRESSION),
-    ETH(0x03, "Ethanol vehicle",
+    DSL_LNG(
+            0x1C,
+            "Dual Fuel vehicle – Diesel and LNG",
+            COMPRESSION),
+    ETH(
+            0x03,
+            "Ethanol vehicle",
             SPARK),
-    GAS(0x01, "Gasoline/petrol vehicle",
+    GAS(
+            0x01,
+            "Gasoline/petrol vehicle",
             SPARK),
-    HYB_DSL(0x13,
+    HYB_DSL(
+            0x13,
             "Hybrid vehicle using diesel engine",
             COMPRESSION),
-    HYB_ELEC(0x14,
+    HYB_ELEC(
+            0x14,
             "Hybrid vehicle using battery",
             UNKNOWN),
     HYB_ETH(
@@ -103,9 +126,9 @@ public enum FuelType {
      * Constructor
      *
      * @param value
-     *            the SAE defined value for the Fuel Type
+     *                   the SAE defined value for the Fuel Type
      * @param string
-     *            the display name which may be shown to the user
+     *                   the display name which may be shown to the user
      */
     private FuelType(int value, String string, IgnitionType ignitionType) {
         this.string = string;

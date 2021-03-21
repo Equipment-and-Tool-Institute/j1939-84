@@ -8,6 +8,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.junit.Test;
 
 /**
@@ -18,7 +19,7 @@ import org.junit.Test;
 public class SlotTest {
     @Test
     public void test10BitsAsPercent() {
-        Slot slot = Slot.findSlot(205);
+        Slot slot = J1939DaRepository.findSlot(205, 0);
         byte[] data = { (byte) 0x5A, (byte) 0xA5 };
         assertEquals("34.600000 %", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -32,7 +33,7 @@ public class SlotTest {
 
     @Test
     public void test11Bits() {
-        Slot slot = Slot.findSlot(218);
+        Slot slot = J1939DaRepository.findSlot(218, 0);
         byte[] data = { (byte) 0x5A, (byte) 0xA5 };
         assertEquals("10101011010", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -51,7 +52,7 @@ public class SlotTest {
 
     @Test
     public void test12Bits() {
-        Slot slot = Slot.findSlot(281);
+        Slot slot = J1939DaRepository.findSlot(281, 0);
         byte[] data = { (byte) 0x5A, (byte) 0xA5 };
         assertEquals("010101011010", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -70,7 +71,7 @@ public class SlotTest {
 
     @Test
     public void test16Bits() {
-        Slot slot = Slot.findSlot(276);
+        Slot slot = J1939DaRepository.findSlot(276, 0);
         byte[] data = { (byte) 0x5A, (byte) 0xA5 };
         assertEquals("1010010101011010", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -89,7 +90,7 @@ public class SlotTest {
 
     @Test
     public void test1Bit() {
-        Slot slot = Slot.findSlot(86);
+        Slot slot = J1939DaRepository.findSlot(86, 0);
 
         byte[] data = { 1 };
         assertEquals("1", slot.asString(data));
@@ -104,7 +105,7 @@ public class SlotTest {
 
     @Test
     public void test1Byte() {
-        Slot slot = Slot.findSlot(2);
+        Slot slot = J1939DaRepository.findSlot(2, 0);
         byte[] data = { (byte) 0xA5 };
         assertEquals("1320.000000 kPa", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -123,7 +124,7 @@ public class SlotTest {
 
     @Test
     public void test21Bits() {
-        Slot slot = Slot.findSlot(217);
+        Slot slot = J1939DaRepository.findSlot(217, 0);
         byte[] data = { (byte) 0xA5, (byte) 0x5A, (byte) 0xA5 };
         assertEquals("001010101101010100101", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -142,7 +143,7 @@ public class SlotTest {
 
     @Test
     public void test24Bits() {
-        Slot slot = Slot.findSlot(280);
+        Slot slot = J1939DaRepository.findSlot(280, 0);
         byte[] data = { (byte) 0xA5, (byte) 0x5A, (byte) 0xA5 };
         assertEquals("101001010101101010100101", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -161,7 +162,7 @@ public class SlotTest {
 
     @Test
     public void test2Bits() {
-        Slot instance = Slot.findSlot(87);
+        Slot instance = J1939DaRepository.findSlot(87, 0);
         byte[] data = { (byte) 0xA5 };
         assertEquals("01", instance.asString(data));
         assertFalse(instance.isNotAvailable(data));
@@ -180,7 +181,7 @@ public class SlotTest {
 
     @Test
     public void test2Bytes() {
-        Slot slot = Slot.findSlot(13);
+        Slot slot = J1939DaRepository.findSlot(13, 0);
         byte[] data = { (byte) 0x5A, (byte) 0xA5 };
         assertEquals("1033.000000 mm", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -199,7 +200,7 @@ public class SlotTest {
 
     @Test
     public void test32Bits() {
-        Slot slot = Slot.findSlot(245);
+        Slot slot = J1939DaRepository.findSlot(245, 0);
         byte[] data = { (byte) 0xA5, (byte) 0x5A, (byte) 0xA5, (byte) 0x5A };
         assertEquals("01011010101001010101101010100101", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -218,7 +219,7 @@ public class SlotTest {
 
     @Test
     public void test3Bits() {
-        Slot slot = Slot.findSlot(88);
+        Slot slot = J1939DaRepository.findSlot(88, 0);
         byte[] data = { (byte) 0xA5 };
         assertEquals("101", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -237,7 +238,7 @@ public class SlotTest {
 
     @Test
     public void test3Bytes() {
-        Slot slot = Slot.findSlot(122);
+        Slot slot = J1939DaRepository.findSlot(122, 0);
         byte[] data = { (byte) 0xA5, (byte) 0x5A, (byte) 0xA5 };
         assertEquals("21673290.000000 kg", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -256,7 +257,7 @@ public class SlotTest {
 
     @Test
     public void test4Bits() {
-        Slot slot = Slot.findSlot(89);
+        Slot slot = J1939DaRepository.findSlot(89, 0);
         byte[] data = { (byte) 0xA5 };
         assertEquals("0101", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -276,7 +277,7 @@ public class SlotTest {
 
     @Test
     public void test4Bytes() {
-        Slot slot = Slot.findSlot(6);
+        Slot slot = J1939DaRepository.findSlot(6, 0);
         byte[] data = { (byte) 0x5A, (byte) 0xA5, (byte) 0x5A, (byte) 0xA5 };
         assertEquals("2774181210.000000 s", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -295,7 +296,7 @@ public class SlotTest {
 
     @Test
     public void test5BytesASCII() {
-        Slot slot = Slot.findSlot(273);
+        Slot slot = J1939DaRepository.findSlot(273, 0);
         byte[] data = "12345".getBytes();
         assertEquals("12345", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -304,7 +305,7 @@ public class SlotTest {
 
     @Test
     public void test64Bits() {
-        Slot slot = Slot.findSlot(278);
+        Slot slot = J1939DaRepository.findSlot(278, 0);
 
         byte[] data = { (byte) 0xA5, (byte) 0x5A, (byte) 0xA5, (byte) 0x5A, (byte) 0xA5, (byte) 0x5A, (byte) 0xA5,
                 (byte) 0x5A };
@@ -327,7 +328,7 @@ public class SlotTest {
 
     @Test
     public void test6Bits() {
-        Slot slot = Slot.findSlot(91);
+        Slot slot = J1939DaRepository.findSlot(91, 0);
         byte[] data = { (byte) 0xA5 };
         assertEquals("100101", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -346,7 +347,7 @@ public class SlotTest {
 
     @Test
     public void test7Bits() {
-        Slot slot = Slot.findSlot(92);
+        Slot slot = J1939DaRepository.findSlot(92, 0);
         byte[] data = { (byte) 0xA5 };
         assertEquals("0100101", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -366,7 +367,7 @@ public class SlotTest {
 
     @Test
     public void test7BytesASCII() {
-        Slot slot = Slot.findSlot(110);
+        Slot slot = J1939DaRepository.findSlot(110, 0);
         byte[] data = "1234567".getBytes();
         assertEquals("1234567", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -375,7 +376,7 @@ public class SlotTest {
 
     @Test
     public void test8Bits() {
-        Slot slot = Slot.findSlot(93);
+        Slot slot = J1939DaRepository.findSlot(93, 0);
         byte[] data = { (byte) 0xA5 };
         assertEquals("10100101", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -394,7 +395,7 @@ public class SlotTest {
 
     @Test
     public void testConvert5Bits() {
-        Slot slot = Slot.findSlot(292);
+        Slot slot = J1939DaRepository.findSlot(292, 0);
         byte[] data = { (byte) 0xA5 };
         assertEquals("00101", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -413,7 +414,7 @@ public class SlotTest {
 
     @Test
     public void testNonDelimitedASCII() {
-        Slot slot = Slot.findSlot(228);
+        Slot slot = J1939DaRepository.findSlot(228, 0);
 
         byte[] data = { 0x41, 0x42, 0x43, 0x44, 0x45, 0x51, 0x52, '*' };
         assertEquals("ABCDEQR*", slot.asString(data));
@@ -423,7 +424,7 @@ public class SlotTest {
 
     @Test
     public void testNullDelimitedASCII() {
-        Slot slot = Slot.findSlot(258);
+        Slot slot = J1939DaRepository.findSlot(258, 0);
 
         byte[] data = { 0x41, 0x42, 0x43, 0x44, 0x45, 0x00, 0x51, 0x52 };
         assertEquals("ABCDE", slot.asString(data));
@@ -433,7 +434,7 @@ public class SlotTest {
 
     @Test
     public void testSlotNoScaleNoOffset() {
-        Slot slot = Slot.findSlot(41);
+        Slot slot = J1939DaRepository.findSlot(41, 0);
         assertNotNull(slot);
         assertEquals(41, slot.getId());
         assertEquals("SAEec03", slot.getName());
@@ -447,7 +448,7 @@ public class SlotTest {
 
     @Test
     public void testSlotNoScaleWithOffset() {
-        Slot slot = Slot.findSlot(5);
+        Slot slot = J1939DaRepository.findSlot(5, 0);
         assertNotNull(slot);
         assertEquals(5, slot.getId());
         assertEquals("SAEtm12", slot.getName());
@@ -461,7 +462,7 @@ public class SlotTest {
 
     @Test
     public void testSlotWithPartScale() {
-        Slot slot = Slot.findSlot(39);
+        Slot slot = J1939DaRepository.findSlot(39, 0);
         assertNotNull(slot);
         assertEquals(39, slot.getId());
         assertEquals("SAEds06", slot.getName());
@@ -475,7 +476,7 @@ public class SlotTest {
 
     @Test
     public void testSlotWithPositiveOffset() {
-        Slot slot = Slot.findSlot(284);
+        Slot slot = J1939DaRepository.findSlot(284, 0);
         assertNotNull(slot);
         assertEquals(284, slot.getId());
         assertEquals("SAEcy02", slot.getName());
@@ -489,7 +490,7 @@ public class SlotTest {
 
     @Test
     public void testSlotWithScaleNoOffset() {
-        Slot slot = Slot.findSlot(1);
+        Slot slot = J1939DaRepository.findSlot(1, 0);
         assertNotNull(slot);
         assertEquals(1, slot.getId());
         assertEquals("SAEpr11", slot.getName());
@@ -503,7 +504,7 @@ public class SlotTest {
 
     @Test
     public void testSlotWithWholeScaleWithWholeOffset() {
-        Slot slot = Slot.findSlot(127);
+        Slot slot = J1939DaRepository.findSlot(127, 0);
         assertNotNull(slot);
         assertEquals(127, slot.getId());
         assertEquals("SAEfr02", slot.getName());
@@ -517,7 +518,7 @@ public class SlotTest {
 
     @Test
     public void testStarDelimitedASCII() {
-        Slot slot = Slot.findSlot(108);
+        Slot slot = J1939DaRepository.findSlot(108, 0);
         byte[] data = "1234567890*ASDFGHJKL".getBytes();
         assertEquals("1234567890", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
@@ -526,12 +527,12 @@ public class SlotTest {
 
     @Test
     public void verifySpecialCharacters() {
-        assertEquals("km²/h²", Slot.findSlot(469).getUnit());
-        assertEquals("m/s²", Slot.findSlot(140).getUnit());
-        assertEquals("(kPa•s)/m³", Slot.findSlot(359).getUnit());
-        assertEquals("µSiemens/mm", Slot.findSlot(255).getUnit());
-        assertEquals("MJ/Nm³", Slot.findSlot(323).getUnit());
-        assertEquals("µA", Slot.findSlot(403).getUnit());
+        assertEquals("km²/h²", J1939DaRepository.findSlot(469, 0).getUnit());
+        assertEquals("m/s²", J1939DaRepository.findSlot(140, 0).getUnit());
+        assertEquals("(kPa•s)/m³", J1939DaRepository.findSlot(359, 0).getUnit());
+        assertEquals("µSiemens/mm", J1939DaRepository.findSlot(255, 0).getUnit());
+        assertEquals("MJ/Nm³", J1939DaRepository.findSlot(323, 0).getUnit());
+        assertEquals("µA", J1939DaRepository.findSlot(403, 0).getUnit());
 
     }
 

@@ -1,10 +1,9 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.utils.CollectionUtils.join;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -13,12 +12,11 @@ import org.etools.j1939_84.bus.Packet;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
 public class DTCLampStatus {
 
-    private LampStatus awlStatus;
     private final int[] data;
+    private LampStatus awlStatus;
     private DiagnosticTroubleCode dtc;
     private LampStatus milStatus;
     private LampStatus plStatus;
@@ -28,7 +26,7 @@ public class DTCLampStatus {
      * Constructor
      *
      * @param data
-     *            the {@link Packet} to parse
+     *                 the {@link Packet} to parse
      */
     public DTCLampStatus(int[] data) {
         this.data = Arrays.copyOf(data, data.length);
@@ -36,36 +34,25 @@ public class DTCLampStatus {
 
     public static DTCLampStatus create(DiagnosticTroubleCode dtc,
                                        LampStatus amberWarnLamp,
-                                       LampStatus malLamp,
+                                       LampStatus milLamp,
                                        LampStatus protectLamp,
-                                       LampStatus redStopLamp){
+                                       LampStatus redStopLamp) {
 
         int[] bytes = Arrays.copyOf(dtc.getData(), 6);
 
         // | all the support bits (see notes on the class called)
-        bytes[4] = LampStatus.getBytes(malLamp)[0] << 6 |
+        bytes[4] = LampStatus.getBytes(milLamp)[0] << 6 |
                 LampStatus.getBytes(redStopLamp)[0] << 4 |
                 LampStatus.getBytes(amberWarnLamp)[0] << 2 |
                 LampStatus.getBytes(protectLamp)[0];
 
         // | all the states bits (see notes on the class called)
-        bytes[5] = LampStatus.getBytes(malLamp)[1] << 6 |
+        bytes[5] = LampStatus.getBytes(milLamp)[1] << 6 |
                 LampStatus.getBytes(redStopLamp)[1] << 4 |
                 LampStatus.getBytes(amberWarnLamp)[1] << 2 |
                 LampStatus.getBytes(protectLamp)[1];
 
         return new DTCLampStatus(bytes);
-    }
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof DTCLampStatus)) {
-            return false;
-        }
-        DTCLampStatus that = (DTCLampStatus) obj;
-        return Arrays.equals(getData(), that.getData());
     }
 
     /**
@@ -83,9 +70,9 @@ public class DTCLampStatus {
     /**
      * Helper method to get one byte at the given index
      *
-     * @param index
-     *            the index of the byte to get
-     * @return one byte
+     * @param  index
+     *                   the index of the byte to get
+     * @return       one byte
      */
     private byte getByte(int index) {
         return (byte) (getData()[index] & 0xFF);
@@ -104,7 +91,7 @@ public class DTCLampStatus {
      *
      * @return DTC
      */
-    public DiagnosticTroubleCode getDtcs() {
+    public DiagnosticTroubleCode getDtc() {
         if (dtc == null) {
             dtc = parseDTC();
         }
@@ -114,11 +101,11 @@ public class DTCLampStatus {
     /**
      * Helper method to get a {@link LampStatus}
      *
-     * @param mask
-     *            the bit mask
-     * @param shift
-     *            the number of bits to shift to the right
-     * @return the {@link LampStatus} that corresponds to the value
+     * @param  mask
+     *                   the bit mask
+     * @param  shift
+     *                   the number of bits to shift to the right
+     * @return       the {@link LampStatus} that corresponds to the value
      */
     private LampStatus getLampStatus(int mask, int shift) {
         int onOff = getShaveAndAHaircut(4, mask, shift);
@@ -165,14 +152,14 @@ public class DTCLampStatus {
     /**
      * Helper method to get two bits at the given byte index
      *
-     * @param index
-     *            the index of the byte that contains the bits
-     * @param mask
-     *            the bit mask for the bits
-     * @param shift
-     *            the number bits to shift right so the two bits are fully right
-     *            shifted
-     * @return two bit value
+     * @param  index
+     *                   the index of the byte that contains the bits
+     * @param  mask
+     *                   the bit mask for the bits
+     * @param  shift
+     *                   the number bits to shift right so the two bits are fully right
+     *                   shifted
+     * @return       two bit value
      */
     private int getShaveAndAHaircut(int index, int mask, int shift) {
         return (getByte(index) & mask) >> shift;
@@ -181,34 +168,35 @@ public class DTCLampStatus {
     @Override
     public int hashCode() {
         return Objects.hash(getAmberWarningLampStatus(),
-                getMalfunctionIndicatorLampStatus(),
-                getProtectLampStatus(),
-                getRedStopLampStatus(),
-                getDtcs());
+                            getMalfunctionIndicatorLampStatus(),
+                            getProtectLampStatus(),
+                            getRedStopLampStatus(),
+                            getDtc());
     }
 
-    /**
-     * Helper method to get two bits at the given byte index
-     *
-     * @param index
-     *            the index of the byte that contains the bits
-     * @param mask
-     *            the bit mask for the bits
-     * @param shift
-     *            the number bits to shift right so the two bits are fully right
-     *            shifted
-     * @return two bit value
-     */
-    private DiagnosticTroubleCode parseDTC() {
-        return new DiagnosticTroubleCode(Arrays.copyOfRange(data, 0, 4));
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof DTCLampStatus)) {
+            return false;
+        }
+        DTCLampStatus that = (DTCLampStatus) obj;
+        return Arrays.equals(getData(), that.getData());
     }
 
     @Override
     public String toString() {
-        String result = "MIL: " + getMalfunctionIndicatorLampStatus() + ", RSL: "
-                + getRedStopLampStatus() + ", AWL: " + getAmberWarningLampStatus() + ", PL: " + getProtectLampStatus()
-                + NL;
-        result += getDtcs().toString();
+        String result = "MIL: " + getMalfunctionIndicatorLampStatus()
+                + ", RSL: " + getRedStopLampStatus()
+                + ", AWL: " + getAmberWarningLampStatus()
+                + ", PL: " + getProtectLampStatus() + NL;
+        result += getDtc().toString();
         return result;
+    }
+
+    private DiagnosticTroubleCode parseDTC() {
+        return new DiagnosticTroubleCode(Arrays.copyOfRange(data, 0, 4));
     }
 }

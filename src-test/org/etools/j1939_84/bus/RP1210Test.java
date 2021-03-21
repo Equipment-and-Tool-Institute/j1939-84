@@ -8,7 +8,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -53,28 +52,29 @@ public class RP1210Test {
         }
 
         Optional<Adapter> adapter = adapters.stream()
-                .filter(a -> a.getDLLName().equals(args[0]) && a.getDeviceId() == Integer.parseInt(args[1]))
-                .findFirst();
+                                            .filter(a -> a.getDLLName().equals(args[0])
+                                                    && a.getDeviceId() == Integer.parseInt(args[1]))
+                                            .findFirst();
         if (!adapter.isPresent()) {
             throw new IllegalArgumentException("Unknown RP1210 Adapter");
         }
-        final RP1210Bus rawBus = new RP1210Bus(adapter.get(), 0xF9, true);
+        RP1210Bus rawBus = new RP1210Bus(adapter.get(), 0xF9, true);
         // rawBus.log(p -> "raw: " + p.toTimeString());
         Bus tpBus = new J1939TP(rawBus);
         // try (Stream<Packet> read = bus.read(2000, TimeUnit.MILLISECONDS);)
         {
             final Class<DM29DtcCounts> cls = DM29DtcCounts.class;
             new J1939(tpBus)
-                    .requestGlobal("Request " + cls, cls, new TestResultsListener() {
-                        @Override
-                        public void onResult(String result) {
-                            System.err.println("RST: " + result);
-                        }
-                    })
-                    .getEither()
-                    .stream()
-                    .map(pa -> pa.resolve())
-                    .forEach(p -> System.err.format("Response: %s%n", p));
+                            .requestGlobal("Request " + cls, cls, new TestResultsListener() {
+                                @Override
+                                public void onResult(String result) {
+                                    System.err.println("RST: " + result);
+                                }
+                            })
+                            .getEither()
+                            .stream()
+                            .map(pa -> pa.resolve())
+                            .forEach(p -> System.err.format("Response: %s%n", p));
             // read.forEach(p -> System.err.format("%8s %s%n", p.isTransmitted()
             // ? "echoed" : "", p.toTimeString()));
         }
@@ -94,31 +94,31 @@ public class RP1210Test {
         List<Adapter> actual = instance.getAdapters();
         assertEquals(5, actual.size());
         {
-            final Adapter adapter = actual.get(0);
+            Adapter adapter = actual.get(0);
             assertEquals("NEXIQ Technologies USB-Link - Bluetooth USB-Link", adapter.getName());
             assertEquals("NXULNK32", adapter.getDLLName());
             assertEquals(2, adapter.getDeviceId());
         }
         {
-            final Adapter adapter = actual.get(1);
+            Adapter adapter = actual.get(1);
             assertEquals("NEXIQ Technologies USB-Link - USB-Link", adapter.getName());
             assertEquals("NXULNK32", adapter.getDLLName());
             assertEquals(1, adapter.getDeviceId());
         }
         {
-            final Adapter adapter = actual.get(2);
+            Adapter adapter = actual.get(2);
             assertEquals("NEXIQ Technologies USB-Link 2 - Bluetooth USB-Link 2", adapter.getName());
             assertEquals("NULN2R32", adapter.getDLLName());
             assertEquals(2, adapter.getDeviceId());
         }
         {
-            final Adapter adapter = actual.get(3);
+            Adapter adapter = actual.get(3);
             assertEquals("NEXIQ Technologies USB-Link 2 - USB-Link 2", adapter.getName());
             assertEquals("NULN2R32", adapter.getDLLName());
             assertEquals(1, adapter.getDeviceId());
         }
         {
-            final Adapter adapter = actual.get(4);
+            Adapter adapter = actual.get(4);
             assertEquals("NEXIQ Technologies USB-Link 2 - WiFi USB-Link 2", adapter.getName());
             assertEquals("NULN2R32", adapter.getDLLName());
             assertEquals(3, adapter.getDeviceId());
@@ -132,19 +132,19 @@ public class RP1210Test {
         List<Adapter> actual = instance.getAdapters();
         assertEquals(3, actual.size());
         {
-            final Adapter adapter = actual.get(0);
+            Adapter adapter = actual.get(0);
             assertEquals("NEXIQ Technologies USB-Link 2 - Bluetooth USB-Link 2", adapter.getName());
             assertEquals("NULN2R32", adapter.getDLLName());
             assertEquals(2, adapter.getDeviceId());
         }
         {
-            final Adapter adapter = actual.get(1);
+            Adapter adapter = actual.get(1);
             assertEquals("NEXIQ Technologies USB-Link 2 - USB-Link 2", adapter.getName());
             assertEquals("NULN2R32", adapter.getDLLName());
             assertEquals(1, adapter.getDeviceId());
         }
         {
-            final Adapter adapter = actual.get(2);
+            Adapter adapter = actual.get(2);
             assertEquals("NEXIQ Technologies USB-Link 2 - WiFi USB-Link 2", adapter.getName());
             assertEquals("NULN2R32", adapter.getDLLName());
             assertEquals(3, adapter.getDeviceId());
@@ -168,39 +168,38 @@ public class RP1210Test {
         J1939_84.setTesting(true);
         RP1210 instance = createInstance("test/rp1210/RP121032.INI");
         List<Adapter> actual = instance.getAdapters();
-        assertEquals(6 + new File("simulations").list().length, actual.size());
         {
-            final Adapter adapter = actual.get(0);
+            Adapter adapter = actual.get(0);
             assertEquals("Loop Back Adapter", adapter.getName());
             assertEquals("Simulated", adapter.getDLLName());
             assertEquals(-1, adapter.getDeviceId());
         }
         {
-            final Adapter adapter = actual.get(1);
+            Adapter adapter = actual.get(1);
             assertEquals("NEXIQ Technologies USB-Link - Bluetooth USB-Link", adapter.getName());
             assertEquals("NXULNK32", adapter.getDLLName());
             assertEquals(2, adapter.getDeviceId());
         }
         {
-            final Adapter adapter = actual.get(2);
+            Adapter adapter = actual.get(2);
             assertEquals("NEXIQ Technologies USB-Link - USB-Link", adapter.getName());
             assertEquals("NXULNK32", adapter.getDLLName());
             assertEquals(1, adapter.getDeviceId());
         }
         {
-            final Adapter adapter = actual.get(3);
+            Adapter adapter = actual.get(3);
             assertEquals("NEXIQ Technologies USB-Link 2 - Bluetooth USB-Link 2", adapter.getName());
             assertEquals("NULN2R32", adapter.getDLLName());
             assertEquals(2, adapter.getDeviceId());
         }
         {
-            final Adapter adapter = actual.get(4);
+            Adapter adapter = actual.get(4);
             assertEquals("NEXIQ Technologies USB-Link 2 - USB-Link 2", adapter.getName());
             assertEquals("NULN2R32", adapter.getDLLName());
             assertEquals(1, adapter.getDeviceId());
         }
         {
-            final Adapter adapter = actual.get(5);
+            Adapter adapter = actual.get(5);
             assertEquals("NEXIQ Technologies USB-Link 2 - WiFi USB-Link 2", adapter.getName());
             assertEquals("NULN2R32", adapter.getDLLName());
             assertEquals(3, adapter.getDeviceId());

@@ -5,8 +5,11 @@ package org.etools.j1939_84.controllers.part03;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -53,10 +56,26 @@ public class Part03Step12Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
+
         // 6.3.12.1.a. DS DM24 (send Request (PGN 59904) for PGN 64950 (SPNs 3297, 4100-4103)) to each OBD ECU.
+        var dsResults = getDataRepository().getObdModuleAddresses()
+                                           .stream()
+                                           .map(a -> getDiagnosticMessageModule().requestDM24(getListener(), a))
+                                           .collect(Collectors.toList());
+
         // 6.3.12.1.b. Compare response with responses received in part 1 test 4 for each OBD ECU.
         // 6.3.12.2.a. Fail if the message data received differs from that provided in part 1.
+        filterPackets(dsResults).forEach(packet -> {
+            int sourceAddress = packet.getSourceAddress();
+            OBDModuleInformation info = getDataRepository().getObdModule(sourceAddress);
+            if (!info.getSupportedSPNs().equals(packet.getSupportedSpns())) {
+                addFailure("6.3.12.2.a - Message data received from " + packet.getModuleName()
+                        + " differs from that provided in part 6.1.4");
+            }
+        });
+
         // 6.3.12.2.b. Fail if NACK not received from OBD ECUs that did not provide DM24
+        checkForNACKsDS(filterPackets(dsResults), filterAcks(dsResults), "6.3.12.2.b");
     }
 
 }

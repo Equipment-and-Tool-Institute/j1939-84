@@ -23,6 +23,17 @@ public class TableA7RowValidatorTest {
 
     private TableA7RowValidator instance;
 
+    private static ExpectedTestResult expectedTestResult(int spn, int fmi) {
+        return new ExpectedTestResult(spn, fmi);
+    }
+
+    private static ScaledTestResult scaledTestResult(int spn, int fmi) {
+        ScaledTestResult mock = mock(ScaledTestResult.class);
+        when(mock.getSpn()).thenReturn(spn);
+        when(mock.getFmi()).thenReturn(fmi);
+        return mock;
+    }
+
     /**
      * @throws java.lang.Exception
      */
@@ -156,17 +167,6 @@ public class TableA7RowValidatorTest {
         expectedTestResults.add(expectedTestResult(3055, 18));
 
         assertEquals(true, instance.isValid(actualTestResults, expectedTestResults, 3));
-    }
-
-    private static ExpectedTestResult expectedTestResult(int spn, int fmi) {
-        return new ExpectedTestResult(spn, fmi);
-    }
-
-    private static ScaledTestResult scaledTestResult(int spn, int fmi) {
-        ScaledTestResult mock = mock(ScaledTestResult.class);
-        when(mock.getSpn()).thenReturn(spn);
-        when(mock.getFmi()).thenReturn(fmi);
-        return mock;
     }
 
 }

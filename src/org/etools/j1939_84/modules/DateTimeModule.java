@@ -8,12 +8,12 @@ import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
 import static java.time.temporal.ChronoField.NANO_OF_SECOND;
 import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
 
-import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.TemporalAccessor;
 import java.util.concurrent.TimeUnit;
+
+import org.etools.j1939_84.controllers.Controller;
 
 /**
  * The Module responsible for the Date/Time
@@ -23,6 +23,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class DateTimeModule {
     private static DateTimeModule instance = new DateTimeModule();
+    private DateTimeFormatter timeFormatter;
+
+    protected DateTimeModule() {
+    }
 
     public static DateTimeModule getInstance() {
         return instance;
@@ -31,24 +35,6 @@ public class DateTimeModule {
     /** Only used by tests. */
     public static void setInstance(DateTimeModule instance) {
         DateTimeModule.instance = instance == null ? new DateTimeModule() : instance;
-    }
-
-    private DateTimeFormatter timeFormatter;
-
-    protected DateTimeModule() {
-    }
-
-    /**
-     * Formats the given {@link TemporalAccessor} as a {@link String}
-     *
-     * @param time
-     *            the {@link TemporalAccessor} to format
-     * @return {@link String}
-     * @throws DateTimeException
-     *             if an error occurs during formatting
-     */
-    public String format(TemporalAccessor time) throws DateTimeException {
-        return getTimeFormatter().format(time);
     }
 
     /**
@@ -79,10 +65,16 @@ public class DateTimeModule {
      */
     public DateTimeFormatter getTimeFormatter() {
         if (timeFormatter == null) {
-            timeFormatter = new DateTimeFormatterBuilder().parseCaseInsensitive().appendValue(HOUR_OF_DAY, 2)
-                    .appendLiteral(':').appendValue(MINUTE_OF_HOUR, 2).optionalStart().appendLiteral(':')
-                    .appendValue(SECOND_OF_MINUTE, 2).optionalStart().appendFraction(NANO_OF_SECOND, 4, 4, true)
-                    .toFormatter();
+            timeFormatter = new DateTimeFormatterBuilder().parseCaseInsensitive()
+                                                          .appendValue(HOUR_OF_DAY, 2)
+                                                          .appendLiteral(':')
+                                                          .appendValue(MINUTE_OF_HOUR, 2)
+                                                          .optionalStart()
+                                                          .appendLiteral(':')
+                                                          .appendValue(SECOND_OF_MINUTE, 2)
+                                                          .optionalStart()
+                                                          .appendFraction(NANO_OF_SECOND, 4, 4, true)
+                                                          .toFormatter();
         }
         return timeFormatter;
     }
@@ -103,8 +95,10 @@ public class DateTimeModule {
 
     public void pauseFor(long milliseconds) {
         try {
+            Controller.checkEnding();
             Thread.sleep(milliseconds);
-        } catch (InterruptedException ignored) {
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 

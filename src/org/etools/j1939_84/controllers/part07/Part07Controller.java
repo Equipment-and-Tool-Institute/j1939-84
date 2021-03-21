@@ -3,10 +3,9 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import org.etools.j1939_84.controllers.Controller;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.PartController;
 import org.etools.j1939_84.controllers.StepController;
@@ -17,20 +16,36 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * The {@link Controller} for the Part 7 Tests
- *
- * @author Matt Gumbel (matt@soliddesign.net)
+ * 6.7 Verify DM23 Transition
  */
 public class Part07Controller extends PartController {
 
     public Part07Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-              new BannerModule(),
-              DateTimeModule.getInstance(),
-              dataRepository,
-              new EngineSpeedModule(),
-              new VehicleInformationModule(),
-              new DiagnosticMessageModule());
+             new BannerModule(),
+             DateTimeModule.getInstance(),
+             dataRepository,
+             new EngineSpeedModule(),
+             new VehicleInformationModule(),
+             new DiagnosticMessageModule(),
+             new Part07Step01Controller(),
+             new Part07Step02Controller(),
+             new Part07Step03Controller(),
+             new Part07Step04Controller(),
+             new Part07Step05Controller(),
+             new Part07Step06Controller(),
+             new Part07Step07Controller(),
+             new Part07Step08Controller(),
+             new Part07Step09Controller(),
+             new Part07Step10Controller(),
+             new Part07Step11Controller(),
+             new Part07Step12Controller(),
+             new Part07Step13Controller(),
+             new Part07Step14Controller(),
+             new Part07Step15Controller(),
+             new Part07Step16Controller(),
+             new Part07Step17Controller(),
+             new Part07Step18Controller());
     }
 
     /**
@@ -53,10 +68,5 @@ public class Part07Controller extends PartController {
               diagnosticMessageModule,
               7,
               stepControllers);
-    }
-
-    @Override
-    protected List<StepController> getStepControllers() {
-        return getStepControllers(7, 17);
     }
 }

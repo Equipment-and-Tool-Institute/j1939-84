@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -44,9 +45,19 @@ public class BusServiceTest {
 
     private BusService instance;
 
+    private static GenericPacket packet(Integer pgn) {
+        GenericPacket mock = mock(GenericPacket.class);
+        if (pgn != null) {
+            Packet packet = mock(Packet.class);
+            when(packet.getPgn()).thenReturn(pgn);
+            when(mock.getPacket()).thenReturn(packet);
+        }
+        return mock;
+    }
+
     @Before
     public void setUp() throws Exception {
-        J1939DaRepository j1939DaRepository = new J1939DaRepository();
+        J1939DaRepository j1939DaRepository = J1939DaRepository.getInstance();
         instance = new BusService(j1939DaRepository);
         instance.setup(j1939, listener);
     }
@@ -66,13 +77,13 @@ public class BusServiceTest {
         packets.add(Either.nullable(packet(44444), null));
         when(j1939.read(GenericPacket.class, 1, TimeUnit.SECONDS)).thenReturn(packets.stream());
 
-        List<GenericPacket> actual = instance.readBus(1).collect(Collectors.toList());
+        List<GenericPacket> actual = instance.readBus(1, "6.1.2.3.a").collect(Collectors.toList());
         assertEquals(4, actual.size());
 
         verify(j1939).read(GenericPacket.class, 1, TimeUnit.SECONDS);
 
-        verify(listener).onResult("Reading bus for 1 seconds");
-        verify(listener).onProgress("Reading bus for 0 seconds");
+        verify(listener).onResult("Step 6.1.2.3.a Reading bus for 1 seconds");
+        verify(listener).onProgress("Step 6.1.2.3.a Reading bus for 0 seconds");
 
         assertEquals(11111, actual.get(0).getPacket().getPgn());
         assertEquals(22222, actual.get(1).getPacket().getPgn());
@@ -82,7 +93,7 @@ public class BusServiceTest {
 
     @Test
     public void testReadBus() {
-        //TODO
+        // TODO
     }
 
     @Test
@@ -92,10 +103,10 @@ public class BusServiceTest {
         when(j1939.createRequestPacket(11111, J1939.GLOBAL_ADDR)).thenReturn(request);
         RequestResult<GenericPacket> result = new RequestResult<>(false, packet(11111), packet(11111), packet(11111));
         when(j1939.requestGlobal("Global Request for 11111", 11111, request, listener))
-                .thenReturn(result);
+                                                                                       .thenReturn(result);
 
         List<GenericPacket> actual = instance.globalRequest(11111, "Global Request for 11111")
-                .collect(Collectors.toList());
+                                             .collect(Collectors.toList());
         assertEquals(3, actual.size());
         assertEquals(11111, actual.get(0).getPacket().getPgn());
         assertEquals(11111, actual.get(1).getPacket().getPgn());
@@ -109,28 +120,111 @@ public class BusServiceTest {
 
     @Test
     public void dsRequest() {
-        //TODO
+        // TODO
     }
 
     @Test
     public void getPgnsForDSRequest() {
-        List<Integer> spns0 = Arrays.asList(20, 22, 27, 28, 29, 38, 46, 51, 52, 69, 70, 72, 73, 75, 79,32, 39, 53, 54, 59, 60, 74, 82, 87, 88);
+        List<Integer> spns0 = Arrays.asList(20,
+                                            22,
+                                            27,
+                                            28,
+                                            29,
+                                            38,
+                                            46,
+                                            51,
+                                            52,
+                                            69,
+                                            70,
+                                            72,
+                                            73,
+                                            75,
+                                            79,
+                                            32,
+                                            39,
+                                            53,
+                                            54,
+                                            59,
+                                            60,
+                                            74,
+                                            82,
+                                            87,
+                                            88);
         List<Integer> spns1 = Arrays.asList(80, 81, 84, 86, 90, 91, 92, 94, 95, 96, 97, 98, 99);
 
         List<Integer> pgns = instance.getPGNsForDSRequest(spns0, spns1);
-        List<Integer> expected = Arrays.asList(3072, 61443, 64916, 65144, 65172, 65198, 65219, 65221,
-                65223, 65246, 65261, 65262, 65263, 65265, 65266, 65269, 65273, 65276, 65277, 65278);
+        List<Integer> expected = Arrays.asList(3072,
+                                               61443,
+                                               64916,
+                                               65144,
+                                               65172,
+                                               65198,
+                                               65219,
+                                               65221,
+                                               65223,
+                                               65246,
+                                               65261,
+                                               65262,
+                                               65263,
+                                               65265,
+                                               65266,
+                                               65269,
+                                               65273,
+                                               65276,
+                                               65277,
+                                               65278);
         assertEquals(expected, pgns);
     }
 
     @Test
     public void collectNonOnRequestPGNs() {
-        List<Integer> spns = Arrays.asList(20, 22, 27, 28, 29, 38, 46, 51, 52, 69, 70, 72, 73, 75, 79,
-                                           80, 81, 84, 86, 90, 91, 92, 94, 95, 96, 97, 98, 99);
+        List<Integer> spns = Arrays.asList(20,
+                                           22,
+                                           27,
+                                           28,
+                                           29,
+                                           38,
+                                           46,
+                                           51,
+                                           52,
+                                           69,
+                                           70,
+                                           72,
+                                           73,
+                                           75,
+                                           79,
+                                           80,
+                                           81,
+                                           84,
+                                           86,
+                                           90,
+                                           91,
+                                           92,
+                                           94,
+                                           95,
+                                           96,
+                                           97,
+                                           98,
+                                           99);
 
         List<Integer> pgns = instance.collectNonOnRequestPGNs(spns);
-        List<Integer> expected = Arrays.asList(3072, 61443, 64916, 65172, 65198, 65262, 65263, 65264,
-                                               65265, 65266, 65269, 65270, 65273, 65276, 65277, 65278, 65279);
+        List<Integer> expected = Arrays.asList(3072,
+                                               61443,
+                                               64916,
+                                               65172,
+                                               65198,
+                                               65262,
+                                               65263,
+                                               65264,
+                                               65265,
+                                               65266,
+                                               65269,
+                                               65270,
+                                               65273,
+                                               65276,
+                                               65277,
+                                               65278,
+                                               65279);
         assertEquals(expected, pgns);
     }
 
@@ -145,15 +239,5 @@ public class BusServiceTest {
         assertEquals(61441, (int) actual.get(0));
         assertEquals(61442, (int) actual.get(1));
         assertEquals(61443, (int) actual.get(2));
-    }
-
-    private static GenericPacket packet(Integer pgn) {
-        GenericPacket mock = mock(GenericPacket.class);
-        if (pgn != null) {
-            Packet packet = mock(Packet.class);
-            when(packet.getPgn()).thenReturn(pgn);
-            when(mock.getPacket()).thenReturn(packet);
-        }
-        return mock;
     }
 }

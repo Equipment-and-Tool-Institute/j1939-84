@@ -1,16 +1,18 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
+import org.etools.j1939_84.utils.CollectionUtils;
 
 /**
  * Parses the Calibration Information Packet (DM19)
@@ -19,105 +21,22 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
  *
  */
 public class DM19CalibrationInformationPacket extends GenericPacket {
-    /**
-     * Contains the Calibration Identification and Calibration Verification
-     * Number
-     *
-     * @author Matt Gumbel (matt@soliddesign.net)
-     *
-     */
-    public static class CalibrationInformation {
+    public static final int PGN = 54016; // 0xD300
 
-        private final String calibrationIdentification;
-        private final String calibrationVerificationNumber;
-        private final byte[] rawCalId;
-        private final byte[] rawCvn;
-
-        public CalibrationInformation(String id, String cvn, byte[] rawCalId, byte[] rawCvn) {
-            calibrationIdentification = id;
-            calibrationVerificationNumber = cvn;
-            this.rawCalId = Arrays.copyOf(rawCalId, rawCalId.length);
-            this.rawCvn = Arrays.copyOf(rawCvn, rawCvn.length);
+    public static DM19CalibrationInformationPacket create(int address,
+                                                          int destination,
+                                                          CalibrationInformation... calInfos) {
+        byte[] data = new byte[0];
+        for (CalibrationInformation calInfo : calInfos) {
+            data = CollectionUtils.join(data, calInfo.getBytes());
         }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (!(obj instanceof CalibrationInformation)) {
-                return false;
-            }
-
-            CalibrationInformation that = (CalibrationInformation) obj;
-
-            return Objects.equals(getCalibrationIdentification(), that.getCalibrationIdentification())
-                    && Objects.equals(getCalibrationVerificationNumber(), that.getCalibrationVerificationNumber())
-                    && Arrays.equals(getRawCalId(), that.getRawCalId())
-                    && Arrays.equals(getRawCvn(), that.getRawCvn());
-        }
-
-        /**
-         * Returns the Calibration Identification
-         *
-         * @return String
-         */
-        public String getCalibrationIdentification() {
-            return calibrationIdentification;
-        }
-
-        /**
-         * Returns the Calibration Verification Number
-         *
-         * @return String
-         */
-        public String getCalibrationVerificationNumber() {
-            return calibrationVerificationNumber;
-        }
-
-        public byte[] getRawCalId() {
-            return Arrays.copyOf(rawCalId, rawCalId.length);
-        }
-
-        public byte[] getRawCvn() {
-            return Arrays.copyOf(rawCvn, rawCvn.length);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(getCalibrationIdentification(),
-                    getCalibrationVerificationNumber(),
-                    Arrays.hashCode(getRawCalId()),
-                    Arrays.hashCode(getRawCvn()));
-        }
-
-        @Override
-        public String toString() {
-            return "CAL ID of " + getCalibrationIdentification().trim()
-                    + " and CVN of " + getCalibrationVerificationNumber();
-        }
+        return new DM19CalibrationInformationPacket(Packet.create(PGN | destination, address, data));
     }
-
-    public static final int PGN = 54016;
 
     private List<CalibrationInformation> info;
 
     public DM19CalibrationInformationPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (!(obj instanceof ParsedPacket)) {
-            return false;
-        }
-
-        ParsedPacket that = (ParsedPacket) obj;
-        return getPacket().equals(that.getPacket());
+        super(packet);
     }
 
     /**
@@ -138,8 +57,37 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
     }
 
     @Override
+    public String toString() {
+        boolean moreThanOne = getCalibrationInformation().size() > 1;
+        StringBuilder sb = new StringBuilder();
+        sb.append(getStringPrefix());
+        sb.append(moreThanOne ? "[" + NL : "");
+        for (CalibrationInformation info : getCalibrationInformation()) {
+            sb.append(moreThanOne ? "  " : "");
+            sb.append(info.toString());
+            sb.append(moreThanOne ? NL : "");
+        }
+        sb.append(moreThanOne ? "]" : "");
+        return sb.toString();
+    }
+
+    @Override
     public int hashCode() {
         return getPacket().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof ParsedPacket)) {
+            return false;
+        }
+
+        ParsedPacket that = (ParsedPacket) obj;
+        return getPacket().equals(that.getPacket());
     }
 
     /**
@@ -149,7 +97,7 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
      */
     private List<CalibrationInformation> parseAllInformation() {
         List<CalibrationInformation> result = new ArrayList<>();
-        final int length = getPacket().getLength();
+        int length = getPacket().getLength();
         for (int i = 0; i + 20 <= length; i = i + 20) {
             CalibrationInformation info = parseInformation(i);
             result.add(info);
@@ -160,9 +108,9 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
     /**
      * Parses one calibration information from the packet
      *
-     * @param startingIndex
-     *                      the index of the data to start the parsing at
-     * @return The parsed {@link CalibrationInformation}
+     * @param  startingIndex
+     *                           the index of the data to start the parsing at
+     * @return               The parsed {@link CalibrationInformation}
      */
     private CalibrationInformation parseInformation(int startingIndex) {
         String cvn = String.format("%08X", getPacket().get32(startingIndex) & 0xFFFFFFFFL);
@@ -176,18 +124,92 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
         return new CalibrationInformation(calId, cvn, idBytes, cvnBytes);
     }
 
-    @Override
-    public String toString() {
-        final boolean moreThanOne = getCalibrationInformation().size() > 1;
-        StringBuilder sb = new StringBuilder();
-        sb.append(getStringPrefix());
-        sb.append(moreThanOne ? "[" + NL : "");
-        for (CalibrationInformation info : getCalibrationInformation()) {
-            sb.append(moreThanOne ? "  " : "");
-            sb.append(info.toString());
-            sb.append(moreThanOne ? NL : "");
+    /**
+     * Contains the Calibration Identification and Calibration Verification
+     * Number
+     *
+     * @author Matt Gumbel (matt@soliddesign.net)
+     *
+     */
+    public static class CalibrationInformation {
+
+        private final String calibrationIdentification;
+        private final String calibrationVerificationNumber;
+        private final byte[] rawCalId;
+        private final byte[] rawCvn;
+
+        public CalibrationInformation(String calId, String cvn) {
+            if (calId.length() > 15) {
+                calibrationIdentification = calId.substring(0, 14);
+            } else if (calId.length() < 15) {
+                calibrationIdentification = String.format("%1$15s", calId);
+            } else {
+                calibrationIdentification = calId;
+            }
+
+            if (cvn.length() > 4) {
+                calibrationVerificationNumber = cvn.substring(0, 3);
+            } else if (cvn.length() < 4) {
+                calibrationVerificationNumber = String.format("%1$15s", cvn);
+            } else {
+                calibrationVerificationNumber = cvn;
+            }
+
+            rawCalId = calibrationIdentification.getBytes(StandardCharsets.UTF_8);
+            rawCvn = calibrationVerificationNumber.getBytes(StandardCharsets.UTF_8);
         }
-        sb.append(moreThanOne ? "]" : "");
-        return sb.toString();
+
+        public CalibrationInformation(String id, String cvn, byte[] rawCalId, byte[] rawCvn) {
+            calibrationIdentification = id;
+            calibrationVerificationNumber = cvn;
+            this.rawCalId = Arrays.copyOf(rawCalId, rawCalId.length);
+            this.rawCvn = Arrays.copyOf(rawCvn, rawCvn.length);
+        }
+
+        public String getCalibrationIdentification() {
+            return calibrationIdentification;
+        }
+
+        public String getCalibrationVerificationNumber() {
+            return calibrationVerificationNumber;
+        }
+
+        public byte[] getRawCalId() {
+            return Arrays.copyOf(rawCalId, rawCalId.length);
+        }
+
+        public byte[] getRawCvn() {
+            return Arrays.copyOf(rawCvn, rawCvn.length);
+        }
+
+        public byte[] getBytes() {
+            return CollectionUtils.join(rawCalId, rawCvn);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(getCalibrationIdentification(), getCalibrationVerificationNumber());
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (!(obj instanceof CalibrationInformation)) {
+                return false;
+            }
+
+            CalibrationInformation that = (CalibrationInformation) obj;
+
+            return Objects.equals(getCalibrationIdentification(), that.getCalibrationIdentification())
+                    && Objects.equals(getCalibrationVerificationNumber(), that.getCalibrationVerificationNumber());
+        }
+
+        @Override
+        public String toString() {
+            return "CAL ID of " + getCalibrationIdentification().trim()
+                    + " and CVN of " + getCalibrationVerificationNumber();
+        }
     }
 }

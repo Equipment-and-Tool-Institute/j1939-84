@@ -13,7 +13,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
 import javax.swing.SwingUtilities;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
@@ -34,50 +36,41 @@ import org.etools.j1939_84.utils.VinDecoder;
  */
 public class VehicleInformationPresenter implements VehicleInformationContract.Presenter {
 
-    @SuppressWarnings("unchecked")
-    public static <T> T swingProxy(T o, Class<T> cls) {
-        return (T) Proxy.newProxyInstance(cls.getClassLoader(),
-                                          new Class<?>[] { cls }, (proxy, method, args) -> {
-                    if (SwingUtilities.isEventDispatchThread()) {
-                        return method.invoke(o, args);
-                    }
-                    CompletableFuture<Object> f = new CompletableFuture<>();
-                    SwingUtilities.invokeLater(() -> {
-                        try {
-                            f.complete(method.invoke(o, args));
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                        }
-                    });
-                    return f.join();
-                });
-    }
-
+    /**
+     * The listener that will be notified when the user is done
+     */
+    private final VehicleInformationListener listener;
+    /**
+     * The module used to gather information about the connected vehicle
+     */
+    private final VehicleInformationModule vehicleInformationModule;
+    /**
+     * The View that's being controlled
+     */
+    private final VehicleInformationContract.View view;
+    /**
+     * The decoder used to determine if the VIN is valid
+     */
+    private final VinDecoder vinDecoder;
     private RequestResult<AddressClaimPacket> addressClaim;
-
     /**
      * The value the user has entered for the number of CalIDs on the vehicle
      */
     private int calIds;
-
     private List<DM19CalibrationInformationPacket> calIdsFound = Collections.emptyList();
-
     /**
      * The value the user has entered for the certification intent
      */
     private String certificationIntent;
-
     /**
      * The value the user has entered for the number of emissions units on the
      * vehicle
      */
     private int emissionUnits;
-
     /**
      * The component Id for the emissions units on the vehicle
      */
     private List<ComponentIdentificationPacket> emissionUnitsFound = Collections.emptyList();
-
     /**
      * The value the user has entered for the engine model year
      */
@@ -86,37 +79,18 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      * The value the user has entered for the Fuel Type
      */
     private FuelType fuelType;
-
-    /**
-     * The listener that will be notified when the user is done
-     */
-    private final VehicleInformationListener listener;
-
     /**
      * The number of trips for fault B implant
      */
     private int numberOfTripsForFaultBImplant;
-
     /**
      * The VehicleInformation that will be returned to the listener
      */
     private VehicleInformation vehicleInformation;
-
-    /**
-     * The module used to gather information about the connected vehicle
-     */
-    private final VehicleInformationModule vehicleInformationModule;
-
     /**
      * The vehicle model year the user has entered
      */
     private int vehicleModelYear;
-
-    /**
-     * The View that's being controlled
-     */
-    private final VehicleInformationContract.View view;
-
     /**
      * The VIN the user has entered
      */
@@ -125,20 +99,15 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     private boolean isOverridden;
 
     /**
-     * The decoder used to determine if the VIN is valid
-     */
-    private final VinDecoder vinDecoder;
-
-    /**
      * Constructor
      *
      * @param view
-     *         the View to be controlled
+     *                     the View to be controlled
      * @param listener
-     *         the {@link VehicleInformationListener} that will be given the
-     *         {@link VehicleInformation}
+     *                     the {@link VehicleInformationListener} that will be given the
+     *                     {@link VehicleInformation}
      * @param j1939
-     *         the vehicle bus
+     *                     the vehicle bus
      */
     public VehicleInformationPresenter(VehicleInformationContract.View view,
                                        VehicleInformationListener listener,
@@ -159,6 +128,25 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         this.vehicleInformationModule = vehicleInformationModule;
         this.vehicleInformationModule.setJ1939(j1939);
         this.vinDecoder = vinDecoder;
+    }
+
+    public static <T> T swingProxy(T o, Class<T> cls) {
+        return (T) Proxy.newProxyInstance(cls.getClassLoader(),
+                                          new Class<?>[] { cls },
+                                          (proxy, method, args) -> {
+                                              if (SwingUtilities.isEventDispatchThread()) {
+                                                  return method.invoke(o, args);
+                                              }
+                                              CompletableFuture<Object> f = new CompletableFuture<>();
+                                              SwingUtilities.invokeLater(() -> {
+                                                  try {
+                                                      f.complete(method.invoke(o, args));
+                                                  } catch (Throwable e) {
+                                                      e.printStackTrace();
+                                                  }
+                                              });
+                                              return f.join();
+                                          });
     }
 
     @Override
@@ -203,18 +191,28 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
             view.setEmissionUnits(obdModules.size());
 
             emissionUnitsFound = obdModules
-                    .stream().map(address -> vehicleInformationModule.reportComponentIdentification(NOOP, address)
-                            .getPacket()
-                            .map(e -> e.resolve(p -> p,
-                                                ack -> create(address, "ERROR", "ERROR", "ERROR", "ERROR")))
-                            .orElse(create(address, "MISSING", "MISSING", "MISSING", "MISSING")))
-                    .collect(Collectors.toList());
+                                           .stream()
+                                           .map(address -> vehicleInformationModule.requestComponentIdentification(NOOP,
+                                                                                                                   address)
+                                                                                   .getPacket()
+                                                                                   .map(e -> e.resolve(p -> p,
+                                                                                                       ack -> create(address,
+                                                                                                                     "ERROR",
+                                                                                                                     "ERROR",
+                                                                                                                     "ERROR",
+                                                                                                                     "ERROR")))
+                                                                                   .orElse(create(address,
+                                                                                                  "MISSING",
+                                                                                                  "MISSING",
+                                                                                                  "MISSING",
+                                                                                                  "MISSING")))
+                                           .collect(Collectors.toList());
         } catch (Exception e) {
-            getLogger().log(INFO, "Error reading getting OBD Modules", e);
+            getLogger().log(INFO, "Error reading OBD ECUs", e);
         }
 
         try {
-            calIdsFound = vehicleInformationModule.reportCalibrationInformation(NOOP);
+            calIdsFound = vehicleInformationModule.requestDM19(NOOP);
             view.setCalIds((int) calIdsFound.stream().mapToLong(p -> p.getCalibrationInformation().size()).sum());
         } catch (Exception e) {
             getLogger().log(INFO, "Error reading calibration IDs", e);
@@ -305,14 +303,13 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
 
     @Override
     public void onOverrideChanged(boolean checked) {
-        this.isOverridden = checked;
+        isOverridden = checked;
         validate();
     }
 
     /**
      * Validates the information in the form to determine if the user can proceed
      */
-    @SuppressWarnings("ConstantConditions")
     private void validate() {
         boolean vinValid = vinDecoder.isVinValid(vin);
         view.setVinValid(vinValid);

@@ -13,24 +13,24 @@ import org.junit.Test;
  */
 public class J1939_84Test {
 
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@Before
-	public void setUp() throws Exception {
-	}
+    /**
+     * @throws java.lang.Exception
+     */
+    @Before
+    public void setUp() throws Exception {
+    }
 
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@After
-	public void tearDown() throws Exception {
-	}
+    /**
+     * @throws java.lang.Exception
+     */
+    @After
+    public void tearDown() throws Exception {
+    }
 
-	@Test
-	public void test() {
-		J1939_84.main(new String[0]);
-		assert true;
-	}
+    @Test
+    public void test() {
+        J1939_84.main(new String[0]);
+        assert true;
+    }
 
 }

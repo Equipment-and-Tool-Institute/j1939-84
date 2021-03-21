@@ -3,21 +3,19 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.BUSY;
+
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-import org.etools.j1939_84.bus.j1939.BusResult;
+
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -25,21 +23,23 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.StringUtils;
 
+/**
+ * 6.1.7 DM19: Calibration Information
+ */
 public class Part01Step07Controller extends StepController {
 
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 7;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
     Part01Step07Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-                new EngineSpeedModule(),
-                new BannerModule(),
-                new VehicleInformationModule(),
-                dataRepository,
-                DateTimeModule.getInstance());
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             dataRepository,
+             DateTimeModule.getInstance(),
+             new DiagnosticMessageModule());
     }
 
     Part01Step07Controller(Executor executor,
@@ -47,81 +47,112 @@ public class Part01Step07Controller extends StepController {
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
                            DataRepository dataRepository,
-                           DateTimeModule dateTimeModule) {
+                           DateTimeModule dateTimeModule,
+                           DiagnosticMessageModule diagnosticMessageModule) {
+
         super(executor,
-              engineSpeedModule,
               bannerModule,
-              vehicleInformationModule,
-              new DiagnosticMessageModule(),
               dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
         // 6.1.7.1.a. Global DM19 (send Request (PGN 59904) for PGN 54016
-        List<DM19CalibrationInformationPacket> globalDM19s = getVehicleInformationModule()
-                .reportCalibrationInformation(getListener());
+        // 6.1.7.1.c. Display this list in the log.
+        var globalPackets = getVehicleInformationModule().requestDM19(getListener());
 
         // 6.1.7.1.a.b. Create list of ECU address + CAL ID + CVN
-        for (DM19CalibrationInformationPacket packet : globalDM19s) {
-            int sourceAddress = packet.getSourceAddress();
-            OBDModuleInformation info = dataRepository.getObdModule(sourceAddress);
-            if (info == null) {
-                info = new OBDModuleInformation(sourceAddress);
-            }
-            info.setCalibrationInformation(packet.getCalibrationInformation());
-            dataRepository.putObdModule(info);
+        globalPackets.forEach(this::save);
+
+        // 6.1.7.2.a. Fail if total number of reported CAL IDs is < user entered value for number of emission or
+        // diagnostic critical control units (test 6.1.2).
+        List<String> calIds = globalPackets.stream()
+                                           .map(DM19CalibrationInformationPacket::getCalibrationInformation)
+                                           .flatMap(Collection::stream)
+                                           .map(CalibrationInformation::getCalibrationIdentification)
+                                           .collect(Collectors.toList());
+        if (calIds.size() < getCalIdCount()) {
+            addFailure("6.1.7.2.a - Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units");
         }
 
-        List<String> calIds = globalDM19s.stream()
-                .map(DM19CalibrationInformationPacket::getCalibrationInformation)
-                .flatMap(Collection::stream)
-                .map(CalibrationInformation::getCalibrationIdentification)
-                .collect(Collectors.toList());
-        int expectedCalIdCount = dataRepository.getVehicleInformation().getCalIds();
-        if (calIds.size() < expectedCalIdCount) {
-            addFailure(PART_NUMBER,
-                    STEP_NUMBER,
-                    "6.1.7.2.a Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units");
-        } else if (calIds.size() > expectedCalIdCount) {
-            addWarning(PART_NUMBER,
-                    STEP_NUMBER,
-                    "6.1.7.3.a Total number of reported CAL IDs is > user entered value for number of emission or diagnostic critical control units");
-        }
+        // 6.1.7.3.b - Warn if more than one CAL ID and CVN pair is provided in a single DM19 message.
+        globalPackets.stream()
+                     .filter(p -> p.getCalibrationInformation().size() > 1)
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> {
+                         addWarning("6.1.7.3.b - " + moduleName
+                                 + " provided more than one CAL ID and CVN pair in a single DM19 message");
+                     });
 
-        for (DM19CalibrationInformationPacket packet : globalDM19s) {
-            boolean isObdModule = dataRepository.getObdModule(packet.getSourceAddress()) != null;
+        // 6.1.7.3.c.i. For responses from non-OBD ECUs: Warn if any non-OBD ECU provides CAL ID.
+        globalPackets.stream()
+                     .filter(p -> !isObdModule(p.getSourceAddress()))
+                     .filter(p -> p.getCalibrationInformation().size() > 0)
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> {
+                         addWarning("6.1.7.3.c.i - Non-OBD ECU " + moduleName + " provided CAL ID");
+                     });
+
+        // 6.1.7.2.b.i. For responses from OBD ECUs: Fail if <> 1 CVN for every CAL ID.
+        globalPackets.stream()
+                     .filter(p -> isObdModule(p.getSourceAddress()))
+                     .filter(p -> {
+                         for (CalibrationInformation calInfo : p.getCalibrationInformation()) {
+                             String calId = calInfo.getCalibrationIdentification();
+                             String cvn = calInfo.getCalibrationVerificationNumber();
+                             if (calId.isEmpty() || cvn.isEmpty()) {
+                                 return true;
+                             }
+                         }
+                         return false;
+                     })
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> {
+                         addFailure("6.1.7.2.b.i - " + moduleName + " <> 1 CVN for every CAL ID");
+                     });
+
+        // 6.1.7.3.c.ii For responses from non-OBD ECUs: Warn if <> 1 CVN for every CAL ID.
+        globalPackets.stream()
+                     .filter(p -> !isObdModule(p.getSourceAddress()))
+                     .filter(p -> {
+                         for (CalibrationInformation calInfo : p.getCalibrationInformation()) {
+                             String calId = calInfo.getCalibrationIdentification();
+                             String cvn = calInfo.getCalibrationVerificationNumber();
+                             if (calId.isEmpty() || cvn.isEmpty()) {
+                                 return true;
+                             }
+                         }
+                         return false;
+                     })
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> {
+                         addFailure("6.1.7.3.c.ii - " + moduleName + " <> 1 CVN for every CAL ID");
+                     });
+
+        // 6.1.7.3.b.ii. Fail if CAL ID not formatted correctly (printable ASCII, padded incorrectly, etc.).
+        // 6.1.7.3.c.iii. Warn if CAL ID not formatted correctly (contains non-printable ASCII, padded
+        // incorrectly, etc.).
+        for (DM19CalibrationInformationPacket packet : globalPackets) {
             List<CalibrationInformation> calInfoList = packet.getCalibrationInformation();
-            if (calInfoList.size() > 1) {
-                addWarning(PART_NUMBER,
-                        STEP_NUMBER,
-                        "6.1.7.3.b More than one CAL ID and CVN pair is provided in a single DM19 message");
-            }
-            if (!isObdModule && calInfoList.size() > 0) {
-                addWarning(PART_NUMBER, STEP_NUMBER, "6.1.7.3.c.i Warn if any non-OBD ECU provides CAL ID");
-            }
-
             for (CalibrationInformation calInfo : calInfoList) {
+                boolean isObdModule = isObdModule(packet.getSourceAddress());
                 String calId = calInfo.getCalibrationIdentification();
-                String cvn = calInfo.getCalibrationVerificationNumber();
-                if (calId.isEmpty() || cvn.isEmpty()) {
-                    if (isObdModule) {
-                        addFailure(PART_NUMBER, STEP_NUMBER, "6.1.7.2.b.i <> 1 CVN for every CAL ID");
-                    } else {
-                        addWarning(PART_NUMBER, STEP_NUMBER, "6.1.7.3.c.ii <> 1 CVN for every CAL ID");
-                    }
-                }
+
                 if (StringUtils.containsNonPrintableAsciiCharacter(calId)) {
+                    String moduleName = packet.getModuleName();
                     if (isObdModule) {
-                        addFailure(PART_NUMBER, STEP_NUMBER,
-                                "6.1.7.2.b.ii CAL ID not formatted correctly (contains non-printable ASCII)");
+                        addFailure("6.1.7.2.b.ii - " + moduleName
+                                + " CAL ID not formatted correctly (contains non-printable ASCII)");
                     } else {
-                        addWarning(PART_NUMBER, STEP_NUMBER,
-                                "6.1.7.3.c.iii Warn if CAL ID not formatted correctly (contains non-printable ASCII)");
+                        addWarning("6.1.7.3.c.iii - " + moduleName
+                                + " CAL ID not formatted correctly (contains non-printable ASCII)");
                     }
                 }
 
@@ -131,17 +162,25 @@ public class Part01Step07Controller extends StepController {
                     if (val == 0) {
                         paddingStarted = true;
                     } else if (paddingStarted) {
-                        if (isObdModule) {
-                            addFailure(PART_NUMBER, STEP_NUMBER,
-                                    "6.1.7.2.b.ii CAL ID not formatted correctly (padded incorrectly)");
+                        String moduleName = packet.getModuleName();
+                        if (isObdModule(packet.getSourceAddress())) {
+                            addFailure("6.1.7.2.b.ii - " + moduleName
+                                    + " CAL ID not formatted correctly (padded incorrectly)");
                         } else {
-                            addWarning(PART_NUMBER, STEP_NUMBER,
-                                    "6.1.7.3.c.iii CAL ID not formatted correctly (padded incorrectly)");
+                            addWarning("6.1.7.3.c.iii - " + moduleName
+                                    + " CAL ID not formatted correctly (padded incorrectly)");
                         }
-                        break;
                     }
                 }
+            }
+        }
 
+        // 6.1.7.2.b.iii. Fail if any received CAL ID is all 0xFF or any CVN is all 0x00.
+        // 6.1.7.3.c.iv. Warn if any received CAL ID is all 0xFF or any CVN is all 0x00.
+        for (DM19CalibrationInformationPacket packet : globalPackets) {
+            List<CalibrationInformation> calInfoList = packet.getCalibrationInformation();
+            for (CalibrationInformation calInfo : calInfoList) {
+                byte[] rawCalId = calInfo.getRawCalId();
                 boolean allFF = rawCalId.length > 0;
                 for (byte val : rawCalId) {
                     if ((val & 0xFF) != 0xFF) {
@@ -150,12 +189,16 @@ public class Part01Step07Controller extends StepController {
                     }
                 }
                 if (allFF) {
-                    if (isObdModule) {
-                        addFailure(PART_NUMBER, STEP_NUMBER, "6.1.7.2.b.iii Received CAL ID is all 0xFF");
+                    String moduleName = packet.getModuleName();
+                    if (isObdModule(packet.getSourceAddress())) {
+                        addFailure("6.1.7.2.b.iii - Received CAL ID is all 0xFF from " + moduleName);
                     } else {
-                        addWarning(PART_NUMBER, STEP_NUMBER, "6.1.7.3.c.iv Received CAL ID is all 0xFF");
+                        addWarning("6.1.7.3.c.iv - Received CAL ID is all 0xFF from " + moduleName);
                     }
                 }
+            }
+
+            for (CalibrationInformation calInfo : calInfoList) {
                 byte[] rawCvn = calInfo.getRawCvn();
                 boolean allZeros = rawCvn.length > 0;
                 for (byte val : rawCvn) {
@@ -165,10 +208,11 @@ public class Part01Step07Controller extends StepController {
                     }
                 }
                 if (allZeros) {
-                    if (isObdModule) {
-                        addFailure(PART_NUMBER, STEP_NUMBER, "6.1.7.2.b.iii Received CVN is all 0x00");
+                    String moduleName = packet.getModuleName();
+                    if (isObdModule(packet.getSourceAddress())) {
+                        addFailure("6.1.7.2.b.iii - Received CVN is all 0x00 from " + moduleName);
                     } else {
-                        addFailure(PART_NUMBER, STEP_NUMBER, "6.1.7.3.c.iv Received CVN is all 0x00");
+                        addFailure("6.1.7.3.c.iv Received CVN is all 0x00 from " + moduleName);
                     }
                 }
             }
@@ -176,46 +220,29 @@ public class Part01Step07Controller extends StepController {
 
         // 6.1.7.4.a. Destination Specific (DS) DM19 to each OBD ECU (plus all
         // ECUs that responded to global DM19).
-        globalDM19s.forEach(dm19 -> {
-            BusResult<DM19CalibrationInformationPacket> result = getVehicleInformationModule()
-                    .reportCalibrationInformation(
-                            getListener(),
-                            dm19.getSourceAddress());
-            result.getPacket()
-                    // treat NACKs as failed response
-                    .flatMap(e -> e.left)
-                    // filter for only those that match
-                    .filter(info -> Objects.equals(dm19.getCalibrationInformation(), info.getCalibrationInformation()))
-                    // report everything that failed to respond or doesn't match
-                    .ifPresentOrElse(x -> {
-                    }, () -> addFailure(PART_NUMBER,
-                            STEP_NUMBER,
-                            "6.1.7.5.a Compared ECU address + CAL ID + CVN list created from global DM19 request and found difference "
-                                    + dm19.getCalibrationInformation()));
-            if (result.isRetryUsed()) {
-                addFailure(PART_NUMBER, STEP_NUMBER,
-                        "6.1.7.5.b NACK (PGN 59392) with mode/control byte = 3 (busy) received");
-            }
-        });
+        var dsResults = globalPackets.stream()
+                                     .map(ParsedPacket::getSourceAddress)
+                                     .map(a -> getVehicleInformationModule().requestDM19(getListener(), a))
+                                     .collect(Collectors.toList());
 
-        Set<Integer> globalAddresses = globalDM19s.stream()
-                .map(ParsedPacket::getSourceAddress)
-                .collect(Collectors.toSet());
-        List<Integer> obdAddresses = dataRepository.getObdModuleAddresses();
-        obdAddresses.removeAll(globalAddresses);
+        // 6.1.7.5.a Compare to ECU address + CAL ID + CVN list created from global DM19 request and fail if any
+        // difference.
+        compareRequestPackets(globalPackets, filterPackets(dsResults), "6.1.7.5.a");
 
-        for (int address : obdAddresses) {
-            BusResult<DM19CalibrationInformationPacket> results = getVehicleInformationModule()
-                    .reportCalibrationInformation(
-                            getListener(),
-                            address);
-            results.getPacket()
-                    .flatMap(e -> e.left)
-                    // if there is a DM19, then there was not a NACK
-                    .ifPresent(dm19 -> getListener().addOutcome(1,
-                            7,
-                            Outcome.FAIL,
-                            "6.1.7.5.c NACK not received from OBD ECU that did not respond to global query"));
-        }
+        // 6.1.7.5.b Fail if NACK (PGN 59392) with mode/control byte = 3 (busy) received.
+        filterAcks(dsResults).stream()
+                             .filter(p -> p.getResponse() == BUSY)
+                             .map(ParsedPacket::getModuleName)
+                             .forEach(moduleName -> {
+                                 addFailure("6.1.7.5.b - " + moduleName
+                                         + " responded NACK with control byte = 3 (busy)");
+                             });
+
+        // 6.1.7.5.c Fail if NACK not received from OBD ECUs that did not respond to global query.
+        checkForNACKsGlobal(globalPackets, filterAcks(dsResults), "6.1.7.5.c");
+    }
+
+    private int getCalIdCount() {
+        return getDataRepository().getVehicleInformation().getCalIds();
     }
 }

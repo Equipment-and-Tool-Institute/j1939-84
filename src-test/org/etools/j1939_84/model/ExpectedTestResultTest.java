@@ -16,6 +16,13 @@ import org.junit.Test;
  */
 public class ExpectedTestResultTest {
 
+    private static ScaledTestResult scaledTestResult(int spn, int fmi) {
+        ScaledTestResult mock = mock(ScaledTestResult.class);
+        when(mock.getSpn()).thenReturn(spn);
+        when(mock.getFmi()).thenReturn(fmi);
+        return mock;
+    }
+
     @Test
     public void testMatches() {
         ExpectedTestResult instance = new ExpectedTestResult(123, 18);
@@ -26,12 +33,5 @@ public class ExpectedTestResultTest {
         assertEquals(true, instance.matches(rightSpnFmi));
         assertEquals(false, instance.matches(wrongSpn));
         assertEquals(false, instance.matches(wrongFmi));
-    }
-
-    private static ScaledTestResult scaledTestResult(int spn, int fmi) {
-        ScaledTestResult mock = mock(ScaledTestResult.class);
-        when(mock.getSpn()).thenReturn(spn);
-        when(mock.getFmi()).thenReturn(fmi);
-        return mock;
     }
 }

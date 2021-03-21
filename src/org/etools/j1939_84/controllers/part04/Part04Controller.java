@@ -3,10 +3,9 @@
  */
 package org.etools.j1939_84.controllers.part04;
 
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import org.etools.j1939_84.controllers.Controller;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.PartController;
 import org.etools.j1939_84.controllers.StepController;
@@ -17,9 +16,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * The {@link Controller} for the Part 1 Tests
- *
- * @author Matt Gumbel (matt@soliddesign.net)
+ * 6.4 Test Confirmed Fault A
  */
 public class Part04Controller extends PartController {
 
@@ -30,7 +27,22 @@ public class Part04Controller extends PartController {
              dataRepository,
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new DiagnosticMessageModule(),
+             new Part04Step01Controller(),
+             new Part04Step02Controller(),
+             new Part04Step03Controller(),
+             new Part04Step04Controller(),
+             new Part04Step05Controller(),
+             new Part04Step06Controller(),
+             new Part04Step07Controller(),
+             new Part04Step08Controller(),
+             new Part04Step09Controller(),
+             new Part04Step10Controller(),
+             new Part04Step11Controller(),
+             new Part04Step12Controller(),
+             new Part04Step13Controller(),
+             new Part04Step14Controller(),
+             new Part04Step15Controller());
     }
 
     /**
@@ -53,11 +65,6 @@ public class Part04Controller extends PartController {
               diagnosticMessageModule,
               4,
               stepControllers);
-    }
-
-    @Override
-    protected List<StepController> getStepControllers() {
-        return getStepControllers(4, 15);
     }
 
 }

@@ -3,13 +3,12 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.model.FuelType.BI_GAS;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -18,11 +17,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -35,7 +34,13 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
-import org.etools.j1939_84.modules.*;
+import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.ReportFileModule;
+import org.etools.j1939_84.modules.SupportedSpnModule;
+import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.etools.testdoc.TestDoc;
 import org.etools.testdoc.TestItem;
@@ -58,6 +63,29 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
     private static final int PART_NUMBER = 1;
 
     private static final int STEP_NUMBER = 4;
+    @Mock
+    private BannerModule bannerModule;
+
+    private DataRepository dataRepository;
+
+    @Mock
+    private EngineSpeedModule engineSpeedModule;
+    @Mock
+    private Executor executor;
+    private Part01Step04Controller instance;
+    @Mock
+    private J1939 j1939;
+    @Mock
+    private ResultsListener mockListener;
+    @Mock
+    private DiagnosticMessageModule diagnosticMessageModule;
+    @Mock
+    private ReportFileModule reportFileModule;
+    @Mock
+    private SupportedSpnModule supportedSpnModule;
+    @Mock
+    private VehicleInformationModule vehicleInformationModule;
+    private TestResultsListener listener;
 
     private static int[] convertToIntArray(byte[] input) {
         int[] intArray = new int[input.length];
@@ -68,67 +96,41 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         return intArray;
     }
 
-    @Mock
-    private BannerModule bannerModule;
-
-    @Mock
-    private DataRepository dataRepository;
-
-    @Mock
-    private EngineSpeedModule engineSpeedModule;
-
-    @Mock
-    private Executor executor;
-
-    private Part01Step04Controller instance;
-
-    @Mock
-    private J1939 j1939;
-
-    @Mock
-    private ResultsListener mockListener;
-
-    @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
-
-    @Mock
-    private ReportFileModule reportFileModule;
-
-    @Mock
-    private SupportedSpnModule supportedSpnModule;
-
-    @Mock
-    private VehicleInformationModule vehicleInformationModule;
-
-    private TestResultsListener listener;
     @Before
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
+        dataRepository = DataRepository.newInstance();
 
         instance = new Part01Step04Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                diagnosticMessageModule,
-                supportedSpnModule,
-                dataRepository,
-                DateTimeModule.getInstance());
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              diagnosticMessageModule,
+                                              supportedSpnModule,
+                                              dataRepository,
+                                              DateTimeModule.getInstance());
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
                                  diagnosticMessageModule,
-                dataRepository,
-                mockListener,
-                supportedSpnModule);
+                                 mockListener,
+                                 supportedSpnModule);
     }
 
     // Test handling of no response from the modules
@@ -137,52 +139,45 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
         when(packet1.getSourceAddress()).thenReturn(0);
 
-        OBDModuleInformation obdInfo1 = new OBDModuleInformation(0);
-        Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
-        obdInfo1.setObdCompliance((byte) 4);
-        obdInfoList.add(obdInfo1);
-        when(dataRepository.getObdModules()).thenReturn(Collections.emptyList());
-        when(dataRepository.getObdModule(0)).thenReturn(null);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
 
         when(diagnosticMessageModule.requestDM24(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet1));
+                                                               .thenReturn(BusResult.of(packet1));
 
-        when(dataRepository.getObdModules()).thenReturn(obdInfoList);
-
-        VehicleInformation vehicleInfo = mock(VehicleInformation.class);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInfo);
-        when(dataRepository.getVehicleInformation().getFuelType()).thenReturn(BI_GAS);
+        VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setFuelType(BI_GAS);
+        dataRepository.setVehicleInformation(vehicleInfo);
 
         runTest();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM24(any(), eq(0));
 
-        verify(dataRepository).getObdModule(0);
-        verify(dataRepository, atLeastOnce()).getObdModules();
-        verify(dataRepository, atLeastOnce()).getVehicleInformation();
-
         verify(engineSpeedModule).setJ1939(j1939);
 
-
-        String expected ="";
-        expected +="FAIL: 6.1.4.2.b - N.2 One or more SPNs for data stream is not supported"+NL;
-        expected +="FAIL: 6.1.4.2.c - One or more SPNs for freeze frame are not supported"+NL;
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener)
-                .addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                        "6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
+                            .addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
         verify(mockListener)
-                .addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                        "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
+                            .addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
 
         verify(reportFileModule)
-                .addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                        "6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
+                                .addOutcome(PART_NUMBER,
+                                            STEP_NUMBER,
+                                            FAIL,
+                                            "6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
         verify(reportFileModule)
-                .addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                        "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
+                                .addOutcome(PART_NUMBER,
+                                            STEP_NUMBER,
+                                            FAIL,
+                                            "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
 
         verify(supportedSpnModule).validateDataStreamSpns(any(), any(), any());
         verify(supportedSpnModule).validateFreezeFrameSpns(any(), any());
@@ -201,66 +196,42 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
         when(packet1.getSourceAddress()).thenReturn(0);
 
-        List<SupportedSPN> supportedSpns = new ArrayList<>();
-        SupportedSPN spn1 = mock(SupportedSPN.class);
-        supportedSpns.add(spn1);
-        when(packet1.getSupportedSpns()).thenReturn(supportedSpns);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(BusResult.of(packet1));
 
-        OBDModuleInformation obdInfo1 = new OBDModuleInformation(0);
-        OBDModuleInformation obdInfo4 = new OBDModuleInformation(1);
-        Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
-        obdInfo1.setObdCompliance((byte) 4);
-        obdInfo4.setObdCompliance((byte) 4);
-        obdInfoList.add(obdInfo1);
-        obdInfoList.add(obdInfo4);
-        when(dataRepository.getObdModules()).thenReturn(obdInfoList);
-        when(dataRepository.getObdModule(0)).thenReturn(obdInfo1);
-
-        AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
-
-        when(diagnosticMessageModule.requestDM24(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet1));
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        AcknowledgmentPacket packet4 = AcknowledgmentPacket.create(1, NACK);
         when(diagnosticMessageModule.requestDM24(any(), eq(1)))
-                .thenReturn(new BusResult<>(true, packet4));
+                                                               .thenReturn(BusResult.empty())
+                                                               .thenReturn(BusResult.of(packet4));
 
-        when(dataRepository.getObdModules()).thenReturn(obdInfoList);
 
-        VehicleInformation vehicleInfo = mock(VehicleInformation.class);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInfo);
-        when(dataRepository.getVehicleInformation().getFuelType()).thenReturn(BI_GAS);
+        VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setFuelType(BI_GAS);
+        dataRepository.setVehicleInformation(vehicleInfo);
 
         runTest();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM24(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM24(any(), eq(1));
-
-        verify(dataRepository).getObdModule(0);
-
-        verify(dataRepository, atLeastOnce()).getObdModules();
-        verify(dataRepository, atLeastOnce()).getVehicleInformation();
-        verify(dataRepository).putObdModule(obdInfo1);
+        verify(diagnosticMessageModule, times(2)).requestDM24(any(), eq(1));
 
         verify(engineSpeedModule).setJ1939(j1939);
 
-        String expected ="";
-        expected +="FAIL: 6.1.4.2.a - Retry was required to obtain DM24 response from Engine #2 (1)"+NL;
-        expected +="FAIL: 6.1.4.2.b - N.2 One or more SPNs for data stream is not supported"+NL;
-        expected +="FAIL: 6.1.4.2.c - One or more SPNs for freeze frame are not supported"+NL;
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.4.2.a - Retry was required to obtain DM24 response from Engine #2 (1)");
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.4.2.a - Retry was required to obtain DM25 response from Engine #2 (1)");
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
 
         verify(supportedSpnModule).validateDataStreamSpns(any(), any(), any());
         verify(supportedSpnModule).validateFreezeFrameSpns(any(), any());
@@ -291,30 +262,28 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     // Testing object without any errors.
-    @TestDoc(value = @TestItem(verifies = "6.1.4.2.a,b,c"),
-            description = "Verify that step completes without errors when none of the fail criteria are met.")
+    @TestDoc(value = @TestItem(verifies = "6.1.4.2.a,b,c"), description = "Verify that step completes without errors when none of the fail criteria are met.")
     public void testGoodObjects() {
 
-        Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
-        obdInfo0.setObdCompliance((byte) 4);
-        obdInfoList.add(obdInfo0);
-        when(dataRepository.getObdModule(eq(0x00))).thenReturn(obdInfo0);
+        DM24SPNSupportPacket packet1 = new DM24SPNSupportPacket(Packet.create(DM24SPNSupportPacket.PGN,
+                                                                              0x00,
+                                                                              0x5C,
+                                                                              0x00,
+                                                                              0x1B,
+                                                                              0x01,
+                                                                              0x00,
+                                                                              0x02,
+                                                                              0x1B,
+                                                                              0x01,
+                                                                              0x01,
+                                                                              0x02,
+                                                                              0x1B,
+                                                                              0x01));
 
-        OBDModuleInformation obdInfo1 = new OBDModuleInformation(1);
-        obdInfo1.setObdCompliance((byte) 4);
-        obdInfoList.add(obdInfo1);
-        when(dataRepository.getObdModule(eq(0x01))).thenReturn(obdInfo1);
-
-        when(dataRepository.getObdModules()).thenReturn(obdInfoList);
-
-        DM24SPNSupportPacket packet1 = new DM24SPNSupportPacket(
-                Packet.create(DM24SPNSupportPacket.PGN, 0x00,
-                              0x5C, 0x00, 0x1B, 0x01, 0x00, 0x02, 0x1B, 0x01, 0x01, 0x02, 0x1B, 0x01));
-
-        BusResult<DM24SPNSupportPacket> result1 = new BusResult<>(false, packet1);
-        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(result1);
+        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(BusResult.of(packet1));
 
         //@formatter:off
         DM24SPNSupportPacket packet4 = new DM24SPNSupportPacket(Packet.create(DM24SPNSupportPacket.PGN,
@@ -353,12 +322,11 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                 0x00, 0x1F, 0x00, 0x00, 0x00, 0x1F, 0x00, 0x00, 0x00, 0x1F, 0x00, 0x00, 0x00, 0x1F, 0x00));
         //@formatter:on
 
-        BusResult<DM24SPNSupportPacket> result4 = new BusResult<>(false, packet4);
-        when(diagnosticMessageModule.requestDM24(any(), eq(1))).thenReturn(result4);
+        when(diagnosticMessageModule.requestDM24(any(), eq(1))).thenReturn(BusResult.of(packet4));
 
-        VehicleInformation vehicleInfo = mock(VehicleInformation.class);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInfo);
-        when(dataRepository.getVehicleInformation().getFuelType()).thenReturn(BI_GAS);
+        VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setFuelType(BI_GAS);
+        dataRepository.setVehicleInformation(vehicleInfo);
 
         when(supportedSpnModule.validateDataStreamSpns(any(), any(), any())).thenReturn(true);
         when(supportedSpnModule.validateFreezeFrameSpns(any(), any())).thenReturn(true);
@@ -368,14 +336,6 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM24(any(), eq(0));
         verify(diagnosticMessageModule).requestDM24(any(), eq(1));
-
-        verify(dataRepository).getObdModule(0);
-        verify(dataRepository).getObdModule(1);
-        verify(dataRepository, times(3)).getObdModules();
-
-        verify(dataRepository, times(2)).getVehicleInformation();
-        verify(dataRepository).putObdModule(obdInfo0);
-        verify(dataRepository).putObdModule(obdInfo1);
 
         verify(engineSpeedModule).setJ1939(j1939);
 
@@ -391,10 +351,66 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         Collections.sort(expectedDataStreamsPacket4);
         verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(BI_GAS));
 
-        List<Integer> expectedFreezeFrames = Arrays.asList(512, 513, 132, 1413, 1414, 1415, 3464, 1416,
-                4360, 1417, 1418, 4363, 3216, 1173, 3480, 3609, 3226, 3482, 539, 3483, 27, 540, 541, 542, 158, 543, 544,
-                3490, 164, 5541, 1189, 3242, 172, 173, 3246, 175, 51, 3251, 183, 1209, 1081, 190, 5314, 5323, 5837, 976,
-                84, 3031, 5466, 91, 92, 94, 1761, 3301, 102, 2791, 105, 3563, 108, 110);
+        List<Integer> expectedFreezeFrames = Arrays.asList(512,
+                                                           513,
+                                                           132,
+                                                           1413,
+                                                           1414,
+                                                           1415,
+                                                           3464,
+                                                           1416,
+                                                           4360,
+                                                           1417,
+                                                           1418,
+                                                           4363,
+                                                           3216,
+                                                           1173,
+                                                           3480,
+                                                           3609,
+                                                           3226,
+                                                           3482,
+                                                           539,
+                                                           3483,
+                                                           27,
+                                                           540,
+                                                           541,
+                                                           542,
+                                                           158,
+                                                           543,
+                                                           544,
+                                                           3490,
+                                                           164,
+                                                           5541,
+                                                           1189,
+                                                           3242,
+                                                           172,
+                                                           173,
+                                                           3246,
+                                                           175,
+                                                           51,
+                                                           3251,
+                                                           183,
+                                                           1209,
+                                                           1081,
+                                                           190,
+                                                           5314,
+                                                           5323,
+                                                           5837,
+                                                           976,
+                                                           84,
+                                                           3031,
+                                                           5466,
+                                                           91,
+                                                           92,
+                                                           94,
+                                                           1761,
+                                                           3301,
+                                                           102,
+                                                           2791,
+                                                           105,
+                                                           3563,
+                                                           108,
+                                                           110);
         Collections.sort(expectedFreezeFrames);
         verify(supportedSpnModule).validateFreezeFrameSpns(any(), eq(expectedFreezeFrames));
 
@@ -402,10 +418,10 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         byte[] spn512Packet1 = { 0x00, 0x02, 0x1B, 0x01 };
         byte[] spn513Packet1 = { 0x01, 0x02, 0x1B, 0x01 };
         List<SupportedSPN> expectedPacket1Spns = List.of(
-                new SupportedSPN(convertToIntArray(spn92Packet1)),
-                new SupportedSPN(convertToIntArray(spn512Packet1)),
-                new SupportedSPN(convertToIntArray(spn513Packet1)));
-        assertEquals(expectedPacket1Spns, obdInfo0.getSupportedSpns());
+                                                         new SupportedSPN(convertToIntArray(spn92Packet1)),
+                                                         new SupportedSPN(convertToIntArray(spn512Packet1)),
+                                                         new SupportedSPN(convertToIntArray(spn513Packet1)));
+        assertEquals(expectedPacket1Spns, dataRepository.getObdModule(0).getSupportedSPNs());
 
         byte[] spn92 = { 0x5C, 0x00, 0x1C, 0x01 };
         byte[] spn512 = { 0x00, 0x02, 0x1C, 0x01 };
@@ -638,6 +654,6 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
             }
         };
         expectedPacket4Spns.sort(Comparator.comparingInt(SupportedSPN::getSpn));
-        assertEquals(expectedPacket4Spns, obdInfo1.getSupportedSpns());
+        assertEquals(expectedPacket4Spns, dataRepository.getObdModule(1).getSupportedSPNs());
     }
 }

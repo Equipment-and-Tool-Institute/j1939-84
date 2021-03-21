@@ -20,7 +20,7 @@ public class DiagnosticTroubleCodeTest {
 
     @Test
     public void test1() {
-        DiagnosticTroubleCode instance = DiagnosticTroubleCode.create(609,19,1,1);
+        DiagnosticTroubleCode instance = DiagnosticTroubleCode.create(609, 19, 1, 1);
         assertEquals(1, instance.getConversionMethod());
         assertEquals(19, instance.getFailureModeIndicator());
         assertEquals(609, instance.getSuspectParameterNumber());
@@ -29,7 +29,7 @@ public class DiagnosticTroubleCodeTest {
 
     @Test
     public void test2() {
-        DiagnosticTroubleCode instance = DiagnosticTroubleCode.create(1569,31,0, 35);
+        DiagnosticTroubleCode instance = DiagnosticTroubleCode.create(1569, 31, 0, 35);
         assertEquals(0, instance.getConversionMethod());
         assertEquals(31, instance.getFailureModeIndicator());
         assertEquals(1569, instance.getSuspectParameterNumber());
@@ -46,19 +46,18 @@ public class DiagnosticTroubleCodeTest {
         assertEquals(0, instance.getOccurrenceCount());
     }
 
-    @SuppressWarnings({ "SimplifiableAssertion", "EqualsBetweenInconvertibleTypes" })
     @Test
     public void testEquals() {
         int[] data = new int[] { 0x61, // conversion method
-                                 0x02, // suspect parameter number
-                                 0x13, // failure mode indicator
-                                 0x81 };// occurrence count
+                0x02, // suspect parameter number
+                0x13, // failure mode indicator
+                0x81 };// occurrence count
         DiagnosticTroubleCode instance = new DiagnosticTroubleCode(data);
         DiagnosticTroubleCode instance2 = DiagnosticTroubleCode.create(609, 19, 1, 1);
         int[] data2 = new int[] { 0x13, 0x81, 0x61, 0x02 };
         DiagnosticTroubleCode instance3 = new DiagnosticTroubleCode(data2);
         DM31DtcToLampAssociation instance4 = new DM31DtcToLampAssociation(
-                Packet.create(0, 0, 0x61, 0x02, 0x13, 0x81));
+                                                                          Packet.create(0, 0, 0x61, 0x02, 0x13, 0x81));
         assertTrue(instance.equals(instance2));
         assertFalse(instance.equals(instance3));
         // FIXME what is this supposed to be doing?
@@ -67,9 +66,6 @@ public class DiagnosticTroubleCodeTest {
         DiagnosticTroubleCode instance5 = new DiagnosticTroubleCode(data3);
         assertFalse(instance.equals(instance5));
         assertEquals(3, instance5.getFailureModeIndicator());
-        int[] data4 = new int[] { 0x61, 0x02, 0x13, 0x21 };
-        DiagnosticTroubleCode instance6 = new DiagnosticTroubleCode(data4);
-        assertFalse(instance.equals(instance6));
     }
 
     @Test

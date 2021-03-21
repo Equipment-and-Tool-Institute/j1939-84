@@ -15,6 +15,8 @@ import java.util.Random;
 public class VinGenerator {
 
     private static final String ALLOWED_CHARS = "0123456789ABCDEFGHJKLMNPRSTUVWXYZ";
+    private final Random random = new Random();
+    private final VinDecoder vinDecoder = new VinDecoder();
 
     public static void main(String... strings) {
         VinGenerator generator = new VinGenerator();
@@ -30,10 +32,6 @@ public class VinGenerator {
             }
         }
     }
-
-    private final Random random = new Random();
-
-    private final VinDecoder vinDecoder = new VinDecoder();
 
     /**
      * Generates a 17 character VIN
@@ -59,6 +57,6 @@ public class VinGenerator {
         }
         String vin = vinSb.toString();
         char checkSumChar = new VinDecoder().calculateCheckSum(vin);
-        return vin.substring(0, 8) + Character.toString(checkSumChar) + vin.substring(9, 17);
+        return vin.substring(0, 8) + checkSumChar + vin.substring(9, 17);
     }
 }

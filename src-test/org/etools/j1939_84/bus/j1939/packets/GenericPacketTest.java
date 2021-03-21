@@ -4,6 +4,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
@@ -30,7 +31,7 @@ public class GenericPacketTest {
     public void testPgn0() {
         byte[] data = new byte[] { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88 };
         Packet packet = Packet.create(0, 0, 0, false, data);
-        PgnDefinition pgnDefinition = new J1939DaRepository().findPgnDefinition(0);
+        PgnDefinition pgnDefinition = J1939DaRepository.getInstance().findPgnDefinition(0);
         GenericPacket instance = new GenericPacket(packet, pgnDefinition);
 
         List<Spn> spns = instance.getSpns();

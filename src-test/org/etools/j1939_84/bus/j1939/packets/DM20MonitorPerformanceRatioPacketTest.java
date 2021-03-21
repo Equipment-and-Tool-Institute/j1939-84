@@ -8,15 +8,13 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import org.junit.Test;
-
 import org.etools.j1939_84.bus.Packet;
+import org.junit.Test;
 
 /**
  * Unit tests for the {@link DM20MonitorPerformanceRatioPacket} class
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class DM20MonitorPerformanceRatioPacketTest {
 
@@ -27,7 +25,7 @@ public class DM20MonitorPerformanceRatioPacketTest {
         DM20MonitorPerformanceRatioPacket instance = new DM20MonitorPerformanceRatioPacket(packet);
         assertEquals(42405, instance.getIgnitionCycles());
         assertEquals(23130, instance.getOBDConditionsCount());
-        final List<PerformanceRatio> ratios = instance.getRatios();
+        List<PerformanceRatio> ratios = instance.getRatios();
         assertEquals(1, ratios.size());
         {
             PerformanceRatio ratio = ratios.get(0);
@@ -54,18 +52,16 @@ public class DM20MonitorPerformanceRatioPacketTest {
 
     @Test
     public void testThree() {
-        int[] data = new int[] { 0x0C, 0x00, 0x01, 0x00,
-                // One
-                0xCA, 0x14, 0xF8, 0x00, 0x00, 0x01, 0x00,
-                // Two
-                0xB8, 0x12, 0xF8, 0x03, 0x00, 0x04, 0x00,
-                // Three
-                0xBC, 0x14, 0xF8, 0x05, 0x00, 0x06, 0x00 };
-        Packet packet = Packet.create(0, 0, data);
-        DM20MonitorPerformanceRatioPacket instance = new DM20MonitorPerformanceRatioPacket(packet);
+        var instance = DM20MonitorPerformanceRatioPacket.create(0,
+                                                                12,
+                                                                1,
+                                                                new PerformanceRatio(5322, 0, 1, 0),
+                                                                new PerformanceRatio(4792, 3, 4, 0),
+                                                                new PerformanceRatio(5308, 5, 6, 0));
+
         assertEquals(12, instance.getIgnitionCycles());
         assertEquals(1, instance.getOBDConditionsCount());
-        final List<PerformanceRatio> ratios = instance.getRatios();
+        List<PerformanceRatio> ratios = instance.getRatios();
         assertEquals(3, ratios.size());
         {
             PerformanceRatio ratio = ratios.get(0);

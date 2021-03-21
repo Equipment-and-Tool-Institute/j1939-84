@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+
+import org.etools.j1939_84.model.ActionOutcome;
+import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.modules.BannerModule;
@@ -43,43 +45,49 @@ public abstract class PartController extends Controller {
     }
 
     @Override
+    public String getDisplayName() {
+        return "Part " + partNumber + " Test";
+    }
+
+    @Override
     protected void run() throws Throwable {
         List<StepController> stepControllers = getStepControllers();
         int totalSteps = stepControllers.stream()
-                .mapToInt(StepController::getTotalSteps)
-                .sum() + stepControllers.size();
+                                        .mapToInt(StepController::getTotalSteps)
+                                        .sum()
+                + stepControllers.size();
         setupProgress(totalSteps);
 
         PartResult partResult = getPartResult();
         getListener().onResult("");
-        getListener().beginPart(partResult);
         getListener().onResult("Start " + partResult);
         getListener().onResult("");
 
         for (StepController controller : getStepControllers()) {
+            checkEnding();
+
             StepResult stepResult = getPartResult().getStepResult(controller.getStepNumber());
 
-            getListener().beginStep(stepResult);
             getListener().onResult("Start " + stepResult);
-            getListener().onResult("");
 
             incrementProgress(stepResult.toString());
             controller.run(getListener(), getJ1939());
 
-            getListener().endStep(stepResult);
             getListener().onResult("");
             getListener().onResult("End " + stepResult);
             getListener().onResult("");
+
+            recordStepResult(stepResult);
         }
         getListener().onResult("");
         getListener().onResult("End " + partResult);
         getListener().onResult("");
-        getListener().endPart(partResult);
     }
 
-    @Override
-    public String getDisplayName() {
-        return "Part " + partNumber + " Test";
+    private static void recordStepResult(StepResult stepResult) {
+        if (stepResult.getOutcome() == Outcome.INCOMPLETE) {
+            stepResult.addResult(new ActionOutcome(Outcome.PASS, null));
+        }
     }
 
     protected PartResult getPartResult() {
@@ -87,32 +95,6 @@ public abstract class PartController extends Controller {
     }
 
     protected List<StepController> getStepControllers() {
-        return stepControllers;
-    }
-
-    /**
-     * TODO Remove this
-     * This is a temporary method until the project is finished
-     */
-    protected List<StepController> getStepControllers(int partNumber, int steps) {
-        List<StepController> stepControllers = new ArrayList<>();
-        for (int i = 1; i <= steps; i++) {
-            stepControllers.add(new StepController(Executors.newSingleThreadExecutor(),
-                                                   getBannerModule(),
-                                                   getDateTimeModule(),
-                                                   getDataRepository(),
-                                                   getEngineSpeedModule(),
-                                                   getVehicleInformationModule(),
-                                                   getDiagnosticMessageModule(),
-                                                   partNumber,
-                                                   i,
-                                                   1) {
-                @Override
-                protected void run() {
-                    getListener().onResult("Do Testing;\nWait for Responses;\nWrite Messages, etc");
-                }
-            });
-        }
         return stepControllers;
     }
 

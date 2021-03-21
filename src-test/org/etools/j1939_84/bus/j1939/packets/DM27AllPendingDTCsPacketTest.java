@@ -7,6 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
+
 import org.etools.j1939_84.bus.Packet;
 import org.junit.Test;
 
@@ -97,7 +98,7 @@ public class DM27AllPendingDTCsPacketTest {
         Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
-        final List<DiagnosticTroubleCode> dtcs = instance.getDtcs();
+        List<DiagnosticTroubleCode> dtcs = instance.getDtcs();
         assertEquals(1, dtcs.size());
         assertEquals(609, dtcs.get(0).getSuspectParameterNumber());
     }
@@ -108,7 +109,7 @@ public class DM27AllPendingDTCsPacketTest {
         Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
-        final List<DiagnosticTroubleCode> dtcs = instance.getDtcs();
+        List<DiagnosticTroubleCode> dtcs = instance.getDtcs();
         assertEquals(1, dtcs.size());
         assertEquals(609, dtcs.get(0).getSuspectParameterNumber());
     }
@@ -119,7 +120,7 @@ public class DM27AllPendingDTCsPacketTest {
         Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
-        final List<DiagnosticTroubleCode> dtcs = instance.getDtcs();
+        List<DiagnosticTroubleCode> dtcs = instance.getDtcs();
         assertEquals(3, dtcs.size());
         assertEquals(609, dtcs.get(0).getSuspectParameterNumber());
         assertEquals(1569, dtcs.get(1).getSuspectParameterNumber());

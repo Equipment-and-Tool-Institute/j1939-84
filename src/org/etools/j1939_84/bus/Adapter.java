@@ -32,11 +32,11 @@ public class Adapter {
      * Constructor
      *
      * @param name
-     *            the display name for the adapter
+     *                     the display name for the adapter
      * @param dllName
-     *            the DLL/INI file for the adapter
+     *                     the DLL/INI file for the adapter
      * @param deviceId
-     *            the device ID
+     *                     the device ID
      */
     public Adapter(String name, String dllName, short deviceId) {
         this(name, dllName, deviceId, 1);
@@ -46,11 +46,11 @@ public class Adapter {
      * Constructor
      *
      * @param name
-     *            the display name for the adapter
+     *                     the display name for the adapter
      * @param dllName
-     *            the DLL/INI file for the adapter
+     *                     the DLL/INI file for the adapter
      * @param deviceId
-     *            the device ID
+     *                     the device ID
      */
     public Adapter(String name, String dllName, short deviceId, long timeStampWeight) {
         this.name = name;

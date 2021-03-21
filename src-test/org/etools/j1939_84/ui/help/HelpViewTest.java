@@ -17,26 +17,26 @@ import org.junit.Test;
  */
 public class HelpViewTest {
 
-	private HelpView instance;
+    private HelpView instance;
 
-	@Before
-	public void setUp() throws Exception {
-		instance = new HelpView();
-	}
+    @Before
+    public void setUp() throws Exception {
+        instance = new HelpView();
+    }
 
-	@Test
-	public void test() {
-		assertEquals(false, instance.isVisible());
-		instance.setVisible(true);
-		assertEquals(true, instance.isVisible());
+    @Test
+    public void test() {
+        assertEquals(false, instance.isVisible());
+        instance.setVisible(true);
+        assertEquals(true, instance.isVisible());
 
-		// We *could* verify the entire text, but make sure there's something
-		// there
-		assertTrue(instance.getEditorPane().getText().contains("J1939-84 Tool"));
+        // We *could* verify the entire text, but make sure there's something
+        // there
+        assertTrue(instance.getEditorPane().getText().contains("J1939-84 Tool"));
 
-		instance.getCloseButton().doClick();
+        instance.getCloseButton().doClick();
 
-		assertEquals(false, instance.isVisible());
-	}
+        assertEquals(false, instance.isVisible());
+    }
 
 }

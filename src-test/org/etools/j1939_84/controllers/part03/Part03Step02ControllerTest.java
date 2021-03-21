@@ -21,6 +21,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
@@ -142,14 +143,11 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedMessages = "Requesting DM6 Attempt 1";
+        String expectedMessages = "Step 6.3.2.1.a - Requesting DM6 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
-        expectedResults += "FAIL: 6.3.2.2.a - No OBD ECU supports DM6" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         verify(diagnosticMessageModule).requestDM6(any());
@@ -166,7 +164,7 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
         when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6));
 
-        String promptMsg = "No module has reported a Pending Emission DTC." + NL + "Do you wish to continue?";
+        String promptMsg = "No ECU has reported a Pending Emission DTC." + NL + NL + "Do you wish to continue?";
         String promptTitle = "No Pending Emission DTCs Found";
 
         doAnswer(invocationOnMock -> {
@@ -179,25 +177,24 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         StringBuilder expectedMessages = new StringBuilder();
         for (int i = 1; i <= 300; i++) {
-            expectedMessages.append("Requesting DM6 Attempt ").append(i).append(NL);
+            expectedMessages.append("Step 6.3.2.1.a - Requesting DM6 Attempt ").append(i).append(NL);
         }
-        expectedMessages.append("User cancelled testing at Part 3 Step 2").append(NL);
-        expectedMessages.append("Requesting DM6 Attempt 1");
+        expectedMessages.append("User cancelled testing at Part 3 Step 2");
         assertEquals(expectedMessages.toString(), listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         StringBuilder expectedResults = new StringBuilder();
         for (int i = 1; i <= 300; i++) {
             expectedResults.append(NL).append("Attempt ").append(i).append(NL);
         }
-        expectedResults.append("ABORT: User cancelled testing at Part 3 Step 2").append(NL);
         assertEquals(expectedResults.toString(), listener.getResults());
 
         verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
         verify(diagnosticMessageModule, times(300)).requestDM6(any());
         verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 3 Step 2");
+        verify(mockListener, times(2)).addOutcome(PART_NUMBER,
+                                                  STEP_NUMBER,
+                                                  ABORT,
+                                                  "User cancelled testing at Part 3 Step 2");
 
         assertEquals(299000, dateTimeModule.getTimeAsLong());
     }
@@ -214,14 +211,11 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedMessages = "Requesting DM6 Attempt 1";
+        String expectedMessages = "Step 6.3.2.1.a - Requesting DM6 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
-        expectedResults += "WARN: 6.3.2.3.a - Engine #1 (0) reported > 1 pending DTC" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         verify(diagnosticMessageModule).requestDM6(any());
@@ -247,14 +241,11 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedMessages = "Requesting DM6 Attempt 1";
+        String expectedMessages = "Step 6.3.2.1.a - Requesting DM6 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
-        expectedResults += "WARN: 6.3.2.3.b - More than one ECU reported a pending DTC" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         verify(diagnosticMessageModule).requestDM6(any());
@@ -278,14 +269,11 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedMessages = "Requesting DM6 Attempt 1";
+        String expectedMessages = "Step 6.3.2.1.a - Requesting DM6 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
-        expectedResults += "FAIL: 6.3.2.5.b - Engine #1 (0) did not report MIL 'off'" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         verify(diagnosticMessageModule).requestDM6(any());
@@ -310,14 +298,11 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedMessages = "Requesting DM6 Attempt 1";
+        String expectedMessages = "Step 6.3.2.1.a - Requesting DM6 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
-        expectedResults += "FAIL: 6.3.2.5.a - Difference compared to data received during global request from Engine #1 (0)" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         verify(diagnosticMessageModule).requestDM6(any());
@@ -343,14 +328,11 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedMessages = "Requesting DM6 Attempt 1";
+        String expectedMessages = "Step 6.3.2.1.a - Requesting DM6 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
-        expectedResults += "FAIL: 6.3.2.5.c - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         verify(diagnosticMessageModule).requestDM6(any());
@@ -362,6 +344,6 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.2.5.c - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.3.2.5.c - OBD ECU Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
     }
 }

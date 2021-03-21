@@ -5,6 +5,7 @@
 package org.etools.j1939_84.model;
 
 import java.util.Objects;
+
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 
 public class ComponentIdentification {
@@ -37,11 +38,13 @@ public class ComponentIdentification {
         return unitNumber;
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         return Objects.hash(make, model, serialNumber, unitNumber);
     }
 
-    @Override public boolean equals(Object obj) {
+    @Override
+    public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
@@ -55,7 +58,8 @@ public class ComponentIdentification {
                 && Objects.equals(this.getUnitNumber(), that.getUnitNumber());
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "ComponentIdentification{" +
                 "make='" + make + '\'' +
                 ", model='" + model + '\'' +

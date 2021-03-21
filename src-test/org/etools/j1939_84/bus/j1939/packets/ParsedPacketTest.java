@@ -23,12 +23,6 @@ import org.junit.Test;
  */
 public class ParsedPacketTest {
 
-    private static class TestParsedPacket extends ParsedPacket {
-        public TestParsedPacket(Packet packet) {
-            super(packet);
-        }
-    }
-
     @Test
     public void testEqualsAndHashCode() {
         Packet packet1 = Packet.create(0, 0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88);
@@ -61,15 +55,15 @@ public class ParsedPacketTest {
 
     @Test
     public void testFormat() {
-        byte bytes[] = new byte[255];
+        byte[] bytes = new byte[255];
         for (int i = 0; i < 255; i++) {
             bytes[i] = (byte) (i & 0xFF);
         }
         String actual = ParsedPacket.format(bytes);
         StringBuilder sb = new StringBuilder(
-                "                                 !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~                                ");
+                                             "                                 !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~                                ");
         for (int i = 0xA0; i < 0xFF; i++) {
-            sb.append(Character.toString((char) i));
+            sb.append((char) i);
         }
         assertEquals(sb.toString(), actual);
     }
@@ -171,17 +165,17 @@ public class ParsedPacketTest {
         int pgn = 0xFEDC;
         Packet packet = Packet.create(pgn, 23, 0);
         ParsedPacket instance = new ParsedPacket(packet);
-        assertEquals(String.valueOf(pgn) + " from Instrument Cluster #1 (23): ", instance.getStringPrefix());
+        assertEquals(pgn + " from Instrument Cluster #1 (23): ", instance.getStringPrefix());
     }
 
     @Test
     public void testGetValuesWithUnitsDouble() {
         assertEquals("123,456,789 unit1 (987,654,321 unit2)",
-                ParsedPacket.getValuesWithUnits(123456789.0, "unit1", 987654321, "unit2"));
+                     ParsedPacket.getValuesWithUnits(123456789.0, "unit1", 987654321, "unit2"));
         assertEquals("11.9 (9.11)", ParsedPacket.getValuesWithUnits(11.9, null, 9.11, null));
         assertEquals("error", ParsedPacket.getValuesWithUnits(ParsedPacket.ERROR, "unit1", 987654321, "unit2"));
         assertEquals("not available",
-                ParsedPacket.getValuesWithUnits(ParsedPacket.NOT_AVAILABLE, "unit1", 987654321, "unit2"));
+                     ParsedPacket.getValuesWithUnits(ParsedPacket.NOT_AVAILABLE, "unit1", 987654321, "unit2"));
     }
 
     @Test
@@ -247,5 +241,11 @@ public class ParsedPacketTest {
         when(packet.toString()).thenReturn("packet");
         ParsedPacket instance = new ParsedPacket(packet);
         assertEquals("packet", instance.toString());
+    }
+
+    private static class TestParsedPacket extends ParsedPacket {
+        public TestParsedPacket(Packet packet) {
+            super(packet);
+        }
     }
 }

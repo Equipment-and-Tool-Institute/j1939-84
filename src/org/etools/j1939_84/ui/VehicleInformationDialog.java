@@ -12,6 +12,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -28,6 +29,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.text.AbstractDocument;
+
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.VehicleInformationListener;
@@ -43,13 +46,69 @@ import org.etools.j1939_84.ui.widgets.VinSanitizingDocumentFilter;
 public class VehicleInformationDialog extends JDialog implements VehicleInformationContract.View {
 
     private static final long serialVersionUID = -8012950984235933273L;
+    private transient final VehicleInformationContract.Presenter presenter;
+    private JPanel buttonPanel;
+    private JSpinner calIdsSpinner;
+    private JButton cancelButton;
+    private JLabel certificationLabel;
+    private JScrollPane certificationScrollPane;
+    private JTextArea certificationTextArea;
+    private JLabel emissionUnitsLabel;
+    private JSpinner emissionUnitsSpinner;
+    private JLabel engineModelYearLabel;
+    private JSpinner engineModelYearSpinner;
+    private JComboBox<FuelType> fuelTypeComboBox;
+    private JLabel fuelTypeLabel;
+    private JLabel headerLabel;
+    private JPanel mainPanel;
+    private JSpinner numberOfTripsForFaultBImplantSpinner;
+    private JLabel overrideLabel;
+    private JCheckBox overrideCheckBox;
+    private JButton okButton;
+    private JLabel vehicleModelYearLabel;
+    private JSpinner vehicleModelYearSpinner;
+    private JLabel vehicleModelYearValidationLabel;
+    private JLabel vinLabel;
+    private JTextField vinTextField;
+    private JLabel vinValidationLabel;
+
+    /**
+     * Constructor exposed for testing
+     *
+     * @param presenter
+     *                      the {@link VehicleInformationContract.Presenter}
+     * @param frame
+     *                      main application frame
+     */
+    /* package */ VehicleInformationDialog(JFrame frame, VehicleInformationContract.Presenter presenter) {
+        super(frame);
+        this.presenter = presenter;
+        initialize();
+    }
+
+    /**
+     * Creates a new instance of the Dialog
+     *
+     * @param frame
+     *                     main application frame
+     * @param listener
+     *                     the {@link VehicleInformationListener} that will be returned
+     *                     the information entered by the user
+     * @param j1939
+     *                     the vehicle bus
+     */
+    /* package */ VehicleInformationDialog(JFrame frame, VehicleInformationListener listener, J1939 j1939) {
+        super(frame);
+        presenter = new VehicleInformationPresenter(this, listener, j1939);
+        initialize();
+    }
 
     /**
      * Creates and return {@link GridBagConstraints} for the column with Labels
      *
-     * @param gridy
-     *         the y coordinate in the grid
-     * @return {@link GridBagConstraints}
+     * @param  gridy
+     *                   the y coordinate in the grid
+     * @return       {@link GridBagConstraints}
      */
     private static GridBagConstraints getLabelGbc(int gridy) {
         GridBagConstraints gbc = new GridBagConstraints();
@@ -67,11 +126,11 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     /**
      * Creates and returns {@link GridBagConstraints} from the Validation Column
      *
-     * @param gridx
-     *         the x coordinate on the grid
-     * @param gridy
-     *         the y coordinate on the grid
-     * @return {@link GridBagConstraints}
+     * @param  gridx
+     *                   the x coordinate on the grid
+     * @param  gridy
+     *                   the y coordinate on the grid
+     * @return       {@link GridBagConstraints}
      */
     private static GridBagConstraints getValidationGbc(int gridx, int gridy) {
         GridBagConstraints gbc = new GridBagConstraints();
@@ -85,103 +144,17 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     /**
      * Creates and returns {@link GridBagConstraints} for the Value Column
      *
-     * @param gridy
-     *         the y coordinate in the grid
-     * @param fill
-     *         true to completely fill the cel
-     * @return {@link GridBagConstraints}
+     * @param  gridy
+     *                   the y coordinate in the grid
+     * @return       {@link GridBagConstraints}
      */
-    private static GridBagConstraints getValueGbc(int gridy, boolean fill) {
+    private static GridBagConstraints getValueGbc(int gridy) {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
-        if (fill) {
-            gbc.fill = GridBagConstraints.BOTH;
-        }
         gbc.gridx = 1;
         gbc.gridy = gridy;
         return gbc;
-    }
-
-    private JPanel buttonPanel;
-
-    private JSpinner calIdsSpinner;
-
-    private JButton cancelButton;
-
-    private JLabel certificationLabel;
-
-    private JScrollPane certificationScrollPane;
-
-    private JTextArea certificationTextArea;
-
-    private JLabel emissionUnitsLabel;
-
-    private JSpinner emissionUnitsSpinner;
-
-    private JLabel engineModelYearLabel;
-
-    private JSpinner engineModelYearSpinner;
-
-    private JComboBox<FuelType> fuelTypeComboBox;
-
-    private JLabel fuelTypeLabel;
-
-    private JLabel headerLabel;
-
-    private JPanel mainPanel;
-
-    private JSpinner numberOfTripsForFaultBImplantSpinner;
-
-    private JLabel overrideLabel;
-
-    private JCheckBox overrideCheckBox;
-
-    private JButton okButton;
-
-    private transient final VehicleInformationContract.Presenter presenter;
-
-    private JLabel vehicleModelYearLabel;
-
-    private JSpinner vehicleModelYearSpinner;
-
-    private JLabel vehicleModelYearValidationLabel;
-
-    private JLabel vinLabel;
-
-    private JTextField vinTextField;
-
-    private JLabel vinValidationLabel;
-
-    /**
-     * Constructor exposed for testing
-     *
-     * @param presenter
-     *         the {@link VehicleInformationContract.Presenter}
-     * @param frame
-     *         main application frame
-     */
-    /* package */ VehicleInformationDialog(JFrame frame, VehicleInformationContract.Presenter presenter) {
-        super(frame);
-        this.presenter = presenter;
-        initialize();
-    }
-
-    /**
-     * Creates a new instance of the Dialog
-     *
-     * @param frame
-     *         main application frame
-     * @param listener
-     *         the {@link VehicleInformationListener} that will be returned
-     *         the information entered by the user
-     * @param j1939
-     *         the vehicle bus
-     */
-    /* package */ VehicleInformationDialog(JFrame frame, VehicleInformationListener listener, J1939 j1939) {
-        super(frame);
-        presenter = new VehicleInformationPresenter(this, listener, j1939);
-        initialize();
     }
 
     /**
@@ -222,7 +195,7 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
             editor.getTextField().setColumns(2);
             calIdsSpinner.setEditor(editor);
             calIdsSpinner
-                    .addChangeListener(e -> presenter.onCalIdsChanged((int) calIdsSpinner.getValue()));
+                         .addChangeListener(e -> presenter.onCalIdsChanged((int) calIdsSpinner.getValue()));
         }
         return calIdsSpinner;
     }
@@ -272,7 +245,7 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
             editor.getTextField().setColumns(2);
             emissionUnitsSpinner.setEditor(editor);
             emissionUnitsSpinner
-                    .addChangeListener(e -> presenter.onEmissionUnitsChanged((int) emissionUnitsSpinner.getValue()));
+                                .addChangeListener(e -> presenter.onEmissionUnitsChanged((int) emissionUnitsSpinner.getValue()));
         }
         return emissionUnitsSpinner;
     }
@@ -298,7 +271,7 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
             editor.getTextField().setColumns(4);
             engineModelYearSpinner.setEditor(editor);
             engineModelYearSpinner.addChangeListener(
-                    e -> presenter.onEngineModelYearChanged((int) engineModelYearSpinner.getValue()));
+                                                     e -> presenter.onEngineModelYearChanged((int) engineModelYearSpinner.getValue()));
         }
         return engineModelYearSpinner;
     }
@@ -309,7 +282,7 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
             ComboBoxModel<FuelType> fuelTypeModel = new DefaultComboBoxModel<>(FuelType.values());
             fuelTypeComboBox.setModel(fuelTypeModel);
             fuelTypeComboBox.addActionListener(
-                    e -> presenter.onFuelTypeChanged(fuelTypeModel.getElementAt(fuelTypeComboBox.getSelectedIndex())));
+                                               e -> presenter.onFuelTypeChanged(fuelTypeModel.getElementAt(fuelTypeComboBox.getSelectedIndex())));
         }
         return fuelTypeComboBox;
     }
@@ -348,41 +321,41 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
             mainPanel.add(getHeaderLabel(), headerLabelGbc);
 
             mainPanel.add(getVinLabel(), getLabelGbc(2));
-            GridBagConstraints vinValueGbc = getValueGbc(2, false);
+            GridBagConstraints vinValueGbc = getValueGbc(2);
             vinValueGbc.gridwidth = 2;
             mainPanel.add(getVinTextField(), vinValueGbc);
             mainPanel.add(getVinValidationLabel(), getValidationGbc(3, 2));
 
             mainPanel.add(getVehicleModelYearLabel(), getLabelGbc(3));
-            mainPanel.add(getVehicleModelYearSpinner(), getValueGbc(3, false));
+            mainPanel.add(getVehicleModelYearSpinner(), getValueGbc(3));
             GridBagConstraints vehicleMyValidationGbc = getValidationGbc(2, 3);
             vehicleMyValidationGbc.gridwidth = 2;
             mainPanel.add(getVehicleModelYearValidationLabel(), vehicleMyValidationGbc);
 
             mainPanel.add(getEngineModelYearLabel(), getLabelGbc(4));
-            mainPanel.add(getEngineModelYearSpinner(), getValueGbc(4, false));
+            mainPanel.add(getEngineModelYearSpinner(), getValueGbc(4));
 
             mainPanel.add(getFuelTypeLabel(), getLabelGbc(5));
-            GridBagConstraints fuelTypeGbc = getValueGbc(5, false);
+            GridBagConstraints fuelTypeGbc = getValueGbc(5);
             fuelTypeGbc.gridwidth = 3;
             mainPanel.add(getFuelTypeComboBox(), fuelTypeGbc);
 
             mainPanel.add(getEmissionUnitsLabel(), getLabelGbc(6));
-            mainPanel.add(getEmissionUnitsJSpinner(), getValueGbc(6, false));
+            mainPanel.add(getEmissionUnitsJSpinner(), getValueGbc(6));
 
             mainPanel.add(new JLabel("Calibration IDs"), getLabelGbc(7));
-            mainPanel.add(getCalIdsJSpinner(), getValueGbc(7, false));
+            mainPanel.add(getCalIdsJSpinner(), getValueGbc(7));
 
             mainPanel.add(getCertificationLabel(), getLabelGbc(8));
-            GridBagConstraints certificationGbc = getValueGbc(8, false);
+            GridBagConstraints certificationGbc = getValueGbc(8);
             certificationGbc.gridwidth = 3;
             mainPanel.add(getCertificationScrollPane(), certificationGbc);
 
             mainPanel.add(new JLabel("Number Of Trips For Fault B Implant"), getLabelGbc(9));
-            mainPanel.add(getNumberOfTripsForFaultBImplantJSpinner(), getValueGbc(9, false));
+            mainPanel.add(getNumberOfTripsForFaultBImplantJSpinner(), getValueGbc(9));
 
             mainPanel.add(getOverrideLabel(), getLabelGbc(10));
-            mainPanel.add(getOverrideControl(), getValueGbc(10, false));
+            mainPanel.add(getOverrideControl(), getValueGbc(10));
 
             GridBagConstraints buttonPanelGbc = new GridBagConstraints();
             buttonPanelGbc.insets = new Insets(0, 0, 0, 5);
@@ -391,20 +364,21 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
             buttonPanelGbc.gridx = 1;
             buttonPanelGbc.gridy = 11;
             mainPanel.add(getButtonPanel(), buttonPanelGbc);
+            getRootPane().setDefaultButton(getOkButton());
         }
         return mainPanel;
     }
 
     private JSpinner getNumberOfTripsForFaultBImplantJSpinner() {
         if (numberOfTripsForFaultBImplantSpinner == null) {
-            numberOfTripsForFaultBImplantSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 99, 1));
+            numberOfTripsForFaultBImplantSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 2, 1));
             JSpinner.NumberEditor editor = new JSpinner.NumberEditor(numberOfTripsForFaultBImplantSpinner, "#");
             editor.getTextField().setColumns(2);
             numberOfTripsForFaultBImplantSpinner.setEditor(editor);
             numberOfTripsForFaultBImplantSpinner
-                    .addChangeListener(e -> presenter
-                            .onNumberOfTripsForFaultBImplantChanged(
-                                    (int) numberOfTripsForFaultBImplantSpinner.getValue()));
+                                                .addChangeListener(e -> presenter
+                                                                                 .onNumberOfTripsForFaultBImplantChanged(
+                                                                                                                         (int) numberOfTripsForFaultBImplantSpinner.getValue()));
         }
         return numberOfTripsForFaultBImplantSpinner;
     }
@@ -447,7 +421,7 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
             editor.getTextField().setColumns(4);
             vehicleModelYearSpinner.setEditor(editor);
             vehicleModelYearSpinner.addChangeListener(
-                    e -> presenter.onVehicleModelYearChanged((int) vehicleModelYearSpinner.getValue()));
+                                                      e -> presenter.onVehicleModelYearChanged((int) vehicleModelYearSpinner.getValue()));
         }
         return vehicleModelYearSpinner;
     }
@@ -497,7 +471,7 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
         pack();
         setLocationRelativeTo(getOwner());
         setResizable(false);
-        setTitle("J1939-84 Tool Vehicle Information Form");
+        setTitle("Step 6.1.1.1.e");
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -540,6 +514,9 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     @Override
     public void setOkButtonEnabled(boolean isEnabled) {
         getOkButton().setEnabled(isEnabled);
+        if (isEnabled && J1939_84.isAutoMode()) {
+            presenter.onOkButtonClicked();
+        }
     }
 
     @Override
@@ -563,6 +540,15 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     }
 
     @Override
+    public void setOverrideControlVisible(boolean isVisible) {
+        getOverrideControl().setVisible(isVisible);
+        getOverrideLabel().setVisible(isVisible);
+        if (!isVisible) {
+            getOverrideControl().setSelected(false);
+        }
+    }
+
+    @Override
     public void setVisible(boolean isVisible) {
         super.setVisible(isVisible);
         if (isVisible) {
@@ -570,14 +556,6 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
         } else {
             super.dispose();
             dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-        }
-    }
-
-    @Override public void setOverrideControlVisible(boolean isVisible) {
-        getOverrideControl().setVisible(isVisible);
-        getOverrideLabel().setVisible(isVisible);
-        if (!isVisible) {
-            getOverrideControl().setSelected(false);
         }
     }
 }

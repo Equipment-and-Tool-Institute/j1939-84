@@ -14,6 +14,10 @@ import org.etools.j1939_84.bus.Packet;
 public class DM6PendingEmissionDTCPacket extends DiagnosticTroubleCodePacket {
     public static final int PGN = 65231;
 
+    public DM6PendingEmissionDTCPacket(Packet packet) {
+        super(packet);
+    }
+
     public static DM6PendingEmissionDTCPacket create(int address,
                                                      LampStatus mil,
                                                      LampStatus stop,
@@ -22,10 +26,6 @@ public class DM6PendingEmissionDTCPacket extends DiagnosticTroubleCodePacket {
                                                      DiagnosticTroubleCode... dtcs) {
 
         return new DM6PendingEmissionDTCPacket(create(address, PGN, mil, stop, amber, protect, dtcs));
-    }
-
-    public DM6PendingEmissionDTCPacket(Packet packet) {
-        super(packet);
     }
 
     @Override

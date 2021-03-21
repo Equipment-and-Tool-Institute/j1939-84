@@ -27,10 +27,8 @@ import org.etools.j1939_84.bus.j1939.J1939TP;
 import org.etools.j1939_84.controllers.OverallController;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.Outcome;
-import org.etools.j1939_84.model.PartResult;
-import org.etools.j1939_84.model.StepResult;
-import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -48,83 +46,80 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      * The default extension for report files created by this application
      */
     static final String FILE_SUFFIX = "j1939-84";
-
+    private final Executor executor;
+    private final HelpView helpView;
+    private final OverallController overallController;
+    private final ReportFileModule reportFileModule;
+    private final RP1210 rp1210;
+    private final VehicleInformationModule vehicleInformationModule;
+    /**
+     * The {@link UserInterfacePresenter} that is being controlled
+     */
+    private final UserInterfaceContract.View view;
     /**
      * The possible {@link Adapter} that can be used for communications with the
      * vehicle
      */
     private List<Adapter> adapters;
-
     private Bus bus;
-
-    private final Executor executor;
-
-    private final HelpView helpView;
-
-    private J1939 j1939;
-
-    private final OverallController overallController;
-
     /**
      * The {@link File} where the report is stored
      */
     private File reportFile;
-
-    private final ReportFileModule reportFileModule;
-
-    private final RP1210 rp1210;
-
     /**
      * The Adapter being used to communicate with the vehicle
      */
     private Adapter selectedAdapter;
-
-    private final VehicleInformationModule vehicleInformationModule;
-
-    /**
-     * The {@link UserInterfacePresenter} that is being controlled
-     */
-    private final UserInterfaceContract.View view;
-
     private String vin;
 
     /**
      * Default Constructor
      *
      * @param view
-     *            The {@link UserInterfaceView} to control
+     *                 The {@link UserInterfaceView} to control
      */
     public UserInterfacePresenter(UserInterfaceContract.View view) {
-        this(view, new VehicleInformationModule(), new RP1210(), new ReportFileModule(), Runtime.getRuntime(),
-                Executors.newSingleThreadExecutor(), new HelpView(), new OverallController());
+        this(view,
+             new VehicleInformationModule(),
+             new RP1210(),
+             new ReportFileModule(),
+             Runtime.getRuntime(),
+             Executors.newSingleThreadExecutor(),
+             new HelpView(),
+             new OverallController());
     }
 
     /**
      * Constructor used for testing
      *
      * @param view
-     *            The {@link UserInterfaceView} to control
+     *                                     The {@link UserInterfaceView} to control
      * @param vehicleInformationModule
-     *            the {@link VehicleInformationModule}
+     *                                     the {@link VehicleInformationModule}
      * @param rp1210
-     *            the {@link RP1210}
+     *                                     the {@link RP1210}
      * @param reportFileModule
-     *            the {@link ReportFileModule}
+     *                                     the {@link ReportFileModule}
      * @param runtime
-     *            the {@link Runtime}
+     *                                     the {@link Runtime}
      * @param executor
-     *            the {@link Executor} used to execute {@link Thread} s
+     *                                     the {@link Executor} used to execute {@link Thread} s
      * @param helpView
-     *            the {@link HelpView} that will display help for the
-     *            application
+     *                                     the {@link HelpView} that will display help for the
+     *                                     application
      *
      * @param overallController
-     *            the {@link OverallController} which will run all the other
-     *            parts
+     *                                     the {@link OverallController} which will run all the other
+     *                                     parts
      */
-    public UserInterfacePresenter(UserInterfaceContract.View view, VehicleInformationModule vehicleInformationModule,
-            RP1210 rp1210, ReportFileModule reportFileModule, Runtime runtime, Executor executor, HelpView helpView,
-            OverallController overallController) {
+    public UserInterfacePresenter(UserInterfaceContract.View view,
+                                  VehicleInformationModule vehicleInformationModule,
+                                  RP1210 rp1210,
+                                  ReportFileModule reportFileModule,
+                                  Runtime runtime,
+                                  Executor executor,
+                                  HelpView helpView,
+                                  OverallController overallController) {
         this.view = view;
         this.vehicleInformationModule = vehicleInformationModule;
         this.rp1210 = rp1210;
@@ -173,9 +168,9 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
                 adapters.addAll(rp1210.getAdapters());
             } catch (Exception e) {
                 getView().displayDialog("The List of Communication Adapters could not be loaded.",
-                        "Failure",
-                        JOptionPane.ERROR_MESSAGE,
-                        false);
+                                        "Failure",
+                                        JOptionPane.ERROR_MESSAGE,
+                                        false);
                 // second time avoids re-parsing and will pickup synthetic
                 // adapters.
                 try {
@@ -188,26 +183,13 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         return adapters;
     }
 
-    private Logger getLogger() {
-        return J1939_84.getLogger();
-    }
-
     @Override
     public J1939 getNewJ1939() {
-        j1939 = new J1939(bus);
+        J1939 j1939 = new J1939(bus);
         if (bus instanceof J1939TP) {
             ((J1939TP) bus).setJ1939(j1939);
         }
         return j1939;
-    }
-
-    /**
-     * Return the Report File
-     *
-     * @return the reportFile
-     */
-    File getReportFile() {
-        return reportFile;
     }
 
     /**
@@ -218,97 +200,6 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
     @Override
     public ReportFileModule getReportFileModule() {
         return reportFileModule;
-    }
-
-    private ResultsListener getResultsListener() {
-        return new ResultsListener() {
-            @Override
-            public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
-            }
-
-            @Override
-            public void beginPart(PartResult partResult) {
-            }
-
-            @Override
-            public void beginStep(StepResult stepResult) {
-            }
-
-            @Override
-            public void endPart(PartResult partResult) {
-            }
-
-            @Override
-            public void endStep(StepResult stepResult) {
-            }
-
-            @Override
-            public void onComplete(boolean success) {
-                getView().setStopButtonEnabled(false);
-            }
-
-            @Override
-            public void onMessage(String message, String title, MessageType type) {
-                getView().displayDialog(message, title, type.getValue(), false);
-            }
-
-            @Override
-            public void onProgress(int currentStep, int totalSteps, String message) {
-                getView().setProgressBarValue(0, totalSteps, currentStep);
-                getView().setProgressBarText(message);
-            }
-
-            @Override
-            public void onProgress(String message) {
-                getView().setProgressBarText(message);
-            }
-
-            @Override
-            public void onResult(List<String> results) {
-                for (String result : results) {
-                    getView().appendResults(result + NL);
-                }
-            }
-
-            @Override
-            public void onResult(String result) {
-                getView().appendResults(result + NL);
-            }
-
-            @Override
-            public void onUrgentMessage(String message, String title, MessageType type) {
-                getView().displayDialog(message, title, type.getValue(), true, null);
-            }
-
-            @Override
-            public void onUrgentMessage(String message, String title, MessageType type,
-                                        QuestionListener questionListener) {
-                getView().displayDialog(message, title, type.getValue(), true, questionListener);
-            }
-
-            @Override
-            public void onVehicleInformationNeeded(VehicleInformationListener listener) {
-                getView().displayForm(listener, getNewJ1939());
-            }
-
-            @Override
-            public void onVehicleInformationReceived(VehicleInformation vehicleInformation) {
-            }
-
-        };
-    }
-
-    /**
-     * Returns the selected Adapter
-     *
-     * @return the selectedAdapter
-     */
-    Adapter getSelectedAdapter() {
-        return selectedAdapter;
-    }
-
-    private UserInterfaceContract.View getView() {
-        return view;
     }
 
     @Override
@@ -463,40 +354,108 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         getView().setStopButtonEnabled(false);
     }
 
-    private void resetView() {
-        vehicleInformationModule.reset();
-        vin = null;
-        getView().setVin("");
-        getView().setEngineCals("");
-        getView().setStartButtonEnabled(false);
-        getView().setStopButtonEnabled(false);
-        getView().setReadVehicleInfoButtonEnabled(false);
+    private Logger getLogger() {
+        return J1939_84.getLogger();
     }
 
-    private void setBus(Bus bus) throws BusException {
-        this.bus = bus;
-        vehicleInformationModule.setJ1939(getNewJ1939());
+    /**
+     * Return the Report File
+     *
+     * @return the reportFile
+     */
+    File getReportFile() {
+        return reportFile;
     }
 
     /**
      * Sets the Report File with no additional logic. This should only be used
      * for testing.
      *
-     * @param file
-     *            the report file to use
+     * @param  file
+     *                         the report file to use
      * @throws IOException
-     *             if there is a problem setting the report file
+     *                         if there is a problem setting the report file
      */
     void setReportFile(File file) throws IOException {
         getReportFileModule().setReportFile(file);
         reportFile = file;
     }
 
+    private ResultsListener getResultsListener() {
+        return new ResultsListener() {
+            @Override
+            public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
+                onResult(new ActionOutcome(outcome, message).toString());
+            }
+
+            @Override
+            public void onComplete(boolean success) {
+                getView().setStopButtonEnabled(false);
+            }
+
+            @Override
+            public void onMessage(String message, String title, MessageType type) {
+                getView().displayDialog(message, title, type.getValue(), false);
+            }
+
+            @Override
+            public void onProgress(int currentStep, int totalSteps, String message) {
+                getView().setProgressBarValue(0, totalSteps, currentStep);
+                getView().setProgressBarText(message);
+            }
+
+            @Override
+            public void onProgress(String message) {
+                getView().setProgressBarText(message);
+            }
+
+            @Override
+            public void onResult(List<String> results) {
+                for (String result : results) {
+                    getView().appendResults(result + NL);
+                }
+            }
+
+            @Override
+            public void onResult(String result) {
+                getView().appendResults(result + NL);
+            }
+
+            @Override
+            public void onUrgentMessage(String message, String title, MessageType type) {
+                getView().displayDialog(message, title, type.getValue(), true, null);
+            }
+
+            @Override
+            public void onUrgentMessage(String message,
+                                        String title,
+                                        MessageType type,
+                                        QuestionListener questionListener) {
+                getView().displayDialog(message, title, type.getValue(), true, questionListener);
+            }
+
+            @Override
+            public void onVehicleInformationNeeded(VehicleInformationListener listener) {
+                getView().displayForm(listener, getNewJ1939());
+            }
+
+        };
+    }
+
+    /**
+     * Returns the selected Adapter
+     *
+     * @return the selectedAdapter
+     */
+    Adapter getSelectedAdapter() {
+        return selectedAdapter;
+    }
+
     /**
      * Sets the selected adapter. This should only be used for testing.
      *
      * @param selectedAdapter
-     *            the selectedAdapter to set
+     *                            the selectedAdapter to set
      */
     private void setSelectedAdapter(Adapter selectedAdapter) {
         try {
@@ -513,36 +472,53 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         } catch (BusException e) {
             getLogger().log(Level.SEVERE, "Error Setting Adapter", e);
             getView().displayDialog("Communications could not be established using the selected adapter.",
-                    "Communication Failure",
-                    JOptionPane.ERROR_MESSAGE,
-                    false);
+                                    "Communication Failure",
+                                    JOptionPane.ERROR_MESSAGE,
+                                    false);
         }
+    }
+
+    private UserInterfaceContract.View getView() {
+        return view;
+    }
+
+    private void resetView() {
+        vehicleInformationModule.reset();
+        vin = null;
+        getView().setVin("");
+        getView().setEngineCals("");
+        getView().setStartButtonEnabled(false);
+        getView().setStopButtonEnabled(false);
+        getView().setReadVehicleInfoButtonEnabled(false);
+    }
+
+    private void setBus(Bus bus) throws BusException {
+        this.bus = bus;
+        vehicleInformationModule.setJ1939(getNewJ1939());
     }
 
     /**
      * Checks the given {@link File} to determine if it's a valid file for using
      * to store the Report. If it's valid, the report file is returned.
      *
-     * @param file
-     *            the {@link File} to check
-     * @return The file to be used for the report
+     * @param  file
+     *                         the {@link File} to check
+     * @return             The file to be used for the report
      * @throws IOException
-     *             if the file cannot be used
+     *                         if the file cannot be used
      */
-
-    private File setupReportFile(File file) throws IOException {
-        File reportFile = file;
+    private static File setupReportFile(File file) throws IOException {
         if (!file.exists()) {
             // Append the file extension if the file doesn't have one.
             if (!file.getName().endsWith("." + FILE_SUFFIX)) {
                 return setupReportFile(new File(file.getAbsolutePath() + "." + FILE_SUFFIX));
             }
-            if (!reportFile.createNewFile()) {
+            if (!file.createNewFile()) {
                 throw new IOException("File cannot be created");
             }
         } else {
             throw new IOException("File already exists");
         }
-        return reportFile;
+        return file;
     }
 }

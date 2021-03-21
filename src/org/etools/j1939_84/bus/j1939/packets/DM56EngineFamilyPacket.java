@@ -1,22 +1,33 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
+import org.etools.j1939_84.utils.CollectionUtils;
 
 public class DM56EngineFamilyPacket extends GenericPacket {
 
-    public static final String NAME = "Model Year and Certification Engine Family";
-
     public static final int PGN = 64711;
+
+    public static DM56EngineFamilyPacket create(int address, int modelYear, boolean isEngine, String familyName) {
+        byte[] data = new byte[0];
+        if (isEngine) {
+            data = CollectionUtils.join(data, String.format("%1$dE-MY", modelYear).getBytes(StandardCharsets.UTF_8));
+        } else {
+            data = CollectionUtils.join(data, String.format("%1$dV-MY", modelYear).getBytes(StandardCharsets.UTF_8));
+        }
+        data = CollectionUtils.join(data, familyName.getBytes(StandardCharsets.UTF_8));
+        return new DM56EngineFamilyPacket(Packet.create(PGN, address, data));
+    }
 
     private String familyName = null;
 
     private String modelYear = null;
 
     public DM56EngineFamilyPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+        super(packet);
     }
 
     public Integer getEngineModelYear() {
@@ -51,7 +62,14 @@ public class DM56EngineFamilyPacket extends GenericPacket {
 
     @Override
     public String getName() {
-        return NAME;
+        return "Model Year and Certification Engine Family";
+    }
+
+    @Override
+    public String toString() {
+        return getStringPrefix() + J1939_84.NL +
+                "Model Year: " + getModelYearField() + J1939_84.NL +
+                "Family Name: " + getFamilyName();
     }
 
     public Integer getVehicleModelYear() {
@@ -60,12 +78,5 @@ public class DM56EngineFamilyPacket extends GenericPacket {
 
     private boolean isEngineModelYear() {
         return getModelYearField().contains("E-MY");
-    }
-
-    @Override
-    public String toString() {
-        return getStringPrefix() + J1939_84.NL +
-                "Model Year: " + getModelYearField() + J1939_84.NL +
-                "Family Name: " + getFamilyName();
     }
 }

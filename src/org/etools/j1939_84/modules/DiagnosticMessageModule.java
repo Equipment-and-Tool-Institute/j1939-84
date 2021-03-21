@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.modules;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 
 import java.util.ArrayList;
@@ -15,15 +16,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.BusResult;
+import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
+import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM22IndividualClearPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM22IndividualClearPacket.ControlByte;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
@@ -36,13 +41,13 @@ import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus;
+import org.etools.j1939_84.bus.j1939.packets.DM3DiagnosticDataClearPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
-import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 
@@ -51,7 +56,6 @@ public class DiagnosticMessageModule extends FunctionalModule {
     public DiagnosticMessageModule() {
         super();
     }
-
 
     public static List<CompositeMonitoredSystem> getCompositeSystems(Collection<MonitoredSystem> monitoredSystems,
                                                                      boolean isDM5) {
@@ -73,26 +77,31 @@ public class DiagnosticMessageModule extends FunctionalModule {
     public static List<CompositeMonitoredSystem> getCompositeSystems(List<? extends DiagnosticReadinessPacket> packets,
                                                                      boolean isDM5) {
         Set<MonitoredSystem> systems = packets.stream()
-                .flatMap(p -> p.getMonitoredSystems().stream())
-                .collect(Collectors.toSet());
+                                              .flatMap(p -> p.getMonitoredSystems().stream())
+                                              .collect(Collectors.toSet());
         return getCompositeSystems(systems, isDM5);
     }
 
-    public RequestResult<DM1ActiveDTCsPacket> readDM1(ResultsListener listener) {
+    public List<DM1ActiveDTCsPacket> readDM1(ResultsListener listener) {
+        listener.onResult("");
         String title = " Reading the bus for published DM1 messages";
         listener.onResult(getTime() + title);
 
         Collection<DM1ActiveDTCsPacket> allPackets = getJ1939()
-                .read(DM1ActiveDTCsPacket.class, 3, TimeUnit.SECONDS)
-                .flatMap(r -> r.left.stream())
-                .collect(Collectors.toMap(ParsedPacket::getSourceAddress, p -> p, (address, packet) -> address))
-                .values();
+                                                               .read(DM1ActiveDTCsPacket.class, 3, TimeUnit.SECONDS)
+                                                               .flatMap(r -> r.left.stream())
+                                                               .collect(Collectors.toMap(ParsedPacket::getSourceAddress,
+                                                                                         p -> p,
+                                                                                         (address, packet) -> address))
+                                                               .values();
 
         List<DM1ActiveDTCsPacket> packets = allPackets.stream()
-                .sorted(Comparator.comparing(o -> o.getPacket().getTimestamp()))
-                .collect(Collectors.toList());
+                                                      .sorted(Comparator.comparing(o -> o.getPacket().getTimestamp()))
+                                                      .collect(Collectors.toList());
 
-        return new RequestResult<>(false, packets, List.of());
+        packets.forEach(dm1 -> listener.onResult(NL + dm1.getPacket().toTimeString() + NL + dm1.toString()));
+
+        return packets;
     }
 
     public RequestResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener) {
@@ -101,6 +110,17 @@ public class DiagnosticMessageModule extends FunctionalModule {
 
     public BusResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, int address) {
         return requestDMPackets("DM2", DM2PreviouslyActiveDTC.class, address, listener).busResult();
+    }
+
+    public List<AcknowledgmentPacket> requestDM3(ResultsListener listener) {
+        return getJ1939().requestForAcks(listener, "Global DM3 Request", DM3DiagnosticDataClearPacket.PGN);
+    }
+
+    public List<AcknowledgmentPacket> requestDM3(ResultsListener listener, int address) {
+        return getJ1939().requestForAcks(listener,
+                                         "DS DM3 Request to " + Lookup.getAddressName(address),
+                                         DM3DiagnosticDataClearPacket.PGN,
+                                         address);
     }
 
     public RequestResult<DM5DiagnosticReadinessPacket> requestDM5(ResultsListener listener) {
@@ -120,17 +140,12 @@ public class DiagnosticMessageModule extends FunctionalModule {
     }
 
     public List<AcknowledgmentPacket> requestDM11(ResultsListener listener) {
-        listener.onResult(getTime() + " Clearing Diagnostic Trouble Codes");
+        return getJ1939().requestForAcks(listener, "Global DM11 Request", DM11ClearActiveDTCsPacket.PGN);
+    }
 
-        List<AcknowledgmentPacket> responses = getJ1939().requestDM11(listener);
-
-        if (!responses.isEmpty() && responses.stream().allMatch(t -> t.getResponse() == Response.ACK)) {
-            listener.onResult("Diagnostic Trouble Codes were successfully cleared.");
-        } else {
-            listener.onResult("ERROR: Clearing Diagnostic Trouble Codes failed.");
-        }
-
-        return responses;
+    public List<AcknowledgmentPacket> requestDM11(ResultsListener listener, int address) {
+        String title = "Destination Specific DM11 Request to " + Lookup.getAddressName(address);
+        return getJ1939().requestForAcks(listener, title, DM11ClearActiveDTCsPacket.PGN, address);
     }
 
     public RequestResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener) {
@@ -153,8 +168,35 @@ public class DiagnosticMessageModule extends FunctionalModule {
         return requestDMPackets("DM21", DM21DiagnosticReadinessPacket.class, GLOBAL_ADDR, listener);
     }
 
-    public RequestResult<DM21DiagnosticReadinessPacket> requestDM21(ResultsListener listener, int address) {
-        return requestDMPackets("DM21", DM21DiagnosticReadinessPacket.class, address, listener);
+    public BusResult<DM21DiagnosticReadinessPacket> requestDM21(ResultsListener listener, int address) {
+        return requestDMPackets("DM21", DM21DiagnosticReadinessPacket.class, address, listener).busResult();
+    }
+
+    public BusResult<DM22IndividualClearPacket> requestDM22(ResultsListener listener,
+                                                            int address,
+                                                            ControlByte controlByte,
+                                                            int spn,
+                                                            int fmi) {
+        String title = "Destination Specific DM22 Request to " + Lookup.getAddressName(address);
+        var requestPacket = DM22IndividualClearPacket.createRequest(getJ1939().getBus().getAddress(),
+                                                                    address,
+                                                                    controlByte,
+                                                                    spn,
+                                                                    fmi);
+        return getJ1939().requestDS(title, DM22IndividualClearPacket.PGN, requestPacket, listener);
+    }
+
+    public RequestResult<DM22IndividualClearPacket> requestDM22(ResultsListener listener,
+                                                                ControlByte controlByte,
+                                                                int spn,
+                                                                int fmi) {
+        String title = "Global DM22 Request";
+        var requestPacket = DM22IndividualClearPacket.createRequest(getJ1939().getBus().getAddress(),
+                                                                    GLOBAL_ADDR,
+                                                                    controlByte,
+                                                                    spn,
+                                                                    fmi);
+        return getJ1939().requestGlobal(title, DM22IndividualClearPacket.PGN, requestPacket, listener);
     }
 
     public RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener) {
@@ -168,6 +210,7 @@ public class DiagnosticMessageModule extends FunctionalModule {
     public BusResult<DM24SPNSupportPacket> requestDM24(ResultsListener listener, int obdModuleAddress) {
         return requestDMPackets("DM24", DM24SPNSupportPacket.class, obdModuleAddress, listener).busResult();
     }
+
     public BusResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener, int address) {
         return requestDMPackets("DM25", DM25ExpandedFreezeFrame.class, address, listener).busResult();
     }
@@ -204,11 +247,20 @@ public class DiagnosticMessageModule extends FunctionalModule {
         return requestDMPackets("DM29", DM29DtcCounts.class, address, listener).busResult();
     }
 
-    public List<DM30ScaledTestResultsPacket> getDM30Packets(ResultsListener listener, int address, SupportedSPN spn) {
-        int spnId = spn.getSpn();
-        BusResult<DM30ScaledTestResultsPacket> result = getJ1939().requestDM7(spnId, address, listener);
-        listener.onResult("");
-        return result.requestResult().getPackets();
+    public List<DM30ScaledTestResultsPacket> requestTestResults(ResultsListener listener,
+                                                                int address,
+                                                                int tid,
+                                                                int spn,
+                                                                int fmi) {
+        return getJ1939().requestTestResults(tid, spn, fmi, address, listener).requestResult().getPackets();
+    }
+
+    public BusResult<DM30ScaledTestResultsPacket> requestTestResult(ResultsListener listener,
+                                                                    int address,
+                                                                    int tid,
+                                                                    int spn,
+                                                                    int fmi) {
+        return getJ1939().requestTestResults(tid, spn, fmi, address, listener);
     }
 
     public RequestResult<DM31DtcToLampAssociation> requestDM31(ResultsListener listener) {

@@ -15,32 +15,14 @@ import java.util.Objects;
 public class MonitoredSystem implements Comparable<MonitoredSystem> {
 
     private final CompositeSystem id;
-    private final String name;
     private final int sourceAddress;
     private final MonitoredSystemStatus status;
     private final boolean isDM5;
 
-    /**
-     * Creates a Monitored System
-     *
-     * @param name
-     *         the Name of the Monitored System
-     * @param status
-     *         the {@link MonitoredSystemStatus} of the Monitored System
-     * @param sourceAddress
-     *         the source address that reported this
-     * @param id
-     *         the unique id for this system. This allows
-     *         {@link MonitoredSystem} from various source addresses to be
-     * @param isDM5
-     *         indicates this is from a DM5 Packet
-     */
-    public MonitoredSystem(String name,
+    public MonitoredSystem(CompositeSystem id,
                            MonitoredSystemStatus status,
                            int sourceAddress,
-                           CompositeSystem id,
                            boolean isDM5) {
-        this.name = name;
         this.status = status;
         this.sourceAddress = sourceAddress;
         this.id = id;
@@ -59,23 +41,6 @@ public class MonitoredSystem implements Comparable<MonitoredSystem> {
         return result;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-
-        if (!(obj instanceof MonitoredSystem)) {
-            return false;
-        }
-
-        MonitoredSystem that = (MonitoredSystem) obj;
-        return Objects.equals(getName(), that.getName())
-                && Objects.equals(getStatus(), that.getStatus())
-                && Objects.equals(getSourceAddress(), that.getSourceAddress())
-                && Objects.equals(getId(), that.getId());
-    }
-
     /**
      * Returns the unique identification for the Monitored System. This allows
      * {@link MonitoredSystem} from various source addresses to be matched up
@@ -92,7 +57,7 @@ public class MonitoredSystem implements Comparable<MonitoredSystem> {
      * @return {@link String}
      */
     public String getName() {
-        return name;
+        return getId().getName();
     }
 
     /**
@@ -117,6 +82,22 @@ public class MonitoredSystem implements Comparable<MonitoredSystem> {
     @Override
     public int hashCode() {
         return Objects.hash(getName(), getStatus(), getSourceAddress(), getId());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof MonitoredSystem)) {
+            return false;
+        }
+
+        MonitoredSystem that = (MonitoredSystem) obj;
+        return Objects.equals(getStatus(), that.getStatus())
+                && Objects.equals(getSourceAddress(), that.getSourceAddress())
+                && Objects.equals(getId(), that.getId());
     }
 
     @Override

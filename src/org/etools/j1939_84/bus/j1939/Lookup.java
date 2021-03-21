@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.bus.j1939;
 
-import com.opencsv.CSVReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -12,10 +11,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.resources.Resources;
+
+import com.opencsv.CSVReader;
 
 /**
  * Class that converts the datalink values into descriptions for Source
@@ -67,26 +69,33 @@ public class Lookup {
     }
 
     /**
+     * Not used. Use as a static
+     */
+    private Lookup() {
+
+    }
+
+    /**
      * Helper method to find a value in the given map
      *
-     * @param map
-     *         the map that contains the values
-     * @param key
-     *         the key to find in the map
-     * @return the value from the map or "Unknown" if the key does not have a
-     * value in the map
+     * @param  map
+     *                 the map that contains the values
+     * @param  key
+     *                 the key to find in the map
+     * @return     the value from the map or "Unknown" if the key does not have a
+     *             value in the map
      */
     private static String find(Map<Integer, String> map, int key) {
-        final String name = map != null ? map.get(key) : null;
+        String name = map != null ? map.get(key) : null;
         return name != null ? name : "Unknown";
     }
 
     /**
      * Translates the given sourceAddress into a name as defined by SAE
      *
-     * @param sourceAddress
-     *         the sourceAddress of the module that sent the packet
-     * @return The name as defined by SAE or "Unknown" if it's not defined
+     * @param  sourceAddress
+     *                           the sourceAddress of the module that sent the packet
+     * @return               The name as defined by SAE or "Unknown" if it's not defined
      */
     public static String getAddressName(int sourceAddress) {
         return find(addresses, sourceAddress) + " (" + sourceAddress + ")";
@@ -95,10 +104,10 @@ public class Lookup {
     /**
      * Translates the given fmi into a description as defined by SAE
      *
-     * @param fmi
-     *         the failure mode indicator from the Diagnostic Trouble Code
-     * @return The description as defined by SAE or "Unknown" if it's not
-     * defined
+     * @param  fmi
+     *                 the failure mode indicator from the Diagnostic Trouble Code
+     * @return     The description as defined by SAE or "Unknown" if it's not
+     *             defined
      */
     public static String getFmiDescription(int fmi) {
         return find(fmis, fmi);
@@ -108,10 +117,10 @@ public class Lookup {
      * Translates the given manufacturerId into a manufacturer name as defined
      * by SAE
      *
-     * @param manufacturerId
-     *         the ID of the manufacturer
-     * @return the manufacturer as defined by SAE or "Unknown" if it's not
-     * defined
+     * @param  manufacturerId
+     *                            the ID of the manufacturer
+     * @return                the manufacturer as defined by SAE or "Unknown" if it's not
+     *                        defined
      */
     public static String getManufacturer(int manufacturerId) {
         return find(manufacturers, manufacturerId);
@@ -120,9 +129,9 @@ public class Lookup {
     /**
      * Returns the Name of the given Test Part
      *
-     * @param partNumber
-     *         the test part number
-     * @return the name of the Test Part or "Unknown" if not defined
+     * @param  partNumber
+     *                        the test part number
+     * @return            the name of the Test Part or "Unknown" if not defined
      */
     public static String getPartName(int partNumber) {
         return find(parts, partNumber);
@@ -131,12 +140,12 @@ public class Lookup {
     /**
      * Translates the given spn into a name as defined by SAE
      *
-     * @param spn
-     *         the suspect parameter number from the Diagnostic Trouble Code
-     * @return The name as defined by SAE or "Unknown" if it's not defined
+     * @param  spn
+     *                 the suspect parameter number from the Diagnostic Trouble Code
+     * @return     The name as defined by SAE or "Unknown" if it's not defined
      */
     public static String getSpnName(int spn) {
-        SpnDefinition spnDef = new J1939DaRepository().findSpnDefinition(spn);
+        SpnDefinition spnDef = J1939DaRepository.getInstance().findSpnDefinition(spn);
         return spnDef == null ? "Unknown" : spnDef.getLabel();
     }
 
@@ -172,16 +181,16 @@ public class Lookup {
      * the file is a Comma Separated Values file with the first column being an
      * integer (key) and the second column being the String (value)
      *
-     * @param fileName
-     *         the name of the file to read
-     * @return a Map of Integers to Strings
+     * @param  fileName
+     *                      the name of the file to read
+     * @return          a Map of Integers to Strings
      */
     private static Map<Integer, String> loadMap(String fileName) {
         Map<Integer, String> map = new HashMap<>();
         String[] values;
 
-        final InputStream is = Resources.class.getResourceAsStream(fileName);
-        final InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
+        InputStream is = Resources.class.getResourceAsStream(fileName);
+        InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
         try (CSVReader reader = new CSVReader(isReader)) {
             while ((values = reader.readNext()) != null) {
                 map.put(Integer.valueOf(values[0]), values[1]);
@@ -190,12 +199,5 @@ public class Lookup {
             J1939_84.getLogger().log(Level.SEVERE, "Error loading map from " + fileName, e);
         }
         return map;
-    }
-
-    /**
-     * Not used. Use as a static
-     */
-    private Lookup() {
-
     }
 }

@@ -5,6 +5,7 @@ package org.etools.j1939_84.bus.j1939;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -17,12 +18,7 @@ import org.etools.j1939_84.model.RequestResult;
  */
 public class BusResult<T extends ParsedPacket> {
 
-    public static <T extends ParsedPacket> BusResult<T> empty() {
-        return new BusResult<>(false);
-    }
-
     private final Optional<Either<T, AcknowledgmentPacket>> packet;
-
     private final boolean retryUsed;
 
     public BusResult(boolean retryUsed) {
@@ -31,9 +27,10 @@ public class BusResult<T extends ParsedPacket> {
 
     // FIXME ugly null parameter
     public BusResult(boolean retryUsed, AcknowledgmentPacket packet) {
-        this(retryUsed, packet == null
-                ? Optional.empty()
-                : Optional.of(new Either<>(null, packet)));
+        this(retryUsed,
+             packet == null
+                     ? Optional.empty()
+                     : Optional.of(new Either<>(null, packet)));
     }
 
     public BusResult(boolean retryUsed, Either<T, AcknowledgmentPacket> packet) {
@@ -43,9 +40,9 @@ public class BusResult<T extends ParsedPacket> {
     /**
      *
      * @param retryUsed
-     *            boolean representing retry has been used
+     *                      boolean representing retry has been used
      * @param packet
-     *            the packet on the bus
+     *                      the packet on the bus
      */
     public BusResult(boolean retryUsed, Optional<Either<T, AcknowledgmentPacket>> packet) {
         this.retryUsed = retryUsed;
@@ -54,9 +51,22 @@ public class BusResult<T extends ParsedPacket> {
 
     // FIXME ugly null parameter
     public BusResult(boolean retryUsed, T packet) {
-        this(retryUsed, packet == null
-                ? Optional.empty()
-                : Optional.of(new Either<>(packet, null)));
+        this(retryUsed,
+             packet == null
+                     ? Optional.empty()
+                     : Optional.of(new Either<>(packet, null)));
+    }
+
+    public static <T extends ParsedPacket> BusResult<T> empty() {
+        return new BusResult<>(false);
+    }
+
+    public static <T extends ParsedPacket> BusResult<T> of(T packet) {
+        return new BusResult<>(false, packet);
+    }
+
+    public static <T extends ParsedPacket> BusResult<T> of(AcknowledgmentPacket packet) {
+        return new BusResult<>(false, packet);
     }
 
     @Override
@@ -66,6 +76,11 @@ public class BusResult<T extends ParsedPacket> {
             return retryUsed == that.retryUsed && packet.equals(that.packet);
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return requestResult().toString();
     }
 
     /**
@@ -86,8 +101,7 @@ public class BusResult<T extends ParsedPacket> {
         return new RequestResult<>(isRetryUsed(), getPacket().stream().collect(Collectors.toList()));
     }
 
-    @Override
-    public String toString() {
-        return requestResult().toString();
+    public Stream<T> toPacketStream() {
+        return getPacket().stream().filter(e -> e.left.isPresent()).flatMap(e -> e.left.stream());
     }
 }

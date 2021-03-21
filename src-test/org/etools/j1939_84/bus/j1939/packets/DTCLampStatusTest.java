@@ -4,7 +4,9 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.*;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OTHER;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.SLOW_FLASH;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -53,7 +55,7 @@ public class DTCLampStatusTest {
                 0x73, // Lamp Status/Support
                 0x2E };// Lamp Status/State
         DTCLampStatus instance = new DTCLampStatus(data);
-        DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(609,19,1,1);
+        DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(609, 19, 1, 1);
         DTCLampStatus instance2 = DTCLampStatus.create(dtc, OFF, SLOW_FLASH, OTHER, OTHER);
         assertTrue(instance.equals(instance2));
         assertEquals(OFF, instance.getAmberWarningLampStatus());
@@ -71,7 +73,7 @@ public class DTCLampStatusTest {
                 0x00, // Lamp Status/Support
                 0xFF };// Lamp Status/State
         DTCLampStatus instance = new DTCLampStatus(data);
-        DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(609,19,1,1);
+        DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(609, 19, 1, 1);
         DTCLampStatus instance2 = DTCLampStatus.create(dtc, OFF, OFF, OFF, OFF);
         assertTrue(instance.equals(instance2));
         assertEquals(OFF, instance.getAmberWarningLampStatus());
@@ -98,7 +100,6 @@ public class DTCLampStatusTest {
         assertEquals(SLOW_FLASH, instance.getProtectLampStatus());
     }
 
-    @SuppressWarnings({ "EqualsBetweenInconvertibleTypes", "SimplifiableAssertion" })
     @Test
     public void testEquals() {
 
@@ -110,8 +111,11 @@ public class DTCLampStatusTest {
                 0x00, // Lamp Status/Support
                 0xFF });// Lamp Status/State
         DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(609, 19, 1, 1);
-        DTCLampStatus instance2 = DTCLampStatus.create(dtc, OFF, OFF,
-                                                       OFF, OFF);
+        DTCLampStatus instance2 = DTCLampStatus.create(dtc,
+                                                       OFF,
+                                                       OFF,
+                                                       OFF,
+                                                       OFF);
         DTCLampStatus instance3 = new DTCLampStatus(new int[] {
                 0x61, // SPN least significant bit
                 0x02, // SPN most significant bit
@@ -119,13 +123,19 @@ public class DTCLampStatusTest {
                 0x81, // SPN Conversion Occurrence Count
                 0xAA, // Lamp Status/Support
                 0x55 });// Lamp Status/State
-        DiagnosticTroubleCodePacket instance4 = new DiagnosticTroubleCodePacket(Packet.create(0, 0x00,
-                0x61, // SPN least significant bit
-                0x02, // SPN most significant bit
-                0x13, // Failure mode indicator
-                0x81, // SPN Conversion Occurrence Count
-                0xAA, // Lamp Status/Support
-                0x55));
+        DiagnosticTroubleCodePacket instance4 = new DiagnosticTroubleCodePacket(Packet.create(0,
+                                                                                              0x00,
+                                                                                              0x61, // SPN least
+                                                                                                    // significant bit
+                                                                                              0x02, // SPN most
+                                                                                                    // significant bit
+                                                                                              0x13, // Failure mode
+                                                                                                    // indicator
+                                                                                              0x81, // SPN Conversion
+                                                                                                    // Occurrence Count
+                                                                                              0xAA, // Lamp
+                                                                                                    // Status/Support
+                                                                                              0x55));
         assertEquals(true, instance.equals(instance2));
         assertEquals(false, instance.equals(instance3));
         // FIXME what is this supposed to be doing?
@@ -142,14 +152,14 @@ public class DTCLampStatusTest {
                 0xFF };// Lamp Status/State
         DTCLampStatus instance = new DTCLampStatus(data);
         DiagnosticTroubleCode expected = new DiagnosticTroubleCode(new int[] { 0x61, 0x02, 0x13, 0x81 });
-        assertEquals(expected, instance.getDtcs());
+        assertEquals(expected, instance.getDtc());
     }
 
     /**
      * Test method for
      * {@link org.etools.j1939_84.bus.j1939.packets.DTCLampStatus#hashCode()}.
      */
-    @SuppressWarnings("SimplifiableAssertion") @Test
+    @Test
     public void testHashCode() {
         DTCLampStatus instance = new DTCLampStatus(new int[] {
                 0x61, // SPN least significant bit

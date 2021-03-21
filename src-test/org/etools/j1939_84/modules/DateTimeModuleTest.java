@@ -28,12 +28,6 @@ public class DateTimeModuleTest {
     }
 
     @Test
-    public void testFormat() throws Exception {
-        LocalTime dateTime = LocalTime.parse("10:15:30.000");
-        assertEquals("10:15:30.0000", instance.format(dateTime));
-    }
-
-    @Test
     public void testGetDateTime() {
         DateTimeModule instance = new DateTimeModule() {
             @Override
@@ -99,16 +93,14 @@ public class DateTimeModuleTest {
     public void testPauseFor() {
         DateTimeModule instance = new DateTimeModule();
 
-        long pauseForMillis = 5L;
+        long pauseForMillis = 100;
 
         long before = System.currentTimeMillis();
         instance.pauseFor(pauseForMillis);
-
         long after = System.currentTimeMillis();
         long difference = after - before;
 
-        assertTrue("difference is: " + difference + " which is below the minimum", 5L <= difference);
-        assertTrue("difference is: " + difference + " which is above the maximum", difference <= 7L);
+        assertEquals("Difference too great.", pauseForMillis, difference, 10);
     }
 
 }

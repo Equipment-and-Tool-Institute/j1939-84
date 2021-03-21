@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
@@ -100,6 +101,40 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
     @Mock
     private DiagnosticMessageModule diagnosticMessageModule;
 
+    private static List<SupportedSPN> spns(int... ids) {
+        return Arrays.stream(ids).mapToObj(id -> {
+            SupportedSPN spn = mock(SupportedSPN.class);
+            when(spn.getSpn()).thenReturn(id);
+            return spn;
+        }).collect(Collectors.toList());
+    }
+
+    private static GenericPacket packet(int spnId, Boolean isNotAvailable) {
+        GenericPacket mock = mock(GenericPacket.class);
+
+        Spn spn = mock(Spn.class);
+        when(spn.getId()).thenReturn(spnId);
+        if (isNotAvailable != null) {
+            when(spn.isNotAvailable()).thenReturn(isNotAvailable);
+        }
+        when(mock.getSpns()).thenReturn(List.of(spn));
+
+        return mock;
+    }
+
+    private static PgnDefinition pgnDef(int... spns) {
+        PgnDefinition mock = mock(PgnDefinition.class);
+        List<SpnDefinition> spnDefs = Arrays.stream(spns)
+                                            .mapToObj(s -> {
+                                                SpnDefinition spn = mock(SpnDefinition.class);
+                                                when(spn.getSpnId()).thenReturn(s);
+                                                return spn;
+                                            })
+                                            .collect(Collectors.toList());
+        when(mock.getSpnDefinitions()).thenReturn(spnDefs);
+        return mock;
+    }
+
     @Before
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
@@ -116,11 +151,14 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                               j1939DaRepository,
                                               broadcastValidator,
                                               busService);
-        setup(instance, listener, j1939,
+        setup(instance,
+              listener,
+              j1939,
               executor,
               reportFileModule,
               engineSpeedModule,
-              vehicleInformationModule, diagnosticMessageModule);
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
@@ -171,7 +209,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packets.add(packet1);
         GenericPacket packet3 = packet(333, true);
         packets.add(packet3);
-        when(busService.readBus(12)).thenReturn(packets.stream());
+        when(busService.readBus(12, "6.1.26.1.a")).thenReturn(packets.stream());
 
         Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = new HashMap<>();
         packetMap.put(11111, Map.of(0, List.of(packet1)));
@@ -179,14 +217,17 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
 
         when(busService.collectNonOnRequestPGNs(supportedSpns))
-                .thenReturn(List.of(11111, 22222, 33333));
+                                                               .thenReturn(List.of(11111, 22222, 33333));
         when(busService.collectNonOnRequestPGNs(List.of(222))).thenReturn(List.of(22222));
 
         PgnDefinition pgnDef2 = pgnDef(222);
         when(j1939DaRepository.findPgnDefinition(22222)).thenReturn(pgnDef2);
 
         when(busService.getPGNsForDSRequest(List.of(222, 333), supportedSpns))
-                .thenReturn(List.of(22222, 44444, 55555, 66666));
+                                                                              .thenReturn(List.of(22222,
+                                                                                                  44444,
+                                                                                                  55555,
+                                                                                                  66666));
         when(busService.dsRequest(eq(22222), eq(0), any())).thenReturn(Stream.empty());
 
         GenericPacket packet4 = packet(444, false);
@@ -222,13 +263,13 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         verify(dataRepository, atLeastOnce()).getObdModules();
         verify(j1939DaRepository, atLeastOnce()).findPgnDefinition(22222);
 
-        //        verify(tableA1Validator).report(eq(supportedSpns),
-        //                                                   any(ResultsListener.class),
-        //                                                   eq(DSL),
-        //                                                   eq(1),
-        //                                                   eq(26));
+        // verify(tableA1Validator).report(eq(supportedSpns),
+        // any(ResultsListener.class),
+        // eq(DSL),
+        // eq(1),
+        // eq(26));
         verify(broadcastValidator).getMaximumBroadcastPeriod();
-        verify(busService).readBus(12);
+        verify(busService).readBus(12, "6.1.26.1.a");
         verify(broadcastValidator).buildPGNPacketsMap(packets);
         verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
                                                          any(),
@@ -267,17 +308,12 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
         verify(tableA1Validator).reportNonObdModuleProvidedSPNs(any(),
                                                                 any(ResultsListener.class),
-                                                                eq(1),
-                                                                eq(26),
                                                                 any());
         verify(tableA1Validator).reportImplausibleSPNValues(any(),
                                                             any(ResultsListener.class),
                                                             eq(false),
-                                                            eq(DSL),
-                                                            eq(1),
-                                                            eq(26),
                                                             any());
-        verify(tableA1Validator).reportDuplicateSPNs(any(), any(ResultsListener.class), eq(1), eq(26), any());
+        verify(tableA1Validator).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
 
         String expected = "";
         expected += "FAIL: SPN 222 was not broadcast by Engine #1 (0)" + NL;
@@ -300,8 +336,6 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         expectedMsg += "Global Request for PGN 66666" + NL;
         expectedMsg += "End Part 1 Step 26";
         assertEquals(expectedMsg, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
     }
 
     @Ignore("Fix once Step 26 is accepted")
@@ -329,7 +363,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         List<GenericPacket> packets = new ArrayList<>();
         GenericPacket packet1 = packet(111, false);
         packets.add(packet1);
-        when(busService.readBus(12)).thenReturn(packets.stream());
+        when(busService.readBus(12, "6.1.26.1.a")).thenReturn(packets.stream());
 
         Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = new HashMap<>();
         packetMap.put(11111, Map.of(0, List.of(packet1)));
@@ -349,7 +383,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         verify(dataRepository, atLeastOnce()).getObdModules();
 
         verify(broadcastValidator).getMaximumBroadcastPeriod();
-        verify(busService).readBus(12);
+        verify(busService).readBus(12, "6.1.2.3.a");
         verify(broadcastValidator).buildPGNPacketsMap(packets);
         verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
                                                          any(),
@@ -365,17 +399,12 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
         verify(tableA1Validator).reportNonObdModuleProvidedSPNs(any(),
                                                                 any(ResultsListener.class),
-                                                                eq(1),
-                                                                eq(26),
                                                                 any());
         verify(tableA1Validator).reportImplausibleSPNValues(any(),
                                                             any(ResultsListener.class),
                                                             eq(false),
-                                                            eq(DSL),
-                                                            eq(1),
-                                                            eq(26),
                                                             any());
-        verify(tableA1Validator).reportDuplicateSPNs(any(), any(ResultsListener.class), eq(1), eq(26), any());
+        verify(tableA1Validator).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
 
         String expected = "";
         assertEquals(expected, listener.getResults());
@@ -385,8 +414,6 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         expectedMsg += "DS Request for 44444 to Engine #1 (0)" + NL;
         expectedMsg += "End Part 1 Step 26";
         assertEquals(expectedMsg, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
@@ -407,38 +434,5 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
     @Test
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 0, instance.getTotalSteps());
-    }
-
-    private static List<SupportedSPN> spns(int... ids) {
-        return Arrays.stream(ids).mapToObj(id -> {
-            SupportedSPN spn = mock(SupportedSPN.class);
-            when(spn.getSpn()).thenReturn(id);
-            return spn;
-        }).collect(Collectors.toList());
-    }
-
-    private static GenericPacket packet(int spnId, Boolean isNotAvailable) {
-        GenericPacket mock = mock(GenericPacket.class);
-
-        Spn spn = mock(Spn.class);
-        when(spn.getId()).thenReturn(spnId);
-        if (isNotAvailable != null) {
-            when(spn.isNotAvailable()).thenReturn(isNotAvailable);
-        }
-        when(mock.getSpns()).thenReturn(List.of(spn));
-
-        return mock;
-    }
-
-    private static PgnDefinition pgnDef(int... spns) {
-        PgnDefinition mock = mock(PgnDefinition.class);
-        List<SpnDefinition> spnDefs = Arrays.stream(spns)
-                .mapToObj(s -> {
-                    SpnDefinition spn = mock(SpnDefinition.class);
-                    when(spn.getSpnId()).thenReturn(s);
-                    return spn;
-                }).collect(Collectors.toList());
-        when(mock.getSpnDefinitions()).thenReturn(spnDefs);
-        return mock;
     }
 }

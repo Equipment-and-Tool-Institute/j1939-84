@@ -6,22 +6,24 @@ package org.etools.j1939_84.controllers.part01;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
+/**
+ * 6.1.6 DM56: Model year and certification engine family
+ */
 public class Part01Step06Controller extends StepController {
 
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 6;
     private static final int TOTAL_STEPS = 0;
-
-    private final DataRepository dataRepository;
 
     Part01Step06Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
@@ -41,38 +43,30 @@ public class Part01Step06Controller extends StepController {
                            DateTimeModule dateTimeModule,
                            DiagnosticMessageModule diagnosticMessageModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
 
-        // DM56: Model year and certification engine family
+        // 6.1.6.1.a. Global DM56 (send Request (PGN 59904) for PGN 64711 (SPNs 5844 and 5845)).
         List<DM56EngineFamilyPacket> packets = getDiagnosticMessageModule().requestDM56(getListener());
         if (packets.isEmpty()) {
-            getListener().onResult("DM56 is not supported");
+            getListener().onResult("6.1.6.1.a - DM56 is not supported");
             return;
         }
 
-        for (DM56EngineFamilyPacket packet : packets) {
-            int sourceAddress = packet.getSourceAddress();
-            var obdModuleInfo = dataRepository.getObdModule(sourceAddress);
-            if (obdModuleInfo != null) {
-                obdModuleInfo.setModelYear(packet.getModelYearField());
-                obdModuleInfo.setEngineFamilyName(packet.getFamilyName());
-                dataRepository.putObdModule(obdModuleInfo);
-            }
-        }
+        packets.forEach(this::save);
 
-        int engineModelYear = dataRepository.getVehicleInformation().getEngineModelYear();
+        int engineModelYear = getDataRepository().getVehicleInformation().getEngineModelYear();
         for (DM56EngineFamilyPacket packet : packets) {
             if (packet.getEngineModelYear() != engineModelYear) {
                 addFailure("6.1.6.2.a - Engine model year does not match user input");
@@ -114,7 +108,7 @@ public class Part01Step06Controller extends StepController {
             if ((-1 < asteriskIndex && asteriskIndex <= 12)
                     || (char13 != Character.MIN_VALUE && char13 != '*' && familyName.contains("*"))) {
                 addFailure(
-                        "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
+                           "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
                 break;
             } else if (familyName.length() < 13 || !familyName.contains("*") && char13 != Character.MIN_VALUE) {
                 addFailure("6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");

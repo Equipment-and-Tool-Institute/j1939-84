@@ -13,7 +13,11 @@ import org.etools.j1939_84.bus.Packet;
  */
 public class DM28PermanentEmissionDTCPacket extends DiagnosticTroubleCodePacket {
 
-    public static final int PGN = 64896; //0xFD80
+    public static final int PGN = 64896; // 0xFD80
+
+    public DM28PermanentEmissionDTCPacket(Packet packet) {
+        super(packet);
+    }
 
     public static DM28PermanentEmissionDTCPacket create(int address,
                                                         LampStatus mil,
@@ -22,10 +26,6 @@ public class DM28PermanentEmissionDTCPacket extends DiagnosticTroubleCodePacket 
                                                         LampStatus protect,
                                                         DiagnosticTroubleCode... dtcs) {
         return new DM28PermanentEmissionDTCPacket(create(address, PGN, mil, stop, amber, protect, dtcs));
-    }
-
-    public DM28PermanentEmissionDTCPacket(Packet packet) {
-        super(packet);
     }
 
     @Override

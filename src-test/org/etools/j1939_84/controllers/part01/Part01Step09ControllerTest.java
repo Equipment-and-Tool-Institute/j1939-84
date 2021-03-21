@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
@@ -26,6 +27,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -81,6 +83,9 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
+    private DiagnosticMessageModule diagnosticMessageModule;
+
+    @Mock
     private EngineSpeedModule engineSpeedModule;
 
     @Mock
@@ -108,14 +113,8 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                                                    String model,
                                                                    String serialNumber,
                                                                    String unitNumber) {
-        OBDModuleInformation module = new OBDModuleInformation(sourceAddress);
-        module.setFunction(function);
-        ComponentIdentificationPacket componentIdentificationPacket = create(sourceAddress,
-                                                                             make,
-                                                                             model,
-                                                                             serialNumber,
-                                                                             unitNumber);
-        module.setComponentIdentification(componentIdentificationPacket.getComponentIdentification());
+        OBDModuleInformation module = new OBDModuleInformation(sourceAddress, function);
+        module.set(create(sourceAddress, make, model, serialNumber, unitNumber), 1);
         return module;
     }
 
@@ -126,14 +125,22 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository = DataRepository.newInstance();
 
         instance = new Part01Step09Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dataRepository,
-                DateTimeModule.getInstance());
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              dataRepository,
+                                              DateTimeModule.getInstance(),
+                                              diagnosticMessageModule);
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
@@ -177,11 +184,12 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet));
+        when(vehicleInformationModule.requestComponentIdentification(any()))
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
-                .thenReturn(new BusResult<>(false));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x00)))
+                                                                                     .thenReturn(new BusResult<>(false));
 
         runTest();
 
@@ -189,18 +197,12 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_B);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any());
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0x00));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0x00));
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        String expectedResults = "FAIL: " + EXPECTED_FAIL_MESSAGE_2_A + NL +
-                "Function 0 module is Engine #1 (0)" + NL +
-                "FAIL: " + EXPECTED_FAIL_MESSAGE_2_B + NL +
-                "FAIL: " + EXPECTED_FAIL_MESSAGE_5_B + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -222,29 +224,27 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule0);
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet0));
+        when(vehicleInformationModule.requestComponentIdentification(any()))
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet0));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
-                .thenReturn(new BusResult<>(false, packet0));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, packet1));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x00)))
+                                                                                     .thenReturn(new BusResult<>(false,
+                                                                                                                 packet0));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x01)))
+                                                                                     .thenReturn(new BusResult<>(false,
+                                                                                                                 packet1));
         runTest();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_6_A);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any());
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0x00));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0x01));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0x00));
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0x01));
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        String expectedResults = "" +
-                "Function 0 module is Engine #1 (0)" + NL +
-                "FAIL: " + EXPECTED_FAIL_MESSAGE_6_A + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -267,27 +267,25 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule0x00);
 
         // Global request response
-        when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet2));
+        when(vehicleInformationModule.requestComponentIdentification(any()))
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet2));
 
         // Destination specific responses
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet1));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet1));
 
         runTest();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        String expectedResults = "" +
-                "Function 0 module is Engine #1 (0)" + NL +
-                "FAIL: " + EXPECTED_FAIL_MESSAGE_5_B + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -313,41 +311,59 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                                           "WW109877654",
                                                           "Lasso");
 
-        OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
-        obdModule0.setFunction(0);
+        OBDModuleInformation obdModule0 = new OBDModuleInformation(0, 0);
         dataRepository.putObdModule(obdModule0);
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(2));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet0x00, packet0x01, packet0x02, packet0x03));
+        when(vehicleInformationModule.requestComponentIdentification(any()))
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet0x00,
+                                                                                                           packet0x01,
+                                                                                                           packet0x02,
+                                                                                                           packet0x03));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
-                .thenReturn(new BusResult<>(false, packet0x00));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, packet0x01));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x02)))
-                .thenReturn(new BusResult<>(false, packet0x02));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x03)))
-                .thenReturn(new BusResult<>(false, packet0x03));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x00)))
+                                                                                     .thenReturn(new BusResult<>(false,
+                                                                                                                 packet0x00));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x01)))
+                                                                                     .thenReturn(new BusResult<>(false,
+                                                                                                                 packet0x01));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x02)))
+                                                                                     .thenReturn(new BusResult<>(false,
+                                                                                                                 packet0x02));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x03)))
+                                                                                     .thenReturn(new BusResult<>(false,
+                                                                                                                 packet0x03));
 
         runTest();
-assertEquals(packet0x00.getComponentIdentification(), dataRepository.getObdModule(0).getComponentIdentification());
-        assertEquals(packet0x01.getComponentIdentification(), dataRepository.getObdModule(1).getComponentIdentification());
-        assertEquals(packet0x02.getComponentIdentification(), dataRepository.getObdModule(2).getComponentIdentification());
-        assertEquals(packet0x03.getComponentIdentification(), dataRepository.getObdModule(3).getComponentIdentification());
+        assertEquals(packet0x00.getComponentIdentification(),
+                     dataRepository.getObdModule(0)
+                                   .get(ComponentIdentificationPacket.class, 1)
+                                   .getComponentIdentification());
+        assertEquals(packet0x01.getComponentIdentification(),
+                     dataRepository.getObdModule(1)
+                                   .get(ComponentIdentificationPacket.class, 1)
+                                   .getComponentIdentification());
+        assertEquals(packet0x02.getComponentIdentification(),
+                     dataRepository.getObdModule(2)
+                                   .get(ComponentIdentificationPacket.class, 1)
+                                   .getComponentIdentification());
+        assertEquals(packet0x03.getComponentIdentification(),
+                     dataRepository.getObdModule(3)
+                                   .get(ComponentIdentificationPacket.class, 1)
+                                   .getComponentIdentification());
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(1));
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(2));
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(3));
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -368,26 +384,25 @@ assertEquals(packet0x00.getComponentIdentification(), dataRepository.getObdModul
 
         dataRepository.putObdModule(obdModule0x00);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(packet),
-                                                List.of()));
+        when(vehicleInformationModule.requestComponentIdentification(any()))
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           List.of(packet),
+                                                                                                           List.of()));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet));
 
         runTest();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D_MAKE);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL + "FAIL: " + EXPECTED_FAIL_MESSAGE_2_D_MAKE + NL,
-                     listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -408,25 +423,24 @@ assertEquals(packet0x00.getComponentIdentification(), dataRepository.getObdModul
 
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet));
+        when(vehicleInformationModule.requestComponentIdentification(any()))
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet));
 
         runTest();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL + "WARN: " + EXPECTED_WARN_MESSAGE_3_B + NL,
-                     listener.getResults());
-
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -446,24 +460,24 @@ assertEquals(packet0x00.getComponentIdentification(), dataRepository.getObdModul
 
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet));
+        when(vehicleInformationModule.requestComponentIdentification(any()))
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet));
 
         runTest();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL + "WARN: " + EXPECTED_WARN_MESSAGE_3_B + NL,
-                     listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -483,32 +497,30 @@ assertEquals(packet0x00.getComponentIdentification(), dataRepository.getObdModul
 
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet));
+        when(vehicleInformationModule.requestComponentIdentification(any()))
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet));
 
         runTest();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_C);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        assertEquals("Function 0 module is Engine #1 (0)" + NL + "WARN: " + EXPECTED_WARN_MESSAGE_3_C + NL,
-                     listener.getResults());
-
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
     public void testModelContainsNonPrintableAsciiCharacterFailure() {
-        //char unprintableAsciiNull = 0x0;
-        char unprintableAsciiCarriageReturn = 0xD;//0xD;
+        // char unprintableAsciiNull = 0x0;
+        char unprintableAsciiCarriageReturn = 0xD;// 0xD;
         String model = unprintableAsciiCarriageReturn + "TheBatCave";
         ComponentIdentificationPacket packet = create(0x00,
                                                       "Bat",
@@ -525,23 +537,23 @@ assertEquals(packet0x00.getComponentIdentification(), dataRepository.getObdModul
 
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.requestComponentIdentification(any()))
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet));
 
         runTest();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D_MODEL);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL + "FAIL: " + EXPECTED_FAIL_MESSAGE_2_D_MODEL + NL,
-                     listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -561,25 +573,24 @@ assertEquals(packet0x00.getComponentIdentification(), dataRepository.getObdModul
 
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet));
+        when(vehicleInformationModule.requestComponentIdentification(any()))
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet));
 
         runTest();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_D);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL + "WARN: " + EXPECTED_WARN_MESSAGE_3_D + NL,
-                     listener.getResults());
-
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -598,25 +609,23 @@ assertEquals(packet0x00.getComponentIdentification(), dataRepository.getObdModul
                                                                     "Land");
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false));
+        when(vehicleInformationModule.requestComponentIdentification(any()))
+                                                                           .thenReturn(new RequestResult<>(false));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet));
 
         runTest();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        String expectedResults = "Function 0 module is Engine #1 (0)" + NL + "FAIL: " + EXPECTED_FAIL_MESSAGE_5_A + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -680,33 +689,39 @@ assertEquals(packet0x00.getComponentIdentification(), dataRepository.getObdModul
         dataRepository.putObdModule(obdModule0x02);
         dataRepository.putObdModule(obdModule0x03);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet0x00, packet0x01, packet0x02, packet0x03));
+        when(vehicleInformationModule.requestComponentIdentification(any()))
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet0x00,
+                                                                                                           packet0x01,
+                                                                                                           packet0x02,
+                                                                                                           packet0x03));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet0x00));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(new BusResult<>(false, packet0x01));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
-                .thenReturn(new BusResult<>(false, packet0x02));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
-                .thenReturn(new BusResult<>(false, packet0x03));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet0x00));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(1)))
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet0x01));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(2)))
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet0x02));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(3)))
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet0x03));
 
         runTest();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D_SN);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(1));
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(2));
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(3));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL + "FAIL: " + EXPECTED_FAIL_MESSAGE_2_D_SN + NL,
-                     listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -726,25 +741,24 @@ assertEquals(packet0x00.getComponentIdentification(), dataRepository.getObdModul
 
         dataRepository.putObdModule(obdModule0x00);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet));
+        when(vehicleInformationModule.requestComponentIdentification(any()))
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
-                .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x00)))
+                                                                                     .thenReturn(new BusResult<>(false,
+                                                                                                                 packet));
 
         runTest();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0x00));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0x00));
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        assertEquals("Function 0 module is Engine #1 (0)" + NL + "WARN: " + EXPECTED_WARN_MESSAGE_3_A + NL,
-                     listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -764,23 +778,23 @@ assertEquals(packet0x00.getComponentIdentification(), dataRepository.getObdModul
 
         dataRepository.putObdModule(obdModule0x00);
 
-        when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet));
+        when(vehicleInformationModule.requestComponentIdentification(any()))
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet));
 
         runTest();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_C);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).requestComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL + "FAIL: " + EXPECTED_FAIL_MESSAGE_2_C + NL,
-                     listener.getResults());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 }

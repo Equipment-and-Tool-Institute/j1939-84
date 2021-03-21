@@ -4,7 +4,6 @@
 
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime.create;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
@@ -15,7 +14,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.EngineHoursTimer;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -129,10 +130,13 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testNoResponsesSIEngine() {
+    public void testHappyPathNoFailures() {
+        var globalPacket = create(0, 0, EngineHoursTimer.create(1, 4, 10));
+        var dsPacket = create(0, 0, EngineHoursTimer.create(1, 4, 10));
 
-        when(diagnosticMessageModule.requestDM33(any())).thenReturn(new RequestResult<>(false));
-        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.of(globalPacket));
+
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(dsPacket));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
@@ -145,26 +149,43 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM33(any());
 
-        String expected = "";
-        expected += "FAIL: 6.2.15.2.a - No ECU responded to the global request" + NL;
-        expected += "FAIL: 6.2.15.5.b - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(mockListener).addOutcome(PART, STEP, FAIL, "6.2.15.2.a - No ECU responded to the global request");
-        verify(mockListener).addOutcome(PART,
-                                        STEP,
-                                        FAIL,
-                                        "6.2.15.5.b - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
+        assertEquals(List.of(), listener.getOutcomes());
     }
 
     @Test
     public void testNoResponsesCIEngine() {
 
-        when(diagnosticMessageModule.requestDM33(any())).thenReturn(new RequestResult<>(false));
-        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.empty());
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.empty());
+
+        var vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2020);
+        vehInfo.setFuelType(FuelType.DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
+        verify(diagnosticMessageModule).requestDM33(any());
+
+        assertEquals("", listener.getResults());
+        assertEquals("", listener.getMessages());
+
+        verify(mockListener).addOutcome(PART, STEP, FAIL, "6.2.15.2.a - No ECU responded to the global request");
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.2.15.5.b - OBD ECU Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
+    }
+
+    @Test
+    public void testNoResponsesSIEngine() {
+
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.empty());
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.empty());
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
@@ -174,29 +195,46 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM33(any());
 
-        String expected = "";
-        expected += "FAIL: 6.2.15.5.b - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
+    }
 
+    @Test
+    public void testNoResponsesSIEnginePost2024() {
+
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.empty());
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.empty());
+
+        var vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2024);
+        vehInfo.setFuelType(FuelType.GAS);
+        dataRepository.setVehicleInformation(vehInfo);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
+        verify(diagnosticMessageModule).requestDM33(any());
+
+        assertEquals("", listener.getResults());
+        assertEquals("", listener.getMessages());
+
+        verify(mockListener).addOutcome(PART, STEP, FAIL, "6.2.15.2.a - No ECU responded to the global request");
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
-                                        "6.2.15.5.b - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.2.15.5.b - OBD ECU Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
 
     }
 
     @Test
     public void testNoResponsesCIEngine2024() {
 
-        when(diagnosticMessageModule.requestDM33(any())).thenReturn(new RequestResult<>(false));
-        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.empty());
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.empty());
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2024);
@@ -206,32 +244,26 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM33(any());
 
-        String expected = "";
-        expected += "FAIL: 6.2.15.2.a - No ECU responded to the global request" + NL;
-        expected += "FAIL: 6.2.15.5.b - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART, STEP, FAIL, "6.2.15.2.a - No ECU responded to the global request");
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
-                                        "6.2.15.5.b - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.2.15.5.b - OBD ECU Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
     }
 
     @Test
     public void testFailNoGlobalResponse() {
-        var packet = create(0, EngineHoursTimer.create(0, 0, 0));
+        var packet = create(0, 0, EngineHoursTimer.create(0, 0, 0));
 
-        when(diagnosticMessageModule.requestDM33(any())).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.empty());
 
-        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false, packet));
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(packet));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
@@ -241,18 +273,11 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM33(any());
 
-        String expected = "";
-        expected += "FAIL: 6.2.15.2.a - No ECU responded to the global request" + NL;
-        expected += "FAIL: 6.2.15.5.a - Engine #1 (0) did not return timer 0 in both responses" + NL;
-        expected += "FAIL: 6.2.15.5.b - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART, STEP, FAIL, "6.2.15.2.a - No ECU responded to the global request");
         verify(mockListener).addOutcome(PART,
@@ -262,17 +287,17 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
-                                        "6.2.15.5.b - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.2.15.5.b - OBD ECU Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
 
     }
 
     @Test
     public void testWarnValueOfFB() {
-        var packet = create(0, EngineHoursTimer.create(0xFB, 0, 0));
+        var packet = create(0, 0, EngineHoursTimer.create(0xFB, 0, 0));
 
-        when(diagnosticMessageModule.requestDM33(any())).thenReturn(new RequestResult<>(false, packet));
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.of(packet));
 
-        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false, packet));
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(packet));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
@@ -282,16 +307,11 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM33(any());
 
-        String expected = "";
-        expected += "WARN: 6.2.15.3.a - Engine #1 (0) responded 0xFB for EI-AECD number" + NL;
-
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART,
                                         STEP,
@@ -301,12 +321,12 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailTimerValues() {
-        var globalPacket = create(0, EngineHoursTimer.create(1, 4, 10));
-        var dsPacket = create(0, EngineHoursTimer.create(1, 7, 13));
+        var globalPacket = create(0, 0, EngineHoursTimer.create(1, 4, 10));
+        var dsPacket = create(0, 0, EngineHoursTimer.create(1, 7, 13));
 
-        when(diagnosticMessageModule.requestDM33(any())).thenReturn(new RequestResult<>(false, globalPacket));
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.of(globalPacket));
 
-        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(dsPacket));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
@@ -316,17 +336,11 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM33(any());
 
-        String expected = "";
-        expected += "FAIL: 6.2.15.5.a - Engine #1 (0) reported EiAECD Timer 1 from timer 1 with a difference of 3 which is greater than 2 minutes" + NL;
-        expected += "FAIL: 6.2.15.5.a - Engine #1 (0) reported EiAECD Timer 2 from timer 1 with a difference of 3 which is greater than 2 minutes" + NL;
-
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART,
                                         STEP,

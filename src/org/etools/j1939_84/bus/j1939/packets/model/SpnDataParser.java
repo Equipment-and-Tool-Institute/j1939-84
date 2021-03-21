@@ -10,6 +10,9 @@ public class SpnDataParser {
     public byte[] parse(byte[] data, SpnDefinition definition, int bitLength) {
         int startByte = definition.getStartByte() - 1;
         int startBit = definition.getStartBit();
+        if (startByte < 0 || startBit < 0) {
+            return new byte[0];
+        }
 
         int byteLength;
         if (bitLength == -1) {

@@ -3,22 +3,19 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
@@ -46,6 +43,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * The unit test for {@link Part01Step03Controller}
  *
@@ -58,7 +57,6 @@ public class Part01Step03ControllerTest {
     @Mock
     private BannerModule bannerModule;
 
-    @Mock
     private DataRepository dataRepository;
 
     @Mock
@@ -90,40 +88,35 @@ public class Part01Step03ControllerTest {
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
+        dataRepository = DataRepository.newInstance();
 
-        instance = new Part01Step03Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                diagnosticMessageModule,
-                dataRepository,
-                DateTimeModule.getInstance());
+        instance = new Part01Step03Controller(executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              diagnosticMessageModule,
+                                              dataRepository,
+                                              DateTimeModule.getInstance());
     }
 
     @After
     public void tearDown() throws Exception {
-
         verifyNoMoreInteractions(executor,
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
                                  diagnosticMessageModule,
-                                 dataRepository,
                                  mockListener);
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     @TestDoc(value = {
             @TestItem(verifies = "6.1.3.2.b"),
-            @TestItem(verifies = "6.1.3.3.a") },
-            description = "Verify there are fail messages for: <ul><li>Not all responses are identical.</li>"
+            @TestItem(verifies = "6.1.3.3.a") }, description = "Verify there are fail messages for: <ul><li>Not all responses are identical.</li>"
                     +
-                    "<li>The request for DM5 was NACK'ed</li></ul>",
-            dependsOn = {
-                    "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" })
+                    "<li>The request for DM5 was NACK'ed</li></ul>", dependsOn = {
+                            "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" })
     public void testBadECUValue() {
         List<DM5DiagnosticReadinessPacket> packets = new ArrayList<>();
         List<AcknowledgmentPacket> acks = new ArrayList<>();
@@ -153,59 +146,30 @@ public class Part01Step03ControllerTest {
         when(packet5.getOBDCompliance()).thenReturn((byte) 5);
         packets.add(packet5);
 
-        Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
+        OBDModuleInformation obdInfo1 = new OBDModuleInformation(0, -1);
+        dataRepository.putObdModule(obdInfo1);
 
-        OBDModuleInformation obdInfo1 = new OBDModuleInformation(0);
-        obdInfo1.setObdCompliance((byte) 4);
-        obdInfo1.setFunction(-1);
-        obdInfoList.add(obdInfo1);
-
-        OBDModuleInformation obdInfo2 = new OBDModuleInformation(17);
-        obdInfo2.setObdCompliance((byte) 5);
-        obdInfo2.setFunction(-1);
-        obdInfoList.add(obdInfo2);
-
-        when(dataRepository.getObdModules()).thenReturn(obdInfoList);
+        OBDModuleInformation obdInfo2 = new OBDModuleInformation(17, -1);
+        dataRepository.putObdModule(obdInfo2);
 
         VehicleInformation vehicleInformation = new VehicleInformation();
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         instance.execute(listener, j1939, reportFileModule);
         ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
         verify(executor).execute(runnableCaptor.capture());
         runnableCaptor.getValue().run();
 
-        verify(dataRepository, times(2)).getVehicleInformation();
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(engineSpeedModule).setJ1939(j1939);
         verify(vehicleInformationModule).setJ1939(j1939);
-        verify(dataRepository).getObdModules();
         verify(diagnosticMessageModule).requestDM5(any());
-        verify(dataRepository).putObdModule(obdInfo1);
-        verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-        verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-        verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
 
-        verify(dataRepository).putObdModule(obdInfo2);
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-
         verify(mockListener).addOutcome(1,
                                         3,
                                         WARN,
                                         "6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
-
-        String expectedObd = "OBD Module Information: " + NL;
-        expectedObd += "sourceAddress is : 0" + NL;
-        expectedObd += "obdCompliance is : 4" + NL;
-        expectedObd += "function is : -1" + NL;
-        expectedObd += "ignition cycles is : 0" + NL;
-        expectedObd += "engine family name is : " + NL;
-        expectedObd += "model year is : " + NL;
-        expectedObd += "Scaled Test Results: []" + NL;
-        expectedObd += "Performance Ratios: []" + NL;
-        expectedObd += "Monitored Systems: []" + NL;
-        expectedObd += "Supported SPNs: " + NL;
-        assertEquals(expectedObd, obdInfo1.toString());
     }
 
     @Test
@@ -221,10 +185,8 @@ public class Part01Step03ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
-    @TestDoc(value = @TestItem(verifies = "6.1.3.2.a"),
-            description = "There needs to be at least one OBD Module.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
+    @TestDoc(value = @TestItem(verifies = "6.1.3.2.a"), description = "There needs to be at least one OBD ECU.")
     public void testModulesEmpty() {
         var packets = new ArrayList<DM5DiagnosticReadinessPacket>();
         List<AcknowledgmentPacket> acks = new ArrayList<>();
@@ -236,39 +198,25 @@ public class Part01Step03ControllerTest {
         when(packet2.getResponse()).thenReturn(Response.DENIED);
         acks.add(packet2);
 
-        Collection<OBDModuleInformation> obdInfoList = List.of();
-        when(dataRepository.getObdModules()).thenReturn(obdInfoList);
-        when(diagnosticMessageModule.requestDM5(any()))
-                .thenReturn(requestResult);
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(requestResult);
 
         instance.execute(listener, j1939, reportFileModule);
         ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
         verify(executor).execute(runnableCaptor.capture());
         runnableCaptor.getValue().run();
 
-        verify(dataRepository).getObdModules();
-
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM5(any());
 
         verify(engineSpeedModule).setJ1939(j1939);
 
-        verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.a - There needs to be at least one OBD Module");
-
-        verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.a - There needs to be at least one OBD Module");
-        verify(reportFileModule).onResult("FAIL: 6.1.3.2.a - There needs to be at least one OBD Module");
-        verify(reportFileModule).addOutcome(1,
-                                            3,
-                                            FAIL,
-                                            "6.1.3.2.a - There needs to be at least one OBD Module");
+        verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.a - No ECU reported as an OBD ECU");
 
         verify(vehicleInformationModule).setJ1939(j1939);
-
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     @TestDoc(value = @TestItem(verifies = "6.1.3.2.b"), description = "The request for DM5 was NACK'ed")
     public void testRun() {
         List<DM5DiagnosticReadinessPacket> packets = new ArrayList<>();
@@ -288,28 +236,23 @@ public class Part01Step03ControllerTest {
 
         DM5DiagnosticReadinessPacket packet4 = mock(DM5DiagnosticReadinessPacket.class);
 
-        OBDModuleInformation obdInfo = new OBDModuleInformation(0);
-        obdInfo.setFunction(0);
-        obdInfo.setObdCompliance((byte) 4);
+        OBDModuleInformation obdInfo = new OBDModuleInformation(0, 0);
+        dataRepository.putObdModule(obdInfo);
 
-        Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
-        obdInfoList.add(obdInfo);
-
-        when(dataRepository.getObdModules()).thenReturn(obdInfoList);
         when(packet4.isObd()).thenReturn(true);
         when(packet4.getSourceAddress()).thenReturn(0);
         when(packet4.getOBDCompliance()).thenReturn((byte) 4);
         packets.add(packet4);
-        when(diagnosticMessageModule.requestDM5(any()))
-                .thenReturn(requestResult);
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(requestResult);
 
-        VehicleInformation vehicleInformation = new VehicleInformation();
         AddressClaimPacket addressClaimPacket = mock(AddressClaimPacket.class);
         when(addressClaimPacket.getSourceAddress()).thenReturn(0);
         when(addressClaimPacket.getFunctionId()).thenReturn(0);
         RequestResult<AddressClaimPacket> addressClaimResults = new RequestResult<>(false, addressClaimPacket);
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setAddressClaim(addressClaimResults);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         instance.execute(listener, j1939, reportFileModule);
 
@@ -317,19 +260,12 @@ public class Part01Step03ControllerTest {
         verify(executor).execute(runnableCaptor.capture());
         runnableCaptor.getValue().run();
 
-        verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(obdInfo);
-
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM5(any());
 
         verify(engineSpeedModule).setJ1939(j1939);
 
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-
-        verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-        verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
 
         verify(vehicleInformationModule).setJ1939(j1939);
     }

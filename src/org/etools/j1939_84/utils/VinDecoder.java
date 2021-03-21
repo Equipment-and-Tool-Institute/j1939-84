@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019. Equipment & Tool Institute
  */
 package org.etools.j1939_84.utils;
@@ -8,23 +8,19 @@ import java.util.Map;
 
 /**
  * Utility Class used to validate and decode information from the VIN
+ * Here's the source: https://www.govinfo.gov/content/pkg/CFR-2011-title49-vol6/pdf/CFR-2011-title49-vol6-part565.pdf
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
 public class VinDecoder {
 
+    public static final int MAX_MODEL_YEAR = 2039;
+    public static final int MIN_MODEL_YEAR = 2010;
+    public static final int VIN_LENGTH = 17; // characters
     private static final int[] LETTER_VALUE = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7,
             8, 0, 1, 2, 3, 4, 5, 0, 7, 0, 9, 2, 3, 4, 5, 6, 7, 8, 9 };
-
-    public static final int MAX_MODEL_YEAR = 2039;
-
-    public static final int MIN_MODEL_YEAR = 2010;
-
     private static final Map<String, Integer> MODEL_YEARS = new HashMap<>();
-
-    public static final int VIN_LENGTH = 17; // characters
-
     private static final int[] WEIGHT = { 8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2 };
 
     static {
@@ -63,8 +59,8 @@ public class VinDecoder {
     /**
      * Calculate VIN checksum char
      *
-     * @param vin a VIN to get the checksum for
-     * @return checksum for provided VIN
+     * @param  vin a VIN to get the checksum for
+     * @return     checksum for provided VIN
      */
     public char calculateCheckSum(String vin) {
         int sum = 0;
@@ -78,9 +74,9 @@ public class VinDecoder {
     /**
      * Returns the Model Year of the Vehicle based upon the VIN
      *
-     * @param vin the VIN of interest
-     * @return an int representing the Model Year of the Vehicle. If the VIN is
-     *         invalid, -1 is returned
+     * @param  vin the VIN of interest
+     * @return     an int representing the Model Year of the Vehicle. If the VIN is
+     *             invalid, -1 is returned
      */
     public int getModelYear(String vin) {
         if (isVinValid(vin)) {
@@ -95,19 +91,19 @@ public class VinDecoder {
     /**
      * Determines if the given Model Year is compatible with this decoder
      *
-     * @param modelYear the Model Year of interest
-     * @return true if the Model Year is usable
+     * @param  modelYear the Model Year of interest
+     * @return           true if the Model Year is usable
      */
     public boolean isModelYearValid(int modelYear) {
-        return MODEL_YEARS.values().contains(modelYear);
+        return MODEL_YEARS.containsValue(modelYear);
     }
 
     /**
      * Check whether provided VIN is a valid one
      *
-     * @param vin a string to validate
-     * @return {@code true} if specified parameter is a valid VIN,
-     *         {@code false} otherwise
+     * @param  vin a string to validate
+     * @return     {@code true} if specified parameter is a valid VIN,
+     *             {@code false} otherwise
      */
     public boolean isVinValid(String vin) {
         String sanitizedVin = sanitize(vin);
@@ -131,8 +127,8 @@ public class VinDecoder {
     /**
      * Removes all non-valid VIN characters from the given String
      *
-     * @param vin the String to sanitize
-     * @return the sanitized String
+     * @param  vin the String to sanitize
+     * @return     the sanitized String
      */
     public String sanitize(String vin) {
         return vin != null ? vin.toUpperCase().replaceAll("[^ABCDEFGHJKLMNPRSTUVWXYZ0-9]", "") : null;

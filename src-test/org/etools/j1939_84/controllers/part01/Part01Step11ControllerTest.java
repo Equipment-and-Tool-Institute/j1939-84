@@ -3,13 +3,13 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket.create;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -17,6 +17,8 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
+
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
@@ -26,8 +28,8 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -90,7 +92,14 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                               vehicleInformationModule,
                                               dataRepository,
                                               DateTimeModule.getInstance());
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
@@ -110,24 +119,24 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         when(diagnosticMessageModule.requestDM21(any()))
-                .thenReturn(new RequestResult<>(false, List.of(), List.of()));
+                                                        .thenReturn(new RequestResult<>(false, List.of(), List.of()));
 
-        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0)))
-                .thenReturn(new RequestResult<>(false, packet4));
+                                                               .thenReturn(new BusResult<>(false, packet4));
 
-        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(17)))
-                .thenReturn(new RequestResult<>(false, packet5));
+                                                                .thenReturn(new BusResult<>(false, packet5));
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(packet3.getResponse()).thenReturn(Response.NACK);
         when(packet3.getSourceAddress()).thenReturn(21);
         when(diagnosticMessageModule.requestDM21(any(), eq(21)))
-                .thenReturn(new RequestResult<>(false, packet3));
+                                                                .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, times(2)).getObdModuleAddresses();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM21(any());
@@ -142,17 +151,13 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         11,
                                         FAIL,
-                                        "6.1.11.4.f - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.1.11.4.f - OBD ECU Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
         verify(mockListener).addOutcome(1,
                                         11,
                                         FAIL,
-                                        "6.1.11.4.f - OBD module Cruise Control (17) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.1.11.4.f - OBD ECU Cruise Control (17) did not provide a response to Global query and did not provide a NACK for the DS query");
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.e - No OBD ECU provided a DM21 message" + NL
-                + "FAIL: 6.1.11.4.f - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query" + NL
-                + "FAIL: 6.1.11.4.f - OBD module Cruise Control (17) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        assertEquals(expectedResult, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     /**
@@ -180,24 +185,26 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
         List<DM21DiagnosticReadinessPacket> globalPackets = new ArrayList<>();
         when(diagnosticMessageModule.requestDM21(any()))
-                .thenReturn(new RequestResult<>(false, globalPackets, List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        globalPackets,
+                                                                                        List.of()));
 
-        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0)))
-                .thenReturn(new RequestResult<>(false, packet4));
+                                                               .thenReturn(new BusResult<>(false, packet4));
         globalPackets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(17)))
-                .thenReturn(new RequestResult<>(false, packet5));
+                                                                .thenReturn(new BusResult<>(false, packet5));
         globalPackets.add(packet5);
 
-        DM21DiagnosticReadinessPacket packet3 = create(21, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet3 = create(21, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(21)))
-                .thenReturn(new RequestResult<>(false, packet3));
+                                                                .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, times(2)).getObdModuleAddresses();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM21(any());
@@ -208,12 +215,10 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         11,
                                         FAIL,
-                                        "6.1.11.4.f - OBD module Suspension - Drive Axle #1 (21) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.1.11.4.f - OBD ECU Suspension - Drive Axle #1 (21) did not provide a response to Global query and did not provide a NACK for the DS query");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.4.f - OBD module Suspension - Drive Axle #1 (21) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        assertEquals(expectedResult, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -223,33 +228,35 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
         List<DM21DiagnosticReadinessPacket> globalPackets = new ArrayList<>();
         when(diagnosticMessageModule.requestDM21(any()))
-                .thenReturn(new RequestResult<>(false, globalPackets, List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        globalPackets,
+                                                                                        List.of()));
         // return the set of OBD module addresses when requested
-        DM21DiagnosticReadinessPacket packet1 = create(9, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet1 = create(9, 0, 0, 0, 0, 0);
         globalPackets.add(packet1);
 
-        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0)))
-                .thenReturn(new RequestResult<>(false, packet4));
+                                                               .thenReturn(new BusResult<>(false, packet4));
         globalPackets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(17)))
-                .thenReturn(new RequestResult<>(false, packet5));
+                                                                .thenReturn(new BusResult<>(false, packet5));
         globalPackets.add(packet5);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
         when(diagnosticMessageModule.requestDM21(any(), eq(9)))
-                .thenReturn(new RequestResult<>(false, packet2));
+                                                               .thenReturn(new BusResult<>(false, packet2));
         when(packet2.getResponse()).thenReturn(Response.NACK);
         when(packet2.getSourceAddress()).thenReturn(9);
 
-        DM21DiagnosticReadinessPacket packet3 = create(21, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet3 = create(21, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(21)))
-                .thenReturn(new RequestResult<>(false, packet3));
+                                                                .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, times(2)).getObdModuleAddresses();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM21(any());
@@ -261,12 +268,10 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         11,
                                         FAIL,
-                                        "6.1.11.4.f - OBD module Suspension - Drive Axle #1 (21) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.1.11.4.f - OBD ECU Suspension - Drive Axle #1 (21) did not provide a response to Global query and did not provide a NACK for the DS query");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.4.f - OBD module Suspension - Drive Axle #1 (21) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        assertEquals(expectedResult, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -276,33 +281,35 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
         List<DM21DiagnosticReadinessPacket> globalPackets = new ArrayList<>();
         when(diagnosticMessageModule.requestDM21(any()))
-                .thenReturn(new RequestResult<>(false, globalPackets, List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        globalPackets,
+                                                                                        List.of()));
         // return the set of OBD module addresses when requested
-        DM21DiagnosticReadinessPacket packet1 = create(9, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet1 = create(9, 0, 0, 0, 0, 0);
         globalPackets.add(packet1);
 
-        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0)))
-                .thenReturn(new RequestResult<>(false, packet4));
+                                                               .thenReturn(new BusResult<>(false, packet4));
         globalPackets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(17)))
-                .thenReturn(new RequestResult<>(false, packet5));
+                                                                .thenReturn(new BusResult<>(false, packet5));
         globalPackets.add(packet5);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
         when(diagnosticMessageModule.requestDM21(any(), eq(9)))
-                .thenReturn(new RequestResult<>(false, packet2));
+                                                               .thenReturn(new BusResult<>(false, packet2));
         when(packet2.getResponse()).thenReturn(Response.NACK);
         when(packet2.getSourceAddress()).thenReturn(16);
 
-        DM21DiagnosticReadinessPacket packet3 = create(21, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet3 = create(21, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(21)))
-                .thenReturn(new RequestResult<>(false, packet3));
+                                                                .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, times(2)).getObdModuleAddresses();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM21(any());
@@ -314,13 +321,10 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         11,
                                         FAIL,
-                                        "6.1.11.4.f - OBD module Suspension - Drive Axle #1 (21) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.1.11.4.f - OBD ECU Suspension - Drive Axle #1 (21) did not provide a response to Global query and did not provide a NACK for the DS query");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.4.f - OBD module Suspension - Drive Axle #1 (21) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        assertEquals(expectedResult, listener.getResults());
-
+        assertEquals("", listener.getResults());
     }
 
     /**
@@ -334,27 +338,27 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
         when(diagnosticMessageModule.requestDM21(any()))
-                .thenReturn(new RequestResult<>(false, packets, List.of()));
+                                                        .thenReturn(new RequestResult<>(false, packets, List.of()));
         // return the set of OBD module addresses when requested
 
-        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0)))
-                .thenReturn(new RequestResult<>(false, packet4));
+                                                               .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(17)))
-                .thenReturn(new RequestResult<>(false, packet5));
+                                                                .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(packet3.getResponse()).thenReturn(Response.NACK);
         when(packet3.getSourceAddress()).thenReturn(21);
         when(diagnosticMessageModule.requestDM21(any(), eq(21)))
-                .thenReturn(new RequestResult<>(false, packet3));
+                                                                .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, times(2)).getObdModuleAddresses();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM21(any());
@@ -363,7 +367,6 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM21(any(), eq(21));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
@@ -374,29 +377,29 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
 
         when(diagnosticMessageModule.requestDM21(any()))
-                .thenReturn(new RequestResult<>(false, packets, List.of()));
+                                                        .thenReturn(new RequestResult<>(false, packets, List.of()));
         // return the set of OBD module addresses when requested
 
-        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0)))
-                .thenReturn(new RequestResult<>(false, packet4));
+                                                               .thenReturn(new BusResult<>(false, packet4));
 
         packets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 15, 0, 0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 15, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(17)))
-                .thenReturn(new RequestResult<>(false, packet5));
+                                                                .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(packet3.getResponse()).thenReturn(Response.NACK);
         when(packet3.getSourceAddress()).thenReturn(21);
         when(diagnosticMessageModule.requestDM21(any(), eq(21)))
-                .thenReturn(new RequestResult<>(false, packet3));
+                                                                .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, times(2)).getObdModuleAddresses();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM21(any(), eq(0));
@@ -414,11 +417,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                         "6.1.11.4.a - Cruise Control (17) reported distance with MIL on (SPN 3069) is not zero");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.a - Cruise Control (17) reported distance with MIL on (SPN 3069) is not zero"
-                + NL
-                + "FAIL: 6.1.11.4.a - Cruise Control (17) reported distance with MIL on (SPN 3069) is not zero" + NL;
-        assertEquals(expectedResult, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -427,27 +426,27 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
         when(diagnosticMessageModule.requestDM21(any()))
-                .thenReturn(new RequestResult<>(false, packets, List.of()));
+                                                        .thenReturn(new RequestResult<>(false, packets, List.of()));
 
-        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0)))
-                .thenReturn(new RequestResult<>(false, packet4));
+                                                               .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = create(17, 10, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 10, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(17)))
-                .thenReturn(new RequestResult<>(false, packet5));
+                                                                .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(packet3.getResponse()).thenReturn(Response.NACK);
         when(packet3.getSourceAddress()).thenReturn(21);
         when(diagnosticMessageModule.requestDM21(any(), eq(21)))
-                .thenReturn(new RequestResult<>(false, packet3));
+                                                                .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, times(2)).getObdModuleAddresses();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM21(any());
@@ -465,10 +464,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                         "6.1.11.4.b - Cruise Control (17) reported distance SCC (SPN 3294) is not zero");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.b - Cruise Control (17) reported distance SCC (SPN 3294) is not zero" + NL
-                + "FAIL: 6.1.11.4.b - Cruise Control (17) reported distance SCC (SPN 3294) is not zero" + NL;
-        assertEquals(expectedResult, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -481,26 +477,26 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
 
         when(diagnosticMessageModule.requestDM21(any()))
-                .thenReturn(new RequestResult<>(false, packets, List.of()));
+                                                        .thenReturn(new RequestResult<>(false, packets, List.of()));
 
-        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0)))
-                .thenReturn(new RequestResult<>(false, packet4));
+                                                               .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 20);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0, 20);
         when(diagnosticMessageModule.requestDM21(any(), eq(17)))
-                .thenReturn(new RequestResult<>(false, packet5));
+                                                                .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(packet3.getResponse()).thenReturn(Response.NACK);
         when(packet3.getSourceAddress()).thenReturn(21);
         when(diagnosticMessageModule.requestDM21(any(), eq(21)))
-                .thenReturn(new RequestResult<>(false, packet3));
+                                                                .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, times(2)).getObdModuleAddresses();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM21(any());
@@ -518,11 +514,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                         "6.1.11.4.d - Cruise Control (17) reported time SCC (SPN 3296) > 1 minute");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.d - Cruise Control (17) reported time SCC (SPN 3296) > 1 minute"
-                + NL
-                + "FAIL: 6.1.11.4.d - Cruise Control (17) reported time SCC (SPN 3296) > 1 minute" + NL;
-        assertEquals(expectedResult, listener.getResults());
+        assertEquals("", listener.getResults());
 
     }
 
@@ -533,27 +525,27 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
 
         when(diagnosticMessageModule.requestDM21(any()))
-                .thenReturn(new RequestResult<>(false, packets, List.of()));
+                                                        .thenReturn(new RequestResult<>(false, packets, List.of()));
         // return the set of OBD module addresses when requested
 
-        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 25, 0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 25, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(0)))
-                .thenReturn(new RequestResult<>(false, packet4));
+                                                               .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(17)))
-                .thenReturn(new RequestResult<>(false, packet5));
+                                                                .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
-        DM21DiagnosticReadinessPacket packet6 = create(21, 0, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet6 = create(21, 0, 0, 0, 0, 0);
         when(diagnosticMessageModule.requestDM21(any(), eq(21)))
-                .thenReturn(new RequestResult<>(false, packet6));
+                                                                .thenReturn(new BusResult<>(false, packet6));
         packets.add(packet6);
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, times(2)).getObdModuleAddresses();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM21(any(), eq(0));
@@ -571,13 +563,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                         "6.1.11.4.c - Engine #1 (0) reported time with MIL on (SPN 3295) is not zero");
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.c - Engine #1 (0) reported time with MIL on (SPN 3295) is not zero"
-                + NL
-                + "FAIL: 6.1.11.4.c - Engine #1 (0) reported time with MIL on (SPN 3295) is not zero"
-                + NL;
-        assertEquals(expectedResult, listener.getResults());
-
+        assertEquals("", listener.getResults());
     }
 
 }

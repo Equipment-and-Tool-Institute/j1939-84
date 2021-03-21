@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -48,10 +49,9 @@ import org.mockito.junit.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class Part02Step02ControllerTest extends AbstractControllerTest {
-    final int PGN = DM5DiagnosticReadinessPacket.PGN;
     private static final int PART_NUMBER = 2;
     private static final int STEP_NUMBER = 2;
-
+    final int PGN = DM5DiagnosticReadinessPacket.PGN;
     @Mock
     private BannerModule bannerModule;
 
@@ -92,15 +92,22 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(null);
 
         instance = new Part02Step02Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                diagnosticMessageModule,
-                DateTimeModule.getInstance(),
-                sectionA6Validator,
-                dataRepository);
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              diagnosticMessageModule,
+                                              DateTimeModule.getInstance(),
+                                              sectionA6Validator,
+                                              dataRepository);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
@@ -135,12 +142,39 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
     @Test
     public void testModulesEmpty() {
         DM5DiagnosticReadinessPacket packet0 = new DM5DiagnosticReadinessPacket(
-                Packet.create(PGN, 0x00, 0x00, 0x00, 0x14, 0x37, 0xE0, 0x1E, 0xE0, 0x1E));
+                                                                                Packet.create(PGN,
+                                                                                              0x00,
+                                                                                              0x00,
+                                                                                              0x00,
+                                                                                              0x14,
+                                                                                              0x37,
+                                                                                              0xE0,
+                                                                                              0x1E,
+                                                                                              0xE0,
+                                                                                              0x1E));
         final int ackPgn = DM5DiagnosticReadinessPacket.PGN;
         AcknowledgmentPacket packet44 = new AcknowledgmentPacket(
-                Packet.create(ackPgn, 0x44, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
+                                                                 Packet.create(ackPgn,
+                                                                               0x44,
+                                                                               0x01,
+                                                                               0x02,
+                                                                               0x03,
+                                                                               0x04,
+                                                                               0x05,
+                                                                               0x06,
+                                                                               0x07,
+                                                                               0x08));
         DM5DiagnosticReadinessPacket packet21 = new DM5DiagnosticReadinessPacket(
-                Packet.create(PGN, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
+                                                                                 Packet.create(PGN,
+                                                                                               0x21,
+                                                                                               0x10,
+                                                                                               0x20,
+                                                                                               0x30,
+                                                                                               0x40,
+                                                                                               0x50,
+                                                                                               0x60,
+                                                                                               0x70,
+                                                                                               0x80));
         RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(false,
                                                                                                 Collections.emptyList(),
                                                                                                 Collections.emptyList());
@@ -156,9 +190,6 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                                                                 packet21);
         when(diagnosticMessageModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
 
-        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
-                false);
-
         when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x21));
 
         runTest();
@@ -171,30 +202,65 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM5(any(), eq(0x17));
         verify(diagnosticMessageModule).requestDM5(any(), eq(0x21));
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
                                         "6.2.2.1.a - Global DM5 request did not receive any response packets");
 
-        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
+        verify(sectionA6Validator).verify(any(), eq("6.2.2.2.a"), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        String expectedResults = "FAIL: 6.2.2.1.a - Global DM5 request did not receive any response packets" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
     public void testPacketFailure() {
         DM5DiagnosticReadinessPacket packet0 = new DM5DiagnosticReadinessPacket(
-                Packet.create(PGN, 0x00, 0x01, 0x00, 0x14, 0x37, 0xE0, 0x1E, 0xE0, 0x1E));
-        System.out.println(packet0.getActiveCodeCount());
+                                                                                Packet.create(PGN,
+                                                                                              0x00,
+                                                                                              0x01,
+                                                                                              0x00,
+                                                                                              0x14,
+                                                                                              0x37,
+                                                                                              0xE0,
+                                                                                              0x1E,
+                                                                                              0xE0,
+                                                                                              0x1E));
+
         final int ackPgn = DM5DiagnosticReadinessPacket.PGN;
         AcknowledgmentPacket packet44 = new AcknowledgmentPacket(
-                Packet.create(ackPgn, 0x44, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
+                                                                 Packet.create(ackPgn,
+                                                                               0x44,
+                                                                               0x01,
+                                                                               0x02,
+                                                                               0x03,
+                                                                               0x04,
+                                                                               0x05,
+                                                                               0x06,
+                                                                               0x07,
+                                                                               0x08));
         DM5DiagnosticReadinessPacket packet21 = new DM5DiagnosticReadinessPacket(
-                Packet.create(PGN, 0x21, 0x00, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
+                                                                                 Packet.create(PGN,
+                                                                                               0x21,
+                                                                                               0x00,
+                                                                                               0x20,
+                                                                                               0x30,
+                                                                                               0x40,
+                                                                                               0x50,
+                                                                                               0x60,
+                                                                                               0x70,
+                                                                                               0x80));
         DM5DiagnosticReadinessPacket packet21V2 = new DM5DiagnosticReadinessPacket(
-                Packet.create(PGN, 0x21, 0x00, 0x22, 0x33, 0x44, 0x55, 0x60, 0x70, 0x80));
+                                                                                   Packet.create(PGN,
+                                                                                                 0x21,
+                                                                                                 0x00,
+                                                                                                 0x22,
+                                                                                                 0x33,
+                                                                                                 0x44,
+                                                                                                 0x55,
+                                                                                                 0x60,
+                                                                                                 0x70,
+                                                                                                 0x80));
         RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(false,
                                                                                                 List.of(packet0,
                                                                                                         packet21),
@@ -210,9 +276,6 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         BusResult<DM5DiagnosticReadinessPacket> busResult0x21 = new BusResult<>(false, packet21V2);
         when(diagnosticMessageModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
 
-        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse)))
-                .thenReturn(false);
-
         when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x21));
 
         runTest();
@@ -228,9 +291,7 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.2.2.2.b - OBD ECU Engine #1 (0) reported active/previously active fault DTCs count not = 0/0" + NL +
-                                                "  Reported active fault count = 1" + NL +
-                                                "  Reported previously active fault count = 0");
+                                        "6.2.2.2.b - OBD ECU Engine #1 (0) reported active DTC count not = 0");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
@@ -240,10 +301,9 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.2.2.4.a - Difference compared to data received during global request");
 
-        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
+        verify(sectionA6Validator).verify(any(), eq("6.2.2.2.a"), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = NL + "Vehicle Composite of DM5:" + NL +
                 "    A/C system refrigerant     not supported,     complete" + NL +
@@ -262,11 +322,7 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                 "    NMHC converting catalyst       supported, not complete" + NL +
                 "    NOx catalyst/adsorber          supported, not complete" + NL +
                 "    Secondary air system       not supported,     complete" + NL +
-                NL + "FAIL: 6.2.2.2.b - OBD ECU Engine #1 (0) reported active/previously active fault DTCs count not = 0/0" + NL +
-                "  Reported active fault count = 1" + NL +
-                "  Reported previously active fault count = 0" + NL +
-                "WARN: 6.2.2.2.c - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU" + NL +
-                "FAIL: 6.2.2.4.a - Difference compared to data received during global request" + NL;
+                NL;
 
         assertEquals(expectedResults, listener.getResults());
     }
@@ -274,16 +330,43 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
     @Test
     public void testStepDM5PacketsEmpty() {
         DM5DiagnosticReadinessPacket packet0 = new DM5DiagnosticReadinessPacket(
-                Packet.create(PGN, 0x00, 0x00, 0x00, 0x14, 0x37, 0xE0, 0x1E, 0xE0, 0x1E));
+                                                                                Packet.create(PGN,
+                                                                                              0x00,
+                                                                                              0x00,
+                                                                                              0x00,
+                                                                                              0x14,
+                                                                                              0x37,
+                                                                                              0xE0,
+                                                                                              0x1E,
+                                                                                              0xE0,
+                                                                                              0x1E));
         final int ackPgn = DM5DiagnosticReadinessPacket.PGN;
         AcknowledgmentPacket packet44 = new AcknowledgmentPacket(
-                Packet.create(ackPgn, 0x44, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
+                                                                 Packet.create(ackPgn,
+                                                                               0x44,
+                                                                               0x01,
+                                                                               0x02,
+                                                                               0x03,
+                                                                               0x04,
+                                                                               0x05,
+                                                                               0x06,
+                                                                               0x07,
+                                                                               0x08));
         DM5DiagnosticReadinessPacket packet21 = new DM5DiagnosticReadinessPacket(
-                Packet.create(PGN, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
+                                                                                 Packet.create(PGN,
+                                                                                               0x21,
+                                                                                               0x10,
+                                                                                               0x20,
+                                                                                               0x30,
+                                                                                               0x40,
+                                                                                               0x50,
+                                                                                               0x60,
+                                                                                               0x70,
+                                                                                               0x80));
         RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(false,
                                                                                                 Collections.emptyList(),
                                                                                                 Collections.singletonList(
-                                                                                                        packet44));
+                                                                                                                          packet44));
         when(diagnosticMessageModule.requestDM5(any())).thenReturn(globalRequestResponse);
 
         BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false,
@@ -295,9 +378,6 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         BusResult<DM5DiagnosticReadinessPacket> busResult0x21 = new BusResult<>(false,
                                                                                 packet21);
         when(diagnosticMessageModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
-
-        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
-                false);
 
         when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x21));
 
@@ -311,32 +391,58 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM5(any(), eq(0x17));
         verify(diagnosticMessageModule).requestDM5(any(), eq(0x21));
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
                                         "6.2.2.1.a - Global DM5 request did not receive any response packets");
 
-        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
+        verify(sectionA6Validator).verify(any(), eq("6.2.2.2.a"), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        String expectedResults = "FAIL: 6.2.2.1.a - Global DM5 request did not receive any response packets" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
     public void testStepAllDM5PacketsEmpty() {
         DM5DiagnosticReadinessPacket packet0 = new DM5DiagnosticReadinessPacket(
-                Packet.create(PGN, 0x00, 0x00, 0x00, 0x14, 0x37, 0xE0, 0x1E, 0xE0, 0x1E));
+                                                                                Packet.create(PGN,
+                                                                                              0x00,
+                                                                                              0x00,
+                                                                                              0x00,
+                                                                                              0x14,
+                                                                                              0x37,
+                                                                                              0xE0,
+                                                                                              0x1E,
+                                                                                              0xE0,
+                                                                                              0x1E));
         final int ackPgn = DM5DiagnosticReadinessPacket.PGN;
         AcknowledgmentPacket packet44 = new AcknowledgmentPacket(
-                Packet.create(ackPgn, 0x44, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
+                                                                 Packet.create(ackPgn,
+                                                                               0x44,
+                                                                               0x01,
+                                                                               0x02,
+                                                                               0x03,
+                                                                               0x04,
+                                                                               0x05,
+                                                                               0x06,
+                                                                               0x07,
+                                                                               0x08));
         DM5DiagnosticReadinessPacket packet21 = new DM5DiagnosticReadinessPacket(
-                Packet.create(PGN, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
+                                                                                 Packet.create(PGN,
+                                                                                               0x21,
+                                                                                               0x10,
+                                                                                               0x20,
+                                                                                               0x30,
+                                                                                               0x40,
+                                                                                               0x50,
+                                                                                               0x60,
+                                                                                               0x70,
+                                                                                               0x80));
         RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(false,
                                                                                                 List.of(packet0,
                                                                                                         packet21),
                                                                                                 Collections.singletonList(
-                                                                                                        packet44));
+                                                                                                                          packet44));
         when(diagnosticMessageModule.requestDM5(any())).thenReturn(globalRequestResponse);
 
         BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false,
@@ -348,9 +454,6 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         BusResult<DM5DiagnosticReadinessPacket> busResult0x21 = new BusResult<>(false,
                                                                                 packet21);
         when(diagnosticMessageModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
-
-        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
-                false);
 
         when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x21));
 
@@ -365,24 +468,22 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM5(any(), eq(0x21));
 
         verify(mockListener).addOutcome(
-                PART_NUMBER,
-                STEP_NUMBER,
-                WARN,
-                "6.2.2.2.c - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.2.2.2.c - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.2.2.3.a - OBD module Engine #1 (0) did not return a response to a destination specific DM5 request");
+                                        "6.2.2.3.a - OBD ECU Engine #1 (0) did not return a response to a destination specific DM5 request");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.2.2.3.a - OBD module Instrument Cluster #1 (23) did not return a response to a destination specific DM5 request");
+                                        "6.2.2.3.a - OBD ECU Instrument Cluster #1 (23) did not return a response to a destination specific DM5 request");
 
-        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
+        verify(sectionA6Validator).verify(any(), eq("6.2.2.2.a"), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = NL + "Vehicle Composite of DM5:" + NL +
                 "    A/C system refrigerant     not supported,     complete" + NL +
@@ -400,10 +501,7 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                 "    Misfire                        supported, not complete" + NL +
                 "    NMHC converting catalyst       supported, not complete" + NL +
                 "    NOx catalyst/adsorber          supported, not complete" + NL +
-                "    Secondary air system       not supported,     complete" + NL +
-                NL + "WARN: 6.2.2.2.c - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU" + NL +
-                "WARN: 6.2.2.3.a - OBD module Engine #1 (0) did not return a response to a destination specific DM5 request" + NL +
-                "WARN: 6.2.2.3.a - OBD module Instrument Cluster #1 (23) did not return a response to a destination specific DM5 request" + NL;
+                "    Secondary air system       not supported,     complete" + NL + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
@@ -412,13 +510,44 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         final int pgn = DM5DiagnosticReadinessPacket.PGN;
 
         DM5DiagnosticReadinessPacket packet0 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x00, 0x00, 0x00, 0x14, 0x37, 0xE0, 0x1E, 0xE0, 0x1E));
+                                                                                Packet.create(pgn,
+                                                                                              0x00,
+                                                                                              0x00,
+                                                                                              0x00,
+                                                                                              0x14,
+                                                                                              0x37,
+                                                                                              0xE0,
+                                                                                              0x1E,
+                                                                                              0xE0,
+                                                                                              0x1E));
         DM5DiagnosticReadinessPacket packet17 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x17, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                                 Packet.create(pgn,
+                                                                                               0x17,
+                                                                                               0x00,
+                                                                                               0x00,
+                                                                                               0x05,
+                                                                                               0x00,
+                                                                                               0x00,
+                                                                                               0x00,
+                                                                                               0x00,
+                                                                                               0x00));
         DM5DiagnosticReadinessPacket packet23 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x21, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                                 Packet.create(pgn,
+                                                                                               0x21,
+                                                                                               0x00,
+                                                                                               0x00,
+                                                                                               0x05,
+                                                                                               0x00,
+                                                                                               0x00,
+                                                                                               0x00,
+                                                                                               0x00,
+                                                                                               0x00));
         RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(
-                false, List.of(packet0, packet17, packet23), Collections.emptyList());
+                                                                                                false,
+                                                                                                List.of(packet0,
+                                                                                                        packet17,
+                                                                                                        packet23),
+                                                                                                Collections.emptyList());
         when(diagnosticMessageModule.requestDM5(any())).thenReturn(globalRequestResponse);
 
         BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false, packet0);
@@ -427,9 +556,6 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM5(any(), eq(0x17))).thenReturn(busResult0x17);
         BusResult<DM5DiagnosticReadinessPacket> busResult0x23 = new BusResult<>(false, packet23);
         when(diagnosticMessageModule.requestDM5(any(), eq(0x23))).thenReturn(busResult0x23);
-
-        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
-                true);
 
         when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x23));
 
@@ -443,10 +569,9 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM5(any(), eq(0x17));
         verify(diagnosticMessageModule).requestDM5(any(), eq(0x23));
 
-        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
+        verify(sectionA6Validator).verify(any(), eq("6.2.2.2.a"), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         String expectedVehicleComposite = NL + "Vehicle Composite of DM5:" + NL +
                 "    A/C system refrigerant     not supported,     complete" + NL +
                 "    Boost pressure control sys     supported, not complete" + NL +

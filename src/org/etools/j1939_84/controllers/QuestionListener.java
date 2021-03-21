@@ -12,6 +12,8 @@ import javax.swing.JOptionPane;
  * @author Matt Gumbel (matt@soliddesign.net)
  */
 public interface QuestionListener {
+    void answered(AnswerType answerType);
+
     enum AnswerType {
         // The values correspond to JOptionPane Types
         YES(JOptionPane.YES_OPTION), NO(JOptionPane.NO_OPTION), CANCEL(JOptionPane.CANCEL_OPTION);
@@ -24,8 +26,8 @@ public interface QuestionListener {
 
         public static AnswerType getType(int value) {
             switch (value) {
-            case 0:
-                return YES;
+                case 0:
+                    return YES;
                 case 1:
                     return NO;
                 case 2:
@@ -35,6 +37,4 @@ public interface QuestionListener {
             }
         }
     }
-
-    void answered(AnswerType answerType);
 }

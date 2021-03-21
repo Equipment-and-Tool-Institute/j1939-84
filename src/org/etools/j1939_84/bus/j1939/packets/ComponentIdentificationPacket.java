@@ -8,7 +8,6 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.utils.StringUtils.stripLeadingAndTrailingNulls;
 
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.model.ComponentIdentification;
 
 /**
@@ -19,23 +18,6 @@ import org.etools.j1939_84.model.ComponentIdentification;
 public class ComponentIdentificationPacket extends GenericPacket {
 
     public static final int PGN = 65259;
-
-    /*
-     * Helper method for unit testing purposes.  Allows us to easily create
-     * a packet from the expected human readable data type.  String are joined
-     * together to create a byte representation of the data values joined together
-     * with an '*" for parsing.
-     */
-    public static ComponentIdentificationPacket create(int sourceAddress,
-                                                       String make,
-                                                       String model,
-                                                       String serialNumber,
-                                                       String unitNumber) {
-
-        byte[] bytes = (make + "*" + model + "*" + serialNumber + "*" + unitNumber + "*").getBytes(UTF_8);
-        return new ComponentIdentificationPacket(Packet.create(PGN, sourceAddress, bytes));
-    }
-
     /**
      * Holds the different parts of the component identification:
      *
@@ -52,15 +34,31 @@ public class ComponentIdentificationPacket extends GenericPacket {
      * Constructor
      *
      * @param packet
-     *         the {@link Packet} to parse
+     *                   the {@link Packet} to parse
      */
     public ComponentIdentificationPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+        super(packet);
         String str = new String(packet.getBytes());
         String[] array = str.split("\\*", -1);
         for (int i = 0; i < 4 && i < array.length; i++) {
             parts[i] = array[i];
         }
+    }
+
+    /*
+     * Helper method for unit testing purposes. Allows us to easily create
+     * a packet from the expected human readable data type. String are joined
+     * together to create a byte representation of the data values joined together
+     * with an '*" for parsing.
+     */
+    public static ComponentIdentificationPacket create(int sourceAddress,
+                                                       String make,
+                                                       String model,
+                                                       String serialNumber,
+                                                       String unitNumber) {
+
+        byte[] bytes = (make + "*" + model + "*" + serialNumber + "*" + unitNumber + "*").getBytes(UTF_8);
+        return new ComponentIdentificationPacket(Packet.create(PGN, sourceAddress, bytes));
     }
 
     public String getMake() {
@@ -76,18 +74,6 @@ public class ComponentIdentificationPacket extends GenericPacket {
         return "Component Identification";
     }
 
-    public String getSerialNumber() {
-        return stripLeadingAndTrailingNulls(parts[2]);
-    }
-
-    public String getUnitNumber() {
-        return parts[3];
-    }
-
-    public ComponentIdentification getComponentIdentification() {
-        return (new ComponentIdentification(this));
-    }
-
     @Override
     public String toString() {
         String result = getStringPrefix() + "{" + NL;
@@ -101,5 +87,17 @@ public class ComponentIdentificationPacket extends GenericPacket {
         result += "  Unit: " + (unitNumber == null ? "" : unitNumber.trim()) + NL;
         result += "}" + NL;
         return result;
+    }
+
+    public String getSerialNumber() {
+        return stripLeadingAndTrailingNulls(parts[2]);
+    }
+
+    public String getUnitNumber() {
+        return parts[3];
+    }
+
+    public ComponentIdentification getComponentIdentification() {
+        return (new ComponentIdentification(this));
     }
 }

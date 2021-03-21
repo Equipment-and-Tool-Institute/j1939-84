@@ -14,38 +14,7 @@ import org.etools.j1939_84.bus.Packet;
  */
 public class DM11ClearActiveDTCsPacket extends AcknowledgmentPacket {
 
-    /**
-     * The possible responses to the DM11 request
-     */
-    public enum DM11Response {
-        ACK(0, "Acknowledged"), BUSY(3, "Busy"), DENIED(2, "Denied"), NACK(1, "NACK"), UNKNOWN(-1, "Unknown");
-
-        private static DM11Response find(int value) {
-            for (DM11Response r : DM11Response.values()) {
-                if (r.value == value) {
-                    return r;
-                }
-            }
-            return DM11Response.UNKNOWN;
-        }
-
-        private final String string;
-
-        private final int value;
-
-        private DM11Response(int value, String string) {
-            this.value = value;
-            this.string = string;
-        }
-
-        @Override
-        public String toString() {
-            return string;
-        }
-    }
-
     public static final int PGN = 65235;
-
     private final DM11Response response;
 
     public DM11ClearActiveDTCsPacket(Packet packet) {
@@ -67,14 +36,43 @@ public class DM11ClearActiveDTCsPacket extends AcknowledgmentPacket {
         return "DM11";
     }
 
+    @Override
+    public String toString() {
+        return getStringPrefix() + "Response is " + getDM11Response();
+    }
+
     private DM11Response parseResponse() {
         int responseByte = getPacket().get(0);
         return DM11Response.find(responseByte);
     }
 
-    @Override
-    public String toString() {
-        return getStringPrefix() + "Response is " + getDM11Response();
+    /**
+     * The possible responses to the DM11 request
+     */
+    public enum DM11Response {
+        ACK(0, "Acknowledged"), BUSY(3, "Busy"), DENIED(2, "Denied"), NACK(1, "NACK"), UNKNOWN(-1, "Unknown");
+
+        private final String string;
+        private final int value;
+
+        DM11Response(int value, String string) {
+            this.value = value;
+            this.string = string;
+        }
+
+        private static DM11Response find(int value) {
+            for (DM11Response r : DM11Response.values()) {
+                if (r.value == value) {
+                    return r;
+                }
+            }
+            return DM11Response.UNKNOWN;
+        }
+
+        @Override
+        public String toString() {
+            return string;
+        }
     }
 
 }

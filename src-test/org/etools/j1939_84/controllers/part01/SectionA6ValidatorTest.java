@@ -3,27 +3,21 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket.PGN;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.junit.After;
 import org.junit.Before;
@@ -41,11 +35,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class SectionA6ValidatorTest {
 
     private static final int PART_NUMBER = 1;
-    private static final String SECTION_A6_VALIDATOR = "Section A6 Validator";
-
     private static final int STEP_NUMBER = 2;
 
-    @Mock
     private DataRepository dataRepository;
 
     private SectionA6Validator instance;
@@ -61,295 +52,355 @@ public class SectionA6ValidatorTest {
     @Before
     public void setUp() {
         listener = new TestResultsListener(mockListener);
-        instance = new SectionA6Validator(dataRepository, tableA6Validator);
+        dataRepository = DataRepository.newInstance();
+        instance = new SectionA6Validator(dataRepository, tableA6Validator, PART_NUMBER, STEP_NUMBER);
     }
 
     @After
     public void tearDown() {
-        verifyNoMoreInteractions(dataRepository, mockListener, tableA6Validator);
+        verifyNoMoreInteractions(mockListener, tableA6Validator);
     }
 
     @Test
     public void testMoreFails() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(0x17));
+        dataRepository.putObdModule(new OBDModuleInformation(0x21));
 
-        ArrayList<Integer> obdModuleAddresses = new ArrayList<>() {
-            {
-                add(0x00);
-                add(0x17);
-                add(0x21);
-            }
-        };
-        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
+        var dm5_0 = new DM5DiagnosticReadinessPacket(Packet.create(PGN, 0, 0x11, 0x22, 0x14, 0x88, 0, 0, 0, 0));
+        var dm_17 = new DM5DiagnosticReadinessPacket(Packet.create(PGN, 0x17, 1, 0x14, 0x22, 0, 0, 0, 0, 0));
+        var dm5_21 = new DM5DiagnosticReadinessPacket(Packet.create(PGN, 0x21, 0x10, 0x23, 0x13, 0, 0, 0, 0, 0));
 
-        List<DM5DiagnosticReadinessPacket> dm5Packets = new ArrayList<>() {
-            {
-                add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x00, 0x11, 0x22,
-                        0x14, 0x88, 0x00, 0x00, 0x00, 0x00)));
-                add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x17, 0x01, 0x14,
-                        0x22, 0x00, 0x00, 0x00, 0x00, 0x00)));
-                add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x21, 0x10, 0x23,
-                        0x13, 0x00, 0x00, 0x00, 0x00, 0x00)));
-            }
-        };
-        RequestResult<DM5DiagnosticReadinessPacket> response = new RequestResult<>(false,
-                dm5Packets, Collections.emptyList());
+        instance.verify(listener, "6.1.2.3.a", RequestResult.of(dm5_0, dm_17, dm5_21));
 
-        when(tableA6Validator.verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER))).thenReturn(true);
+        verify(tableA6Validator).verify(eq(listener), any(), eq("6.1.2.3.a (A6.2.c)"));
 
-        assertFalse(instance.verify(listener, PART_NUMBER, STEP_NUMBER, response));
-
-        verify(dataRepository).getObdModuleAddresses();
-
-        StringBuilder expectedMessage1dPacket0 = new StringBuilder(SECTION_A6_VALIDATOR + NL);
-        expectedMessage1dPacket0.append(" Step 1.d - A response does not report 0 for reserved bits")
-                .append(NL)
-                .append("(SPN 1221 byte 4 bits 4 and 8, SPN 1222 byte 6 bits 6-8, and")
-                .append(NL)
-                .append("SPN 1223 byte 8 bits 6-8)");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, expectedMessage1dPacket0.toString());
-
-        verify(tableA6Validator, times(3)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
-
-        String expectedMessages = FAIL.toString() + ": " + expectedMessage1dPacket0;
-        assertEquals(expectedMessages, listener.getMessages());
-        assertEquals("", listener.getMilestones());
+        assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.b) - Engine #1 (0) did not report supported and complete for comprehensive components support and status");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.d) - Engine #1 (0) did not report 0 for reserved bits");
+
     }
 
     @Test
     public void testNoObdResponse() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        ArrayList<Integer> obdModuleAddresses = new ArrayList<>() {
-            {
-                add(0x00);
-                add(0x17);
-                add(0x21);
-            }
-        };
-        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
+        instance.verify(listener, "6.1.2.3.a", RequestResult.of());
 
-        RequestResult<DM5DiagnosticReadinessPacket> response = new RequestResult<>(false,
-                Collections.emptyList(), Collections.emptyList());
+        verify(tableA6Validator).verify(eq(listener), any(), eq("6.1.2.3.a (A6.2.c)"));
 
-        assertFalse(instance.verify(listener, PART_NUMBER, STEP_NUMBER, response));
-
-        verify(dataRepository).getObdModuleAddresses();
-
-        StringBuilder expectedMessage1a = new StringBuilder(SECTION_A6_VALIDATOR + NL);
-        expectedMessage1a.append(
-                " Step 1.a - No response from an OBD ECU (ECUs that indicate 0x13, 0x14, 0x22, or 0x23 for OBD compliance)")
-                .append(NL)
-                .append("   ECU with source address :  0 did not return a response")
-                .append(NL)
-                .append("   ECU with source address :  23 did not return a response")
-                .append(NL)
-                .append("   ECU with source address :  33 did not return a response");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, expectedMessage1a.toString());
-
-        String expectedMessage = FAIL.toString() + ": " + expectedMessage1a;
-        assertEquals(expectedMessage, listener.getMessages());
-        assertEquals("", listener.getMilestones());
+        assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.a) - OBD ECU Engine #1 (0) did not provide a response to Global query");
+
     }
 
     @Test
     public void testSupportedSystem() {
-        List<DM5DiagnosticReadinessPacket> dm5Packets = new ArrayList<>() {
-            {
-                add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x00, 0x11, 0x22,
-                        0x22, 0xEE, 0x00, 0x00, 0x00, 0x00)));
-                add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x17, 0x01, 0x14,
-                        0x14, 0xEE, 0x00, 0x00, 0x00, 0x00)));
-                add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x21, 0x10, 0x23,
-                        0x23, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)));
-                add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x22, 0x10, 0x23,
-                        0x23, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)));
-            }
-        };
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        Packet packet0 = Packet.create(PGN, 0, 0x11, 0x22, 0x22, 0xEE, 0, 0, 0, 0);
+        var dm5_0 = new DM5DiagnosticReadinessPacket(packet0);
 
-        RequestResult<DM5DiagnosticReadinessPacket> response = new RequestResult<>(false,
-                dm5Packets, Collections.emptyList());
-        ArrayList<Integer> obdModuleAddresses = new ArrayList<>() {
-            {
-                add(0x00);
-                add(0x17);
-                add(0x21);
-                add(0x22);
-            }
-        };
-        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
+        dataRepository.putObdModule(new OBDModuleInformation(0x17));
+        Packet packet17 = Packet.create(PGN, 0x17, 1, 0x14, 0x14, 0xEE, 0, 0, 0, 0);
+        var dm5_17 = new DM5DiagnosticReadinessPacket(packet17);
 
-        when(tableA6Validator.verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER))).thenReturn(true);
+        dataRepository.putObdModule(new OBDModuleInformation(0x21));
+        Packet packet21 = Packet.create(PGN, 0x21, 0x10, 0x23, 0x23, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+        var dm5_21 = new DM5DiagnosticReadinessPacket(packet21);
 
-        assertFalse(instance.verify(listener, PART_NUMBER, STEP_NUMBER, response));
+        dataRepository.putObdModule(new OBDModuleInformation(0x22));
+        Packet packet22 = Packet.create(PGN, 0x22, 0x10, 0x23, 0x23, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+        var dm5_22 = new DM5DiagnosticReadinessPacket(packet22);
 
-        verify(dataRepository, times(1)).getObdModuleAddresses();
+        instance.verify(listener, "6.1.2.3.a", RequestResult.of(dm5_0, dm5_17, dm5_21, dm5_22));
 
-        StringBuilder expectedMessage1d = new StringBuilder(SECTION_A6_VALIDATOR + NL);
-        expectedMessage1d.append(" Step 1.d - A response does not report 0 for reserved bits")
-                .append(NL)
-                .append("(SPN 1221 byte 4 bits 4 and 8, SPN 1222 byte 6 bits 6-8, and")
-                .append(NL)
-                .append("SPN 1223 byte 8 bits 6-8)");
-        verify(mockListener, times(4)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, expectedMessage1d.toString());
+        verify(tableA6Validator).verify(eq(listener), any(), eq("6.1.2.3.a (A6.2.c)"));
 
-        StringBuilder expectedMessage2d = new StringBuilder(SECTION_A6_VALIDATOR + NL);
-        expectedMessage2d.append(" Step 2.d An individual required monitor is supported by more than one OBD ECU");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, expectedMessage2d.toString());
-
-        verify(tableA6Validator, times(4)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
-
-        String expectedMessage = "" +
-                FAIL.toString() + ": " + expectedMessage1d + NL +
-                FAIL.toString() + ": " + expectedMessage1d + NL +
-                FAIL.toString() + ": " + expectedMessage1d + NL +
-                FAIL.toString() + ": " + expectedMessage1d + NL +
-                WARN.toString() + ": " + expectedMessage2d;
-        assertEquals(expectedMessage, listener.getMessages());
-        assertEquals("", listener.getMilestones());
+        assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.b) - Engine #1 (0) did not report supported and complete for comprehensive components support and status");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.b) - Instrument Cluster #1 (23) did not report supported and complete for comprehensive components support and status");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.b) - Body Controller (33) did not report supported and complete for comprehensive components support and status");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.b) - Auxiliary Valve Control or Engine Air System Valve Control (34) did not report supported and complete for comprehensive components support and status");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.d) - Engine #1 (0) did not report 0 for reserved bits");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.d) - Instrument Cluster #1 (23) did not report 0 for reserved bits");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.d) - Body Controller (33) did not report 0 for reserved bits");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.d) - Auxiliary Valve Control or Engine Air System Valve Control (34) did not report 0 for reserved bits");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - A/C system refrigerant is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - Boost pressure control sys is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - Catalyst is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - Cold start aid system is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - Diesel Particulate Filter is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - EGR/VVT system is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - Evaporative system is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - Exhaust Gas Sensor is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - Exhaust Gas Sensor heater is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - Fuel System is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - Heated catalyst is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - Misfire is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - NMHC converting catalyst is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - NOx catalyst/adsorber is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - Secondary air system is supported by more than one OBD ECU");
     }
 
     @Test
     public void testVerify() {
 
-        ArrayList<Integer> obdModuleAddresses = new ArrayList<>() {
-            {
-                add(0x00);
-                add(0x17);
-                add(0x21);
-            }
-        };
-        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(0x17));
+        dataRepository.putObdModule(new OBDModuleInformation(0x21));
 
-        List<DM5DiagnosticReadinessPacket> dm5Packets = new ArrayList<>() {
-            {
-                add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x00, 0x11, 0x22,
-                        0x22, 0x00, 0x00, 0x00, 0x00, 0x00)));
-                add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x17, 0x01, 0x14,
-                        0x14, 0x77, 0xFF, 0xE0, 0xFF, 0xE0)));
-                add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x21, 0x10, 0x23,
-                        0x23, 0x00, 0x00, 0x00, 0x00, 0x00)));
-            }
-        };
-        RequestResult<DM5DiagnosticReadinessPacket> response = new RequestResult<>(false, dm5Packets, Collections.emptyList());
+        Packet packet0 = Packet.create(PGN, 0, 0x11, 0x22, 0x22, 0, 0, 0, 0, 0);
+        var dm5_0 = new DM5DiagnosticReadinessPacket(packet0);
+        Packet packet17 = Packet.create(PGN, 0x17, 1, 0x14, 0x14, 0x77, 0xFF, 0xE0, 0xFF, 0xE0);
+        var dm5_17 = new DM5DiagnosticReadinessPacket(packet17);
+        Packet packet21 = Packet.create(PGN, 0x21, 0x10, 0x23, 0x23, 0, 0, 0, 0, 0);
+        var dm5_21 = new DM5DiagnosticReadinessPacket(packet21);
 
-        when(tableA6Validator.verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER))).thenReturn(true);
+        instance.verify(listener, "6.1.2.3.a", RequestResult.of(dm5_0, dm5_17, dm5_21));
 
-        assertTrue(instance.verify(listener, PART_NUMBER, STEP_NUMBER, response));
-
-        verify(dataRepository).getObdModuleAddresses();
-
-        verify(tableA6Validator, times(3)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
+        verify(tableA6Validator).verify(eq(listener), any(), eq("6.1.2.3.a (A6.2.c)"));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.b) - Instrument Cluster #1 (23) did not report supported and complete for comprehensive components support and status");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.d) - Instrument Cluster #1 (23) did not report 0 for reserved bits");
     }
 
     @Test
     public void testVerifyError() {
 
-        List<DM5DiagnosticReadinessPacket> dm5Packets = new ArrayList<>() {
-            {
-                add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x00, 0x11, 0x22,
-                        0x13, 0x44, 0x55, 0x66, 0x77, 0x88)));
-                add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x17, 0x01, 0x02,
-                        0x14, 0x04, 0x05, 0x06, 0x07, 0x08)));
-                add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x21, 0x10, 0x20,
-                        0x00, 0x40, 0x50, 0x60, 0x70, 0x80)));
-            }
-        };
+        Packet packet0 = Packet.create(PGN, 0, 0x11, 0x22, 0x13, 0x44, 0x55, 0x66, 0x77, 0x88);
+        var dm5_0 = new DM5DiagnosticReadinessPacket(packet0);
 
-        RequestResult<DM5DiagnosticReadinessPacket> response = new RequestResult<>(false,
-                dm5Packets, Collections.emptyList());
-        ArrayList<Integer> obdModuleAddresses = new ArrayList<>() {
-            {
-                add(0x00);
-                add(0x17);
-                add(0x21);
-            }
-        };
-        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
+        Packet packet17 = Packet.create(PGN, 0x17, 1, 0x02, 0x14, 0x04, 0x05, 0x06, 0x07, 0x08);
+        var dm5_17 = new DM5DiagnosticReadinessPacket(packet17);
 
-        assertFalse(instance.verify(listener, PART_NUMBER, STEP_NUMBER, response));
+        Packet packet21 = Packet.create(PGN, 0x21, 0x10, 0x20, 0, 0x40, 0x50, 0x60, 0x70, 0x80);
+        var dm5_21 = new DM5DiagnosticReadinessPacket(packet21);
 
-        verify(dataRepository).getObdModuleAddresses();
+        RequestResult<DM5DiagnosticReadinessPacket> response = RequestResult.of(dm5_0, dm5_17, dm5_21);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(0x17));
+        dataRepository.putObdModule(new OBDModuleInformation(0x21));
 
-        StringBuilder expectedMessage1a = new StringBuilder(SECTION_A6_VALIDATOR + NL);
-        expectedMessage1a.append(
-                " Step 1.a - No response from an OBD ECU (ECUs that indicate 0x13, 0x14, 0x22, or 0x23 for OBD compliance)")
-                .append(NL);
-        expectedMessage1a.append("   ECU with source address :  33 did not return a response");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                expectedMessage1a.toString());
+        instance.verify(listener, "6.1.2.3.a", response);
 
-        StringBuilder expectedMessage1b = new StringBuilder(
-                SECTION_A6_VALIDATOR + NL);
-        expectedMessage1b.append("Step 1.b - A response does not report supported and")
-                .append(NL)
-                .append(" complete for comprehensive components support and status (SPN")
-                .append(NL)
-                .append(" 1221, byte 4, bit 3 = 1 and bit 7 = 0), except when all the")
-                .append(NL)
-                .append(" bits in SPNs 1221, 1222, and 1223 are sent as 0 as defined in")
-                .append(NL)
-                .append(" SAE J1939-73 paragraph 5.7.5");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                expectedMessage1b.toString());
+        verify(tableA6Validator).verify(eq(listener), any(), eq("6.1.2.3.a (A6.2.c)"));
 
-        StringBuilder expectedMessage1c = new StringBuilder(
-                SECTION_A6_VALIDATOR + NL);
-        expectedMessage1c.append(" Step 1.c - A response does not report 0 = ‘complete/not")
-                .append(NL)
-                .append("supported’ for the status bit for every unsupported monitors")
-                .append(NL)
-                .append("(i.e., any of the support bits in SPN 1221, byte 4 bits 1-3,")
-                .append(NL)
-                .append("1222 byte 5 bits 1-8, or 1222 byte 6 bits 1-5 that report 0")
-                .append(NL)
-                .append("also report 0 in the corresponding status bit in SPN 1221 and")
-                .append(NL)
-                .append("1223");
-        verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                expectedMessage1c.toString());
-
-        String expectedMessage2c = SECTION_A6_VALIDATOR + NL +
-                " Step 2.c - Composite vehicle readiness does not meet any of the criteria in Table A-6";
-        verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER,
-                FAIL,
-                expectedMessage2c);
-
-        StringBuilder expectedMessage2d = new StringBuilder(SECTION_A6_VALIDATOR + NL);
-        expectedMessage2d.append(" Step 2.d An individual required monitor is supported by more than one OBD ECU");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, expectedMessage2d.toString());
-
-        StringBuilder expectedMessage3b = new StringBuilder(SECTION_A6_VALIDATOR + NL);
-        expectedMessage3b.append(" Step 3.b [byte 4] failed all binary zeros or all binary ones check")
-                .append(NL)
-                .append(" Step 3.b [byte 5] failed all binary zeros or all binary ones check")
-                .append(NL)
-                .append(" Step 3.b [byte 6] failed all binary zeros or all binary ones check")
-                .append(NL)
-                .append(" Step 3.b [byte 7] failed all binary zeros or all binary ones check")
-                .append(NL)
-                .append(" Step 3.b [byte 8] failed all binary zeros or all binary ones check")
-                .append(NL);
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                expectedMessage3b.toString());
-
-        verify(tableA6Validator, times(2)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
-
-        String expectedMessage =
-                FAIL.toString() + ": " + expectedMessage1a + NL +
-                        FAIL.toString() + ": " + expectedMessage1c + NL +
-                        FAIL.toString() + ": " + expectedMessage1b + NL +
-                        FAIL.toString() + ": " + expectedMessage1c + NL +
-                        WARN.toString() + ": " + expectedMessage2d + NL +
-                        WARN.toString() + ": " + expectedMessage3b;
-        assertEquals(expectedMessage, listener.getMessages());
-        assertEquals("", listener.getMilestones());
+        assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.b) - Engine #1 (0) did not report supported and complete for comprehensive components support and status");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.b) - Body Controller (33) did not report supported and complete for comprehensive components support and status");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.c) - Engine #1 (0) did not 'complete/not supported' for the unsupported monitor Exhaust Gas Sensor");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.c) - Engine #1 (0) did not 'complete/not supported' for the unsupported monitor Heated catalyst");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.c) - Engine #1 (0) did not 'complete/not supported' for the unsupported monitor NOx catalyst/adsorber");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.c) - Instrument Cluster #1 (23) did not 'complete/not supported' for the unsupported monitor Heated catalyst");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.c) - Instrument Cluster #1 (23) did not 'complete/not supported' for the unsupported monitor NOx catalyst/adsorber");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.c) - Body Controller (33) did not 'complete/not supported' for the unsupported monitor Comprehensive component");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.c) - Body Controller (33) did not 'complete/not supported' for the unsupported monitor Exhaust Gas Sensor");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.d) - Engine #1 (0) did not report 0 for reserved bits");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a (A6.1.d) - Body Controller (33) did not report 0 for reserved bits");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - A/C system refrigerant is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - Boost pressure control sys is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - Catalyst is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - Diesel Particulate Filter is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - Evaporative system is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.2.d) - Exhaust Gas Sensor heater is supported by more than one OBD ECU");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a (A6.3.a) - Non-OBD ECU Body Controller (33) responded");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "All the monitor status and support bits from Body Controller (33) are not all binary zeros or all binary ones");
     }
 
 }

@@ -16,12 +16,12 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Stream;
+
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -39,28 +39,26 @@ import org.junit.runner.RunWith;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Unit tests for the {@link DiagnosticMessageModule}
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
-@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-        justification = "The values returned are properly ignored on verify statements.")
+@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The values returned are properly ignored on verify statements.")
 @RunWith(MockitoJUnitRunner.class)
 public class DiagnosticReadinessModuleTest {
 
     private static final int BUS_ADDR = 0xA5;
+    private DiagnosticMessageModule instance;
+    @Spy
+    private J1939 j1939;
+    private TestResultsListener listener;
 
     private static MonitoredSystemStatus getStatus(boolean enabled, boolean complete) {
         return findStatus(true, enabled, complete);
     }
-
-    private DiagnosticMessageModule instance;
-
-    @Spy
-    private J1939 j1939;
-
-    private TestResultsListener listener;
 
     @Before
     public void setUp() throws Exception {
@@ -74,29 +72,50 @@ public class DiagnosticReadinessModuleTest {
     @Test
     public void testGetCompositeSystems() {
         Set<MonitoredSystem> monitoredSystems = new ConcurrentSkipListSet<>();
-        monitoredSystems.add(new MonitoredSystem("System123", getStatus(true, true), 1, AC_SYSTEM_REFRIGERANT, true));
-        monitoredSystems.add(new MonitoredSystem("System123", getStatus(true, true), 2, AC_SYSTEM_REFRIGERANT, true));
-        monitoredSystems.add(new MonitoredSystem("System123", getStatus(true, true), 3, AC_SYSTEM_REFRIGERANT, true));
-        monitoredSystems.add(new MonitoredSystem("System456",
+        monitoredSystems.add(new MonitoredSystem(AC_SYSTEM_REFRIGERANT, getStatus(true, true), 1, true));
+        monitoredSystems.add(new MonitoredSystem(AC_SYSTEM_REFRIGERANT, getStatus(true, true), 2, true));
+        monitoredSystems.add(new MonitoredSystem(AC_SYSTEM_REFRIGERANT, getStatus(true, true), 3, true));
+        monitoredSystems.add(new MonitoredSystem(
+                                                 BOOST_PRESSURE_CONTROL_SYS,
                                                  getStatus(true, true),
                                                  1,
-                                                 BOOST_PRESSURE_CONTROL_SYS,
                                                  true));
-        monitoredSystems.add(new MonitoredSystem("System456",
-                                                 getStatus(true, false), 2, BOOST_PRESSURE_CONTROL_SYS, true));
-        monitoredSystems.add(new MonitoredSystem("System456",
-                                                 getStatus(false, false), 3, BOOST_PRESSURE_CONTROL_SYS, true));
-        monitoredSystems.add(new MonitoredSystem("System789", getStatus(false, false), 1, CATALYST, true));
-        monitoredSystems.add(new MonitoredSystem("System789", getStatus(false, false), 2, CATALYST, true));
-        monitoredSystems.add(new MonitoredSystem("System789", getStatus(false, false), 3, CATALYST, true));
+        monitoredSystems.add(new MonitoredSystem(
+                                                 BOOST_PRESSURE_CONTROL_SYS,
+                                                 getStatus(true, false),
+                                                 2,
+                                                 true));
+        monitoredSystems.add(new MonitoredSystem(
+                                                 BOOST_PRESSURE_CONTROL_SYS,
+                                                 getStatus(false, false),
+                                                 3,
+                                                 true));
+        monitoredSystems.add(new MonitoredSystem(CATALYST, getStatus(false, false), 1, true));
+        monitoredSystems.add(new MonitoredSystem(CATALYST, getStatus(false, false), 2, true));
+        monitoredSystems.add(new MonitoredSystem(CATALYST, getStatus(false, false), 3, true));
 
         List<CompositeMonitoredSystem> expected = new ArrayList<>();
         expected.add(new CompositeMonitoredSystem(
-                new MonitoredSystem("System123", getStatus(true, true), -1, AC_SYSTEM_REFRIGERANT, true), true));
+                                                  new MonitoredSystem(
+                                                                      AC_SYSTEM_REFRIGERANT,
+                                                                      getStatus(true, true),
+                                                                      -1,
+                                                                      true),
+                                                  true));
         expected.add(new CompositeMonitoredSystem(
-                new MonitoredSystem("System456", getStatus(true, false), -1, BOOST_PRESSURE_CONTROL_SYS, true), true));
+                                                  new MonitoredSystem(
+                                                                      BOOST_PRESSURE_CONTROL_SYS,
+                                                                      getStatus(true, false),
+                                                                      -1,
+                                                                      true),
+                                                  true));
         expected.add(new CompositeMonitoredSystem(
-                new MonitoredSystem("System789", getStatus(false, false), -1, CATALYST, true), true));
+                                                  new MonitoredSystem(
+                                                                      CATALYST,
+                                                                      getStatus(false, false),
+                                                                      -1,
+                                                                      true),
+                                                  true));
 
         List<CompositeMonitoredSystem> actual = getCompositeSystems(monitoredSystems, true);
         assertEquals(expected, actual);
@@ -111,10 +130,10 @@ public class DiagnosticReadinessModuleTest {
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM20 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 C2 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
         instance.requestDM20(listener);
         assertEquals(expected, listener.getResults());
 
@@ -130,15 +149,43 @@ public class DiagnosticReadinessModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
         DM20MonitorPerformanceRatioPacket packet1 = new DM20MonitorPerformanceRatioPacket(
-                Packet.create(pgn | BUS_ADDR, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                                          Packet.create(pgn | BUS_ADDR,
+                                                                                                        0x00,
+                                                                                                        0x11,
+                                                                                                        0x22,
+                                                                                                        0x33,
+                                                                                                        0x44,
+                                                                                                        0x55,
+                                                                                                        0x66,
+                                                                                                        0x77,
+                                                                                                        0x88));
         DM20MonitorPerformanceRatioPacket packet2 = new DM20MonitorPerformanceRatioPacket(
-                Packet.create(pgn | BUS_ADDR, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
+                                                                                          Packet.create(pgn | BUS_ADDR,
+                                                                                                        0x17,
+                                                                                                        0x01,
+                                                                                                        0x02,
+                                                                                                        0x03,
+                                                                                                        0x04,
+                                                                                                        0x05,
+                                                                                                        0x06,
+                                                                                                        0x07,
+                                                                                                        0x08));
         DM20MonitorPerformanceRatioPacket packet3 = new DM20MonitorPerformanceRatioPacket(
-                Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                                                                                          Packet.create(pgn | BUS_ADDR,
+                                                                                                        0x21,
+                                                                                                        0x10,
+                                                                                                        0x20,
+                                                                                                        0x30,
+                                                                                                        0x40,
+                                                                                                        0x50,
+                                                                                                        0x60,
+                                                                                                        0x70,
+                                                                                                        0x80));
+        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                          .read(anyLong(),
+                                                                                                any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM20 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 C2 00 (TX)" + NL;
         expected += "10:15:30.0000 18C2A500 [8] 11 22 33 44 55 66 77 88" + NL;
@@ -175,15 +222,43 @@ public class DiagnosticReadinessModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
         DM20MonitorPerformanceRatioPacket packet1 = new DM20MonitorPerformanceRatioPacket(
-                Packet.create(pgn | BUS_ADDR, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                                          Packet.create(pgn | BUS_ADDR,
+                                                                                                        0x01,
+                                                                                                        0x11,
+                                                                                                        0x22,
+                                                                                                        0x33,
+                                                                                                        0x44,
+                                                                                                        0x55,
+                                                                                                        0x66,
+                                                                                                        0x77,
+                                                                                                        0x88));
         DM20MonitorPerformanceRatioPacket packet2 = new DM20MonitorPerformanceRatioPacket(
-                Packet.create(pgn | BUS_ADDR, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
+                                                                                          Packet.create(pgn | BUS_ADDR,
+                                                                                                        0x17,
+                                                                                                        0x01,
+                                                                                                        0x02,
+                                                                                                        0x03,
+                                                                                                        0x04,
+                                                                                                        0x05,
+                                                                                                        0x06,
+                                                                                                        0x07,
+                                                                                                        0x08));
         DM20MonitorPerformanceRatioPacket packet3 = new DM20MonitorPerformanceRatioPacket(
-                Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                                                                                          Packet.create(pgn | BUS_ADDR,
+                                                                                                        0x21,
+                                                                                                        0x10,
+                                                                                                        0x20,
+                                                                                                        0x30,
+                                                                                                        0x40,
+                                                                                                        0x50,
+                                                                                                        0x60,
+                                                                                                        0x70,
+                                                                                                        0x80));
+        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                          .read(anyLong(),
+                                                                                                any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM20 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 C2 00 (TX)" + NL;
         expected += "10:15:30.0000 18C2A501 [8] 11 22 33 44 55 66 77 88" + NL;
@@ -221,10 +296,10 @@ public class DiagnosticReadinessModuleTest {
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM21 Request to Instrument Cluster #1 (23)" + NL;
         expected += "10:15:30.0000 18EA17A5 [3] 00 C1 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         instance.requestDM21(listener, 0x17);
         assertEquals(expected, listener.getResults());
@@ -241,10 +316,19 @@ public class DiagnosticReadinessModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x21);
 
         DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
-                Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
+                                                                                  Packet.create(pgn | BUS_ADDR,
+                                                                                                0x21,
+                                                                                                0x10,
+                                                                                                0x20,
+                                                                                                0x30,
+                                                                                                0x40,
+                                                                                                0x50,
+                                                                                                0x60,
+                                                                                                0x70,
+                                                                                                0x80));
         doReturn(Stream.of(packet3.getPacket())).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Destination Specific DM21 Request to Body Controller (33)" + NL;
         expected += "10:15:30.0000 18EA21A5 [3] 00 C1 00 (TX)" + NL;
         expected += "10:15:30.0000 18C1A521 [8] 10 20 30 40 50 60 70 80" + NL;
@@ -270,12 +354,13 @@ public class DiagnosticReadinessModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty(), Stream.empty())
-                .when(j1939).read(anyLong(), any());
+                                                                                .when(j1939)
+                                                                                .read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM21 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 C1 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
         instance.requestDM21(listener);
         assertEquals(expected, listener.getResults());
 
@@ -291,15 +376,43 @@ public class DiagnosticReadinessModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
         DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(
-                Packet.create(pgn | BUS_ADDR, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                                  Packet.create(pgn | BUS_ADDR,
+                                                                                                0x00,
+                                                                                                0x11,
+                                                                                                0x22,
+                                                                                                0x33,
+                                                                                                0x44,
+                                                                                                0x55,
+                                                                                                0x66,
+                                                                                                0x77,
+                                                                                                0x88));
         DM21DiagnosticReadinessPacket packet2 = new DM21DiagnosticReadinessPacket(
-                Packet.create(pgn | BUS_ADDR, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
+                                                                                  Packet.create(pgn | BUS_ADDR,
+                                                                                                0x17,
+                                                                                                0x01,
+                                                                                                0x02,
+                                                                                                0x03,
+                                                                                                0x04,
+                                                                                                0x05,
+                                                                                                0x06,
+                                                                                                0x07,
+                                                                                                0x08));
         DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
-                Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                                                                                  Packet.create(pgn | BUS_ADDR,
+                                                                                                0x21,
+                                                                                                0x10,
+                                                                                                0x20,
+                                                                                                0x30,
+                                                                                                0x40,
+                                                                                                0x50,
+                                                                                                0x60,
+                                                                                                0x70,
+                                                                                                0x80));
+        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                          .read(anyLong(),
+                                                                                                any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM21 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 C1 00 (TX)" + NL;
         expected += "10:15:30.0000 18C1A500 [8] 11 22 33 44 55 66 77 88" + NL;
@@ -339,15 +452,43 @@ public class DiagnosticReadinessModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
         DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(
-                Packet.create(pgn | BUS_ADDR, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                                  Packet.create(pgn | BUS_ADDR,
+                                                                                                0x01,
+                                                                                                0x11,
+                                                                                                0x22,
+                                                                                                0x33,
+                                                                                                0x44,
+                                                                                                0x55,
+                                                                                                0x66,
+                                                                                                0x77,
+                                                                                                0x88));
         DM21DiagnosticReadinessPacket packet2 = new DM21DiagnosticReadinessPacket(
-                Packet.create(pgn | BUS_ADDR, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
+                                                                                  Packet.create(pgn | BUS_ADDR,
+                                                                                                0x17,
+                                                                                                0x01,
+                                                                                                0x02,
+                                                                                                0x03,
+                                                                                                0x04,
+                                                                                                0x05,
+                                                                                                0x06,
+                                                                                                0x07,
+                                                                                                0x08));
         DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
-                Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                                                                                  Packet.create(pgn | BUS_ADDR,
+                                                                                                0x21,
+                                                                                                0x10,
+                                                                                                0x20,
+                                                                                                0x30,
+                                                                                                0x40,
+                                                                                                0x50,
+                                                                                                0x60,
+                                                                                                0x70,
+                                                                                                0x80));
+        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                          .read(anyLong(),
+                                                                                                any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM21 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 C1 00 (TX)" + NL;
         expected += "10:15:30.0000 18C1A501 [8] 11 22 33 44 55 66 77 88" + NL;
@@ -387,15 +528,43 @@ public class DiagnosticReadinessModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
         DM5DiagnosticReadinessPacket packet1 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                                Packet.create(pgn,
+                                                                                              0x00,
+                                                                                              0x11,
+                                                                                              0x22,
+                                                                                              0x33,
+                                                                                              0x44,
+                                                                                              0x55,
+                                                                                              0x66,
+                                                                                              0x77,
+                                                                                              0x88));
         DM5DiagnosticReadinessPacket packet2 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
+                                                                                Packet.create(pgn,
+                                                                                              0x17,
+                                                                                              0x01,
+                                                                                              0x02,
+                                                                                              0x03,
+                                                                                              0x04,
+                                                                                              0x05,
+                                                                                              0x06,
+                                                                                              0x07,
+                                                                                              0x08));
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                                                                                Packet.create(pgn,
+                                                                                              0x21,
+                                                                                              0x10,
+                                                                                              0x20,
+                                                                                              0x30,
+                                                                                              0x40,
+                                                                                              0x50,
+                                                                                              0x60,
+                                                                                              0x70,
+                                                                                              0x80));
+        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                          .read(anyLong(),
+                                                                                                any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM5 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
         expected += "10:15:30.0000 18FECE00 [8] 11 22 33 44 55 66 77 88" + NL;
@@ -423,10 +592,10 @@ public class DiagnosticReadinessModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "";
+        String expected = "" + NL;
         expected += "10:15:30.0000 Global DM5 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
         instance.requestDM5(listener);
         assertEquals(expected, listener.getResults());
 

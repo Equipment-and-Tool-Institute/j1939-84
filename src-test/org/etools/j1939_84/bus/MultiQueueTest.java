@@ -19,7 +19,7 @@ public class MultiQueueTest {
     /** Add 10000 items from 25 different threads in less than 1 s */
     @Test(timeout = 1000)
     @TestDoc(description = "Verifies that 10,000 items can be added from 25 threads and all 250,000 items are read by one thread in less than 1 s.")
-    public void bandwidthTest()  {
+    public void bandwidthTest() {
         try (MultiQueue<Integer> queue = new MultiQueue<>()) {
             long COUNT = 10000;
             int THREADS = 25;
@@ -34,13 +34,13 @@ public class MultiQueueTest {
                 });
             }
             assertEquals(COUNT * THREADS,
-                    stream
-                            // .peek(x -> System.err.println(x))
-                            .count());
+                         stream
+                               // .peek(x -> System.err.println(x))
+                               .count());
         }
     }
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent") @Test()
+    @Test()
     @TestDoc(description = "Verifies that the streams generated from the MultiQueue can correctly support multiple items, findFirst(), skip() and an empty stream.")
     public void simpleTest() throws BusException {
         try (MultiQueue<Integer> q = new MultiQueue<>()) {
@@ -115,17 +115,17 @@ public class MultiQueueTest {
             queue.add(2);
             queue.add(1);
             assertEquals(3,
-                    stream1.peek(n -> {
-                        System.err.println("Verify test:" + n);
-                        assertEquals(n - 1, queue.duplicate(stream1, 10, TimeUnit.MILLISECONDS).count());
-                    })
-                            .count());
+                         stream1.peek(n -> {
+                             System.err.println("Verify test:" + n);
+                             assertEquals(n - 1, queue.duplicate(stream1, 10, TimeUnit.MILLISECONDS).count());
+                         })
+                                .count());
         }
     }
 
     /** Verify that building a stream with a timeout works. */
     @Test
-    @TestDoc(description = "Verify that timeouts interrupts streams, so that a 205 ms stream only has 205 ms of data in it.")
+    @TestDoc(description = "Verify that timeouts interrupts streams, so that a 410 ms stream only has 410 ms of data in it.")
     public void testTimedInterruption() throws Exception {
         // sync on q, because thread startup is unpredictably slow
         try (MultiQueue<Integer> q = new MultiQueue<>()) {
@@ -147,12 +147,10 @@ public class MultiQueueTest {
                 // wait on notify
                 q.wait();
             }
-            Stream<Integer> s1 = q.stream(205, TimeUnit.MILLISECONDS);
-            Stream<Integer> s2 = q.stream(405, TimeUnit.MILLISECONDS);
-            // verify that roughly 20 packets were processed in 200 ms
-            assertEquals(20, s1.count(), 5);
-            // verify that roughly 40 packets were processed in 200 ms
-            assertEquals(40, s2.count(), 5);
+            Stream<Integer> s1 = q.stream(410, TimeUnit.MILLISECONDS);
+            Stream<Integer> s2 = q.stream(810, TimeUnit.MILLISECONDS);
+            assertEquals("40 packets were processed in 400 ms", 40, s1.count(), 10);
+            assertEquals("80 packets were processed in 800 ms", 80, s2.count(), 10);
         }
     }
 }

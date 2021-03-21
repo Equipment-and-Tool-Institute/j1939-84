@@ -1,11 +1,12 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import java.util.List;
 import java.util.Objects;
+
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The {@link ParsedPacket} for Trip Diagnostic Readiness (DM26)
@@ -15,35 +16,49 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
  */
 public class DM26TripDiagnosticReadinessPacket extends DiagnosticReadinessPacket {
 
-    public static final int PGN = 64952;
+    public static final int PGN = 64952; // 0xFDB8
+
+    public static DM26TripDiagnosticReadinessPacket create(int address, int secondsSCC, int warmUpsSCC) {
+        return DM26TripDiagnosticReadinessPacket.create(address, secondsSCC, warmUpsSCC, List.of(), List.of());
+    }
+
+    public static DM26TripDiagnosticReadinessPacket create(int address,
+                                                           int secondsSCC,
+                                                           int warmUpsSCC,
+                                                           List<CompositeSystem> enabledSystems,
+                                                           List<CompositeSystem> completeSystems) {
+        int[] data = new int[8];
+        data[0] = secondsSCC & 0xFF;
+        data[1] = (secondsSCC >> 8) & 0xFF;
+        data[2] = warmUpsSCC & 0xFF;
+
+        for (CompositeSystem systemId : CompositeSystem.values()) {
+            boolean isEnabled = enabledSystems.contains(systemId);
+            boolean isComplete = completeSystems.contains(systemId);
+            populateData(systemId, isComplete, isEnabled, data);
+        }
+
+        return new DM26TripDiagnosticReadinessPacket(Packet.create(PGN, address, data));
+    }
 
     private final double timeRunning;
     private final byte warmUps;
 
     public DM26TripDiagnosticReadinessPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+        super(packet);
         warmUps = getByte(2);
         timeRunning = getScaledShortValue(0, 1.0);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-
-        if (!(obj instanceof DM26TripDiagnosticReadinessPacket)) {
-            return false;
-        }
-
-        DM26TripDiagnosticReadinessPacket that = (DM26TripDiagnosticReadinessPacket) obj;
-        return getWarmUpsSinceClear() == that.getWarmUpsSinceClear()
-                && getTimeSinceEngineStart() == that.getTimeSinceEngineStart() && super.equals(obj);
+    public String getName() {
+        return "DM26";
     }
 
     @Override
-    public String getName() {
-        return "DM26";
+    public String toString() {
+        return getStringPrefix() + "Warm-ups: " + getValueWithUnits(getWarmUpsSinceClear(), null)
+                + ", Time Since Engine Start: " + getValueWithUnits(getTimeSinceEngineStart(), "seconds");
     }
 
     /**
@@ -71,9 +86,18 @@ public class DM26TripDiagnosticReadinessPacket extends DiagnosticReadinessPacket
     }
 
     @Override
-    public String toString() {
-        return getStringPrefix() + "Warm-ups: " + getValueWithUnits(getWarmUpsSinceClear(), null)
-                + ", Time Since Engine Start: " + getValueWithUnits(getTimeSinceEngineStart(), "seconds");
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof DM26TripDiagnosticReadinessPacket)) {
+            return false;
+        }
+
+        DM26TripDiagnosticReadinessPacket that = (DM26TripDiagnosticReadinessPacket) obj;
+        return getWarmUpsSinceClear() == that.getWarmUpsSinceClear()
+                && getTimeSinceEngineStart() == that.getTimeSinceEngineStart() && super.equals(obj);
     }
 
 }

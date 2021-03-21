@@ -17,12 +17,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Stream;
+
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Packet;
@@ -46,26 +46,24 @@ import org.junit.runner.RunWith;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Unit tests for the {@link VehicleInformationModule} class
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
-@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-                    justification = "The values returned are properly ignored on verify statements.")
+@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The values returned are properly ignored on verify statements.")
 @RunWith(MockitoJUnitRunner.class)
 public class VehicleInformationModuleTest {
 
     private static final int BUS_ADDR = 0xA5;
 
     private static final Charset UTF8 = StandardCharsets.UTF_8;
-
+    private final TestResultsListener listener = new TestResultsListener();
     private VehicleInformationModule instance;
-
     @Spy
     private J1939 j1939;
-
-    private final TestResultsListener listener = new TestResultsListener();
 
     @Before
     public void setup() {
@@ -81,14 +79,12 @@ public class VehicleInformationModuleTest {
     }
 
     @Test
-    @TestDoc(description = "Verify that engine family from the DM56 is correctly cached.",
-             dependsOn = "DM56EngineFamilyPacketTest")
+    @TestDoc(description = "Verify that engine family from the DM56 is correctly cached.", dependsOn = "DM56EngineFamilyPacketTest")
     public void testGetEngineFamilyName() throws Exception {
         DM56EngineFamilyPacket response = mock(DM56EngineFamilyPacket.class);
         when(response.getFamilyName()).thenReturn("family");
         doReturn(new RequestResult<>(false, response)).when(j1939)
-                .requestGlobal(null, DM56EngineFamilyPacket.class, NOOP
-                );
+                                                      .requestGlobal(null, DM56EngineFamilyPacket.class, NOOP);
 
         String actual = instance.getEngineFamilyName();
         instance.getEngineFamilyName(); // Make sure it's cached
@@ -98,11 +94,9 @@ public class VehicleInformationModuleTest {
     }
 
     @Test
-    @TestDoc(description = "Verify that engine family from a missing DM56 is correctly not detected.",
-             dependsOn = "DM56EngineFamilyPacketTest")
+    @TestDoc(description = "Verify that engine family from a missing DM56 is correctly not detected.", dependsOn = "DM56EngineFamilyPacketTest")
     public void testGetEngineFamilyNameNoResponse() {
-        doReturn(RequestResult.empty()).when(j1939).requestGlobal(null, DM56EngineFamilyPacket.class, NOOP
-        );
+        doReturn(RequestResult.empty()).when(j1939).requestGlobal(null, DM56EngineFamilyPacket.class, NOOP);
 
         try {
             instance.getEngineFamilyName();
@@ -115,15 +109,16 @@ public class VehicleInformationModuleTest {
     }
 
     @Test
-    @TestDoc(description = "Verify that multiple family names that are not equal results in error.",
-             dependsOn = "DM56EngineFamilyPacketTest")
+    @TestDoc(description = "Verify that multiple family names that are not equal results in error.", dependsOn = "DM56EngineFamilyPacketTest")
     public void testGetEngineFamilyNameWithDifferentResponses() {
         DM56EngineFamilyPacket response1 = mock(DM56EngineFamilyPacket.class);
         when(response1.getFamilyName()).thenReturn("name1");
         DM56EngineFamilyPacket response2 = mock(DM56EngineFamilyPacket.class);
         when(response2.getFamilyName()).thenReturn("name2");
         doReturn(new RequestResult<>(false, response1, response2)).when(j1939)
-                .requestGlobal(null, DM56EngineFamilyPacket.class, NOOP);
+                                                                  .requestGlobal(null,
+                                                                                 DM56EngineFamilyPacket.class,
+                                                                                 NOOP);
 
         try {
             instance.getEngineFamilyName();
@@ -136,14 +131,12 @@ public class VehicleInformationModuleTest {
     }
 
     @Test
-    @TestDoc(description = "Verify that engine model year from the DM56 is correctly cached.",
-             dependsOn = "DM56EngineFamilyPacketTest")
+    @TestDoc(description = "Verify that engine model year from the DM56 is correctly cached.", dependsOn = "DM56EngineFamilyPacketTest")
     public void testGetEngineModelYear() throws Exception {
         DM56EngineFamilyPacket response = mock(DM56EngineFamilyPacket.class);
         when(response.getEngineModelYear()).thenReturn(123);
         doReturn(new RequestResult<>(false, response)).when(j1939)
-                .requestGlobal(null, DM56EngineFamilyPacket.class, NOOP
-                );
+                                                      .requestGlobal(null, DM56EngineFamilyPacket.class, NOOP);
 
         Integer actual = instance.getEngineModelYear();
         instance.getEngineModelYear(); // Make sure it's cached
@@ -155,8 +148,7 @@ public class VehicleInformationModuleTest {
     @Test
     @TestDoc(description = "Verify that a failure is generated when there is no response to the request for DM56.")
     public void testGetEngineModelYearNoResponse() {
-        doReturn(RequestResult.empty()).when(j1939).requestGlobal(null, DM56EngineFamilyPacket.class, NOOP
-        );
+        doReturn(RequestResult.empty()).when(j1939).requestGlobal(null, DM56EngineFamilyPacket.class, NOOP);
 
         try {
             instance.getEngineModelYear();
@@ -169,16 +161,16 @@ public class VehicleInformationModuleTest {
     }
 
     @Test
-    @TestDoc(description = "Verify that multiple model years that are not equal results in error.",
-             dependsOn = "DM56EngineFamilyPacketTest")
+    @TestDoc(description = "Verify that multiple model years that are not equal results in error.", dependsOn = "DM56EngineFamilyPacketTest")
     public void testGetEngineModelYearWithDifferentResponses() {
         DM56EngineFamilyPacket response1 = mock(DM56EngineFamilyPacket.class);
         when(response1.getEngineModelYear()).thenReturn(123);
         DM56EngineFamilyPacket response2 = mock(DM56EngineFamilyPacket.class);
         when(response2.getEngineModelYear()).thenReturn(456);
         doReturn(new RequestResult<>(false, response1, response2)).when(j1939)
-                .requestGlobal(null,
-                               DM56EngineFamilyPacket.class, NOOP);
+                                                                  .requestGlobal(null,
+                                                                                 DM56EngineFamilyPacket.class,
+                                                                                 NOOP);
 
         try {
             instance.getEngineModelYear();
@@ -191,15 +183,12 @@ public class VehicleInformationModuleTest {
     }
 
     @Test
-    @TestDoc(@TestItem(verifies = "6.1.5.1.a",
-                       description = "Verified that the VIN is requested with a global request.",
-                       dependsOn = "VehicleIdentificationPacketTest"))
+    @TestDoc(@TestItem(verifies = "6.1.5.1.a", description = "Verified that the VIN is requested with a global request.", dependsOn = "VehicleIdentificationPacketTest"))
     public void testGetVin() throws Exception {
         VehicleIdentificationPacket response = mock(VehicleIdentificationPacket.class);
         when(response.getVin()).thenReturn("vin");
         doReturn(new RequestResult<>(false, response)).when(j1939)
-                .requestGlobal(null, VehicleIdentificationPacket.class, NOOP
-                );
+                                                      .requestGlobal(null, VehicleIdentificationPacket.class, NOOP);
 
         String vin = instance.getVin();
         instance.getVin(); // Make sure it's cached
@@ -209,12 +198,9 @@ public class VehicleInformationModuleTest {
     }
 
     @Test
-    @TestDoc(@TestItem(verifies = "6.1.5.2.a",
-                       description = "Verify if a VIN request is not answered, error is thrown.",
-                       dependsOn = "VehicleIdentificationPacketTest"))
+    @TestDoc(@TestItem(verifies = "6.1.5.2.a", description = "Verify if a VIN request is not answered, error is thrown.", dependsOn = "VehicleIdentificationPacketTest"))
     public void testGetVinNoResponse() {
-        doReturn(RequestResult.empty()).when(j1939).requestGlobal(null, VehicleIdentificationPacket.class, NOOP
-        );
+        doReturn(RequestResult.empty()).when(j1939).requestGlobal(null, VehicleIdentificationPacket.class, NOOP);
 
         try {
             instance.getVin();
@@ -227,16 +213,17 @@ public class VehicleInformationModuleTest {
     }
 
     @Test
-    @TestDoc(@TestItem(verifies = "6.1.5.2.b",
-                       description = "Verify if a VIN request generates two different responses, error is thrown.",
-                       dependsOn = "VehicleIdentificationPacketTest"))
+    @TestDoc(@TestItem(verifies = "6.1.5.2.b", description = "Verify if a VIN request generates two different responses, error is thrown.", dependsOn = "VehicleIdentificationPacketTest"))
     public void testGetVinWithDifferentResponses() {
         VehicleIdentificationPacket response1 = mock(VehicleIdentificationPacket.class);
         when(response1.getVin()).thenReturn("vin1");
         VehicleIdentificationPacket response2 = mock(VehicleIdentificationPacket.class);
         when(response2.getVin()).thenReturn("vin2");
         doReturn(new RequestResult<>(false, response1, response2))
-                .when(j1939).requestGlobal(null, VehicleIdentificationPacket.class, NOOP);
+                                                                  .when(j1939)
+                                                                  .requestGlobal(null,
+                                                                                 VehicleIdentificationPacket.class,
+                                                                                 NOOP);
 
         try {
             instance.getVin();
@@ -255,7 +242,10 @@ public class VehicleInformationModuleTest {
         AddressClaimPacket packet3 = new AddressClaimPacket(Packet.parse("18EEFF00 00 00 40 05 00 00 65 14"));
 
         doReturn(new RequestResult<>(false, packet1, packet2, packet3))
-                .when(j1939).requestGlobal("Global Request for Address Claim", AddressClaimPacket.class, listener);
+                                                                       .when(j1939)
+                                                                       .requestGlobal("Global Request for Address Claim",
+                                                                                      AddressClaimPacket.class,
+                                                                                      listener);
 
         instance.reportAddressClaim(listener);
         assertEquals("", listener.getResults());
@@ -267,17 +257,23 @@ public class VehicleInformationModuleTest {
     public void testReportAddressClaimNoFunction0() {
         AddressClaimPacket packet1 = new AddressClaimPacket(Packet.parse("18EEFF55 10 F7 45 01 00 45 00 01"));
         doReturn(new RequestResult<>(false, packet1))
-                .when(j1939).requestGlobal("Global Request for Address Claim", AddressClaimPacket.class, listener);
+                                                     .when(j1939)
+                                                     .requestGlobal("Global Request for Address Claim",
+                                                                    AddressClaimPacket.class,
+                                                                    listener);
 
         instance.reportAddressClaim(listener);
-        assertEquals("Error: No module reported Function 0" + NL, listener.getResults());
+        assertEquals("Error: No ECU reported Function 0" + NL, listener.getResults());
         verify(j1939).requestGlobal("Global Request for Address Claim", AddressClaimPacket.class, listener);
     }
 
     @Test
     public void testReportAddressClaimNoResponse() {
         doReturn(RequestResult.empty(), RequestResult.empty(), RequestResult.empty())
-                .when(j1939).requestGlobal("Global Request for Address Claim", AddressClaimPacket.class, NOOP);
+                                                                                     .when(j1939)
+                                                                                     .requestGlobal("Global Request for Address Claim",
+                                                                                                    AddressClaimPacket.class,
+                                                                                                    NOOP);
         instance.reportAddressClaim(NOOP);
         verify(j1939).requestGlobal("Global Request for Address Claim", AddressClaimPacket.class, NOOP);
     }
@@ -285,20 +281,29 @@ public class VehicleInformationModuleTest {
     @Test
     public void testReportCalibrationInformation() {
         final int pgn = DM19CalibrationInformationPacket.PGN;
-        final byte[] calBytes1 = "ABCD1234567890123456".getBytes(UTF8);
-        final byte[] calBytes2 = "EFGH1234567890123456".getBytes(UTF8);
-        final byte[] calBytes3 = "IJKL1234567890123456".getBytes(UTF8);
+        byte[] calBytes1 = "ABCD1234567890123456".getBytes(UTF8);
+        byte[] calBytes2 = "EFGH1234567890123456".getBytes(UTF8);
+        byte[] calBytes3 = "IJKL1234567890123456".getBytes(UTF8);
 
         DM19CalibrationInformationPacket packet1 = new DM19CalibrationInformationPacket(
-                Packet.create(pgn, 0x00, calBytes1));
+                                                                                        Packet.create(pgn,
+                                                                                                      0x00,
+                                                                                                      calBytes1));
         DM19CalibrationInformationPacket packet2 = new DM19CalibrationInformationPacket(
-                Packet.create(pgn, 0x17, calBytes2));
+                                                                                        Packet.create(pgn,
+                                                                                                      0x17,
+                                                                                                      calBytes2));
         DM19CalibrationInformationPacket packet3 = new DM19CalibrationInformationPacket(
-                Packet.create(pgn, 0x21, calBytes3));
+                                                                                        Packet.create(pgn,
+                                                                                                      0x21,
+                                                                                                      calBytes3));
         when(j1939.requestGlobal("Global DM19 Request", DM19CalibrationInformationPacket.class, NOOP))
-                        .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
+                                                                                                      .thenReturn(new RequestResult<>(false,
+                                                                                                                                      packet1,
+                                                                                                                                      packet2,
+                                                                                                                                      packet3));
 
-        instance.reportCalibrationInformation(NOOP);
+        instance.requestDM19(NOOP);
 
         verify(j1939, times(2)).requestGlobal("Global DM19 Request", DM19CalibrationInformationPacket.class, NOOP);
     }
@@ -306,36 +311,54 @@ public class VehicleInformationModuleTest {
     @Test
     public void testReportCalibrationInformationWithAddress() {
         final int pgn = DM19CalibrationInformationPacket.PGN;
-        final byte[] calBytes1 = "ABCD1234567890123456".getBytes(UTF8);
+        byte[] calBytes1 = "ABCD1234567890123456".getBytes(UTF8);
 
         DM19CalibrationInformationPacket packet1 = new DM19CalibrationInformationPacket(
-                Packet.create(pgn, 0x00, calBytes1));
+                                                                                        Packet.create(pgn,
+                                                                                                      0x00,
+                                                                                                      calBytes1));
 
-        doReturn(new BusResult<>(false, packet1)).when(j1939).requestDS(
-                "Destination Specific DM19 Request to Engine #1 (0)",  DM19CalibrationInformationPacket.class, 0x00, NOOP);
+        doReturn(new BusResult<>(false, packet1)).when(j1939)
+                                                 .requestDS(
+                                                            "Destination Specific DM19 Request to Engine #1 (0)",
+                                                            DM19CalibrationInformationPacket.class,
+                                                            0x00,
+                                                            NOOP);
 
-        instance.reportCalibrationInformation(NOOP, 0x00);
+        instance.requestDM19(NOOP, 0x00);
 
-        verify(j1939).requestDS("Destination Specific DM19 Request to Engine #1 (0)", DM19CalibrationInformationPacket.class, 0x00, NOOP);
+        verify(j1939).requestDS("Destination Specific DM19 Request to Engine #1 (0)",
+                                DM19CalibrationInformationPacket.class,
+                                0x00,
+                                NOOP);
     }
 
     @Test
     public void testReportCalibrationInformationWithAddressWithoutResponse() {
 
-        doReturn(BusResult.empty()).when(j1939).requestDS(
-                "Destination Specific DM19 Request to Engine #1 (0)",  DM19CalibrationInformationPacket.class, 0x00, NOOP);
+        doReturn(BusResult.empty()).when(j1939)
+                                   .requestDS(
+                                              "Destination Specific DM19 Request to Engine #1 (0)",
+                                              DM19CalibrationInformationPacket.class,
+                                              0x00,
+                                              NOOP);
 
-        instance.reportCalibrationInformation(NOOP, 0x00);
+        instance.requestDM19(NOOP, 0x00);
 
-        verify(j1939).requestDS("Destination Specific DM19 Request to Engine #1 (0)",  DM19CalibrationInformationPacket.class, 0x00, NOOP);
+        verify(j1939).requestDS("Destination Specific DM19 Request to Engine #1 (0)",
+                                DM19CalibrationInformationPacket.class,
+                                0x00,
+                                NOOP);
     }
 
     @Test
     public void testReportCalibrationInformationWithNoResponses() {
         doReturn(RequestResult.empty()).when(j1939)
-                .requestGlobal("Global DM19 Request", DM19CalibrationInformationPacket.class, NOOP);
+                                       .requestGlobal("Global DM19 Request",
+                                                      DM19CalibrationInformationPacket.class,
+                                                      NOOP);
 
-        instance.reportCalibrationInformation(NOOP);
+        instance.requestDM19(NOOP);
 
         verify(j1939).requestGlobal("Global DM19 Request", DM19CalibrationInformationPacket.class, NOOP);
     }
@@ -343,9 +366,9 @@ public class VehicleInformationModuleTest {
     @Test
     public void testReportComponentIdentification() {
         final int pgn = ComponentIdentificationPacket.PGN;
-        final byte[] bytes1 = "Make1*Model1*SerialNumber1**".getBytes(UTF8);
-        final byte[] bytes2 = "****".getBytes(UTF8);
-        final byte[] bytes3 = "Make3*Model3***".getBytes(UTF8);
+        byte[] bytes1 = "Make1*Model1*SerialNumber1**".getBytes(UTF8);
+        byte[] bytes2 = "****".getBytes(UTF8);
+        byte[] bytes3 = "Make3*Model3***".getBytes(UTF8);
 
         Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0xFF);
@@ -354,9 +377,12 @@ public class VehicleInformationModuleTest {
         ComponentIdentificationPacket packet2 = new ComponentIdentificationPacket(Packet.create(pgn, 0x17, bytes2));
         ComponentIdentificationPacket packet3 = new ComponentIdentificationPacket(Packet.create(pgn, 0x21, bytes3));
         when(j1939.requestGlobal("Global Component Identification Request", ComponentIdentificationPacket.class, NOOP))
-                        .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
+                                                                                                                       .thenReturn(new RequestResult<>(false,
+                                                                                                                                                       packet1,
+                                                                                                                                                       packet2,
+                                                                                                                                                       packet3));
 
-        instance.reportComponentIdentification(NOOP);
+        instance.requestComponentIdentification(NOOP);
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
         verify(j1939, times(2)).requestGlobal("Global Component Identification Request",
@@ -367,8 +393,10 @@ public class VehicleInformationModuleTest {
     @Test
     public void testReportComponentIdentificationWithNoResponse() {
         doReturn(RequestResult.empty()).when(j1939)
-                .requestGlobal("Global Component Identification Request", ComponentIdentificationPacket.class, NOOP);
-        instance.reportComponentIdentification(NOOP);
+                                       .requestGlobal("Global Component Identification Request",
+                                                      ComponentIdentificationPacket.class,
+                                                      NOOP);
+        instance.requestComponentIdentification(NOOP);
 
         verify(j1939).requestGlobal("Global Component Identification Request",
                                     ComponentIdentificationPacket.class,
@@ -406,13 +434,16 @@ public class VehicleInformationModuleTest {
     @Test
     public void testReportVin() {
         final int pgn = VehicleIdentificationPacket.PGN;
-        final byte[] vinBytes = "12345678901234567890*".getBytes(UTF8);
+        byte[] vinBytes = "12345678901234567890*".getBytes(UTF8);
 
         VehicleIdentificationPacket packet1 = new VehicleIdentificationPacket(Packet.create(pgn, 0x00, vinBytes));
         VehicleIdentificationPacket packet2 = new VehicleIdentificationPacket(Packet.create(pgn, 0x17, vinBytes));
         VehicleIdentificationPacket packet3 = new VehicleIdentificationPacket(Packet.create(pgn, 0x21, vinBytes));
         doReturn(new RequestResult<>(false, packet1, packet2, packet3))
-                .when(j1939).requestGlobal("Global VIN Request", VehicleIdentificationPacket.class, NOOP);
+                                                                       .when(j1939)
+                                                                       .requestGlobal("Global VIN Request",
+                                                                                      VehicleIdentificationPacket.class,
+                                                                                      NOOP);
 
         List<VehicleIdentificationPacket> packets = instance.reportVin(NOOP);
         assertEquals(3, packets.size());
@@ -431,9 +462,9 @@ public class VehicleInformationModuleTest {
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
-        String expected = "10:15:30.0000 Global VIN Request" + NL;
+        String expected = NL + "10:15:30.0000 Global VIN Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] EC FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 Timeout - No Response" + NL;
 
         List<VehicleIdentificationPacket> packets = instance.reportVin(listener);
         assertEquals(0, packets.size());
@@ -447,19 +478,65 @@ public class VehicleInformationModuleTest {
         final int pgn = DM5DiagnosticReadinessPacket.PGN;
 
         DM5DiagnosticReadinessPacket packet1 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x00, 0x11, 0x22, 20, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                                Packet.create(pgn,
+                                                                                              0x00,
+                                                                                              0x11,
+                                                                                              0x22,
+                                                                                              20,
+                                                                                              0x44,
+                                                                                              0x55,
+                                                                                              0x66,
+                                                                                              0x77,
+                                                                                              0x88));
         DM5DiagnosticReadinessPacket packet11 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x00, 0x11, 0x22, 20, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                                 Packet.create(pgn,
+                                                                                               0x00,
+                                                                                               0x11,
+                                                                                               0x22,
+                                                                                               20,
+                                                                                               0x44,
+                                                                                               0x55,
+                                                                                               0x66,
+                                                                                               0x77,
+                                                                                               0x88));
         DM5DiagnosticReadinessPacket packet2 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
+                                                                                Packet.create(pgn,
+                                                                                              0x17,
+                                                                                              0x01,
+                                                                                              0x02,
+                                                                                              0x03,
+                                                                                              0x04,
+                                                                                              0x05,
+                                                                                              0x06,
+                                                                                              0x07,
+                                                                                              0x08));
         DM5DiagnosticReadinessPacket packet22 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
+                                                                                 Packet.create(pgn,
+                                                                                               0x17,
+                                                                                               0x01,
+                                                                                               0x02,
+                                                                                               0x03,
+                                                                                               0x04,
+                                                                                               0x05,
+                                                                                               0x06,
+                                                                                               0x07,
+                                                                                               0x08));
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x21, 0x10, 0x20, 19, 0x40, 0x50, 0x60, 0x70, 0x80));
-        doReturn(Stream.of(packet1.getPacket(), packet11.getPacket(),
-                           packet2.getPacket(), packet22.getPacket(),
+                                                                                Packet.create(pgn,
+                                                                                              0x21,
+                                                                                              0x10,
+                                                                                              0x20,
+                                                                                              19,
+                                                                                              0x40,
+                                                                                              0x50,
+                                                                                              0x60,
+                                                                                              0x70,
+                                                                                              0x80));
+        doReturn(Stream.of(packet1.getPacket(),
+                           packet11.getPacket(),
+                           packet2.getPacket(),
+                           packet22.getPacket(),
                            packet3.getPacket())).when(j1939).read(anyLong(), any());
-
 
         List<Integer> results = instance.getOBDModules(NOOP);
         assertEquals(2, results.size());

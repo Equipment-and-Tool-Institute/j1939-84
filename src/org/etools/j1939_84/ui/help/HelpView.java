@@ -80,9 +80,9 @@ public class HelpView extends JFrame {
                     } catch (Exception e) {
                         getLogger().log(Level.SEVERE, "Unable to display help", e);
                         JOptionPane.showMessageDialog(HelpView.this,
-                                "Unable to open link.",
-                                "Error Opening Link",
-                                JOptionPane.ERROR_MESSAGE);
+                                                      "Unable to open link.",
+                                                      "Error Opening Link",
+                                                      JOptionPane.ERROR_MESSAGE);
                     }
                 }
             });
@@ -116,9 +116,9 @@ public class HelpView extends JFrame {
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "Unable to load help", e);
             JOptionPane.showMessageDialog(HelpView.this,
-                    "Unable to open link.",
-                    "Error Opening Link",
-                    JOptionPane.ERROR_MESSAGE);
+                                          "Unable to open link.",
+                                          "Error Opening Link",
+                                          JOptionPane.ERROR_MESSAGE);
         }
     }
 

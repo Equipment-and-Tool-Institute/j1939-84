@@ -4,6 +4,7 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket.PGN;
 import static org.junit.Assert.assertEquals;
 
 import org.etools.j1939_84.bus.Packet;
@@ -33,11 +34,10 @@ public class EngineSpeedPacketTest {
     }
 
     @Test
-    @TestDoc(
-            description = "Verify that data 0x11, 0x22, 0x33, 0x60, 0x09, 0x66, 0x77, 0x88 is interpreted as 300 RPM.")
+    @TestDoc(description = "Verify that data 0x11, 0x22, 0x33, 0x60, 0x09, 0x66, 0x77, 0x88 is interpreted as 300 RPM.")
     public void testGetEngineSpeedAndToStringAt300() {
         int[] data = new int[] { 0x11, 0x22, 0x33, 0x60, 0x09, 0x66, 0x77, 0x88 };
-        Packet packet = Packet.create(0, 0, data);
+        Packet packet = Packet.create(PGN, 0, data);
         EngineSpeedPacket instance = new EngineSpeedPacket(packet);
         assertEquals(300, instance.getEngineSpeed(), 0.0);
         String expected = "";
@@ -47,18 +47,18 @@ public class EngineSpeedPacketTest {
         expected += "  SPN   512, Driver's Demand Engine - Percent Torque: -91.000000 %" + NL;
         expected += "  SPN   513, Actual Engine - Percent Torque: -74.000000 %" + NL;
         expected += "  SPN   190, Engine Speed: 300.000000 rpm" + NL;
-        expected += "  SPN  1483, Source Address of Controlling Device for Engine Control: 102.000000 source address" + NL;
+        expected += "  SPN  1483, Source Address of Controlling Device for Engine Control: 102.000000 source address"
+                + NL;
         expected += "  SPN  1675, Engine Starter Mode: 0111" + NL;
         expected += "  SPN  2432, Engine Demand - Percent Torque: 11.000000 %" + NL;
         assertEquals(expected, instance.toString());
     }
 
     @Test
-    @TestDoc(
-            description = "Verify that data 0x11, 0x22, 0x33, 0xFF, 0xFE, 0x66, 0x77, 0x88 is interpreted as an error.")
+    @TestDoc(description = "Verify that data 0x11, 0x22, 0x33, 0xFF, 0xFE, 0x66, 0x77, 0x88 is interpreted as an error.")
     public void testGetEngineSpeedAndToStringAtError() {
         int[] data = new int[] { 0x11, 0x22, 0x33, 0xFF, 0xFE, 0x66, 0x77, 0x88 };
-        Packet packet = Packet.create(0, 0, data);
+        Packet packet = Packet.create(PGN, 0, data);
         EngineSpeedPacket instance = new EngineSpeedPacket(packet);
         assertEquals(ParsedPacket.ERROR, instance.getEngineSpeed(), 0.0);
         String expected = "";
@@ -68,18 +68,18 @@ public class EngineSpeedPacketTest {
         expected += "  SPN   512, Driver's Demand Engine - Percent Torque: -91.000000 %" + NL;
         expected += "  SPN   513, Actual Engine - Percent Torque: -74.000000 %" + NL;
         expected += "  SPN   190, Engine Speed: Error" + NL;
-        expected += "  SPN  1483, Source Address of Controlling Device for Engine Control: 102.000000 source address" + NL;
+        expected += "  SPN  1483, Source Address of Controlling Device for Engine Control: 102.000000 source address"
+                + NL;
         expected += "  SPN  1675, Engine Starter Mode: 0111" + NL;
         expected += "  SPN  2432, Engine Demand - Percent Torque: 11.000000 %" + NL;
         assertEquals(expected, instance.toString());
     }
 
     @Test
-    @TestDoc(
-            description = "Verify that data 0x11, 0x22, 0x33, 0xFF, 0xFF, 0x66, 0x77, 0x88 is interpreted as not available.")
+    @TestDoc(description = "Verify that data 0x11, 0x22, 0x33, 0xFF, 0xFF, 0x66, 0x77, 0x88 is interpreted as not available.")
     public void testGetEngineSpeedAndToStringAtNotAvailable() {
         int[] data = new int[] { 0x11, 0x22, 0x33, 0xFF, 0xFF, 0x66, 0x77, 0x88 };
-        Packet packet = Packet.create(0, 0, data);
+        Packet packet = Packet.create(PGN, 0, data);
         EngineSpeedPacket instance = new EngineSpeedPacket(packet);
         assertEquals(ParsedPacket.NOT_AVAILABLE, instance.getEngineSpeed(), 0.0);
         String expected = "";
@@ -89,28 +89,27 @@ public class EngineSpeedPacketTest {
         expected += "  SPN   512, Driver's Demand Engine - Percent Torque: -91.000000 %" + NL;
         expected += "  SPN   513, Actual Engine - Percent Torque: -74.000000 %" + NL;
         expected += "  SPN   190, Engine Speed: Not Available" + NL;
-        expected += "  SPN  1483, Source Address of Controlling Device for Engine Control: 102.000000 source address" + NL;
+        expected += "  SPN  1483, Source Address of Controlling Device for Engine Control: 102.000000 source address"
+                + NL;
         expected += "  SPN  1675, Engine Starter Mode: 0111" + NL;
         expected += "  SPN  2432, Engine Demand - Percent Torque: 11.000000 %" + NL;
         assertEquals(expected, instance.toString());
     }
 
     @Test
-    @TestDoc(
-            description = "Verify that data 0x11, 0x22, 0x33, 0xFF, 0xFA, 0x66, 0x77, 0x88 is interpreted as 8031.875.")
+    @TestDoc(description = "Verify that data 0x11, 0x22, 0x33, 0xFF, 0xFA, 0x66, 0x77, 0x88 is interpreted as 8031.875.")
     public void testGetEngineSpeedAtMax() {
         int[] data = new int[] { 0x11, 0x22, 0x33, 0xFF, 0xFA, 0x66, 0x77, 0x88 };
-        Packet packet = Packet.create(0, 0, data);
+        Packet packet = Packet.create(PGN, 0, data);
         EngineSpeedPacket instance = new EngineSpeedPacket(packet);
         assertEquals(8031.875, instance.getEngineSpeed(), 0.0);
     }
 
     @Test
-    @TestDoc(
-            description = "Verify that data 0x11, 0x22, 0x33, 0x00, 0x00, 0x66, 0x77, 0x88 is interpreted as 0.")
+    @TestDoc(description = "Verify that data 0x11, 0x22, 0x33, 0x00, 0x00, 0x66, 0x77, 0x88 is interpreted as 0.")
     public void testGetEngineSpeedAtZero() {
         int[] data = new int[] { 0x11, 0x22, 0x33, 0x00, 0x00, 0x66, 0x77, 0x88 };
-        Packet packet = Packet.create(0, 0, data);
+        Packet packet = Packet.create(PGN, 0, data);
         EngineSpeedPacket instance = new EngineSpeedPacket(packet);
         assertEquals(0, instance.getEngineSpeed(), 0.0);
     }
@@ -118,7 +117,7 @@ public class EngineSpeedPacketTest {
     @Test
     @TestDoc(description = "Verify that the PGN is 61444.")
     public void testPGN() {
-        assertEquals(61444, EngineSpeedPacket.PGN);
+        assertEquals(61444, PGN);
     }
 
 }

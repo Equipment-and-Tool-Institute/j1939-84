@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.bus.j1939.packets.DTCLampStatus.create;
 import static org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode.create;
@@ -23,6 +22,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -97,13 +97,13 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
         dataRepository = DataRepository.newInstance();
 
         instance = new Part02Step13Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dataRepository,
-                DateTimeModule.getInstance(),
-                diagnosticMessageModule);
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              dataRepository,
+                                              DateTimeModule.getInstance(),
+                                              diagnosticMessageModule);
 
         setup(instance,
               listener,
@@ -135,7 +135,9 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation);
 
         when(diagnosticMessageModule.requestDM31(any(), eq(0x00)))
-                .thenReturn(new RequestResult<>(false, List.of(), List.of()));
+                                                                  .thenReturn(new RequestResult<>(false,
+                                                                                                  List.of(),
+                                                                                                  List.of()));
 
         runTest();
 
@@ -144,12 +146,10 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
                                                        FAIL,
-                                                       "6.2.13.2.b - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                                       "6.2.13.2.b - OBD ECU Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
 
-        String expectedResults = "FAIL: 6.2.13.2.b - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     /**
@@ -161,14 +161,12 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         dataRepository.putObdModule(obdModuleInformation);
 
-        AcknowledgmentPacket ackPacket0x00 = AcknowledgmentPacket.create(0x0,
-                                                                         NACK,
-                                                                         0,
-                                                                         0xF9,
-                                                                         PGN);
+        AcknowledgmentPacket ackPacket0x00 = AcknowledgmentPacket.create(0, NACK);
 
         when(diagnosticMessageModule.requestDM31(any(), eq(0x00)))
-                .thenReturn(new RequestResult<>(false, List.of(), List.of(ackPacket0x00)));
+                                                                  .thenReturn(new RequestResult<>(false,
+                                                                                                  List.of(),
+                                                                                                  List.of(ackPacket0x00)));
 
         runTest();
 
@@ -176,7 +174,6 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     /**
@@ -195,22 +192,31 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
         DiagnosticTroubleCode dtc = create(609, 19, 1, 1);
         DTCLampStatus dtcLampStatus = create(dtc, OFF, SLOW_FLASH, OTHER, OTHER);
         DM31DtcToLampAssociation packet = DM31DtcToLampAssociation.create(0,
+                                                                          0,
                                                                           dtcLampStatus);
         DiagnosticTroubleCode dtc1 = create(4334, 77, 0, 23);
         DTCLampStatus dtcLampStatus1 = create(dtc1, ON, SLOW_FLASH, OTHER, OTHER);
         DM31DtcToLampAssociation packet1 = DM31DtcToLampAssociation.create(1,
+                                                                           0,
                                                                            dtcLampStatus1);
         DiagnosticTroubleCode dtc2 = create(62002, 77, 0, 23);
         DTCLampStatus dtcLampStatus2 = create(dtc2, ON, ON, ON, ON);
         DM31DtcToLampAssociation packet2 = DM31DtcToLampAssociation.create(2,
+                                                                           0,
                                                                            dtcLampStatus2);
 
         when(diagnosticMessageModule.requestDM31(any(), eq(0x00)))
-                .thenReturn(new RequestResult<>(false, List.of(packet), List.of()));
+                                                                  .thenReturn(new RequestResult<>(false,
+                                                                                                  List.of(packet),
+                                                                                                  List.of()));
         when(diagnosticMessageModule.requestDM31(any(), eq(0x01)))
-                .thenReturn(new RequestResult<>(false, List.of(packet1), List.of()));
+                                                                  .thenReturn(new RequestResult<>(false,
+                                                                                                  List.of(packet1),
+                                                                                                  List.of()));
         when(diagnosticMessageModule.requestDM31(any(), eq(0x02)))
-                .thenReturn(new RequestResult<>(false, List.of(packet2), List.of()));
+                                                                  .thenReturn(new RequestResult<>(false,
+                                                                                                  List.of(packet2),
+                                                                                                  List.of()));
 
         runTest();
 
@@ -231,12 +237,8 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
                                                        FAIL,
                                                        "6.2.13.2.a - ECU Turbocharger (2) reported MIL not off/alt-off");
 
-        String expectedResults = "FAIL: 6.2.13.2.a - ECU Engine #1 (0) reported MIL not off/alt-off" + NL;
-        expectedResults += "FAIL: 6.2.13.2.a - ECU Engine #2 (1) reported MIL not off/alt-off" + NL;
-        expectedResults += "FAIL: 6.2.13.2.a - ECU Turbocharger (2) reported MIL not off/alt-off" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     /**
@@ -294,10 +296,12 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
                 0xFF, // Lamp Status/State
         };
         DM31DtcToLampAssociation packet = new DM31DtcToLampAssociation(
-                Packet.create(PGN, 0x00, data));
+                                                                       Packet.create(PGN, 0x00, data));
 
         when(diagnosticMessageModule.requestDM31(any(), eq(0)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet), Collections.emptyList()));
+                                                               .thenReturn(new RequestResult<>(false,
+                                                                                               Collections.singletonList(packet),
+                                                                                               Collections.emptyList()));
 
         runTest();
 
@@ -305,6 +309,5 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 }

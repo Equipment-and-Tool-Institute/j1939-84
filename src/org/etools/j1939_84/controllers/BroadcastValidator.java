@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
@@ -30,13 +31,21 @@ import org.etools.j1939_84.model.Outcome;
 
 public class BroadcastValidator {
 
+    private final DataRepository dataRepository;
+    private final J1939DaRepository j1939DaRepository;
+
+    public BroadcastValidator(DataRepository dataRepository, J1939DaRepository j1939DaRepository) {
+        this.dataRepository = dataRepository;
+        this.j1939DaRepository = j1939DaRepository;
+    }
+
     private static void addOutcome(ResultsListener listener,
                                    int partNumber,
                                    int stepNumber,
                                    Outcome outcome,
                                    String message) {
-        listener.addOutcome(partNumber, stepNumber, outcome, message);
-        listener.onResult(outcome + ": 6." + partNumber + "." + stepNumber + " - " + message);
+        String msg = "6." + partNumber + "." + stepNumber + " - " + message;
+        listener.addOutcome(partNumber, stepNumber, outcome, msg);
     }
 
     private static void addFailure(ResultsListener listener,
@@ -44,17 +53,17 @@ public class BroadcastValidator {
                                    int stepNumber,
                                    String section,
                                    String message) {
-        listener.addOutcome(partNumber, stepNumber, FAIL, message);
-        listener.onResult(FAIL + ": " + section + " - " + message);
+        listener.addOutcome(partNumber, stepNumber, FAIL, section + " - " + message);
     }
 
-    private final DataRepository dataRepository;
-
-    private final J1939DaRepository j1939DaRepository;
-
-    public BroadcastValidator(DataRepository dataRepository, J1939DaRepository j1939DaRepository) {
-        this.dataRepository = dataRepository;
-        this.j1939DaRepository = j1939DaRepository;
+    private static Set<Integer> collectNotAvailableSPNs(List<Integer> requiredSpns,
+                                                        Stream<GenericPacket> packetStream) {
+        return packetStream
+                           .flatMap(p -> p.getSpns().stream())
+                           .filter(Spn::isNotAvailable)
+                           .map(Spn::getId)
+                           .filter(requiredSpns::contains)
+                           .collect(Collectors.toSet());
     }
 
     /**
@@ -83,19 +92,19 @@ public class BroadcastValidator {
      */
     public int getMaximumBroadcastPeriod() {
         int maxFromData = dataRepository.getObdModules()
-                .stream()
-                .flatMap(m -> m.getFilteredDataStreamSPNs().stream())
-                .map(SupportedSPN::getSpn)
-                .map(j1939DaRepository::getPgnForSpn)
-                .filter(Objects::nonNull)
-                .flatMap(Collection::stream)
-                .map(j1939DaRepository::findPgnDefinition)
-                .filter(Objects::nonNull)
-                .mapToInt(PgnDefinition::getBroadcastPeriod)
-                .filter(period -> period > 0)
-                .map(period -> period / 1000)
-                .max()
-                .orElse(5);
+                                        .stream()
+                                        .flatMap(m -> m.getFilteredDataStreamSPNs().stream())
+                                        .map(SupportedSPN::getSpn)
+                                        .map(j1939DaRepository::getPgnForSpn)
+                                        .filter(Objects::nonNull)
+                                        .flatMap(Collection::stream)
+                                        .map(j1939DaRepository::findPgnDefinition)
+                                        .filter(Objects::nonNull)
+                                        .mapToInt(PgnDefinition::getBroadcastPeriod)
+                                        .filter(period -> period > 0)
+                                        .map(period -> period / 1000)
+                                        .max()
+                                        .orElse(5);
         return Math.max(maxFromData, 5);
     }
 
@@ -103,19 +112,19 @@ public class BroadcastValidator {
      * Loops through the give PGNs to find the one with the maximum broadcast
      * period
      *
-     * @param pgns
-     *         the list of PGN ids
-     * @return the maximum broadcast period in seconds
+     * @param  pgns
+     *                  the list of PGN ids
+     * @return      the maximum broadcast period in seconds
      */
     public int getMaximumBroadcastPeriod(List<Integer> pgns) {
         return pgns.stream()
-                .map(j1939DaRepository::findPgnDefinition)
-                .filter(Objects::nonNull)
-                .mapToInt(PgnDefinition::getBroadcastPeriod)
-                .filter(period -> period > 0)
-                .map(period -> period / 1000)
-                .max()
-                .orElse(5);
+                   .map(j1939DaRepository::findPgnDefinition)
+                   .filter(Objects::nonNull)
+                   .mapToInt(PgnDefinition::getBroadcastPeriod)
+                   .filter(period -> period > 0)
+                   .map(period -> period / 1000)
+                   .max()
+                   .orElse(5);
     }
 
     /**
@@ -133,9 +142,9 @@ public class BroadcastValidator {
         packetMap.keySet().stream().sorted().forEach(pgn -> {
             PgnDefinition pgnDefinition = j1939DaRepository.findPgnDefinition(pgn);
             boolean isSupported = pgnDefinition.getSpnDefinitions()
-                    .stream()
-                    .map(SpnDefinition::getSpnId)
-                    .anyMatch(supportedSPNs::contains);
+                                               .stream()
+                                               .map(SpnDefinition::getSpnId)
+                                               .anyMatch(supportedSPNs::contains);
             boolean isOnRequest = pgnDefinition.getBroadcastPeriod() <= 0;
 
             if (!isOnRequest && isSupported) {
@@ -176,7 +185,8 @@ public class BroadcastValidator {
                         double maxBroadcastPeriod = broadcastPeriod * 1.1;
                         double minBroadcastPeriod = broadcastPeriod * 0.9;
 
-                        // b. Fail if any parameter is not broadcast within -10% of the fixed, specified broadcast period.
+                        // b. Fail if any parameter is not broadcast within -10% of the fixed, specified broadcast
+                        // period.
                         if (!pgnDefinition.isVariableBroadcast()
                                 && (diff1 < minBroadcastPeriod || diff2 < minBroadcastPeriod)) {
                             long diff = Math.min(diff1, diff2);
@@ -184,8 +194,9 @@ public class BroadcastValidator {
                                        partNumber,
                                        stepNumber,
                                        FAIL,
-                                       "Broadcast period of PGN " + pgn + " (" + diff + " ms) by module " + moduleName
-                                               + " is less than 90% specified broadcast period of " + broadcastPeriod + " ms.");
+                                       "Broadcast period of PGN " + pgn + " (" + diff + " ms) by ECU " + moduleName
+                                               + " is less than 90% specified broadcast period of " + broadcastPeriod
+                                               + " ms.");
                         }
 
                         // b. Fail if any parameter is not broadcast within +10% of the
@@ -198,8 +209,9 @@ public class BroadcastValidator {
                                        partNumber,
                                        stepNumber,
                                        FAIL,
-                                       "Broadcast period of PGN " + pgn + " (" + diff + " ms) by module " + moduleName
-                                               + " is beyond 110% specified broadcast period of " + broadcastPeriod + " ms.");
+                                       "Broadcast period of PGN " + pgn + " (" + diff + " ms) by ECU " + moduleName
+                                               + " is beyond 110% specified broadcast period of " + broadcastPeriod
+                                               + " ms.");
                         }
                     }
                 });
@@ -212,16 +224,16 @@ public class BroadcastValidator {
      * Reports if the given PGN was not received or if any supported SPNs were
      * received as Not Available
      *
-     * @param supportedSPNs
-     *         the list Supported SPNs
-     * @param pgn
-     *         the PGN of interest
-     * @param packets
-     *         the packet that may contain the PGN
-     * @param moduleAddress
-     *         the module address of concern, can be null for Global messages
-     * @return true if the given PGN wasn't received or any supported SPN is Not
-     * Available
+     * @param  supportedSPNs
+     *                           the list Supported SPNs
+     * @param  pgn
+     *                           the PGN of interest
+     * @param  packets
+     *                           the packet that may contain the PGN
+     * @param  moduleAddress
+     *                           the module address of concern, can be null for Global messages
+     * @return               true if the given PGN wasn't received or any supported SPN is Not
+     *                       Available
      */
     public List<String> collectAndReportNotAvailableSPNs(List<Integer> supportedSPNs,
                                                          int pgn,
@@ -243,11 +255,11 @@ public class BroadcastValidator {
             addFailure(listener, partNumber, stepNumber, section, message);
 
             spns = j1939DaRepository.findPgnDefinition(pgn)
-                    .getSpnDefinitions()
-                    .stream()
-                    .map(SpnDefinition::getSpnId)
-                    .filter(supportedSPNs::contains)
-                    .collect(Collectors.toSet());
+                                    .getSpnDefinitions()
+                                    .stream()
+                                    .map(SpnDefinition::getSpnId)
+                                    .filter(supportedSPNs::contains)
+                                    .collect(Collectors.toSet());
         } else {
             spns = collectNotAvailableSPNs(supportedSPNs, packets.stream());
         }
@@ -259,14 +271,14 @@ public class BroadcastValidator {
      * Reports the PGNs there are supported by the module but not received and
      * the SPNs that were received by broadcast as Not Available
      *
-     * @param moduleSourceAddress
-     *         the module source address
-     * @param foundPackets
-     *         the Map of PGNs to the List of those packets sent by the
-     *         module
-     * @param supportedSPNs
-     *         the list of SPNs that are still of concern
-     * @return the List of SPNs which were not found
+     * @param  moduleSourceAddress
+     *                                 the module source address
+     * @param  foundPackets
+     *                                 the Map of PGNs to the List of those packets sent by the
+     *                                 module
+     * @param  supportedSPNs
+     *                                 the list of SPNs that are still of concern
+     * @return                     the List of SPNs which were not found
      */
     public List<Integer> collectAndReportNotAvailableSPNs(int moduleSourceAddress,
                                                           List<GenericPacket> foundPackets,
@@ -288,31 +300,21 @@ public class BroadcastValidator {
             // with the Source Address matching the received message) in DM24.
             listener.onResult("");
             requiredPgns.stream()
-                    .map(j1939DaRepository::findPgnDefinition)
-                    .flatMap(pgnDef -> pgnDef.getSpnDefinitions().stream())
-                    .map(SpnDefinition::getSpnId)
-                    .filter(supportedSPNs::contains)
-                    .distinct()
-                    .sorted()
-                    .peek(missingSpns::add)
-                    .map(spn ->  "SPN " + spn + " was not broadcast by " + getAddressName(moduleSourceAddress))
-                    .forEach(message -> addFailure(listener, partNumber, stepNumber, section, message));
+                        .map(j1939DaRepository::findPgnDefinition)
+                        .flatMap(pgnDef -> pgnDef.getSpnDefinitions().stream())
+                        .map(SpnDefinition::getSpnId)
+                        .filter(supportedSPNs::contains)
+                        .distinct()
+                        .sorted()
+                        .peek(missingSpns::add)
+                        .map(spn -> "SPN " + spn + " was not broadcast by " + getAddressName(moduleSourceAddress))
+                        .forEach(message -> addFailure(listener, partNumber, stepNumber, section, message));
         }
 
         // Find any Supported SPNs which has a value of Not Available
         missingSpns.addAll(collectNotAvailableSPNs(supportedSPNs, foundPackets.stream()));
 
         return missingSpns;
-    }
-
-    private static Set<Integer> collectNotAvailableSPNs(List<Integer> requiredSpns,
-                                                        Stream<GenericPacket> packetStream) {
-        return packetStream
-                .flatMap(p -> p.getSpns().stream())
-                .filter(Spn::isNotAvailable)
-                .map(Spn::getId)
-                .filter(requiredSpns::contains)
-                .collect(Collectors.toSet());
     }
 
 }

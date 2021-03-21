@@ -9,18 +9,19 @@ import static org.etools.j1939_84.model.Outcome.INCOMPLETE;
 import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
  */
 public class StepResult implements IResult {
     private final String name;
-    private Outcome outcome;
     private final int partNumber;
-    private final List<ActionOutcome> results = new ArrayList<>();
+    private final Set<ActionOutcome> results = new HashSet<>();
     private final int stepNumber;
+    private Outcome outcome;
 
     public StepResult(int partNumber, int stepNumber, String name) {
         this.partNumber = partNumber;
@@ -28,8 +29,8 @@ public class StepResult implements IResult {
         this.name = name;
     }
 
-    public void addResult(ActionOutcome actionOutcome) {
-        results.add(actionOutcome);
+    public boolean addResult(ActionOutcome actionOutcome) {
+        return results.add(actionOutcome);
     }
 
     @Override
@@ -59,7 +60,7 @@ public class StepResult implements IResult {
         return outcome;
     }
 
-    public List<ActionOutcome> getOutcomes() {
+    public Collection<ActionOutcome> getOutcomes() {
         return results;
     }
 
@@ -67,13 +68,13 @@ public class StepResult implements IResult {
         return stepNumber;
     }
 
-    private boolean hasOutcome(Outcome expectedOutcome) {
-        return results.stream().anyMatch(r -> r.getOutcome() == expectedOutcome);
+    public boolean hasOutcome(Outcome expectedOutcome) {
+        return results.stream().map(ActionOutcome::getOutcome).anyMatch(o -> o == expectedOutcome);
     }
 
     @Override
     public String toString() {
-        return "Step " + partNumber + "." + stepNumber + ". " + getName();
+        return "Test " + partNumber + "." + stepNumber + " - " + getName();
     }
 
 }

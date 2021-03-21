@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -13,6 +12,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -23,8 +23,8 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -79,15 +79,22 @@ public class Part02Step11ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(null);
 
         instance = new Part02Step11Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dataRepository,
-                DateTimeModule.getInstance(),
-                diagnosticMessageModule);
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              dataRepository,
+                                              DateTimeModule.getInstance(),
+                                              diagnosticMessageModule);
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
@@ -131,33 +138,59 @@ public class Part02Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
     public void testFailures() {
         DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                        Packet.create(PGN,
+                                                                                      0x01,
+                                                                                      0x11,
+                                                                                      0x22,
+                                                                                      0x33,
+                                                                                      0x44,
+                                                                                      0x55,
+                                                                                      0x66,
+                                                                                      0x77,
+                                                                                      0x88));
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
-        obdModule1.setLastDM27(packet1);
+        obdModule1.set(packet1, 1);
         dataRepository.putObdModule(obdModule1);
-        when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(BusResult.of(packet1));
 
         dataRepository.putObdModule(new OBDModuleInformation(2));
         when(diagnosticMessageModule.requestDM27(any(), eq(0x02))).thenReturn(new BusResult<>(true));
 
         DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x03, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
+                                                                        Packet.create(PGN,
+                                                                                      0x03,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x04,
+                                                                                      0x00,
+                                                                                      0xFF,
+                                                                                      0xFF,
+                                                                                      0xFF,
+                                                                                      0xFF));
         OBDModuleInformation obdModule2 = new OBDModuleInformation(3);
-        obdModule2.setLastDM27(packet3);
+        obdModule2.set(packet3, 1);
         dataRepository.putObdModule(obdModule2);
 
         DM27AllPendingDTCsPacket obdPacket3 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, 0x13, 0x44, 0x55, 0x66, 0x77, 0x88));
-        when(diagnosticMessageModule.requestDM27(any(), eq(0x03))).thenReturn(new BusResult<>(false, obdPacket3));
+                                                                           Packet.create(PGN,
+                                                                                         0x03,
+                                                                                         0x11,
+                                                                                         0x22,
+                                                                                         0x13,
+                                                                                         0x44,
+                                                                                         0x55,
+                                                                                         0x66,
+                                                                                         0x77,
+                                                                                         0x88));
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x03))).thenReturn(BusResult.of(obdPacket3));
 
-        when(diagnosticMessageModule.requestDM27(any())).thenReturn(new RequestResult<>(false, packet1, packet3));
+        when(diagnosticMessageModule.requestDM27(any())).thenReturn(RequestResult.of(packet1, packet3));
 
         runTest();
 
@@ -167,14 +200,7 @@ public class Part02Step11ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x02));
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.2.11.2.b - Engine #2 (1) reported an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.2.11.2.b - Transmission #1 (3) reported an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.2.11.2.c - Engine #2 (1) did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.2.11.2.c - Transmission #1 (3) did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.2.11.4.a - Difference compared to data received during global request from Transmission #1 (3)" + NL;
-
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART, STEP, FAIL, "6.2.11.2.b - Engine #2 (1) reported an all pending DTC");
         verify(mockListener).addOutcome(PART,
@@ -194,11 +220,11 @@ public class Part02Step11ControllerTest extends AbstractControllerTest {
         DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(Packet.create(PGN, 0x01, 0, 0xFF, 0, 0, 0, 0));
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
-        obdModule1.setLastDM27(packet1);
+        obdModule1.set(packet1, 1);
         dataRepository.putObdModule(obdModule1);
-        when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(BusResult.of(packet1));
 
-        when(diagnosticMessageModule.requestDM27(any())).thenReturn(new RequestResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM27(any())).thenReturn(RequestResult.of(packet1));
 
         runTest();
 

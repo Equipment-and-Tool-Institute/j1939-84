@@ -8,8 +8,8 @@ import static org.etools.j1939_84.utils.CollectionUtils.join;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * Parses the DM30 Scaled Test Results packet
@@ -19,26 +19,40 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 public class DM30ScaledTestResultsPacket extends GenericPacket {
 
     public static final int PGN = 41984;
+    private List<ScaledTestResult> testResults;
 
-    public static DM30ScaledTestResultsPacket create(int source, ScaledTestResult... testResults) {
+    public DM30ScaledTestResultsPacket(Packet packet) {
+        super(packet);
+    }
+
+    public static DM30ScaledTestResultsPacket create(int source, int destination, ScaledTestResult... testResults) {
 
         int[] data = new int[0];
         for (ScaledTestResult testResult : testResults) {
             data = join(data, testResult.getData());
         }
 
-        return new DM30ScaledTestResultsPacket(Packet.create(PGN, source, data));
-    }
-
-    private List<ScaledTestResult> testResults;
-
-    public DM30ScaledTestResultsPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+        return new DM30ScaledTestResultsPacket(Packet.create(PGN | destination, source, data));
     }
 
     @Override
     public String getName() {
         return "DM30";
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getStringPrefix());
+        boolean moreThanOne = getTestResults().size() > 1;
+        sb.append(moreThanOne ? "[" + NL : "");
+        getTestResults().stream().sorted().forEach(testResult -> {
+            sb.append(moreThanOne ? "  " : "");
+            sb.append(testResult);
+            sb.append(moreThanOne ? NL : "");
+        });
+        sb.append(moreThanOne ? "]" : "");
+        return sb.toString();
     }
 
     @Override
@@ -54,7 +68,7 @@ public class DM30ScaledTestResultsPacket extends GenericPacket {
     public List<ScaledTestResult> getTestResults() {
         if (testResults == null) {
             testResults = new ArrayList<>();
-            final int length = getPacket().getLength();
+            int length = getPacket().getLength();
             for (int i = 0; i + 11 < length; i = i + 12) {
                 testResults.add(parseTestResult(i));
             }
@@ -63,23 +77,8 @@ public class DM30ScaledTestResultsPacket extends GenericPacket {
     }
 
     private ScaledTestResult parseTestResult(int index) {
-        final int[] data = getPacket().getData(index, index + 12);
+        int[] data = getPacket().getData(index, index + 12);
         return new ScaledTestResult(data);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getStringPrefix());
-        boolean moreThanOne = getTestResults().size() > 1;
-        sb.append(moreThanOne ? "[" + NL : "");
-        for (ScaledTestResult testResult : getTestResults()) {
-            sb.append(moreThanOne ? "  " : "");
-            sb.append(testResult);
-            sb.append(moreThanOne ? NL : "");
-        }
-        sb.append(moreThanOne ? "]" : "");
-        return sb.toString();
     }
 
 }

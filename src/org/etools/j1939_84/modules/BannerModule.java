@@ -1,9 +1,7 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.modules;
-
-import static org.etools.j1939_84.J1939_84.NL;
 
 import org.etools.j1939_84.BuildNumber;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -38,10 +36,8 @@ public class BannerModule extends FunctionalModule {
     /**
      * Constructor exposed to for testing
      *
-     * @param dateTimeModule
-     *            the {@link DateTimeModule}
      * @param buildNumber
-     *            the {@link BuildNumber}
+     *                        the {@link BuildNumber}
      */
     public BannerModule(BuildNumber buildNumber) {
         super();
@@ -53,18 +49,14 @@ public class BannerModule extends FunctionalModule {
     }
 
     public String getHeader() {
-        return getTime() + " " + TOOL_NAME + " version " + buildNumber.getVersionNumber();
-    }
-
-    public String getSummaryHeader() {
-        return "Summary of " + BannerModule.TOOL_NAME + " Execution" + NL;
+        return TOOL_NAME + " version " + buildNumber.getVersionNumber();
     }
 
     /**
      * Writes the Aborted Footer for the report to the {@link ResultsListener}
      *
      * @param listener
-     *            the {@link ResultsListener}
+     *                     the {@link ResultsListener}
      */
     public void reportAborted(ResultsListener listener) {
         listener.onResult(getFooter("Aborted"));
@@ -74,7 +66,7 @@ public class BannerModule extends FunctionalModule {
      * Writes the Failure Footer for the report to the {@link ResultsListener}
      *
      * @param listener
-     *            the {@link ResultsListener}
+     *                     the {@link ResultsListener}
      */
     public void reportFailed(ResultsListener listener) {
         listener.onResult(getFooter("Failed"));
@@ -84,7 +76,7 @@ public class BannerModule extends FunctionalModule {
      * Writes the Footer for the report to the {@link ResultsListener}
      *
      * @param listener
-     *            the {@link ResultsListener}
+     *                     the {@link ResultsListener}
      */
     public void reportFooter(ResultsListener listener) {
         listener.onResult(getFooter(END_OF_REPORT));
@@ -94,7 +86,7 @@ public class BannerModule extends FunctionalModule {
      * Writes the Header for the report to the {@link ResultsListener}
      *
      * @param listener
-     *            the {@link ResultsListener} to give the header to
+     *                     the {@link ResultsListener} to give the header to
      */
     public void reportHeader(ResultsListener listener) {
         listener.onResult(getHeader());
@@ -104,7 +96,7 @@ public class BannerModule extends FunctionalModule {
      * Writes the Stopped Footer for the report to the {@link ResultsListener}
      *
      * @param listener
-     *            the {@link ResultsListener}
+     *                     the {@link ResultsListener}
      */
     public void reportStopped(ResultsListener listener) {
         listener.onResult(getFooter("Stopped"));

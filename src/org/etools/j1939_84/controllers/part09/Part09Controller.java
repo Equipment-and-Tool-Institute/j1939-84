@@ -3,10 +3,9 @@
  */
 package org.etools.j1939_84.controllers.part09;
 
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import org.etools.j1939_84.controllers.Controller;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.PartController;
 import org.etools.j1939_84.controllers.StepController;
@@ -17,20 +16,43 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * The {@link Controller} for the Part 9 Tests
- *
- * @author Matt Gumbel (matt@soliddesign.net)
+ * 6.9 Verify Deletion of Fault B with DM11
  */
 public class Part09Controller extends PartController {
 
     public Part09Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-              new BannerModule(),
-              DateTimeModule.getInstance(),
-              dataRepository,
-              new EngineSpeedModule(),
-              new VehicleInformationModule(),
-              new DiagnosticMessageModule());
+             new BannerModule(),
+             DateTimeModule.getInstance(),
+             dataRepository,
+             new EngineSpeedModule(),
+             new VehicleInformationModule(),
+             new DiagnosticMessageModule(),
+             new Part09Step01Controller(),
+             new Part09Step02Controller(),
+             new Part09Step03Controller(),
+             new Part09Step04Controller(),
+             new Part09Step05Controller(),
+             new Part09Step06Controller(),
+             new Part09Step07Controller(),
+             new Part09Step08Controller(),
+             new Part09Step09Controller(),
+             new Part09Step10Controller(),
+             new Part09Step11Controller(),
+             new Part09Step12Controller(),
+             new Part09Step13Controller(),
+             new Part09Step14Controller(),
+             new Part09Step15Controller(),
+             new Part09Step16Controller(),
+             new Part09Step17Controller(),
+             new Part09Step18Controller(),
+             new Part09Step19Controller(),
+             new Part09Step20Controller(),
+             new Part09Step21Controller(),
+             new Part09Step22Controller(),
+             new Part09Step23Controller(),
+             new Part09Step24Controller(),
+             new Part09Step25Controller());
     }
 
     /**
@@ -53,11 +75,6 @@ public class Part09Controller extends PartController {
               diagnosticMessageModule,
               9,
               stepControllers);
-    }
-
-    @Override
-    protected List<StepController> getStepControllers() {
-        return getStepControllers(9, 25);
     }
 
 }

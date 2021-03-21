@@ -11,13 +11,14 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
+import org.etools.j1939_84.bus.j1939.packets.Slot;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -26,9 +27,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- * <p>
- * The controller for 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results
+ * 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results
  */
 public class Part01Step12Controller extends StepController {
     //@formatter:off
@@ -48,7 +47,6 @@ public class Part01Step12Controller extends StepController {
     private static final int STEP_NUMBER = 12;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
     private final TableA7Validator tableA7Validator;
 
     Part01Step12Controller(DataRepository dataRepository) {
@@ -71,68 +69,89 @@ public class Part01Step12Controller extends StepController {
                            TableA7Validator tableA7Validator,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
         this.tableA7Validator = tableA7Validator;
     }
 
     @Override
     protected void run() throws Throwable {
 
-        // 6.1.12.1.a Get all the obdModuleAddresses then send DM7 to each address we have and get supported spns
+        // 6.1.12.1.a. DS DM7 with TID 247 using FMI 31 for each SPN identified as providing test results in a
+        // DM24 response in step 6.1.4.1 to the SPN’s respective OBD ECU.
+
+        // Create list of ECU address+SPN+FMI supported test results.
+        // A.K.A Get all the obdModuleAddresses then send DM7 to each address we have and get supported SPNs
         List<ScaledTestResult> vehicleTestResults = new ArrayList<>();
 
-        // Record it the DM30 for each module
-        for (OBDModuleInformation obdModule : dataRepository.getObdModules()) {
+        // Record the DM30 for each module
+        for (OBDModuleInformation obdModule : getDataRepository().getObdModules()) {
             List<ScaledTestResult> moduleTestResults = new ArrayList<>();
             int sourceAddress = obdModule.getSourceAddress();
-            String moduleName = Lookup.getAddressName(sourceAddress);
+            String moduleName = obdModule.getModuleName();
 
-            for (SupportedSPN spn : obdModule.getTestResultSpns()) {
-                var dm30Packets = getDiagnosticMessageModule().getDM30Packets(getListener(), sourceAddress, spn);
-                if (dm30Packets.isEmpty()) {
-                    addFailure("6.1.12.1.a - No test result for Supported SPN " + spn.getSpn() + " from " + moduleName);
-                } else {
-                    List<ScaledTestResult> testResults = dm30Packets
-                            .stream()
-                            .peek(p -> verifyDM30PacketSupported(p, spn))
-                            .flatMap(p -> p.getTestResults().stream())
-                            .collect(Collectors.toList());
+            obdModule.getTestResultSPNs()
+                     .stream()
+                     .mapToInt(SupportedSPN::getSpn)
+                     .forEachOrdered(spnId -> {
+                         var dm30Packets = getDiagnosticMessageModule().requestTestResults(getListener(),
+                                                                                           sourceAddress,
+                                                                                           247,
+                                                                                           spnId,
+                                                                                           31);
+                         if (dm30Packets.isEmpty()) {
+                             addFailure("6.1.12.1.a - No test result for Supported SPN " + spnId + " from "
+                                     + moduleName);
+                         } else {
+                             var testResults = dm30Packets
+                                                          .stream()
+                                                          .peek(p -> verifyDM30PacketSupported(p, spnId))
+                                                          .flatMap(p -> p.getTestResults().stream())
+                                                          .collect(Collectors.toList());
 
-                    // 6.1.12.1.d. Warn if any ECU reports more than one set of test results for the same SPN+FMI.
-                    tableA7Validator.findDuplicates(testResults)
-                            .forEach(dup -> addWarning("6.1.12.1.d - " + moduleName + " returned duplicate test results for SPN " + dup
-                                    .getSpn() + " FMI " + dup.getFmi()));
+                             // 6.1.12.1.d. Warn if any ECU reports more than one set of test results for the same
+                             // SPN+FMI.
+                             tableA7Validator.findDuplicates(testResults)
+                                             .forEach(dup -> {
+                                                 addWarning("6.1.12.2.a (A7.2.b) - " + moduleName
+                                                         + " returned duplicate test results for SPN " + dup.getSpn()
+                                                         + " FMI " + dup.getFmi());
+                                             });
 
-                    moduleTestResults.addAll(testResults);
-                }
+                             moduleTestResults.addAll(testResults);
+                         }
+                         getListener().onResult("");
+                     });
+
+            if (!moduleTestResults.isEmpty()) {
+                getListener().onResult(moduleName + " Test Results:");
+                getListener().onResult(moduleTestResults.stream()
+                                                        .map(ScaledTestResult::toString)
+                                                        .collect(Collectors.toList()));
+
+                obdModule.setScaledTestResults(moduleTestResults);
+                getDataRepository().putObdModule(obdModule);
+                vehicleTestResults.addAll(moduleTestResults);
             }
-            obdModule.setScaledTestResults(moduleTestResults);
-            dataRepository.putObdModule(obdModule);
-            vehicleTestResults.addAll(moduleTestResults);
         }
 
         // Create list of ECU address+SPN+FMI supported test results.
         // 6.1.12.2.a. Fail/warn per section A.7 Criteria for Test Results Evaluation.
-        FuelType fuelType = dataRepository.getVehicleInformation().getFuelType();
-
-        if (fuelType.isCompressionIgnition()) {
+        if (getFuelType().isCompressionIgnition()) {
             tableA7Validator.validateForCompressionIgnition(vehicleTestResults, getListener());
-        } else if (fuelType.isSparkIgnition()) {
+        } else if (getFuelType().isSparkIgnition()) {
             tableA7Validator.validateForSparkIgnition(vehicleTestResults, getListener());
         }
-
     }
 
-    private void verifyDM30PacketSupported(DM30ScaledTestResultsPacket packet, SupportedSPN spn) {
-        int spnId = spn.getSpn();
+    private void verifyDM30PacketSupported(DM30ScaledTestResultsPacket packet, int spnId) {
 
         String moduleName = Lookup.getAddressName(packet.getSourceAddress());
 
@@ -140,37 +159,34 @@ public class Part01Step12Controller extends StepController {
         // and a min and max test limit) for an SPN indicated as supported is
         // actually reported from the ECU/device that indicated support.
 
-        List<ScaledTestResult> testResults = packet.getTestResults().stream()
-                .filter(p -> p.getSpn() == spnId)
-                .collect(Collectors.toList());
+        List<ScaledTestResult> testResults = packet.getTestResults()
+                                                   .stream()
+                                                   .filter(p -> p.getSpn() == spnId)
+                                                   .collect(Collectors.toList());
 
         if (testResults.isEmpty()) {
-            addFailure("6.1.12.1.a - No test result for Supported SPN " + spnId + " from " + moduleName);
+            addFailure("6.1.12.2.a (A7.1.a) - No test result for supported SPN " + spnId + " from " + moduleName);
         }
 
         // 6.1.12.1.b. Fail if any test result does not report the test result/min test
         // limit/max test limit as initialized (after code clear) values (either
         // 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000).
         for (ScaledTestResult result : testResults) {
-            boolean isMaximum = result.getTestValue() == 0xFB00 &&
-                    result.getTestMinimum() == 0xFFFF && result.getTestMaximum() == 0xFFFF;
-            boolean isMinimum = result.getTestValue() == 0x0000 &&
-                    result.getTestMinimum() == 0x0000 && result.getTestMaximum() == 0x0000;
-            if (!isMaximum && !isMinimum) {
-                addFailure("6.1.12.1.b - Test result for SPN " + spnId + " FMI " + result.getFmi() + " from " + moduleName + " does not report the test result/min test limit/max test limit initialized properly");
+            if (!result.isInitialized()) {
+                addFailure("6.1.12.2.a (A7.1.b) - Test result for SPN " + spnId + " FMI " + result.getFmi() + " from "
+                        + moduleName
+                        + " does not report the test result/min test limit/max test limit initialized properly");
             }
 
             // 6.1.12.1.c. Fail if the SLOT identifier for any test results is an
             // undefined or a not valid SLOT in Appendix A of J1939-71. See
             // Table A-7-2 3 for a list of the valid, SLOTs known to be
             // appropriate for use in test results.
-            if (result.getSlot() != null) {
-                int slotIdentifier = result.getSlot().getId();
-                if (!VALID_SLOTS.contains(slotIdentifier)) {
-                    addFailure("6.1.12.1.c - #" + slotIdentifier + " SLOT identifier for SPN " + spnId + " from " + moduleName + " is invalid");
-                }
-            } else {
-                addFailure("6.1.12.1.c - #" + result.getSlotNumber() + " SLOT identifier for SPN " + spnId + " from " + moduleName + " is undefined");
+            Slot slot = result.getSlot();
+            int slotIdentifier = slot == null ? -1 : slot.getId();
+            if (!VALID_SLOTS.contains(slotIdentifier)) {
+                addFailure("6.1.12.2.a (A7.1.c) - #" + slotIdentifier + " SLOT identifier for SPN " + spnId + " from "
+                        + moduleName + " is invalid");
             }
         }
     }

@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -34,6 +35,9 @@ public class TableA7ValidatorTest {
     private static final int PART_NUMBER = 1;
 
     private static final int STEP_NUMBER = 12;
+    private TableA7Validator instance;
+    @Mock
+    private ResultsListener listener;
 
     private static Collection<ScaledTestResult> getCompressionIgnitionTestResults() {
         List<ScaledTestResult> testResults = new ArrayList<>();
@@ -99,7 +103,6 @@ public class TableA7ValidatorTest {
         return testResults;
     }
 
-    @SuppressWarnings("SameParameterValue")
     private static void remove(Collection<ScaledTestResult> testResults, int spn, int fmi) {
         for (ScaledTestResult testResult : testResults) {
             if (testResult.getSpn() == spn && testResult.getFmi() == fmi) {
@@ -115,11 +118,6 @@ public class TableA7ValidatorTest {
         when(mock.getFmi()).thenReturn(fmi);
         return mock;
     }
-
-    private TableA7Validator instance;
-
-    @Mock
-    private ResultsListener listener;
 
     @Before
     public void setUp() {
@@ -140,9 +138,9 @@ public class TableA7ValidatorTest {
         instance.validateForCompressionIgnition(testResults, new TestResultsListener(listener));
 
         verify(listener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "Fuel system pressure control low is missing required Test Result");
+                                    STEP_NUMBER,
+                                    FAIL,
+                                    "6.1.12.2.a (A7.2.a) - Fuel system pressure control low is missing required Test Result, one of: 157:18, 164:18, 3055:18");
     }
 
     @Test

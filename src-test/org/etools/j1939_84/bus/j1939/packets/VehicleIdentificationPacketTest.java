@@ -6,6 +6,7 @@ package org.etools.j1939_84.bus.j1939.packets;
 import static org.junit.Assert.assertEquals;
 
 import java.nio.charset.StandardCharsets;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -38,25 +39,25 @@ public class VehicleIdentificationPacketTest {
             @TestItem(verifies = "6.1.1.1.e.i") })
     public void testGetVinAndToString() {
         Packet packet = Packet.create(0,
-                0,
-                0x33,
-                0x48,
-                0x41,
-                0x4D,
-                0x4B,
-                0x53,
-                0x54,
-                0x4E,
-                0x30,
-                0x46,
-                0x4C,
-                0x35,
-                0x37,
-                0x35,
-                0x30,
-                0x31,
-                0x32,
-                0x2A);
+                                      0,
+                                      0x33,
+                                      0x48,
+                                      0x41,
+                                      0x4D,
+                                      0x4B,
+                                      0x53,
+                                      0x54,
+                                      0x4E,
+                                      0x30,
+                                      0x46,
+                                      0x4C,
+                                      0x35,
+                                      0x37,
+                                      0x35,
+                                      0x30,
+                                      0x31,
+                                      0x32,
+                                      0x2A);
         VehicleIdentificationPacket instance = new VehicleIdentificationPacket(packet);
         assertEquals("3HAMKSTN0FL575012", instance.getVin());
         assertEquals("Vehicle Identification from Engine #1 (0): 3HAMKSTN0FL575012", instance.toString());
@@ -77,24 +78,24 @@ public class VehicleIdentificationPacketTest {
     @TestDoc(description = "Verify packet with no * is parsed.")
     public void testGetVinWithoutAsterisk() {
         Packet packet = Packet.create(0,
-                0,
-                0x33,
-                0x48,
-                0x41,
-                0x4D,
-                0x4B,
-                0x53,
-                0x54,
-                0x4E,
-                0x30,
-                0x46,
-                0x4C,
-                0x35,
-                0x37,
-                0x35,
-                0x30,
-                0x31,
-                0x32);
+                                      0,
+                                      0x33,
+                                      0x48,
+                                      0x41,
+                                      0x4D,
+                                      0x4B,
+                                      0x53,
+                                      0x54,
+                                      0x4E,
+                                      0x30,
+                                      0x46,
+                                      0x4C,
+                                      0x35,
+                                      0x37,
+                                      0x35,
+                                      0x30,
+                                      0x31,
+                                      0x32);
         VehicleIdentificationPacket instance = new VehicleIdentificationPacket(packet);
         assertEquals("3HAMKSTN0FL575012", instance.getVin());
         assertEquals("", instance.getManufacturerData());

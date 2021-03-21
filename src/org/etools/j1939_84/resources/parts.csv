@@ -1,12 +1,12 @@
-1,Part 1 KOEO Data Collection
-2,Part 2 Key On Engine Running Data Collection
-3,Part 3 Test Pending Fault A
-4,Part 4 Test Confirmed Fault A
-5,Part 5 Correct fault A first cycle
-6,Part 6 Complete fault A three cycle countdown
-7,Part 7 Verify DM23 transition
-8,Part 8 Verify fault B for general denominator demonstration
-9,Part 9 verify deletion of fault B with DM11
-10,Part 10 Prime diagnostic executive for general denominator demonstration
-11,Part 11 Exercise general denominator
-12,Part 12 Verify deletion of fault B from DM28
+1,Part 1 - KOEO Data Collection
+2,Part 2 - Key On Engine Running Data Collection
+3,Part 3 - Test Pending Fault A
+4,Part 4 - Test Confirmed Fault A
+5,Part 5 - Correct fault A first cycle
+6,Part 6 - Complete fault A three cycle countdown
+7,Part 7 - Verify DM23 transition
+8,Part 8 - Verify fault B for general denominator demonstration
+9,Part 9 - Verify deletion of fault B with DM11
+10,Part 10 - Prime diagnostic executive for general denominator demonstration
+11,Part 11 - Exercise general denominator
+12,Part 12 - Verify deletion of fault B from DM28

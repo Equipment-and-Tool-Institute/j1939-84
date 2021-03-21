@@ -2,6 +2,7 @@ package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.nio.charset.StandardCharsets;
 
@@ -25,7 +26,7 @@ public class DM56EngineFamilyPacketTest {
         DM56EngineFamilyPacket instance = new DM56EngineFamilyPacket(packet);
         assertEquals("2011E-MY", instance.getModelYearField());
         assertEquals(Integer.valueOf(2011), instance.getEngineModelYear());
-        assertEquals(null, instance.getVehicleModelYear());
+        assertNull(instance.getVehicleModelYear());
     }
 
     @Test
@@ -47,8 +48,7 @@ public class DM56EngineFamilyPacketTest {
     @Test
     public void testToString() {
         String bytes = "2018V-MYUS HD OBD";
-        Packet packet = Packet.create(0, 0, bytes.getBytes(StandardCharsets.UTF_8));
-        DM56EngineFamilyPacket instance = new DM56EngineFamilyPacket(packet);
+        DM56EngineFamilyPacket instance = DM56EngineFamilyPacket.create(0, 2018, false, "US HD OBD");
         String expected = "";
         expected += "Model Year and Certification Engine Family from Engine #1 (0): " + NL;
         expected += "Model Year: 2018V-MY" + NL;
@@ -62,7 +62,7 @@ public class DM56EngineFamilyPacketTest {
         Packet packet = Packet.create(0, 0, bytes.getBytes(StandardCharsets.UTF_8));
         DM56EngineFamilyPacket instance = new DM56EngineFamilyPacket(packet);
         assertEquals("2039V-MY", instance.getModelYearField());
-        assertEquals(null, instance.getEngineModelYear());
+        assertNull(instance.getEngineModelYear());
         assertEquals(Integer.valueOf(2039), instance.getVehicleModelYear());
     }
 }

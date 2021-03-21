@@ -7,6 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
+
 import org.etools.j1939_84.bus.Packet;
 import org.junit.Test;
 
@@ -25,8 +26,8 @@ public class DM30ScaledTestResultsPacketTest {
     @Test
     public void testWithOne() {
         ScaledTestResult testResult0 = ScaledTestResult.create(247, 3362, 31, 208, 951, 1000, 800);
-        DM30ScaledTestResultsPacket instance = DM30ScaledTestResultsPacket.create(0, testResult0);
-        final List<ScaledTestResult> testResults = instance.getTestResults();
+        DM30ScaledTestResultsPacket instance = DM30ScaledTestResultsPacket.create(0, 0, testResult0);
+        List<ScaledTestResult> testResults = instance.getTestResults();
         assertEquals(1, testResults.size());
         {
             ScaledTestResult testResult = testResults.get(0);
@@ -45,7 +46,7 @@ public class DM30ScaledTestResultsPacketTest {
                 0x00, 0x00, 0x00, 0x00, 0x00 };
         Packet packet = Packet.create(0, 0, data);
         DM30ScaledTestResultsPacket instance = new DM30ScaledTestResultsPacket(packet);
-        final List<ScaledTestResult> testResults = instance.getTestResults();
+        List<ScaledTestResult> testResults = instance.getTestResults();
         assertEquals(3, testResults.size());
         {
             ScaledTestResult testResult = testResults.get(0);
@@ -64,9 +65,9 @@ public class DM30ScaledTestResultsPacketTest {
         }
 
         String expected = "DM30 from 0: [" + NL
+                + "  SPN 724 FMI 2 (SLOT 132) Result: Test Passed. Min: 0, Value: 0, Max: 0 ms" + NL
                 + "  SPN 724 FMI 20 (SLOT 318) Result: Test Passed. Min: -3.92, Value: -3.92, Max: -3.92" + NL
                 + "  SPN 724 FMI 21 (SLOT 318) Result: Test Passed. Min: -3.92, Value: -3.92, Max: -3.92" + NL
-                + "  SPN 724 FMI 2 (SLOT 132) Result: Test Passed. Min: 0, Value: 0, Max: 0 ms" + NL
                 + "]";
         assertEquals(expected, instance.toString());
     }

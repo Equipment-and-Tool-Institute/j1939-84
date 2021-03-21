@@ -19,8 +19,11 @@ public class EchoTest {
     public void failVin() throws BusException {
         Bus bus = new EchoBus(0xF9);
         assertFalse(
-                new J1939(bus).requestGlobal(null, VehicleIdentificationPacket.class, ResultsListener.NOOP)
-                        .getEither().stream().findFirst().isPresent());
+                    new J1939(bus).requestGlobal(null, VehicleIdentificationPacket.class, ResultsListener.NOOP)
+                                  .getEither()
+                                  .stream()
+                                  .findFirst()
+                                  .isPresent());
     }
 
     @Test
@@ -29,15 +32,17 @@ public class EchoTest {
         final String VIN = "SOME VIN";
         try (Sim sim = new Sim(bus)) {
             sim.response(p -> p.getPgn() == 0xEA00 && p.get24(0) == 65260,
-                    () -> Packet.create(65260, 0x0, VIN.getBytes()));
+                         () -> Packet.create(65260, 0x0, VIN.getBytes()));
 
             assertEquals(VIN,
-                    new J1939(bus)
-                            .requestGlobal(null, VehicleIdentificationPacket.class, ResultsListener.NOOP)
-                            .getEither().stream()
-                            .flatMap(e -> e.left.stream())
-                            .findFirst()
-                            .map(p1 -> new String(p1.getPacket().getBytes())).get());
+                         new J1939(bus)
+                                       .requestGlobal(null, VehicleIdentificationPacket.class, ResultsListener.NOOP)
+                                       .getEither()
+                                       .stream()
+                                       .flatMap(e -> e.left.stream())
+                                       .findFirst()
+                                       .map(p1 -> new String(p1.getPacket().getBytes()))
+                                       .get());
         }
     }
 }

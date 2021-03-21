@@ -8,12 +8,10 @@ import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSy
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
-import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
-import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
@@ -24,12 +22,13 @@ import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
+/**
+ * 6.1.3 DM5: Diagnostic Readiness 1
+ */
 public class Part01Step03Controller extends StepController {
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 3;
     private static final int TOTAL_STEPS = 0;
-
-    private final DataRepository dataRepository;
 
     Part01Step03Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
@@ -49,24 +48,26 @@ public class Part01Step03Controller extends StepController {
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
-
+        // 6.1.3.1.a. Global5 DM5 (send Request (PGN 59904) for PGN 65230 (SPN 1220)).
         RequestResult<DM5DiagnosticReadinessPacket> response = getDiagnosticMessageModule().requestDM5(getListener());
+
+        // 6.1.3.1.b. Fail if any ECU responds with a NACK (for PGN 65230).
         boolean nacked = response.getAcks().stream().anyMatch(packet -> packet.getResponse() == Response.NACK);
         if (nacked) {
-            addFailure(1, 3, "6.1.3.2.b - The request for DM5 was NACK'ed");
+            addFailure("6.1.3.2.b - The request for DM5 was NACK'ed");
         }
 
         List<DM5DiagnosticReadinessPacket> parsedPackets = response.getPackets();
@@ -74,45 +75,51 @@ public class Part01Step03Controller extends StepController {
         if (!parsedPackets.isEmpty()) {
             getListener().onResult("");
             getListener().onResult("Vehicle Composite of DM5:");
-            List<CompositeMonitoredSystem> systems = getCompositeSystems(parsedPackets, true);
-            getListener().onResult(systems.stream().map(MonitoredSystem::toString).collect(Collectors.toList()));
+            getCompositeSystems(parsedPackets, true).forEach(s -> getListener().onResult(s.toString()));
         }
 
-        response.getPackets().stream()
+        // 6.1.3.1.b. Create “'OBD ECU”' list (comprised of all ECUs that indicate 0x13, 0x14, 0x22, or 0x23 for
+        // OBD compliance) for use later in the test as the “OBD ECUs.”.
+        response.getPackets()
+                .stream()
                 .filter(DM5DiagnosticReadinessPacket::isObd)
                 .forEach(p -> {
-                    OBDModuleInformation info = new OBDModuleInformation(p.getSourceAddress());
-                    info.setObdCompliance(p.getOBDCompliance());
-                    info.setMonitoredSystems(p.getMonitoredSystems());
-                    int function = dataRepository.getVehicleInformation()
-                            .getAddressClaim()
-                            .getPackets()
-                            .stream()
-                            .filter(a -> a.getSourceAddress() == p.getSourceAddress())
-                            .map(AddressClaimPacket::getFunctionId)
-                            .findFirst()
-                            .orElse(-1);
-                    info.setFunction(function);
-                    dataRepository.putObdModule(info);
+                    OBDModuleInformation info = new OBDModuleInformation(p.getSourceAddress(),
+                                                                         getAddressClaimFunction(p));
+                    info.set(p, 1);
+                    getDataRepository().putObdModule(info);
                 });
 
-        if (dataRepository.getObdModules().size() < 1) {
-            addFailure(1, 3, "6.1.3.2.a - There needs to be at least one OBD Module");
+        // 6.1.3.2.a. Fail if no ECU reports as an OBD ECU.
+        if (getDataRepository().getObdModules().size() < 1) {
+            addFailure("6.1.3.2.a - No ECU reported as an OBD ECU");
         }
 
+        // 6.1.3.3.a. Warn if more than one ECU responds with a value for OBD compliance where the values are not
+        // identical (e.g., if one ECU reports 0x13 and another reports 0x22, if one reports 0x13 and another reports
+        // 0x11).
         long distinctCount = response.getPackets()
-                .stream()
-                .map(DM5DiagnosticReadinessPacket::getOBDCompliance)
-                .filter(c -> c != (byte) 255 && c != (byte) 5) //Non-OBD values
-                .distinct()
-                .count();
+                                     .stream()
+                                     .map(DM5DiagnosticReadinessPacket::getOBDCompliance)
+                                     .filter(c -> c != (byte) 255 && c != (byte) 5) // Non-OBD values
+                                     .distinct()
+                                     .count();
 
         if (distinctCount > 1) {
             // All the values should be the same
-            addWarning(1,
-                       3,
-                       "6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
+            addWarning("6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
         }
+    }
+
+    private Integer getAddressClaimFunction(DM5DiagnosticReadinessPacket p) {
+        return getDataRepository().getVehicleInformation()
+                                  .getAddressClaim()
+                                  .getPackets()
+                                  .stream()
+                                  .filter(a -> a.getSourceAddress() == p.getSourceAddress())
+                                  .map(AddressClaimPacket::getFunctionId)
+                                  .findFirst()
+                                  .orElse(-1);
     }
 
 }

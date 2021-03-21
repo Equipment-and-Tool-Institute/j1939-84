@@ -14,6 +14,10 @@ import org.etools.j1939_84.bus.Packet;
 public class DM12MILOnEmissionDTCPacket extends DiagnosticTroubleCodePacket {
     public static final int PGN = 65236; // 0xFED4
 
+    public DM12MILOnEmissionDTCPacket(Packet packet) {
+        super(packet);
+    }
+
     public static DM12MILOnEmissionDTCPacket create(int address,
                                                     LampStatus mil,
                                                     LampStatus stop,
@@ -21,10 +25,6 @@ public class DM12MILOnEmissionDTCPacket extends DiagnosticTroubleCodePacket {
                                                     LampStatus protect,
                                                     DiagnosticTroubleCode... dtcs) {
         return new DM12MILOnEmissionDTCPacket(create(address, PGN, mil, stop, amber, protect, dtcs));
-    }
-
-    public DM12MILOnEmissionDTCPacket(Packet packet) {
-        super(packet);
     }
 
     @Override

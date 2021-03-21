@@ -5,7 +5,7 @@ package org.etools.j1939_84.controllers.part03;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import org.etools.j1939_84.controllers.Controller;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.PartController;
 import org.etools.j1939_84.controllers.StepController;
@@ -16,9 +16,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * The {@link Controller} for the Part 3 Tests
- *
- * @author Matt Gumbel (matt@soliddesign.net)
+ * 6.3 Test Pending Fault A
  */
 public class Part03Controller extends PartController {
 
@@ -43,8 +41,9 @@ public class Part03Controller extends PartController {
              new Part03Step11Controller(),
              new Part03Step12Controller(),
              new Part03Step13Controller(),
-             new Part03Step14Controller()
-        );
+             new Part03Step14Controller(),
+             new Part03Step15Controller(),
+             new Part03Step16Controller());
     }
 
     /**

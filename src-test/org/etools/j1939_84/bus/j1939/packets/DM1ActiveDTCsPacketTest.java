@@ -10,6 +10,7 @@ import static org.etools.j1939_84.bus.j1939.packets.LampStatus.SLOW_FLASH;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
+
 import org.etools.j1939_84.bus.Packet;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,8 +35,22 @@ public class DM1ActiveDTCsPacketTest {
     @Test
     public void testDiagnosticTroubleCodePacket() {
         DM1ActiveDTCsPacket copy = new DM1ActiveDTCsPacket(
-                Packet.create(65226, 0x00, 0x11, 0xCD, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06,
-                              0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
+                                                           Packet.create(65226,
+                                                                         0x00,
+                                                                         0x11,
+                                                                         0xCD,
+                                                                         0x61,
+                                                                         0x02,
+                                                                         0x13,
+                                                                         0x00,
+                                                                         0x21,
+                                                                         0x06,
+                                                                         0x1F,
+                                                                         0x00,
+                                                                         0xEE,
+                                                                         0x10,
+                                                                         0x04,
+                                                                         0x00));
         assertEquals(copy, instance);
     }
 

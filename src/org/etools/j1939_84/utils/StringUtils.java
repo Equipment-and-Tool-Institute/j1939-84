@@ -9,9 +9,9 @@ import java.util.regex.Pattern;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- * <p>
- * The class to properly interact with a string and perform various
- * operations on strings.
+ *         <p>
+ *         The class to properly interact with a string and perform various
+ *         operations on strings.
  */
 public class StringUtils {
 

@@ -17,25 +17,25 @@ import javax.swing.text.PlainDocument;
  */
 public class LengthLimitedDocument extends PlainDocument {
 
-	private static final long serialVersionUID = 6656200483294742063L;
+    private static final long serialVersionUID = 6656200483294742063L;
 
-	private final int limit;
+    private final int limit;
 
-	/**
-	 * Constructor
-	 *
-	 * @param limit the maximum number of characters allowed in the
-	 *              {@link JTextComponent}
-	 */
-	public LengthLimitedDocument(int limit) {
-		this.limit = limit;
-	}
+    /**
+     * Constructor
+     *
+     * @param limit the maximum number of characters allowed in the
+     *                  {@link JTextComponent}
+     */
+    public LengthLimitedDocument(int limit) {
+        this.limit = limit;
+    }
 
-	@Override
-	public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException {
-		if (str != null && (getLength() + str.length()) <= limit) {
-			super.insertString(offset, str, attr);
-		}
-	}
+    @Override
+    public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException {
+        if (str != null && (getLength() + str.length()) <= limit) {
+            super.insertString(offset, str, attr);
+        }
+    }
 
 }

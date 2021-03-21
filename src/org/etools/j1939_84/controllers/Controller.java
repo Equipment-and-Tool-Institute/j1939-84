@@ -3,17 +3,19 @@
  */
 package org.etools.j1939_84.controllers;
 
+import static org.etools.j1939_84.model.Outcome.ABORT;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
-import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.BannerModule;
@@ -31,136 +33,23 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  */
 public abstract class Controller {
 
-    /**
-     * The {@link ResultsListener} that combines other listeners for easier
-     * reporting
-     */
-    private static class CompositeResultsListener implements ResultsListener {
-
-        private final ResultsListener[] listeners;
-
-        private CompositeResultsListener(ResultsListener... listeners) {
-            this.listeners = listeners;
-        }
-
-        @Override
-        public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
-            Arrays.stream(listeners).forEach(l -> l.addOutcome(partNumber, stepNumber, outcome, message));
-        }
-
-        @Override
-        public void beginPart(PartResult partResult) {
-            Arrays.stream(listeners).forEach(l -> l.beginPart(partResult));
-        }
-
-        @Override
-        public void beginStep(StepResult stepResult) {
-            Arrays.stream(listeners).forEach(l -> l.beginStep(stepResult));
-        }
-
-        @Override
-        public void endPart(PartResult partResult) {
-            Arrays.stream(listeners).forEach(l -> l.endPart(partResult));
-        }
-
-        @Override
-        public void endStep(StepResult stepResult) {
-            Arrays.stream(listeners).forEach(l -> l.endStep(stepResult));
-        }
-
-        @Override
-        public void onComplete(boolean success) {
-            Arrays.stream(listeners).forEach(l -> l.onComplete(success));
-        }
-
-        @Override
-        public void onMessage(String message, String title, MessageType type) {
-            Arrays.stream(listeners).forEach(l -> l.onMessage(message, title, type));
-        }
-
-        @Override
-        public void onProgress(int currentStep, int totalSteps, String message) {
-            Arrays.stream(listeners).forEach(l -> l.onProgress(currentStep, totalSteps, message));
-        }
-
-        @Override
-        public void onProgress(String message) {
-            Arrays.stream(listeners).forEach(l -> l.onProgress(message));
-        }
-
-        @Override
-        public void onResult(List<String> results) {
-            Arrays.stream(listeners).forEach(l -> l.onResult(results));
-        }
-
-        @Override
-        public void onResult(String result) {
-            Arrays.stream(listeners).forEach(l -> l.onResult(result));
-        }
-
-        @Override
-        public void onUrgentMessage(String message, String title, MessageType type) {
-            Arrays.stream(listeners).forEach(l -> l.onUrgentMessage(message, title, type));
-        }
-
-        @Override
-        public void onUrgentMessage(String message, String title, MessageType type, QuestionListener listener) {
-            Arrays.stream(listeners).forEach(l -> l.onUrgentMessage(message, title, type, listener));
-        }
-
-        @Override
-        public void onVehicleInformationNeeded(VehicleInformationListener listener) {
-            Arrays.stream(listeners).forEach(l -> l.onVehicleInformationNeeded(listener));
-        }
-
-        @Override
-        public void onVehicleInformationReceived(VehicleInformation vehicleInformation) {
-            Arrays.stream(listeners).forEach(l -> l.onVehicleInformationReceived(vehicleInformation));
-        }
-    }
-
-    protected enum Ending {
-        ABORTED("Aborted"), COMPLETED("Completed"), FAILED("Failed"), STOPPED("Stopped");
-
-        private final String string;
-
-        Ending(String string) {
-            this.string = string;
-        }
-
-        @Override
-        public String toString() {
-            return string;
-        }
-    }
-
-    private static final List<Ending> INTERUPPTABLE_ENDINGS = List.of(Ending.STOPPED, Ending.ABORTED, Ending.FAILED);
-
-    private final BannerModule bannerModule;
-
-    private CompositeResultsListener compositeListener;
-
+    private static final List<Ending> INTERUPPTABLE_ENDINGS = List.of(Ending.STOPPED,
+                                                                      Ending.ABORTED,
+                                                                      Ending.FAILED,
+                                                                      Ending.COMPLETED);
     private static int currentStep;
-
     private static Ending ending;
-
-    private final EngineSpeedModule engineSpeedModule;
-
-    private final Executor executor;
-
-    private J1939 j1939;
-
     private static int maxSteps;
-
+    private final BannerModule bannerModule;
+    private final EngineSpeedModule engineSpeedModule;
+    private final Executor executor;
     private final PartResultRepository partResultRepository;
-
     private final VehicleInformationModule vehicleInformationModule;
-
     private final DateTimeModule dateTimeModule;
-
     private final DiagnosticMessageModule diagnosticMessageModule;
-
     private final DataRepository dataRepository;
+    private CompositeResultsListener compositeListener;
+    private J1939 j1939;
 
     protected Controller(Executor executor,
                          BannerModule bannerModule,
@@ -198,6 +87,37 @@ public abstract class Controller {
     }
 
     /**
+     * Checks the Ending value and will throw an {@link InterruptedException} if
+     * the value has been set to Stopped or Aborted
+     *
+     * @throws InterruptedException
+     *                                  if the ending has been set
+     */
+    public static void checkEnding() throws InterruptedException {
+        if (getEnding() != null && INTERUPPTABLE_ENDINGS.contains(getEnding())) {
+            throw new InterruptedException(getEnding().toString());
+        }
+    }
+
+    /**
+     * @return the ending
+     */
+    protected static Ending getEnding() {
+        return ending;
+    }
+
+    /**
+     * @param  ending
+     *                                  the ending to set
+     * @throws InterruptedException
+     *                                  if the ending was set to ABORTED or STOPPED
+     */
+    protected void setEnding(Ending ending) throws InterruptedException {
+        Controller.ending = ending;
+        checkEnding();
+    }
+
+    /**
      * Adds a blank line to the report
      */
     protected void addBlankLineToReport() {
@@ -205,59 +125,16 @@ public abstract class Controller {
     }
 
     /**
-     * Adds a failure to the report
-     *
-     * @param partNumber
-     *         the part number to add to the report
-     * @param stepNumber
-     *         the step number where the warning originated
-     * @param message
-     *         the warning to add to the report
-     */
-    protected void addFailure(int partNumber, int stepNumber, String message) {
-        getListener().addOutcome(partNumber, stepNumber, Outcome.FAIL, message);
-        getListener().onResult("FAIL: " + message);
-    }
-
-    /**
-     * Adds a warning to the report
-     *
-     * @param partNumber
-     *         the part number to add to the report
-     * @param stepNumber
-     *         the step number where the warning originated
-     * @param message
-     *         the warning to add to the report
-     */
-    protected void addWarning(int partNumber, int stepNumber, String message) {
-        getListener().addOutcome(partNumber, stepNumber, Outcome.WARN, message);
-        getListener().onResult("WARN: " + message);
-    }
-
-    /**
-     * Checks the Ending value and will throw an {@link InterruptedException} if
-     * the value has been set to Stopped or Aborted
-     *
-     * @throws InterruptedException
-     *         if the ending has been set
-     */
-    private static void checkEnding() throws InterruptedException {
-        if (getEnding() != null && INTERUPPTABLE_ENDINGS.contains(getEnding())) {
-            throw new InterruptedException(getEnding().toString());
-        }
-    }
-
-    /**
      * Executes the Controller. The results are passed to the
      * {@link ResultsListener}
      *
      * @param listener
-     *         the {@link ResultsListener} that will be given the results
+     *                             the {@link ResultsListener} that will be given the results
      * @param j1939
-     *         the {@link J1939} to use for communications
+     *                             the {@link J1939} to use for communications
      * @param reportFileModule
-     *         the {@link ReportFileModule} that will be used to read and
-     *         generate the report
+     *                             the {@link ReportFileModule} that will be used to read and
+     *                             generate the report
      */
     public void execute(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
         setupRun(listener, j1939, reportFileModule);
@@ -276,18 +153,18 @@ public abstract class Controller {
         }
 
         switch (ending) {
-        case ABORTED:
-            getBannerModule().reportAborted(getListener());
-            break;
-        case COMPLETED:
-            getBannerModule().reportFooter(getListener());
-            break;
-        case STOPPED:
-            getBannerModule().reportStopped(getListener());
-            break;
-        case FAILED:
-            getBannerModule().reportFailed(getListener());
-            break;
+            case ABORTED:
+                getBannerModule().reportAborted(getListener());
+                break;
+            case COMPLETED:
+                getBannerModule().reportFooter(getListener());
+                break;
+            case STOPPED:
+                getBannerModule().reportStopped(getListener());
+                break;
+            case FAILED:
+                getBannerModule().reportFailed(getListener());
+                break;
         }
 
         addBlankLineToReport();
@@ -319,13 +196,6 @@ public abstract class Controller {
     public abstract String getDisplayName();
 
     /**
-     * @return the ending
-     */
-    protected static Ending getEnding() {
-        return ending;
-    }
-
-    /**
      * Returns the {@link EngineSpeedModule}
      *
      * @return {@link EngineSpeedModule}
@@ -351,6 +221,19 @@ public abstract class Controller {
     }
 
     /**
+     * Sets the {@link J1939} to be used for communications
+     *
+     * @param j1939
+     *                  the {@link J1939} to set
+     */
+    private void setJ1939(J1939 j1939) {
+        this.j1939 = j1939;
+        getVehicleInformationModule().setJ1939(this.j1939);
+        getEngineSpeedModule().setJ1939(this.j1939);
+        getDiagnosticMessageModule().setJ1939(this.j1939);
+    }
+
+    /**
      * Returns the {@link ResultsListener}
      *
      * @return {@link ResultsListener}
@@ -364,7 +247,7 @@ public abstract class Controller {
      *
      * @return {@link Logger}
      */
-    protected Logger getLogger() {
+    protected static Logger getLogger() {
         return J1939_84.getLogger();
     }
 
@@ -383,15 +266,29 @@ public abstract class Controller {
                 run();
             } catch (Throwable e) {
                 getLogger().log(Level.SEVERE, "Error", e);
-                if (!(e instanceof InterruptedException)) {
-                    String message = e.getMessage();
-                    if (message == null) {
-                        message = "An Error Occurred";
+                if (e instanceof InterruptedException || e.getCause() instanceof InterruptedException) {
+                    if (this instanceof StepController) {
+                        int partNumber = ((StepController) this).getPartNumber();
+                        int stepNumber = ((StepController) this).getStepNumber();
+                        if (getOutcome(partNumber, stepNumber) != ABORT) {
+                            String message = "User cancelled testing at Part " + partNumber + " Step " + stepNumber;
+                            getListener().addOutcome(partNumber, stepNumber, ABORT, message);
+                        }
                     }
-                    getListener().onMessage(message, "Error", MessageType.ERROR);
+                    return;
                 }
+
+                String message = e.getMessage();
+                if (message == null) {
+                    message = "An Error Occurred";
+                }
+                getListener().onMessage(message, "Error", MessageType.ERROR);
             }
         };
+    }
+
+    private Outcome getOutcome(int partNumber, int stepNumber) {
+        return getPartResult(partNumber).getStepResult(stepNumber).getOutcome();
     }
 
     /**
@@ -418,14 +315,14 @@ public abstract class Controller {
     /**
      * Increments the overall progress and sends the message to the listener
      *
-     * @param message
-     *         the {@link String} message to display
+     * @param  message
+     *                                  the {@link String} message to display
      * @throws InterruptedException
-     *         if the operation has been Stopped
+     *                                  if the operation has been Stopped
      */
     protected void incrementProgress(String message) throws InterruptedException {
-        getListener().onProgress(++currentStep, maxSteps, message);
         checkEnding();
+        getListener().onProgress(++currentStep, maxSteps, message);
     }
 
     /**
@@ -442,7 +339,7 @@ public abstract class Controller {
      * subclasses. Callers should use execute() instead.
      *
      * @throws Throwable
-     *         if there is a problem
+     *                       if there is a problem
      */
     protected abstract void run() throws Throwable;
 
@@ -452,35 +349,11 @@ public abstract class Controller {
     }
 
     /**
-     * @param ending
-     *         the ending to set
-     * @throws InterruptedException
-     *         if the ending was set to ABORTED or STOPPED
-     */
-    protected static void setEnding(Ending ending) throws InterruptedException {
-        Controller.ending = ending;
-        checkEnding();
-    }
-
-    /**
-     * Sets the {@link J1939} to be used for communications
-     *
-     * @param j1939
-     *         the {@link J1939} to set
-     */
-    private void setJ1939(J1939 j1939) {
-        this.j1939 = j1939;
-        getVehicleInformationModule().setJ1939(this.j1939);
-        getEngineSpeedModule().setJ1939(this.j1939);
-        getDiagnosticMessageModule().setJ1939(this.j1939);
-    }
-
-    /**
      * Resets the progress to zero, clears the message displayed to the user and
      * sets the maximum number of steps
      *
      * @param maxSteps
-     *         the maximum number of steps in the operation
+     *                     the maximum number of steps in the operation
      */
     protected void setupProgress(int maxSteps) {
         Controller.currentStep = 0;
@@ -488,12 +361,12 @@ public abstract class Controller {
         getListener().onProgress(currentStep, maxSteps, "");
     }
 
-    public void setupRun(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
+    private void setupRun(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
         setJ1939(j1939);
         if (reportFileModule != null) {
-            compositeListener = new CompositeResultsListener(listener, reportFileModule);
+            compositeListener = new CompositeResultsListener(listener, reportFileModule, partResultRepository);
         } else {
-            compositeListener = new CompositeResultsListener(listener);
+            compositeListener = new CompositeResultsListener(listener, partResultRepository);
         }
         ending = null;
     }
@@ -509,13 +382,117 @@ public abstract class Controller {
      * Sends the message to the listener without incrementing the overall
      * progress
      *
-     * @param message
-     *         the message to send
+     * @param  message
+     *                                  the message to send
      * @throws InterruptedException
-     *         if the operation has been Stopped
+     *                                  if the operation has been Stopped
      */
     protected void updateProgress(String message) throws InterruptedException {
-        getListener().onProgress(currentStep, maxSteps, message);
         checkEnding();
+        getListener().onProgress(currentStep, maxSteps, message);
+    }
+
+    protected enum Ending {
+        ABORTED("Aborted"), COMPLETED("Completed"), FAILED("Failed"), STOPPED("Stopped");
+
+        private final String string;
+
+        Ending(String string) {
+            this.string = string;
+        }
+
+        @Override
+        public String toString() {
+            return string;
+        }
+    }
+
+    /**
+     * The {@link ResultsListener} that combines other listeners for easier reporting
+     */
+    private static class CompositeResultsListener implements ResultsListener {
+
+        private final ResultsListener[] listeners;
+
+        private CompositeResultsListener(ResultsListener... listeners) {
+            this.listeners = listeners;
+        }
+
+        @Override
+        public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
+            Arrays.stream(listeners).forEach(l -> {
+                l.addOutcome(partNumber, stepNumber, outcome, message);
+            });
+        }
+
+        @Override
+        public void onComplete(boolean success) {
+            Arrays.stream(listeners).forEach(l -> {
+                l.onComplete(success);
+            });
+        }
+
+        @Override
+        public void onMessage(String message, String title, MessageType type) {
+            Arrays.stream(listeners).forEach(l -> {
+                l.onMessage(message, title, type);
+            });
+        }
+
+        @Override
+        public void onProgress(int currentStep, int totalSteps, String message) {
+            Arrays.stream(listeners).forEach(l -> {
+                l.onProgress(currentStep, totalSteps, message);
+            });
+        }
+
+        @Override
+        public void onProgress(String message) {
+            Arrays.stream(listeners).forEach(l -> {
+                l.onProgress(message);
+            });
+        }
+
+        @Override
+        public void onResult(List<String> results) {
+            Arrays.stream(listeners).forEach(l -> {
+                l.onResult(results);
+            });
+        }
+
+        @Override
+        public void onResult(String result) {
+            Arrays.stream(listeners).forEach(l -> {
+                l.onResult(result);
+            });
+        }
+
+        @Override
+        public void onUrgentMessage(String message, String title, MessageType type) {
+            Arrays.stream(listeners).forEach(l -> {
+                l.onUrgentMessage(message, title, type);
+            });
+        }
+
+        @Override
+        public void onUrgentMessage(String message, String title, MessageType type, QuestionListener listener) {
+            Arrays.stream(listeners).forEach(l -> {
+                l.onUrgentMessage(message, title, type, listener);
+            });
+        }
+
+        @Override
+        public void onVehicleInformationNeeded(VehicleInformationListener listener) {
+            Arrays.stream(listeners).forEach(l -> {
+                l.onVehicleInformationNeeded(listener);
+            });
+        }
+
+        @Override
+        public void onVehicleInformationReceived(VehicleInformation vehicleInformation) {
+            Arrays.stream(listeners).forEach(l -> {
+                l.onVehicleInformationReceived(vehicleInformation);
+            });
+        }
     }
 }

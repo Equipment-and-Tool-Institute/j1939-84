@@ -7,6 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.etools.j1939_84.controllers.PartResultRepository;
 import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.IResult;
@@ -20,6 +21,11 @@ import org.etools.j1939_84.model.StepResult;
 public class SummaryModule {
 
     private static final int LINE_LENGTH = 80;
+    private final PartResultRepository partResultRepository;
+
+    public SummaryModule() {
+        partResultRepository = PartResultRepository.getInstance();
+    }
 
     private static String dots(int length) {
         char[] charArray = new char[length];
@@ -27,25 +33,9 @@ public class SummaryModule {
         return new String(charArray);
     }
 
-    private final PartResultRepository partResultRepository;
-
-    public SummaryModule() {
-        partResultRepository = PartResultRepository.getInstance();
-    }
-
     public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
         StepResult stepResult = getStepResult(partNumber, stepNumber);
         stepResult.addResult(new ActionOutcome(outcome, message));
-    }
-
-    public void beginPart(PartResult partResult) {
-        getPartResults().add(partResult);
-    }
-
-    public void endStep(StepResult stepResult) {
-        if (stepResult.getOutcome() == Outcome.INCOMPLETE) {
-            stepResult.addResult(new ActionOutcome(Outcome.PASS, null));
-        }
     }
 
     public String generateSummary() {
@@ -71,20 +61,19 @@ public class SummaryModule {
 
     public long getOutcomeCount(Outcome outcome) {
         return getPartResults().stream()
-                .flatMap(p -> p.getStepResults().stream())
-                .flatMap(s -> s.getOutcomes().stream())
-                .filter(o -> o.getOutcome() == outcome)
-                .count();
+                               .flatMap(p -> p.getStepResults().stream())
+                               .flatMap(s -> s.getOutcomes().stream())
+                               .filter(o -> o.getOutcome() == outcome)
+                               .count();
     }
 
-
-    private String println(IResult iResult) {
+    private static String println(IResult iResult) {
         String name = iResult.toString();
 
         Outcome outcome = iResult.getOutcome();
         String result = "(" + outcome + ")";
 
-        //Name[...](Result) with min 3 dots
+        // Name[...](Result) with min 3 dots
         int totalLength = name.length() + result.length() + 3;
 
         if (totalLength > LINE_LENGTH) {

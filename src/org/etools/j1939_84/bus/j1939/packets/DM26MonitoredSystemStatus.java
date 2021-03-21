@@ -29,9 +29,9 @@ public enum DM26MonitoredSystemStatus implements MonitoredSystemStatus {
      * Constructor
      *
      * @param enabled
-     *         true if the monitor is enabled
+     *                     true if the monitor is enabled
      * @param complete
-     *         true if the monitor is complete
+     *                     true if the monitor is complete
      */
     DM26MonitoredSystemStatus(boolean enabled, boolean complete) {
         this.enabled = enabled;

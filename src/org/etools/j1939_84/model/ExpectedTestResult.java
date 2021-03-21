@@ -21,19 +21,6 @@ public class ExpectedTestResult {
         this.fmi = fmi;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (!(obj instanceof ExpectedTestResult)) {
-            return false;
-        }
-        ExpectedTestResult that = (ExpectedTestResult) obj;
-        return getSpn() == that.getSpn() && getFmi() == that.getFmi();
-    }
-
     public int getFmi() {
         return fmi;
     }
@@ -45,6 +32,19 @@ public class ExpectedTestResult {
     @Override
     public int hashCode() {
         return Objects.hash(getSpn(), getFmi());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof ExpectedTestResult)) {
+            return false;
+        }
+        ExpectedTestResult that = (ExpectedTestResult) obj;
+        return getSpn() == that.getSpn() && getFmi() == that.getFmi();
     }
 
     public boolean matches(ScaledTestResult scaledTestResult) {

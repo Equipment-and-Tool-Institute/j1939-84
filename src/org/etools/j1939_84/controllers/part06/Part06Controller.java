@@ -3,10 +3,9 @@
  */
 package org.etools.j1939_84.controllers.part06;
 
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import org.etools.j1939_84.controllers.Controller;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.PartController;
 import org.etools.j1939_84.controllers.StepController;
@@ -17,20 +16,29 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * The {@link Controller} for the Part 6 Tests
- *
- * @author Matt Gumbel (matt@soliddesign.net)
+ * 6.6 Complete Fault A Three Cycle Countdown
  */
 public class Part06Controller extends PartController {
 
     public Part06Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-              new BannerModule(),
-              DateTimeModule.getInstance(),
-              dataRepository,
-              new EngineSpeedModule(),
-              new VehicleInformationModule(),
-              new DiagnosticMessageModule());
+             new BannerModule(),
+             DateTimeModule.getInstance(),
+             dataRepository,
+             new EngineSpeedModule(),
+             new VehicleInformationModule(),
+             new DiagnosticMessageModule(),
+             new Part06Step01Controller(),
+             new Part06Step02Controller(),
+             new Part06Step03Controller(),
+             new Part06Step04Controller(),
+             new Part06Step05Controller(),
+             new Part06Step06Controller(),
+             new Part06Step07Controller(),
+             new Part06Step08Controller(),
+             new Part06Step09Controller(),
+             new Part06Step10Controller(),
+             new Part06Step11Controller());
     }
 
     /**
@@ -53,11 +61,6 @@ public class Part06Controller extends PartController {
               diagnosticMessageModule,
               6,
               stepControllers);
-    }
-
-    @Override
-    protected List<StepController> getStepControllers() {
-        return getStepControllers(6, 11);
     }
 
 }

@@ -3,10 +3,9 @@
  */
 package org.etools.j1939_84.controllers.part11;
 
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import org.etools.j1939_84.controllers.Controller;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.PartController;
 import org.etools.j1939_84.controllers.StepController;
@@ -17,20 +16,31 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * The {@link Controller} for the Part 11 Tests
- *
- * @author Matt Gumbel (matt@soliddesign.net)
+ * 6.11 Part 11 Exercise General Denominator
  */
 public class Part11Controller extends PartController {
 
     public Part11Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-              new BannerModule(),
-              DateTimeModule.getInstance(),
-              dataRepository,
-              new EngineSpeedModule(),
-              new VehicleInformationModule(),
-              new DiagnosticMessageModule());
+             new BannerModule(),
+             DateTimeModule.getInstance(),
+             dataRepository,
+             new EngineSpeedModule(),
+             new VehicleInformationModule(),
+             new DiagnosticMessageModule(),
+             new Part11Step01Controller(),
+             new Part11Step02Controller(),
+             new Part11Step03Controller(),
+             new Part11Step04Controller(),
+             new Part11Step05Controller(),
+             new Part11Step06Controller(),
+             new Part11Step07Controller(),
+             new Part11Step08Controller(),
+             new Part11Step09Controller(),
+             new Part11Step10Controller(),
+             new Part11Step11Controller(),
+             new Part11Step12Controller(),
+             new Part11Step13Controller());
     }
 
     /**
@@ -53,11 +63,6 @@ public class Part11Controller extends PartController {
               diagnosticMessageModule,
               11,
               stepControllers);
-    }
-
-    @Override
-    protected List<StepController> getStepControllers() {
-        return getStepControllers(11, 13);
     }
 
 }

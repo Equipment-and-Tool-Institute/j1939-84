@@ -5,7 +5,11 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
+import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
 import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -16,10 +20,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
@@ -28,9 +32,11 @@ import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.Ca
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
+import org.etools.j1939_84.bus.j1939.packets.IdleOperationPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.model.KeyState;
 import org.etools.j1939_84.model.RequestResult;
 
 /**
@@ -71,27 +77,26 @@ public class VehicleInformationModule extends FunctionalModule {
      * Queries the vehicle for all {@link CalibrationInformation} from the
      * modules
      *
-     * @return a {@link Set} of {@link CalibrationInformation}
+     * @return             a {@link Set} of {@link CalibrationInformation}
      * @throws IOException
-     *         if there are no {@link CalibrationInformation} returned
+     *                         if there are no {@link CalibrationInformation} returned
      */
     public List<CalibrationInformation> getCalibrations() throws IOException {
         if (calibrations == null) {
             Collection<Either<DM19CalibrationInformationPacket, AcknowledgmentPacket>> raw = new ArrayList<>(getJ1939()
-                                                                                                                     .requestGlobal(
-                                                                                                                             null,
-                                                                                                                             DM19CalibrationInformationPacket.class,
-                                                                                                                             NOOP
-                                                                                                                     )
-                                                                                                                     .getEither());
+                                                                                                                       .requestGlobal(
+                                                                                                                                      null,
+                                                                                                                                      DM19CalibrationInformationPacket.class,
+                                                                                                                                      NOOP)
+                                                                                                                       .getEither());
             calibrations = raw.stream()
-                    // flatten an Optional<Either<packetWithAList>>
-                    .flatMap(t -> t.left.stream()
-                            .flatMap(p -> p.getCalibrationInformation().stream()))
-                    // get consistent order
-                    .sorted(Comparator.comparing(
-                            CalibrationInformation::toString))
-                    .collect(Collectors.toList());
+                              // flatten an Optional<Either<packetWithAList>>
+                              .flatMap(t -> t.left.stream()
+                                                  .flatMap(p -> p.getCalibrationInformation().stream()))
+                              // get consistent order
+                              .sorted(Comparator.comparing(
+                                                           CalibrationInformation::toString))
+                              .collect(Collectors.toList());
             if (calibrations.isEmpty()) {
                 throw new IOException("Timeout Error Reading Calibrations");
             }
@@ -104,9 +109,9 @@ public class VehicleInformationModule extends FunctionalModule {
      * modules. A {@link String} of the resulting {@link CalibrationInformation}
      * is returned
      *
-     * @return {@link String}
+     * @return             {@link String}
      * @throws IOException
-     *         if there are no {@link CalibrationInformation} returned
+     *                         if there are no {@link CalibrationInformation} returned
      */
     public String getCalibrationsAsString() throws IOException {
         return getCalibrations().stream().map(CalibrationInformation::toString).collect(Collectors.joining(NL));
@@ -115,19 +120,20 @@ public class VehicleInformationModule extends FunctionalModule {
     /**
      * Queries the vehicle for the Engine Family Name
      *
-     * @return The Engine Family Name
+     * @return             The Engine Family Name
      * @throws IOException
-     *         if no values are returned from the vehicle or multiple
-     *         differing values are returned from the vehicle
+     *                         if no values are returned from the vehicle or multiple
+     *                         differing values are returned from the vehicle
      */
     public String getEngineFamilyName() throws IOException {
         if (engineFamilyName == null) {
             Set<String> results = getJ1939()
-                    .requestGlobal(null, DM56EngineFamilyPacket.class, NOOP)
-                    .getEither().stream()
-                    .flatMap(e -> e.left.stream())
-                    .map(DM56EngineFamilyPacket::getFamilyName)
-                    .collect(Collectors.toSet());
+                                            .requestGlobal(null, DM56EngineFamilyPacket.class, NOOP)
+                                            .getEither()
+                                            .stream()
+                                            .flatMap(e -> e.left.stream())
+                                            .map(DM56EngineFamilyPacket::getFamilyName)
+                                            .collect(Collectors.toSet());
             if (results.size() == 0) {
                 throw new IOException("Timeout Error Reading Engine Family");
             } else if (results.size() > 1) {
@@ -142,19 +148,20 @@ public class VehicleInformationModule extends FunctionalModule {
     /**
      * Queries the vehicle for the Engine Model Year
      *
-     * @return The Engine Model Year as an integer
+     * @return             The Engine Model Year as an integer
      * @throws IOException
-     *         if no values are returned from the vehicle or multiple
-     *         differing values are returned from the vehicle
+     *                         if no values are returned from the vehicle or multiple
+     *                         differing values are returned from the vehicle
      */
     public int getEngineModelYear() throws IOException {
         if (engineModelYear == null) {
             Set<Integer> results = getJ1939()
-                    .requestGlobal(null, DM56EngineFamilyPacket.class, NOOP)
-                    .getEither().stream()
-                    .flatMap(e -> e.left.stream())
-                    .map(DM56EngineFamilyPacket::getEngineModelYear)
-                    .collect(Collectors.toSet());
+                                             .requestGlobal(null, DM56EngineFamilyPacket.class, NOOP)
+                                             .getEither()
+                                             .stream()
+                                             .flatMap(e -> e.left.stream())
+                                             .map(DM56EngineFamilyPacket::getEngineModelYear)
+                                             .collect(Collectors.toSet());
             if (results.size() == 0) {
                 throw new IOException("Timeout Error Reading Engine Model Year");
             } else if (results.size() > 1) {
@@ -169,17 +176,18 @@ public class VehicleInformationModule extends FunctionalModule {
     /**
      * Queries the vehicle for the VIN.
      *
-     * @return the Vehicle Identification Number as a {@link String}
+     * @return             the Vehicle Identification Number as a {@link String}
      * @throws IOException
-     *         if no value is returned from the vehicle or different VINs
-     *         are returned
+     *                         if no value is returned from the vehicle or different VINs
+     *                         are returned
      */
     public String getVin() throws IOException {
         if (vin == null) {
             Set<String> vins = getJ1939().requestGlobal(null, VehicleIdentificationPacket.class, NOOP)
-                    .getPackets().stream()
-                    .map(VehicleIdentificationPacket::getVin)
-                    .collect(Collectors.toSet());
+                                         .getPackets()
+                                         .stream()
+                                         .map(VehicleIdentificationPacket::getVin)
+                                         .collect(Collectors.toSet());
             if (vins.size() == 0) {
                 throw new IOException("Timeout Error Reading VIN");
             } else if (vins.size() > 1) {
@@ -195,7 +203,7 @@ public class VehicleInformationModule extends FunctionalModule {
      * Sends the Request for Address Claim and reports the results
      *
      * @param listener
-     *         the {@link ResultsListener} that will be given the report
+     *                     the {@link ResultsListener} that will be given the report
      */
     public RequestResult<AddressClaimPacket> reportAddressClaim(ResultsListener listener) {
         RequestResult<AddressClaimPacket> responses = getJ1939().requestGlobal("Global Request for Address Claim",
@@ -203,17 +211,16 @@ public class VehicleInformationModule extends FunctionalModule {
                                                                                listener);
         if (!responses.getPackets().isEmpty()
                 && responses.getPackets().stream().noneMatch(p -> p.getFunctionId() == 0)) {
-            listener.onResult("Error: No module reported Function 0");
+            listener.onResult("Error: No ECU reported Function 0");
         }
         return responses;
     }
 
-    public List<DM19CalibrationInformationPacket> reportCalibrationInformation(ResultsListener listener) {
+    public List<DM19CalibrationInformationPacket> requestDM19(ResultsListener listener) {
         return requestDMPackets("DM19", DM19CalibrationInformationPacket.class, GLOBAL_ADDR, listener).getPackets();
     }
 
-    public BusResult<DM19CalibrationInformationPacket> reportCalibrationInformation(ResultsListener listener,
-                                                                                    int address) {
+    public BusResult<DM19CalibrationInformationPacket> requestDM19(ResultsListener listener, int address) {
         return requestDMPackets("DM19", DM19CalibrationInformationPacket.class, address, listener).busResult();
     }
 
@@ -222,11 +229,11 @@ public class VehicleInformationModule extends FunctionalModule {
      * and generates a {@link String} that's suitable for inclusion in the
      * report
      *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return {@link List} of {@link ComponentIdentificationPacket}
+     * @param  listener
+     *                      the {@link ResultsListener} that will be given the report
+     * @return          {@link List} of {@link ComponentIdentificationPacket}
      */
-    public RequestResult<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener) {
+    public RequestResult<ComponentIdentificationPacket> requestComponentIdentification(ResultsListener listener) {
         listener.onResult("");
         return getJ1939().requestGlobal("Global Component Identification Request",
                                         ComponentIdentificationPacket.class,
@@ -237,16 +244,17 @@ public class VehicleInformationModule extends FunctionalModule {
      * Requests the Component Identification from all specified address and
      * generates a {@link String} that's suitable for inclusion in the report
      *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @param address
-     *         the address of vehicle module to which the message will be
-     *         addressed
-     * @return {@link List} of {@link ComponentIdentificationPacket}
+     * @param  listener
+     *                      the {@link ResultsListener} that will be given the report
+     * @param  address
+     *                      the address of vehicle module to which the message will be
+     *                      addressed
+     * @return          {@link List} of {@link ComponentIdentificationPacket}
      */
-    public BusResult<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener,
-                                                                                  int address) {
-        return getJ1939().requestDS("DS Component Identification Request to " + Lookup.getAddressName(address),
+    public BusResult<ComponentIdentificationPacket> requestComponentIdentification(ResultsListener listener,
+                                                                                   int address) {
+        return getJ1939().requestDS("Destination Specific Component Identification Request to "
+                + getAddressName(address),
                                     ComponentIdentificationPacket.class,
                                     address,
                                     listener);
@@ -256,7 +264,7 @@ public class VehicleInformationModule extends FunctionalModule {
      * Queries the bus and reports the speed of the vehicle bus
      *
      * @param listener
-     *         the {@link ResultsListener} that will be given the report
+     *                     the {@link ResultsListener} that will be given the report
      */
     public void reportConnectionSpeed(ResultsListener listener) {
         String result = getTime() + " Baud Rate: ";
@@ -274,23 +282,26 @@ public class VehicleInformationModule extends FunctionalModule {
      * generates adds the information gathered to the report returning the
      * Packets returned by the query.
      *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return List of {@link VehicleIdentificationPacket}
+     * @param  listener
+     *                      the {@link ResultsListener} that will be given the report
+     * @return          List of {@link VehicleIdentificationPacket}
      */
     public List<VehicleIdentificationPacket> reportVin(ResultsListener listener) {
         return getJ1939().requestGlobal("Global VIN Request", VehicleIdentificationPacket.class, listener).getPackets();
     }
 
-    /**
-     * Sends a global request for the Engine Hours from the engine and generates
-     * a {@link String} that's suitable for inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     */
-    public RequestResult<EngineHoursPacket> requestEngineHours(ResultsListener listener) {
-        return getJ1939().requestGlobal("Global Engine Hours Request", EngineHoursPacket.class, listener);
+    public BusResult<EngineHoursPacket> requestEngineHours(ResultsListener listener, int address) {
+        return getJ1939().requestDS("Destination Specific Engine Hours Request to " + getAddressName(address),
+                                    EngineHoursPacket.class,
+                                    address,
+                                    listener);
+    }
+
+    public BusResult<IdleOperationPacket> requestIdleOperation(ResultsListener listener, int address) {
+        return getJ1939().requestDS("Destination Specific Idle Operation Request to " + getAddressName(address),
+                                    IdleOperationPacket.class,
+                                    address,
+                                    listener);
     }
 
     /**
@@ -300,13 +311,51 @@ public class VehicleInformationModule extends FunctionalModule {
      * @return List of source addresses
      */
     public List<Integer> getOBDModules(ResultsListener listener) {
-        return requestDMPackets("DM5", DM5DiagnosticReadinessPacket.class, GLOBAL_ADDR, listener).getPackets()
-                .stream()
-                .filter(DM5DiagnosticReadinessPacket::isHdObd)
-                .map(ParsedPacket::getSourceAddress)
-                .sorted()
-                .distinct()
-                .collect(Collectors.toList());
+        return requestDMPackets("DM5",
+                                DM5DiagnosticReadinessPacket.class,
+                                GLOBAL_ADDR,
+                                listener)
+                                         .getPackets()
+                                         .stream()
+                                         .filter(DM5DiagnosticReadinessPacket::isHdObd)
+                                         .map(ParsedPacket::getSourceAddress)
+                                         .sorted()
+                                         .distinct()
+                                         .collect(Collectors.toList());
+    }
+
+    public void changeKeyState(ResultsListener listener, KeyState keyState) {
+        int pgn;
+        if (keyState == KEY_ON_ENGINE_RUNNING) {
+            pgn = 0x1FFFF;
+        } else if (keyState == KEY_ON_ENGINE_OFF) {
+            pgn = 0x1FFFE;
+        } else if (keyState == KEY_OFF) {
+            pgn = 0x1FFFC;
+        } else {
+            throw new IllegalArgumentException("Unknown Key State of " + keyState);
+        }
+
+        getJ1939().requestGlobal("Requesting " + keyState + " - REPORT IF SEEN IN THE FIELD",
+                                 pgn,
+                                 getJ1939().createRequestPacket(pgn, GLOBAL_ADDR),
+                                 listener);
+    }
+
+    public void implantFaultA(ResultsListener listener) {
+        int pgn = 0x1FFFA;
+        getJ1939().requestGlobal("Requesting Fault A to be implanted - REPORT IF SEEN IN THE FIELD",
+                                 pgn,
+                                 getJ1939().createRequestPacket(pgn, GLOBAL_ADDR),
+                                 listener);
+    }
+
+    public void implantFaultB(ResultsListener listener) {
+        int pgn = 0x1FFFB;
+        getJ1939().requestGlobal("Requesting Fault B to be implanted - REPORT IF SEEN IN THE FIELD",
+                                 pgn,
+                                 getJ1939().createRequestPacket(pgn, GLOBAL_ADDR),
+                                 listener);
     }
 
     /**

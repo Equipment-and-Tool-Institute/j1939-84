@@ -10,7 +10,7 @@ public class CollectionUtils {
 
     public static boolean areTwoCollectionsEqual(Collection<?> collectionA, Collection<?> collectionB) {
 
-        //verify null checks
+        // verify null checks
         if (collectionA == null && collectionB == null) {
             return true;
         }
@@ -19,12 +19,12 @@ public class CollectionUtils {
             return false;
         }
 
-        //verify basic attributes
+        // verify basic attributes
         if (collectionA.size() != collectionB.size()) {
             return false;
         }
 
-        //ensure contents are the same
+        // ensure contents are the same
         for (Object itemA : collectionA) {
             if (!collectionB.contains(itemA)) {
                 return false;
@@ -75,4 +75,21 @@ public class CollectionUtils {
             return joinedArray;
         }
     }
+
+    public static int[] toIntArray(byte[] bytes) {
+        int[] array = new int[bytes.length];
+        for (int i = 0; i < array.length; i++) {
+            array[i] = bytes[i] & 0xFF;
+        }
+        return array;
+    }
+
+    public static byte[] toByteArray(int[] data) {
+        byte[] bytes = new byte[data.length];
+        for (int i = 0; i < data.length; i++) {
+            bytes[i] = (byte) (data[i] & 0xFF);
+        }
+        return bytes;
+    }
+
 }

@@ -14,6 +14,10 @@ import org.etools.j1939_84.bus.Packet;
 public class DM27AllPendingDTCsPacket extends DiagnosticTroubleCodePacket {
     public static final int PGN = 64898; // 0xFD82
 
+    public DM27AllPendingDTCsPacket(Packet packet) {
+        super(packet);
+    }
+
     public static DM27AllPendingDTCsPacket create(int address,
                                                   LampStatus mil,
                                                   LampStatus stop,
@@ -21,10 +25,6 @@ public class DM27AllPendingDTCsPacket extends DiagnosticTroubleCodePacket {
                                                   LampStatus protect,
                                                   DiagnosticTroubleCode... dtcs) {
         return new DM27AllPendingDTCsPacket(create(address, PGN, mil, stop, amber, protect, dtcs));
-    }
-
-    public DM27AllPendingDTCsPacket(Packet packet) {
-        super(packet);
     }
 
     @Override

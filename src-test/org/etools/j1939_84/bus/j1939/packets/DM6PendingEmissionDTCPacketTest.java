@@ -46,8 +46,8 @@ public class DM6PendingEmissionDTCPacketTest {
         assertEquals(FAST_FLASH, instance.getMalfunctionIndicatorLampStatus());
         assertEquals("DM6", new DM6PendingEmissionDTCPacket(packet).getName());
         assertEquals(
-                "DM6 from Engine #1 (0): MIL: fast flash, RSL: fast flash, AWL: fast flash, PL: fast flash, No DTCs",
-                instance.toString());
+                     "DM6 from Engine #1 (0): MIL: fast flash, RSL: fast flash, AWL: fast flash, PL: fast flash, No DTCs",
+                     instance.toString());
     }
 
     @Test

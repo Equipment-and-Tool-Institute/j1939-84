@@ -34,7 +34,7 @@ public class BuildNumber {
      * Constructor used for testing
      *
      * @param inputStream
-     *            the input stream that contains the properties
+     *                        the input stream that contains the properties
      */
     public BuildNumber(InputStream inputStream) {
         this.inputStream = inputStream;

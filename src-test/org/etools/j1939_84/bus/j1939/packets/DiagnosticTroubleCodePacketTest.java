@@ -7,6 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
+
 import org.etools.j1939_84.bus.Packet;
 import org.junit.Test;
 
@@ -89,7 +90,7 @@ public class DiagnosticTroubleCodePacketTest {
         Packet packet = Packet.create(0x00, 0x00, data);
         DiagnosticTroubleCodePacket instance = new DiagnosticTroubleCodePacket(packet);
 
-        final List<DiagnosticTroubleCode> dtcs = instance.getDtcs();
+        List<DiagnosticTroubleCode> dtcs = instance.getDtcs();
         assertEquals(1, dtcs.size());
         assertEquals(609, dtcs.get(0).getSuspectParameterNumber());
     }
@@ -100,7 +101,7 @@ public class DiagnosticTroubleCodePacketTest {
         Packet packet = Packet.create(0x00, 0x00, data);
         DiagnosticTroubleCodePacket instance = new DiagnosticTroubleCodePacket(packet);
 
-        final List<DiagnosticTroubleCode> dtcs = instance.getDtcs();
+        List<DiagnosticTroubleCode> dtcs = instance.getDtcs();
         assertEquals(1, dtcs.size());
         assertEquals(609, dtcs.get(0).getSuspectParameterNumber());
     }
@@ -111,7 +112,7 @@ public class DiagnosticTroubleCodePacketTest {
         Packet packet = Packet.create(0x00, 0x00, data);
         DiagnosticTroubleCodePacket instance = new DiagnosticTroubleCodePacket(packet);
 
-        final List<DiagnosticTroubleCode> dtcs = instance.getDtcs();
+        List<DiagnosticTroubleCode> dtcs = instance.getDtcs();
         assertEquals(3, dtcs.size());
         assertEquals(609, dtcs.get(0).getSuspectParameterNumber());
         assertEquals(1569, dtcs.get(1).getSuspectParameterNumber());

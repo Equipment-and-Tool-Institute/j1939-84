@@ -4,6 +4,7 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import java.util.Objects;
+
 import org.etools.j1939_84.bus.j1939.Lookup;
 
 /**
@@ -12,6 +13,24 @@ import org.etools.j1939_84.bus.j1939.Lookup;
  * @author Matt Gumbel (matt@soliddesign.net)
  */
 public class SupportedSPN {
+
+    private final byte length;
+    private final int spn;
+    private final int support;
+    private final int[] data;
+
+    /**
+     * Constructor
+     *
+     * @param data
+     *                 the data that contains the information
+     */
+    public SupportedSPN(int[] data) {
+        this.data = data;
+        support = data[2] & 0x07;
+        spn = SupportedSPN.parseSPN(data);
+        length = (byte) (data[3] & 0xFF);
+    }
 
     public static SupportedSPN create(int spn,
                                       boolean isScaledTestResult,
@@ -35,9 +54,9 @@ public class SupportedSPN {
     /**
      * Parses the data to return the SPN
      *
-     * @param data
-     *         the data to parse
-     * @return the SPN
+     * @param  data
+     *                  the data to parse
+     * @return      the SPN
      */
     public static int parseSPN(int[] data) {
         // Byte: 0 bits 8-1 SPN, 8 least significant bits of SPN (most
@@ -46,43 +65,6 @@ public class SupportedSPN {
         // Byte: 2 bits 8-6 SPN, 3 most significant bits (most significant at
         // bit 8)
         return (((data[2] & 0xE0) << 11) & 0xFF0000) | ((data[1] << 8) & 0xFF00) | (data[0] & 0xFF);
-    }
-
-    private final byte length;
-
-    private final int spn;
-
-    private final int support;
-
-    private final int[] data;
-
-    /**
-     * Constructor
-     *
-     * @param data
-     *         the data that contains the information
-     */
-    public SupportedSPN(int[] data) {
-        this.data = data;
-        support = data[2] & 0x07;
-        spn = SupportedSPN.parseSPN(data);
-        length = (byte) (data[3] & 0xFF);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-
-        if (!(obj instanceof SupportedSPN)) {
-            return false;
-        }
-
-        SupportedSPN that = (SupportedSPN) obj;
-        return Objects.equals(length, that.length)
-                && Objects.equals(spn, that.spn)
-                && Objects.equals(support, that.support);
     }
 
     /**
@@ -112,6 +94,27 @@ public class SupportedSPN {
         return Objects.hash(support, spn, length);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof SupportedSPN)) {
+            return false;
+        }
+
+        SupportedSPN that = (SupportedSPN) obj;
+        return Objects.equals(length, that.length)
+                && Objects.equals(spn, that.spn)
+                && Objects.equals(support, that.support);
+    }
+
+    @Override
+    public String toString() {
+        return "SPN " + getSpn() + " - " + Lookup.getSpnName(getSpn());
+    }
+
     /**
      * Returns true if Data Stream is supported
      *
@@ -137,10 +140,5 @@ public class SupportedSPN {
      */
     public boolean supportsScaledTestResults() {
         return (support & 0x04) == 0x00;
-    }
-
-    @Override
-    public String toString() {
-        return "SPN " + getSpn() + " - " + Lookup.getSpnName(getSpn());
     }
 }

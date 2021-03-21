@@ -4,7 +4,6 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The {@link ParsedPacket} responsible for translating Total Vehicle Distance
@@ -20,7 +19,7 @@ public class TotalVehicleDistancePacket extends GenericPacket {
     private final double distance;
 
     public TotalVehicleDistancePacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+        super(packet);
         distance = getScaledIntValue(4, 8.0);
     }
 

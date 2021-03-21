@@ -4,6 +4,7 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.HighResVehicleDistancePacket.PGN;
 import static org.junit.Assert.assertEquals;
 
 import org.etools.j1939_84.bus.Packet;
@@ -34,7 +35,7 @@ public class HighResVehicleDistancePacketTest {
     @Test
     public void testGetTotalVehicleDistanceAndToString() {
         int[] data = new int[] { 0x80, 0x14, 0x06, 0x00, 0x11, 0x22, 0x33, 0x44 };
-        Packet packet = Packet.create(0, 0, data);
+        Packet packet = Packet.create(PGN, 0, data);
         HighResVehicleDistancePacket instance = new HighResVehicleDistancePacket(packet);
         assertEquals(1992.32, instance.getTotalVehicleDistance(), 0.0);
         String expected = "";
@@ -47,7 +48,7 @@ public class HighResVehicleDistancePacketTest {
     @Test
     public void testGetTotalVehicleDistanceAndToStringAtError() {
         int[] data = new int[] { 0x00, 0x00, 0x00, 0xFE, 0x11, 0x22, 0x33, 0x44 };
-        Packet packet = Packet.create(0, 0, data);
+        Packet packet = Packet.create(PGN, 0, data);
         HighResVehicleDistancePacket instance = new HighResVehicleDistancePacket(packet);
         assertEquals(ParsedPacket.ERROR, instance.getTotalVehicleDistance(), 0.0);
         String expected = "";
@@ -60,14 +61,14 @@ public class HighResVehicleDistancePacketTest {
     @Test
     public void testGetTotalVehicleDistanceAndToStringAtNotAvailable() {
         int[] data = new int[] { 0xFF, 0xFF, 0xFF, 0xFF, 0x11, 0x22, 0x33, 0x44 };
-        Packet packet = Packet.create(0, 0, data);
+        Packet packet = Packet.create(PGN, 0, data);
         HighResVehicleDistancePacket instance = new HighResVehicleDistancePacket(packet);
         assertEquals(ParsedPacket.NOT_AVAILABLE, instance.getTotalVehicleDistance(), 0.0);
 
         String expected = "";
-        expected += "High Resolution Vehicle Distance from Engine #1 (0): "+NL;
-        expected += "  SPN   917, Total Vehicle Distance (High Resolution): Not Available"+NL;
-        expected += "  SPN   918, Trip Distance (High Resolution): 5721008725.000000 m"+NL;
+        expected += "High Resolution Vehicle Distance from Engine #1 (0): " + NL;
+        expected += "  SPN   917, Total Vehicle Distance (High Resolution): Not Available" + NL;
+        expected += "  SPN   918, Trip Distance (High Resolution): 5721008725.000000 m" + NL;
         assertEquals(expected, instance.toString());
 
     }
@@ -75,7 +76,7 @@ public class HighResVehicleDistancePacketTest {
     @Test
     public void testGetTotalVehicleDistanceAtMax() {
         int[] data = new int[] { 0xFF, 0xFF, 0xFF, 0xFA, 0x11, 0x22, 0x33, 0x44 };
-        Packet packet = Packet.create(0, 0, data);
+        Packet packet = Packet.create(PGN, 0, data);
         HighResVehicleDistancePacket instance = new HighResVehicleDistancePacket(packet);
         assertEquals(21055406.075, instance.getTotalVehicleDistance(), 0.0);
     }
@@ -83,14 +84,14 @@ public class HighResVehicleDistancePacketTest {
     @Test
     public void testGetTotalVehicleDistanceAtZero() {
         int[] data = new int[] { 0x00, 0x00, 0x00, 0x00, 0x11, 0x22, 0x33, 0x44 };
-        Packet packet = Packet.create(0, 0, data);
+        Packet packet = Packet.create(PGN, 0, data);
         HighResVehicleDistancePacket instance = new HighResVehicleDistancePacket(packet);
         assertEquals(0, instance.getTotalVehicleDistance(), 0.0);
     }
 
     @Test
     public void testPGN() {
-        assertEquals(65217, HighResVehicleDistancePacket.PGN);
+        assertEquals(65217, PGN);
     }
 
 }
