@@ -152,7 +152,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
                 "" + NL +
                 "This vehicle has had failures and will likely fail subsequent tests." + NL +
                 "" + NL +
-                "Would you like to continue?\n";
+                "Would you like to continue?" + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Step 6.1.27.1.a"), eq(QUESTION), any());
 
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
@@ -238,7 +238,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
                 "" + NL +
                 "This vehicle has had failures and will likely fail subsequent tests." + NL +
                 "" + NL +
-                "Would you like to continue?\n";
+                "Would you like to continue?" + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq("Step 6.1.27.1.a"),
                                              eq(QUESTION),
@@ -300,7 +300,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
                 "" + NL +
                 "This vehicle has had failures and will likely fail subsequent tests." + NL +
                 "" + NL +
-                "Would you like to continue?\n";
+                "Would you like to continue?" + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq("Step 6.1.27.1.a"),
                                              eq(QUESTION),
