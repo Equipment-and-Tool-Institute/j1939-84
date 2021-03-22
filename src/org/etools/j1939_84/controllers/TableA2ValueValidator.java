@@ -52,7 +52,7 @@ public class TableA2ValueValidator {
                                         .orElse(null);
 
         if (engineSpeed == null) {
-            listener.onResult("Unable to confirm engine speed");
+            addWarning(listener, section, "Unable to confirm engine speed from freeze frame data");
         } else if (engineSpeed > 300) {
             Spn spn = freezeFrame.getSpn(92);
             Double value = spn == null ? null : spn.getValue();
