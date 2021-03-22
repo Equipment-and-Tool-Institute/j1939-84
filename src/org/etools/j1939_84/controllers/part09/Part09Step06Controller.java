@@ -64,7 +64,10 @@ public class Part09Step06Controller extends StepController {
         for (OBDModuleInformation moduleInformation : getDataRepository().getObdModules()) {
             moduleInformation.getNonInitializedTests()
                              .stream()
-                             .map(str -> requestTestResults(moduleInformation, str))
+                             .map(ScaledTestResult::getSpn)
+                             .distinct()
+                             .sorted()
+                             .map(spn -> requestTestResults(moduleInformation, spn))
                              .flatMap(Collection::stream)
                              .map(DM30ScaledTestResultsPacket::getTestResults)
                              .flatMap(Collection::stream)
@@ -79,11 +82,11 @@ public class Part09Step06Controller extends StepController {
     }
 
     private List<DM30ScaledTestResultsPacket> requestTestResults(OBDModuleInformation moduleInformation,
-                                                                 ScaledTestResult str) {
+                                                                 int spn) {
         return getDiagnosticMessageModule().requestTestResults(getListener(),
                                                                moduleInformation.getSourceAddress(),
                                                                247,
-                                                               str.getSpn(),
+                                                               spn,
                                                                31);
     }
 
