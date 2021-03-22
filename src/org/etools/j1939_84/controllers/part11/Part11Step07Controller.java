@@ -121,12 +121,12 @@ public class Part11Step07Controller extends StepController {
 
         // 6.11.7.1.c. Increase engine speed over 1150 rpm (a minimum of 300 seconds at this speed is required).
         final long TOTAL_TIME_AT_SPEED = 300;
+        long secondsToGo = TOTAL_TIME_AT_SPEED - getEngineSpeedModule().secondsAtSpeed();
 
         String msg = "Please increase engine speed over 1150 rpm for a minimum of %1$d seconds" + NL + NL;
         msg += "Press OK to continue";
-        displayInstructionAndWait(format(msg, TOTAL_TIME_AT_SPEED), "Step 6.11.7.1.c", WARNING);
+        displayInstructionAndWait(format(msg, secondsToGo), "Step 6.11.7.1.c", WARNING);
 
-        long secondsToGo = TOTAL_TIME_AT_SPEED;
         String message = "Step 6.11.7.1.c - Increase engine speed over 1150 rpm for %1$d seconds";
         do {
             updateProgress(format(message, secondsToGo));

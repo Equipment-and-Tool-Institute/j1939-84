@@ -225,10 +225,9 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
         for (int i = 180; i > 0; i--) {
             expectedMessages.append("Step 6.11.7.1.b - Waiting ").append(i).append(" seconds").append(NL);
         }
-        expectedMessages.append("Step 6.11.7.1.c - Increase engine speed over 1150 rpm for 300 seconds").append(NL);
         expectedMessages.append("Step 6.11.7.1.c - Increase engine speed over 1150 rpm for 2 seconds").append(NL);
         expectedMessages.append("Step 6.11.7.1.c - Increase engine speed over 1150 rpm for 1 seconds").append(NL);
-        for (int i = 437; i > 0; i--) {
+        for (int i = 438; i > 0; i--) {
             expectedMessages.append("Step 6.11.7.4.a - Continue to run engine at idle for an additional ")
                             .append(i)
                             .append(" seconds");
@@ -269,7 +268,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
             return null;
         }).when(mockListener).onUrgentMessage(any(), any(), eq(WARNING), any());
 
-        when(engineSpeedModule.secondsAtSpeed()).thenReturn(299L).thenReturn(300L);
+        when(engineSpeedModule.secondsAtSpeed()).thenReturn(298L).thenReturn(299L).thenReturn(300L);
 
         runTest();
 
@@ -309,7 +308,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
             return null;
         }).when(mockListener).onUrgentMessage(any(), any(), eq(WARNING), any());
 
-        when(engineSpeedModule.secondsAtSpeed()).thenReturn(299L).thenReturn(300L);
+        when(engineSpeedModule.secondsAtSpeed()).thenReturn(298L).thenReturn(299L).thenReturn(300L);
 
         runTest();
 
