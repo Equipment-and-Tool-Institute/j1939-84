@@ -120,8 +120,7 @@ public class Part11Step07Controller extends StepController {
         pause("Step 6.11.7.1.b - Waiting %1$d seconds", 3 * 60);
 
         // 6.11.7.1.c. Increase engine speed over 1150 rpm (a minimum of 300 seconds at this speed is required).
-        final long TOTAL_TIME_AT_SPEED = 300;
-        long secondsToGo = TOTAL_TIME_AT_SPEED - getEngineSpeedModule().secondsAtSpeed();
+        long secondsToGo = calculateSecondsRemainingAtSpeed();
 
         String msg = "Please increase engine speed over 1150 rpm for a minimum of %1$d seconds" + NL + NL;
         msg += "Press OK to continue";
@@ -135,7 +134,7 @@ public class Part11Step07Controller extends StepController {
             requestPeriodicMessages();
 
             getDateTimeModule().pauseFor(1000);
-            secondsToGo = TOTAL_TIME_AT_SPEED - getEngineSpeedModule().secondsAtSpeed();
+            secondsToGo = calculateSecondsRemainingAtSpeed();
         } while (secondsToGo > 0);
 
         // 6.11.7.1.f. After 300 seconds have been exceeded, reduce the engine speed back to idle.
@@ -194,6 +193,10 @@ public class Part11Step07Controller extends StepController {
                            .filter(this::isNotReported)
                            .peek(m -> replayListener.replayResults(getListener()))
                            .forEach(this::addFailure);
+    }
+
+    private long calculateSecondsRemainingAtSpeed() {
+        return 300 - getEngineSpeedModule().secondsAtSpeed();
     }
 
     private long calculateSecondsRemaining() {
