@@ -149,7 +149,7 @@ public class TableA2ValueValidatorTest {
 
         assertEquals("", listener.getResults());
 
-        verify(mockListener).addOutcome(1, 2, WARN, "6.1.2 - Unable to confirm engine speed from freeze frame data");
+        verify(mockListener).addOutcome(1, 2, WARN, "6.1.2 - Unable to determine engine speed from freeze frame data");
     }
 
 }
