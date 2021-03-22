@@ -137,8 +137,11 @@ public class Part07Step06ControllerTest extends AbstractControllerTest {
 
         var dm5_0 = DM5DiagnosticReadinessPacket.create(0, 0, 1, 0x22);
 
-        var dm5_1 = DM5DiagnosticReadinessPacket.create(1, 1, 0, 0x05);
-        when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5_0, dm5_1));
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        var dm5_1 = DM5DiagnosticReadinessPacket.create(1, 0xFF, 0xFF, 0x22);
+
+        var dm5_2 = DM5DiagnosticReadinessPacket.create(2, 1, 0, 0x05);
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5_0, dm5_1, dm5_2));
 
         runTest();
 
@@ -175,6 +178,7 @@ public class Part07Step06ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNoPreviouslyActiveDTC() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        obdModuleInformation.set(DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF), 7);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm5_0 = DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22);

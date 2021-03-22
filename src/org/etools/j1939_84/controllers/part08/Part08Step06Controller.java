@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -90,12 +91,17 @@ public class Part08Step06Controller extends StepController {
         compareRequestPackets(globalPackets, filterPackets(dsResults), "6.8.6.4.a");
     }
 
-    private int dm1Count(int address) {
-        return getDTCs(DM1ActiveDTCsPacket.class, address, 8).size();
+    private byte dm1Count(int address) {
+        return getDTCCount(DM1ActiveDTCsPacket.class, address);
     }
 
-    private int dm2Count(int address) {
-        return getDTCs(DM2PreviouslyActiveDTC.class, address, 8).size();
+    private byte dm2Count(int address) {
+        return getDTCCount(DM2PreviouslyActiveDTC.class, address);
+    }
+
+    private byte getDTCCount(Class<? extends DiagnosticTroubleCodePacket> clazz, int address) {
+        DiagnosticTroubleCodePacket packet = get(clazz, address, 8);
+        return packet == null ? (byte) 0xFF : (byte) packet.getDtcs().size();
     }
 
 }
