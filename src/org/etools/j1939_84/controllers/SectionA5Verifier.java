@@ -59,7 +59,7 @@ public class SectionA5Verifier {
 
         // section1 - Fail if any ECU partially erases diagnostic information (pass if it erases either all or none).
         for (int address : dataRepository.getObdModuleAddresses()) {
-            Result moduleResult = checkModuleDataAsSame(listener, address, verifyIsErased);
+            Result moduleResult = checkModuleDataAsSame(listener, section1, address, verifyIsErased);
             if (moduleResult.isMixed) {
                 addFailure(listener,
                            section1 + " - " + Lookup.getAddressName(address)
@@ -100,25 +100,28 @@ public class SectionA5Verifier {
         }
     }
 
-    private Result checkModuleDataAsSame(ResultsListener listener, int address, boolean verifyIsErased) {
+    private Result checkModuleDataAsSame(ResultsListener listener,
+                                         String section,
+                                         int address,
+                                         boolean verifyIsErased) {
         Set<Boolean> results = new HashSet<>();
 
-        results.add(verifier.checkDM6(listener, null, address, verifyIsErased));
-        results.add(verifier.checkDM12(listener, null, address, verifyIsErased));
-        results.add(verifier.checkDM23(listener, null, address, verifyIsErased));
-        results.add(verifier.checkDM29(listener, null, address, verifyIsErased));
-        results.add(verifier.checkDM5(listener, null, address, verifyIsErased));
-        results.add(verifier.checkDM25(listener, null, address, verifyIsErased));
-        results.add(verifier.checkDM31(listener, null, address, verifyIsErased));
-        results.add(verifier.checkDM21(listener, null, address, verifyIsErased));
-        results.add(verifier.checkDM26(listener, null, address, verifyIsErased));
-        results.add(verifier.checkTestResults(listener, null, address, verifyIsErased));
+        results.add(verifier.checkDM6(listener, section, address, verifyIsErased));
+        results.add(verifier.checkDM12(listener, section, address, verifyIsErased));
+        results.add(verifier.checkDM23(listener, section, address, verifyIsErased));
+        results.add(verifier.checkDM29(listener, section, address, verifyIsErased));
+        results.add(verifier.checkDM5(listener, section, address, verifyIsErased));
+        results.add(verifier.checkDM25(listener, section, address, verifyIsErased));
+        results.add(verifier.checkDM31(listener, section, address, verifyIsErased));
+        results.add(verifier.checkDM21(listener, section, address, verifyIsErased));
+        results.add(verifier.checkDM26(listener, section, address, verifyIsErased));
+        results.add(verifier.checkTestResults(listener, section, address, verifyIsErased));
         if (!verifyIsErased) {
-            results.add(verifier.checkDM20(listener, null, address));
-            results.add(verifier.checkDM28(listener, null, address));
-            results.add(verifier.checkDM33(listener, null, address));
-            results.add(verifier.checkEngineRunTime(listener, null, address));
-            results.add(verifier.checkEngineIdleTime(listener, null, address));
+            results.add(verifier.checkDM20(listener, section, address));
+            results.add(verifier.checkDM28(listener, section, address));
+            results.add(verifier.checkDM33(listener, section, address));
+            results.add(verifier.checkEngineRunTime(listener, section, address));
+            results.add(verifier.checkEngineIdleTime(listener, section, address));
         }
 
         boolean isErased = results.iterator().next();
