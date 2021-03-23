@@ -84,8 +84,10 @@ public class SectionA5MessageVerifier {
                                                                 .filter(MonitoredSystemStatus::isEnabled)
                                                                 .noneMatch(MonitoredSystemStatus::isComplete);
 
-                                boolean isNoCodes = p.getActiveCodeCount() == 0
-                                        && p.getPreviouslyActiveCodeCount() == 0;
+                                boolean isNoCodes = (p.getActiveCodeCount() == 0
+                                        && p.getPreviouslyActiveCodeCount() == 0
+                                        || (p.getActiveCodeCount() == (byte) 0xFF)
+                                                && p.getPreviouslyActiveCodeCount() == (byte) 0xFF);
                                 boolean isErased = isNoCodes && isAllTestsIncomplete;
 
                                 var prev = getLatest(DM5DiagnosticReadinessPacket.class, p.getSourceAddress());
@@ -96,8 +98,10 @@ public class SectionA5MessageVerifier {
                                                                     .filter(MonitoredSystemStatus::isEnabled)
                                                                     .noneMatch(MonitoredSystemStatus::isComplete);
 
-                                boolean wasNoCodes = prev.getActiveCodeCount() == 0
-                                        && prev.getPreviouslyActiveCodeCount() == 0;
+                                boolean wasNoCodes = (prev.getActiveCodeCount() == 0
+                                        && prev.getPreviouslyActiveCodeCount() == 0)
+                                        || (prev.getActiveCodeCount() == (byte) 0xFF
+                                                && prev.getPreviouslyActiveCodeCount() == (byte) 0xFF);
                                 boolean wasErased = wasNoCodes && wasAllTestsIncomplete;
 
                                 return shouldBeReported(verifyIsErased, wasErased, isErased);

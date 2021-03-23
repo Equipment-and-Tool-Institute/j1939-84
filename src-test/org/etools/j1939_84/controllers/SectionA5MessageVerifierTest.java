@@ -529,12 +529,26 @@ public class SectionA5MessageVerifierTest {
     }
 
     @Test
-    public void checkDM5AsNotErasedSuccess() {
+    public void checkDM5AsNotErasedSuccessWithZeros() {
         var moduleInfo = new OBDModuleInformation(0);
         moduleInfo.set(DM5DiagnosticReadinessPacket.create(0, 1, 1, 0x22), 1);
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM5DiagnosticReadinessPacket.create(0, 1, 1, 0x22);
+        when(diagnosticMessageModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
+
+        assertTrue(instance.checkDM5(listener, SECTION, 0, false));
+
+        verify(diagnosticMessageModule).requestDM5(listener, 0);
+    }
+
+    @Test
+    public void checkDM5AsNotErasedSuccessWithNotAvailable() {
+        var moduleInfo = new OBDModuleInformation(0);
+        moduleInfo.set(DM5DiagnosticReadinessPacket.create(0, 0xFF, 0xFF, 0x22), 1);
+        dataRepository.putObdModule(moduleInfo);
+
+        var packet = DM5DiagnosticReadinessPacket.create(0, 0xFF, 0xFF, 0x22);
         when(diagnosticMessageModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM5(listener, SECTION, 0, false));
