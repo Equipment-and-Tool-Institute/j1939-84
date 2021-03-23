@@ -108,7 +108,7 @@ public class Part12Step03Controller extends StepController {
                                          .filter(id -> id != CompositeSystem.COMPREHENSIVE_COMPONENT)
                                          .collect(Collectors.toList());
 
-        var previouslyCompleteSupportedSystems = get(DM5DiagnosticReadinessPacket.class, address, 1)
+        var previouslyCompleteSupportedSystems = get(DM5DiagnosticReadinessPacket.class, address, 11)
                                                                                                     .getMonitoredSystems()
                                                                                                     .stream()
                                                                                                     .filter(s -> s.getStatus()
