@@ -115,7 +115,7 @@ public class TableA1Validator {
     private static List<Integer> getWarningSPNs(FuelType fuelType) {
         //@formatter:off
         var spns = new ArrayList<>(List.of(27, 84, 91, 94,
-                                           106, 108, 110, 132, 157, 158, 168, 183, 190, 235, 247, 248, 723,
+                                           106, 108, 110, 132, 157, 158, 183, 190, 235, 247, 248, 723,
                                            1127, 1413, 1433, 1436, 1600, 1637,
                                            2791,
                                            4076, 4193, 4201, 4202,
