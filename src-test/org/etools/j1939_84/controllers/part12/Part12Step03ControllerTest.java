@@ -142,7 +142,7 @@ public class Part12Step03ControllerTest extends AbstractControllerTest {
                                                                       0x22,
                                                                       List.of(CompositeSystem.values()),
                                                                       List.of()),
-                                  1);
+                                  11);
         obdModuleInformation0.set(DM26TripDiagnosticReadinessPacket.create(0, 0, 0, List.of(), List.of()), 12);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm5_0 = DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22, List.of(), List.of());
@@ -156,7 +156,7 @@ public class Part12Step03ControllerTest extends AbstractControllerTest {
                                                                       0x22,
                                                                       List.of(),
                                                                       List.of(CompositeSystem.values())),
-                                  1);
+                                  11);
         obdModuleInformation1.set(DM26TripDiagnosticReadinessPacket.create(1,
                                                                            0,
                                                                            0,
@@ -175,7 +175,7 @@ public class Part12Step03ControllerTest extends AbstractControllerTest {
                                                                       0x22,
                                                                       List.of(CompositeSystem.values()),
                                                                       List.of(CompositeSystem.values())),
-                                  1);
+                                  11);
         obdModuleInformation3.set(DM26TripDiagnosticReadinessPacket.create(3,
                                                                            0,
                                                                            0,
@@ -229,7 +229,7 @@ public class Part12Step03ControllerTest extends AbstractControllerTest {
                                                                       0x22,
                                                                       List.of(CompositeSystem.values()),
                                                                       List.of(CompositeSystem.values())),
-                                  1);
+                                  11);
         obdModuleInformation0.set(DM26TripDiagnosticReadinessPacket.create(0, 0, 0, List.of(), List.of()), 12);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm5_0 = DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22, List.of(CompositeSystem.values()), List.of());
@@ -331,7 +331,7 @@ public class Part12Step03ControllerTest extends AbstractControllerTest {
                                                                       0x22,
                                                                       List.of(CompositeSystem.values()),
                                                                       List.of()),
-                                  1);
+                                  11);
         obdModuleInformation0.set(DM26TripDiagnosticReadinessPacket.create(0,
                                                                            0,
                                                                            0,
