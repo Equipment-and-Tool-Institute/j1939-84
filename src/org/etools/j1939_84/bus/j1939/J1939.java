@@ -5,7 +5,6 @@ package org.etools.j1939_84.bus.j1939;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.SEVERE;
-import static java.util.logging.Level.WARNING;
 import static org.etools.j1939_84.J1939_84.getLogger;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.BUSY;
 
@@ -103,9 +102,9 @@ public class J1939 {
      */
     private static final long GLOBAL_WARN_TIMEOUT = 200;// milliseconds
 
-    private static final String LATE_BAM_RESPONSE = "Warning: Late BAM response: ";
+    private static final String LATE_BAM_RESPONSE = "TIMING: Late BAM response - ";
 
-    private static final String LATE_DS_RESPONSE = "Warning: Late DS response: ";
+    private static final String LATE_DS_RESPONSE = "TIMING: Late DS response - ";
 
     private static final String TIMEOUT_MESSAGE = "Timeout - No Response";
 
@@ -537,7 +536,7 @@ public class J1939 {
                 listener.onResult(sent.toTimeString());
                 lateTime = sent.getTimestamp().plus(GLOBAL_WARN_TIMEOUT, ChronoUnit.MILLIS);
             } else {
-                warn("Failed to send: " + request);
+                logWarning(listener, "Failed to send: " + request);
                 lateTime = null;
             }
             Optional<Either<T, AcknowledgmentPacket>> result = stream.findFirst();
@@ -546,8 +545,9 @@ public class J1939 {
                 listener.onResult(pp.getPacket().toTimeString());
                 listener.onResult(pp.toString());
 
-                if (lateTime != null && pp.getPacket().getFragments().get(0).getTimestamp().isAfter(lateTime))
-                    listener.onResult(LATE_DS_RESPONSE + " " + pp.getPacket().getFragments().get(0).toTimeString());
+                if (lateTime != null && pp.getPacket().getFragments().get(0).getTimestamp().isAfter(lateTime)) {
+                    logTiming(listener, LATE_DS_RESPONSE + " " + pp.getPacket().getFragments().get(0).toTimeString());
+                }
             },
                                    () -> listener.onResult(getDateTimeModule().getTime() + " " + TIMEOUT_MESSAGE));
 
@@ -629,10 +629,13 @@ public class J1939 {
 
                                  if (response.map(J1939::isBusy).orElse(true)) {
                                      // still busy, try one last time
-                                     warn("first DS request after global busy NACK: " + dsRequest + " -> " + response);
+                                     logInfo(
+                                             "first DS request after global busy NACK: " + dsRequest + " -> "
+                                                     + response);
                                      response = requestDSOnce(pgn, dsRequest, listener);
                                      if (response.map(J1939::isBusy).orElse(true)) {
-                                         warn("second DS request after global busy NACK: " + dsRequest + " -> "
+                                         logInfo(
+                                                 "second DS request after global busy NACK: " + dsRequest + " -> "
                                                  + response);
                                      }
                                  }
@@ -669,7 +672,7 @@ public class J1939 {
                 listener.onResult(sent.toTimeString());
                 lateTime = sent.getTimestamp().plus(GLOBAL_WARN_TIMEOUT, ChronoUnit.MILLIS);
             } else {
-                warn("Failed to send: " + request);
+                logWarning(listener, "Failed to send: " + request);
                 lateTime = null;
             }
             List<Packet> lateBam = new ArrayList<>();
@@ -705,7 +708,7 @@ public class J1939 {
                            .collect(Collectors.toList());
             /* Log late fragments as raw packets. */
             lateBam.forEach(p -> {
-                listener.onResult(LATE_BAM_RESPONSE + " " + p.getFragments().get(0).toTimeString());
+                logTiming(listener, LATE_BAM_RESPONSE + " " + p.getFragments().get(0).toTimeString());
             });
 
             if (result.isEmpty()) {
@@ -746,7 +749,7 @@ public class J1939 {
                 if (sent != null) {
                     listener.onResult(sent.toTimeString());
                 } else {
-                    warn("Failed to send: " + request);
+                    logWarning(listener, "Failed to send: " + request);
                 }
                 Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> first = stream.findFirst();
                 result = new BusResult<>(i > 0, first);
@@ -775,8 +778,18 @@ public class J1939 {
         }
     }
 
-    private void warn(String message) {
+    private void logTiming(ResultsListener listener, String message) {
         incrementWarning();
-        getLogger().log(WARNING, message);
+        listener.onResult(message);
+        getLogger().warning(message);
+    }
+
+    private void logWarning(ResultsListener listener, String message) {
+        listener.onResult(message);
+        getLogger().warning(message);
+    }
+
+    private void logInfo(String message) {
+        getLogger().info(message);
     }
 }

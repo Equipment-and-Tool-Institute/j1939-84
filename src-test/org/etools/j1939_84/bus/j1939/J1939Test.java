@@ -484,7 +484,7 @@ public class J1939Test {
                                                                                                                listener);
         assertEquals(1, response.getPackets().size());
         /* verify there is not a warning. */
-        assertFalse(listener.getResults().matches("(?s).*Warning: Late BAM response.*"));
+        assertFalse(listener.getResults().matches("(?s).*TIMING: Late BAM response.*"));
     }
 
     /**
@@ -534,7 +534,7 @@ public class J1939Test {
         /* verify there is a warning */
         assertTrue(listener.getResults()
                            .matches(
-                                    "(?s).*Warning: Late BAM response:  [\\d:.]+ 18ECFF00 \\[8] 20 11 00 03 FF EC FE 00.*"));
+                                    "(?s).*TIMING: Late BAM response -  [\\d:.]+ 18ECFF00 \\[8] 20 11 00 03 FF EC FE 00.*"));
     }
 
     /**
@@ -586,7 +586,7 @@ public class J1939Test {
         /* verify there is a warning */
         assertTrue(listener.getResults()
                            .matches(
-                                    "(?s).*Warning: Late DS response:  [\\d:.]+ 18ECF900 \\[8] 10 11 00 03 FF EC FE 00.*"));
+                                    "(?s).*TIMING: Late DS response -  [\\d:.]+ 18ECF900 \\[8] 10 11 00 03 FF EC FE 00.*"));
     }
 
     @Test
