@@ -6,6 +6,7 @@ package org.etools.j1939_84.controllers.part02;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.bus.j1939.packets.DTCLampStatus.create;
 import static org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode.create;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.FAST_FLASH;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OTHER;
@@ -19,7 +20,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -31,7 +31,6 @@ import org.etools.j1939_84.bus.j1939.packets.DTCLampStatus;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
-import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
@@ -125,19 +124,12 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
                                  mockListener);
     }
 
-    /**
-     * Test method for
-     * {@link Part02Step13Controller#run()}.
-     */
     @Test
     public void testNoObdResponseFailure() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         dataRepository.putObdModule(obdModuleInformation);
 
-        when(diagnosticMessageModule.requestDM31(any(), eq(0x00)))
-                                                                  .thenReturn(new RequestResult<>(false,
-                                                                                                  List.of(),
-                                                                                                  List.of()));
+        when(diagnosticMessageModule.requestDM31(any(), eq(0x00))).thenReturn(RequestResult.empty());
 
         runTest();
 
@@ -152,14 +144,9 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
     }
 
-    /**
-     * Test method for
-     * {@link Part02Step13Controller#run()}.
-     */
     @Test
     public void testAckResponsePass() {
-        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        dataRepository.putObdModule(obdModuleInformation);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
 
         AcknowledgmentPacket ackPacket0x00 = AcknowledgmentPacket.create(0, NACK);
 
@@ -176,47 +163,26 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
     }
 
-    /**
-     * Test method for
-     * {@link Part02Step13Controller#run()}.
-     */
     @Test
     public void testMilOndResponseFailure() {
-        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        dataRepository.putObdModule(obdModuleInformation);
-        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
-        dataRepository.putObdModule(obdModuleInformation1);
-        OBDModuleInformation obdModuleInformation2 = new OBDModuleInformation(2);
-        dataRepository.putObdModule(obdModuleInformation2);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        dataRepository.putObdModule(new OBDModuleInformation(2));
 
         DiagnosticTroubleCode dtc = create(609, 19, 1, 1);
         DTCLampStatus dtcLampStatus = create(dtc, OFF, SLOW_FLASH, OTHER, OTHER);
-        DM31DtcToLampAssociation packet = DM31DtcToLampAssociation.create(0,
-                                                                          0,
-                                                                          dtcLampStatus);
+        DM31DtcToLampAssociation packet = DM31DtcToLampAssociation.create(0, 0, dtcLampStatus);
+        when(diagnosticMessageModule.requestDM31(any(), eq(0x00))).thenReturn(RequestResult.of(packet));
+
         DiagnosticTroubleCode dtc1 = create(4334, 77, 0, 23);
-        DTCLampStatus dtcLampStatus1 = create(dtc1, ON, SLOW_FLASH, OTHER, OTHER);
-        DM31DtcToLampAssociation packet1 = DM31DtcToLampAssociation.create(1,
-                                                                           0,
-                                                                           dtcLampStatus1);
+        DTCLampStatus dtcLampStatus1 = create(dtc1, ON, FAST_FLASH, OTHER, OTHER);
+        DM31DtcToLampAssociation packet1 = DM31DtcToLampAssociation.create(1, 0, dtcLampStatus1);
+        when(diagnosticMessageModule.requestDM31(any(), eq(0x01))).thenReturn(RequestResult.of(packet1));
+
         DiagnosticTroubleCode dtc2 = create(62002, 77, 0, 23);
         DTCLampStatus dtcLampStatus2 = create(dtc2, ON, ON, ON, ON);
-        DM31DtcToLampAssociation packet2 = DM31DtcToLampAssociation.create(2,
-                                                                           0,
-                                                                           dtcLampStatus2);
-
-        when(diagnosticMessageModule.requestDM31(any(), eq(0x00)))
-                                                                  .thenReturn(new RequestResult<>(false,
-                                                                                                  List.of(packet),
-                                                                                                  List.of()));
-        when(diagnosticMessageModule.requestDM31(any(), eq(0x01)))
-                                                                  .thenReturn(new RequestResult<>(false,
-                                                                                                  List.of(packet1),
-                                                                                                  List.of()));
-        when(diagnosticMessageModule.requestDM31(any(), eq(0x02)))
-                                                                  .thenReturn(new RequestResult<>(false,
-                                                                                                  List.of(packet2),
-                                                                                                  List.of()));
+        DM31DtcToLampAssociation packet2 = DM31DtcToLampAssociation.create(2, 0, dtcLampStatus2);
+        when(diagnosticMessageModule.requestDM31(any(), eq(0x02))).thenReturn(RequestResult.of(packet2));
 
         runTest();
 
@@ -227,61 +193,41 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
                                                        FAIL,
-                                                       "6.2.13.2.a - ECU Engine #1 (0) reported MIL not off/alt-off");
+                                                       "6.2.13.2.a - Engine #1 (0) did not report MIL 'off'");
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
                                                        FAIL,
-                                                       "6.2.13.2.a - ECU Engine #2 (1) reported MIL not off/alt-off");
+                                                       "6.2.13.2.a - Engine #2 (1) did not report MIL 'off'");
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
                                                        FAIL,
-                                                       "6.2.13.2.a - ECU Turbocharger (2) reported MIL not off/alt-off");
+                                                       "6.2.13.2.a - Turbocharger (2) did not report MIL 'off'");
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
     }
 
-    /**
-     * Test method for
-     * {@link StepController#getDisplayName()}.
-     */
     @Test
     public void testGetDisplayName() {
         String name = "Part " + PART_NUMBER + " Step " + STEP_NUMBER;
         assertEquals("Display Name", name, instance.getDisplayName());
     }
 
-    /**
-     * Test method for
-     * {@link StepController#getPartNumber()}.
-     */
     @Test
     public void testGetPartNumber() {
         assertEquals("Part Number", PART_NUMBER, instance.getPartNumber());
     }
 
-    /**
-     * Test method for
-     * {@link StepController#getStepNumber()}.
-     */
     @Test
     public void testGetStepNumber() {
         assertEquals(STEP_NUMBER, instance.getStepNumber());
     }
 
-    /**
-     * Test method for
-     * {@link StepController#getTotalSteps()}.
-     */
     @Test
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
-    /**
-     * Test method for
-     * {@link Part02Step13Controller#run()}.
-     */
     @Test
     public void testRun() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
@@ -295,13 +241,8 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
                 0x00, // Lamp Status/Support
                 0xFF, // Lamp Status/State
         };
-        DM31DtcToLampAssociation packet = new DM31DtcToLampAssociation(
-                                                                       Packet.create(PGN, 0x00, data));
-
-        when(diagnosticMessageModule.requestDM31(any(), eq(0)))
-                                                               .thenReturn(new RequestResult<>(false,
-                                                                                               Collections.singletonList(packet),
-                                                                                               Collections.emptyList()));
+        DM31DtcToLampAssociation packet = new DM31DtcToLampAssociation(Packet.create(PGN, 0x00, data));
+        when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(RequestResult.of(packet));
 
         runTest();
 

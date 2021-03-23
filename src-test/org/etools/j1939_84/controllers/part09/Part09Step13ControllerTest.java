@@ -185,7 +185,7 @@ public class Part09Step13ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.9.13.2.a - Engine #1 (0) reported MIL not off for all reported DTCs");
+                                        "6.9.13.2.a - Engine #1 (0) MIL is not reported off for all reported DTCs");
     }
 
     @Test

@@ -69,18 +69,20 @@ public class Part08Step09Controller extends StepController {
 
         // 6.8.9.2.a. (if supported) Fail if no ECU reports same DTC as MIL on for as was reported in DM12 earlier
         // in this part.
-        boolean noDM12Match = true;
-        for (DM31DtcToLampAssociation dm31 : packets) {
-            var dtcs = getDM12DTCs(dm31.getSourceAddress());
-            for (DiagnosticTroubleCode dtc : dtcs) {
-                var dtcLampStatus = dm31.findLampStatusForDTC(dtc);
-                if (dtcLampStatus != null && dtcLampStatus.getMalfunctionIndicatorLampStatus() == ON) {
-                    noDM12Match = false;
+        if (!packets.isEmpty()) {
+            boolean noDM12Match = true;
+            for (DM31DtcToLampAssociation dm31 : packets) {
+                var dtcs = getDM12DTCs(dm31.getSourceAddress());
+                for (DiagnosticTroubleCode dtc : dtcs) {
+                    var dtcLampStatus = dm31.findLampStatusForDTC(dtc);
+                    if (dtcLampStatus != null && dtcLampStatus.getMalfunctionIndicatorLampStatus() == ON) {
+                        noDM12Match = false;
+                    }
                 }
             }
-        }
-        if (noDM12Match) {
-            addFailure("6.8.9.2.a - No ECU reported same DTC as MIL on as reported in DM12 earlier in this part");
+            if (noDM12Match) {
+                addFailure("6.8.9.2.a - No ECU reported same DTC as MIL on as reported in DM12 earlier in this part");
+            }
         }
 
         // 6.8.9.2.b. (if supported) Fail if any ECU reports additional or fewer DTCs than those reported in DM12 and
@@ -97,18 +99,20 @@ public class Part08Step09Controller extends StepController {
 
         // 6.8.9.2.c. (if supported) Fail if no ECU reports the same DTC as MIL off for the previous active DTC reported
         // in DM23 earlier in this part.
-        boolean noDM23Match = true;
-        for (DM31DtcToLampAssociation dm31 : packets) {
-            var dtcs = getDM23DTCs(dm31.getSourceAddress());
-            for (DiagnosticTroubleCode dtc : dtcs) {
-                var dtcLampStatus = dm31.findLampStatusForDTC(dtc);
-                if (dtcLampStatus != null && dtcLampStatus.getMalfunctionIndicatorLampStatus() == OFF) {
-                    noDM23Match = false;
+        if (!packets.isEmpty()) {
+            boolean noDM23Match = true;
+            for (DM31DtcToLampAssociation dm31 : packets) {
+                var dtcs = getDM23DTCs(dm31.getSourceAddress());
+                for (DiagnosticTroubleCode dtc : dtcs) {
+                    var dtcLampStatus = dm31.findLampStatusForDTC(dtc);
+                    if (dtcLampStatus != null && dtcLampStatus.getMalfunctionIndicatorLampStatus() == OFF) {
+                        noDM23Match = false;
+                    }
                 }
             }
-        }
-        if (noDM23Match) {
-            addFailure("6.8.9.2.c - No ECU reported same DTC as MIL off as reported in DM23 earlier in this part");
+            if (noDM23Match) {
+                addFailure("6.8.9.2.c - No ECU reported same DTC as MIL off as reported in DM23 earlier in this part");
+            }
         }
     }
 
