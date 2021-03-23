@@ -89,7 +89,7 @@ public class Part09Step03Controller extends StepController {
                                                                                     a,
                                                                                     CLR_ACT_REQ,
                                                                                     0x7FFFF,
-                                                                                    0x31))
+                                                                                    31))
                                  .collect(Collectors.toList());
 
         var packets = filterPackets(dsResults);
@@ -236,7 +236,7 @@ public class Part09Step03Controller extends StepController {
 
         // 6.9.3.7.a. Global DM22 using DM12 MIL On DTC SPN and FMI with control byte = 1, Request to Clear/Reset
         // Previously Active DTC.
-        var globalResults = getDiagnosticMessageModule().requestDM22(getListener(), CLR_PA_REQ, 0x7FFFF, 0x31);
+        var globalResults = getDiagnosticMessageModule().requestDM22(getListener(), CLR_PA_REQ, 0x7FFFF, 31);
         packets = globalResults.getPackets();
         acks = globalResults.getAcks();
 
@@ -284,7 +284,7 @@ public class Part09Step03Controller extends StepController {
 
         // 6.9.3.9.a. Global DM22 using DM12 MIL On DTC SPN and FMI with control byte = 17, Request to Clear/Reset
         // Active DTC.
-        globalResults = getDiagnosticMessageModule().requestDM22(getListener(), CLR_ACT_REQ, 0x7FFFF, 0x31);
+        globalResults = getDiagnosticMessageModule().requestDM22(getListener(), CLR_ACT_REQ, 0x7FFFF, 31);
         packets = globalResults.getPackets();
         acks = globalResults.getAcks();
 
