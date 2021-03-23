@@ -77,6 +77,7 @@ import org.etools.j1939_84.modules.DateTimeModule;
  */
 public class J1939 {
 
+    private static final String FAILED_TO_SEND = "Failed to send - ";
     /**
      * The source address of the engine
      */
@@ -102,9 +103,7 @@ public class J1939 {
      */
     private static final long GLOBAL_WARN_TIMEOUT = 200;// milliseconds
 
-    private static final String LATE_BAM_RESPONSE = "TIMING: Late BAM response - ";
-
-    private static final String LATE_DS_RESPONSE = "TIMING: Late DS response - ";
+    private static final String LATE_RESPONSE = "TIMING: Late response - ";
 
     private static final String TIMEOUT_MESSAGE = "Timeout - No Response";
 
@@ -265,6 +264,7 @@ public class J1939 {
      *                    the {@link Packet} to process
      * @return        a subclass of {@link ParsedPacket}
      */
+    @SuppressWarnings("unchecked")
     private <T extends GenericPacket> Either<T, AcknowledgmentPacket> process(Packet packet) {
         ParsedPacket pp = processRaw(packet.getPgn(), packet);
         if (pp instanceof AcknowledgmentPacket) {
@@ -536,7 +536,7 @@ public class J1939 {
                 listener.onResult(sent.toTimeString());
                 lateTime = sent.getTimestamp().plus(GLOBAL_WARN_TIMEOUT, ChronoUnit.MILLIS);
             } else {
-                logWarning(listener, "Failed to send: " + request);
+                logWarning(listener, FAILED_TO_SEND + request);
                 lateTime = null;
             }
             Optional<Either<T, AcknowledgmentPacket>> result = stream.findFirst();
@@ -546,7 +546,7 @@ public class J1939 {
                 listener.onResult(pp.toString());
 
                 if (lateTime != null && pp.getPacket().getFragments().get(0).getTimestamp().isAfter(lateTime)) {
-                    logTiming(listener, LATE_DS_RESPONSE + " " + pp.getPacket().getFragments().get(0).toTimeString());
+                    logTiming(listener, LATE_RESPONSE + " " + pp.getPacket().getFragments().get(0).toTimeString());
                 }
             },
                                    () -> listener.onResult(getDateTimeModule().getTime() + " " + TIMEOUT_MESSAGE));
@@ -672,7 +672,7 @@ public class J1939 {
                 listener.onResult(sent.toTimeString());
                 lateTime = sent.getTimestamp().plus(GLOBAL_WARN_TIMEOUT, ChronoUnit.MILLIS);
             } else {
-                logWarning(listener, "Failed to send: " + request);
+                logWarning(listener, FAILED_TO_SEND + request);
                 lateTime = null;
             }
             List<Packet> lateBam = new ArrayList<>();
@@ -695,7 +695,7 @@ public class J1939 {
                            .map(rawPacket -> {
                                try {
                                    listener.onResult(rawPacket.toTimeString());
-                                   var pp = (Either<T, AcknowledgmentPacket>) process(rawPacket);
+                                   Either<T, AcknowledgmentPacket> pp= process(rawPacket);
                                    listener.onResult(pp.resolve().toString());
                                    return pp;
                                } catch (PacketException e) {
@@ -708,7 +708,7 @@ public class J1939 {
                            .collect(Collectors.toList());
             /* Log late fragments as raw packets. */
             lateBam.forEach(p -> {
-                logTiming(listener, LATE_BAM_RESPONSE + " " + p.getFragments().get(0).toTimeString());
+                logTiming(listener, LATE_RESPONSE + " " + p.getFragments().get(0).toTimeString());
             });
 
             if (result.isEmpty()) {
@@ -749,7 +749,7 @@ public class J1939 {
                 if (sent != null) {
                     listener.onResult(sent.toTimeString());
                 } else {
-                    logWarning(listener, "Failed to send: " + request);
+                    logWarning(listener, FAILED_TO_SEND + request);
                 }
                 Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> first = stream.findFirst();
                 result = new BusResult<>(i > 0, first);

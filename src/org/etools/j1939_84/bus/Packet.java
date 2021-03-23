@@ -484,12 +484,15 @@ public class Packet {
      *
      * @return a {@link String}
      */
-    // FIXME This is inlined some places and not others.
     public String toTimeString() {
+        /*
+         * Collect data first, because timestamp is dynamic until the data is collected. This will block on the data. We
+         * want to report the timestamp of final packet.
+         */ final String dataString = toString();
         return DateTimeModule.getInstance()
                              .getTimeFormatter()
                              .format(timestamp)
-                + " " + toString();
+                + " " + dataString;
     }
 
     static public class PacketException extends RuntimeException {

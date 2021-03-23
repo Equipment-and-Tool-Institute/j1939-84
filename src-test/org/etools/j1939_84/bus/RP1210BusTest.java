@@ -44,6 +44,7 @@ import org.mockito.junit.MockitoJUnitRunner;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
+@SuppressWarnings("unchecked")
 public class RP1210BusTest {
 
     private static final int ADDRESS = 0xA5;
@@ -409,6 +410,7 @@ public class RP1210BusTest {
 
         assertEquals(packet, actual);
         verify(logger).log(eq(Level.FINE), anyString());
+        verify(logger).log(eq(Level.INFO), anyString());
         verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
                                                            any(byte[].class),
                                                            eq((short) 2048),
@@ -476,6 +478,7 @@ public class RP1210BusTest {
 
         assertEquals(packet, actual);
         verify(logger).log(eq(Level.FINE), anyString());
+        verify(logger).log(eq(Level.INFO), anyString());
         verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
                                                            any(byte[].class),
                                                            eq((short) 2048),
@@ -522,6 +525,7 @@ public class RP1210BusTest {
 
         assertEquals(packet, actual);
         verify(logger).log(eq(Level.FINE), anyString());
+        verify(logger).log(eq(Level.INFO), anyString());
         verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
                                                            any(byte[].class),
                                                            eq((short) 2048),

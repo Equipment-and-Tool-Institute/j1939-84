@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -72,11 +71,6 @@ public class J1939TP implements Bus {
                                                                 new LinkedBlockingQueue<Runnable>());
     /** Application side bus. */
     private final EchoBus inbound;
-    /**
-     * map of active requests (pgn<<32)|addr -> callbacks that are called when
-     * RTS is received.
-     */
-    private final Map<Long, Runnable> requestCBs = new WeakHashMap<>();
     /**
      * The inbound stream that RTS and BAM announcements will be detected on.
      */
@@ -288,12 +282,6 @@ public class J1939TP implements Bus {
         packet.getFragments().add(rts);
         synchronized (packet) {
             inbound.send(packet);
-            long key = ((long) pgn << 32) | source;
-            Runnable requestCallback = requestCBs.get(key);
-            if (requestCallback != null) {
-                requestCallback.run();
-            }
-
             while ((cardinality = received.cardinality()) < numberOfPackets) {
                 if (cardinality == lastCardinality) {
                     if (receivedNone++ > 3) {
@@ -328,12 +316,7 @@ public class J1939TP implements Bus {
                                                   // connection
                                                   .filter(p -> p.getId(0xFFFF) == (DT | rts.getId(0xFF)))
                                                   // After every TP.DT, reset timeout to T1 from now.
-                                                  .peek(p -> {
-                                                      bus.resetTimeout(dataStream, T1, TimeUnit.MILLISECONDS);
-                                                      if (requestCallback != null) {
-                                                          requestCallback.run();
-                                                      }
-                                                  })
+                                                  .peek(p -> bus.resetTimeout(dataStream, T1, TimeUnit.MILLISECONDS))
                                                   .limit(packetCount);
                 Packet cts = Packet.create(CM | source,
                                            getAddress(),
@@ -373,11 +356,8 @@ public class J1939TP implements Bus {
                                        rts.get(6),
                                        rts.get(7));
             fine("tx EOM", eom);
-
             bus.send(eom);
-            if (pgn < 0xF000) {
-                pgn |= getAddress();
-            }
+            // signal done collecting packet data
             packet.setData(data);
         }
     }

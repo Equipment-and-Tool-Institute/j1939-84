@@ -58,15 +58,26 @@ public class RP1210Bus implements Bus {
      * The {@link Logger} for errors
      */
     private final Logger logger;
+
     /**
      * The {@link RP1210Library}
      */
     private final RP1210Library rp1210Library;
+
+    /**
+     * From the adapter .ini file.
+     */
     final private long timeStampWeight;
+
     /**
      * The Queue of {@link Packet}s
      */
     private MultiQueue<Packet> queue = new MultiQueue<>();
+
+    /**
+     * An adjustment offset for the adapter time to system time. Adapters don't have batteries, so their clocks are
+     * always wrong.
+     */
     private long timeStampStartMicroseconds;
 
     /**
@@ -222,8 +233,9 @@ public class RP1210Bus implements Bus {
      * @return        {@link Packet}
      */
     private Packet decode(byte[] data, int length) {
-        int timestamp = (0xFF000000 & data[0] << 24) | (0xFF0000 & data[1] << 16) | (0xFF00 & data[2] << 8)
-                | (0xFF & data[3]);
+        // only 32 bits used, but to get a u32, use a s64.
+        long timestamp = (0xFF000000L & data[0] << 24) | (0xFF0000L & data[1] << 16) | (0xFF00L & data[2] << 8)
+                | (0xFFL & data[3]);
         // data[4] is echo
         int echoed = data[4];
         int pgn = ((data[7] & 0xFF) << 16) | ((data[6] & 0xFF) << 8) | (data[5] & 0xFF);
@@ -234,23 +246,27 @@ public class RP1210Bus implements Bus {
             pgn = pgn | (destination & 0xFF);
         }
 
-        if (timeStampStartMicroseconds <= 0) {
+        Instant time = adapterTimestampToInstant(timestamp);
+        final long diff = Math.abs(time.toEpochMilli() - Instant.now().toEpochMilli());
+        if (diff > 1000) {
             timeStampStartMicroseconds = 1000 * System.currentTimeMillis() - timestamp * timeStampWeight;
+            getLogger().log(Level.INFO, String.format("adapter time offset: %,d µs", timeStampStartMicroseconds));
+            time = adapterTimestampToInstant(timestamp);
         }
-        long microseconds = timestamp * timeStampWeight + timeStampStartMicroseconds;
-        LocalDateTime time = LocalDateTime.ofInstant(Instant.ofEpochSecond(
-                                                                           /* seconds */ microseconds / 1000000,
-                                                                           /* nanoseconds */(microseconds % 1000000)
-                                                                                   * 1000),
-                                                     ZoneId.systemDefault());
-
-        return Packet.create(
-                             time,
+        return Packet.create(LocalDateTime.ofInstant(time, ZoneId.systemDefault()),
                              priority,
                              pgn,
                              source,
                              echoed != 0,
                              Arrays.copyOfRange(data, 11, length));
+    }
+
+    /** Apply adapter time offset. */
+    private Instant adapterTimestampToInstant(long timestamp) {
+        long microseconds = timestamp * timeStampWeight + timeStampStartMicroseconds;
+        Instant time = Instant.ofEpochSecond( /* seconds */ microseconds / 1000000,
+                                             /* nanoseconds */(microseconds % 1000000) * 1000);
+        return time;
     }
 
     /**
