@@ -13,18 +13,14 @@ import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 
 import java.io.IOException;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.BusException;
-import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
@@ -83,20 +79,12 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public List<CalibrationInformation> getCalibrations() throws IOException {
         if (calibrations == null) {
-            Collection<Either<DM19CalibrationInformationPacket, AcknowledgmentPacket>> raw = new ArrayList<>(getJ1939()
-                                                                                                                       .requestGlobal(
-                                                                                                                                      null,
-                                                                                                                                      DM19CalibrationInformationPacket.class,
-                                                                                                                                      NOOP)
-                                                                                                                       .getEither());
-            calibrations = raw.stream()
-                              // flatten an Optional<Either<packetWithAList>>
-                              .flatMap(t -> t.left.stream()
-                                                  .flatMap(p -> p.getCalibrationInformation().stream()))
-                              // get consistent order
-                              .sorted(Comparator.comparing(
-                                                           CalibrationInformation::toString))
-                              .collect(Collectors.toList());
+            calibrations = getJ1939()
+                                     .requestGlobal(null, DM19CalibrationInformationPacket.class, NOOP)
+                                     .toPacketStream()
+                                     .map(DM19CalibrationInformationPacket::getCalibrationInformation)
+                                     .flatMap(Collection::stream)
+                                     .collect(Collectors.toList());
             if (calibrations.isEmpty()) {
                 throw new IOException("Timeout Error Reading Calibrations");
             }
@@ -129,9 +117,7 @@ public class VehicleInformationModule extends FunctionalModule {
         if (engineFamilyName == null) {
             Set<String> results = getJ1939()
                                             .requestGlobal(null, DM56EngineFamilyPacket.class, NOOP)
-                                            .getEither()
-                                            .stream()
-                                            .flatMap(e -> e.left.stream())
+                                            .toPacketStream()
                                             .map(DM56EngineFamilyPacket::getFamilyName)
                                             .collect(Collectors.toSet());
             if (results.size() == 0) {
@@ -157,9 +143,7 @@ public class VehicleInformationModule extends FunctionalModule {
         if (engineModelYear == null) {
             Set<Integer> results = getJ1939()
                                              .requestGlobal(null, DM56EngineFamilyPacket.class, NOOP)
-                                             .getEither()
-                                             .stream()
-                                             .flatMap(e -> e.left.stream())
+                                             .toPacketStream()
                                              .map(DM56EngineFamilyPacket::getEngineModelYear)
                                              .collect(Collectors.toSet());
             if (results.size() == 0) {
@@ -184,8 +168,7 @@ public class VehicleInformationModule extends FunctionalModule {
     public String getVin() throws IOException {
         if (vin == null) {
             Set<String> vins = getJ1939().requestGlobal(null, VehicleIdentificationPacket.class, NOOP)
-                                         .getPackets()
-                                         .stream()
+                                         .toPacketStream()
                                          .map(VehicleIdentificationPacket::getVin)
                                          .collect(Collectors.toSet());
             if (vins.size() == 0) {
@@ -315,8 +298,7 @@ public class VehicleInformationModule extends FunctionalModule {
                                 DM5DiagnosticReadinessPacket.class,
                                 GLOBAL_ADDR,
                                 listener)
-                                         .getPackets()
-                                         .stream()
+                                         .toPacketStream()
                                          .filter(DM5DiagnosticReadinessPacket::isHdObd)
                                          .map(ParsedPacket::getSourceAddress)
                                          .sorted()
