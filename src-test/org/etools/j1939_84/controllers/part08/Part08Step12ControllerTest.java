@@ -161,12 +161,12 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        var dm22_1 = create(1, 0, CLR_ACT_NACK, GENERAL_NACK, 0x7FFFF, 0x31);
+        var dm22_1 = create(1, 0, CLR_ACT_NACK, GENERAL_NACK, 0x7FFFF, 31);
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(1),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(BusResult.of(dm22_1));
+                                                 eq(31))).thenReturn(BusResult.of(dm22_1));
 
         var dm22_0 = create(0, 0, CLR_PA_NACK, GENERAL_NACK, 123, 10);
         when(diagnosticMessageModule.requestDM22(any(),
@@ -178,20 +178,20 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM22(any(), eq(1), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(1), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
         verify(diagnosticMessageModule).requestDM22(any(), eq(0), eq(CLR_PA_REQ), eq(123), eq(10));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -204,29 +204,29 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
     public void testFailureForCLR_PA_ACK() {
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        var dm22_1 = create(1, 0, CLR_PA_ACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
+        var dm22_1 = create(1, 0, CLR_PA_ACK, NOT_SUPPORTED, 0x7FFFF, 31);
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(1),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(BusResult.of(dm22_1));
+                                                 eq(31))).thenReturn(BusResult.of(dm22_1));
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM22(any(), eq(1), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(1), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -247,29 +247,29 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
     public void testFailureForCLR_ACT_ACK() {
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        var dm22_1 = create(1, 0, CLR_ACT_ACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
+        var dm22_1 = create(1, 0, CLR_ACT_ACK, NOT_SUPPORTED, 0x7FFFF, 31);
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(1),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(BusResult.of(dm22_1));
+                                                 eq(31))).thenReturn(BusResult.of(dm22_1));
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM22(any(), eq(1), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(1), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -295,24 +295,24 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
                                                  eq(1),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(BusResult.of(ack));
+                                                 eq(31))).thenReturn(BusResult.of(ack));
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM22(any(), eq(1), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(1), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -333,29 +333,29 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
     public void testFailureForCLR_ACT_NACKWithNonZeroAck() {
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        var dm22_1 = create(1, 0, CLR_ACT_NACK, ACCESS_DENIED, 0x7FFFF, 0x31);
+        var dm22_1 = create(1, 0, CLR_ACT_NACK, ACCESS_DENIED, 0x7FFFF, 31);
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(1),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(BusResult.of(dm22_1));
+                                                 eq(31))).thenReturn(BusResult.of(dm22_1));
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM22(any(), eq(1), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(1), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -376,29 +376,29 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
     public void testFailureForCLR_PA_NACKWithNonZeroAck() {
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        var dm22_1 = create(1, 0, CLR_PA_NACK, ACCESS_DENIED, 0x7FFFF, 0x31);
+        var dm22_1 = create(1, 0, CLR_PA_NACK, ACCESS_DENIED, 0x7FFFF, 31);
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(1),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(BusResult.of(dm22_1));
+                                                 eq(31))).thenReturn(BusResult.of(dm22_1));
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM22(any(), eq(1), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(1), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -424,24 +424,24 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
                                                  eq(1),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(BusResult.of(nack));
+                                                 eq(31))).thenReturn(BusResult.of(nack));
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM22(any(), eq(1), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(1), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -475,19 +475,19 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM22(any(), eq(0), eq(CLR_PA_REQ), eq(123), eq(10));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -521,19 +521,19 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM22(any(), eq(0), eq(CLR_PA_REQ), eq(123), eq(10));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -567,19 +567,19 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM22(any(), eq(0), eq(CLR_PA_REQ), eq(123), eq(10));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -613,19 +613,19 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM22(any(), eq(0), eq(CLR_PA_REQ), eq(123), eq(10));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -659,19 +659,19 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM22(any(), eq(0), eq(CLR_PA_REQ), eq(123), eq(10));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -691,23 +691,23 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForCLR_PA_ACK3() {
 
-        var dm22_0 = create(0, 0, CLR_PA_ACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
+        var dm22_0 = create(0, 0, CLR_PA_ACK, NOT_SUPPORTED, 0x7FFFF, 31);
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.of(dm22_0));
+                                                 eq(31))).thenReturn(RequestResult.of(dm22_0));
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -723,23 +723,23 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForCLR_ACT_ACK3() {
 
-        var dm22_0 = create(0, 0, CLR_ACT_ACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
+        var dm22_0 = create(0, 0, CLR_ACT_ACK, NOT_SUPPORTED, 0x7FFFF, 31);
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.of(dm22_0));
+                                                 eq(31))).thenReturn(RequestResult.of(dm22_0));
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -758,18 +758,18 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(new RequestResult<>(false, ack));
+                                                 eq(31))).thenReturn(new RequestResult<>(false, ack));
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -785,23 +785,23 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForCLR_ACT_NACKWithNonZeroAck3() {
 
-        var dm22_0 = create(0, 0, CLR_ACT_NACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
+        var dm22_0 = create(0, 0, CLR_ACT_NACK, NOT_SUPPORTED, 0x7FFFF, 31);
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.of(dm22_0));
+                                                 eq(31))).thenReturn(RequestResult.of(dm22_0));
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -817,23 +817,23 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForCLR_PA_NACKWithNonZeroAck3() {
 
-        var dm22_0 = create(0, 0, CLR_PA_NACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
+        var dm22_0 = create(0, 0, CLR_PA_NACK, NOT_SUPPORTED, 0x7FFFF, 31);
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.of(dm22_0));
+                                                 eq(31))).thenReturn(RequestResult.of(dm22_0));
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -849,23 +849,23 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForCLR_PA_ACK4() {
 
-        var dm22_0 = create(0, 0, CLR_PA_ACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
+        var dm22_0 = create(0, 0, CLR_PA_ACK, NOT_SUPPORTED, 0x7FFFF, 31);
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.of(dm22_0));
+                                                 eq(31))).thenReturn(RequestResult.of(dm22_0));
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -881,23 +881,23 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForCLR_ACT_ACK4() {
 
-        var dm22_0 = create(0, 0, CLR_ACT_ACK, NOT_SUPPORTED, 0x7FFFF, 0x31);
+        var dm22_0 = create(0, 0, CLR_ACT_ACK, NOT_SUPPORTED, 0x7FFFF, 31);
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.of(dm22_0));
+                                                 eq(31))).thenReturn(RequestResult.of(dm22_0));
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -917,18 +917,18 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.empty());
+                                                 eq(31))).thenReturn(RequestResult.empty());
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(new RequestResult<>(false, ack));
+                                                 eq(31))).thenReturn(new RequestResult<>(false, ack));
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -944,23 +944,23 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForCLR_ACT_NACKWithNonZeroAck4() {
 
-        var dm22_0 = create(0, 0, CLR_ACT_NACK, UNKNOWN_DTC, 0x7FFFF, 0x31);
+        var dm22_0 = create(0, 0, CLR_ACT_NACK, UNKNOWN_DTC, 0x7FFFF, 31);
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.of());
+                                                 eq(31))).thenReturn(RequestResult.of());
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.of(dm22_0));
+                                                 eq(31))).thenReturn(RequestResult.of(dm22_0));
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
@@ -976,23 +976,23 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForCLR_PA_NACKWithNonZeroAck4() {
 
-        var dm22_0 = create(0, 0, CLR_PA_NACK, DTC_NOT_PA, 0x7FFFF, 0x31);
+        var dm22_0 = create(0, 0, CLR_PA_NACK, DTC_NOT_PA, 0x7FFFF, 31);
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_PA_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.of());
+                                                 eq(31))).thenReturn(RequestResult.of());
 
         when(diagnosticMessageModule.requestDM22(any(),
                                                  eq(CLR_ACT_REQ),
                                                  eq(0x7FFFF),
-                                                 eq(0x31))).thenReturn(RequestResult.of(dm22_0));
+                                                 eq(31))).thenReturn(RequestResult.of(dm22_0));
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(0x31));
-        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(0x31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(diagnosticMessageModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
 
