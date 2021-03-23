@@ -169,14 +169,6 @@ public class Part08Step09ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.8.9.2.a - No ECU reported same DTC as MIL on as reported in DM12 earlier in this part");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.8.9.2.c - No ECU reported same DTC as MIL off as reported in DM23 earlier in this part");
     }
 
     @Test
