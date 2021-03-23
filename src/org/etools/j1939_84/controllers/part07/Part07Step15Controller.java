@@ -141,8 +141,8 @@ public class Part07Step15Controller extends StepController {
             } else {
                 // 6.7.15.2.b. Fail if NACK received from OBD ECUs that did not support an SPN listed in its
                 // DM24 response
-                if (isNotNACKed(singleTestResponse)) {
-                    addFailure("6.7.15.2.b - NACK not received from " + obdModuleInformation.getModuleName()
+                if (isNACKed(singleTestResponse)) {
+                    addFailure("6.7.15.2.b - NACK received from " + obdModuleInformation.getModuleName()
                             + " which did not support an SPN (" + spn + ") listed in its DM24 response");
                 }
             }
@@ -154,14 +154,14 @@ public class Part07Step15Controller extends StepController {
         return getDiagnosticMessageModule().requestTestResult(getListener(), address, 247, spn, 31);
     }
 
-    private static boolean isNotNACKed(BusResult<DM30ScaledTestResultsPacket> singleTestResponse) {
+    private static boolean isNACKed(BusResult<DM30ScaledTestResultsPacket> singleTestResponse) {
         return singleTestResponse.getPacket()
                                  .flatMap(r -> r.right)
                                  .map(AcknowledgmentPacket::getResponse)
                                  .filter(r -> r == NACK)
                                  .stream()
                                  .findFirst()
-                                 .isEmpty();
+                                 .isPresent();
     }
 
 }
