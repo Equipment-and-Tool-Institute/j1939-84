@@ -3,14 +3,12 @@
  */
 package org.etools.j1939_84.controllers.part04;
 
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -77,7 +75,10 @@ public class Part04Step06Controller extends StepController {
         // 6.4.6.2.b Fail if any OBD ECU reports a different number of active DTCs than it did in DM1 response earlier
         // in this part.
         packets.stream()
-               .filter(p -> p.getActiveCodeCount() != getDTCs(p.getSourceAddress()).size())
+               .filter(p -> {
+                   int address = p.getSourceAddress();
+                   return p.getActiveCodeCount() != getDTCCount(address);
+               })
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
                    addFailure("6.4.6.2.b - " + moduleName + " reported a different number " +
@@ -93,8 +94,9 @@ public class Part04Step06Controller extends StepController {
                });
     }
 
-    private List<DiagnosticTroubleCode> getDTCs(int moduleAddress) {
-        return getDTCs(DM1ActiveDTCsPacket.class, moduleAddress, 4);
+    private byte getDTCCount(int address) {
+        DM1ActiveDTCsPacket packet = get(DM1ActiveDTCsPacket.class, address, 4);
+        return packet == null ? (byte) 0xFF : (byte) packet.getDtcs().size();
     }
 
 }

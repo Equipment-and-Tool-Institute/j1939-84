@@ -81,14 +81,17 @@ public class Part07Step06Controller extends StepController {
         // earlier in this Part.
         packets.stream()
                .filter(p -> isObdModule(p.getSourceAddress()))
-               .filter(p -> p.getPreviouslyActiveCodeCount() != getDTCs(DM2PreviouslyActiveDTC.class,
-                                                                        p.getSourceAddress(),
-                                                                        7).size())
+               .filter(p -> p.getPreviouslyActiveCodeCount() != getDTCCount(p.getSourceAddress()))
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
                    addFailure("6.7.6.2.c - " + moduleName
                            + " reported a different number of previously active DTCs than in DM2 response earlier in this part");
                });
+    }
+
+    private byte getDTCCount(int address) {
+        DM2PreviouslyActiveDTC packet = get(DM2PreviouslyActiveDTC.class, address, 7);
+        return (byte) (packet == null ? 0xFF : packet.getDtcs().size());
     }
 
 }
