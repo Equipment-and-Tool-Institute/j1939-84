@@ -7,6 +7,7 @@ import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -135,6 +136,7 @@ public class OBDModuleInformation implements Cloneable {
     public void setScaledTestResults(List<ScaledTestResult> scaledTestResults) {
         this.scaledTestResults.clear();
         this.scaledTestResults.addAll(scaledTestResults);
+        Collections.sort(this.scaledTestResults);
     }
 
     public List<ScaledTestResult> getNonInitializedTests() {
