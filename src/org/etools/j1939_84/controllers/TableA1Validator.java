@@ -177,12 +177,14 @@ public class TableA1Validator {
                          });
 
         // Sort SPNs
-        for (int pgn : pgnMap.keySet()) {
-            List<Integer> spns = pgnMap.get(pgn);
-            spns.sort(Comparator.comparingInt(s -> s));
-            pgnMap.put(pgn, spns);
+        for (Map.Entry<Integer, List<Integer>> pgn : pgnMap.entrySet()) {
+            int key = pgn.getKey();
+            List<Integer> spns = pgnMap.get(key)
+                                       .stream()
+                                       .sorted(Comparator.comparingInt(s -> s))
+                                       .collect(Collectors.toList());
+            pgnMap.put(key, spns);
         }
-
         return pgnMap;
     }
 
@@ -275,9 +277,7 @@ public class TableA1Validator {
                               String msg = "PGN " + pgn + " from " + moduleName + " with SPNs " + spns;
 
                               PgnDefinition pgnDefinition = j1939DaRepository.findPgnDefinition(pgn);
-                              if (pgnDefinition == null) {
-                                  msg = "  ??? " + msg;
-                              } else if (pgnDefinition.isOnRequest()) {
+                              if (pgnDefinition.isOnRequest()) {
                                   msg = "  Req " + msg;
                               } else {
                                   msg = "  BCT " + msg;

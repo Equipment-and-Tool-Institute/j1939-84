@@ -69,6 +69,8 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.DateTimeModule;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * A Wrapper around a {@link Bus} that provides functionality specific to SAE
  * J1939
@@ -264,7 +266,6 @@ public class J1939 {
      *                    the {@link Packet} to process
      * @return        a subclass of {@link ParsedPacket}
      */
-    @SuppressWarnings("unchecked")
     private <T extends GenericPacket> Either<T, AcknowledgmentPacket> process(Packet packet) {
         ParsedPacket pp = processRaw(packet.getPgn(), packet);
         if (pp instanceof AcknowledgmentPacket) {
@@ -418,6 +419,7 @@ public class J1939 {
      *                     the {@link TimeUnit} for the timeout
      * @return         the resulting packet
      */
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "There are no null checks back up the line")
     public <T extends GenericPacket> Optional<Either<T, AcknowledgmentPacket>> read(Class<T> T,
                                                                                     int addr,
                                                                                     long timeout,

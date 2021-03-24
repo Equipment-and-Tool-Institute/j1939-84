@@ -3,6 +3,9 @@
  */
 package org.etools.j1939_84.bus.j1939.packets.model;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.packets.Slot;
 import org.etools.j1939_84.utils.CollectionUtils;
@@ -18,7 +21,7 @@ public class Spn implements Comparable<Spn> {
         this.id = id;
         this.label = label;
         this.slot = slot;
-        this.data = data;
+        this.data = Arrays.copyOf(data, data.length);
     }
 
     public static Spn create(int id, double value) {
@@ -31,7 +34,7 @@ public class Spn implements Comparable<Spn> {
     }
 
     public int[] getData() {
-        return CollectionUtils.toIntArray(data);
+        return CollectionUtils.toIntArray(Arrays.copyOf(data, data.length));
     }
 
     public int getId() {
@@ -76,6 +79,23 @@ public class Spn implements Comparable<Spn> {
                              id,
                              label,
                              slot.asString(data));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Spn spn = (Spn) o;
+        return id == spn.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     @Override

@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 import org.etools.j1939_84.bus.j1939.Lookup;
@@ -41,7 +42,7 @@ public class DiagnosticTroubleCode {
 
     public DiagnosticTroubleCode(int[] data) {
 
-        this.data = data;
+        this.data = Arrays.copyOf(data, data.length);
 
         spn = SupportedSPN.parseSPN(data);
 
@@ -79,7 +80,7 @@ public class DiagnosticTroubleCode {
      * @return int[]
      */
     public int[] getData() {
-        return data;
+        return Arrays.copyOf(data, data.length);
     }
 
     /**

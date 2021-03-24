@@ -14,6 +14,8 @@ import java.util.stream.Stream;
 import org.etools.testdoc.TestDoc;
 import org.junit.Test;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @TestDoc(description = "Verifies queuing system works as expected.")
 public class MultiQueueTest {
     /** Add 10000 items from 25 different threads in less than 1 s */
@@ -123,34 +125,41 @@ public class MultiQueueTest {
         }
     }
 
-    /** Verify that building a stream with a timeout works. */
+    /**
+     * V
+     * erify that building a stream with a timeout works.
+     */
     @Test
     @TestDoc(description = "Verify that timeouts interrupts streams, so that a 410 ms stream only has 410 ms of data in it.")
+    @SuppressFBWarnings(value = {
+            "WA_NOT_IN_LOOP" }, justification = "Notify actually needs to happen here, wait is needed")
     public void testTimedInterruption() throws Exception {
         // sync on q, because thread startup is unpredictably slow
         try (MultiQueue<Integer> q = new MultiQueue<>()) {
+
+            // asynchronously add a packet every 10 ms.
+            new Thread(() -> {
+                synchronized (q) {
+                    // notify main thread that we are starting.
+                    q.add(-1);
+                    q.notifyAll();
+                }
+                for (int i = 0; i < 200; i++) {
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException ignored) {
+                    }
+                    q.add(i);
+                }
+            }).start();
+
             synchronized (q) {
-                // asynchronously add a packet every 10 ms.
-                new Thread(() -> {
-                    synchronized (q) {
-                        // notify main thread that we are starting.
-                        q.notifyAll();
-                    }
-                    for (int i = 0; i < 100; i++) {
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException ignored) {
-                        }
-                        q.add(i);
-                    }
-                }).start();
                 // wait on notify
-                q.wait();
+                q.wait(1000);
             }
+
             Stream<Integer> s1 = q.stream(410, TimeUnit.MILLISECONDS);
-            Stream<Integer> s2 = q.stream(810, TimeUnit.MILLISECONDS);
             assertEquals("40 packets were processed in 400 ms", 40, s1.count(), 10);
-            assertEquals("80 packets were processed in 800 ms", 80, s2.count(), 10);
         }
     }
 }

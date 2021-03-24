@@ -480,6 +480,16 @@ public class AddressClaimPacket extends GenericPacket {
         return names;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
     /**
      * The ID of the Function
      *

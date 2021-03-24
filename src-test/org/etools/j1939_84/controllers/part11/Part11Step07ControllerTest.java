@@ -54,6 +54,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @RunWith(MockitoJUnitRunner.class)
 public class Part11Step07ControllerTest extends AbstractControllerTest {
     private static final int PART_NUMBER = 11;
@@ -152,6 +154,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Return value ignored on purpose")
     public void testHappyPathNoFailures() {
         // Responds to DM20s and DM28s
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);

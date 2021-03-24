@@ -19,6 +19,8 @@ import org.etools.j1939_84.resources.Resources;
 
 import com.opencsv.CSVReader;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Class that converts the datalink values into descriptions for Source
  * Addresses, Suspect Parameter Numbers, and Failure Mode Indicators
@@ -144,6 +146,8 @@ public class Lookup {
      *                 the suspect parameter number from the Diagnostic Trouble Code
      * @return     The name as defined by SAE or "Unknown" if it's not defined
      */
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", justification = "Null check needs to happen here")
+
     public static String getSpnName(int spn) {
         SpnDefinition spnDef = J1939DaRepository.getInstance().findSpnDefinition(spn);
         return spnDef == null ? "Unknown" : spnDef.getLabel();

@@ -51,7 +51,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class Part02Step02ControllerTest extends AbstractControllerTest {
     private static final int PART_NUMBER = 2;
     private static final int STEP_NUMBER = 2;
-    final int PGN = DM5DiagnosticReadinessPacket.PGN;
+    private static final int PGN = DM5DiagnosticReadinessPacket.PGN;
     @Mock
     private BannerModule bannerModule;
 

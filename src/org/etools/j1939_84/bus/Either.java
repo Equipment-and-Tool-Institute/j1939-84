@@ -4,6 +4,7 @@
 
 package org.etools.j1939_84.bus;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -28,6 +29,11 @@ public class Either<L, R> {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(left, right);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o instanceof Either) {
             Either<?, ?> that = (Either<?, ?>) o;
@@ -45,7 +51,6 @@ public class Either<L, R> {
         return new Either<>(left.map(lFn), right.map(rFn));
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T resolve() {
         return left.map(x -> (T) x).orElseGet(() -> right.map(x -> (T) x).orElseThrow());
     }

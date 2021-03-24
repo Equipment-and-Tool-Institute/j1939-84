@@ -8,9 +8,9 @@ import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OTHER;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.SLOW_FLASH;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.etools.j1939_84.bus.Packet;
 import org.junit.Test;
 
 /**
@@ -123,23 +123,8 @@ public class DTCLampStatusTest {
                 0x81, // SPN Conversion Occurrence Count
                 0xAA, // Lamp Status/Support
                 0x55 });// Lamp Status/State
-        DiagnosticTroubleCodePacket instance4 = new DiagnosticTroubleCodePacket(Packet.create(0,
-                                                                                              0x00,
-                                                                                              0x61, // SPN least
-                                                                                                    // significant bit
-                                                                                              0x02, // SPN most
-                                                                                                    // significant bit
-                                                                                              0x13, // Failure mode
-                                                                                                    // indicator
-                                                                                              0x81, // SPN Conversion
-                                                                                                    // Occurrence Count
-                                                                                              0xAA, // Lamp
-                                                                                                    // Status/Support
-                                                                                              0x55));
-        assertEquals(true, instance.equals(instance2));
-        assertEquals(false, instance.equals(instance3));
-        // FIXME what is this supposed to be doing?
-        assertEquals(false, instance.equals(instance4));
+        assertEquals(instance, instance2);
+        assertNotEquals(instance, instance3);
     }
 
     @Test

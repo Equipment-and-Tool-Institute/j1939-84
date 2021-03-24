@@ -43,6 +43,15 @@ public class DM56EngineFamilyPacket extends GenericPacket {
         return familyName;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
     /**
      * Returns the Engine Model Year Field (XXXX[E/V]-MY)
      *

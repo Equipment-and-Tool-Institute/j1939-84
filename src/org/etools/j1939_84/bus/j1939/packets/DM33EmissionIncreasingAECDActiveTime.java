@@ -49,6 +49,16 @@ public class DM33EmissionIncreasingAECDActiveTime extends GenericPacket {
     }
 
     @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
     public String getName() {
         return "DM33 Emission Increasing AECD Active Time";
     }

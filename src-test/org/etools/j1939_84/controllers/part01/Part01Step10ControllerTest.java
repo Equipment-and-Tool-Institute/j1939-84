@@ -40,6 +40,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * The unit test for {@link Part01Step10Controller}
  *
@@ -113,6 +115,8 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Return value ignored on purpose")
+
     public void testError() {
         AcknowledgmentPacket ackPacket = AcknowledgmentPacket.create(0, ACK);
         AcknowledgmentPacket nackPacket = AcknowledgmentPacket.create(1, NACK);
@@ -165,6 +169,7 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "There are no null checks back up the line")
     public void testNoError() {
 
         AcknowledgmentPacket acknowledgmentPacket = mock(AcknowledgmentPacket.class);

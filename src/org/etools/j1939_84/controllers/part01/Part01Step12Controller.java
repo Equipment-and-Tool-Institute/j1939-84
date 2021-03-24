@@ -26,6 +26,8 @@ import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results
  */
@@ -151,6 +153,7 @@ public class Part01Step12Controller extends StepController {
         }
     }
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", justification = "There are no null checks back up the line")
     private void verifyDM30PacketSupported(DM30ScaledTestResultsPacket packet, int spnId) {
 
         String moduleName = Lookup.getAddressName(packet.getSourceAddress());

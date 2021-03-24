@@ -6,9 +6,12 @@ package org.etools.j1939_84.bus.j1939.packets;
 import static org.etools.j1939_84.utils.CollectionUtils.join;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.etools.j1939_84.NumberFormatter;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Represents a Scaled Test Result from a {@link DM30ScaledTestResultsPacket}
@@ -34,7 +37,7 @@ public class ScaledTestResult implements Comparable<ScaledTestResult> {
      *                 the data that contains the {@link ScaledTestResult}
      */
     public ScaledTestResult(int[] data) {
-        this.data = data;
+        this.data = Arrays.copyOf(data, data.length);
         testIdentifier = data[0];
         spn = SupportedSPN.parseSPN(Arrays.copyOfRange(data, 1, 4));
         fmi = data[3] & 0x1F;
@@ -67,7 +70,7 @@ public class ScaledTestResult implements Comparable<ScaledTestResult> {
     }
 
     public int[] getData() {
-        return data;
+        return Arrays.copyOf(data, data.length);
     }
 
     /**
@@ -84,7 +87,10 @@ public class ScaledTestResult implements Comparable<ScaledTestResult> {
      *
      * @return double
      */
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", justification = "This method has several places down the line where null can end up being returned")
+
     public double getScaledTestMaximum() {
+        // null check here is redundant - getSlot() handles the null
         return getSlot() != null ? getSlot().scale(getTestMaximum()) : getTestMaximum();
     }
 
@@ -93,6 +99,8 @@ public class ScaledTestResult implements Comparable<ScaledTestResult> {
      *
      * @return double
      */
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", justification = "This method has several places down the line where null can end up being returned")
+
     public double getScaledTestMinimum() {
         return getSlot() != null ? getSlot().scale(getTestMinimum()) : getTestMinimum();
     }
@@ -102,6 +110,8 @@ public class ScaledTestResult implements Comparable<ScaledTestResult> {
      *
      * @return double
      */
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", justification = "This method has several places down the line where null can end up being returned")
+
     public double getScaledTestValue() {
         return getSlot() != null ? getSlot().scale(getTestValue()) : getTestValue();
     }
@@ -217,7 +227,8 @@ public class ScaledTestResult implements Comparable<ScaledTestResult> {
         TestResult testResult = getTestResult();
         result += "Result: " + testResult + ".";
         if (testResult == TestResult.PASSED || testResult == TestResult.FAILED) {
-            String unit = getSlot() != null ? getSlot().getUnit() : null;
+            // no need to check getSlot() null here as getSlot() manages null
+            String unit = getSlot().getUnit();
             unit = unit != null && !unit.trim().isEmpty() ? " " + unit : "";
             result += " Min: " + (hasMinimum() ? NumberFormatter.format(getScaledTestMinimum()) : "N/A") + ",";
             result += " Value: " + NumberFormatter.format(getScaledTestValue()) + ",";
@@ -233,6 +244,24 @@ public class ScaledTestResult implements Comparable<ScaledTestResult> {
             result = Integer.compare(getFmi(), other.getFmi());
         }
         return result;
+    }
+
+    // By definition in the specification, we only want to compare the spn and fmi when considering equality.
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ScaledTestResult that = (ScaledTestResult) o;
+        return fmi == that.fmi && spn == that.spn;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fmi, spn);
     }
 
     /**
