@@ -11,8 +11,6 @@ import java.util.Objects;
 import org.etools.j1939_84.NumberFormatter;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 /**
  * Represents a Scaled Test Result from a {@link DM30ScaledTestResultsPacket}
  *
@@ -87,11 +85,8 @@ public class ScaledTestResult implements Comparable<ScaledTestResult> {
      *
      * @return double
      */
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", justification = "This method has several places down the line where null can end up being returned")
-
     public double getScaledTestMaximum() {
-        // null check here is redundant - getSlot() handles the null
-        return getSlot() != null ? getSlot().scale(getTestMaximum()) : getTestMaximum();
+        return getSlot().scale(getTestMaximum());
     }
 
     /**
@@ -99,10 +94,8 @@ public class ScaledTestResult implements Comparable<ScaledTestResult> {
      *
      * @return double
      */
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", justification = "This method has several places down the line where null can end up being returned")
-
     public double getScaledTestMinimum() {
-        return getSlot() != null ? getSlot().scale(getTestMinimum()) : getTestMinimum();
+        return getSlot().scale(getTestMinimum());
     }
 
     /**
@@ -110,10 +103,8 @@ public class ScaledTestResult implements Comparable<ScaledTestResult> {
      *
      * @return double
      */
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", justification = "This method has several places down the line where null can end up being returned")
-
     public double getScaledTestValue() {
-        return getSlot() != null ? getSlot().scale(getTestValue()) : getTestValue();
+        return getSlot().scale(getTestValue());
     }
 
     /**
@@ -126,10 +117,6 @@ public class ScaledTestResult implements Comparable<ScaledTestResult> {
             slot = J1939DaRepository.findSlot(slotNumber, spn);
         }
         return slot;
-    }
-
-    public int getSlotNumber() {
-        return slotNumber;
     }
 
     /**

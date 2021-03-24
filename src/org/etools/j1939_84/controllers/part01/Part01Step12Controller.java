@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
-import org.etools.j1939_84.bus.j1939.packets.Slot;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -25,8 +24,6 @@ import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results
@@ -153,7 +150,6 @@ public class Part01Step12Controller extends StepController {
         }
     }
 
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", justification = "There are no null checks back up the line")
     private void verifyDM30PacketSupported(DM30ScaledTestResultsPacket packet, int spnId) {
 
         String moduleName = Lookup.getAddressName(packet.getSourceAddress());
@@ -185,8 +181,7 @@ public class Part01Step12Controller extends StepController {
             // undefined or a not valid SLOT in Appendix A of J1939-71. See
             // Table A-7-2 3 for a list of the valid, SLOTs known to be
             // appropriate for use in test results.
-            Slot slot = result.getSlot();
-            int slotIdentifier = slot == null ? -1 : slot.getId();
+            int slotIdentifier = result.getSlot().getId();
             if (!VALID_SLOTS.contains(slotIdentifier)) {
                 addFailure("6.1.12.2.a (A7.1.c) - #" + slotIdentifier + " SLOT identifier for SPN " + spnId + " from "
                         + moduleName + " is invalid");
