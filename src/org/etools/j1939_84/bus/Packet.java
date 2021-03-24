@@ -491,11 +491,9 @@ public class Packet {
         /*
          * Collect data first, because timestamp is dynamic until the data is collected. This will block on the data. We
          * want to report the timestamp of final packet.
-         */ String dataString = toString();
-        return DateTimeModule.getInstance()
-                             .getTimeFormatter()
-                             .format(timestamp)
-                + " " + dataString;
+         */
+        String dataString = toString();
+        return DateTimeModule.getInstance().getTimeFormatter().format(timestamp) + " " + dataString;
     }
 
     static public class PacketException extends RuntimeException {
