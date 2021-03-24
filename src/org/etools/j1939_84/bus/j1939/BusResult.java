@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.bus.j1939;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -67,6 +68,11 @@ public class BusResult<T extends ParsedPacket> {
 
     public static <T extends ParsedPacket> BusResult<T> of(AcknowledgmentPacket packet) {
         return new BusResult<>(false, packet);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(packet, retryUsed);
     }
 
     @Override

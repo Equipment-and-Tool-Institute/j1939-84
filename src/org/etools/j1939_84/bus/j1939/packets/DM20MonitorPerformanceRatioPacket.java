@@ -48,6 +48,15 @@ public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
         return create(sourceAddress, 0, ignitionCycles, obdConditions, ratios);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
     /**
      * Returns the Number of Ignition Cycles
      *

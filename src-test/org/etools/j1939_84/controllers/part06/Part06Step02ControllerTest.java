@@ -132,40 +132,6 @@ public class Part06Step02ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testModulesEmpty() {
-        DM5DiagnosticReadinessPacket packet0 = new DM5DiagnosticReadinessPacket(
-                                                                                Packet.create(PGN,
-                                                                                              0x00,
-                                                                                              0x00,
-                                                                                              0x00,
-                                                                                              0x14,
-                                                                                              0x37,
-                                                                                              0xE0,
-                                                                                              0x1E,
-                                                                                              0xE0,
-                                                                                              0x1E));
-        final int ackPgn = DM5DiagnosticReadinessPacket.PGN;
-        AcknowledgmentPacket packet44 = new AcknowledgmentPacket(
-                                                                 Packet.create(ackPgn,
-                                                                               0x44,
-                                                                               0x01,
-                                                                               0x02,
-                                                                               0x03,
-                                                                               0x04,
-                                                                               0x05,
-                                                                               0x06,
-                                                                               0x07,
-                                                                               0x08));
-        DM5DiagnosticReadinessPacket packet21 = new DM5DiagnosticReadinessPacket(
-                                                                                 Packet.create(PGN,
-                                                                                               0x21,
-                                                                                               0x10,
-                                                                                               0x20,
-                                                                                               0x30,
-                                                                                               0x40,
-                                                                                               0x50,
-                                                                                               0x60,
-                                                                                               0x70,
-                                                                                               0x80));
         RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(false,
                                                                                                 Collections.emptyList(),
                                                                                                 Collections.emptyList());
@@ -187,17 +153,6 @@ public class Part06Step02ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testStepDM5PacketsEmpty() {
-        DM5DiagnosticReadinessPacket packet0 = new DM5DiagnosticReadinessPacket(
-                                                                                Packet.create(PGN,
-                                                                                              0x00,
-                                                                                              0x00,
-                                                                                              0x00,
-                                                                                              0x14,
-                                                                                              0x37,
-                                                                                              0xE0,
-                                                                                              0x1E,
-                                                                                              0xE0,
-                                                                                              0x1E));
         final int ackPgn = DM5DiagnosticReadinessPacket.PGN;
         AcknowledgmentPacket packet44 = new AcknowledgmentPacket(
                                                                  Packet.create(ackPgn,
@@ -210,17 +165,6 @@ public class Part06Step02ControllerTest extends AbstractControllerTest {
                                                                                0x06,
                                                                                0x07,
                                                                                0x08));
-        DM5DiagnosticReadinessPacket packet21 = new DM5DiagnosticReadinessPacket(
-                                                                                 Packet.create(PGN,
-                                                                                               0x21,
-                                                                                               0x10,
-                                                                                               0x20,
-                                                                                               0x30,
-                                                                                               0x40,
-                                                                                               0x50,
-                                                                                               0x60,
-                                                                                               0x70,
-                                                                                               0x80));
         RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(false,
                                                                                                 Collections.emptyList(),
                                                                                                 Collections.singletonList(

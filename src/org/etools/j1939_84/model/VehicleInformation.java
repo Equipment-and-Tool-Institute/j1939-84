@@ -14,6 +14,8 @@ import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * The Vehicle Information which is required in Part 1.
  *
@@ -173,6 +175,7 @@ public class VehicleInformation implements Cloneable {
                 && numberOfTripsForFaultBImplant == that.numberOfTripsForFaultBImplant;
     }
 
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Calling super.clone() will cause a crash")
     @Override
     public VehicleInformation clone() {
         VehicleInformation vehInfo = new VehicleInformation();

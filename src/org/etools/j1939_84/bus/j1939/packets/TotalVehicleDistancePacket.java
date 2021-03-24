@@ -37,4 +37,13 @@ public class TotalVehicleDistancePacket extends GenericPacket {
         return distance;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }

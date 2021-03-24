@@ -109,8 +109,11 @@ public class Part11Step11Controller extends StepController {
         var previousTime = previousPacket.getPacket().getTimestamp();
         var deltaTime = previousTime.until(currentTime, ChronoUnit.SECONDS);
 
-        var deltaTSES = getDeltaEngineStart(currentPacket);
-        deltaTSES = deltaTSES == null ? 0 : deltaTSES;
+        var tempTSES = getDeltaEngineStart(currentPacket);
+        var deltaTSES = 0;
+        if (tempTSES != null) {
+            deltaTSES = (int) Math.round(tempTSES);
+        }
 
         return Math.abs(deltaTime - deltaTSES) < THRESHOLD;
     }

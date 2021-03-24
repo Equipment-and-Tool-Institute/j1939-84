@@ -32,6 +32,8 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractPartControllerTest {
 
@@ -196,6 +198,8 @@ public class AbstractPartControllerTest {
     }
 
     @Test
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Return value check nt needed")
+
     public void testRun() {
         if (instance == null) {
             return;

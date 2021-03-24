@@ -19,6 +19,8 @@ import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
  */
@@ -51,12 +53,9 @@ public class OBDModuleInformation implements Cloneable {
         this.function = function;
     }
 
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Calling super.clone() will cause a crash")
     @Override
     public OBDModuleInformation clone() {
-        try {
-            super.clone();
-        } catch (CloneNotSupportedException ignored) {
-        }
         OBDModuleInformation obdInfo = new OBDModuleInformation(getSourceAddress(), getFunction());
         obdInfo.setScaledTestResults(getScaledTestResults());
         obdInfo.setSupportedSPNs(getSupportedSPNs());

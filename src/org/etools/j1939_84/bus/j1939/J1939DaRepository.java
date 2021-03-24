@@ -31,6 +31,8 @@ import org.etools.j1939_84.resources.Resources;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class J1939DaRepository {
 
     private static class ParseError extends Exception {
@@ -44,6 +46,24 @@ public class J1939DaRepository {
     private Map<Integer, Slot> slots;
 
     private Map<Integer, PgnDefinition> pgnLut;
+
+    public Slot findSLOT(int id, int spn) {
+        if (slots == null) {
+            slots = loadSlots();
+        }
+
+        Slot slot = slots.get(id);
+        if (slot == null) {
+            slot = slots.get(-spn);
+        }
+        if (slot == null) {
+            if (id != -1) {
+                getLogger().log(Level.INFO, "Unable to find SLOT " + id);
+            }
+            return new Slot(id, "Unknown", "UNK", 1.0, 0.0, null, 0);
+        }
+        return slot;
+    }
 
     private Map<Integer, SpnDefinition> spnLut;
 
@@ -60,6 +80,9 @@ public class J1939DaRepository {
         return getInstance().findSLOT(slotId, spn);
     }
 
+    @SuppressFBWarnings(value = {
+            "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE",
+            "REC_CATCH_EXCEPTION" }, justification = "Several places in the calls down the stack can return null")
     private synchronized void loadLookUpTables() {
         if (pgnLut == null) {
             // parse the selected columns from J1939DA. The source data is
@@ -130,7 +153,7 @@ public class J1939DaRepository {
                                                                   }
                                                                   return new Object[] { pgnDef, spnDef };
                                                               } catch (ParseError e) {
-                                                                  System.err.format("%d %s \n\t%s%n",
+                                                                  System.err.format("%d %s %n\t%s%n",
                                                                                     reader.getLinesRead(),
                                                                                     e.getMessage(),
                                                                                     Arrays.asList(line));
@@ -191,6 +214,7 @@ public class J1939DaRepository {
      *
      * @return Map of SLOT ID to Slot
      */
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "Several places in the calls down the stack can return null")
     private Map<Integer, Slot> loadSlots() {
         Map<Integer, Slot> slots = new HashMap<>();
         String[] values;
@@ -382,15 +406,6 @@ public class J1939DaRepository {
         }
     }
 
-    private static String shortenLabel(String label) {
-        label = label.replaceAll("Aftertreatment", "AFT");
-        label = label.replaceAll("Diesel Particulate Filter", "DPF");
-        label = label.replaceAll("Diesel Exhaust Fluid", "DEF");
-        label = label.replaceAll("Selective Catalytic Reduction", "SCR");
-        label = label.replaceAll("Exhaust Gas Recirculation", "EGR");
-        return label;
-    }
-
     public PgnDefinition findPgnDefinition(int pgn) {
         loadLookUpTables();
         PgnDefinition pgnDefinition = pgnLut.get(pgn);
@@ -401,26 +416,17 @@ public class J1939DaRepository {
         return pgnDefinition;
     }
 
-    public Slot findSLOT(int id) {
-        return findSLOT(id, 0);
+    private static String shortenLabel(String label) {
+        label = label.replaceAll("Aftertreatment", "AFT");
+        label = label.replaceAll("Diesel Particulate Filter", "DPF");
+        label = label.replaceAll("Diesel Exhaust Fluid", "DEF");
+        label = label.replaceAll("Selective Catalytic Reduction", "SCR");
+        label = label.replaceAll("Exhaust Gas Recirculation", "EGR");
+        return label;
     }
 
-    public Slot findSLOT(int id, int spn) {
-        if (slots == null) {
-            slots = loadSlots();
-        }
-
-        Slot slot = slots.get(id);
-        if (slot == null) {
-            slot = slots.get(-spn);
-        }
-        if (slot == null) {
-            if (id != -1) {
-                getLogger().log(Level.INFO, "Unable to find SLOT " + id);
-            }
-            return new Slot(id, "Unknown", "UNK", 1.0, 0.0, null, 0);
-        }
-        return slot;
+    public Slot findSLOT(int id) {
+        return findSLOT(id, 0);
     }
 
     public SpnDefinition findSpnDefinition(int spn) {

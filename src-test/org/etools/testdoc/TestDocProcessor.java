@@ -1,5 +1,7 @@
 package org.etools.testdoc;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.Arrays;
@@ -23,6 +25,8 @@ import javax.tools.StandardLocation;
 
 import org.junit.Test;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class TestDocProcessor extends AbstractProcessor {
     public TestDocProcessor() {
     }
@@ -33,7 +37,8 @@ public class TestDocProcessor extends AbstractProcessor {
         return result;
     }
 
-    private boolean generateMapDoc(Set<? extends Element> elements) {
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "This method has several places null can be returned")
+    private void generateMapDoc(Set<? extends Element> elements) {
         class ItemDescriptor implements Comparable<ItemDescriptor> {
             final String clas;
 
@@ -67,16 +72,21 @@ public class TestDocProcessor extends AbstractProcessor {
                 if (i == b.length) {
                     return 1;
                 }
-                int ai = Integer.MAX_VALUE;
-                int bi = Integer.MAX_VALUE;
+
+                int ai;
                 try {
                     ai = Integer.parseInt(a[i]);
                 } catch (NumberFormatException e) {
+                    ai = Integer.MAX_VALUE;
                 }
+
+                int bi;
                 try {
                     bi = Integer.parseInt(b[i]);
                 } catch (NumberFormatException e) {
+                    bi = Integer.MAX_VALUE;
                 }
+
                 int c = ai - bi;
                 if (c == 0) {
                     c = a[i].compareTo(b[i]);
@@ -84,8 +94,8 @@ public class TestDocProcessor extends AbstractProcessor {
                 return c == 0 ? compareVersion(i + 1, a, b) : c;
             }
 
-            int compareVersion(String a, String b) {
-                return compareVersion(0, a.split("[ \\.]"), b.split("[ \\.]"));
+            private int compareVersion(String a, String b) {
+                return compareVersion(0, a.split("[ .]"), b.split("[ .]"));
             }
 
             @Override
@@ -123,7 +133,7 @@ public class TestDocProcessor extends AbstractProcessor {
                                                     dependsOn = Stream.concat(Stream.of(tdDependOn),
                                                                               Stream.of(classDeps.getOrDefault(className,
                                                                                                                new String[0])))
-                                                                      .toArray(x -> new String[x]);
+                                                                      .toArray(String[]::new);
 
                                                     // add record for class (will be redundant, but removed
                                                     // in a later distinct
@@ -181,8 +191,8 @@ public class TestDocProcessor extends AbstractProcessor {
             out.write("<html>\n");
             // out.write("<link rel=\"stylesheet\" href=\"testdoc.css\">\n");
             // embed style for a single file solution
-            try (InputStreamReader in = new InputStreamReader(
-                                                              TestDocProcessor.class.getResourceAsStream("/style.html"))) {
+            try (InputStreamReader in = new InputStreamReader(TestDocProcessor.class.getResourceAsStream("/style.html"),
+                                                              UTF_8)) {
                 in.transferTo(out);
             }
             out.write("<h1>Test Plan</h1>\n");
@@ -206,11 +216,9 @@ public class TestDocProcessor extends AbstractProcessor {
             // index by test
 
             out.write("</html>\n");
-            return true;
         } catch (Throwable e1) {
             e1.printStackTrace();
         }
-        return false;
     }
 
     @Override

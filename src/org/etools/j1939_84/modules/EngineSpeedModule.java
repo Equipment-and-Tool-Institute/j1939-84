@@ -138,6 +138,8 @@ public class EngineSpeedModule extends FunctionalModule {
                               case 61443:
                                   processPedalPositionPacket(p);
                                   break;
+                              default:
+                                  break;
                           }
                       });
         });

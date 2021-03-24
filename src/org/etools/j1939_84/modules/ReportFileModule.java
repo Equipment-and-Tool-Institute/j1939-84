@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.modules;
 
+import static java.util.logging.Level.SEVERE;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.J1939_84.PAGE_BREAK;
 
@@ -16,7 +17,6 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -25,6 +25,8 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.VehicleInformation;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * The {@link FunctionalModule} that's responsible for the log file
@@ -94,7 +96,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
             write(result);
             writer.flush();
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error Writing to file", e);
+            logger.log(SEVERE, "Error Writing to file", e);
         }
     }
 
@@ -114,7 +116,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
                 writer.close();
             }
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error writing end of program statement", e);
+            logger.log(SEVERE, "Error writing end of program statement", e);
         }
     }
 
@@ -161,6 +163,8 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
         writer.write(result + NL);
     }
 
+    @SuppressFBWarnings(value = { "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE",
+            "REC_CATCH_EXCEPTION" }, justification = "Several places in the calls down the stack can return null")
     private void writeFinalReport() {
         try {
             String pageHeader = bannerModule.getHeader() + NL
@@ -219,10 +223,15 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
             tempWriter.close();
 
             File raw = new File(reportFile + ".raw");
-            reportFile.renameTo(raw);
+            boolean reNameSuccess = reportFile.renameTo(raw);
+            if (!reNameSuccess) {
+                logger.log(SEVERE, "Unable to rename file");
+            }
             Files.copy(tempFilePath, reportFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            raw.delete();
-
+            boolean copySuccess = raw.delete();
+            if (!copySuccess) {
+                logger.log(SEVERE, "Unable to delete file");
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
