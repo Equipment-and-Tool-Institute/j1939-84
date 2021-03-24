@@ -83,7 +83,7 @@ public class Part09Step13Controller extends StepController {
                    .filter(s -> s.getMalfunctionIndicatorLampStatus() != OFF)
                    .map(s -> Lookup.getAddressName(address))
                    .forEach(moduleName -> {
-                       addFailure("6.9.13.2.a - " + moduleName + " reported MIL not off for all reported DTCs");
+                       addFailure("6.9.13.2.a - " + moduleName + " MIL is not reported off for all reported DTCs");
                    });
         }
 

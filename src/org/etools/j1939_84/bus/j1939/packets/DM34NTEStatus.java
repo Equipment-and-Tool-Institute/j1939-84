@@ -110,6 +110,16 @@ public class DM34NTEStatus extends GenericPacket {
         return pmNTEDeficiencyAreaStatus;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
     private void parsePacket() {
         noxNTEControlAreaStatus = AreaStatus.findValue(getShaveAndAHaircut(0, 0xC0, 6));
         noxNTECarveOutAreaStatus = AreaStatus.findValue(getShaveAndAHaircut(0, 0x30, 4));

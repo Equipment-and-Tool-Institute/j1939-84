@@ -103,10 +103,6 @@ public abstract class DiagnosticReadinessPacketTest {
     public void testGetContinuouslyMonitoredSystemsComprehensiveComponentMonitoring2() {
 
         final String name = "Comprehensive component   ";
-        MonitoredSystemStatus status = findStatus(false, true);
-        CompositeSystem systemId = CompositeSystem.COMPREHENSIVE_COMPONENT;
-
-        DiagnosticReadinessPacket instance = createInstance(0, 0, 0, 0x00, 0, 0, 0, 0);
 
         validateContinuouslyMonitoredSystems(name, 0, 0x04, findStatus(true, true));
         validateContinuouslyMonitoredSystems(name, 0, 0x40, findStatus(false, false));

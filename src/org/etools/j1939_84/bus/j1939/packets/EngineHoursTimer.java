@@ -6,6 +6,7 @@ package org.etools.j1939_84.bus.j1939.packets;
 import static org.etools.j1939_84.bus.j1939.packets.ParsedPacket.to4Ints;
 import static org.etools.j1939_84.utils.CollectionUtils.join;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -21,7 +22,7 @@ public class EngineHoursTimer {
     private final int[] data;
 
     public EngineHoursTimer(int[] bytes) {
-        data = bytes;
+        data = Arrays.copyOf(bytes, bytes.length);
         eiAecdNumber = bytes[0];
         eiAecdTimer1 = getScaledLongValue(bytes, 1);
         eiAecdTimer2 = getScaledLongValue(bytes, 5);
@@ -73,7 +74,7 @@ public class EngineHoursTimer {
     }
 
     public int[] getData() {
-        return data;
+        return Arrays.copyOf(data, data.length);
     }
 
     public int getEiAecdNumber() {

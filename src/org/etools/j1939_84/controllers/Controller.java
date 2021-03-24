@@ -25,6 +25,8 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * The super class for the controllers that collect information from the vehicle
  * and generates the report
@@ -112,6 +114,7 @@ public abstract class Controller {
      * @throws InterruptedException
      *                                  if the ending was set to ABORTED or STOPPED
      */
+    @SuppressFBWarnings(value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", justification = "Artifact of bad design")
     protected void setEnding(Ending ending) throws InterruptedException {
         Controller.ending = ending;
         checkEnding();
@@ -355,6 +358,7 @@ public abstract class Controller {
      * @param maxSteps
      *                     the maximum number of steps in the operation
      */
+    @SuppressFBWarnings(value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", justification = "Artifact of bad design")
     protected void setupProgress(int maxSteps) {
         Controller.currentStep = 0;
         Controller.maxSteps = maxSteps;
@@ -374,6 +378,7 @@ public abstract class Controller {
     /**
      * Interrupts and ends the execution of the controller
      */
+    @SuppressFBWarnings(value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", justification = "Artifact of bad design")
     public void stop() {
         ending = Ending.STOPPED;
     }

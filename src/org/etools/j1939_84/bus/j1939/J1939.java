@@ -5,7 +5,6 @@ package org.etools.j1939_84.bus.j1939;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.SEVERE;
-import static java.util.logging.Level.WARNING;
 import static org.etools.j1939_84.J1939_84.getLogger;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.BUSY;
 
@@ -70,6 +69,8 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.DateTimeModule;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * A Wrapper around a {@link Bus} that provides functionality specific to SAE
  * J1939
@@ -78,6 +79,7 @@ import org.etools.j1939_84.modules.DateTimeModule;
  */
 public class J1939 {
 
+    private static final String FAILED_TO_SEND = "Failed to send - ";
     /**
      * The source address of the engine
      */
@@ -103,9 +105,7 @@ public class J1939 {
      */
     private static final long GLOBAL_WARN_TIMEOUT = 200;// milliseconds
 
-    private static final String LATE_BAM_RESPONSE = "Warning: Late BAM response: ";
-
-    private static final String LATE_DS_RESPONSE = "Warning: Late DS response: ";
+    private static final String LATE_RESPONSE = "TIMING: Late response - ";
 
     private static final String TIMEOUT_MESSAGE = "Timeout - No Response";
 
@@ -419,6 +419,7 @@ public class J1939 {
      *                     the {@link TimeUnit} for the timeout
      * @return         the resulting packet
      */
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "There are no null checks back up the line")
     public <T extends GenericPacket> Optional<Either<T, AcknowledgmentPacket>> read(Class<T> T,
                                                                                     int addr,
                                                                                     long timeout,
@@ -537,7 +538,7 @@ public class J1939 {
                 listener.onResult(sent.toTimeString());
                 lateTime = sent.getTimestamp().plus(GLOBAL_WARN_TIMEOUT, ChronoUnit.MILLIS);
             } else {
-                warn("Failed to send: " + request);
+                logWarning(listener, FAILED_TO_SEND + request);
                 lateTime = null;
             }
             Optional<Either<T, AcknowledgmentPacket>> result = stream.findFirst();
@@ -546,8 +547,9 @@ public class J1939 {
                 listener.onResult(pp.getPacket().toTimeString());
                 listener.onResult(pp.toString());
 
-                if (lateTime != null && pp.getPacket().getFragments().get(0).getTimestamp().isAfter(lateTime))
-                    listener.onResult(LATE_DS_RESPONSE + " " + pp.getPacket().getFragments().get(0).toTimeString());
+                if (lateTime != null && pp.getPacket().getFragments().get(0).getTimestamp().isAfter(lateTime)) {
+                    logTiming(listener, LATE_RESPONSE + " " + pp.getPacket().getFragments().get(0).toTimeString());
+                }
             },
                                    () -> listener.onResult(getDateTimeModule().getTime() + " " + TIMEOUT_MESSAGE));
 
@@ -629,10 +631,13 @@ public class J1939 {
 
                                  if (response.map(J1939::isBusy).orElse(true)) {
                                      // still busy, try one last time
-                                     warn("first DS request after global busy NACK: " + dsRequest + " -> " + response);
+                                     logInfo(
+                                             "first DS request after global busy NACK: " + dsRequest + " -> "
+                                                     + response);
                                      response = requestDSOnce(pgn, dsRequest, listener);
                                      if (response.map(J1939::isBusy).orElse(true)) {
-                                         warn("second DS request after global busy NACK: " + dsRequest + " -> "
+                                         logInfo(
+                                                 "second DS request after global busy NACK: " + dsRequest + " -> "
                                                  + response);
                                      }
                                  }
@@ -669,7 +674,7 @@ public class J1939 {
                 listener.onResult(sent.toTimeString());
                 lateTime = sent.getTimestamp().plus(GLOBAL_WARN_TIMEOUT, ChronoUnit.MILLIS);
             } else {
-                warn("Failed to send: " + request);
+                logWarning(listener, FAILED_TO_SEND + request);
                 lateTime = null;
             }
             List<Packet> lateBam = new ArrayList<>();
@@ -692,7 +697,7 @@ public class J1939 {
                            .map(rawPacket -> {
                                try {
                                    listener.onResult(rawPacket.toTimeString());
-                                   var pp = (Either<T, AcknowledgmentPacket>) process(rawPacket);
+                                   Either<T, AcknowledgmentPacket> pp= process(rawPacket);
                                    listener.onResult(pp.resolve().toString());
                                    return pp;
                                } catch (PacketException e) {
@@ -705,7 +710,7 @@ public class J1939 {
                            .collect(Collectors.toList());
             /* Log late fragments as raw packets. */
             lateBam.forEach(p -> {
-                listener.onResult(LATE_BAM_RESPONSE + " " + p.getFragments().get(0).toTimeString());
+                logTiming(listener, LATE_RESPONSE + " " + p.getFragments().get(0).toTimeString());
             });
 
             if (result.isEmpty()) {
@@ -746,7 +751,7 @@ public class J1939 {
                 if (sent != null) {
                     listener.onResult(sent.toTimeString());
                 } else {
-                    warn("Failed to send: " + request);
+                    logWarning(listener, FAILED_TO_SEND + request);
                 }
                 Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> first = stream.findFirst();
                 result = new BusResult<>(i > 0, first);
@@ -775,8 +780,18 @@ public class J1939 {
         }
     }
 
-    private void warn(String message) {
+    private void logTiming(ResultsListener listener, String message) {
         incrementWarning();
-        getLogger().log(WARNING, message);
+        listener.onResult(message);
+        getLogger().warning(message);
+    }
+
+    private void logWarning(ResultsListener listener, String message) {
+        listener.onResult(message);
+        getLogger().warning(message);
+    }
+
+    private void logInfo(String message) {
+        getLogger().info(message);
     }
 }

@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.ACK;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
@@ -219,11 +220,11 @@ public class Part07Step15ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestTestResult(any(), eq(0), eq(246), eq(5846), eq(31)))
                                                                                                 .thenReturn(BusResult.empty());
 
-        var nack = AcknowledgmentPacket.create(0, NACK);
+        var ack = AcknowledgmentPacket.create(0, ACK);
         when(diagnosticMessageModule.requestTestResult(any(), eq(0), eq(247), eq(123), eq(31)))
-                                                                                               .thenReturn(BusResult.of(nack));
+                                                                                               .thenReturn(BusResult.of(ack));
         when(diagnosticMessageModule.requestTestResult(any(), eq(0), eq(247), eq(456), eq(31)))
-                                                                                               .thenReturn(BusResult.of(nack));
+                                                                                               .thenReturn(BusResult.of(ack));
 
         runTest();
 
@@ -294,9 +295,9 @@ public class Part07Step15ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestTestResult(any(), eq(0), eq(247), eq(123), eq(31)))
                                                                                                .thenReturn(BusResult.of(dm30_123));
 
-        var nack = AcknowledgmentPacket.create(0, NACK);
+        var ack = AcknowledgmentPacket.create(0, ACK);
         when(diagnosticMessageModule.requestTestResult(any(), eq(0), eq(247), eq(456), eq(31)))
-                                                                                               .thenReturn(BusResult.of(nack));
+                                                                                               .thenReturn(BusResult.of(ack));
 
         runTest();
 
@@ -313,18 +314,19 @@ public class Part07Step15ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testFailureForNoNACK() {
+    public void testFailureForNACK() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var supportedSPN1 = SupportedSPN.create(123, true, true, true, 1);
         obdModuleInformation.setSupportedSPNs(List.of(supportedSPN1));
 
         dataRepository.putObdModule(obdModuleInformation);
 
+        var nack = AcknowledgmentPacket.create(0, NACK);
         when(diagnosticMessageModule.requestTestResult(any(), eq(0), eq(246), eq(5846), eq(31)))
-                                                                                                .thenReturn(BusResult.empty());
+                                                                                                .thenReturn(BusResult.of(nack));
 
         when(diagnosticMessageModule.requestTestResult(any(), eq(0), eq(247), eq(123), eq(31)))
-                                                                                               .thenReturn(BusResult.empty());
+                                                                                               .thenReturn(BusResult.of(nack));
 
         runTest();
 
@@ -336,7 +338,7 @@ public class Part07Step15ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.7.15.2.b - NACK not received from Engine #1 (0) which did not support an SPN (123) listed in its DM24 response");
+                                        "6.7.15.2.b - NACK received from Engine #1 (0) which did not support an SPN (123) listed in its DM24 response");
     }
 
 }

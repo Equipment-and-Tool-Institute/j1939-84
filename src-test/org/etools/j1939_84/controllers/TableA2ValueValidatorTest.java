@@ -4,7 +4,6 @@
 
 package org.etools.j1939_84.controllers;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
@@ -148,7 +147,9 @@ public class TableA2ValueValidatorTest {
 
         instance.reportWarnings(freezeFrame, listener, "6.1.2");
 
-        assertEquals("Unable to confirm engine speed" + NL, listener.getResults());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(1, 2, WARN, "6.1.2 - Unable to determine engine speed from freeze frame data");
     }
 
 }

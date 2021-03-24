@@ -22,6 +22,15 @@ public class DM11ClearActiveDTCsPacket extends AcknowledgmentPacket {
         response = parseResponse();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
     /**
      * Returns the response
      *

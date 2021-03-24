@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
-import org.etools.j1939_84.bus.j1939.packets.Slot;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -182,8 +181,7 @@ public class Part01Step12Controller extends StepController {
             // undefined or a not valid SLOT in Appendix A of J1939-71. See
             // Table A-7-2 3 for a list of the valid, SLOTs known to be
             // appropriate for use in test results.
-            Slot slot = result.getSlot();
-            int slotIdentifier = slot == null ? -1 : slot.getId();
+            int slotIdentifier = result.getSlot().getId();
             if (!VALID_SLOTS.contains(slotIdentifier)) {
                 addFailure("6.1.12.2.a (A7.1.c) - #" + slotIdentifier + " SLOT identifier for SPN " + spnId + " from "
                         + moduleName + " is invalid");

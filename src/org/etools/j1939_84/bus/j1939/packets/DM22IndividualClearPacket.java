@@ -28,7 +28,9 @@ public class DM22IndividualClearPacket extends GenericPacket {
         data[4] = 0xFF;
         data[5] = spn & 0xFF;
         data[6] = (spn >> 8) & 0xFF;
-        data[7] = (((spn >> 16) & 0x07) << 5) | (fmi & 0x1F);
+        data[7] = (((spn >> 16) & 0x07) << 5);
+        int maskedFMI = fmi & 0x1F;
+        data[7] = data[7] | maskedFMI;
         return new DM22IndividualClearPacket(Packet.create(PGN | destination, source, data));
     }
 

@@ -18,6 +18,8 @@ import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.modules.DateTimeModule;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Sends a Packet containing an id with data from a source onto the bus
  *
@@ -353,8 +355,17 @@ public class Packet {
      *                        the last data value to return
      * @return            int[]
      */
+    @SuppressFBWarnings(value = "UG_SYNC_SET_UNSYNC_GET", justification = "This method is not a reciprocal of the setData method")
     public int[] getData(int beginIndex, int endIndex) {
         return Arrays.copyOfRange(getData(), beginIndex, endIndex);
+    }
+
+    public int getPgn() {
+        int id = getId(0x3FFFF);
+        if (id < 0xF000) {
+            id &= 0xFF00;
+        }
+        return id;
     }
 
     /**
@@ -392,14 +403,6 @@ public class Packet {
      */
     public int getLength() {
         return getData().length;
-    }
-
-    public int getPgn() {
-        int id = getId(0x3FFFF);
-        if (id < 0xF000) {
-            id &= 0xFF00;
-        }
-        return id;
     }
 
     /**
@@ -484,12 +487,13 @@ public class Packet {
      *
      * @return a {@link String}
      */
-    // FIXME This is inlined some places and not others.
     public String toTimeString() {
-        return DateTimeModule.getInstance()
-                             .getTimeFormatter()
-                             .format(timestamp)
-                + " " + toString();
+        /*
+         * Collect data first, because timestamp is dynamic until the data is collected. This will block on the data. We
+         * want to report the timestamp of final packet.
+         */
+        String dataString = toString();
+        return DateTimeModule.getInstance().getTimeFormatter().format(timestamp) + " " + dataString;
     }
 
     static public class PacketException extends RuntimeException {

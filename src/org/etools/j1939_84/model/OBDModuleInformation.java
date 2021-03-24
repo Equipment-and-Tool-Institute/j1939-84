@@ -7,6 +7,7 @@ import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,8 @@ import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
@@ -50,12 +53,9 @@ public class OBDModuleInformation implements Cloneable {
         this.function = function;
     }
 
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Calling super.clone() will cause a crash")
     @Override
     public OBDModuleInformation clone() {
-        try {
-            super.clone();
-        } catch (CloneNotSupportedException ignored) {
-        }
         OBDModuleInformation obdInfo = new OBDModuleInformation(getSourceAddress(), getFunction());
         obdInfo.setScaledTestResults(getScaledTestResults());
         obdInfo.setSupportedSPNs(getSupportedSPNs());
@@ -135,6 +135,7 @@ public class OBDModuleInformation implements Cloneable {
     public void setScaledTestResults(List<ScaledTestResult> scaledTestResults) {
         this.scaledTestResults.clear();
         this.scaledTestResults.addAll(scaledTestResults);
+        Collections.sort(this.scaledTestResults);
     }
 
     public List<ScaledTestResult> getNonInitializedTests() {

@@ -131,7 +131,7 @@
     </target>
 
     <target name="compile.tests" depends="compile" description="Compiles the code to run unit tests">
-        <javac srcdir="${src-test}" destdir="${build}" includeantruntime="false" debug="true" target="11">
+        <javac srcdir="${src-test}" destdir="${build}" includeantruntime="false" debug="true" target="11" source="11">
             <classpath refid="unit.test.path"/>
             <compilerarg line="-s dist"/>
         </javac>

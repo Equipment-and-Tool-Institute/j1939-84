@@ -72,7 +72,7 @@ public class Part02Step13Controller extends StepController {
                  .filter(this::isMilNotOffAndNotAltOff)
                  .map(ParsedPacket::getModuleName)
                  .forEach(moduleName -> {
-                     addFailure("6.2.13.2.a - ECU " + moduleName + " reported MIL not off/alt-off");
+                     addFailure("6.2.13.2.a - " + moduleName + " did not report MIL 'off'");
                  });
 
         // b. Fail if NACK not received from OBD ECUs that did not provide DM31.

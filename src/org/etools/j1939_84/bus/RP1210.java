@@ -157,7 +157,6 @@ public class RP1210 {
             engine = new Engine(bus);
             return bus;
         } else {
-            // return new RP1210Bus(adapter, address, false);
             return new J1939TP(new RP1210Bus(adapter, address, true));
         }
     }

@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part02;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket.PGN;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
@@ -51,7 +52,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class Part02Step02ControllerTest extends AbstractControllerTest {
     private static final int PART_NUMBER = 2;
     private static final int STEP_NUMBER = 2;
-    final int PGN = DM5DiagnosticReadinessPacket.PGN;
+
     @Mock
     private BannerModule bannerModule;
 
@@ -152,9 +153,8 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                                                                               0x1E,
                                                                                               0xE0,
                                                                                               0x1E));
-        final int ackPgn = DM5DiagnosticReadinessPacket.PGN;
         AcknowledgmentPacket packet44 = new AcknowledgmentPacket(
-                                                                 Packet.create(ackPgn,
+                                                                 Packet.create(PGN,
                                                                                0x44,
                                                                                0x01,
                                                                                0x02,
@@ -227,9 +227,8 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                                                                               0xE0,
                                                                                               0x1E));
 
-        final int ackPgn = DM5DiagnosticReadinessPacket.PGN;
         AcknowledgmentPacket packet44 = new AcknowledgmentPacket(
-                                                                 Packet.create(ackPgn,
+                                                                 Packet.create(PGN,
                                                                                0x44,
                                                                                0x01,
                                                                                0x02,
@@ -340,9 +339,8 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                                                                               0x1E,
                                                                                               0xE0,
                                                                                               0x1E));
-        final int ackPgn = DM5DiagnosticReadinessPacket.PGN;
         AcknowledgmentPacket packet44 = new AcknowledgmentPacket(
-                                                                 Packet.create(ackPgn,
+                                                                 Packet.create(PGN,
                                                                                0x44,
                                                                                0x01,
                                                                                0x02,
@@ -415,9 +413,8 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                                                                               0x1E,
                                                                                               0xE0,
                                                                                               0x1E));
-        final int ackPgn = DM5DiagnosticReadinessPacket.PGN;
         AcknowledgmentPacket packet44 = new AcknowledgmentPacket(
-                                                                 Packet.create(ackPgn,
+                                                                 Packet.create(PGN,
                                                                                0x44,
                                                                                0x01,
                                                                                0x02,
@@ -507,10 +504,8 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testRun() {
-        final int pgn = DM5DiagnosticReadinessPacket.PGN;
-
         DM5DiagnosticReadinessPacket packet0 = new DM5DiagnosticReadinessPacket(
-                                                                                Packet.create(pgn,
+                                                                                Packet.create(PGN,
                                                                                               0x00,
                                                                                               0x00,
                                                                                               0x00,
@@ -521,7 +516,7 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                                                                               0xE0,
                                                                                               0x1E));
         DM5DiagnosticReadinessPacket packet17 = new DM5DiagnosticReadinessPacket(
-                                                                                 Packet.create(pgn,
+                                                                                 Packet.create(PGN,
                                                                                                0x17,
                                                                                                0x00,
                                                                                                0x00,
@@ -532,7 +527,7 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                                                                                0x00,
                                                                                                0x00));
         DM5DiagnosticReadinessPacket packet23 = new DM5DiagnosticReadinessPacket(
-                                                                                 Packet.create(pgn,
+                                                                                 Packet.create(PGN,
                                                                                                0x21,
                                                                                                0x00,
                                                                                                0x00,

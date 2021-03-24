@@ -38,6 +38,15 @@ public class DM24SPNSupportPacket extends GenericPacket {
         return new DM24SPNSupportPacket(Packet.create(PGN, source, data));
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
     private String createListingOfSpnForReporting(List<SupportedSPN> supportedSPNs, String reportTitle) {
         StringBuilder sb = new StringBuilder();
         sb.append("(").append(reportTitle).append(")").append(" [").append(NL);

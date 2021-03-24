@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.bus;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -123,7 +124,7 @@ public class RP1210BusTest {
                                               eq((short) 10))).thenReturn((short) -99);
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
             byte[] dest = arg0.getArgument(1);
-            byte[] src = "Testing Failure".getBytes();
+            byte[] src = "Testing Failure".getBytes(UTF_8);
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
         });
@@ -157,7 +158,7 @@ public class RP1210BusTest {
                                                                                                    .thenReturn((short) 134);
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 134), any())).thenAnswer(arg0 -> {
             byte[] dest = arg0.getArgument(1);
-            byte[] src = "Device Not Connected".getBytes();
+            byte[] src = "Device Not Connected".getBytes(UTF_8);
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
         });
@@ -188,7 +189,7 @@ public class RP1210BusTest {
                                               eq((short) 1))).thenReturn((short) -99);
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
             byte[] dest = arg0.getArgument(1);
-            byte[] src = "Testing Failure".getBytes();
+            byte[] src = "Testing Failure".getBytes(UTF_8);
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
         });
@@ -240,7 +241,7 @@ public class RP1210BusTest {
 
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
             byte[] dest = arg0.getArgument(1);
-            byte[] src = "Testing Failure".getBytes();
+            byte[] src = "Testing Failure".getBytes(UTF_8);
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
         });
@@ -296,7 +297,7 @@ public class RP1210BusTest {
 
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
             byte[] dest = arg0.getArgument(1);
-            byte[] src = "Testing Failure".getBytes();
+            byte[] src = "Testing Failure".getBytes(UTF_8);
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
         });
@@ -341,7 +342,7 @@ public class RP1210BusTest {
     public void testGetConnectionSpeed() throws Exception {
         when(rp1210Library.RP1210_SendCommand(eq((short) 45), eq((short) 1), any(), eq((short) 17))).then(arg0 -> {
             byte[] bytes = arg0.getArgument(2);
-            byte[] value = "500000".getBytes();
+            byte[] value = "500000".getBytes(UTF_8);
             System.arraycopy(value, 0, bytes, 0, value.length);
             return null;
         });
@@ -409,6 +410,7 @@ public class RP1210BusTest {
 
         assertEquals(packet, actual);
         verify(logger).log(eq(Level.FINE), anyString());
+        verify(logger).log(eq(Level.INFO), anyString());
         verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
                                                            any(byte[].class),
                                                            eq((short) 2048),
@@ -422,7 +424,7 @@ public class RP1210BusTest {
 
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
             byte[] dest = arg0.getArgument(1);
-            byte[] src = "Testing Failure".getBytes();
+            byte[] src = "Testing Failure".getBytes(UTF_8);
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
         });
@@ -476,6 +478,7 @@ public class RP1210BusTest {
 
         assertEquals(packet, actual);
         verify(logger).log(eq(Level.FINE), anyString());
+        verify(logger).log(eq(Level.INFO), anyString());
         verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
                                                            any(byte[].class),
                                                            eq((short) 2048),
@@ -522,6 +525,7 @@ public class RP1210BusTest {
 
         assertEquals(packet, actual);
         verify(logger).log(eq(Level.FINE), anyString());
+        verify(logger).log(eq(Level.INFO), anyString());
         verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
                                                            any(byte[].class),
                                                            eq((short) 2048),
@@ -597,7 +601,7 @@ public class RP1210BusTest {
 
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
             byte[] dest = arg0.getArgument(1);
-            byte[] src = "Testing Failure".getBytes();
+            byte[] src = "Testing Failure".getBytes(UTF_8);
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
         });

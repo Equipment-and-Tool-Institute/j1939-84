@@ -68,7 +68,6 @@ public class Part08Step10Controller extends StepController {
                                            .collect(Collectors.toList());
 
         var packets = filterPackets(dsResults);
-
         packets.forEach(this::save);
 
         // 6.8.10.2.a. Fail if DTC(s) reported in the freeze frame does not include either the DTC reported in DM12 or
@@ -81,13 +80,11 @@ public class Part08Step10Controller extends StepController {
                            + " did not include either the DTC reported in DM12 or DM23 earlier in this part");
                });
 
-        // 6.8.10.2.b. Fail if no freeze frame data (i.e. an empty freeze frame) is provided.
-        packets.stream()
-               .filter(p -> p.getFreezeFrames().isEmpty())
-               .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> {
-                   addFailure("6.8.10.2.b - " + moduleName + " provided no freeze frame data");
-               });
+        // 6.8.10.2.b. Fail if no ECU provides freeze frame data
+        boolean noFreezeFrames = packets.stream().allMatch(p -> p.getFreezeFrames().isEmpty());
+        if (noFreezeFrames) {
+            addFailure("6.8.10.2.b - No ECU provided freeze frame data");
+        }
 
         // 6.8.10.2.c. Fail if NACK not received from OBD that did not provide an DM25 message.
         checkForNACKsDS(packets, filterAcks(dsResults), "6.8.10.2.c");

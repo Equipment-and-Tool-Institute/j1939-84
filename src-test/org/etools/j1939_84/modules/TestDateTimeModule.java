@@ -31,7 +31,6 @@ public class TestDateTimeModule extends DateTimeModule {
                                                                                   .parseDefaulting(ChronoField.DAY_OF_YEAR,
                                                                                                    1)
                                                                                   .toFormatter();
-    public long pauseFor = -1;
     private long timeAsLong = 0L;
 
     /**
@@ -61,7 +60,6 @@ public class TestDateTimeModule extends DateTimeModule {
 
     @Override
     public void pauseFor(long milliseconds) {
-        pauseFor = milliseconds;
         timeAsLong += milliseconds;
     }
 

@@ -51,6 +51,15 @@ public class DM25ExpandedFreezeFrame extends GenericPacket {
         return freezeFrames;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
     public FreezeFrame getFreezeFrameWithDTC(DiagnosticTroubleCode dtc) {
         return getFreezeFrames().stream().filter(f -> f.getDtc().equals(dtc)).findFirst().orElse(null);
     }

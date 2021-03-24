@@ -38,7 +38,7 @@ public class ComponentIdentificationPacket extends GenericPacket {
      */
     public ComponentIdentificationPacket(Packet packet) {
         super(packet);
-        String str = new String(packet.getBytes());
+        String str = new String(packet.getBytes(), UTF_8);
         String[] array = str.split("\\*", -1);
         for (int i = 0; i < 4 && i < array.length; i++) {
             parts[i] = array[i];
@@ -75,6 +75,15 @@ public class ComponentIdentificationPacket extends GenericPacket {
     }
 
     @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+    @Override
     public String toString() {
         String result = getStringPrefix() + "{" + NL;
         String make = getMake();
@@ -82,7 +91,8 @@ public class ComponentIdentificationPacket extends GenericPacket {
         String model = getModel();
         result += "  Model: " + (model == null ? "" : model.trim()) + NL;
         String serialNumber = getSerialNumber();
-        result += "  Serial: " + (serialNumber == null ? "catca" : serialNumber.trim()) + NL;
+        // no need for null check here as getSerialNumer() handles null
+        result += "  Serial: " + serialNumber + NL;
         String unitNumber = getUnitNumber();
         result += "  Unit: " + (unitNumber == null ? "" : unitNumber.trim()) + NL;
         result += "}" + NL;

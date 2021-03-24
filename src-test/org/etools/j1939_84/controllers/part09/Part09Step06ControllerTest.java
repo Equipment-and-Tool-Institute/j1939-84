@@ -130,8 +130,9 @@ public class Part09Step06ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         ScaledTestResult str1 = ScaledTestResult.create(247, 123, 14, 0, 5, 10, 1);
-        ScaledTestResult str2 = ScaledTestResult.create(247, 456, 3, 0, 5, 10, 1);
-        obdModuleInformation.setNonInitializedTests(List.of(str1, str2));
+        ScaledTestResult str2 = ScaledTestResult.create(247, 123, 15, 0, 5, 10, 1);
+        ScaledTestResult str3 = ScaledTestResult.create(247, 456, 3, 0, 5, 10, 1);
+        obdModuleInformation.setNonInitializedTests(List.of(str1, str2, str3));
         dataRepository.putObdModule(obdModuleInformation);
 
         dataRepository.putObdModule(new OBDModuleInformation(1));

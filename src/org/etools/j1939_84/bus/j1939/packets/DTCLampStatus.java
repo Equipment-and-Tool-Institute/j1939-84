@@ -82,7 +82,7 @@ public class DTCLampStatus {
      * @return the data
      */
     public int[] getData() {
-        return data;
+        return Arrays.copyOf(data, data.length);
     }
 
     /**

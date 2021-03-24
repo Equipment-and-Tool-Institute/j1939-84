@@ -41,7 +41,7 @@ public class FreezeFrame {
     }
 
     public int[] getSpnData() {
-        return spnData;
+        return Arrays.copyOf(spnData, spnData.length);
     }
 
     public int[] getData() {

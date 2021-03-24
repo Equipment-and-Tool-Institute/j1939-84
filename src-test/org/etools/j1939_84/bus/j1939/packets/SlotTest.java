@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -297,7 +298,7 @@ public class SlotTest {
     @Test
     public void test5BytesASCII() {
         Slot slot = J1939DaRepository.findSlot(273, 0);
-        byte[] data = "12345".getBytes();
+        byte[] data = "12345".getBytes(UTF_8);
         assertEquals("12345", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
         assertFalse(slot.isError(data));
@@ -368,7 +369,7 @@ public class SlotTest {
     @Test
     public void test7BytesASCII() {
         Slot slot = J1939DaRepository.findSlot(110, 0);
-        byte[] data = "1234567".getBytes();
+        byte[] data = "1234567".getBytes(UTF_8);
         assertEquals("1234567", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
         assertFalse(slot.isError(data));
@@ -519,7 +520,7 @@ public class SlotTest {
     @Test
     public void testStarDelimitedASCII() {
         Slot slot = J1939DaRepository.findSlot(108, 0);
-        byte[] data = "1234567890*ASDFGHJKL".getBytes();
+        byte[] data = "1234567890*ASDFGHJKL".getBytes(UTF_8);
         assertEquals("1234567890", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
         assertFalse(slot.isError(data));

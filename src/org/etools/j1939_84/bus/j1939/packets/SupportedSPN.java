@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 import org.etools.j1939_84.bus.j1939.Lookup;
@@ -26,7 +27,7 @@ public class SupportedSPN {
      *                 the data that contains the information
      */
     public SupportedSPN(int[] data) {
-        this.data = data;
+        this.data = Arrays.copyOf(data, data.length);
         support = data[2] & 0x07;
         spn = SupportedSPN.parseSPN(data);
         length = (byte) (data[3] & 0xFF);
@@ -86,7 +87,7 @@ public class SupportedSPN {
     }
 
     public int[] getData() {
-        return data;
+        return Arrays.copyOf(data, data.length);
     }
 
     @Override
