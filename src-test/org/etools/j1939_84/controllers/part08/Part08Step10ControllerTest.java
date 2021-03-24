@@ -154,10 +154,15 @@ public class Part08Step10ControllerTest extends AbstractControllerTest {
         var nack = AcknowledgmentPacket.create(1, NACK);
         when(diagnosticMessageModule.requestDM25(any(), eq(1))).thenReturn(BusResult.of(nack));
 
+        dataRepository.putObdModule(new OBDModuleInformation(2));
+        var dm25_2 = DM25ExpandedFreezeFrame.create(2);
+        when(diagnosticMessageModule.requestDM25(any(), eq(2))).thenReturn(BusResult.of(dm25_2));
+
         runTest();
 
         verify(diagnosticMessageModule).requestDM25(any(), eq(0));
         verify(diagnosticMessageModule).requestDM25(any(), eq(1));
+        verify(diagnosticMessageModule).requestDM25(any(), eq(2));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -209,25 +214,39 @@ public class Part08Step10ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.8.10.2.b - Engine #1 (0) provided no freeze frame data");
+                                        "6.8.10.2.b - No ECU provided freeze frame data");
     }
 
     @Test
     public void testFailureForNoNACK() {
-        dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        when(diagnosticMessageModule.requestDM25(any(), eq(0))).thenReturn(BusResult.empty());
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        var dtc1 = DiagnosticTroubleCode.create(123, 4, 0, 1);
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
+        var dtc2 = DiagnosticTroubleCode.create(456, 4, 0, 1);
+        obdModuleInformation.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc2), 8);
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var ff1 = new FreezeFrame(dtc1, new int[0]);
+        var ff2 = new FreezeFrame(dtc2, new int[0]);
+
+        var dm25_0 = DM25ExpandedFreezeFrame.create(0, ff1, ff2);
+        when(diagnosticMessageModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(dm25_0));
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        when(diagnosticMessageModule.requestDM25(any(), eq(1))).thenReturn(BusResult.empty());
 
         runTest();
 
         verify(diagnosticMessageModule).requestDM25(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM25(any(), eq(1));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.8.10.2.c - OBD ECU Engine #1 (0) did not provide a NACK for the DS query");
+                                        "6.8.10.2.c - OBD ECU Engine #2 (1) did not provide a NACK for the DS query");
 
     }
 
