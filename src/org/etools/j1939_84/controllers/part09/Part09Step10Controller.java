@@ -74,16 +74,16 @@ public class Part09Step10Controller extends StepController {
                                                      .flatMap(Collection::stream)
                                                      .map(DM30ScaledTestResultsPacket::getTestResults)
                                                      .flatMap(Collection::stream)
+                                                     .peek(str -> {
+                                                         // 6.9.10.2.a. Fail if any test result not initialized.
+                                                         if (!str.isInitialized()) {
+                                                             addFailure("6.9.10.2.a - " + moduleName
+                                                                     + " reported test result for SPN = " + str.getSpn()
+                                                                     + ", FMI = " + str.getFmi()
+                                                                     + " is not initialized");
+                                                         }
+                                                     })
                                                      .collect(Collectors.toList());
-
-            // 6.9.10.2.a. Fail if any test result not initialized.
-            scaledTestResults.stream()
-                             .filter(scaledTestResult -> !scaledTestResult.isInitialized())
-                             .forEach(r -> {
-                                 addFailure("6.9.10.2.a - " + moduleName
-                                         + " reported test result for SPN = " + r.getSpn() + ", FMI = " + r.getFmi()
-                                         + " is not initialized");
-                             });
 
             // 6.9.10.2.b. Fail if any difference in what ECU+SPN+FMI combinations have test results compared to the
             // combinations identified in part 1 as having test results.
