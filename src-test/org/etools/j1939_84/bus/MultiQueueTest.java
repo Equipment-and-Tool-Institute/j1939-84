@@ -126,8 +126,7 @@ public class MultiQueueTest {
     }
 
     /**
-     * V
-     * erify that building a stream with a timeout works.
+     * Verify that building a stream with a timeout works.
      */
     @Test
     @TestDoc(description = "Verify that timeouts interrupts streams, so that a 410 ms stream only has 410 ms of data in it.")
