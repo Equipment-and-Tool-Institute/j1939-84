@@ -131,7 +131,6 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    // @Ignore("This test needs broken up")
     public void testActiveDtcFailure() {
         DM1ActiveDTCsPacket packet1 = new DM1ActiveDTCsPacket(
                                                               Packet.create(PGN,
@@ -224,7 +223,6 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    // @Ignore("This test needs broken up")
     public void testFailure() {
         DM1ActiveDTCsPacket packet1 = new DM1ActiveDTCsPacket(
                                                               Packet.create(PGN,
