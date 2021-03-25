@@ -70,6 +70,10 @@ public class Slot {
             return "Error";
         }
 
+        if (isFB(data)) {
+            return String.format("0x%X", value);
+        }
+
         String printedValue = String.format("%f", scale(value));
         if (unit != null) {
             return printedValue + " " + unit;
@@ -97,7 +101,7 @@ public class Slot {
             return Long.valueOf(value).doubleValue();
         }
 
-        if (isNotAvailable(data) || isError(data)) {
+        if (isNotAvailable(data) || isError(data) || isFB(data)) {
             return null;
         }
 
@@ -179,6 +183,19 @@ public class Slot {
         long error = ((long) 0xFE) << (length - 8);
         long maskedValue = value & mask;
         return maskedValue == error;
+    }
+
+    public boolean isFB(byte[] data) {
+        if (length == 1 || isAscii() || data.length == 0) {
+            return false;
+        }
+
+        long value = toValue(data);
+
+        long mask = ((long) 0xFF) << (length - 8);
+        long fb = ((long) 0xFB) << (length - 8);
+        long maskedValue = value & mask;
+        return maskedValue == fb;
     }
 
     public boolean isNotAvailable(byte[] data) {
