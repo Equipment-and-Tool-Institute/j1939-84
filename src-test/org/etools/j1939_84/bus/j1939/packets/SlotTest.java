@@ -116,11 +116,19 @@ public class SlotTest {
         assertEquals("Not Available", slot.asString(data));
         assertTrue(slot.isNotAvailable(data));
         assertFalse(slot.isError(data));
+        assertFalse(slot.isFB(data));
 
         data = new byte[] { (byte) 0xFE };
         assertEquals("Error", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
         assertTrue(slot.isError(data));
+        assertFalse(slot.isFB(data));
+
+        data = new byte[] { (byte) 0xFB };
+        assertEquals("0xFB", slot.asString(data));
+        assertFalse(slot.isNotAvailable(data));
+        assertFalse(slot.isError(data));
+        assertTrue(slot.isFB(data));
     }
 
     @Test
@@ -192,11 +200,19 @@ public class SlotTest {
         assertEquals("Not Available", slot.asString(data));
         assertTrue(slot.isNotAvailable(data));
         assertFalse(slot.isError(data));
+        assertFalse(slot.isFB(data));
 
         data = new byte[] { (byte) 0x00, (byte) 0xFE };
         assertEquals("Error", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
         assertTrue(slot.isError(data));
+        assertFalse(slot.isFB(data));
+
+        data = new byte[] { (byte) 0x00, (byte) 0xFB };
+        assertEquals("0xFB00", slot.asString(data));
+        assertFalse(slot.isNotAvailable(data));
+        assertFalse(slot.isError(data));
+        assertTrue(slot.isFB(data));
     }
 
     @Test
@@ -254,6 +270,13 @@ public class SlotTest {
         assertEquals("Error", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
         assertTrue(slot.isError(data));
+        assertFalse(slot.isFB(data));
+
+        data = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFB };
+        assertEquals("0xFB0000", slot.asString(data));
+        assertFalse(slot.isNotAvailable(data));
+        assertFalse(slot.isError(data));
+        assertTrue(slot.isFB(data));
     }
 
     @Test
@@ -288,11 +311,19 @@ public class SlotTest {
         assertEquals("Not Available", slot.asString(data));
         assertTrue(slot.isNotAvailable(data));
         assertFalse(slot.isError(data));
+        assertFalse(slot.isFB(data));
 
         data = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xFE };
         assertEquals("Error", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
         assertTrue(slot.isError(data));
+        assertFalse(slot.isFB(data));
+
+        data = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xFB };
+        assertEquals("0xFB000000", slot.asString(data));
+        assertFalse(slot.isNotAvailable(data));
+        assertFalse(slot.isError(data));
+        assertTrue(slot.isFB(data));
     }
 
     @Test

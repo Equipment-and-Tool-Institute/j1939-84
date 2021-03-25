@@ -9,7 +9,6 @@ import static org.etools.j1939_84.utils.CollectionUtils.join;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.Packet;
 
@@ -47,6 +46,7 @@ public class DM24SPNSupportPacket extends GenericPacket {
     public int hashCode() {
         return super.hashCode();
     }
+
     private String createListingOfSpnForReporting(List<SupportedSPN> supportedSPNs, String reportTitle) {
         StringBuilder sb = new StringBuilder();
         sb.append("(").append(reportTitle).append(")").append(" [").append(NL);
@@ -69,28 +69,47 @@ public class DM24SPNSupportPacket extends GenericPacket {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(getStringPrefix()).append(NL);
-        List<SupportedSPN> scaledResults = getSupportedSpns()
-                                                             .stream()
-                                                             .filter(SupportedSPN::supportsScaledTestResults)
-                                                             .collect(Collectors.toList());
+        sb.append(getStringPrefix()).append("[").append(NL);
 
-        sb.append(createListingOfSpnForReporting(scaledResults, "Supporting Scaled Test Results"));
-
-        List<SupportedSPN> supportsDataStreamsResults = getSupportedSpns()
-                                                                          .stream()
-                                                                          .filter(SupportedSPN::supportsDataStream)
-                                                                          .collect(Collectors.toList());
-
-        sb.append(createListingOfSpnForReporting(supportsDataStreamsResults, "Supports Data Stream Results"));
-
-        List<SupportedSPN> supportsFreezeFrameResults = getSupportedSpns()
-                                                                          .stream()
-                                                                          .filter(SupportedSPN::supportsExpandedFreezeFrame)
-                                                                          .collect(Collectors.toList());
-
-        sb.append(createListingOfSpnForReporting(supportsFreezeFrameResults, "Supports Freeze Frame Results"));
+        sb.append("  D F T F").append(NL);
+        sb.append("  a r e F").append(NL);
+        sb.append("  t F s l").append(NL);
+        sb.append("  a r t n  SPN — SP Name").append(NL);
+        sb.append("  ----------------------").append(NL);
+        getSupportedSpns().forEach(supportedSPN -> sb.append(createRow(supportedSPN)).append(NL));
+        sb.append("]").append(NL);
         return sb.toString();
+    }
+
+    private static String createRow(SupportedSPN supportedSPN) {
+        String result = "  ";
+        if (supportedSPN.supportsDataStream()) {
+            result += "D ";
+        } else {
+            result += "  ";
+        }
+
+        if (supportedSPN.supportsExpandedFreezeFrame()) {
+            result += "F ";
+        } else {
+            result += "  ";
+        }
+
+        if (supportedSPN.supportsScaledTestResults()) {
+            result += "T ";
+        } else {
+            result += "  ";
+        }
+
+        result += supportedSPN.getLength();
+        if (supportedSPN.getLength() >= 10) {
+            result += " ";
+        } else {
+            result += "  ";
+        }
+
+        result += supportedSPN.toString();
+        return result;
     }
 
     /**
