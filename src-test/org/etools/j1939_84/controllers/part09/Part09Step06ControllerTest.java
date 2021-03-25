@@ -129,22 +129,22 @@ public class Part09Step06ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        ScaledTestResult str1 = ScaledTestResult.create(247, 123, 14, 0, 5, 10, 1);
         ScaledTestResult str2 = ScaledTestResult.create(247, 123, 15, 0, 5, 10, 1);
         ScaledTestResult str3 = ScaledTestResult.create(247, 456, 3, 0, 5, 10, 1);
-        obdModuleInformation.setNonInitializedTests(List.of(str1, str2, str3));
+        obdModuleInformation.setNonInitializedTests(List.of(str2, str3));
         dataRepository.putObdModule(obdModuleInformation);
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str1);
+        ScaledTestResult str1 = ScaledTestResult.create(247, 123, 14, 0, 0, 0, 0);
+        var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str1, str2);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
                                                         eq(247),
                                                         eq(123),
                                                         eq(31))).thenReturn(List.of(dm30_123));
 
-        var dm30_456 = DM30ScaledTestResultsPacket.create(0, 0, str2);
+        var dm30_456 = DM30ScaledTestResultsPacket.create(0, 0, str3);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
                                                         eq(247),
@@ -165,12 +165,12 @@ public class Part09Step06ControllerTest extends AbstractControllerTest {
     public void testFailureForInitializeTest() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         ScaledTestResult str1 = ScaledTestResult.create(247, 123, 13, 0, 5, 10, 1);
-        ScaledTestResult str2 = ScaledTestResult.create(247, 123, 14, 0, 0, 0, 0);
         obdModuleInformation.setNonInitializedTests(List.of(str1));
         dataRepository.putObdModule(obdModuleInformation);
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
+        ScaledTestResult str2 = ScaledTestResult.create(247, 123, 13, 0, 0, 0, 0);
         var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str2);
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
@@ -187,7 +187,7 @@ public class Part09Step06ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.9.6.2.a - Engine #1 (0) reported test result for SPN = 123, FMI = 14 is now initialized");
+                                        "6.9.6.2.a - Engine #1 (0) reported test result for SPN = 123, FMI = 13 is now initialized");
     }
 
 }

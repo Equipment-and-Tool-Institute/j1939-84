@@ -72,6 +72,7 @@ public class Part09Step06Controller extends StepController {
                              .map(DM30ScaledTestResultsPacket::getTestResults)
                              .flatMap(Collection::stream)
                              .filter(ScaledTestResult::isInitialized)
+                             .filter(str -> moduleInformation.getNonInitializedTests().contains(str))
                              .forEach(r -> {
                                  addFailure("6.9.6.2.a - " + moduleInformation.getModuleName()
                                          + " reported test result for SPN = " + r.getSpn() + ", FMI = " + r.getFmi()
