@@ -18,6 +18,8 @@ import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -31,7 +33,6 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -130,8 +131,8 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    @Ignore("This test needs broken up")
-    public void testFailures() {
+    // @Ignore("This test needs broken up")
+    public void testActiveDtcFailure() {
         DM1ActiveDTCsPacket packet1 = new DM1ActiveDTCsPacket(
                                                               Packet.create(PGN,
                                                                             0x01,
@@ -153,6 +154,93 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                                               Packet.create(PGN,
                                                                             0x17,
                                                                             0x00,
+                                                                            0xFF,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0xFF));
+        DM1ActiveDTCsPacket packet3 = new DM1ActiveDTCsPacket(
+                                                              Packet.create(PGN,
+                                                                            0x03,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0xFF));
+        DM1ActiveDTCsPacket packet4 = new DM1ActiveDTCsPacket(
+                                                              Packet.create(PGN,
+                                                                            0x05,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0xFF));
+        DM1ActiveDTCsPacket packet5 = new DM1ActiveDTCsPacket(
+                                                              Packet.create(PGN,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0xFF));
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        dataRepository.putObdModule(new OBDModuleInformation(3));
+
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet1, packet2, packet3, packet4, packet5));
+
+        runTest();
+
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).readDM1(any());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.15.2.a - OBD ECU Engine #2 (1) reported an active DTC");
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "A.8 - Alternate coding for off (0b00, 0b00) has been accepted");
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.15.2.d - OBD ECU Engine #2 (1) reported SPN conversion method (SPN 1706) equal to binary 1");
+
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    // @Ignore("This test needs broken up")
+    public void testFailure() {
+        DM1ActiveDTCsPacket packet1 = new DM1ActiveDTCsPacket(
+                                                              Packet.create(PGN,
+                                                                            0x01,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0xFF));
+        DM1ActiveDTCsPacket packet2 = new DM1ActiveDTCsPacket(
+                                                              Packet.create(PGN,
+                                                                            0x17,
+                                                                            0x00,
                                                                             0x00,
                                                                             0x61,
                                                                             0x02,
@@ -169,54 +257,35 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         DM1ActiveDTCsPacket packet3 = new DM1ActiveDTCsPacket(
                                                               Packet.create(PGN,
                                                                             0x03,
-                                                                            0xAA,
-                                                                            0x55,
-                                                                            0x61,
-                                                                            0x02,
-                                                                            0x13,
-                                                                            0x80,
-                                                                            0x21,
-                                                                            0x06,
-                                                                            0x1F,
                                                                             0x00,
-                                                                            0xEE,
-                                                                            0x10,
-                                                                            0x04,
-                                                                            0x00));
-        DM1ActiveDTCsPacket packet4 = new DM1ActiveDTCsPacket(
-                                                              Packet.create(PGN,
+                                                                            0xFF,
                                                                             0x00,
-                                                                            0x40,
                                                                             0x00,
-                                                                            0x61,
-                                                                            0x02,
-                                                                            0x13,
-                                                                            0x80,
-                                                                            0x21,
-                                                                            0x06,
-                                                                            0x1F,
                                                                             0x00,
-                                                                            0xEE,
-                                                                            0x10,
-                                                                            0x04,
-                                                                            0x00));
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0xFF));
+        DM1ActiveDTCsPacket packet4 = new DM1ActiveDTCsPacket(Packet.create(PGN,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0xFF));
         DM1ActiveDTCsPacket packet5 = new DM1ActiveDTCsPacket(
                                                               Packet.create(PGN,
+                                                                            0x05,
                                                                             0x00,
-                                                                            0xC0,
-                                                                            0xC0,
-                                                                            0x61,
-                                                                            0x02,
-                                                                            0x13,
+                                                                            0xFF,
                                                                             0x00,
-                                                                            0x21,
-                                                                            0x06,
-                                                                            0x1F,
                                                                             0x00,
-                                                                            0xEE,
-                                                                            0x10,
-                                                                            0x04,
-                                                                            0x00));
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0xFF));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
@@ -231,61 +300,91 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.15.2.a - OBD ECU Engine #2 (1) reported an active DTC");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.15.2.a - OBD ECU Transmission #1 (3) reported an active DTC");
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.15.2.b - OBD ECU Engine #2 (1) did not report MIL 'off'");
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.15.2.b - OBD ECU Transmission #1 (3) did not report MIL 'off'");
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        WARN,
-                                        "A.8 - Alternate coding for off (0b00, 0b00) has been accepted");
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        WARN,
-                                        "6.1.15.3.a - OBD ECU Engine #2 (1) reported the non-preferred MIL off format per Section A.8");
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.15.2.d - OBD ECU Engine #2 (1) reported SPN conversion method (SPN 1706) equal to binary 1");
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.15.2.d - OBD ECU Transmission #1 (3) reported SPN conversion method (SPN 1706) equal to binary 1");
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
                                         "6.1.15.2.c - Non-OBD ECU Instrument Cluster #1 (23) did not report MIL off or not supported");
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.15.2.c - Non-OBD ECU Engine #1 (0) did not report MIL off or not supported");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
                                         "6.1.15.3.b - Non-OBD ECU Instrument Cluster #1 (23) reported SPN conversion method (SPN 1706) equal to 1");
 
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testSpnConversionFailures() {
+        DM1ActiveDTCsPacket packet1 = new DM1ActiveDTCsPacket(Packet.create(PGN,
+                                                                            0x01,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0xFF));
+        DM1ActiveDTCsPacket packet2 = new DM1ActiveDTCsPacket(Packet.create(PGN,
+                                                                            0x17,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0xFF));
+        var dtc = DiagnosticTroubleCode.create(123, 12, 1, 5);
+        DM1ActiveDTCsPacket packet3 = DM1ActiveDTCsPacket.create(0x03,
+                                                                 LampStatus.OFF,
+                                                                 LampStatus.OFF,
+                                                                 LampStatus.OFF,
+                                                                 LampStatus.OFF,
+                                                                 dtc);
+
+        DM1ActiveDTCsPacket packet4 = new DM1ActiveDTCsPacket(Packet.create(PGN,
+                                                                            0x85,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0xFF));
+        DM1ActiveDTCsPacket packet5 = new DM1ActiveDTCsPacket(Packet.create(PGN,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0xFF));
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        dataRepository.putObdModule(new OBDModuleInformation(3));
+
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet1, packet2, packet3, packet4, packet5));
+
+        runTest();
+
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).readDM1(any());
+
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
-                                        "6.1.15.3.b - Non-OBD ECU Engine #1 (0) reported SPN conversion method (SPN 1706) equal to 1");
+                                        FAIL,
+                                        "6.1.15.2.a - OBD ECU Transmission #1 (3) reported an active DTC");
+
+        // verify(mockListener).addOutcome(PART_NUMBER,
+        // STEP_NUMBER,
+        // FAIL,
+        // "6.1.15.2.b - OBD ECU Transmission #1 (3) did not report MIL 'off'");
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.15.2.d - OBD ECU Transmission #1 (3) reported SPN conversion method (SPN 1706) equal to binary 1");
 
         assertEquals("", listener.getResults());
     }
@@ -308,8 +407,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testRun() {
-        DM1ActiveDTCsPacket packet1 = new DM1ActiveDTCsPacket(
-                                                              Packet.create(PGN,
+        DM1ActiveDTCsPacket packet1 = new DM1ActiveDTCsPacket(Packet.create(PGN,
                                                                             0x01,
                                                                             0x00,
                                                                             0xFF,
@@ -319,8 +417,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                                                             0x00,
                                                                             0xFF,
                                                                             0xFF));
-        DM1ActiveDTCsPacket packet2 = new DM1ActiveDTCsPacket(
-                                                              Packet.create(PGN,
+        DM1ActiveDTCsPacket packet2 = new DM1ActiveDTCsPacket(Packet.create(PGN,
                                                                             0x17,
                                                                             0x00,
                                                                             0xFF,
@@ -345,6 +442,88 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).readDM1(any());
+
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testFailures() {
+        var dtc = DiagnosticTroubleCode.create(123, 12, 1, 5);
+        var packet1 = DM1ActiveDTCsPacket.create(0x01,
+                                                 LampStatus.ON,
+                                                 LampStatus.OFF,
+                                                 LampStatus.OFF,
+                                                 LampStatus.OFF,
+                                                 dtc);
+        DM1ActiveDTCsPacket packet2 = new DM1ActiveDTCsPacket(
+                                                              Packet.create(PGN,
+                                                                            0x17,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0xFF));
+        DM1ActiveDTCsPacket packet3 = new DM1ActiveDTCsPacket(
+                                                              Packet.create(PGN,
+                                                                            0x03,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0xFF));
+        DM1ActiveDTCsPacket packet4 = new DM1ActiveDTCsPacket(
+                                                              Packet.create(PGN,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0xFF));
+        DM1ActiveDTCsPacket packet5 = new DM1ActiveDTCsPacket(
+                                                              Packet.create(PGN,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0xFF));
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        dataRepository.putObdModule(new OBDModuleInformation(3));
+
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet1, packet2, packet3, packet4, packet5));
+
+        runTest();
+
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).readDM1(any());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.15.2.a - OBD ECU Engine #2 (1) reported an active DTC");
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.15.2.b - OBD ECU Engine #2 (1) did not report MIL 'off'");
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.15.2.d - OBD ECU Engine #2 (1) reported SPN conversion method (SPN 1706) equal to binary 1");
 
         assertEquals("", listener.getResults());
     }
