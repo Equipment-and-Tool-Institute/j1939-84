@@ -578,6 +578,10 @@ public class J1939Test {
             }
         }).start();
         TestResultsListener listener = new TestResultsListener();
+        new J1939(new J1939TP(bus2, 0xF9)).requestDS("VIN",
+                                                     VehicleIdentificationPacket.class,
+                                                     0,
+                                                     listener);
         /* verify there is a warning */
         assertTrue(listener.getResults()
                            .matches(
