@@ -477,33 +477,12 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                                                             0x00,
                                                                             0xFF,
                                                                             0xFF));
-        DM1ActiveDTCsPacket packet4 = new DM1ActiveDTCsPacket(
-                                                              Packet.create(PGN,
-                                                                            0x00,
-                                                                            0x00,
-                                                                            0xFF,
-                                                                            0x00,
-                                                                            0x00,
-                                                                            0x00,
-                                                                            0x00,
-                                                                            0xFF,
-                                                                            0xFF));
-        DM1ActiveDTCsPacket packet5 = new DM1ActiveDTCsPacket(
-                                                              Packet.create(PGN,
-                                                                            0x00,
-                                                                            0x00,
-                                                                            0xFF,
-                                                                            0x00,
-                                                                            0x00,
-                                                                            0x00,
-                                                                            0x00,
-                                                                            0xFF,
-                                                                            0xFF));
+
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet1, packet2, packet3, packet4, packet5));
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet1, packet2, packet3));
 
         runTest();
 
