@@ -26,6 +26,7 @@ public class Part08Step06Controller extends StepController {
     private static final int PART_NUMBER = 8;
     private static final int STEP_NUMBER = 6;
     private static final int TOTAL_STEPS = 0;
+    private static final byte NA = (byte) 0xFF;
 
     Part08Step06Controller() {
         this(Executors.newSingleThreadScheduledExecutor(),
@@ -59,27 +60,32 @@ public class Part08Step06Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.8.6.1.a Global DM5 [(send Request (PGN 59904) for PGN 65230 (SPNs 1218-1223)]).
-        var globalPackets = getDiagnosticMessageModule().requestDM5(getListener()).getPackets();
+        var obdPackets = getDiagnosticMessageModule().requestDM5(getListener())
+                                                     .getPackets()
+                                                     .stream()
+                                                     .filter(p -> isObdModule(p.getSourceAddress()))
+                                                     .collect(Collectors.toList());
 
         // 6.8.6.2.a Fail if any OBD ECU reports different number of DTCs than corresponding DM1 response earlier
         // this part.
-        globalPackets.stream()
-                     .filter(p -> p.getActiveCodeCount() != dm1Count(p.getSourceAddress()))
-                     .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> {
-                         addFailure("6.8.6.2.a - " + moduleName
-                                 + " reported different number of DTCs than correspond DM1 response earlier in this part");
-                     });
+        obdPackets.stream()
+                  .filter(p -> p.getActiveCodeCount() != dm1Count(p.getSourceAddress()))
+                  .map(ParsedPacket::getModuleName)
+                  .forEach(moduleName -> {
+                      addFailure("6.8.6.2.a - " + moduleName
+                              + " reported different number of DTCs than correspond DM1 response earlier in this part");
+                  });
 
         // 6.8.6.2.a Fail if any OBD ECU reports different number of DTCs than corresponding DM2 response earlier
-        // this part.
-        globalPackets.stream()
-                     .filter(p -> p.getPreviouslyActiveCodeCount() != dm2Count(p.getSourceAddress()))
-                     .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> {
-                         addFailure("6.8.6.2.a - " + moduleName
-                                 + " reported different number of DTCs than correspond DM2 response earlier in this part");
-                     });
+        // this part. [Ignore previously active count when DM2 is not supported.]
+        obdPackets.stream()
+                  .filter(p -> dm2Count(p.getSourceAddress()) != NA)
+                  .filter(p -> p.getPreviouslyActiveCodeCount() != dm2Count(p.getSourceAddress()))
+                  .map(ParsedPacket::getModuleName)
+                  .forEach(moduleName -> {
+                      addFailure("6.8.6.2.a - " + moduleName
+                              + " reported different number of DTCs than correspond DM2 response earlier in this part");
+                  });
 
         // 6.8.6.3.a DS DM5 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
@@ -88,7 +94,7 @@ public class Part08Step06Controller extends StepController {
                                            .collect(Collectors.toList());
 
         // 6.8.6.4.a Fail if any difference in data compared to global response.
-        compareRequestPackets(globalPackets, filterPackets(dsResults), "6.8.6.4.a");
+        compareRequestPackets(obdPackets, filterPackets(dsResults), "6.8.6.4.a");
     }
 
     private byte dm1Count(int address) {
@@ -101,7 +107,7 @@ public class Part08Step06Controller extends StepController {
 
     private byte getDTCCount(Class<? extends DiagnosticTroubleCodePacket> clazz, int address) {
         DiagnosticTroubleCodePacket packet = get(clazz, address, 8);
-        return packet == null ? (byte) 0xFF : (byte) packet.getDtcs().size();
+        return packet == null ? NA : (byte) packet.getDtcs().size();
     }
 
 }

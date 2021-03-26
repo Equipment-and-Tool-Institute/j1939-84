@@ -143,7 +143,7 @@ public class Part08Step06ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM5(any(), eq(0))).thenReturn(BusResult.of(dm5_0));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
-        var dm5_1 = DM5DiagnosticReadinessPacket.create(1, 0xFF, 0xFF, 0x22);
+        var dm5_1 = DM5DiagnosticReadinessPacket.create(1, 0xFF, 0, 0x22);
         when(diagnosticMessageModule.requestDM5(any(), eq(1))).thenReturn(BusResult.of(dm5_1));
 
         when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5_0, dm5_1));
