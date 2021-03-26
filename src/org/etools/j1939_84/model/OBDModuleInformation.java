@@ -19,8 +19,6 @@ import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
  */
@@ -31,7 +29,14 @@ public class OBDModuleInformation implements Cloneable {
     private final int function;
 
     /** These SPNs represent SP which appear in multiple PGs. */
-    private final List<Integer> omittedSPNs = new ArrayList<>(List.of(588, 1213, 1220, 12675, 12730, 12783, 12797));
+    private final List<Integer> omittedSPNs = new ArrayList<>(List.of(588,
+                                                                      976,
+                                                                      1213,
+                                                                      1220,
+                                                                      12675,
+                                                                      12730,
+                                                                      12783,
+                                                                      12797));
 
     // TODO this should be removed and tests re-factored to save a DM24 instead
     private final List<SupportedSPN> supportedSPNs = new ArrayList<>();
@@ -53,7 +58,6 @@ public class OBDModuleInformation implements Cloneable {
         this.function = function;
     }
 
-    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Calling super.clone() will cause a crash")
     @Override
     public OBDModuleInformation clone() {
         OBDModuleInformation obdInfo = new OBDModuleInformation(getSourceAddress(), getFunction());
