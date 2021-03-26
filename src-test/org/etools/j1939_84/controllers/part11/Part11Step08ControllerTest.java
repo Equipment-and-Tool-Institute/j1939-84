@@ -143,21 +143,43 @@ public class Part11Step08ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var ratio3058_1 = new PerformanceRatio(3058, 1, 1, 0);
         var ratio123_1 = new PerformanceRatio(123, 1, 1, 0);
-        obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0, 1, 1, ratio3058_1, ratio123_1), 1);
+        var ratio5322_1 = new PerformanceRatio(5322, 0xFFFF, 0xFFFF, 0);
+        obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0,
+                                                                          1,
+                                                                          1,
+                                                                          ratio3058_1,
+                                                                          ratio123_1,
+                                                                          ratio5322_1),
+                                 1);
 
         var ratio3058_9 = new PerformanceRatio(3058, 1, 2, 0);
         var ratio123_9 = new PerformanceRatio(123, 1, 2, 0);
-        obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0, 3, 3, ratio3058_9, ratio123_9), 9);
+        var ratio5322_9 = new PerformanceRatio(5322, 0xFFFF, 0xFFFF, 0);
+        obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0,
+                                                                          3,
+                                                                          3,
+                                                                          ratio3058_9,
+                                                                          ratio123_9,
+                                                                          ratio5322_9),
+                                 9);
 
         var ratio3058_11 = new PerformanceRatio(3058, 1, 2, 0);
         var ratio123_11 = new PerformanceRatio(123, 1, 2, 0);
-        obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0, 3, 3, ratio3058_11, ratio123_11), 11);
+        var ratio5322_11 = new PerformanceRatio(5322, 0xFFFF, 0xFFFF, 0);
+        obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0,
+                                                                          3,
+                                                                          3,
+                                                                          ratio3058_11,
+                                                                          ratio123_11,
+                                                                          ratio5322_11),
+                                 11);
 
         dataRepository.putObdModule(obdModuleInformation);
 
         var ratio3058 = new PerformanceRatio(3058, 2, 3, 0);
         var ratio123 = new PerformanceRatio(123, 2, 2, 0);
-        var dm20 = DM20MonitorPerformanceRatioPacket.create(0, 4, 4, ratio3058, ratio123);
+        var ratio5322 = new PerformanceRatio(5322, 0xFFFF, 0xFFFF, 0);
+        var dm20 = DM20MonitorPerformanceRatioPacket.create(0, 4, 4, ratio3058, ratio123, ratio5322);
         when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(BusResult.of(dm20));
 
         // Module 1 won't be queried
