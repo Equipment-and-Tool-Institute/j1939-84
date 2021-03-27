@@ -65,9 +65,9 @@ public class DM33EmissionIncreasingAECDActiveTime extends GenericPacket {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(getStringPrefix()).append("{");
-        getEiAecdEngineHoursTimers().forEach(timer -> sb.append(NL).append(timer.toString()));
-        sb.append(NL).append("}").append(NL);
+        StringBuilder sb = new StringBuilder(getStringPrefix()).append("[").append(NL);
+        getEiAecdEngineHoursTimers().forEach(timer -> sb.append("  ").append(timer.toString()).append(NL));
+        sb.append("]").append(NL);
         return sb.toString();
     }
 

@@ -64,20 +64,19 @@ public class FreezeFrame {
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder("Freeze Frame: {");
-        result.append(NL);
-        result.append(getDtc()).append(NL);
-        result.append("SPN Data: ")
+        StringBuilder result = new StringBuilder("  Freeze Frame: {").append(NL);
+        result.append("    ").append(getDtc()).append(NL);
+        result.append("    SPN Data: ")
               .append(Arrays.stream(getSpnData())
                             .mapToObj(x -> String.format("%02X", x))
                             .collect(Collectors.joining(" ")))
               .append(NL);
 
         getSPNs().stream().sorted().forEach(spn -> {
-            result.append(spn.toString()).append(NL);
+            result.append("    ").append(spn.toString()).append(NL);
         });
 
-        result.append("}");
+        result.append("  }");
 
         return result.toString();
     }

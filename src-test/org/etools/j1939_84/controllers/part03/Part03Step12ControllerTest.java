@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
@@ -172,7 +173,13 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule).requestDM24(any(), eq(0));
 
-        assertEquals("", listener.getResults());
+        String expected = "";
+        expected += "SPs Supported in Expanded Freeze Frame from Engine #1 (0): [" + NL;
+        expected += "  LN  SPN — SP Name" + NL;
+        expected += "  -----------------" + NL;
+        expected += "   1  SPN 123 - Transmission Clutch 1 Pressure" + NL;
+        expected += "]" + NL + NL;
+        assertEquals(expected, listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
