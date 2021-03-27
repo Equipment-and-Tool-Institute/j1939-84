@@ -34,7 +34,7 @@ public class Part11Step08Controller extends StepController {
     private static final int STEP_NUMBER = 8;
     private static final int TOTAL_STEPS = 0;
 
-    private static final Collection<Integer> CI_SPNS = Set.of(5322, 5318, 3058, 3064, 5321, 3055, 4792, 5308, 4364);
+    private static final Collection<Integer> CI_SPNS = Set.of(5318, 3058, 3064, 5321, 3055, 4792, 5308, 4364);
 
     private static final Collection<Integer> SI_SPNS = Set.of(3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057);
 

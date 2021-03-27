@@ -378,10 +378,6 @@ public class Part11Step08ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.11.8.3.a - Engine #1 (0) response indicates denominator for monitor SPN 5322 AFT NMHC Converting Catalyst System Monitor has not incremented by one");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        WARN,
                                         "6.11.8.3.a - Engine #1 (0) response indicates denominator for monitor SPN 5318 AFT Exhaust Gas Sensor System Monitor has not incremented by one");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
