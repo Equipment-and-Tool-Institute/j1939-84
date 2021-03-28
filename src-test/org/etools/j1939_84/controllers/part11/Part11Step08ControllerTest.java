@@ -406,6 +406,101 @@ public class Part11Step08ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testWarningForMonitorDenominatorNotIncreasingForSIEngines() {
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(FuelType.GAS);
+        dataRepository.setVehicleInformation(vehicleInformation);
+
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        var ratio3050_1 = new PerformanceRatio(3050, 1, 1, 0);
+        var ratio3055_1 = new PerformanceRatio(3055, 1, 1, 0);
+        var ratio3056_1 = new PerformanceRatio(3056, 1, 1, 0);
+        var ratio3058_1 = new PerformanceRatio(3058, 1, 1, 0);
+        var ratio5318_1 = new PerformanceRatio(5318, 1, 1, 0);
+        var ratio5321_1 = new PerformanceRatio(5321, 1, 1, 0);
+        obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0,
+                                                                          1,
+                                                                          1,
+                                                                          ratio3050_1,
+                                                                          ratio3055_1,
+                                                                          ratio3056_1,
+                                                                          ratio3058_1,
+                                                                          ratio5318_1,
+                                                                          ratio5321_1),
+                                 1);
+
+        var ratio3058_9 = new PerformanceRatio(3058, 1, 2, 0);
+        obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0, 3, 3, ratio3058_9), 9);
+
+        var ratio3050_11 = new PerformanceRatio(3050, 1, 1, 0);
+        var ratio3055_11 = new PerformanceRatio(3055, 1, 1, 0);
+        var ratio3056_11 = new PerformanceRatio(3056, 1, 1, 0);
+        var ratio3058_11 = new PerformanceRatio(3058, 1, 1, 0);
+        var ratio5318_11 = new PerformanceRatio(5318, 1, 1, 0);
+        var ratio5321_11 = new PerformanceRatio(5321, 1, 1, 0);
+        obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0,
+                                                                          3,
+                                                                          3,
+                                                                          ratio3050_11,
+                                                                          ratio3055_11,
+                                                                          ratio3056_11,
+                                                                          ratio3058_11,
+                                                                          ratio5318_11,
+                                                                          ratio5321_11),
+                                 11);
+
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var ratio3050 = new PerformanceRatio(3050, 1, 1, 0);
+        var ratio3055 = new PerformanceRatio(3055, 1, 1, 0);
+        var ratio3056 = new PerformanceRatio(3056, 1, 1, 0);
+        var ratio3058 = new PerformanceRatio(3058, 1, 1, 0);
+        var ratio5318 = new PerformanceRatio(5318, 1, 1, 0);
+        var ratio5321 = new PerformanceRatio(5321, 1, 1, 0);
+        var dm20 = DM20MonitorPerformanceRatioPacket.create(0,
+                                                            4,
+                                                            4,
+                                                            ratio3050,
+                                                            ratio3055,
+                                                            ratio3056,
+                                                            ratio3058,
+                                                            ratio5318,
+                                                            ratio5321);
+        when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(BusResult.of(dm20));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM20(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.11.8.3.a - Engine #1 (0) response indicates denominator for monitor SPN 3050 Catalyst Bank 1 System Monitor has not incremented by one");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.11.8.3.a - Engine #1 (0) response indicates denominator for monitor SPN 3055 Engine Fuel System Monitor has not incremented by one");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.11.8.3.a - Engine #1 (0) response indicates denominator for monitor SPN 3056 Oxygen (or Exhaust Gas) Sensor Bank 1 Monitor has not incremented by one");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.11.8.3.a - Engine #1 (0) response indicates denominator for monitor SPN 3058 Engine EGR System Monitor has not incremented by one");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.11.8.3.a - Engine #1 (0) response indicates denominator for monitor SPN 5318 AFT Exhaust Gas Sensor System Monitor has not incremented by one");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.11.8.3.a - Engine #1 (0) response indicates denominator for monitor SPN 5321 Engine Intake Manifold Pressure System Monitor has not incremented by one");
+    }
+
+    @Test
     public void testWarningForMonitorDenominatorGreaterThanGeneralDenominator() {
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.DSL);

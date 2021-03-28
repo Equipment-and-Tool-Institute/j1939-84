@@ -34,14 +34,21 @@ public class Part11Step08Controller extends StepController {
     private static final int STEP_NUMBER = 8;
     private static final int TOTAL_STEPS = 0;
 
-    private static final Collection<Integer> SPNS = Set.of(3055, // Fuel System
-                                                           3058, // EGR
-                                                           4364, // SCR
-                                                           4792, // SCR
-                                                           5308, // SCR
-                                                           5318, // NOx Sensor
-                                                           5321 // Boost
+    private static final Collection<Integer> CI_SPNS = Set.of(3055, // Fuel System
+                                                              3058, // EGR
+                                                              4364, // SCR
+                                                              4792, // SCR
+                                                              5308, // SCR
+                                                              5318, // NOx Sensor
+                                                              5321 // Boost
+    );
 
+    private static final Collection<Integer> SI_SPNS = Set.of(3050, // Catalyst
+                                                              3055, // Fuel System
+                                                              3056, // O2 Sensor
+                                                              3058, // EGR
+                                                              5318, // NOx Sensor
+                                                              5321 // Boost
     );
 
     Part11Step08Controller() {
@@ -279,7 +286,13 @@ public class Part11Step08Controller extends StepController {
     }
 
     private boolean isRatioOfInterest(PerformanceRatio ratio) {
-        return SPNS.contains(ratio.getSpn());
+        if (getFuelType().isSparkIgnition()) {
+            return SI_SPNS.contains(ratio.getSpn());
+        } else if (getFuelType().isCompressionIgnition()) {
+            return CI_SPNS.contains(ratio.getSpn());
+        } else {
+            return false;
+        }
     }
 
 }
