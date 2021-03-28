@@ -34,9 +34,15 @@ public class Part11Step08Controller extends StepController {
     private static final int STEP_NUMBER = 8;
     private static final int TOTAL_STEPS = 0;
 
-    private static final Collection<Integer> CI_SPNS = Set.of(5318, 3058, 3064, 5321, 3055, 4792, 5308, 4364);
+    private static final Collection<Integer> SPNS = Set.of(3055, // Fuel System
+                                                           3058, // EGR
+                                                           4364, // SCR
+                                                           4792, // SCR
+                                                           5308, // SCR
+                                                           5318, // NOx Sensor
+                                                           5321 // Boost
 
-    private static final Collection<Integer> SI_SPNS = Set.of(3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057);
+    );
 
     Part11Step08Controller() {
         this(Executors.newSingleThreadScheduledExecutor(),
@@ -109,7 +115,8 @@ public class Part11Step08Controller extends StepController {
         // 6.11.8.2.c. Fail if NACK received from OBD ECUs that previously provided a DM20 message.
         checkForNACKsDS(packets, filterAcks(dsResults), "6.11.8.2.c", addresses);
 
-        // 6.11.8.3.a. Warn if any response indicates denominator for SCR, EGR, NOx sensor, boost, and fuel system
+        // 6.11.8.3.a. Warn if any response indicates denominator for
+        // SCR, EGR, NOx sensor, boost, and fuel system
         // have not incremented by one.
         for (DM20MonitorPerformanceRatioPacket packet : packets) {
             packet.getRatios()
@@ -272,13 +279,7 @@ public class Part11Step08Controller extends StepController {
     }
 
     private boolean isRatioOfInterest(PerformanceRatio ratio) {
-        if (getFuelType().isSparkIgnition()) {
-            return SI_SPNS.contains(ratio.getSpn());
-        } else if (getFuelType().isCompressionIgnition()) {
-            return CI_SPNS.contains(ratio.getSpn());
-        } else {
-            return false;
-        }
+        return SPNS.contains(ratio.getSpn());
     }
 
 }
