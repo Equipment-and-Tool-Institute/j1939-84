@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.Lookup;
 
 /**
  * Parses the SPN Support (DM24) Packet
@@ -45,20 +46,6 @@ public class DM24SPNSupportPacket extends GenericPacket {
     @Override
     public int hashCode() {
         return super.hashCode();
-    }
-
-    private String createListingOfSpnForReporting(List<SupportedSPN> supportedSPNs, String reportTitle) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("(").append(reportTitle).append(")").append(" [").append(NL);
-        if (supportedSPNs.isEmpty()) {
-            sb.append("  No Supported SPNs").append(NL);
-        } else {
-            supportedSPNs.forEach(supportedSPN -> {
-                sb.append("  ").append(supportedSPN).append(NL);
-            });
-        }
-        sb.append("]").append(NL);
-        return sb.toString();
     }
 
     @Override
@@ -138,6 +125,23 @@ public class DM24SPNSupportPacket extends GenericPacket {
             }
         }
         return freezeFrameSPNs;
+    }
+
+    public String printFreezeFrameSPNsInOrder() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SPs Supported in Expanded Freeze Frame from ")
+          .append(Lookup.getAddressName(getSourceAddress()))
+          .append(": [")
+          .append(NL);
+        sb.append("  LN  SPN — SP Name").append(NL);
+        sb.append("  -----------------").append(NL);
+        getFreezeFrameSPNsInOrder().forEach(supportedSPN -> sb.append(createFreezeFrameRow(supportedSPN)).append(NL));
+        sb.append("]").append(NL);
+        return sb.toString();
+    }
+
+    private static String createFreezeFrameRow(SupportedSPN supportedSPN) {
+        return String.format("  %1$2s  " + supportedSPN.toString(), supportedSPN.getLength());
     }
 
     /**

@@ -28,8 +28,8 @@ public class DM25ExpandedFreezeFrameTest {
         assertEquals(0, freezeFrame.size());
         String expected = "DM25 from Engine #1 (0): " + NL;
         expected += "Freeze Frames: [" + NL;
-        expected += "No Freeze Frames" + NL;
-        expected += "]";
+        expected += "  No Freeze Frames" + NL;
+        expected += "]" + NL;
         assertEquals(expected, instance.toString());
     }
 
@@ -56,12 +56,12 @@ public class DM25ExpandedFreezeFrameTest {
         assertArrayEquals(new int[] { 0xFF, 0xFE, 0xFF, 0x00 }, freezeFrame.getSpnData());
         String expected = "DM25 from Engine #1 (0): " + NL;
         expected += "Freeze Frames: [" + NL;
-        expected += "Freeze Frame: {" + NL;
-        expected += "DTC 0:0 - Unknown, Data Valid But Above Normal Operational Range - Most Severe Level - 0 times"
+        expected += "  Freeze Frame: {" + NL;
+        expected += "    DTC 0:0 - Unknown, Data Valid But Above Normal Operational Range - Most Severe Level - 0 times"
                 + NL;
-        expected += "SPN Data: FF FE FF 00" + NL;
-        expected += "}" + NL;
-        expected += "]";
+        expected += "    SPN Data: FF FE FF 00" + NL;
+        expected += "  }" + NL;
+        expected += "]" + NL;
         assertEquals(expected, instance.toString());
     }
 
@@ -91,12 +91,12 @@ public class DM25ExpandedFreezeFrameTest {
 
         String expected = "DM25 from Engine #1 (0): " + NL;
         expected += "Freeze Frames: [" + NL;
-        expected += "Freeze Frame: {" + NL;
-        expected += "DTC 1:0 - Unknown, Data Valid But Above Normal Operational Range - Most Severe Level - 0 times"
+        expected += "  Freeze Frame: {" + NL;
+        expected += "    DTC 1:0 - Unknown, Data Valid But Above Normal Operational Range - Most Severe Level - 0 times"
                 + NL;
-        expected += "SPN Data: FF FF FF 00" + NL;
-        expected += "}" + NL;
-        expected += "]";
+        expected += "    SPN Data: FF FF FF 00" + NL;
+        expected += "  }" + NL;
+        expected += "]" + NL;
         assertEquals(expected, instance.toString());
     }
 
@@ -128,13 +128,13 @@ public class DM25ExpandedFreezeFrameTest {
         assertEquals(7, actual.getDtc().getFailureModeIndicator());
         String expected = "DM25 from Engine #1 (0): " + NL;
         expected += "Freeze Frames: [" + NL;
-        expected += "Freeze Frame: {" + NL;
-        expected += "DTC 157:7 - Engine Fuel 1 Injector Metering Rail 1 Pressure, Mechanical System Not Responding Or Out Of Adjustment"
+        expected += "  Freeze Frame: {" + NL;
+        expected += "    DTC 157:7 - Engine Fuel 1 Injector Metering Rail 1 Pressure, Mechanical System Not Responding Or Out Of Adjustment"
                 + NL;
-        expected += "SPN Data: 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF FA"
+        expected += "    SPN Data: 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF FA"
                 + NL;
-        expected += "}" + NL;
-        expected += "]";
+        expected += "  }" + NL;
+        expected += "]" + NL;
         assertEquals(expected, instance.toString());
     }
 
@@ -184,19 +184,19 @@ public class DM25ExpandedFreezeFrameTest {
 
         String expected = "DM25 from Engine #1 (0): " + NL;
         expected += "Freeze Frames: [" + NL;
-        expected += "Freeze Frame: {" + NL;
-        expected += "DTC 157:7 - Engine Fuel 1 Injector Metering Rail 1 Pressure, Mechanical System Not Responding Or Out Of Adjustment"
+        expected += "  Freeze Frame: {" + NL;
+        expected += "    DTC 157:7 - Engine Fuel 1 Injector Metering Rail 1 Pressure, Mechanical System Not Responding Or Out Of Adjustment"
                 + NL;
-        expected += "SPN Data: 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF FA"
+        expected += "    SPN Data: 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF FA"
                 + NL;
-        expected += "}" + NL;
-        expected += "Freeze Frame: {" + NL;
-        expected += "DTC 157:7 - Engine Fuel 1 Injector Metering Rail 1 Pressure, Mechanical System Not Responding Or Out Of Adjustment"
+        expected += "  }" + NL;
+        expected += "  Freeze Frame: {" + NL;
+        expected += "    DTC 157:7 - Engine Fuel 1 Injector Metering Rail 1 Pressure, Mechanical System Not Responding Or Out Of Adjustment"
                 + NL;
-        expected += "SPN Data: 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF FA"
+        expected += "    SPN Data: 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF FA"
                 + NL;
-        expected += "}" + NL;
-        expected += "]";
+        expected += "  }" + NL;
+        expected += "]" + NL;
 
         assertEquals(expected, instance.toString());
     }

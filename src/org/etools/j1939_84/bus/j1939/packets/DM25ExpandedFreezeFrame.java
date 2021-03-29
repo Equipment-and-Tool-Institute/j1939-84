@@ -75,13 +75,13 @@ public class DM25ExpandedFreezeFrame extends GenericPacket {
         sb.append(getStringPrefix()).append(NL);
         sb.append("Freeze Frames: [").append(NL);
         if (getFreezeFrames().isEmpty()) {
-            sb.append("No Freeze Frames").append(NL);
+            sb.append("  No Freeze Frames").append(NL);
         } else {
             for (FreezeFrame frameFrame : getFreezeFrames()) {
                 sb.append(frameFrame).append(NL);
             }
         }
-        sb.append("]");
+        sb.append("]").append(NL);
 
         return sb.toString();
     }

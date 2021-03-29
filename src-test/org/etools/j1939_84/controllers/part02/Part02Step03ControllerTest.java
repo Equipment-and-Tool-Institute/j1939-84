@@ -7,13 +7,10 @@ import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.BusResult;
@@ -22,7 +19,6 @@ import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
-import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
@@ -137,42 +133,19 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
     }, description = "Using a response that indicates that 6.2.3.2.b failed, verify that the failures are in the report.")
     public void testFailures() {
 
-        {
-            DM24SPNSupportPacket packet0 = mock(DM24SPNSupportPacket.class);
-            when(packet0.getSourceAddress()).thenReturn(0);
-            when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
-            List<SupportedSPN> supportedSPNs0 = new ArrayList<>();
-            SupportedSPN spn1 = mock(SupportedSPN.class);
-            supportedSPNs0.add(spn1);
-            SupportedSPN spn2 = mock(SupportedSPN.class);
-            supportedSPNs0.add(spn2);
-            when(packet0.getSupportedSpns()).thenReturn(supportedSPNs0);
+        SupportedSPN spn1 = SupportedSPN.create(123, true, true, true, 1);
 
-            OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
-            obdInfo0.setSupportedSPNs(List.of(spn1, spn2, mock(SupportedSPN.class)));
-            dataRepository.putObdModule(obdInfo0);
-        }
+        OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
+        obdInfo0.set(DM24SPNSupportPacket.create(0, spn1), 1);
+        dataRepository.putObdModule(obdInfo0);
 
-        {
-            DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
-            when(packet1.getSourceAddress()).thenReturn(1);
-            when(diagnosticMessageModule.requestDM24(any(), eq(1))).thenReturn(new BusResult<>(false, packet1));
-            List<SupportedSPN> supportedSpns = new ArrayList<>();
-            SupportedSPN spn1 = mock(SupportedSPN.class);
-            supportedSpns.add(spn1);
-            SupportedSPN spn2 = mock(SupportedSPN.class);
-            supportedSpns.add(spn2);
-            when(packet1.getSupportedSpns()).thenReturn(supportedSpns);
-
-            OBDModuleInformation obdInfo1 = new OBDModuleInformation(1);
-            obdInfo1.setSupportedSPNs(List.of(spn1));
-            dataRepository.putObdModule(obdInfo1);
-        }
+        SupportedSPN spn2 = SupportedSPN.create(456, true, true, true, 1);
+        DM24SPNSupportPacket packet0 = DM24SPNSupportPacket.create(0, spn2);
+        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
 
         runTest();
 
         verify(diagnosticMessageModule).requestDM24(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM24(any(), eq(1));
 
         assertEquals("", listener.getResults());
 
@@ -180,10 +153,6 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.2.3.2.a - Message data received from Engine #1 (0) differs from that provided in part 6.1.4");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.2.3.2.a - Message data received from Engine #2 (1) differs from that provided in part 6.1.4");
     }
 
     @Test
@@ -192,9 +161,6 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
         assertEquals("Display Name", "Part 2 Step 3", instance.getDisplayName());
     }
 
-    /**
-     * Test method for {@link StepController#getStepNumber()}.
-     */
     @Test
     public void testGetStepNumber() {
         assertEquals(STEP_NUMBER, instance.getStepNumber());
@@ -209,46 +175,19 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
     @Test
     @TestDoc(value = @TestItem(verifies = "6.2.3.2.b"), description = "Verify that step completes without errors when none of the fail criteria are met.")
     public void testNoFailures() {
+        SupportedSPN spn1 = SupportedSPN.create(123, true, true, true, 1);
+        SupportedSPN spn2 = SupportedSPN.create(456, true, true, true, 1);
+        OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
+        obdInfo0.set(DM24SPNSupportPacket.create(0, spn1, spn2), 1);
+        dataRepository.putObdModule(obdInfo0);
 
-        {
-            DM24SPNSupportPacket packet0 = mock(DM24SPNSupportPacket.class);
-            when(packet0.getSourceAddress()).thenReturn(0);
-            when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
-            List<SupportedSPN> supportedSPNs0 = new ArrayList<>();
-            SupportedSPN spn1 = mock(SupportedSPN.class);
-            supportedSPNs0.add(spn1);
-            SupportedSPN spn2 = mock(SupportedSPN.class);
-            supportedSPNs0.add(spn2);
-            when(packet0.getSupportedSpns()).thenReturn(supportedSPNs0);
-
-            OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
-            obdInfo0.setSupportedSPNs(List.of(spn1, spn2));
-            dataRepository.putObdModule(obdInfo0);
-        }
-
-        {
-            DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
-            when(packet1.getSourceAddress()).thenReturn(1);
-            when(diagnosticMessageModule.requestDM24(any(), eq(1))).thenReturn(new BusResult<>(false, packet1));
-            List<SupportedSPN> supportedSpns = new ArrayList<>();
-            SupportedSPN spn1 = mock(SupportedSPN.class);
-            supportedSpns.add(spn1);
-            SupportedSPN spn2 = mock(SupportedSPN.class);
-            supportedSpns.add(spn2);
-            when(packet1.getSupportedSpns()).thenReturn(supportedSpns);
-
-            OBDModuleInformation obdInfo1 = new OBDModuleInformation(1);
-            obdInfo1.setSupportedSPNs(List.of(spn1, spn2));
-            dataRepository.putObdModule(obdInfo1);
-        }
+        DM24SPNSupportPacket packet0 = DM24SPNSupportPacket.create(0, spn1, spn2);
+        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM24(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM24(any(), eq(1));
 
         assertEquals("", listener.getResults());
-
     }
 }

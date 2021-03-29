@@ -4,14 +4,12 @@
 package org.etools.j1939_84.controllers.part02;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -63,32 +61,24 @@ public class Part02Step03Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.2.3.1.a. DS DM24 (send Request (PGN 59904) for PGN 64950 (SPNs 3297, 4100-4103)) to each OBD ECU.
-        List<DM24SPNSupportPacket> packets = getDataRepository().getObdModuleAddresses()
-                                                                .stream()
-                                                                .sorted()
-                                                                .map(address -> getDiagnosticMessageModule().requestDM24(getListener(),
-                                                                                                                         address))
-                                                                .map(BusResult::getPacket)
-                                                                .filter(Optional::isPresent)
-                                                                .map(Optional::get)
-                                                                .map(p -> p.left)
-                                                                .filter(Optional::isPresent)
-                                                                .map(Optional::get)
-                                                                .collect(Collectors.toList());
+        var packets = getDataRepository().getObdModuleAddresses()
+                                         .stream()
+                                         .map(a -> getDiagnosticMessageModule().requestDM24(getListener(), a))
+                                         .flatMap(BusResult::toPacketStream)
+                                         .collect(Collectors.toList());
 
         // 6.2.3.2.a. Fail if the message data received differs from that provided in part 6.1.4
-        packets.forEach(packet -> {
-            int sourceAddress = packet.getSourceAddress();
-            OBDModuleInformation info = getDataRepository().getObdModule(sourceAddress);
-            if (info != null) {
-                List<SupportedSPN> part1SPNs = info.getSupportedSPNs();
-                List<SupportedSPN> part2SPNs = packet.getSupportedSpns();
-                if (!part1SPNs.equals(part2SPNs)) {
-                    addFailure("6.2.3.2.a - Message data received from " + Lookup.getAddressName(sourceAddress)
-                            + " differs from that provided in part 6.1.4");
-                }
-            }
-        });
+        packets.stream()
+               .filter(p -> !getPart1SPNs(p.getSourceAddress()).equals(p.getSupportedSpns()))
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> {
+                   addFailure("6.2.3.2.a - Message data received from " + moduleName
+                           + " differs from that provided in part 6.1.4");
+               });
+    }
 
+    private List<SupportedSPN> getPart1SPNs(int sourceAddress) {
+        OBDModuleInformation info = getDataRepository().getObdModule(sourceAddress);
+        return info == null ? List.of() : info.getSupportedSPNs();
     }
 }
