@@ -94,7 +94,7 @@ public class TableA7ValidatorTest {
         testResults.add(scaledTestResult(3251, 2));
         testResults.add(scaledTestResult(3936, 2));
         testResults.add(scaledTestResult(3936, 16));
-        testResults.add(scaledTestResult(3639, 18));
+        testResults.add(scaledTestResult(3936, 18));
         testResults.add(scaledTestResult(3713, 31));
         testResults.add(scaledTestResult(5319, 7));
         testResults.add(scaledTestResult(5319, 31));
