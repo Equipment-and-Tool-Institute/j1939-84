@@ -114,6 +114,7 @@ public class Part11Step08Controller extends StepController {
         for (DM20MonitorPerformanceRatioPacket packet : packets) {
             packet.getRatios()
                   .stream()
+                  .filter(PerformanceRatio::isSupported)
                   .filter(this::isRatioOfInterest)
                   .filter(r -> r.getDenominator() != getPart9RatioDenominator(r) + 1)
                   .map(PerformanceRatio::getName)
@@ -128,6 +129,7 @@ public class Part11Step08Controller extends StepController {
         for (DM20MonitorPerformanceRatioPacket packet : packets) {
             packet.getRatios()
                   .stream()
+                  .filter(PerformanceRatio::isSupported)
                   .filter(r -> r.getDenominator() > packet.getOBDConditionsCount())
                   .map(PerformanceRatio::getName)
                   .forEach(ratioName -> {
@@ -150,6 +152,7 @@ public class Part11Step08Controller extends StepController {
         for (DM20MonitorPerformanceRatioPacket packet : packets) {
             packet.getRatios()
                   .stream()
+                  .filter(PerformanceRatio::isSupported)
                   .filter(r -> r.getNumerator() > packet.getIgnitionCycles())
                   .map(PerformanceRatio::getName)
                   .forEach(ratioName -> {
@@ -163,6 +166,7 @@ public class Part11Step08Controller extends StepController {
         for (DM20MonitorPerformanceRatioPacket packet : packets) {
             packet.getRatios()
                   .stream()
+                  .filter(PerformanceRatio::isSupported)
                   .filter(r -> r.getNumerator() < getPart1RatioNumerator(r))
                   .map(PerformanceRatio::getName)
                   .forEach(ratioName -> {
@@ -175,6 +179,7 @@ public class Part11Step08Controller extends StepController {
         for (DM20MonitorPerformanceRatioPacket packet : packets) {
             packet.getRatios()
                   .stream()
+                  .filter(PerformanceRatio::isSupported)
                   .filter(r -> r.getDenominator() < getPart1RatioDenominator(r))
                   .map(PerformanceRatio::getName)
                   .forEach(ratioName -> {
