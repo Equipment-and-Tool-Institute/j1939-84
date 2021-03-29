@@ -88,24 +88,28 @@ public class Part12Step09Controller extends StepController {
         // 6.12.9.3.a. Global DM11.
         var globalPackets = getDiagnosticMessageModule().requestDM11(getListener());
 
+        var obdPackets = globalPackets.stream()
+                                      .filter(p -> isObdModule(p.getSourceAddress()))
+                                      .collect(Collectors.toList());
+
         // 6.12.9.3.b. Wait 5 seconds before checking for erased data.
         pause("Step 6.12.9.3.b - Waiting %1$d seconds before checking for erased data", 5);
 
         // 6.12.9.4.a. Fail if any OBD ECU responds with a NACK.
-        globalPackets.stream()
-                     .filter(p -> p.getResponse() == NACK)
-                     .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> {
-                         addFailure("6.12.9.4.a - " + moduleName + " responded with a NACK");
-                     });
+        obdPackets.stream()
+                  .filter(p -> p.getResponse() == NACK)
+                  .map(ParsedPacket::getModuleName)
+                  .forEach(moduleName -> {
+                      addFailure("6.12.9.4.a - " + moduleName + " responded with a NACK");
+                  });
 
         // 6.12.9.4.b. Warn if any OBD ECU responds with an ACK.
-        globalPackets.stream()
-                     .filter(p -> p.getResponse() == ACK)
-                     .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> {
-                         addWarning("6.12.9.4.b - " + moduleName + " responded with a ACK");
-                     });
+        obdPackets.stream()
+                  .filter(p -> p.getResponse() == ACK)
+                  .map(ParsedPacket::getModuleName)
+                  .forEach(moduleName -> {
+                      addWarning("6.12.9.4.b - " + moduleName + " responded with a ACK");
+                  });
 
         // 6.12.9.4.c. Check diagnostic information and fail if any ECU partially erases diagnostic information
         // (pass if it erases either all or none).
