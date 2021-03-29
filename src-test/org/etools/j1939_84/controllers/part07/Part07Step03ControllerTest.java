@@ -176,10 +176,6 @@ public class Part07Step03ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.7.3.2.a - No OBD ECU reported previously active DTC(s)");
     }
 
     @Test
