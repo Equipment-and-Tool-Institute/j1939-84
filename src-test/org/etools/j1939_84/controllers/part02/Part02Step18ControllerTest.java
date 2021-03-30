@@ -230,8 +230,7 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 2 Step 18");
 
-        String expectedMessages = "Step 6.2.18.1.a - Waiting for key off" + NL;
-        expectedMessages += "Step 6.2.18.1.b - Waiting for implant of Fault A according to the engine manufacturer's instruction"
+        String expectedMessages = "Step 6.2.18.1.b - Waiting for implant of Fault A according to the engine manufacturer's instruction"
                 + NL;
         expectedMessages += "Step 6.2.18.1.c - Waiting for engine start" + NL;
         expectedMessages += "User cancelled testing at Part 2 Step 18";

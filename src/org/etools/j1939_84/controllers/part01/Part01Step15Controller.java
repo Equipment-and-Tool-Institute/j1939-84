@@ -63,7 +63,7 @@ public class Part01Step15Controller extends StepController {
     @Override
     protected void run() throws Throwable {
 
-        // 6.1.15.1.a. Gather broadcast DM1 data from all ECUs (PGN 65226)
+        // 6.1.15.1.a. Gather broadcast DM1 data from all ECUs (PG 65226)
         List<DM1ActiveDTCsPacket> packets = getDiagnosticMessageModule().readDM1(getListener());
 
         // 6.1.15.2.a. Fail if any OBD ECU reports an active DTC.
@@ -100,30 +100,30 @@ public class Part01Step15Controller extends StepController {
                    addFailure("6.1.15.2.c - Non-OBD ECU " + moduleName + " did not report MIL off or not supported");
                });
 
-        // 6.1.15.2.d. Fail if any OBD ECU reports SPN conversion method (SPN 1706) equal to binary 1.
+        // 6.1.15.2.d. Fail if any OBD ECU reports SP conversion method (SP 1706) equal to binary 1.
         packets.stream()
                .filter(p -> isObdModule(p.getSourceAddress()))
                .filter(Part01Step15Controller::isConversionMethod1)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
                    addFailure("6.1.15.2.d - OBD ECU " + moduleName
-                           + " reported SPN conversion method (SPN 1706) equal to binary 1");
+                           + " reported SP conversion method (SP 1706) equal to binary 1");
                });
 
-        // 6.1.15.3.b. Warn if any non-OBD ECU reports SPN conversion method (SPN 1706) equal to 1.
+        // 6.1.15.3.b. Warn if any non-OBD ECU reports SP conversion method (SP 1706) equal to 1.
         packets.stream()
                .filter(p -> !isObdModule(p.getSourceAddress()))
                .filter(Part01Step15Controller::isConversionMethod1)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
                    addWarning("6.1.15.3.b - Non-OBD ECU " + moduleName
-                           + " reported SPN conversion method (SPN 1706) equal to 1");
+                           + " reported SP conversion method (SP 1706) equal to 1");
                });
 
         // 6.1.15.2.e Fail if no OBD ECU provides DM1
         boolean foundObdPacket = packets.stream().anyMatch(p -> isObdModule(p.getSourceAddress()));
         if (!foundObdPacket) {
-            addFailure("6.1.15.2 - No OBD ECU provided a DM1");
+            addFailure("6.1.15.2.e - No OBD ECU provided a DM1");
         }
     }
 

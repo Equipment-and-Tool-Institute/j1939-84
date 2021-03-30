@@ -182,7 +182,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
                     "VehicleInformationModuleTest.testRunHappyPath",
                     "VehicleInformationModuleTest.testRunNoModulesRespond",
                     "VehicleInformationModuleTest.testRunWithWarningsAndFailures" }),
-    }, description = "Verify vehicle data collection and that the correct instructions to the user are transmistted to the UI presenter.")
+    }, description = "Verify vehicle data collection and that the correct instructions to the user are transmitted to the UI presenter.")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testRun() {
 

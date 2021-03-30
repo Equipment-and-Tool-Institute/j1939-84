@@ -974,13 +974,14 @@ public class DiagnosticMessageModuleTest {
                 + NL;
         expected += "DM25 from Engine #1 (0): " + NL;
         expected += "Freeze Frames: [" + NL;
-        expected += "Freeze Frame: {" + NL;
-        expected += "DTC 157:7 - Engine Fuel 1 Injector Metering Rail 1 Pressure, Mechanical System Not Responding Or Out Of Adjustment"
+        expected += "  Freeze Frame: {" + NL;
+        expected += "    DTC 157:7 - Engine Fuel 1 Injector Metering Rail 1 Pressure, Mechanical System Not Responding Or Out Of Adjustment"
                 + NL;
-        expected += "SPN Data: 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF FA"
+        expected += "    SPN Data: 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF FA"
                 + NL;
-        expected += "}" + NL;
+        expected += "  }" + NL;
         expected += "]" + NL;
+        expected += NL;
 
         TestResultsListener listener = new TestResultsListener();
         BusResult<DM25ExpandedFreezeFrame> expectedResult = new BusResult<>(false, packet);
@@ -2033,12 +2034,12 @@ public class DiagnosticMessageModuleTest {
         expected += "10:15:30.0000 18EAFFA5 [3] 00 A1 00 (TX)" + NL;
         expected += "10:15:30.0000 18A10000 [36] 01 2B 0B 01 00 2B C4 0B 00 02 FE FE FE FE FF FF FF FF 03 FE FE FE FE 2C 0B 03 00 04 FF FF FF FE FE FE FE FF"
                 + NL;
-        expected += "DM33 Emission Increasing AECD Active Time from Engine #1 (0): {" + NL;
-        expected += "EI-AECD Number = 1: Timer 1 = 68395 minutes; Timer 2 = 771115 minutes" + NL;
-        expected += "EI-AECD Number = 2: Timer 1 = errored; Timer 2 = n/a" + NL;
-        expected += "EI-AECD Number = 3: Timer 1 = errored; Timer 2 = 199468 minutes" + NL;
-        expected += "EI-AECD Number = 4: Timer 1 = errored; Timer 2 = n/a" + NL;
-        expected += "}" + NL;
+        expected += "DM33 Emission Increasing AECD Active Time from Engine #1 (0): [" + NL;
+        expected += "  EI-AECD Number = 1: Timer 1 = 68395 minutes; Timer 2 = 771115 minutes" + NL;
+        expected += "  EI-AECD Number = 2: Timer 1 = errored; Timer 2 = n/a" + NL;
+        expected += "  EI-AECD Number = 3: Timer 1 = errored; Timer 2 = 199468 minutes" + NL;
+        expected += "  EI-AECD Number = 4: Timer 1 = errored; Timer 2 = n/a" + NL;
+        expected += "]" + NL;
         expected += NL;
 
         assertEquals(expected, listener.getResults());
@@ -2092,12 +2093,12 @@ public class DiagnosticMessageModuleTest {
         expected += "10:15:30.0000 18EAFFA5 [3] 00 A1 00 (TX)" + NL;
         expected += "10:15:30.0000 18A10000 [36] 01 2B 0B 01 00 2B C4 0B 00 02 FE FE FE FE FF FF FF FF 03 FE FE FE FE 2C 0B 03 00 04 FF FF FF FE FE FE FE FF"
                 + NL;
-        expected += "DM33 Emission Increasing AECD Active Time from Engine #1 (0): {" + NL;
-        expected += "EI-AECD Number = 1: Timer 1 = 68395 minutes; Timer 2 = 771115 minutes" + NL;
-        expected += "EI-AECD Number = 2: Timer 1 = errored; Timer 2 = n/a" + NL;
-        expected += "EI-AECD Number = 3: Timer 1 = errored; Timer 2 = 199468 minutes" + NL;
-        expected += "EI-AECD Number = 4: Timer 1 = errored; Timer 2 = n/a" + NL;
-        expected += "}" + NL;
+        expected += "DM33 Emission Increasing AECD Active Time from Engine #1 (0): [" + NL;
+        expected += "  EI-AECD Number = 1: Timer 1 = 68395 minutes; Timer 2 = 771115 minutes" + NL;
+        expected += "  EI-AECD Number = 2: Timer 1 = errored; Timer 2 = n/a" + NL;
+        expected += "  EI-AECD Number = 3: Timer 1 = errored; Timer 2 = 199468 minutes" + NL;
+        expected += "  EI-AECD Number = 4: Timer 1 = errored; Timer 2 = n/a" + NL;
+        expected += "]" + NL;
         expected += NL;
 
         TestResultsListener listener = new TestResultsListener();

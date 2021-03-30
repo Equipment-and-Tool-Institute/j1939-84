@@ -147,7 +147,8 @@ public class Part12Step09ControllerTest extends AbstractControllerTest {
         var nack1 = AcknowledgmentPacket.create(1, NACK);
         when(diagnosticMessageModule.requestDM11(any(), eq(1))).thenReturn(List.of(nack1));
 
-        when(diagnosticMessageModule.requestDM11(any())).thenReturn(List.of());
+        var ack = AcknowledgmentPacket.create(2, ACK);
+        when(diagnosticMessageModule.requestDM11(any())).thenReturn(List.of(ack));
 
         runTest();
 

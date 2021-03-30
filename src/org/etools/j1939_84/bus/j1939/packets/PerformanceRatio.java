@@ -126,6 +126,10 @@ public class PerformanceRatio implements Comparable<PerformanceRatio> {
         return spn;
     }
 
+    public boolean isSupported() {
+        return getDenominator() != 0xFFFF || getNumerator() != 0xFFFF;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(getSpn(), getNumerator(), getDenominator(), sourceAddress);

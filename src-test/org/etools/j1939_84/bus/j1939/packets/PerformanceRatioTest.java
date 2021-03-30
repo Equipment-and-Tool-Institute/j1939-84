@@ -1,10 +1,11 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -22,21 +23,21 @@ public class PerformanceRatioTest {
     public void testEqualsAndHashCode() {
         PerformanceRatio instance1 = new PerformanceRatio(123, 456, 789, 0);
         PerformanceRatio instance2 = new PerformanceRatio(123, 456, 789, 0);
-        assertTrue(instance1.equals(instance2));
-        assertTrue(instance2.equals(instance1));
-        assertTrue(instance1.hashCode() == instance2.hashCode());
+        assertEquals(instance1, instance2);
+        assertEquals(instance2, instance1);
+        assertEquals(instance1.hashCode(), instance2.hashCode());
     }
 
     @Test
     public void testEqualsObject() {
         PerformanceRatio instance = new PerformanceRatio(0, 0, 0, 0);
-        assertFalse(instance.equals(new Object()));
+        assertNotEquals(instance, new Object());
     }
 
     @Test
     public void testEqualsThis() {
         PerformanceRatio instance = new PerformanceRatio(0, 0, 0, 0);
-        assertTrue(instance.equals(instance));
+        assertEquals(instance, instance);
     }
 
     @Test
@@ -48,7 +49,7 @@ public class PerformanceRatioTest {
     @Test
     public void testGetId() {
         PerformanceRatio instance = new PerformanceRatio(123, 456, 789, 0);
-        assertEquals(123 << 8 | 0, instance.getId());
+        assertEquals(123 << 8, instance.getId());
     }
 
     @Test
@@ -89,28 +90,28 @@ public class PerformanceRatioTest {
     public void testNotEqualsDenominator() {
         PerformanceRatio instance1 = new PerformanceRatio(123, 456, 789, 0);
         PerformanceRatio instance2 = new PerformanceRatio(123, 456, 0, 0);
-        assertFalse(instance1.equals(instance2));
+        assertNotEquals(instance1, instance2);
     }
 
     @Test
     public void testNotEqualsNumerator() {
         PerformanceRatio instance1 = new PerformanceRatio(123, 456, 789, 0);
         PerformanceRatio instance2 = new PerformanceRatio(123, 0, 789, 0);
-        assertFalse(instance1.equals(instance2));
+        assertNotEquals(instance1, instance2);
     }
 
     @Test
     public void testNotEqualsSourceAddress() {
         PerformanceRatio instance1 = new PerformanceRatio(123, 456, 789, 0);
         PerformanceRatio instance2 = new PerformanceRatio(123, 456, 789, 1);
-        assertFalse(instance1.equals(instance2));
+        assertNotEquals(instance1, instance2);
     }
 
     @Test
     public void testNotEqualsSPN() {
         PerformanceRatio instance1 = new PerformanceRatio(123, 456, 789, 0);
         PerformanceRatio instance2 = new PerformanceRatio(0, 456, 789, 0);
-        assertFalse(instance1.equals(instance2));
+        assertNotEquals(instance1, instance2);
     }
 
     @Test
@@ -122,9 +123,21 @@ public class PerformanceRatioTest {
 
     @Test
     public void testToStringLargeNumbers() {
-        PerformanceRatio instance = new PerformanceRatio(123456, 4567, 78913, 0);
-        String expected = "SPN 123456 Unknown: 4,567 / 78,913";
+        PerformanceRatio instance = new PerformanceRatio(123456, 4567, 58913, 0);
+        String expected = "SPN 123456 Unknown: 4,567 / 58,913";
         assertEquals(expected, instance.toString());
+    }
+
+    @Test
+    public void testIsSupportedTrue() {
+        PerformanceRatio instance = new PerformanceRatio(123456, 4567, 58913, 0);
+        assertTrue(instance.isSupported());
+    }
+
+    @Test
+    public void testIsSupportedFalse() {
+        PerformanceRatio instance = new PerformanceRatio(123456, 65535, 0xFFFF, 0);
+        assertFalse(instance.isSupported());
     }
 
 }

@@ -91,23 +91,25 @@ public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
         StringBuilder sb = new StringBuilder();
         sb.append(getStringPrefix()).append(" [").append(NL);
         int max = getLongestName(getRatios()) + 1;
-        sb.append(padRight("", max)).append("  Num'r /  Den'r").append(NL);
-        sb.append(padRight("Ignition Cycles", max))
+        sb.append("  ").append(padRight("", max)).append("  Num'r /  Den'r").append(NL);
+        sb.append("  ")
+          .append(padRight("Ignition Cycles", max))
           .append(padLeft(NumberFormatter.format(getIgnitionCycles()), 16))
           .append(NL);
-        sb.append(padRight("OBD Monitoring Conditions Encountered", max))
+        sb.append("  ")
+          .append(padRight("OBD Monitoring Conditions Encountered", max))
           .append(padLeft(NumberFormatter.format(getOBDConditionsCount()), 16))
           .append(NL);
 
         for (PerformanceRatio ratio : getRatios()) {
-            sb.append(padRight(ratio.getName(), max));
+            sb.append("  ").append(padRight(ratio.getName(), max));
             sb.append(" ");
             sb.append(padLeft(NumberFormatter.format(ratio.getNumerator()), 6));
             sb.append(" / ");
             sb.append(padLeft(NumberFormatter.format(ratio.getDenominator()), 6));
             sb.append(NL);
         }
-        sb.append("]");
+        sb.append("]").append(NL);
         return sb.toString();
     }
 

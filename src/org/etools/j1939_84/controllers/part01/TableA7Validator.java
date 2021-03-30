@@ -76,7 +76,7 @@ public class TableA7Validator {
                          etr(4331, 15),
                          etr(4331, 18),
                          etr(4334, 18)));
-        rows.add(new Row("Filtering Performance", 1, etr(3251, 2), etr(3936, 2), etr(3936, 16), etr(3639, 18)));
+        rows.add(new Row("Filtering Performance", 1, etr(3251, 2), etr(3936, 2), etr(3936, 16), etr(3936, 18)));
         rows.add(new Row("Incomplete regeneration", 1, etr(3713, 31), etr(5319, 7), etr(5319, 31)));
         rows.add(new Row("NOx Sensor Performance Monitoring Capability", 1, etr(3226, 16), etr(3226, 20)));
 
