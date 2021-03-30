@@ -146,8 +146,7 @@ public class Part02Step01ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
 
-        String expectedMessages = "Step 6.2.1.1.a - Waiting for engine start";
-        assertEquals(expectedMessages, listener.getMessages());
+        assertEquals("", listener.getMessages());
 
         String expectedResults = "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
