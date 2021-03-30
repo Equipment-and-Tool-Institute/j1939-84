@@ -179,13 +179,9 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String expectedMessages = "Step 6.5.7.1.a - Waiting for key off" + NL +
-                "Step 6.5.7.1.b - Waiting manufacturer’s recommended interval with the key off" + NL +
-                "Step 6.5.7.1.c - Waiting for engine start" + NL +
+        String expectedMessages = "Step 6.5.7.1.b - Waiting manufacturer’s recommended interval with the key off" + NL +
                 "Step 6.5.7.1.d - Waiting manufacturer’s recommended time for Fault A to be detected as passed" + NL +
-                "Step 6.5.7.1.e - Waiting for key off" + NL +
                 "Step 6.5.7.1.f - Waiting manufacturer’s recommended interval with the key off" + NL +
-                "Step 6.5.7.1.g - Waiting for engine start" + NL +
                 "Step 6.5.7.1.h - Waiting manufacturer’s recommended time for Fault A to be detected as passed";
         assertEquals(expectedMessages, listener.getMessages());
 
