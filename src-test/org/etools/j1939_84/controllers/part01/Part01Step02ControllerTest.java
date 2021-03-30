@@ -50,7 +50,7 @@ import org.mockito.stubbing.Answer;
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  */
 @RunWith(MockitoJUnitRunner.class)
-@TestDoc(description = "Test 1.2 - Verify Engine Operation")
+@TestDoc(value = @TestItem(verifies = "Part 1 Step 2", description = "Verify engine operation"))
 public class Part01Step02ControllerTest extends AbstractControllerTest {
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 2;
@@ -136,8 +136,6 @@ public class Part01Step02ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    @TestDoc(value = {
-            @TestItem(verifies = "6.1.2.1.a", description = "Gather broadcast data for engine speed (e.g., SP 190)") })
     public void testEngineAlreadyOff() {
         when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
@@ -147,16 +145,13 @@ public class Part01Step02ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
 
-        assertEquals("", listener.getMessages());
-
-        String expectedResults = "Initial Engine Speed = 0.0 RPMs" + NL;
+        String expectedResults = "";
+        expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
     @Test
-    @TestDoc(value = {
-            @TestItem(verifies = "6.1.2.2.a", description = "Warn if engine speed is > 0 rpm, prompt/warn operator to confirm engine is not running") })
     public void testKeyOnTransitionsToKeyOff() {
         when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_RUNNING,
                                                          KEY_ON_ENGINE_RUNNING,
