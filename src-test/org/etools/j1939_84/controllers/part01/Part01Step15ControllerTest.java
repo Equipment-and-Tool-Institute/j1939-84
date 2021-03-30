@@ -321,7 +321,6 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    @TestDoc(value = @TestItem(verifies = "6.1.15.1", description = "Verifies that there is a single 6.1.15 step"))
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
