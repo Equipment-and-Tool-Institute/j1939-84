@@ -33,6 +33,8 @@ import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.testdoc.TestDoc;
+import org.etools.testdoc.TestItem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,6 +48,7 @@ import org.mockito.junit.MockitoJUnitRunner;
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  */
 @RunWith(MockitoJUnitRunner.class)
+@TestDoc(description = "Test 1.15 - DM1: Active DTCs")
 public class Part01Step15ControllerTest extends AbstractControllerTest {
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 15;
@@ -116,6 +119,8 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.15.2.e", description = "Fail if no OBD ECU provides DM1") })
     public void testEmptyPacketFailure() {
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
@@ -127,19 +132,47 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).readDM1(any());
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.15.2 - No OBD ECU provided a DM1");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.15.2.e - No OBD ECU provided a DM1");
 
         assertEquals("", listener.getResults());
     }
 
     @Test
-    public void testActiveDtcFailure() {
-        var dtc1 = DiagnosticTroubleCode.create(1569, 31, 0, 0);
-        var dtc2 = DiagnosticTroubleCode.create(609, 19, 0, 0);
-        var dtc3 = DiagnosticTroubleCode.create(4334, 4, 1, 0);
-
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.15.3.a", description = "A.8 - Alternate coding for off (0b00, 0b00) has been accepted") })
+    public void testObdAlternateOffWarning() {
         DM1ActiveDTCsPacket packet1 = DM1ActiveDTCsPacket.create(0x01,
                                                                  ALTERNATE_OFF,
+                                                                 OFF,
+                                                                 OFF,
+                                                                 OFF);
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet1));
+
+        runTest();
+
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).readDM1(any());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "A.8 - Alternate coding for off (0b00, 0b00) has been accepted");
+
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.15.2.a", description = "Fail if any OBD ECU reports an active DTC") })
+    public void testObdActiveDtcFailure() {
+        var dtc1 = DiagnosticTroubleCode.create(1569, 31, 0, 0);
+        var dtc2 = DiagnosticTroubleCode.create(609, 19, 0, 0);
+        var dtc3 = DiagnosticTroubleCode.create(4334, 4, 0, 0);
+
+        DM1ActiveDTCsPacket packet1 = DM1ActiveDTCsPacket.create(0x01,
+                                                                 OFF,
                                                                  OFF,
                                                                  OFF,
                                                                  OFF,
@@ -160,24 +193,16 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.15.2.a - OBD ECU Engine #2 (1) reported an active DTC");
 
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        WARN,
-                                        "A.8 - Alternate coding for off (0b00, 0b00) has been accepted");
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.15.2.d - OBD ECU Engine #2 (1) reported SPN conversion method (SPN 1706) equal to binary 1");
-
         assertEquals("", listener.getResults());
     }
 
     @Test
-    public void testFailure() {
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.15.2.c", description = "Fail if any non-OBD ECU does not report MIL off or not supported MIL status (per SAE J1939-73 Table 5)") })
+    public void testNonObdMilOnFailure() {
         var dtc1 = DiagnosticTroubleCode.create(1569, 31, 0, 0);
         var dtc2 = DiagnosticTroubleCode.create(609, 19, 0, 0);
-        var dtc3 = DiagnosticTroubleCode.create(4334, 4, 1, 0);
+        var dtc3 = DiagnosticTroubleCode.create(4334, 4, 0, 0);
         DM1ActiveDTCsPacket packet2 = DM1ActiveDTCsPacket.create(0x17,
                                                                  ON,
                                                                  ALTERNATE_OFF,
@@ -187,7 +212,15 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                                                  dtc2,
                                                                  dtc3);
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet2));
+        var packet3 = DM1ActiveDTCsPacket.create(0x03,
+                                                 OFF,
+                                                 OFF,
+                                                 OFF,
+                                                 OFF);
+        // make the module and OBD
+        dataRepository.putObdModule(new OBDModuleInformation(3));
+
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet2, packet3));
 
         runTest();
 
@@ -199,20 +232,53 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.15.2.c - Non-OBD ECU Instrument Cluster #1 (23) did not report MIL off or not supported");
 
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.15.3.b", description = "Warn if any non-OBD ECU reports SP conversion method (SP 1706) equal to 1") })
+    public void testNonObdConversionMethodWarning() {
+        var dtc1 = DiagnosticTroubleCode.create(1569, 31, 0, 0);
+        var dtc2 = DiagnosticTroubleCode.create(609, 19, 0, 0);
+        var dtc3 = DiagnosticTroubleCode.create(4334, 4, 1, 0);
+        DM1ActiveDTCsPacket packet2 = DM1ActiveDTCsPacket.create(0x17,
+                                                                 OFF,
+                                                                 OFF,
+                                                                 OFF,
+                                                                 OFF,
+                                                                 dtc1,
+                                                                 dtc2,
+                                                                 dtc3);
+
+        var packet3 = DM1ActiveDTCsPacket.create(0x03,
+                                                 OFF,
+                                                 OFF,
+                                                 OFF,
+                                                 OFF);
+        // make the module and OBD
+        dataRepository.putObdModule(new OBDModuleInformation(3));
+
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet2, packet3));
+
+        runTest();
+
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).readDM1(any());
+
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.1.15.3.b - Non-OBD ECU Instrument Cluster #1 (23) reported SPN conversion method (SPN 1706) equal to 1");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.15.2 - No OBD ECU provided a DM1");
+                                        "6.1.15.3.b - Non-OBD ECU Instrument Cluster #1 (23) reported SP conversion method (SP 1706) equal to 1");
 
         assertEquals("", listener.getResults());
     }
 
     @Test
-    public void testSpnConversionFailures() {
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.15.2.d", description = "Fail if any OBD ECU reports SP conversion method (SP 1706) equal to binary 1") })
+    public void testObdSpConversionFailures() {
+        // a CM value of 1 will cause the conversion method failure
         var dtc = DiagnosticTroubleCode.create(123, 12, 1, 5);
         var packet3 = DM1ActiveDTCsPacket.create(0x03,
                                                  OFF,
@@ -220,10 +286,9 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                                  OFF,
                                                  OFF,
                                                  dtc);
-
-        dataRepository.putObdModule(new OBDModuleInformation(1));
+        // make the module and OBD
         dataRepository.putObdModule(new OBDModuleInformation(3));
-
+        // return the OBD module's packet when requested
         when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet3));
 
         runTest();
@@ -239,7 +304,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.15.2.d - OBD ECU Transmission #1 (3) reported SPN conversion method (SPN 1706) equal to binary 1");
+                                        "6.1.15.2.d - OBD ECU Transmission #1 (3) reported SP conversion method (SP 1706) equal to binary 1");
 
         assertEquals("", listener.getResults());
     }
@@ -256,12 +321,15 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @TestDoc(value = @TestItem(verifies = "6.1.15.1", description = "Verifies that there is a single 6.1.15 step"))
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
     @Test
-    public void testRun() {
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.15.1.a", description = "Gather broadcast DM1 data from all ECUs [PG 65226 (SPs 1213-1215, 1706, and 3038)]") })
+    public void testGatherBroadcastDm1() {
         DM1ActiveDTCsPacket packet2 = DM1ActiveDTCsPacket.create(0x17,
                                                                  OFF,
                                                                  OFF,
@@ -281,17 +349,17 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testFailures() {
-        var dtc = DiagnosticTroubleCode.create(123, 12, 1, 5);
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.15.2.b", description = "Fail if any OBD ECU does not report MIL off - see Section A.8 for allowed values") })
+    public void testObdMilOnFailure() {
         var packet1 = DM1ActiveDTCsPacket.create(0x01,
                                                  ON,
                                                  OFF,
                                                  OFF,
-                                                 OFF,
-                                                 dtc);
-
+                                                 OFF);
+        // make it an OBD module
         dataRepository.putObdModule(new OBDModuleInformation(1));
-
+        // return the packet with the active dtc and a MIL on for the OBD module
         when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet1));
 
         runTest();
@@ -302,17 +370,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.15.2.a - OBD ECU Engine #2 (1) reported an active DTC");
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
                                         "6.1.15.2.b - OBD ECU Engine #2 (1) did not report MIL 'off'");
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.15.2.d - OBD ECU Engine #2 (1) reported SPN conversion method (SPN 1706) equal to binary 1");
 
         assertEquals("", listener.getResults());
     }
