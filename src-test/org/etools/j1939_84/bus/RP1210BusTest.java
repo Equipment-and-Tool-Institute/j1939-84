@@ -63,7 +63,13 @@ public class RP1210BusTest {
     private RP1210Library rp1210Library;
 
     private void createInstance() throws BusException {
-        instance = new RP1210Bus(rp1210Library, exec, queue, adapter, ADDRESS, true, logger);
+        instance = new RP1210Bus(rp1210Library,
+                                 exec,
+                                 queue,
+                                 adapter,
+                                 ADDRESS,
+                                 true,
+                                 (severity, string, e) -> logger.log(severity, string, e));
     }
 
     @Before
@@ -409,8 +415,8 @@ public class RP1210BusTest {
         Packet actual = packetCaptor.getValue();
 
         assertEquals(packet, actual);
-        verify(logger).log(eq(Level.FINE), anyString());
-        verify(logger).log(eq(Level.INFO), anyString());
+        verify(logger).log(eq(Level.FINE), anyString(), (Throwable) any());
+        verify(logger).log(eq(Level.INFO), anyString(), (Throwable) any());
         verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
                                                            any(byte[].class),
                                                            eq((short) 2048),
@@ -477,8 +483,8 @@ public class RP1210BusTest {
         Packet actual = packetCaptor.getValue();
 
         assertEquals(packet, actual);
-        verify(logger).log(eq(Level.FINE), anyString());
-        verify(logger).log(eq(Level.INFO), anyString());
+        verify(logger).log(eq(Level.FINE), anyString(), (Throwable) any());
+        verify(logger).log(eq(Level.INFO), anyString(), (Throwable) any());
         verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
                                                            any(byte[].class),
                                                            eq((short) 2048),
@@ -524,13 +530,15 @@ public class RP1210BusTest {
         Packet actual = packetCaptor.getValue();
 
         assertEquals(packet, actual);
-        verify(logger).log(eq(Level.FINE), anyString());
-        verify(logger).log(eq(Level.INFO), anyString());
+        verify(logger).log(eq(Level.FINE), anyString(), (Throwable) any());
+        verify(logger).log(eq(Level.INFO), anyString(), (Throwable) any());
         verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
                                                            any(byte[].class),
                                                            eq((short) 2048),
                                                            eq((short) 0));
-        verify(logger).log(Level.WARNING, "Another ECU is using this address: 181234A5 [8] 77 88 99 AA BB CC DD EE");
+        verify(logger).log(Level.WARNING,
+                           "Another ECU is using this address: 181234A5 [8] 77 88 99 AA BB CC DD EE",
+                           (Throwable) null);
     }
 
     @Test

@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -54,10 +55,16 @@ public class RP1210Bus implements Bus {
      */
     private final ScheduledExecutorService exec;
 
+    interface BusLogger {
+
+        void log(Level severe, String string, BusException e);
+
+    }
+
     /**
      * The {@link Logger} for errors
      */
-    private final Logger logger;
+    private final BusLogger logger;
 
     /**
      * The {@link RP1210Library}
@@ -97,7 +104,12 @@ public class RP1210Bus implements Bus {
              adapter,
              address,
              appPacketize,
-             J1939_84.getLogger());
+             createBusAsyncLogger(J1939_84.getLogger()));
+    }
+
+    private static BusLogger createBusAsyncLogger(Logger logger) {
+        Executor exe = Executors.newSingleThreadExecutor();
+        return (severity, string, e) -> exe.execute(() -> logger.log(severity, string, e));
     }
 
     /**
@@ -131,7 +143,7 @@ public class RP1210Bus implements Bus {
                      Adapter adapter,
                      int address,
                      boolean appPacketize,
-                     Logger logger) throws BusException {
+                     BusLogger logger) throws BusException {
         this.rp1210Library = rp1210Library;
         this.exec = exec;
         this.queue = queue;
@@ -250,7 +262,7 @@ public class RP1210Bus implements Bus {
         final long diff = Math.abs(time.toEpochMilli() - Instant.now().toEpochMilli());
         if (diff > 1000) {
             timeStampStartMicroseconds = 1000 * System.currentTimeMillis() - timestamp * timeStampWeight;
-            getLogger().log(Level.INFO, String.format("adapter time offset: %,d µs", timeStampStartMicroseconds));
+            getLogger().log(Level.INFO, String.format("adapter time offset: %,d µs", timeStampStartMicroseconds), null);
             time = adapterTimestampToInstant(timestamp);
         }
         return Packet.create(LocalDateTime.ofInstant(time, ZoneId.systemDefault()),
@@ -292,7 +304,7 @@ public class RP1210Bus implements Bus {
         return buf;
     }
 
-    private Logger getLogger() {
+    private BusLogger getLogger() {
         return logger;
     }
 
@@ -307,16 +319,17 @@ public class RP1210Bus implements Bus {
                 if (rtn > 0) {
                     Packet packet = decode(data, rtn);
                     if (packet.getSource() == getAddress() && !packet.isTransmitted()) {
-                        getLogger().log(Level.WARNING, "Another ECU is using this address: " + packet);
+                        getLogger().log(Level.WARNING, "Another ECU is using this address: " + packet, null);
                     }
-                    getLogger().log(Level.FINE, packet.toTimeString());
+                    getLogger().log(Level.FINE, packet.toTimeString(), null);
                     queue.add(packet);
                 } else if (rtn == -RP1210Library.ERR_RX_QUEUE_FULL) {
                     // RX queue full, remedy is to reread.
                     byte[] buffer = new byte[256];
                     rp1210Library.RP1210_GetErrorMsg((short) Math.abs(rtn), buffer);
                     getLogger().log(Level.SEVERE,
-                                    "Error (" + rtn + "): " + new String(buffer, StandardCharsets.UTF_8).trim());
+                                    "Error (" + rtn + "): " + new String(buffer, StandardCharsets.UTF_8).trim(),
+                                    null);
                 } else {
                     verify(rtn);
                     break;
