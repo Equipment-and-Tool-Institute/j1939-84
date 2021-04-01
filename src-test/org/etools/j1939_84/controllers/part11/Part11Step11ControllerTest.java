@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part11;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
@@ -153,7 +154,27 @@ public class Part11Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals(9.0, dataRepository.getObdModule(0).getDeltaEngineStart(), 0.0);
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
+
+        String expected = "" + NL;
+        expected += "Vehicle Composite of DM26:" + NL;
+        expected += "    A/C system refrigerant     not enabled, not complete" + NL;
+        expected += "    Boost pressure control sys not enabled, not complete" + NL;
+        expected += "    Catalyst                   not enabled, not complete" + NL;
+        expected += "    Cold start aid system      not enabled, not complete" + NL;
+        expected += "    Comprehensive component    not enabled, not complete" + NL;
+        expected += "    Diesel Particulate Filter  not enabled, not complete" + NL;
+        expected += "    EGR/VVT system             not enabled, not complete" + NL;
+        expected += "    Evaporative system         not enabled, not complete" + NL;
+        expected += "    Exhaust Gas Sensor         not enabled, not complete" + NL;
+        expected += "    Exhaust Gas Sensor heater  not enabled, not complete" + NL;
+        expected += "    Fuel System                not enabled, not complete" + NL;
+        expected += "    Heated catalyst            not enabled, not complete" + NL;
+        expected += "    Misfire                    not enabled, not complete" + NL;
+        expected += "    NMHC converting catalyst   not enabled, not complete" + NL;
+        expected += "    NOx catalyst/adsorber      not enabled, not complete" + NL;
+        expected += "    Secondary air system       not enabled, not complete" + NL;
+        assertEquals(expected, listener.getResults());
+
         assertEquals(List.of(), listener.getOutcomes());
     }
 
@@ -170,7 +191,26 @@ public class Part11Step11ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM26(any(), eq(0));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
+        String expected = "" + NL;
+        expected += "Vehicle Composite of DM26:" + NL;
+        expected += "    A/C system refrigerant     not enabled, not complete" + NL;
+        expected += "    Boost pressure control sys not enabled, not complete" + NL;
+        expected += "    Catalyst                   not enabled, not complete" + NL;
+        expected += "    Cold start aid system      not enabled, not complete" + NL;
+        expected += "    Comprehensive component    not enabled, not complete" + NL;
+        expected += "    Diesel Particulate Filter  not enabled, not complete" + NL;
+        expected += "    EGR/VVT system             not enabled, not complete" + NL;
+        expected += "    Evaporative system         not enabled, not complete" + NL;
+        expected += "    Exhaust Gas Sensor         not enabled, not complete" + NL;
+        expected += "    Exhaust Gas Sensor heater  not enabled, not complete" + NL;
+        expected += "    Fuel System                not enabled, not complete" + NL;
+        expected += "    Heated catalyst            not enabled, not complete" + NL;
+        expected += "    Misfire                    not enabled, not complete" + NL;
+        expected += "    NMHC converting catalyst   not enabled, not complete" + NL;
+        expected += "    NOx catalyst/adsorber      not enabled, not complete" + NL;
+        expected += "    Secondary air system       not enabled, not complete" + NL;
+        assertEquals(expected, listener.getResults());
+
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -193,7 +233,27 @@ public class Part11Step11ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM26(any(), eq(0));
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
+
+        String expected = "" + NL;
+        expected += "Vehicle Composite of DM26:" + NL;
+        expected += "    A/C system refrigerant     not enabled, not complete" + NL;
+        expected += "    Boost pressure control sys not enabled, not complete" + NL;
+        expected += "    Catalyst                   not enabled, not complete" + NL;
+        expected += "    Cold start aid system      not enabled, not complete" + NL;
+        expected += "    Comprehensive component    not enabled, not complete" + NL;
+        expected += "    Diesel Particulate Filter  not enabled, not complete" + NL;
+        expected += "    EGR/VVT system             not enabled, not complete" + NL;
+        expected += "    Evaporative system         not enabled, not complete" + NL;
+        expected += "    Exhaust Gas Sensor         not enabled, not complete" + NL;
+        expected += "    Exhaust Gas Sensor heater  not enabled, not complete" + NL;
+        expected += "    Fuel System                not enabled, not complete" + NL;
+        expected += "    Heated catalyst            not enabled, not complete" + NL;
+        expected += "    Misfire                    not enabled, not complete" + NL;
+        expected += "    NMHC converting catalyst   not enabled, not complete" + NL;
+        expected += "    NOx catalyst/adsorber      not enabled, not complete" + NL;
+        expected += "    Secondary air system       not enabled, not complete" + NL;
+        assertEquals(expected, listener.getResults());
+
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -212,6 +272,7 @@ public class Part11Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,

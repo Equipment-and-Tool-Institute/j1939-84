@@ -155,7 +155,7 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         INFO,
-                                        "6.2.8.5 - No responses received from Engine #2 (1)");
+                                        "6.2.8.5.a - No responses received from Engine #2 (1)");
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -267,7 +267,7 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
                                         2,
                                         8,
                                         FAIL,
-                                        "6.2.8.2.a - Difference from Turbocharger (2) regarding readiness status this cycle compared to responses in part 1 after DM11.");
+                                        "6.2.8.2.a - Difference from Turbocharger (2) monitor support bits this cycle compared to responses in part 1 after DM11");
         verify(mockListener).addOutcome(
                                         2,
                                         8,
@@ -277,7 +277,7 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
                                         2,
                                         8,
                                         FAIL,
-                                        "6.2.8.2.a - Difference from Engine #1 (0) regarding readiness status this cycle compared to responses in part 1 after DM11.");
+                                        "6.2.8.2.a - Difference from Engine #1 (0) monitor support bits this cycle compared to responses in part 1 after DM11");
         verify(mockListener).addOutcome(
                                         2,
                                         8,
@@ -362,7 +362,7 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
                                         2,
                                         8,
                                         INFO,
-                                        "6.2.8.5 - No responses received from Transmission #1 (3)");
+                                        "6.2.8.5.a - No responses received from Transmission #1 (3)");
 
     }
 

@@ -8,16 +8,16 @@ import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSy
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
+import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -81,17 +81,13 @@ public class Part02Step08Controller extends StepController {
             if (resultPackets != null) {
                 dsPackets.addAll(resultPackets);
 
-                // 6.2.8.2.a Fail if any difference in any ECU regarding readiness status this cycle compared to
+                // 6.2.8.2.a Fail if any difference in any ECU monitor support bits this cycle compared to
                 // responses in part 1 after DM11.
                 resultPackets.stream()
-                             .map(DiagnosticReadinessPacket::getMonitoredSystems)
-                             .filter(set -> {
-                                 var lastDM26 = get(DM26TripDiagnosticReadinessPacket.class, address, 1);
-                                 return lastDM26 == null || !Objects.equals(set, lastDM26.getMonitoredSystems());
-                             })
+                             .filter(this::supportBitsChanged)
                              .findFirst()
                              .ifPresent(p -> addFailure("6.2.8.2.a - Difference from " + moduleName
-                                     + " regarding readiness status this cycle compared to responses in part 1 after DM11."));
+                                     + " monitor support bits this cycle compared to responses in part 1 after DM11"));
 
                 // 6.2.8.2.b Fail if any ECU reports number of warm-ups SCC (SPN 3302) greater than zero.
                 resultPackets.stream()
@@ -159,14 +155,40 @@ public class Part02Step08Controller extends StepController {
                     addFailure("6.2.8.5.a - Difference in data between DS and global responses from " + moduleName);
                 }
             } else if (globalOptional.isEmpty() && dsOptional.isEmpty()) {
-                addInfo("6.2.8.5 - No responses received from " + moduleName);
+                addInfo("6.2.8.5.a - No responses received from " + moduleName);
             } else if (globalOptional.isEmpty()) {
-                addInfo("6.2.8.5 - Global response was not received from " + moduleName);
+                addInfo("6.2.8.5.a - Global response was not received from " + moduleName);
             } else {
-                addInfo("6.2.8.5 - DS response was not received from " + moduleName);
+                addInfo("6.2.8.5.a - DS response was not received from " + moduleName);
             }
         }
 
     }
 
+    private boolean supportBitsChanged(DM26TripDiagnosticReadinessPacket dm26) {
+        return Arrays.stream(CompositeSystem.values())
+                     .anyMatch(sys -> isSupported(sys, dm26) != isPrevSupported(sys, dm26.getSourceAddress()));
+    }
+
+    private boolean isPrevSupported(CompositeSystem systemId, int address) {
+        var dm26 = get(DM26TripDiagnosticReadinessPacket.class, address, 1);
+        var system = dm26 == null ? null
+                : dm26.getMonitoredSystems()
+                      .stream()
+                      .filter(s -> s.getId() == systemId)
+                      .findFirst()
+                      .orElse(null);
+
+        return system != null && system.getStatus().isEnabled();
+    }
+
+    private boolean isSupported(CompositeSystem systemId, DM26TripDiagnosticReadinessPacket dm26) {
+        var system = dm26.getMonitoredSystems()
+                         .stream()
+                         .filter(s -> s.getId() == systemId)
+                         .findFirst()
+                         .orElse(null);
+
+        return system != null && system.getStatus().isEnabled();
+    }
 }
