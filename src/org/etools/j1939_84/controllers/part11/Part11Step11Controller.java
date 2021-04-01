@@ -3,12 +3,15 @@
  */
 package org.etools.j1939_84.controllers.part11;
 
+import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSystems;
+
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -95,6 +98,16 @@ public class Part11Step11Controller extends StepController {
         // trip or supported and not complete this trip).
         // This is out of order to prevent overwriting previous data before use.
         packets.forEach(this::save);
+
+        // 6.11.11.1.c. Display composite status for support and enable bits for responses received from OBD ECUs.
+        if (!packets.isEmpty()) {
+            getListener().onResult("");
+            getListener().onResult("Vehicle Composite of DM26:");
+            getCompositeSystems(packets, false).stream()
+                                               .sorted()
+                                               .map(MonitoredSystem::toString)
+                                               .forEach(s -> getListener().onResult(s));
+        }
     }
 
     private boolean areTimesConsistent(DM26TripDiagnosticReadinessPacket currentPacket) {

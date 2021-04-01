@@ -130,7 +130,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM26(any());
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.14.2.f - No OBD ECU provided DM26");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.14.2.e - No OBD ECU provided DM26");
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -199,27 +199,22 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
                                         1,
                                         14,
                                         FAIL,
-                                        "6.1.14.2.c - Transmission #1 (3) response indicates support for monitor Comprehensive component in DM5 but is reported as not enabled by DM26 response");
-        verify(mockListener).addOutcome(
-                                        1,
-                                        14,
-                                        FAIL,
                                         "6.1.14.2.b - Transmission #1 (3) response for a monitor Heated catalyst in DM5 is reported as not supported and is reported as enabled by DM26 response");
         verify(mockListener).addOutcome(
                                         1,
                                         14,
                                         FAIL,
-                                        "6.1.14.2.d - Engine #2 (1) response indicates number of warm-ups since code clear is not zero");
+                                        "6.1.14.2.c - Engine #2 (1) response indicates number of warm-ups since code clear is not zero");
         verify(mockListener).addOutcome(
                                         1,
                                         14,
                                         FAIL,
-                                        "6.1.14.2.d - Transmission #1 (3) response indicates number of warm-ups since code clear is not zero");
+                                        "6.1.14.2.c - Transmission #1 (3) response indicates number of warm-ups since code clear is not zero");
         verify(mockListener).addOutcome(
                                         1,
                                         14,
                                         FAIL,
-                                        "6.1.14.2.e - Engine #2 (1) response indicates time since engine start is not zero");
+                                        "6.1.14.2.d - Engine #2 (1) response indicates time since engine start is not zero");
         verify(mockListener).addOutcome(
                                         1,
                                         14,
