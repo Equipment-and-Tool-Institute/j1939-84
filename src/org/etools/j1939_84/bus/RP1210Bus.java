@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import org.etools.j1939_84.J1939_84;
+import org.etools.j1939_84.modules.DateTimeModule;
 
 /**
  * The RP1210 implementation of a {@link Bus}
@@ -85,7 +86,9 @@ public class RP1210Bus implements Bus {
      * An adjustment offset for the adapter time to system time. Adapters don't have batteries, so their clocks are
      * always wrong.
      */
-    private long timeStampStartMicroseconds;
+    private long timeStampStartNanoseconds;
+
+    private long lastTimestamp = Long.MAX_VALUE;
 
     /**
      * Constructor
@@ -149,8 +152,8 @@ public class RP1210Bus implements Bus {
         this.queue = queue;
         this.address = address;
         this.logger = logger;
-        timeStampWeight = adapter.getTimeStampWeight();
-        timeStampStartMicroseconds = 0;
+        timeStampWeight = adapter.getTimeStampWeight() * 1000L;
+        timeStampStartNanoseconds = 0;
 
         clientId = rp1210Library
                                 .RP1210_ClientConnect(0,
@@ -258,27 +261,26 @@ public class RP1210Bus implements Bus {
             pgn = pgn | (destination & 0xFF);
         }
 
-        Instant time = adapterTimestampToInstant(timestamp);
-        final long diff = Math.abs(time.toEpochMilli() - Instant.now().toEpochMilli());
-        if (diff > 1000) {
-            timeStampStartMicroseconds = 1000 * System.currentTimeMillis() - timestamp * timeStampWeight;
-            getLogger().log(Level.INFO, String.format("adapter time offset: %,d µs", timeStampStartMicroseconds), null);
-            time = adapterTimestampToInstant(timestamp);
+        // only recalibrate clocks when adapter rolls over
+        if (timestamp < lastTimestamp) {
+            timeStampStartNanoseconds = System.nanoTime() - timestamp * timeStampWeight;
+            getLogger().log(Level.INFO, String.format("adapter time offset: %,d ns", timeStampStartNanoseconds), null);
         }
+        lastTimestamp = timestamp;
+
+        // update application clock offset
+        long nanoseconds = timestamp * timeStampWeight + timeStampStartNanoseconds;
+        DateTimeModule.getInstance().setNanoTime(nanoseconds);
+        
+        // convert to LocalTime for Packet
+        Instant time = Instant.ofEpochSecond( /* seconds */ nanoseconds / 1000000000,
+                                             /* nanoseconds */(nanoseconds % 1000000000));
         return Packet.create(LocalDateTime.ofInstant(time, ZoneId.systemDefault()),
                              priority,
                              pgn,
                              source,
                              echoed != 0,
                              Arrays.copyOfRange(data, 11, length));
-    }
-
-    /** Apply adapter time offset. */
-    private Instant adapterTimestampToInstant(long timestamp) {
-        long microseconds = timestamp * timeStampWeight + timeStampStartMicroseconds;
-        Instant time = Instant.ofEpochSecond( /* seconds */ microseconds / 1000000,
-                                             /* nanoseconds */(microseconds % 1000000) * 1000);
-        return time;
     }
 
     /**

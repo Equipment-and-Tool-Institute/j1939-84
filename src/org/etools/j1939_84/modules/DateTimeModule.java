@@ -8,7 +8,9 @@ import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
 import static java.time.temporal.ChronoField.NANO_OF_SECOND;
 import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.concurrent.TimeUnit;
@@ -24,6 +26,8 @@ import org.etools.j1939_84.controllers.Controller;
 public class DateTimeModule {
     private static DateTimeModule instance = new DateTimeModule();
     private DateTimeFormatter timeFormatter;
+    private long nanoOffset = System.nanoTime();
+    private Instant last;
 
     protected DateTimeModule() {
     }
@@ -90,7 +94,13 @@ public class DateTimeModule {
      * @return {@link LocalDateTime}
      */
     protected LocalDateTime now() {
-        return LocalDateTime.now();
+        Instant now = Instant.now().plusNanos(nanoOffset);
+        if (now.isBefore(last)) {
+            now = last;
+        } else {
+            last = now;
+        }
+        return LocalDateTime.ofInstant(now, ZoneId.systemDefault());
     }
 
     public void pauseFor(long milliseconds) {
@@ -100,6 +110,10 @@ public class DateTimeModule {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void setNanoTime(long nanoTime) {
+        nanoOffset = System.nanoTime() - nanoTime;
     }
 
 }
