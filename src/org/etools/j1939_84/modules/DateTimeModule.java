@@ -30,7 +30,7 @@ import org.etools.j1939_84.controllers.Controller;
 public class DateTimeModule {
     private static DateTimeModule instance = new DateTimeModule();
     private DateTimeFormatter timeFormatter;
-    private long nanoOffset = System.nanoTime();
+    private long nanoOffset = 0;
     private Instant last = Instant.now();
 
     protected DateTimeModule() {
