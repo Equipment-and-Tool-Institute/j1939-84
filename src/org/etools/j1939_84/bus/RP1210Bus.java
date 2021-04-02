@@ -21,6 +21,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -35,6 +36,8 @@ import org.etools.j1939_84.modules.DateTimeModule;
  *
  */
 public class RP1210Bus implements Bus {
+
+    private static final long GIGA = 1000000000;
 
     /**
      * The source address for this tool
@@ -58,7 +61,7 @@ public class RP1210Bus implements Bus {
 
     interface BusLogger {
 
-        void log(Level severe, String string, BusException e);
+        void log(Level severe, Supplier<String> string, BusException e);
 
     }
 
@@ -112,7 +115,7 @@ public class RP1210Bus implements Bus {
 
     private static BusLogger createBusAsyncLogger(Logger logger) {
         Executor exe = Executors.newSingleThreadExecutor();
-        return (severity, string, e) -> exe.execute(() -> logger.log(severity, string, e));
+        return (severity, string, e) -> exe.execute(() -> logger.log(severity, string.get(), e));
     }
 
     /**
@@ -152,7 +155,7 @@ public class RP1210Bus implements Bus {
         this.queue = queue;
         this.address = address;
         this.logger = logger;
-        timeStampWeight = adapter.getTimeStampWeight() * 1000L;
+        timeStampWeight = adapter.getTimestampWeight() * 1000L;
         timeStampStartNanoseconds = 0;
 
         clientId = rp1210Library
@@ -251,6 +254,7 @@ public class RP1210Bus implements Bus {
         // only 32 bits used, but to get a u32, use a s64.
         long timestamp = (0xFF000000L & data[0] << 24) | (0xFF0000L & data[1] << 16) | (0xFF00L & data[2] << 8)
                 | (0xFFL & data[3]);
+        timestamp *= timeStampWeight;
         // data[4] is echo
         int echoed = data[4];
         int pgn = ((data[7] & 0xFF) << 16) | ((data[6] & 0xFF) << 8) | (data[5] & 0xFF);
@@ -263,18 +267,21 @@ public class RP1210Bus implements Bus {
 
         // only recalibrate clocks when adapter rolls over
         if (timestamp < lastTimestamp) {
-            timeStampStartNanoseconds = System.nanoTime() - timestamp * timeStampWeight;
-            getLogger().log(Level.INFO, String.format("adapter time offset: %,d ns", timeStampStartNanoseconds), null);
+            Instant time = Instant.now();
+            timeStampStartNanoseconds = time.getNano() + time.getEpochSecond() * GIGA - timestamp;
+            getLogger().log(Level.INFO,
+                            () -> String.format("adapter time offset: %,d ns %s", timeStampStartNanoseconds, time),
+                            null);
         }
         lastTimestamp = timestamp;
 
         // update application clock offset
-        long nanoseconds = timestamp * timeStampWeight + timeStampStartNanoseconds;
+        long nanoseconds = timestamp + timeStampStartNanoseconds;
         DateTimeModule.getInstance().setNanoTime(nanoseconds);
-        
+
         // convert to LocalTime for Packet
-        Instant time = Instant.ofEpochSecond( /* seconds */ nanoseconds / 1000000000,
-                                             /* nanoseconds */(nanoseconds % 1000000000));
+        Instant time = Instant.ofEpochSecond( /* seconds */ nanoseconds / GIGA,
+                                             /* nanoseconds */(nanoseconds % GIGA));
         return Packet.create(LocalDateTime.ofInstant(time, ZoneId.systemDefault()),
                              priority,
                              pgn,
@@ -321,16 +328,16 @@ public class RP1210Bus implements Bus {
                 if (rtn > 0) {
                     Packet packet = decode(data, rtn);
                     if (packet.getSource() == getAddress() && !packet.isTransmitted()) {
-                        getLogger().log(Level.WARNING, "Another ECU is using this address: " + packet, null);
+                        getLogger().log(Level.WARNING, () -> "Another ECU is using this address: " + packet, null);
                     }
-                    getLogger().log(Level.FINE, packet.toTimeString(), null);
+                    getLogger().log(Level.FINE, () -> packet.toTimeString(), null);
                     queue.add(packet);
                 } else if (rtn == -RP1210Library.ERR_RX_QUEUE_FULL) {
                     // RX queue full, remedy is to reread.
                     byte[] buffer = new byte[256];
                     rp1210Library.RP1210_GetErrorMsg((short) Math.abs(rtn), buffer);
                     getLogger().log(Level.SEVERE,
-                                    "Error (" + rtn + "): " + new String(buffer, StandardCharsets.UTF_8).trim(),
+                                    () -> "Error (" + rtn + "): " + new String(buffer, StandardCharsets.UTF_8).trim(),
                                     null);
                 } else {
                     verify(rtn);
@@ -338,7 +345,7 @@ public class RP1210Bus implements Bus {
                 }
             }
         } catch (BusException e) {
-            getLogger().log(Level.SEVERE, "Failed to read RP1210", e);
+            getLogger().log(Level.SEVERE, () -> "Failed to read RP1210", e);
         }
     }
 

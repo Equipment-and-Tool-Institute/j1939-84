@@ -25,6 +25,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -69,7 +70,7 @@ public class RP1210BusTest {
                                  adapter,
                                  ADDRESS,
                                  true,
-                                 (severity, string, e) -> logger.log(severity, string, e));
+                                 (severity, string, e) -> logger.log(severity, string.get(), e));
     }
 
     @Before
