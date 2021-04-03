@@ -24,7 +24,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -360,7 +359,7 @@ public class RP1210Bus implements Bus {
         }
     }
 
-    private final AtomicBoolean reportedImposter = new AtomicBoolean(false);
+    private boolean reportedImposter = false;
 
     private void logPacket(Packet packet) {
         logger.log(Level.FINE, packet.toTimeString(), null);
@@ -369,7 +368,7 @@ public class RP1210Bus implements Bus {
             String msg = "Another ECU is using this address: " + packet;
             logger.log(Level.WARNING, msg, null);
 
-            if (reportedImposter.compareAndSet(false, true)) {
+            if (!reportedImposter) {
                 String uiMsg = "Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible";
                 eventBus.publish(new ResultEvent("INVALID: " + uiMsg));
                 eventBus.publish(new UrgentEvent(uiMsg,
@@ -380,6 +379,7 @@ public class RP1210Bus implements Bus {
                                                          eventBus.publish(new CompleteEvent(ABORTED));
                                                      }
                                                  }));
+                reportedImposter = true;
             }
         }
     }
