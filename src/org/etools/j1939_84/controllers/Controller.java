@@ -14,6 +14,17 @@ import java.util.logging.Logger;
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
+import org.etools.j1939_84.events.CompleteEvent;
+import org.etools.j1939_84.events.EventBus;
+import org.etools.j1939_84.events.EventListener;
+import org.etools.j1939_84.events.MessageEvent;
+import org.etools.j1939_84.events.OutcomeEvent;
+import org.etools.j1939_84.events.ProgressEvent;
+import org.etools.j1939_84.events.RequestVehInfoEvent;
+import org.etools.j1939_84.events.ResultEvent;
+import org.etools.j1939_84.events.StartEvent;
+import org.etools.j1939_84.events.UrgentEvent;
+import org.etools.j1939_84.events.VehicleInfoEvent;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.VehicleInformation;
@@ -142,6 +153,7 @@ public abstract class Controller {
     public void execute(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
         setupRun(listener, j1939, reportFileModule);
         getExecutor().execute(getRunnable());
+        EventBus.getInstance().unregisterListener(eventListener);
     }
 
     /**
@@ -349,6 +361,7 @@ public abstract class Controller {
     public void run(ResultsListener listener, J1939 j1939) {
         setupRun(listener, j1939, null);
         getRunnable().run();
+        EventBus.getInstance().unregisterListener(eventListener);
     }
 
     /**
@@ -372,6 +385,7 @@ public abstract class Controller {
         } else {
             compositeListener = new CompositeResultsListener(listener, partResultRepository);
         }
+        EventBus.getInstance().registerListener(eventListener);
         ending = null;
     }
 
@@ -397,7 +411,7 @@ public abstract class Controller {
         getListener().onProgress(currentStep, maxSteps, message);
     }
 
-    protected enum Ending {
+    public enum Ending {
         ABORTED("Aborted"), COMPLETED("Completed"), FAILED("Failed"), STOPPED("Stopped");
 
         private final String string;
@@ -500,4 +514,52 @@ public abstract class Controller {
             });
         }
     }
+
+    /**
+     * TODO: The ResultsListener should be replaced with the EventBus throughout the app
+     */
+    private final EventListener eventListener = event -> {
+        if (event instanceof CompleteEvent) {
+            Ending eventEnding = ((CompleteEvent) event).getEnding();
+            try {
+                setEnding(eventEnding);
+            } catch (InterruptedException ignored) {
+            }
+            getListener().onComplete(eventEnding == Ending.COMPLETED);
+        } else if (event instanceof MessageEvent) {
+            MessageEvent messageEvent = (MessageEvent) event;
+            getListener().onMessage(messageEvent.getMessage(),
+                                    messageEvent.getTitle(),
+                                    messageEvent.getMessageType());
+        } else if (event instanceof OutcomeEvent) {
+            OutcomeEvent outcomeEvent = (OutcomeEvent) event;
+            getListener().addOutcome(outcomeEvent.getPartNumber(),
+                                     outcomeEvent.getStepNumber(),
+                                     outcomeEvent.getOutcome(),
+                                     outcomeEvent.getMessage());
+        } else if (event instanceof ProgressEvent) {
+            ProgressEvent progressEvent = (ProgressEvent) event;
+            if (progressEvent.getCurrentStep() >= 0) {
+                getListener().onProgress(progressEvent.getCurrentStep(),
+                                         progressEvent.getTotalSteps(),
+                                         progressEvent.getMessage());
+            } else {
+                getListener().onProgress(progressEvent.getMessage());
+            }
+        } else if (event instanceof RequestVehInfoEvent) {
+            getListener().onVehicleInformationNeeded(((RequestVehInfoEvent) event).getListener());
+        } else if (event instanceof ResultEvent) {
+            getListener().onResult(((ResultEvent) event).getResult());
+        } else if (event instanceof StartEvent) {
+            // TODO
+        } else if (event instanceof UrgentEvent) {
+            UrgentEvent urgentEvent = (UrgentEvent) event;
+            getListener().onUrgentMessage(urgentEvent.getMessage(),
+                                          urgentEvent.getTitle(),
+                                          urgentEvent.getMessageType(),
+                                          urgentEvent.getQuestionListener());
+        } else if (event instanceof VehicleInfoEvent) {
+            getListener().onVehicleInformationReceived(((VehicleInfoEvent) event).getVehicleInformation());
+        }
+    };
 }
