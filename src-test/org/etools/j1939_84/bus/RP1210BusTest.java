@@ -6,6 +6,7 @@ package org.etools.j1939_84.bus;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.etools.j1939_84.controllers.Controller.Ending.ABORTED;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL;
+import static org.etools.j1939_84.controllers.ResultsListener.MessageType.ERROR;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -535,8 +536,6 @@ public class RP1210BusTest {
                                                              })
                                                              .thenReturn((short) 0);
 
-        String uiMsg = "Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible";
-
         doAnswer(invocationOnMock -> {
             UrgentEvent event = invocationOnMock.getArgument(0);
             event.getQuestionListener().answered(CANCEL);
@@ -562,8 +561,11 @@ public class RP1210BusTest {
                            "Another ECU is using this address: 181234A5 [8] 77 88 99 AA BB CC DD EE",
                            (Throwable) null);
 
+        String uiMsg = "Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible";
+
         verify(eventBus).publish(new ResultEvent("INVALID: " + uiMsg));
-        verify(eventBus).publish(any(UrgentEvent.class));
+        verify(eventBus).publish(new UrgentEvent(uiMsg, "Second device using SA 0xF9", ERROR, answerType -> {
+        }));
         verify(eventBus).publish(new CompleteEvent(ABORTED));
     }
 
