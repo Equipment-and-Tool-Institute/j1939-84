@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.FuelType;
+import org.etools.j1939_84.model.Outcome;
 
 /**
  * The validator for Table A.6.1 Composite vehicle readiness - Diesel Engines &
@@ -38,6 +40,7 @@ public class TableA6Validator {
         systems.forEach(system -> validateSystem(system, listener, section));
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     private boolean validateSystem(MonitoredSystem system, ResultsListener listener, String section) {
 
         switch (system.getId()) {
@@ -208,6 +211,10 @@ public class TableA6Validator {
         List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>();
         if (isCompressionIgnition()) {
             acceptableStatuses.addAll(findStatus(1, 1));
+            acceptableStatuses.addAll(findStatus(1, 0));
+            if (system.getStatus().isComplete()) {
+                addOutcome(system, listener, section, INFO);
+            }
         } else if (isSparkIgnition()) {
             acceptableStatuses.addAll(findStatus(1, 0));
         }
@@ -257,15 +264,22 @@ public class TableA6Validator {
         return true;
     }
 
-    private void addWarning(MonitoredSystem system,
+    private void addOutcome(MonitoredSystem system,
                             ResultsListener listener,
-                            String section) {
+                            String section,
+                            Outcome outcome) {
 
         String status = system.getStatus().toString().replaceAll(" {4}", "");
         listener.addOutcome(partNumber,
                             stepNumber,
-                            WARN,
+                            outcome,
                             section + " - " + system.getName().trim() + " is " + status);
+    }
+
+    private void addWarning(MonitoredSystem system,
+                            ResultsListener listener,
+                            String section) {
+        addOutcome(system, listener, section, WARN);
     }
 
     private boolean isCompressionIgnition() {
