@@ -84,9 +84,12 @@ public class RP1210Bus implements Bus {
      * An adjustment offset for the adapter time to system time. Adapters don't have batteries, so their clocks are
      * always wrong.
      */
-    private long timeStampStartNanoseconds;
+    private long timestampStartNanoseconds;
 
     private long lastTimestamp = Long.MAX_VALUE;
+
+    // from the .INI file.
+    final private long timestampWeight;
 
     private static BusLogger createBusAsyncLogger(Logger logger) {
         Executor exe = Executors.newSingleThreadExecutor();
@@ -140,7 +143,8 @@ public class RP1210Bus implements Bus {
         this.queue = queue;
         this.address = address;
         this.logger = logger;
-        timeStampStartNanoseconds = 0;
+        timestampWeight = adapter.getTimestampWeight() * 1000L;
+        timestampStartNanoseconds = 0;
 
         clientId = rp1210Library.RP1210_ClientConnect(0,
                                                       adapter.getDeviceId(),
@@ -236,6 +240,7 @@ public class RP1210Bus implements Bus {
         // only 32 bits used, but to get a u32, use a s64.
         long timestamp = (0xFF000000L & data[0] << 24) | (0xFF0000L & data[1] << 16) | (0xFF00L & data[2] << 8)
                 | (0xFFL & data[3]);
+        timestamp *= timestampWeight;
         // data[4] is echo
         int echoed = data[4];
         int pgn = ((data[7] & 0xFF) << 16) | ((data[6] & 0xFF) << 8) | (data[5] & 0xFF);
@@ -249,15 +254,15 @@ public class RP1210Bus implements Bus {
         // only recalibrate clocks when adapter rolls over
         if (timestamp < lastTimestamp) {
             Instant time = Instant.now();
-            timeStampStartNanoseconds = time.getNano() + time.getEpochSecond() * GIGA - timestamp;
+            timestampStartNanoseconds = time.getNano() + time.getEpochSecond() * GIGA - timestamp;
             getLogger().log(Level.INFO,
-                            () -> String.format("adapter time offset: %,d ns %s", timeStampStartNanoseconds, time),
+                            () -> String.format("adapter time offset: %,d ns %s", timestampStartNanoseconds, time),
                             null);
         }
         lastTimestamp = timestamp;
 
         // update application clock offset
-        long nanoseconds = timestamp + timeStampStartNanoseconds;
+        long nanoseconds = timestamp + timestampStartNanoseconds;
         DateTimeModule.getInstance().setNanoTime(nanoseconds);
 
         // convert to LocalTime for Packet
@@ -309,6 +314,9 @@ public class RP1210Bus implements Bus {
                 if (rtn > 0) {
                     Packet packet = decode(data, rtn);
                     logger.log(Level.FINE, packet::toTimeString, null);
+                    if (packet.getSource() == getAddress() && !packet.isTransmitted()) {
+                        logger.log(Level.WARNING, () -> "Another ECU is using this address: " + packet, null);
+                    }
                     queue.add(packet);
                 } else if (rtn == -RP1210Library.ERR_RX_QUEUE_FULL) {
                     // RX queue full, remedy is to reread.
