@@ -203,6 +203,7 @@ public class Part01Step26Controller extends StepController {
                .filter(p -> !p.getPacket().isTransmitted())
                .findFirst()
                .ifPresent(packet -> {
+                   getListener().onResult(packet.toString());
                    String msg = "6.1.26 - Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible";
                    addWarning(msg);
                    displayInstructionAndWait(msg, "Second device using SA 0xF9", ERROR);
