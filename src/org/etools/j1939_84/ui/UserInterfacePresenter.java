@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -288,18 +289,27 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
             ResultsListener resultsListener = getResultsListener();
             try {
-                resultsListener.onProgress(1, 3, "Reading Vehicle Identification Number");
+                resultsListener.onProgress(1, 4, "Listening for imposters");
+                boolean hasImposter = vehicleInformationModule.readPackets(3, TimeUnit.SECONDS)
+                                                              .filter(p -> !p.isTransmitted())
+                                                              .anyMatch(p -> p.getSource() == getBusAddress());
+
+                if (hasImposter) {
+                    throw new IOException("Unexpected Service Tool Message from SA 0xF9 observed. Please disconnect the other ECU using SA 0xF9.");
+                }
+
+                resultsListener.onProgress(2, 4, "Reading Vehicle Identification Number");
                 vin = vehicleInformationModule.getVin();
                 getView().setVin(vin);
 
-                resultsListener.onProgress(2, 3, "Reading Vehicle Calibrations");
+                resultsListener.onProgress(3, 4, "Reading Vehicle Calibrations");
                 String cals = vehicleInformationModule.getCalibrationsAsString();
                 getView().setEngineCals(cals);
 
                 result = true;
-                resultsListener.onProgress(3, 3, "Complete");
-            } catch (IOException e) {
-                resultsListener.onProgress(3, 3, e.getMessage());
+                resultsListener.onProgress(4, 4, "Complete");
+            } catch (IOException | BusException e) {
+                resultsListener.onProgress(4, 4, e.getMessage());
                 getView().displayDialog(e.getMessage(), "Communications Error", JOptionPane.ERROR_MESSAGE, false);
             } finally {
                 if (result) {
@@ -492,7 +502,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         getView().setReadVehicleInfoButtonEnabled(false);
     }
 
-    private void setBus(Bus bus) throws BusException {
+    void setBus(Bus bus) throws BusException {
         this.bus = bus;
         vehicleInformationModule.setJ1939(getNewJ1939());
     }
@@ -521,4 +531,9 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         }
         return file;
     }
+
+    private int getBusAddress() {
+        return getNewJ1939().getBus().getAddress();
+    }
+
 }

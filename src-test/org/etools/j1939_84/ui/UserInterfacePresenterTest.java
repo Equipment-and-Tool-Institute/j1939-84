@@ -23,12 +23,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import javax.swing.JOptionPane;
 
 import org.etools.j1939_84.TestExecutor;
 import org.etools.j1939_84.bus.Adapter;
+import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
+import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.RP1210;
 import org.etools.j1939_84.bus.RP1210Bus;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -62,7 +66,7 @@ public class UserInterfacePresenterTest {
     private final Adapter adapter1 = new Adapter("Adapter1", "SD", (short) 1);
     private final Adapter adapter2 = new Adapter("Adapter2", "SD", (short) 2);
     @Mock
-    private VehicleInformationModule comparisonModule;
+    private VehicleInformationModule vehicleInformationModule;
     private TestExecutor executor;
     @Mock
     private HelpView helpView;
@@ -100,7 +104,7 @@ public class UserInterfacePresenterTest {
         when(rp1210.setAdapter(any(), eq(0xF9))).thenReturn(rp1210Bus);
 
         instance = new UserInterfacePresenter(view,
-                                              comparisonModule,
+                                              vehicleInformationModule,
                                               rp1210,
                                               reportFileModule,
                                               runtime,
@@ -114,7 +118,13 @@ public class UserInterfacePresenterTest {
 
     @After
     public void tearDown() throws Exception {
-        verifyNoMoreInteractions(reportFileModule, rp1210, rp1210Bus, runtime, comparisonModule, view, helpView);
+        verifyNoMoreInteractions(reportFileModule,
+                                 rp1210,
+                                 rp1210Bus,
+                                 runtime,
+                                 vehicleInformationModule,
+                                 view,
+                                 helpView);
     }
 
     @Test
@@ -124,8 +134,8 @@ public class UserInterfacePresenterTest {
 
         instance.disconnect();
 
-        verify(comparisonModule).reset();
-        verify(comparisonModule).setJ1939(any(J1939.class));
+        verify(vehicleInformationModule).reset();
+        verify(vehicleInformationModule).setJ1939(any(J1939.class));
 
         InOrder inOrder = inOrder(view);
         inOrder.verify(view).setVin("");
@@ -154,8 +164,8 @@ public class UserInterfacePresenterTest {
 
         instance.disconnect();
 
-        verify(comparisonModule).reset();
-        verify(comparisonModule).setJ1939(any(J1939.class));
+        verify(vehicleInformationModule).reset();
+        verify(vehicleInformationModule).setJ1939(any(J1939.class));
 
         InOrder inOrder = inOrder(view);
         inOrder.verify(view).setVin("");
@@ -233,8 +243,8 @@ public class UserInterfacePresenterTest {
         inOrder.verify(view).setProgressBarText("Push Read Vehicle Info Button");
         inOrder.verify(view).setReadVehicleInfoButtonEnabled(true);
 
-        verify(comparisonModule).reset();
-        verify(comparisonModule).setJ1939(any(J1939.class));
+        verify(vehicleInformationModule).reset();
+        verify(vehicleInformationModule).setJ1939(any(J1939.class));
 
         verify(reportFileModule).setReportFile(eq(file));
 
@@ -264,8 +274,8 @@ public class UserInterfacePresenterTest {
         inOrder.verify(view).setSelectFileButtonEnabled(true);
         inOrder.verify(view).setProgressBarText("Select Report File");
 
-        verify(comparisonModule).reset();
-        verify(comparisonModule).setJ1939(any(J1939.class));
+        verify(vehicleInformationModule).reset();
+        verify(vehicleInformationModule).setJ1939(any(J1939.class));
         verify(reportFileModule).setReportFile(eq(null));
 
         verify(rp1210).getAdapters();
@@ -290,7 +300,7 @@ public class UserInterfacePresenterTest {
                                    JOptionPane.ERROR_MESSAGE,
                                    false);
 
-        verify(comparisonModule).reset();
+        verify(vehicleInformationModule).reset();
 
         InOrder inOrder = inOrder(view, reportFileModule);
         inOrder.verify(view).setVin("");
@@ -325,7 +335,7 @@ public class UserInterfacePresenterTest {
 
         verify(reportFileModule).setReportFile(eq(file));
 
-        verify(comparisonModule).reset();
+        verify(vehicleInformationModule).reset();
 
         InOrder inOrder = inOrder(view);
         inOrder.verify(view).setVin("");
@@ -359,7 +369,7 @@ public class UserInterfacePresenterTest {
                                    JOptionPane.ERROR_MESSAGE,
                                    false);
 
-        verify(comparisonModule).reset();
+        verify(vehicleInformationModule).reset();
 
         InOrder inOrder = inOrder(view);
         inOrder.verify(view).setVin("");
@@ -394,7 +404,7 @@ public class UserInterfacePresenterTest {
 
         verify(reportFileModule).setReportFile(eq(reportFile));
 
-        verify(comparisonModule).reset();
+        verify(vehicleInformationModule).reset();
 
         InOrder inOrder = inOrder(view);
         inOrder.verify(view).setVin("");
@@ -421,8 +431,8 @@ public class UserInterfacePresenterTest {
 
         verify(rp1210).getAdapters();
         verify(rp1210).setAdapter(adapter1, 0xF9);
-        verify(comparisonModule).setJ1939(any(J1939.class));
-        verify(comparisonModule).reset();
+        verify(vehicleInformationModule).setJ1939(any(J1939.class));
+        verify(vehicleInformationModule).reset();
 
         InOrder inOrder1 = inOrder(view);
         inOrder1.verify(view).setVin("");
@@ -445,7 +455,7 @@ public class UserInterfacePresenterTest {
 
         assertSame(file, instance.getReportFile());
 
-        verify(comparisonModule, times(2)).reset();
+        verify(vehicleInformationModule, times(2)).reset();
 
         InOrder inOrder2 = inOrder(view);
         inOrder2.verify(view, times(2)).setVin("");
@@ -475,7 +485,7 @@ public class UserInterfacePresenterTest {
 
         assertSame(file, instance.getReportFile());
 
-        verify(comparisonModule).reset();
+        verify(vehicleInformationModule).reset();
 
         InOrder inOrder = inOrder(view);
         inOrder.verify(view).setVin("");
@@ -503,15 +513,17 @@ public class UserInterfacePresenterTest {
 
     @Test
     public void testOnReadVehicleInfoButtonClickedWithNullCals() throws Exception {
-        when(comparisonModule.getVin()).thenReturn("12345678901234567890");
-        when(comparisonModule.getCalibrationsAsString()).thenThrow(new IOException("Cals not read"));
+        when(vehicleInformationModule.readPackets(3, TimeUnit.SECONDS)).thenReturn(Stream.empty());
+        when(vehicleInformationModule.getVin()).thenReturn("12345678901234567890");
+        when(vehicleInformationModule.getCalibrationsAsString()).thenThrow(new IOException("Cals not read"));
 
         instance.onReadVehicleInfoButtonClicked();
         executor.run();
 
-        verify(comparisonModule).getVin();
-        verify(comparisonModule).getCalibrationsAsString();
-        verify(comparisonModule).reset();
+        verify(vehicleInformationModule).readPackets(3, TimeUnit.SECONDS);
+        verify(vehicleInformationModule).getVin();
+        verify(vehicleInformationModule).getCalibrationsAsString();
+        verify(vehicleInformationModule).reset();
 
         InOrder inOrder = inOrder(view);
         inOrder.verify(view).setVin("");
@@ -521,12 +533,14 @@ public class UserInterfacePresenterTest {
         inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
         inOrder.verify(view).setAdapterComboBoxEnabled(false);
         inOrder.verify(view).setSelectFileButtonEnabled(false);
-        inOrder.verify(view).setProgressBarValue(0, 3, 1);
+        inOrder.verify(view).setProgressBarValue(0, 4, 1);
+        inOrder.verify(view).setProgressBarText("Listening for imposters");
+        inOrder.verify(view).setProgressBarValue(0, 4, 2);
         inOrder.verify(view).setProgressBarText("Reading Vehicle Identification Number");
         inOrder.verify(view).setVin("12345678901234567890");
-        inOrder.verify(view).setProgressBarValue(0, 3, 2);
+        inOrder.verify(view).setProgressBarValue(0, 4, 3);
         inOrder.verify(view).setProgressBarText("Reading Vehicle Calibrations");
-        inOrder.verify(view).setProgressBarValue(0, 3, 3);
+        inOrder.verify(view).setProgressBarValue(0, 4, 4);
         inOrder.verify(view).setProgressBarText("Cals not read");
         inOrder.verify(view).displayDialog("Cals not read", "Communications Error", JOptionPane.ERROR_MESSAGE, false);
         inOrder.verify(view).setStartButtonEnabled(false);
@@ -538,13 +552,15 @@ public class UserInterfacePresenterTest {
 
     @Test
     public void testOnReadVehicleInfoButtonClickedWithNullVin() throws Exception {
-        when(comparisonModule.getVin()).thenThrow(new IOException("VIN not read"));
+        when(vehicleInformationModule.readPackets(3, TimeUnit.SECONDS)).thenReturn(Stream.of());
+        when(vehicleInformationModule.getVin()).thenThrow(new IOException("VIN not read"));
 
         instance.onReadVehicleInfoButtonClicked();
         executor.run();
 
-        verify(comparisonModule).getVin();
-        verify(comparisonModule).reset();
+        verify(vehicleInformationModule).getVin();
+        verify(vehicleInformationModule).reset();
+        verify(vehicleInformationModule).readPackets(3, TimeUnit.SECONDS);
         verify(view).setVin("");
         verify(view).setEngineCals("");
         verify(view).setReadVehicleInfoButtonEnabled(false);
@@ -552,10 +568,11 @@ public class UserInterfacePresenterTest {
         verify(view, times(2)).setStopButtonEnabled(false);
         verify(view).setAdapterComboBoxEnabled(false);
         verify(view).setSelectFileButtonEnabled(false);
-
-        verify(view).setProgressBarValue(0, 3, 1);
+        verify(view).setProgressBarValue(0, 4, 1);
+        verify(view).setProgressBarText("Listening for imposters");
+        verify(view).setProgressBarValue(0, 4, 2);
         verify(view).setProgressBarText("Reading Vehicle Identification Number");
-        verify(view).setProgressBarValue(0, 3, 3);
+        verify(view).setProgressBarValue(0, 4, 4);
         verify(view).setProgressBarText("VIN not read");
         verify(view).displayDialog("VIN not read", "Communications Error", JOptionPane.ERROR_MESSAGE, false);
 
@@ -565,18 +582,64 @@ public class UserInterfacePresenterTest {
     }
 
     @Test
+    public void testOnReadVehicleInfoButtonClickedWithImposter() throws Exception {
+        when(vehicleInformationModule.readPackets(3, TimeUnit.SECONDS)).thenReturn(Stream.of(Packet.create(0,
+                                                                                                           0xF9,
+                                                                                                           0,
+                                                                                                           0,
+                                                                                                           0,
+                                                                                                           0,
+                                                                                                           0,
+                                                                                                           0,
+                                                                                                           0,
+                                                                                                           0)));
+
+        var bus = mock(Bus.class);
+        when(bus.getAddress()).thenReturn(0xF9);
+
+        instance.setBus(bus);
+        instance.onReadVehicleInfoButtonClicked();
+        executor.run();
+
+        verify(vehicleInformationModule).setJ1939(any());
+        verify(vehicleInformationModule).reset();
+        verify(vehicleInformationModule).readPackets(3, TimeUnit.SECONDS);
+        verify(view).setVin("");
+        verify(view).setEngineCals("");
+        verify(view).setReadVehicleInfoButtonEnabled(false);
+        verify(view, times(2)).setStartButtonEnabled(false);
+        verify(view, times(2)).setStopButtonEnabled(false);
+        verify(view).setAdapterComboBoxEnabled(false);
+        verify(view).setSelectFileButtonEnabled(false);
+        verify(view).setProgressBarValue(0, 4, 1);
+        verify(view).setProgressBarText("Listening for imposters");
+        verify(view).setProgressBarValue(0, 4, 4);
+        verify(view).setProgressBarText("Unexpected Service Tool Message from SA 0xF9 observed. Please disconnect the other ECU using SA 0xF9.");
+        verify(view).displayDialog("Unexpected Service Tool Message from SA 0xF9 observed. Please disconnect the other ECU using SA 0xF9.",
+                                   "Communications Error",
+                                   JOptionPane.ERROR_MESSAGE,
+                                   false);
+
+        verify(view).setReadVehicleInfoButtonEnabled(true);
+        verify(view).setAdapterComboBoxEnabled(true);
+        verify(view).setSelectFileButtonEnabled(true);
+    }
+
+    @Test
     public void testOnReadVehicleInfoButtonClickedWithReportFileMatched() throws Exception {
-        when(comparisonModule.getVin()).thenReturn("12345678901234567890");
-        when(comparisonModule.getCalibrationsAsString()).thenReturn("Engine Cals");
+        when(vehicleInformationModule.readPackets(3, TimeUnit.SECONDS)).thenReturn(Stream.empty());
+        when(vehicleInformationModule.getVin()).thenReturn("12345678901234567890");
+        when(vehicleInformationModule.getCalibrationsAsString()).thenReturn("Engine Cals");
 
         instance.onReadVehicleInfoButtonClicked();
         executor.run();
 
         assertEquals("12345678901234567890", instance.getVin());
 
-        verify(comparisonModule).reset();
-        verify(comparisonModule).getVin();
-        verify(comparisonModule).getCalibrationsAsString();
+        verify(vehicleInformationModule).reset();
+        verify(vehicleInformationModule).readPackets(3, TimeUnit.SECONDS);
+        verify(vehicleInformationModule).getVin();
+        verify(vehicleInformationModule).getCalibrationsAsString();
 
         InOrder inOrder = inOrder(view);
         inOrder.verify(view).setVin("");
@@ -586,13 +649,15 @@ public class UserInterfacePresenterTest {
         inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
         inOrder.verify(view).setAdapterComboBoxEnabled(false);
         inOrder.verify(view).setSelectFileButtonEnabled(false);
-        inOrder.verify(view).setProgressBarValue(0, 3, 1);
+        inOrder.verify(view).setProgressBarValue(0, 4, 1);
+        inOrder.verify(view).setProgressBarText("Listening for imposters");
+        inOrder.verify(view).setProgressBarValue(0, 4, 2);
         inOrder.verify(view).setProgressBarText("Reading Vehicle Identification Number");
         inOrder.verify(view).setVin("12345678901234567890");
-        inOrder.verify(view).setProgressBarValue(0, 3, 2);
+        inOrder.verify(view).setProgressBarValue(0, 4, 3);
         inOrder.verify(view).setProgressBarText("Reading Vehicle Calibrations");
         inOrder.verify(view).setEngineCals("Engine Cals");
-        inOrder.verify(view).setProgressBarValue(0, 3, 3);
+        inOrder.verify(view).setProgressBarValue(0, 4, 4);
         inOrder.verify(view).setProgressBarText("Complete");
         inOrder.verify(view).setProgressBarText("Push Start Button");
         inOrder.verify(view).setStartButtonEnabled(true);

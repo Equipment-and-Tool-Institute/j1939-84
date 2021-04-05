@@ -17,9 +17,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.BusException;
+import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
@@ -304,6 +307,10 @@ public class VehicleInformationModule extends FunctionalModule {
                                          .sorted()
                                          .distinct()
                                          .collect(Collectors.toList());
+    }
+
+    public Stream<Packet> readPackets(long timeout, TimeUnit unit) throws BusException {
+        return getJ1939().read(timeout, unit);
     }
 
     public void changeKeyState(ResultsListener listener, KeyState keyState) {

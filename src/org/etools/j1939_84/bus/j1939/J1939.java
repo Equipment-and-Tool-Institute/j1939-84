@@ -471,7 +471,6 @@ public class J1939 {
         return Stream.empty();
     }
 
-    /** Exposed only for mockito to override in testing */
     public Stream<Packet> read(long timeout, TimeUnit unit) throws BusException {
         return bus.read(timeout, unit);
     }
