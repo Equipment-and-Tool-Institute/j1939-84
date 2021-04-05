@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.bus;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.etools.j1939_84.bus.RP1210Library.BLOCKING_NONE;
 import static org.etools.j1939_84.bus.RP1210Library.CLAIM_BLOCK_UNTIL_DONE;
 import static org.etools.j1939_84.bus.RP1210Library.CMD_ECHO_TRANSMITTED_MESSAGES;
@@ -11,8 +12,10 @@ import static org.etools.j1939_84.bus.RP1210Library.CMD_PROTECT_J1939_ADDRESS;
 import static org.etools.j1939_84.bus.RP1210Library.CMD_SET_ALL_FILTERS_STATES_TO_PASS;
 import static org.etools.j1939_84.bus.RP1210Library.ECHO_ON;
 import static org.etools.j1939_84.bus.RP1210Library.NOTIFICATION_NONE;
+import static org.etools.j1939_84.controllers.Controller.Ending.ABORTED;
+import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL;
+import static org.etools.j1939_84.controllers.ResultsListener.MessageType.ERROR;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -27,6 +30,10 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import org.etools.j1939_84.J1939_84;
+import org.etools.j1939_84.events.CompleteEvent;
+import org.etools.j1939_84.events.EventBus;
+import org.etools.j1939_84.events.ResultEvent;
+import org.etools.j1939_84.events.UrgentEvent;
 import org.etools.j1939_84.modules.DateTimeModule;
 
 /**
@@ -80,10 +87,12 @@ public class RP1210Bus implements Bus {
      */
     final private long timeStampWeight;
 
+    private final EventBus eventBus;
+
     /**
      * The Queue of {@link Packet}s
      */
-    private MultiQueue<Packet> queue = new MultiQueue<>();
+    final private MultiQueue<Packet> queue;
 
     /**
      * An adjustment offset for the adapter time to system time. Adapters don't have batteries, so their clocks are
@@ -93,16 +102,11 @@ public class RP1210Bus implements Bus {
 
     private long lastTimestamp = Long.MAX_VALUE;
 
-    /**
-     * Constructor
-     *
-     * @param  adapter
-     *                          the {@link Adapter} thats connected to the vehicle
-     * @param  address
-     *                          the address of this branch on the bus
-     * @throws BusException
-     *                          if there is a problem connecting to the adapter
-     */
+    private static BusLogger createBusAsyncLogger(Logger logger) {
+        Executor exe = Executors.newSingleThreadExecutor();
+        return (severity, string, e) -> exe.execute(() -> logger.log(severity, string.get(), e));
+    }
+
     public RP1210Bus(Adapter adapter, int address, boolean appPacketize) throws BusException {
         this(RP1210Library.load(adapter),
              Executors.newSingleThreadScheduledExecutor(),
@@ -110,12 +114,8 @@ public class RP1210Bus implements Bus {
              adapter,
              address,
              appPacketize,
-             createBusAsyncLogger(J1939_84.getLogger()));
-    }
-
-    private static BusLogger createBusAsyncLogger(Logger logger) {
-        Executor exe = Executors.newSingleThreadExecutor();
-        return (severity, string, e) -> exe.execute(() -> logger.log(severity, string.get(), e));
+             createBusAsyncLogger(J1939_84.getLogger()),
+             EventBus.getInstance());
     }
 
     /**
@@ -149,12 +149,14 @@ public class RP1210Bus implements Bus {
                      Adapter adapter,
                      int address,
                      boolean appPacketize,
-                     BusLogger logger) throws BusException {
+                     BusLogger logger,
+                     EventBus eventBus) throws BusException {
         this.rp1210Library = rp1210Library;
         this.exec = exec;
         this.queue = queue;
         this.address = address;
         this.logger = logger;
+        this.eventBus = eventBus;
         timeStampWeight = adapter.getTimestampWeight() * 1000L;
         timeStampStartNanoseconds = 0;
 
@@ -165,7 +167,7 @@ public class RP1210Bus implements Bus {
                                                       0,
                                                       0,
                                                       (short) (appPacketize ? 1 : 0));
-        verify(clientId);
+        checkReturnCode(clientId);
         try {
             sendCommand(CMD_PROTECT_J1939_ADDRESS,
                         new byte[] { (byte) address, 0, 0, (byte) 0xE0, (byte) 0xFF, 0,
@@ -173,7 +175,7 @@ public class RP1210Bus implements Bus {
             sendCommand(CMD_ECHO_TRANSMITTED_MESSAGES, ECHO_ON);
             sendCommand(CMD_SET_ALL_FILTERS_STATES_TO_PASS);
 
-            this.exec.scheduleAtFixedRate(() -> poll(), 1, 1, TimeUnit.MILLISECONDS);
+            this.exec.scheduleAtFixedRate(this::poll, 1, 1, TimeUnit.MILLISECONDS);
         } catch (Throwable e) {
             stop();
             throw new BusException("Failed to configure adapter.", e);
@@ -183,7 +185,6 @@ public class RP1210Bus implements Bus {
     @Override
     public void close() {
         queue.close();
-        queue = new MultiQueue<>();
     }
 
     @Override
@@ -200,7 +201,7 @@ public class RP1210Bus implements Bus {
     public int getConnectionSpeed() throws BusException {
         byte[] bytes = new byte[17];
         sendCommand(CMD_GET_PROTOCOL_CONNECTION_SPEED, bytes);
-        String result = new String(bytes, StandardCharsets.UTF_8).trim();
+        String result = new String(bytes, UTF_8).trim();
         return Integer.parseInt(result);
     }
 
@@ -229,7 +230,7 @@ public class RP1210Bus implements Bus {
                                                                            NOTIFICATION_NONE,
                                                                            BLOCKING_NONE))
                             .get();
-            verify(rtn);
+            checkReturnCode(rtn);
             int id = tx.getId(0xFFFF);
             int source = tx.getSource();
             return stream
@@ -254,7 +255,6 @@ public class RP1210Bus implements Bus {
         // only 32 bits used, but to get a u32, use a s64.
         long timestamp = (0xFF000000L & data[0] << 24) | (0xFF0000L & data[1] << 16) | (0xFF00L & data[2] << 8)
                 | (0xFFL & data[3]);
-        timestamp *= timeStampWeight;
         // data[4] is echo
         int echoed = data[4];
         int pgn = ((data[7] & 0xFF) << 16) | ((data[6] & 0xFF) << 8) | (data[5] & 0xFF);
@@ -327,20 +327,13 @@ public class RP1210Bus implements Bus {
                 short rtn = rp1210Library.RP1210_ReadMessage(clientId, data, (short) data.length, BLOCKING_NONE);
                 if (rtn > 0) {
                     Packet packet = decode(data, rtn);
-                    if (packet.getSource() == getAddress() && !packet.isTransmitted()) {
-                        getLogger().log(Level.WARNING, () -> "Another ECU is using this address: " + packet, null);
-                    }
-                    getLogger().log(Level.FINE, () -> packet.toTimeString(), null);
+                    logPacket(packet);
                     queue.add(packet);
                 } else if (rtn == -RP1210Library.ERR_RX_QUEUE_FULL) {
                     // RX queue full, remedy is to reread.
-                    byte[] buffer = new byte[256];
-                    rp1210Library.RP1210_GetErrorMsg((short) Math.abs(rtn), buffer);
-                    getLogger().log(Level.SEVERE,
-                                    () -> "Error (" + rtn + "): " + new String(buffer, StandardCharsets.UTF_8).trim(),
-                                    null);
+                    logger.log(Level.SEVERE, () -> getErrorMessage(rtn), null);
                 } else {
-                    verify(rtn);
+                    checkReturnCode(rtn);
                     break;
                 }
             }
@@ -361,7 +354,7 @@ public class RP1210Bus implements Bus {
      */
     private void sendCommand(short command, byte... data) throws BusException {
         short rtn = rp1210Library.RP1210_SendCommand(command, clientId, data, (short) data.length);
-        verify(rtn);
+        checkReturnCode(rtn);
     }
 
     /**
@@ -391,12 +384,41 @@ public class RP1210Bus implements Bus {
      * @throws BusException
      *                          if the return code is an error
      */
-    private void verify(short rtnCode) throws BusException {
+    private void checkReturnCode(short rtnCode) throws BusException {
         if (rtnCode > 127 || rtnCode < 0) {
-            rtnCode = (short) Math.abs(rtnCode);
-            byte[] buffer = new byte[256];
-            rp1210Library.RP1210_GetErrorMsg(rtnCode, buffer);
-            throw new BusException("Error (" + rtnCode + "): " + new String(buffer, StandardCharsets.UTF_8).trim());
+            String errorMessage = getErrorMessage(rtnCode);
+            throw new BusException(errorMessage);
         }
+    }
+
+    private boolean reportedImposter = false;
+
+    private void logPacket(Packet packet) {
+        logger.log(Level.FINE, () -> packet.toTimeString(), null);
+
+        if (packet.getSource() == getAddress() && !packet.isTransmitted()) {
+            logger.log(Level.WARNING, () -> "Another ECU is using this address: " + packet, null);
+
+            if (!reportedImposter) {
+                String uiMsg = "Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible";
+                eventBus.publish(new ResultEvent("INVALID: " + uiMsg));
+                eventBus.publish(new UrgentEvent(uiMsg,
+                                                 "Second device using SA 0xF9",
+                                                 ERROR,
+                                                 answerType -> {
+                                                     if (answerType == CANCEL) {
+                                                         eventBus.publish(new CompleteEvent(ABORTED));
+                                                     }
+                                                 }));
+                reportedImposter = true;
+            }
+        }
+    }
+
+    private String getErrorMessage(short rtnCode) {
+        rtnCode = (short) Math.abs(rtnCode);
+        byte[] buffer = new byte[256];
+        rp1210Library.RP1210_GetErrorMsg(rtnCode, buffer);
+        return "Error (" + rtnCode + "): " + new String(buffer, UTF_8).trim();
     }
 }

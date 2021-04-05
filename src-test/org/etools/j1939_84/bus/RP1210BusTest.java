@@ -13,6 +13,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -25,11 +26,17 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import org.etools.j1939_84.controllers.Controller.Ending;
+import org.etools.j1939_84.controllers.QuestionListener.AnswerType;
+import org.etools.j1939_84.controllers.ResultsListener.MessageType;
+import org.etools.j1939_84.events.CompleteEvent;
+import org.etools.j1939_84.events.EventBus;
+import org.etools.j1939_84.events.ResultEvent;
+import org.etools.j1939_84.events.UrgentEvent;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,6 +70,9 @@ public class RP1210BusTest {
     @Mock
     private RP1210Library rp1210Library;
 
+    @Mock
+    private EventBus eventBus;
+
     private void createInstance() throws BusException {
         instance = new RP1210Bus(rp1210Library,
                                  exec,
@@ -70,12 +80,18 @@ public class RP1210BusTest {
                                  adapter,
                                  ADDRESS,
                                  true,
-                                 (severity, string, e) -> logger.log(severity, string.get(), e));
+                                 (severity, string, e) -> logger.log(severity, string.get(), e),
+                                 eventBus);
     }
 
     @Before
     public void setUp() throws Exception {
         adapter = new Adapter("Testing Adapter", "TST_ADPTR", (short) 42);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        verifyNoMoreInteractions(rp1210Library, exec, queue, logger, eventBus);
     }
 
     private void startInstance() throws Exception {
@@ -113,11 +129,6 @@ public class RP1210BusTest {
                                                  aryEq(new byte[] {}),
                                                  eq((short) 0));
         verify(exec).scheduleAtFixedRate(any(Runnable.class), eq(1L), eq(1L), eq(TimeUnit.MILLISECONDS));
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        verifyNoMoreInteractions(rp1210Library, exec, queue, logger);
     }
 
     @Test
@@ -510,17 +521,26 @@ public class RP1210BusTest {
                 (byte) 0x06, (byte) ADDRESS, (byte) 0x34, (byte) 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xAA,
                 (byte) 0xBB,
                 (byte) 0xCC, (byte) 0xDD, (byte) 0xEE };
-        when(rp1210Library.RP1210_ReadMessage(eq((short) 1), any(byte[].class), eq((short) 2048), eq((short) 0)))
-                                                                                                                 .thenAnswer(arg0 -> {
-                                                                                                                     byte[] data = arg0.getArgument(1);
-                                                                                                                     System.arraycopy(encodedPacket,
-                                                                                                                                      0,
-                                                                                                                                      data,
-                                                                                                                                      0,
-                                                                                                                                      encodedPacket.length);
-                                                                                                                     return (short) encodedPacket.length;
-                                                                                                                 })
-                                                                                                                 .thenReturn((short) 0);
+        when(rp1210Library.RP1210_ReadMessage(eq((short) 1),
+                                              any(byte[].class),
+                                              eq((short) 2048),
+                                              eq((short) 0)))
+                                                             .thenAnswer(arg0 -> {
+                                                                 byte[] data = arg0.getArgument(1);
+                                                                 System.arraycopy(encodedPacket,
+                                                                                  0,
+                                                                                  data,
+                                                                                  0,
+                                                                                  encodedPacket.length);
+                                                                 return (short) encodedPacket.length;
+                                                             })
+                                                             .thenReturn((short) 0);
+
+        doAnswer(invocationOnMock -> {
+            UrgentEvent event = invocationOnMock.getArgument(0);
+            event.getQuestionListener().answered(AnswerType.CANCEL);
+            return null;
+        }).when(eventBus).publish(any(UrgentEvent.class));
 
         startInstance();
         Runnable runnable = runnableCaptor.getValue();
@@ -540,6 +560,13 @@ public class RP1210BusTest {
         verify(logger).log(Level.WARNING,
                            "Another ECU is using this address: 181234A5 [8] 77 88 99 AA BB CC DD EE",
                            (Throwable) null);
+
+        String uiMsg = "Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible";
+
+        verify(eventBus).publish(new ResultEvent("INVALID: " + uiMsg));
+        verify(eventBus).publish(new UrgentEvent(uiMsg, "Second device using SA 0xF9", MessageType.ERROR, answerType -> {
+        }));
+        verify(eventBus).publish(new CompleteEvent(Ending.ABORTED));
     }
 
     @Test
