@@ -334,10 +334,6 @@ public class RP1210Bus implements Bus {
         }
     }
 
-    public boolean isImposterFound() {
-        return imposterDetected;
-    }
-
     /**
      * Helper method to send a command to the library
      *
