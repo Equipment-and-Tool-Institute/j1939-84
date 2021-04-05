@@ -91,6 +91,8 @@ public class RP1210Bus implements Bus {
     // from the .INI file.
     final private long timestampWeight;
 
+    private boolean imposterDetected;
+
     private static BusLogger createBusAsyncLogger(Logger logger) {
         Executor exe = Executors.newSingleThreadExecutor();
         return (severity, string, e) -> exe.execute(() -> logger.log(severity, string.get(), e));
@@ -316,6 +318,7 @@ public class RP1210Bus implements Bus {
                     logger.log(Level.FINE, packet::toTimeString, null);
                     if (packet.getSource() == getAddress() && !packet.isTransmitted()) {
                         logger.log(Level.WARNING, () -> "Another ECU is using this address: " + packet, null);
+                        imposterDetected = true;
                     }
                     queue.add(packet);
                 } else if (rtn == -RP1210Library.ERR_RX_QUEUE_FULL) {
@@ -329,6 +332,10 @@ public class RP1210Bus implements Bus {
         } catch (BusException e) {
             getLogger().log(Level.SEVERE, () -> "Failed to read RP1210", e);
         }
+    }
+
+    public boolean isImposterFound() {
+        return imposterDetected;
     }
 
     /**
@@ -385,5 +392,10 @@ public class RP1210Bus implements Bus {
         byte[] buffer = new byte[256];
         rp1210Library.RP1210_GetErrorMsg(rtnCode, buffer);
         return "Error (" + rtnCode + "): " + new String(buffer, UTF_8).trim();
+    }
+
+    @Override
+    public boolean imposterDetected() {
+        return imposterDetected;
     }
 }
