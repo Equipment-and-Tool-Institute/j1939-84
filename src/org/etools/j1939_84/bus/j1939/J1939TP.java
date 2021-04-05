@@ -505,4 +505,9 @@ public class J1939TP implements Bus {
             super("EOM not received.");
         }
     }
+
+    @Override
+    public boolean imposterDetected() {
+        return bus.imposterDetected();
+    }
 }

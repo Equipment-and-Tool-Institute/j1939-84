@@ -330,7 +330,10 @@ public class Packet {
             }
         }
         if (data.length == 0) {
-            throw new PacketException("Failed Packet");
+            throw new PacketException(String.format("Failed Packet: %s %06X%02X [?] ...",
+                                                    DateTimeModule.getInstance().getTimeFormatter().format(timestamp),
+                                                    priority << 18 | id,
+                                                    source));
         }
         return data;
     }
