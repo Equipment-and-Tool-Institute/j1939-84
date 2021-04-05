@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus;
@@ -12,9 +12,6 @@ import static org.etools.j1939_84.bus.RP1210Library.CMD_PROTECT_J1939_ADDRESS;
 import static org.etools.j1939_84.bus.RP1210Library.CMD_SET_ALL_FILTERS_STATES_TO_PASS;
 import static org.etools.j1939_84.bus.RP1210Library.ECHO_ON;
 import static org.etools.j1939_84.bus.RP1210Library.NOTIFICATION_NONE;
-import static org.etools.j1939_84.controllers.Controller.Ending.ABORTED;
-import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL;
-import static org.etools.j1939_84.controllers.ResultsListener.MessageType.ERROR;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -30,10 +27,6 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import org.etools.j1939_84.J1939_84;
-import org.etools.j1939_84.events.CompleteEvent;
-import org.etools.j1939_84.events.EventBus;
-import org.etools.j1939_84.events.ResultEvent;
-import org.etools.j1939_84.events.UrgentEvent;
 import org.etools.j1939_84.modules.DateTimeModule;
 
 /**
@@ -83,13 +76,6 @@ public class RP1210Bus implements Bus {
     private final RP1210Library rp1210Library;
 
     /**
-     * From the adapter .ini file.
-     */
-    final private long timeStampWeight;
-
-    private final EventBus eventBus;
-
-    /**
      * The Queue of {@link Packet}s
      */
     final private MultiQueue<Packet> queue;
@@ -114,8 +100,7 @@ public class RP1210Bus implements Bus {
              adapter,
              address,
              appPacketize,
-             createBusAsyncLogger(J1939_84.getLogger()),
-             EventBus.getInstance());
+             createBusAsyncLogger(J1939_84.getLogger()));
     }
 
     /**
@@ -149,19 +134,15 @@ public class RP1210Bus implements Bus {
                      Adapter adapter,
                      int address,
                      boolean appPacketize,
-                     BusLogger logger,
-                     EventBus eventBus) throws BusException {
+                     BusLogger logger) throws BusException {
         this.rp1210Library = rp1210Library;
         this.exec = exec;
         this.queue = queue;
         this.address = address;
         this.logger = logger;
-        this.eventBus = eventBus;
-        timeStampWeight = adapter.getTimestampWeight() * 1000L;
         timeStampStartNanoseconds = 0;
 
-        clientId = rp1210Library
-                                .RP1210_ClientConnect(0,
+        clientId = rp1210Library.RP1210_ClientConnect(0,
                                                       adapter.getDeviceId(),
                                                       "J1939:Baud=Auto",
                                                       0,
@@ -327,7 +308,7 @@ public class RP1210Bus implements Bus {
                 short rtn = rp1210Library.RP1210_ReadMessage(clientId, data, (short) data.length, BLOCKING_NONE);
                 if (rtn > 0) {
                     Packet packet = decode(data, rtn);
-                    logPacket(packet);
+                    logger.log(Level.FINE, packet::toTimeString, null);
                     queue.add(packet);
                 } else if (rtn == -RP1210Library.ERR_RX_QUEUE_FULL) {
                     // RX queue full, remedy is to reread.
@@ -388,30 +369,6 @@ public class RP1210Bus implements Bus {
         if (rtnCode > 127 || rtnCode < 0) {
             String errorMessage = getErrorMessage(rtnCode);
             throw new BusException(errorMessage);
-        }
-    }
-
-    private boolean reportedImposter = false;
-
-    private void logPacket(Packet packet) {
-        logger.log(Level.FINE, () -> packet.toTimeString(), null);
-
-        if (packet.getSource() == getAddress() && !packet.isTransmitted()) {
-            logger.log(Level.WARNING, () -> "Another ECU is using this address: " + packet, null);
-
-            if (!reportedImposter) {
-                String uiMsg = "Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible";
-                eventBus.publish(new ResultEvent("INVALID: " + uiMsg));
-                eventBus.publish(new UrgentEvent(uiMsg,
-                                                 "Second device using SA 0xF9",
-                                                 ERROR,
-                                                 answerType -> {
-                                                     if (answerType == CANCEL) {
-                                                         eventBus.publish(new CompleteEvent(ABORTED));
-                                                     }
-                                                 }));
-                reportedImposter = true;
-            }
         }
     }
 
