@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus;
@@ -24,6 +24,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -33,6 +34,7 @@ import org.etools.j1939_84.events.CompleteEvent;
 import org.etools.j1939_84.events.EventBus;
 import org.etools.j1939_84.events.ResultEvent;
 import org.etools.j1939_84.events.UrgentEvent;
+import org.etools.j1939_84.modules.DateTimeModule;
 
 /**
  * The RP1210 implementation of a {@link Bus}
@@ -41,6 +43,8 @@ import org.etools.j1939_84.events.UrgentEvent;
  *
  */
 public class RP1210Bus implements Bus {
+
+    private static final long GIGA = 1000000000;
 
     /**
      * The source address for this tool
@@ -62,6 +66,12 @@ public class RP1210Bus implements Bus {
      */
     private final ScheduledExecutorService exec;
 
+    interface BusLogger {
+
+        void log(Level severe, Supplier<String> string, BusException e);
+
+    }
+
     /**
      * The {@link Logger} for errors
      */
@@ -82,21 +92,19 @@ public class RP1210Bus implements Bus {
     /**
      * The Queue of {@link Packet}s
      */
-    private MultiQueue<Packet> queue;
+    final private MultiQueue<Packet> queue;
 
     /**
      * An adjustment offset for the adapter time to system time. Adapters don't have batteries, so their clocks are
      * always wrong.
      */
-    private long timeStampStartMicroseconds;
+    private long timeStampStartNanoseconds;
 
-    interface BusLogger {
-        void log(Level severe, String string, BusException e);
-    }
+    private long lastTimestamp = Long.MAX_VALUE;
 
     private static BusLogger createBusAsyncLogger(Logger logger) {
         Executor exe = Executors.newSingleThreadExecutor();
-        return (severity, string, e) -> exe.execute(() -> logger.log(severity, string, e));
+        return (severity, string, e) -> exe.execute(() -> logger.log(severity, string.get(), e));
     }
 
     public RP1210Bus(Adapter adapter, int address, boolean appPacketize) throws BusException {
@@ -112,6 +120,28 @@ public class RP1210Bus implements Bus {
 
     /**
      * Constructor exposed for testing
+     *
+     * @param  rp1210Library
+     *                           the {@link RP1210Library} that connects to the adapter
+     *
+     * @param  exec
+     *                           the {@link ScheduledExecutorService} that will execute tasks
+     *
+     * @param  adapter
+     *                           the {@link Adapter} thats connected to the vehicle
+     *
+     * @param  address
+     *                           the source address of this branch on the bus
+     *
+     * @param  logger
+     *                           the {@link Logger} for logging errors
+     *
+     * @param  queue
+     *                           the {@link Packet} for logging errors
+     *
+     * @throws BusException
+     *                           if there is a problem connecting to the adapter
+     *
      */
     public RP1210Bus(RP1210Library rp1210Library,
                      ScheduledExecutorService exec,
@@ -126,11 +156,12 @@ public class RP1210Bus implements Bus {
         this.queue = queue;
         this.address = address;
         this.logger = logger;
-        timeStampWeight = adapter.getTimeStampWeight();
-        timeStampStartMicroseconds = 0;
         this.eventBus = eventBus;
+        timeStampWeight = adapter.getTimestampWeight() * 1000L;
+        timeStampStartNanoseconds = 0;
 
-        clientId = rp1210Library.RP1210_ClientConnect(0,
+        clientId = rp1210Library
+                                .RP1210_ClientConnect(0,
                                                       adapter.getDeviceId(),
                                                       "J1939:Baud=Auto",
                                                       0,
@@ -154,7 +185,6 @@ public class RP1210Bus implements Bus {
     @Override
     public void close() {
         queue.close();
-        queue = new MultiQueue<>();
     }
 
     @Override
@@ -235,27 +265,29 @@ public class RP1210Bus implements Bus {
             pgn = pgn | (destination & 0xFF);
         }
 
-        Instant time = adapterTimestampToInstant(timestamp);
-        long diff = Math.abs(time.toEpochMilli() - Instant.now().toEpochMilli());
-        if (diff > 1000) {
-            timeStampStartMicroseconds = 1000 * System.currentTimeMillis() - timestamp * timeStampWeight;
-            getLogger().log(Level.INFO, String.format("adapter time offset: %,d µs", timeStampStartMicroseconds), null);
-            time = adapterTimestampToInstant(timestamp);
+        // only recalibrate clocks when adapter rolls over
+        if (timestamp < lastTimestamp) {
+            Instant time = Instant.now();
+            timeStampStartNanoseconds = time.getNano() + time.getEpochSecond() * GIGA - timestamp;
+            getLogger().log(Level.INFO,
+                            () -> String.format("adapter time offset: %,d ns %s", timeStampStartNanoseconds, time),
+                            null);
         }
+        lastTimestamp = timestamp;
+
+        // update application clock offset
+        long nanoseconds = timestamp + timeStampStartNanoseconds;
+        DateTimeModule.getInstance().setNanoTime(nanoseconds);
+
+        // convert to LocalTime for Packet
+        Instant time = Instant.ofEpochSecond( /* seconds */ nanoseconds / GIGA,
+                                             /* nanoseconds */(nanoseconds % GIGA));
         return Packet.create(LocalDateTime.ofInstant(time, ZoneId.systemDefault()),
                              priority,
                              pgn,
                              source,
                              echoed != 0,
                              Arrays.copyOfRange(data, 11, length));
-    }
-
-    /** Apply adapter time offset. */
-    private Instant adapterTimestampToInstant(long timestamp) {
-        long microseconds = timestamp * timeStampWeight + timeStampStartMicroseconds;
-        Instant time = Instant.ofEpochSecond( /* seconds */ microseconds / 1000000,
-                                             /* nanoseconds */(microseconds % 1000000) * 1000);
-        return time;
     }
 
     /**
@@ -299,14 +331,14 @@ public class RP1210Bus implements Bus {
                     queue.add(packet);
                 } else if (rtn == -RP1210Library.ERR_RX_QUEUE_FULL) {
                     // RX queue full, remedy is to reread.
-                    logger.log(Level.SEVERE, getErrorMessage(rtn), null);
+                    logger.log(Level.SEVERE, () -> getErrorMessage(rtn), null);
                 } else {
                     checkReturnCode(rtn);
                     break;
                 }
             }
         } catch (BusException e) {
-            logger.log(Level.SEVERE, "Failed to read RP1210", e);
+            getLogger().log(Level.SEVERE, () -> "Failed to read RP1210", e);
         }
     }
 
@@ -362,11 +394,10 @@ public class RP1210Bus implements Bus {
     private boolean reportedImposter = false;
 
     private void logPacket(Packet packet) {
-        logger.log(Level.FINE, packet.toTimeString(), null);
+        logger.log(Level.FINE, () -> packet.toTimeString(), null);
 
         if (packet.getSource() == getAddress() && !packet.isTransmitted()) {
-            String msg = "Another ECU is using this address: " + packet;
-            logger.log(Level.WARNING, msg, null);
+            logger.log(Level.WARNING, () -> "Another ECU is using this address: " + packet, null);
 
             if (!reportedImposter) {
                 String uiMsg = "Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible";

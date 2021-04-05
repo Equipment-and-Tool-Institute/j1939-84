@@ -107,14 +107,14 @@ public class RP1210 {
                         Section vendorSection = driverIni.get("VendorInformation");
                         String vendorName = vendorSection.getOrDefault("Name", "");
 
-                        long timeStampWeight = getTimeStampWeight(vendorSection);
+                        long timestampWeight = getTimestampWeight(vendorSection);
 
                         // loop through protocols to find J1939
                         for (String protocolId : getProtocols(vendorSection)) {
                             Section protocolSection = driverIni.get("ProtocolInformation" + protocolId);
                             if (isJ1939Section(protocolSection)) {
                                 Arrays.stream(getDevices(protocolSection))
-                                      .map(devId -> createAdapter(id, driverIni, vendorName, timeStampWeight, devId))
+                                      .map(devId -> createAdapter(id, driverIni, vendorName, timestampWeight, devId))
                                       .forEach(list::add);
                             }
                         }
@@ -185,23 +185,23 @@ public class RP1210 {
         return vendorSection.getOrDefault("Protocols", "").split("\\s*,\\s*");
     }
 
-    private static long getTimeStampWeight(Section vendorSection) {
-        long timeStampWeight;
+    private static long getTimestampWeight(Section vendorSection) {
+        long timestampWeight;
         try {
-            timeStampWeight = Long.parseLong(vendorSection.getOrDefault("TimeStampWeight", "1"));
+            timestampWeight = Long.parseLong(vendorSection.getOrDefault("TimeStampWeight", "1"));
         } catch (Throwable t) {
             J1939_84.getLogger()
                     .log(Level.SEVERE,
                          "Error Parsing TimeStampWeight from ini file.  Assuming 1000 (ms resolution).",
                          t);
-            timeStampWeight = 1000;
+            timestampWeight = 1000;
         }
-        return timeStampWeight;
+        return timestampWeight;
     }
 
-    private static Adapter createAdapter(String id, Ini driver, String vendorName, long timeStampWeight, String devId) {
+    private static Adapter createAdapter(String id, Ini driver, String vendorName, long timestampWeight, String devId) {
         short deviceId = Short.parseShort(devId);
         String deviceName = driver.get("DeviceInformation" + devId).getOrDefault("DeviceDescription", "UNKNOWN");
-        return new Adapter(vendorName + " - " + deviceName, id, deviceId, timeStampWeight);
+        return new Adapter(vendorName + " - " + deviceName, id, deviceId, timestampWeight);
     }
 }

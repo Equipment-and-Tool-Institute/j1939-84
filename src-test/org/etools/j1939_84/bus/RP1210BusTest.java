@@ -1,12 +1,9 @@
-/*
+/**
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.etools.j1939_84.controllers.Controller.Ending.ABORTED;
-import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL;
-import static org.etools.j1939_84.controllers.ResultsListener.MessageType.ERROR;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -33,6 +30,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import org.etools.j1939_84.controllers.Controller.Ending;
+import org.etools.j1939_84.controllers.QuestionListener.AnswerType;
+import org.etools.j1939_84.controllers.ResultsListener.MessageType;
 import org.etools.j1939_84.events.CompleteEvent;
 import org.etools.j1939_84.events.EventBus;
 import org.etools.j1939_84.events.ResultEvent;
@@ -52,7 +52,6 @@ import org.mockito.junit.MockitoJUnitRunner;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-@SuppressWarnings("unchecked")
 @RunWith(MockitoJUnitRunner.class)
 public class RP1210BusTest {
 
@@ -70,6 +69,7 @@ public class RP1210BusTest {
     private MultiQueue<Packet> queue;
     @Mock
     private RP1210Library rp1210Library;
+
     @Mock
     private EventBus eventBus;
 
@@ -80,7 +80,7 @@ public class RP1210BusTest {
                                  adapter,
                                  ADDRESS,
                                  true,
-                                 (severity, string, e) -> logger.log(severity, string, e),
+                                 (severity, string, e) -> logger.log(severity, string.get(), e),
                                  eventBus);
     }
 
@@ -171,7 +171,7 @@ public class RP1210BusTest {
     }
 
     @Test
-    public void testConstructorConnectFails() {
+    public void testConstructorConnectFails() throws Exception {
         when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 1))
                                                                                                    .thenReturn((short) 134);
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 134), any())).thenAnswer(arg0 -> {
@@ -296,7 +296,7 @@ public class RP1210BusTest {
     }
 
     @Test
-    public void testConstructorStopFails() {
+    public void testConstructorStopFails() throws Exception {
         when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 1))
                                                                                                    .thenReturn((short) 1);
 
@@ -538,7 +538,7 @@ public class RP1210BusTest {
 
         doAnswer(invocationOnMock -> {
             UrgentEvent event = invocationOnMock.getArgument(0);
-            event.getQuestionListener().answered(CANCEL);
+            event.getQuestionListener().answered(AnswerType.CANCEL);
             return null;
         }).when(eventBus).publish(any(UrgentEvent.class));
 
@@ -564,9 +564,9 @@ public class RP1210BusTest {
         String uiMsg = "Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible";
 
         verify(eventBus).publish(new ResultEvent("INVALID: " + uiMsg));
-        verify(eventBus).publish(new UrgentEvent(uiMsg, "Second device using SA 0xF9", ERROR, answerType -> {
+        verify(eventBus).publish(new UrgentEvent(uiMsg, "Second device using SA 0xF9", MessageType.ERROR, answerType -> {
         }));
-        verify(eventBus).publish(new CompleteEvent(ABORTED));
+        verify(eventBus).publish(new CompleteEvent(Ending.ABORTED));
     }
 
     @Test

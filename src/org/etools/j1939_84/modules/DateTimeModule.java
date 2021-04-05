@@ -8,11 +8,17 @@ import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
 import static java.time.temporal.ChronoField.NANO_OF_SECOND;
 import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.controllers.Controller;
 
 /**
@@ -24,6 +30,8 @@ import org.etools.j1939_84.controllers.Controller;
 public class DateTimeModule {
     private static DateTimeModule instance = new DateTimeModule();
     private DateTimeFormatter timeFormatter;
+    private long nanoOffset = 0;
+    private Instant last = Instant.now();
 
     protected DateTimeModule() {
     }
@@ -90,7 +98,14 @@ public class DateTimeModule {
      * @return {@link LocalDateTime}
      */
     protected LocalDateTime now() {
-        return LocalDateTime.now();
+        Instant now = Instant.now().plusNanos(nanoOffset);
+        if (now.isBefore(last)) {
+            now = last;
+            J1939_84.getLogger().log(Level.INFO, "Reusing now: " + now);
+        } else {
+            last = now;
+        }
+        return LocalDateTime.ofInstant(now, ZoneId.systemDefault());
     }
 
     public void pauseFor(long milliseconds) {
@@ -100,6 +115,12 @@ public class DateTimeModule {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static final long GIGA = 1000000000;
+
+    public void setNanoTime(long nanoTime) {
+        nanoOffset = Instant.now().until(Instant.ofEpochSecond(nanoTime / GIGA, nanoTime % GIGA), ChronoUnit.NANOS);
     }
 
 }
