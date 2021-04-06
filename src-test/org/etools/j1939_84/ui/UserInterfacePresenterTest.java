@@ -514,7 +514,7 @@ public class UserInterfacePresenterTest {
         when(vehicleInformationModule.getCalibrationsAsString()).thenThrow(new IOException("Cals not read"));
 
         var bus = mock(Bus.class);
-        when(bus.foundImposter()).thenReturn(false);
+        when(bus.imposterDetected()).thenReturn(false);
         instance.setBus(bus);
         instance.onReadVehicleInfoButtonClicked();
         executor.run();
@@ -552,7 +552,7 @@ public class UserInterfacePresenterTest {
         when(vehicleInformationModule.getVin()).thenThrow(new IOException("VIN not read"));
 
         var bus = mock(Bus.class);
-        when(bus.foundImposter()).thenReturn(false);
+        when(bus.imposterDetected()).thenReturn(false);
         instance.setBus(bus);
         instance.onReadVehicleInfoButtonClicked();
         executor.run();
@@ -582,7 +582,7 @@ public class UserInterfacePresenterTest {
     @Test
     public void testOnReadVehicleInfoButtonClickedWithImposter() throws Exception {
         var bus = mock(Bus.class);
-        when(bus.foundImposter()).thenReturn(true);
+        when(bus.imposterDetected()).thenReturn(true);
 
         instance.setBus(bus);
         instance.onReadVehicleInfoButtonClicked();
@@ -615,7 +615,7 @@ public class UserInterfacePresenterTest {
         when(vehicleInformationModule.getCalibrationsAsString()).thenReturn("Engine Cals");
 
         var bus = mock(Bus.class);
-        when(bus.foundImposter()).thenReturn(false);
+        when(bus.imposterDetected()).thenReturn(false);
         instance.setBus(bus);
         instance.onReadVehicleInfoButtonClicked();
         executor.run();

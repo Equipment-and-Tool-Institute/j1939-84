@@ -285,7 +285,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
             ResultsListener resultsListener = getResultsListener();
             try {
-                if (bus.foundImposter()) {
+                if (bus.imposterDetected()) {
                     throw new IOException("Unexpected Service Tool Message from SA 0xF9 observed. Please disconnect the other ECU using SA 0xF9.");
                 }
 

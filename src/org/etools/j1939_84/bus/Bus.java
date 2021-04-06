@@ -94,8 +94,9 @@ public interface Bus extends AutoCloseable {
      */
     Packet send(Packet packet) throws BusException;
 
-    default boolean foundImposter() {
-        return false;
-    }
-
+    /**
+     * 
+     * @return if another module is detected on the CAN bus using this address.
+     */
+    boolean imposterDetected();
 }

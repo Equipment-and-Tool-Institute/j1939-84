@@ -80,4 +80,9 @@ public class EchoBus implements Bus {
         queue.add(p);
         return p;
     }
+
+    @Override
+    public boolean imposterDetected() {
+        return false;
+    }
 }
