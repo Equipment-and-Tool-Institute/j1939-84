@@ -17,6 +17,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -61,7 +64,7 @@ public class RP1210Bus implements Bus {
 
     interface BusLogger {
 
-        void log(Level severe, Supplier<String> string, BusException e);
+        void log(Level severe, Supplier<String> string, Throwable e);
 
     }
 
@@ -186,8 +189,18 @@ public class RP1210Bus implements Bus {
 
     @Override
     public int getConnectionSpeed() throws BusException {
-        byte[] bytes = new byte[17];
-        sendCommand(CMD_GET_PROTOCOL_CONNECTION_SPEED, bytes);
+        byte[] bytes = new byte[128];
+        Arrays.fill(bytes, (byte) 0);
+        try {
+            exec.submit(() -> {
+                sendCommand(CMD_GET_PROTOCOL_CONNECTION_SPEED, bytes);
+                return null;
+            }).get();
+        } catch (InterruptedException e) {
+            logger.log(Level.WARNING, () -> "Unable to read bus speed.", e);
+        } catch (ExecutionException e) {
+            logger.log(Level.WARNING, () -> "Unable to read bus speed.", e.getCause());
+        }
         String result = new String(bytes, UTF_8).trim();
         return Integer.parseInt(result);
     }
@@ -211,22 +224,32 @@ public class RP1210Bus implements Bus {
         byte[] data = encode(tx);
         try (Stream<Packet> stream = read(1000, TimeUnit.MILLISECONDS)) {
             // rp1210 libraries may not be thread safe
-            short rtn = exec.submit(() -> rp1210Library.RP1210_SendMessage(clientId,
-                                                                           data,
-                                                                           (short) data.length,
-                                                                           NOTIFICATION_NONE,
-                                                                           BLOCKING_NONE))
-                            .get();
-            checkReturnCode(rtn);
+            Optional<String> error = exec.submit(() -> {
+                short rtn = rp1210Library.RP1210_SendMessage(clientId,
+                                                             data,
+                                                             (short) data.length,
+                                                             NOTIFICATION_NONE,
+                                                             BLOCKING_NONE);
+                if (rtn > 127 || rtn < 0) {
+                    return Optional.of(getErrorMessage(rtn));
+                }
+                return Optional.<String>empty();
+            }).get();
+            if (error.isPresent()) {
+                throw new BusException(error.get());
+            }
             int id = tx.getId(0xFFFF);
             int source = tx.getSource();
             return stream
                          .filter(rx -> rx.isTransmitted() && id == rx.getId(0xFFFF) && rx.getSource() == source)
                          .findFirst()
                          .orElseThrow(() -> new BusException("Failed to send: " + tx));
-        } catch (Throwable e) {
-            throw e instanceof BusException ? (BusException) e : new BusException("Failed to send: " + tx, e);
+        } catch (BusException e) {
+            throw e;
+        } catch (Throwable t) {
+            throw new BusException("Failed to send: " + tx, t);
         }
+
     }
 
     /**
