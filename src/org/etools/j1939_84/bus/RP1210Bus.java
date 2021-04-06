@@ -88,6 +88,8 @@ public class RP1210Bus implements Bus {
 
     private long lastTimestamp = Long.MAX_VALUE;
 
+    private boolean foundImposter = false;
+
     private static BusLogger createBusAsyncLogger(Logger logger) {
         Executor exe = Executors.newSingleThreadExecutor();
         return (severity, string, e) -> exe.execute(() -> logger.log(severity, string.get(), e));
@@ -298,6 +300,11 @@ public class RP1210Bus implements Bus {
         return logger;
     }
 
+    @Override
+    public boolean foundImposter() {
+        return foundImposter;
+    }
+
     /**
      * Checks the {@link RP1210Library} for any incoming messages. Any incoming
      * messages are decoded and added to the queue
@@ -309,6 +316,10 @@ public class RP1210Bus implements Bus {
                 if (rtn > 0) {
                     Packet packet = decode(data, rtn);
                     logger.log(Level.FINE, packet::toTimeString, null);
+                    if (packet.getSource() == getAddress() && !packet.isTransmitted()) {
+                        foundImposter = true;
+                        getLogger().log(Level.WARNING, () -> "Another ECU is using this address: " + packet, null);
+                    }
                     queue.add(packet);
                 } else if (rtn == -RP1210Library.ERR_RX_QUEUE_FULL) {
                     // RX queue full, remedy is to reread.

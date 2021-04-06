@@ -198,16 +198,11 @@ public class Part01Step26Controller extends StepController {
                                                   .collect(Collectors.toList());
 
         // Notify the user if there's another ECU on the bus using our address
-        packets.stream()
-               .filter(p -> p.getSourceAddress() == getJ1939().getBus().getAddress())
-               .filter(p -> !p.getPacket().isTransmitted())
-               .findFirst()
-               .ifPresent(packet -> {
-                   getListener().onResult(packet.toString());
-                   String msg = "6.1.26 - Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible";
-                   addWarning(msg);
-                   displayInstructionAndWait(msg, "Second device using SA 0xF9", ERROR);
-               });
+        if (getJ1939().getBus().foundImposter()) {
+            String msg = "6.1.26 - Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible";
+            addWarning(msg);
+            displayInstructionAndWait(msg, "Second device using SA 0xF9", ERROR);
+        }
 
         // 6.1.26.2.f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1
         tableA1Validator.reportDuplicateSPNs(packets, getListener(), "6.1.26.2.f");

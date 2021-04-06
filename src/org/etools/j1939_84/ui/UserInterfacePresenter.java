@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,31 +46,32 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      * The default extension for report files created by this application
      */
     static final String FILE_SUFFIX = "j1939-84";
+
     private final Executor executor;
+
     private final HelpView helpView;
+
     private final OverallController overallController;
+
     private final ReportFileModule reportFileModule;
+
     private final RP1210 rp1210;
+
     private final VehicleInformationModule vehicleInformationModule;
-    /**
-     * The {@link UserInterfacePresenter} that is being controlled
-     */
+
     private final UserInterfaceContract.View view;
-    /**
-     * The possible {@link Adapter} that can be used for communications with the
-     * vehicle
-     */
+
     private List<Adapter> adapters;
+
     private Bus bus;
-    /**
-     * The {@link File} where the report is stored
-     */
+
     private File reportFile;
-    /**
-     * The Adapter being used to communicate with the vehicle
-     */
+
     private Adapter selectedAdapter;
+
     private String vin;
+
+    private J1939 j1939;
 
     /**
      * Default Constructor
@@ -185,11 +185,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
     }
 
     @Override
-    public J1939 getNewJ1939() {
-        J1939 j1939 = new J1939(bus);
-        if (bus instanceof J1939TP) {
-            ((J1939TP) bus).setJ1939(j1939);
-        }
+    public J1939 getJ1939() {
         return j1939;
     }
 
@@ -289,27 +285,22 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
             ResultsListener resultsListener = getResultsListener();
             try {
-                resultsListener.onProgress(1, 4, "Listening for imposters");
-                boolean hasImposter = vehicleInformationModule.readPackets(3, TimeUnit.SECONDS)
-                                                              .filter(p -> !p.isTransmitted())
-                                                              .anyMatch(p -> p.getSource() == getBusAddress());
-
-                if (hasImposter) {
+                if (bus.foundImposter()) {
                     throw new IOException("Unexpected Service Tool Message from SA 0xF9 observed. Please disconnect the other ECU using SA 0xF9.");
                 }
 
-                resultsListener.onProgress(2, 4, "Reading Vehicle Identification Number");
+                resultsListener.onProgress(1, 3, "Reading Vehicle Identification Number");
                 vin = vehicleInformationModule.getVin();
                 getView().setVin(vin);
 
-                resultsListener.onProgress(3, 4, "Reading Vehicle Calibrations");
+                resultsListener.onProgress(2, 3, "Reading Vehicle Calibrations");
                 String cals = vehicleInformationModule.getCalibrationsAsString();
                 getView().setEngineCals(cals);
 
                 result = true;
-                resultsListener.onProgress(4, 4, "Complete");
-            } catch (IOException | BusException e) {
-                resultsListener.onProgress(4, 4, e.getMessage());
+                resultsListener.onProgress(3, 3, "Complete");
+            } catch (IOException e) {
+                resultsListener.onProgress(3, 3, e.getMessage());
                 getView().displayDialog(e.getMessage(), "Communications Error", JOptionPane.ERROR_MESSAGE, false);
             } finally {
                 if (result) {
@@ -343,9 +334,8 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         getView().setSelectFileButtonEnabled(false);
         getView().setAdapterComboBoxEnabled(false);
 
-        J1939 newJ1939 = getNewJ1939();
-        overallController.execute(getResultsListener(), newJ1939, getReportFileModule());
-        getReportFileModule().setJ1939(newJ1939);
+        overallController.execute(getResultsListener(), getJ1939(), getReportFileModule());
+        getReportFileModule().setJ1939(getJ1939());
     }
 
     /*
@@ -446,7 +436,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
             @Override
             public void onVehicleInformationNeeded(VehicleInformationListener listener) {
-                getView().displayForm(listener, getNewJ1939());
+                getView().displayForm(listener, getJ1939());
             }
 
         };
@@ -504,7 +494,13 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
     void setBus(Bus bus) throws BusException {
         this.bus = bus;
-        vehicleInformationModule.setJ1939(getNewJ1939());
+
+        j1939 = new J1939(bus);
+        if (bus instanceof J1939TP) {
+            ((J1939TP) bus).setJ1939(j1939);
+        }
+
+        vehicleInformationModule.setJ1939(getJ1939());
     }
 
     /**
@@ -533,7 +529,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
     }
 
     private int getBusAddress() {
-        return getNewJ1939().getBus().getAddress();
+        return getJ1939().getBus().getAddress();
     }
 
 }

@@ -94,4 +94,8 @@ public interface Bus extends AutoCloseable {
      */
     Packet send(Packet packet) throws BusException;
 
+    default boolean foundImposter() {
+        return false;
+    }
+
 }

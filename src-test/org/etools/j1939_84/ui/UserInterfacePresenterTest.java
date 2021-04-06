@@ -23,8 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 import javax.swing.JOptionPane;
 
@@ -32,7 +30,6 @@ import org.etools.j1939_84.TestExecutor;
 import org.etools.j1939_84.bus.Adapter;
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
-import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.RP1210;
 import org.etools.j1939_84.bus.RP1210Bus;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -513,14 +510,16 @@ public class UserInterfacePresenterTest {
 
     @Test
     public void testOnReadVehicleInfoButtonClickedWithNullCals() throws Exception {
-        when(vehicleInformationModule.readPackets(3, TimeUnit.SECONDS)).thenReturn(Stream.empty());
         when(vehicleInformationModule.getVin()).thenReturn("12345678901234567890");
         when(vehicleInformationModule.getCalibrationsAsString()).thenThrow(new IOException("Cals not read"));
 
+        var bus = mock(Bus.class);
+        when(bus.foundImposter()).thenReturn(false);
+        instance.setBus(bus);
         instance.onReadVehicleInfoButtonClicked();
         executor.run();
 
-        verify(vehicleInformationModule).readPackets(3, TimeUnit.SECONDS);
+        verify(vehicleInformationModule).setJ1939(any());
         verify(vehicleInformationModule).getVin();
         verify(vehicleInformationModule).getCalibrationsAsString();
         verify(vehicleInformationModule).reset();
@@ -533,14 +532,12 @@ public class UserInterfacePresenterTest {
         inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
         inOrder.verify(view).setAdapterComboBoxEnabled(false);
         inOrder.verify(view).setSelectFileButtonEnabled(false);
-        inOrder.verify(view).setProgressBarValue(0, 4, 1);
-        inOrder.verify(view).setProgressBarText("Listening for imposters");
-        inOrder.verify(view).setProgressBarValue(0, 4, 2);
+        inOrder.verify(view).setProgressBarValue(0, 3, 1);
         inOrder.verify(view).setProgressBarText("Reading Vehicle Identification Number");
         inOrder.verify(view).setVin("12345678901234567890");
-        inOrder.verify(view).setProgressBarValue(0, 4, 3);
+        inOrder.verify(view).setProgressBarValue(0, 3, 2);
         inOrder.verify(view).setProgressBarText("Reading Vehicle Calibrations");
-        inOrder.verify(view).setProgressBarValue(0, 4, 4);
+        inOrder.verify(view).setProgressBarValue(0, 3, 3);
         inOrder.verify(view).setProgressBarText("Cals not read");
         inOrder.verify(view).displayDialog("Cals not read", "Communications Error", JOptionPane.ERROR_MESSAGE, false);
         inOrder.verify(view).setStartButtonEnabled(false);
@@ -552,15 +549,17 @@ public class UserInterfacePresenterTest {
 
     @Test
     public void testOnReadVehicleInfoButtonClickedWithNullVin() throws Exception {
-        when(vehicleInformationModule.readPackets(3, TimeUnit.SECONDS)).thenReturn(Stream.of());
         when(vehicleInformationModule.getVin()).thenThrow(new IOException("VIN not read"));
 
+        var bus = mock(Bus.class);
+        when(bus.foundImposter()).thenReturn(false);
+        instance.setBus(bus);
         instance.onReadVehicleInfoButtonClicked();
         executor.run();
 
+        verify(vehicleInformationModule).setJ1939(any());
         verify(vehicleInformationModule).getVin();
         verify(vehicleInformationModule).reset();
-        verify(vehicleInformationModule).readPackets(3, TimeUnit.SECONDS);
         verify(view).setVin("");
         verify(view).setEngineCals("");
         verify(view).setReadVehicleInfoButtonEnabled(false);
@@ -568,11 +567,10 @@ public class UserInterfacePresenterTest {
         verify(view, times(2)).setStopButtonEnabled(false);
         verify(view).setAdapterComboBoxEnabled(false);
         verify(view).setSelectFileButtonEnabled(false);
-        verify(view).setProgressBarValue(0, 4, 1);
-        verify(view).setProgressBarText("Listening for imposters");
-        verify(view).setProgressBarValue(0, 4, 2);
+
+        verify(view).setProgressBarValue(0, 3, 1);
         verify(view).setProgressBarText("Reading Vehicle Identification Number");
-        verify(view).setProgressBarValue(0, 4, 4);
+        verify(view).setProgressBarValue(0, 3, 3);
         verify(view).setProgressBarText("VIN not read");
         verify(view).displayDialog("VIN not read", "Communications Error", JOptionPane.ERROR_MESSAGE, false);
 
@@ -583,19 +581,8 @@ public class UserInterfacePresenterTest {
 
     @Test
     public void testOnReadVehicleInfoButtonClickedWithImposter() throws Exception {
-        when(vehicleInformationModule.readPackets(3, TimeUnit.SECONDS)).thenReturn(Stream.of(Packet.create(0,
-                                                                                                           0xF9,
-                                                                                                           0,
-                                                                                                           0,
-                                                                                                           0,
-                                                                                                           0,
-                                                                                                           0,
-                                                                                                           0,
-                                                                                                           0,
-                                                                                                           0)));
-
         var bus = mock(Bus.class);
-        when(bus.getAddress()).thenReturn(0xF9);
+        when(bus.foundImposter()).thenReturn(true);
 
         instance.setBus(bus);
         instance.onReadVehicleInfoButtonClicked();
@@ -603,7 +590,6 @@ public class UserInterfacePresenterTest {
 
         verify(vehicleInformationModule).setJ1939(any());
         verify(vehicleInformationModule).reset();
-        verify(vehicleInformationModule).readPackets(3, TimeUnit.SECONDS);
         verify(view).setVin("");
         verify(view).setEngineCals("");
         verify(view).setReadVehicleInfoButtonEnabled(false);
@@ -611,9 +597,7 @@ public class UserInterfacePresenterTest {
         verify(view, times(2)).setStopButtonEnabled(false);
         verify(view).setAdapterComboBoxEnabled(false);
         verify(view).setSelectFileButtonEnabled(false);
-        verify(view).setProgressBarValue(0, 4, 1);
-        verify(view).setProgressBarText("Listening for imposters");
-        verify(view).setProgressBarValue(0, 4, 4);
+        verify(view).setProgressBarValue(0, 3, 3);
         verify(view).setProgressBarText("Unexpected Service Tool Message from SA 0xF9 observed. Please disconnect the other ECU using SA 0xF9.");
         verify(view).displayDialog("Unexpected Service Tool Message from SA 0xF9 observed. Please disconnect the other ECU using SA 0xF9.",
                                    "Communications Error",
@@ -627,17 +611,19 @@ public class UserInterfacePresenterTest {
 
     @Test
     public void testOnReadVehicleInfoButtonClickedWithReportFileMatched() throws Exception {
-        when(vehicleInformationModule.readPackets(3, TimeUnit.SECONDS)).thenReturn(Stream.empty());
         when(vehicleInformationModule.getVin()).thenReturn("12345678901234567890");
         when(vehicleInformationModule.getCalibrationsAsString()).thenReturn("Engine Cals");
 
+        var bus = mock(Bus.class);
+        when(bus.foundImposter()).thenReturn(false);
+        instance.setBus(bus);
         instance.onReadVehicleInfoButtonClicked();
         executor.run();
 
         assertEquals("12345678901234567890", instance.getVin());
 
+        verify(vehicleInformationModule).setJ1939(any());
         verify(vehicleInformationModule).reset();
-        verify(vehicleInformationModule).readPackets(3, TimeUnit.SECONDS);
         verify(vehicleInformationModule).getVin();
         verify(vehicleInformationModule).getCalibrationsAsString();
 
@@ -649,15 +635,13 @@ public class UserInterfacePresenterTest {
         inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
         inOrder.verify(view).setAdapterComboBoxEnabled(false);
         inOrder.verify(view).setSelectFileButtonEnabled(false);
-        inOrder.verify(view).setProgressBarValue(0, 4, 1);
-        inOrder.verify(view).setProgressBarText("Listening for imposters");
-        inOrder.verify(view).setProgressBarValue(0, 4, 2);
+        inOrder.verify(view).setProgressBarValue(0, 3, 1);
         inOrder.verify(view).setProgressBarText("Reading Vehicle Identification Number");
         inOrder.verify(view).setVin("12345678901234567890");
-        inOrder.verify(view).setProgressBarValue(0, 4, 3);
+        inOrder.verify(view).setProgressBarValue(0, 3, 2);
         inOrder.verify(view).setProgressBarText("Reading Vehicle Calibrations");
         inOrder.verify(view).setEngineCals("Engine Cals");
-        inOrder.verify(view).setProgressBarValue(0, 4, 4);
+        inOrder.verify(view).setProgressBarValue(0, 3, 3);
         inOrder.verify(view).setProgressBarText("Complete");
         inOrder.verify(view).setProgressBarText("Push Start Button");
         inOrder.verify(view).setStartButtonEnabled(true);
@@ -676,13 +660,13 @@ public class UserInterfacePresenterTest {
     @Test
     public void testOnStartButtonClicked() {
         instance.onStartButtonClicked();
-        verify(overallController).execute(any(ResultsListener.class), any(J1939.class), eq(reportFileModule));
+        verify(overallController).execute(any(ResultsListener.class), any(), eq(reportFileModule));
         verify(view).setStartButtonEnabled(false);
         verify(view).setReadVehicleInfoButtonEnabled(false);
         verify(view).setSelectFileButtonEnabled(false);
         verify(view).setStopButtonEnabled(true);
         verify(view).setAdapterComboBoxEnabled(false);
-        verify(reportFileModule).setJ1939(any(J1939.class));
+        verify(reportFileModule).setJ1939(any());
     }
 
     @Test
@@ -717,9 +701,10 @@ public class UserInterfacePresenterTest {
 
     @SuppressFBWarnings(value = "RU_INVOKE_RUN", justification = "Run is correct here for testing")
     @Test
-    public void testShutdownHook() {
+    public void testShutdownHook() throws InterruptedException {
         assertEquals("Shutdown Hook Thread", shutdownHook.getName());
         shutdownHook.start();
+        Thread.sleep(100);
         verify(reportFileModule).onProgramExit();
     }
 
