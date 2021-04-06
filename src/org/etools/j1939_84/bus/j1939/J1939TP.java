@@ -68,7 +68,7 @@ public class J1939TP implements Bus {
                                                                 255 + 1,
                                                                 1L,
                                                                 TimeUnit.SECONDS,
-                                                                new LinkedBlockingQueue<Runnable>());
+                                                                new LinkedBlockingQueue<>());
     /** Application side bus. */
     private final EchoBus inbound;
     /**

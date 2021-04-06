@@ -46,31 +46,32 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      * The default extension for report files created by this application
      */
     static final String FILE_SUFFIX = "j1939-84";
+
     private final Executor executor;
+
     private final HelpView helpView;
+
     private final OverallController overallController;
+
     private final ReportFileModule reportFileModule;
+
     private final RP1210 rp1210;
+
     private final VehicleInformationModule vehicleInformationModule;
-    /**
-     * The {@link UserInterfacePresenter} that is being controlled
-     */
+
     private final UserInterfaceContract.View view;
-    /**
-     * The possible {@link Adapter} that can be used for communications with the
-     * vehicle
-     */
+
     private List<Adapter> adapters;
+
     private Bus bus;
-    /**
-     * The {@link File} where the report is stored
-     */
+
     private File reportFile;
-    /**
-     * The Adapter being used to communicate with the vehicle
-     */
+
     private Adapter selectedAdapter;
+
     private String vin;
+
+    private J1939 j1939;
 
     /**
      * Default Constructor
@@ -184,11 +185,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
     }
 
     @Override
-    public J1939 getNewJ1939() {
-        J1939 j1939 = new J1939(bus);
-        if (bus instanceof J1939TP) {
-            ((J1939TP) bus).setJ1939(j1939);
-        }
+    public J1939 getJ1939() {
         return j1939;
     }
 
@@ -288,6 +285,12 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
             ResultsListener resultsListener = getResultsListener();
             try {
+                if (bus.imposterDetected()) {
+                    throw new IOException("Unexpected Service Tool Message from SA 0xF9 observed. " + NL
+                            + "Please disconnect the other ECU using SA 0xF9." + NL
+                            + "The application must be restarted in order to continue.");
+                }
+
                 resultsListener.onProgress(1, 3, "Reading Vehicle Identification Number");
                 vin = vehicleInformationModule.getVin();
                 getView().setVin(vin);
@@ -333,9 +336,8 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         getView().setSelectFileButtonEnabled(false);
         getView().setAdapterComboBoxEnabled(false);
 
-        J1939 newJ1939 = getNewJ1939();
-        overallController.execute(getResultsListener(), newJ1939, getReportFileModule());
-        getReportFileModule().setJ1939(newJ1939);
+        overallController.execute(getResultsListener(), getJ1939(), getReportFileModule());
+        getReportFileModule().setJ1939(getJ1939());
     }
 
     /*
@@ -436,7 +438,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
             @Override
             public void onVehicleInformationNeeded(VehicleInformationListener listener) {
-                getView().displayForm(listener, getNewJ1939());
+                getView().displayForm(listener, getJ1939());
             }
 
         };
@@ -492,9 +494,15 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         getView().setReadVehicleInfoButtonEnabled(false);
     }
 
-    private void setBus(Bus bus) throws BusException {
+    void setBus(Bus bus) throws BusException {
         this.bus = bus;
-        vehicleInformationModule.setJ1939(getNewJ1939());
+
+        j1939 = new J1939(bus);
+        if (bus instanceof J1939TP) {
+            ((J1939TP) bus).setJ1939(j1939);
+        }
+
+        vehicleInformationModule.setJ1939(getJ1939());
     }
 
     /**
@@ -521,4 +529,9 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         }
         return file;
     }
+
+    private int getBusAddress() {
+        return getJ1939().getBus().getAddress();
+    }
+
 }
