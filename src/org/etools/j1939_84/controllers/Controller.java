@@ -397,7 +397,7 @@ public abstract class Controller {
         getListener().onProgress(currentStep, maxSteps, message);
     }
 
-    protected enum Ending {
+    public enum Ending {
         ABORTED("Aborted"), COMPLETED("Completed"), FAILED("Failed"), STOPPED("Stopped");
 
         private final String string;
@@ -500,4 +500,5 @@ public abstract class Controller {
             });
         }
     }
+
 }

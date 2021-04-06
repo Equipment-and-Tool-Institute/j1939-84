@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static org.etools.j1939_84.controllers.ResultsListener.MessageType.ERROR;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -194,6 +196,13 @@ public class Part01Step26Controller extends StepController {
                                                                                                         getListener(),
                                                                                                         false))
                                                   .collect(Collectors.toList());
+
+        // Notify the user if there's another ECU on the bus using our address
+        if (getJ1939().getBus().imposterDetected()) {
+            String msg = "6.1.26 - Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible";
+            addWarning(msg);
+            displayInstructionAndWait(msg, "Second device using SA 0xF9", ERROR);
+        }
 
         // 6.1.26.2.f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1
         tableA1Validator.reportDuplicateSPNs(packets, getListener(), "6.1.26.2.f");

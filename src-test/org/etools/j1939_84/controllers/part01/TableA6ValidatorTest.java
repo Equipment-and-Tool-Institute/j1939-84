@@ -21,6 +21,7 @@ import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.NOX_CATALYST
 import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.SECONDARY_AIR_SYSTEM;
 import static org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus.findStatus;
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSystems;
 import static org.junit.Assert.assertEquals;
@@ -219,8 +220,8 @@ public class TableA6ValidatorTest {
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        FAIL,
-                                        "6.1.2.3.a - Composite vehicle readiness for Misfire did not meet the criteria of Table A4");
+                                        INFO,
+                                        "6.1.2.3.a - Misfire is supported, complete");
         verify(mockListener).addOutcome(
                                         1,
                                         2,

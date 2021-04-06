@@ -46,7 +46,7 @@ public interface UserInterfaceContract {
          *
          * @return {@link J1939}
          */
-        J1939 getNewJ1939();
+        J1939 getJ1939();
 
         /**
          * Returns the {@link ReportFileModule} used to verify the report file

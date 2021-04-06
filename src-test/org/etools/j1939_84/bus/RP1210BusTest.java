@@ -20,6 +20,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
@@ -63,12 +64,23 @@ public class RP1210BusTest {
     private RP1210Library rp1210Library;
 
     private void createInstance() throws BusException {
-        instance = new RP1210Bus(rp1210Library, exec, queue, adapter, ADDRESS, true, logger);
+        instance = new RP1210Bus(rp1210Library,
+                                 exec,
+                                 queue,
+                                 adapter,
+                                 ADDRESS,
+                                 true,
+                                 (severity, string, e) -> logger.log(severity, string.get(), e));
     }
 
     @Before
     public void setUp() throws Exception {
         adapter = new Adapter("Testing Adapter", "TST_ADPTR", (short) 42);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        verifyNoMoreInteractions(rp1210Library, exec, queue, logger);
     }
 
     private void startInstance() throws Exception {
@@ -106,11 +118,6 @@ public class RP1210BusTest {
                                                  aryEq(new byte[] {}),
                                                  eq((short) 0));
         verify(exec).scheduleAtFixedRate(any(Runnable.class), eq(1L), eq(1L), eq(TimeUnit.MILLISECONDS));
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        verifyNoMoreInteractions(rp1210Library, exec, queue, logger);
     }
 
     @Test
@@ -340,15 +347,27 @@ public class RP1210BusTest {
 
     @Test
     public void testGetConnectionSpeed() throws Exception {
-        when(rp1210Library.RP1210_SendCommand(eq((short) 45), eq((short) 1), any(), eq((short) 17))).then(arg0 -> {
+        when(rp1210Library.RP1210_SendCommand(eq((short) 45), eq((short) 1), any(), eq((short) 128))).then(arg0 -> {
             byte[] bytes = arg0.getArgument(2);
             byte[] value = "500000".getBytes(UTF_8);
             System.arraycopy(value, 0, bytes, 0, value.length);
             return null;
         });
+
+        ArgumentCaptor<Callable<Integer>> submitCaptor = ArgumentCaptor.forClass(Callable.class);
+        Future<Integer> future = mock(Future.class);
+        when(future.get()).thenReturn((int)500000);
+        when(exec.submit(submitCaptor.capture())).thenReturn(future);
+
         startInstance();
+
         assertEquals(500000, instance.getConnectionSpeed());
-        verify(rp1210Library).RP1210_SendCommand(eq((short) 45), eq((short) 1), any(), eq((short) 17));
+
+        Callable<Integer> callable = submitCaptor.getValue();
+        callable.call();
+        verify(exec).submit(any(Callable.class));
+
+        verify(rp1210Library).RP1210_SendCommand(eq((short) 45), eq((short) 1), any(), eq((short) 128));
     }
 
     @Test
@@ -409,8 +428,8 @@ public class RP1210BusTest {
         Packet actual = packetCaptor.getValue();
 
         assertEquals(packet, actual);
-        verify(logger).log(eq(Level.FINE), anyString());
-        verify(logger).log(eq(Level.INFO), anyString());
+        verify(logger).log(eq(Level.FINE), anyString(), (Throwable) any());
+        verify(logger).log(eq(Level.INFO), anyString(), (Throwable) any());
         verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
                                                            any(byte[].class),
                                                            eq((short) 2048),
@@ -477,60 +496,12 @@ public class RP1210BusTest {
         Packet actual = packetCaptor.getValue();
 
         assertEquals(packet, actual);
-        verify(logger).log(eq(Level.FINE), anyString());
-        verify(logger).log(eq(Level.INFO), anyString());
+        verify(logger).log(eq(Level.FINE), anyString(), (Throwable) any());
+        verify(logger).log(eq(Level.INFO), anyString(), (Throwable) any());
         verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
                                                            any(byte[].class),
                                                            eq((short) 2048),
                                                            eq((short) 0));
-    }
-
-    @Test
-    public void testPollWithImposter() throws Exception {
-        Packet packet = Packet.create(0x06,
-                                      0x1234,
-                                      ADDRESS,
-                                      false,
-                                      (byte) 0x77,
-                                      (byte) 0x88,
-                                      (byte) 0x99,
-                                      (byte) 0xAA,
-                                      (byte) 0xBB,
-                                      (byte) 0xCC,
-                                      (byte) 0xDD,
-                                      (byte) 0xEE);
-        byte[] encodedPacket = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x34, (byte) 0x12, (byte) 0x00,
-                (byte) 0x06, (byte) ADDRESS, (byte) 0x34, (byte) 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xAA,
-                (byte) 0xBB,
-                (byte) 0xCC, (byte) 0xDD, (byte) 0xEE };
-        when(rp1210Library.RP1210_ReadMessage(eq((short) 1), any(byte[].class), eq((short) 2048), eq((short) 0)))
-                                                                                                                 .thenAnswer(arg0 -> {
-                                                                                                                     byte[] data = arg0.getArgument(1);
-                                                                                                                     System.arraycopy(encodedPacket,
-                                                                                                                                      0,
-                                                                                                                                      data,
-                                                                                                                                      0,
-                                                                                                                                      encodedPacket.length);
-                                                                                                                     return (short) encodedPacket.length;
-                                                                                                                 })
-                                                                                                                 .thenReturn((short) 0);
-
-        startInstance();
-        Runnable runnable = runnableCaptor.getValue();
-        runnable.run();
-
-        ArgumentCaptor<Packet> packetCaptor = ArgumentCaptor.forClass(Packet.class);
-        verify(queue).add(packetCaptor.capture());
-        Packet actual = packetCaptor.getValue();
-
-        assertEquals(packet, actual);
-        verify(logger).log(eq(Level.FINE), anyString());
-        verify(logger).log(eq(Level.INFO), anyString());
-        verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
-                                                           any(byte[].class),
-                                                           eq((short) 2048),
-                                                           eq((short) 0));
-        verify(logger).log(Level.WARNING, "Another ECU is using this address: 181234A5 [8] 77 88 99 AA BB CC DD EE");
     }
 
     @Test
@@ -557,10 +528,10 @@ public class RP1210BusTest {
         byte[] encodedPacket = new byte[] { (byte) 0x34, (byte) 0x12, (byte) 0x00, (byte) 0x06, (byte) 0x56,
                 (byte) 0x34, (byte) 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xAA, (byte) 0xBB, (byte) 0xCC, (byte) 0xDD,
                 (byte) 0xEE };
-        ArgumentCaptor<Callable<Short>> submitCaptor = ArgumentCaptor.forClass(Callable.class);
+        ArgumentCaptor<Callable<Optional<String>>> submitCaptor = ArgumentCaptor.forClass(Callable.class);
 
-        Future<Short> future = mock(Future.class);
-        when(future.get()).thenReturn((short) 0);
+        Future<Optional<String>> future = mock(Future.class);
+        when(future.get()).thenReturn(Optional.empty());
         when(exec.submit(submitCaptor.capture())).thenReturn(future);
         // implement echo
         when(queue.stream(ArgumentMatchers.anyLong(), ArgumentMatchers.any())).thenReturn(Stream.of(packet));
@@ -568,8 +539,8 @@ public class RP1210BusTest {
         startInstance();
         instance.send(packet);
 
-        Callable<Short> callable = submitCaptor.getValue();
-        assertEquals((int) callable.call(), 0);
+        Callable<Optional<String>> callable = submitCaptor.getValue();
+        assertEquals(callable.call(), Optional.empty());
 
         verify(exec).submit(any(Callable.class));
         verify(rp1210Library).RP1210_SendMessage(eq((short) 1),
@@ -594,9 +565,9 @@ public class RP1210BusTest {
                                               (short) 0))
                                                          .thenReturn((short) -99);
 
-        ArgumentCaptor<Callable<Short>> submitCaptor = ArgumentCaptor.forClass(Callable.class);
-        Future<Short> future = mock(Future.class);
-        when(future.get()).thenReturn((short) -99);
+        ArgumentCaptor<Callable<Optional<String>>> submitCaptor = ArgumentCaptor.forClass(Callable.class);
+        Future<Optional<String>> future = mock(Future.class);
+        when(future.get()).thenReturn(Optional.of("Failed to send: 18123456 [8] 77 88 99 AA BB CC DD EE (TX)"));
         when(exec.submit(submitCaptor.capture())).thenReturn(future);
 
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
@@ -611,10 +582,10 @@ public class RP1210BusTest {
             instance.send(packet);
             fail("An exception should have been thrown");
         } catch (BusException e) {
-            assertEquals("Error (99): Testing Failure", e.getMessage());
+            assertEquals("Failed to send: 18123456 [8] 77 88 99 AA BB CC DD EE (TX)", e.getMessage());
         }
-        Callable<Short> callable = submitCaptor.getValue();
-        assertEquals(-99, (long) callable.call());
+        Callable<Optional<String>> callable = submitCaptor.getValue();
+        assertEquals(Optional.of("Error (99): Testing Failure"), callable.call());
 
         verify(exec).submit(any(Callable.class));
         verify(rp1210Library).RP1210_SendMessage(eq((short) 1),

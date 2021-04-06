@@ -279,10 +279,6 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.12.2.2.a - Engine #1 (0) reported Misfire as 'not complete this cycle' when it reported it as 'complete this cycle' in part 11");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
                                         "6.12.2.2.a - Engine #1 (0) reported NMHC converting catalyst as 'not complete this cycle' when it reported it as 'complete this cycle' in part 11");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,

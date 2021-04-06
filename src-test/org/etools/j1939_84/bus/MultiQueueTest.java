@@ -48,10 +48,10 @@ public class MultiQueueTest {
         try (MultiQueue<Integer> q = new MultiQueue<>()) {
             // Smaller timeouts are inconsistent. It looks like the JIT is sometimes
             // slow.
-            Stream<Integer> stream = q.stream(30, TimeUnit.MILLISECONDS);
-            Stream<Integer> stream1 = q.stream(40, TimeUnit.MILLISECONDS);
-            Stream<Integer> stream3 = q.stream(40, TimeUnit.MILLISECONDS);
-            Stream<Integer> streamn = q.stream(50, TimeUnit.MILLISECONDS);
+            Stream<Integer> stream = q.stream(100, TimeUnit.MILLISECONDS);
+            Stream<Integer> stream1 = q.stream(200, TimeUnit.MILLISECONDS);
+            Stream<Integer> stream3 = q.stream(200, TimeUnit.MILLISECONDS);
+            Stream<Integer> streamn = q.stream(300, TimeUnit.MILLISECONDS);
             q.add(1);
             q.add(2);
             q.add(3);
@@ -81,11 +81,11 @@ public class MultiQueueTest {
     @TestDoc(description = "Verify that duplicate streams are of the same size.")
     public void testDuplicate() throws Exception {
         try (MultiQueue<Integer> queue = new MultiQueue<>()) {
-            Stream<Integer> stream1 = queue.stream(10, TimeUnit.MILLISECONDS);
+            Stream<Integer> stream1 = queue.stream(100, TimeUnit.MILLISECONDS);
             queue.add(1);
-            Stream<Integer> stream2 = queue.duplicate(stream1, 20, TimeUnit.MILLISECONDS);
+            Stream<Integer> stream2 = queue.duplicate(stream1, 200, TimeUnit.MILLISECONDS);
             queue.add(2);
-            Stream<Integer> stream3 = queue.duplicate(stream1, 30, TimeUnit.MILLISECONDS);
+            Stream<Integer> stream3 = queue.duplicate(stream1, 300, TimeUnit.MILLISECONDS);
 
             queue.add(3);
             assertEquals(3, stream1.count());
@@ -130,35 +130,27 @@ public class MultiQueueTest {
      */
     @Test
     @TestDoc(description = "Verify that timeouts interrupts streams, so that a 410 ms stream only has 410 ms of data in it.")
-    @SuppressFBWarnings(value = {
-            "WA_NOT_IN_LOOP" }, justification = "Notify actually needs to happen here, wait is needed")
     public void testTimedInterruption() throws Exception {
         // sync on q, because thread startup is unpredictably slow
         try (MultiQueue<Integer> q = new MultiQueue<>()) {
 
             // asynchronously add a packet every 10 ms.
-            new Thread(() -> {
-                synchronized (q) {
-                    // notify main thread that we are starting.
-                    q.add(-1);
-                    q.notifyAll();
-                }
-                for (int i = 0; i < 200; i++) {
+            final ExecutorService exe = Executors.newSingleThreadExecutor();
+            exe.submit(() -> {
+                q.add(-1);
+                for (int i = 0; i < 30; i++) {
                     try {
-                        Thread.sleep(10);
+                        Thread.sleep(20);
                     } catch (InterruptedException ignored) {
                     }
                     q.add(i);
                 }
-            }).start();
-
-            synchronized (q) {
-                // wait on notify
-                q.wait(1000);
-            }
-
-            Stream<Integer> s1 = q.stream(410, TimeUnit.MILLISECONDS);
-            assertEquals("40 packets were processed in 400 ms", 40, s1.count(), 10);
+            });
+            q.stream(1, TimeUnit.SECONDS).findFirst();
+            Stream<Integer> s1 = q.stream(500, TimeUnit.MILLISECONDS);
+            assertEquals("20 packets were processed in 500 ms", 20, s1.count(), 5);
+            exe.shutdown();
+            exe.awaitTermination(1, TimeUnit.MINUTES);
         }
     }
 }

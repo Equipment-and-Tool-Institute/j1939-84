@@ -26,7 +26,7 @@ public class Adapter {
      */
     private final String name;
 
-    private final long timeStampWeight;
+    private final long timestampWeight;
 
     /**
      * Constructor
@@ -52,11 +52,11 @@ public class Adapter {
      * @param deviceId
      *                     the device ID
      */
-    public Adapter(String name, String dllName, short deviceId, long timeStampWeight) {
+    public Adapter(String name, String dllName, short deviceId, long timestampWeight) {
         this.name = name;
         this.dllName = dllName;
         this.deviceId = deviceId;
-        this.timeStampWeight = timeStampWeight;
+        this.timestampWeight = timestampWeight;
     }
 
     /**
@@ -86,8 +86,8 @@ public class Adapter {
         return name;
     }
 
-    public long getTimeStampWeight() {
-        return timeStampWeight;
+    public long getTimestampWeight() {
+        return timestampWeight;
     }
 
 }

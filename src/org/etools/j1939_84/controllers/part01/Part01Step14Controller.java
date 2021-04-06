@@ -71,9 +71,9 @@ public class Part01Step14Controller extends StepController {
                                                         .filter(p -> isObdModule(p.getSourceAddress()))
                                                         .collect(Collectors.toList());
 
-        // 6.1.14.2.f. Fail if no OBD ECU provides DM26.
+        // 6.1.14.2.e. Fail if no OBD ECU provides DM26.
         if (globalPackets.isEmpty()) {
-            addFailure("6.1.14.2.f - No OBD ECU provided DM26");
+            addFailure("6.1.14.2.e - No OBD ECU provided DM26");
         } else {
             // 6.1.14.1.a.i. Create list by ECU address of all data and current status for use later in the test.
             globalPackets.forEach(this::save);
@@ -102,14 +102,7 @@ public class Part01Step14Controller extends StepController {
                          if (dm5System != null) {
                              boolean dm5SystemEnabled = dm5System.getStatus().isEnabled();
                              if (!dm26SystemEnabled && dm5SystemEnabled) {
-                                 if (dm26System.getId() == CompositeSystem.COMPREHENSIVE_COMPONENT) {
-                                     // 6.1.14.2.c. Fail if any response from an ECU indicating support for CCM
-                                     // monitor in DM5 report '0=monitor disabled for rest of this cycle or not
-                                     // supported' in SPN 3303 bit 3.
-                                     addFailure("6.1.14.2.c - " + moduleName
-                                             + " response indicates support for monitor " + systemName
-                                             + " in DM5 but is reported as not enabled by DM26 response");
-                                 } else {
+                                 if (dm26System.getId() != CompositeSystem.COMPREHENSIVE_COMPONENT) {
                                      // 6.1.14.2.a. Fail if any response for any monitor supported in
                                      // DM5 by a given ECU is reported as '0=monitor complete
                                      // this cycle or not supported' in SPN 3303 bits 1-4 and
@@ -125,31 +118,29 @@ public class Part01Step14Controller extends StepController {
                                  // reported in DM26 as '0=monitor complete this
                                  // cycle or not supported' in SPN 3303 bits 5-7 and
                                  // '0=monitor disabled for rest of this cycle or not
-                                 // supported' in SPN 3303 bits 1-2 and SPN 3304.20
-                                 addFailure(
-                                            "6.1.14.2.b - " + moduleName + " response for a monitor "
+                                 // supported' in SPN 3303 bits 1-2 and SPN 3304.
+                                 addFailure("6.1.14.2.b - " + moduleName + " response for a monitor "
                                                     + systemName
                                                     + " in DM5 is reported as not supported and is reported as enabled by DM26 response");
                              }
                          }
                      });
 
-        // 6.1.14.2.d. Fail if any response indicates number of warm-ups since code clear (WU-SCC) (SPN 3302) is not
-        // zero.
+        // 6.1.14.2.c. Fail if any response indicates number of warm-ups since code clear (SPN 3302) is not zero.
         globalPackets.stream()
                      .filter(packet -> packet.getWarmUpsSinceClear() != 0)
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> {
-                         addFailure("6.1.14.2.d - " + moduleName
+                         addFailure("6.1.14.2.c - " + moduleName
                                  + " response indicates number of warm-ups since code clear is not zero");
                      });
 
-        // 6.1.14.2.e. Fail if any response indicates time since engine start (SPN 3301) is not zero.
+        // 6.1.14.2.d. Fail if any response indicates time since engine start (SPN 3301) is not zero.
         globalPackets.stream()
                      .filter(packet -> packet.getTimeSinceEngineStart() != 0)
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> {
-                         addFailure("6.1.14.2.e - " + moduleName
+                         addFailure("6.1.14.2.d - " + moduleName
                                  + " response indicates time since engine start is not zero");
                      });
 

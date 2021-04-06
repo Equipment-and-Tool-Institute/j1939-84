@@ -68,7 +68,7 @@ public class J1939TP implements Bus {
                                                                 255 + 1,
                                                                 1L,
                                                                 TimeUnit.SECONDS,
-                                                                new LinkedBlockingQueue<Runnable>());
+                                                                new LinkedBlockingQueue<>());
     /** Application side bus. */
     private final EchoBus inbound;
     /**
@@ -504,5 +504,10 @@ public class J1939TP implements Bus {
         public EomBusException() {
             super("EOM not received.");
         }
+    }
+
+    @Override
+    public boolean imposterDetected() {
+        return bus.imposterDetected();
     }
 }
