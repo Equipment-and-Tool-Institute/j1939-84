@@ -286,7 +286,9 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
             ResultsListener resultsListener = getResultsListener();
             try {
                 if (bus.imposterDetected()) {
-                    throw new IOException("Unexpected Service Tool Message from SA 0xF9 observed. Please disconnect the other ECU using SA 0xF9.");
+                    throw new IOException("Unexpected Service Tool Message from SA 0xF9 observed. " + NL
+                            + "Please disconnect the other ECU using SA 0xF9." + NL
+                            + "The application must be restarted in order to continue.");
                 }
 
                 resultsListener.onProgress(1, 3, "Reading Vehicle Identification Number");
