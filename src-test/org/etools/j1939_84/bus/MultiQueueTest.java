@@ -48,10 +48,10 @@ public class MultiQueueTest {
         try (MultiQueue<Integer> q = new MultiQueue<>()) {
             // Smaller timeouts are inconsistent. It looks like the JIT is sometimes
             // slow.
-            Stream<Integer> stream = q.stream(130, TimeUnit.MILLISECONDS);
-            Stream<Integer> stream1 = q.stream(140, TimeUnit.MILLISECONDS);
-            Stream<Integer> stream3 = q.stream(140, TimeUnit.MILLISECONDS);
-            Stream<Integer> streamn = q.stream(150, TimeUnit.MILLISECONDS);
+            Stream<Integer> stream = q.stream(100, TimeUnit.MILLISECONDS);
+            Stream<Integer> stream1 = q.stream(200, TimeUnit.MILLISECONDS);
+            Stream<Integer> stream3 = q.stream(200, TimeUnit.MILLISECONDS);
+            Stream<Integer> streamn = q.stream(300, TimeUnit.MILLISECONDS);
             q.add(1);
             q.add(2);
             q.add(3);
