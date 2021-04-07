@@ -20,6 +20,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
@@ -346,15 +347,27 @@ public class RP1210BusTest {
 
     @Test
     public void testGetConnectionSpeed() throws Exception {
-        when(rp1210Library.RP1210_SendCommand(eq((short) 45), eq((short) 1), any(), eq((short) 17))).then(arg0 -> {
+        when(rp1210Library.RP1210_SendCommand(eq((short) 45), eq((short) 1), any(), eq((short) 128))).then(arg0 -> {
             byte[] bytes = arg0.getArgument(2);
             byte[] value = "500000".getBytes(UTF_8);
             System.arraycopy(value, 0, bytes, 0, value.length);
             return null;
         });
+
+        ArgumentCaptor<Callable<Integer>> submitCaptor = ArgumentCaptor.forClass(Callable.class);
+        Future<Integer> future = mock(Future.class);
+        when(future.get()).thenReturn((int)500000);
+        when(exec.submit(submitCaptor.capture())).thenReturn(future);
+
         startInstance();
+
         assertEquals(500000, instance.getConnectionSpeed());
-        verify(rp1210Library).RP1210_SendCommand(eq((short) 45), eq((short) 1), any(), eq((short) 17));
+
+        Callable<Integer> callable = submitCaptor.getValue();
+        callable.call();
+        verify(exec).submit(any(Callable.class));
+
+        verify(rp1210Library).RP1210_SendCommand(eq((short) 45), eq((short) 1), any(), eq((short) 128));
     }
 
     @Test
@@ -515,10 +528,10 @@ public class RP1210BusTest {
         byte[] encodedPacket = new byte[] { (byte) 0x34, (byte) 0x12, (byte) 0x00, (byte) 0x06, (byte) 0x56,
                 (byte) 0x34, (byte) 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xAA, (byte) 0xBB, (byte) 0xCC, (byte) 0xDD,
                 (byte) 0xEE };
-        ArgumentCaptor<Callable<Short>> submitCaptor = ArgumentCaptor.forClass(Callable.class);
+        ArgumentCaptor<Callable<Optional<String>>> submitCaptor = ArgumentCaptor.forClass(Callable.class);
 
-        Future<Short> future = mock(Future.class);
-        when(future.get()).thenReturn((short) 0);
+        Future<Optional<String>> future = mock(Future.class);
+        when(future.get()).thenReturn(Optional.empty());
         when(exec.submit(submitCaptor.capture())).thenReturn(future);
         // implement echo
         when(queue.stream(ArgumentMatchers.anyLong(), ArgumentMatchers.any())).thenReturn(Stream.of(packet));
@@ -526,8 +539,8 @@ public class RP1210BusTest {
         startInstance();
         instance.send(packet);
 
-        Callable<Short> callable = submitCaptor.getValue();
-        assertEquals((int) callable.call(), 0);
+        Callable<Optional<String>> callable = submitCaptor.getValue();
+        assertEquals(callable.call(), Optional.empty());
 
         verify(exec).submit(any(Callable.class));
         verify(rp1210Library).RP1210_SendMessage(eq((short) 1),
@@ -552,9 +565,9 @@ public class RP1210BusTest {
                                               (short) 0))
                                                          .thenReturn((short) -99);
 
-        ArgumentCaptor<Callable<Short>> submitCaptor = ArgumentCaptor.forClass(Callable.class);
-        Future<Short> future = mock(Future.class);
-        when(future.get()).thenReturn((short) -99);
+        ArgumentCaptor<Callable<Optional<String>>> submitCaptor = ArgumentCaptor.forClass(Callable.class);
+        Future<Optional<String>> future = mock(Future.class);
+        when(future.get()).thenReturn(Optional.of("Failed to send: 18123456 [8] 77 88 99 AA BB CC DD EE (TX)"));
         when(exec.submit(submitCaptor.capture())).thenReturn(future);
 
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
@@ -569,10 +582,10 @@ public class RP1210BusTest {
             instance.send(packet);
             fail("An exception should have been thrown");
         } catch (BusException e) {
-            assertEquals("Error (99): Testing Failure", e.getMessage());
+            assertEquals("Failed to send: 18123456 [8] 77 88 99 AA BB CC DD EE (TX)", e.getMessage());
         }
-        Callable<Short> callable = submitCaptor.getValue();
-        assertEquals(-99, (long) callable.call());
+        Callable<Optional<String>> callable = submitCaptor.getValue();
+        assertEquals(Optional.of("Error (99): Testing Failure"), callable.call());
 
         verify(exec).submit(any(Callable.class));
         verify(rp1210Library).RP1210_SendMessage(eq((short) 1),

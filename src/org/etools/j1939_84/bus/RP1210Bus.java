@@ -189,20 +189,19 @@ public class RP1210Bus implements Bus {
 
     @Override
     public int getConnectionSpeed() throws BusException {
-        byte[] bytes = new byte[128];
-        Arrays.fill(bytes, (byte) 0);
         try {
-            exec.submit(() -> {
+            return exec.submit(() -> {
+                byte[] bytes = new byte[128];
                 sendCommand(CMD_GET_PROTOCOL_CONNECTION_SPEED, bytes);
-                return null;
+                return Integer.parseInt(new String(bytes, UTF_8).trim());
             }).get();
         } catch (InterruptedException e) {
             logger.log(Level.WARNING, () -> "Unable to read bus speed.", e);
+            throw new BusException("Unable to read bus speed.", e);
         } catch (ExecutionException e) {
             logger.log(Level.WARNING, () -> "Unable to read bus speed.", e.getCause());
+            throw new BusException("Unable to read bus speed.", e.getCause());
         }
-        String result = new String(bytes, UTF_8).trim();
-        return Integer.parseInt(result);
     }
 
     @Override
