@@ -51,6 +51,7 @@ public class Either<L, R> {
         return new Either<>(left.map(lFn), right.map(rFn));
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T resolve() {
         return left.map(x -> (T) x).orElseGet(() -> right.map(x -> (T) x).orElseThrow());
     }

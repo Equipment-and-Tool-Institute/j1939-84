@@ -266,6 +266,7 @@ public class J1939 {
      *                    the {@link Packet} to process
      * @return        a subclass of {@link ParsedPacket}
      */
+    @SuppressWarnings("unchecked")
     private <T extends GenericPacket> Either<T, AcknowledgmentPacket> process(Packet packet) {
         ParsedPacket pp = processRaw(packet.getPgn(), packet);
         if (pp instanceof AcknowledgmentPacket) {
