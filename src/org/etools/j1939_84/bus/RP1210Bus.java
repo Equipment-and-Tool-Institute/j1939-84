@@ -165,7 +165,7 @@ public class RP1210Bus implements Bus {
             sendCommand(CMD_ECHO_TRANSMITTED_MESSAGES, ECHO_ON);
             sendCommand(CMD_SET_ALL_FILTERS_STATES_TO_PASS);
 
-            this.exec.scheduleAtFixedRate(this::poll, 1, 1, TimeUnit.MILLISECONDS);
+            this.exec.submit(this::poll);
         } catch (Throwable e) {
             stop();
             throw new BusException("Failed to configure adapter.", e);
@@ -351,6 +351,9 @@ public class RP1210Bus implements Bus {
                     break;
                 }
             }
+            // this allows the other calls to have a chance
+            Thread.yield();
+            exec.submit(this::poll);
         } catch (BusException e) {
             getLogger().log(Level.SEVERE, () -> "Failed to read RP1210", e);
         }

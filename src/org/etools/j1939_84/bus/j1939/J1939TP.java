@@ -163,50 +163,56 @@ public class J1939TP implements Bus {
 
     private void receive(Packet packet) {
         // ignore the packet if it is from this
-        if (packet.getSource() != getAddress()) {
-            switch (packet.getPgn()) {
-                case CM: // TP connection management
-                    switch (packet.get(0)) {
-                        case CM_RTS: { // Request to send
-                            if (packet.getDestination() == getAddress()) {
+        try {
+            if (packet.getSource() != getAddress()) {
+                switch (packet.getPgn()) {
+                    case CM: // TP connection management
+                        switch (packet.get(0)) {
+                            case CM_RTS: { // Request to send
+                                if (packet.getDestination() == getAddress()) {
+                                    exec.execute(() -> {
+                                        try {
+                                            receiveDestinationSpecific(packet);
+                                        } catch (BusException e) {
+                                            error("Failed to receive destination specific TP:" + packet, e);
+                                        }
+                                    });
+                                }
+                                return;
+                            }
+                            case CM_BAM: {
+                                /*
+                                 * Duplicate the current stream. Opening a new stream starts
+                                 * from "now" and may miss packets already queued up in
+                                 * stream. This is not needed for DA, because DA has a CTS.
+                                 * Timeout is reset inside receiveBam to account for time
+                                 * spent starting this thread.
+                                 */
+                                Stream<Packet> bamStream = bus.duplicate(stream, T2, TimeUnit.MILLISECONDS);
                                 exec.execute(() -> {
                                     try {
-                                        receiveDestinationSpecific(packet);
-                                    } catch (BusException e) {
-                                        error("Failed to receive destination specific TP.", e);
+                                        receiveBam(packet, bamStream);
+                                    } catch (Throwable t) {
+                                        error("Failed to process packet:" + packet, t);
+                                    } finally {
+                                        bamStream.close();
                                     }
                                 });
+                                return;
                             }
-                            return;
+                            case CM_ConnAbort:
+                                // handled in receive calls
+                                return;
                         }
-                        case CM_BAM: {
-                            /*
-                             * Duplicate the current stream. Opening a new stream starts
-                             * from "now" and may miss packets already queued up in
-                             * stream. This is not needed for DA, because DA has a CTS.
-                             * Timeout is reset inside receiveBam to account for time
-                             * spent starting this thread.
-                             */
-                            Stream<Packet> bamStream = bus.duplicate(stream, T2, TimeUnit.MILLISECONDS);
-                            exec.execute(() -> {
-                                try {
-                                    receiveBam(packet, bamStream);
-                                } finally {
-                                    bamStream.close();
-                                }
-                            });
-                            return;
-                        }
-                        case CM_ConnAbort:
-                            // handled in receive calls
-                            return;
-                    }
-                    break;
-                case DT: // data
-                    return;
+                        break;
+                    case DT: // data
+                        return;
+                }
+                // everything else, pass through
+                inbound.send(packet);
             }
-            // everything else, pass through
-            inbound.send(packet);
+        } catch (Throwable t) {
+            error("Failed to process packet:" + packet, t);
         }
     }
 
@@ -239,8 +245,8 @@ public class J1939TP implements Bus {
                       .peek(p -> bus.resetTimeout(stream, T1, TimeUnit.MILLISECONDS))
                       .map(p -> {
                           if (p.getId(0xFFFF) == controlId) {
-                              warn("BAM canceled or aborted: " + bam + " -> " + p);
                               packet.fail();
+                              warn("BAM canceled or aborted: " + bam + " -> " + p);
                               return true;
                           }
                           fine("rx DT", p);

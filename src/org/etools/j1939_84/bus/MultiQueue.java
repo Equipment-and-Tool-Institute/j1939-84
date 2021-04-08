@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.bus;
 
+import java.util.ArrayList;
 import java.util.Spliterator;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
@@ -34,9 +35,7 @@ public class MultiQueue<T> implements AutoCloseable {
     @Override
     public void close() {
         // close all of the spliterators.
-        spliterators.values().forEach(s -> {
-            s.end = 0;
-        });
+        spliterators.values().forEach(SpliteratorImplementation<T>::close);
     }
 
     /**
@@ -58,7 +57,7 @@ public class MultiQueue<T> implements AutoCloseable {
         Stream<T> newStream = StreamSupport.stream(newSpliterator, false);
         spliterators.put(newStream, newSpliterator);
         newSpliterator.setTimeout(time, unit);
-        newStream.onClose(() -> newSpliterator.end = 0);
+        newStream.onClose(newSpliterator::close);
         return newStream;
     }
 
@@ -92,7 +91,7 @@ public class MultiQueue<T> implements AutoCloseable {
         SpliteratorImplementation<T> spliterator = new SpliteratorImplementation<>(list, timeout, unit);
         Stream<T> stream = StreamSupport.stream(spliterator, false);
         spliterators.put(stream, spliterator);
-        stream.onClose(() -> spliterator.end = 0);
+        stream.onClose(spliterator::close);
         return stream;
     }
 
@@ -135,6 +134,11 @@ public class MultiQueue<T> implements AutoCloseable {
             setTimeout(timeout, unit);
         }
 
+        public void close() {
+            end = 0;
+            item = null;
+        }
+
         public SpliteratorImplementation(MultiQueue.SpliteratorImplementation<T> that) {
             item = that.item;
             end = that.end;
@@ -171,7 +175,13 @@ public class MultiQueue<T> implements AutoCloseable {
 
         @Override
         public long estimateSize() {
-            return Long.MAX_VALUE;
+            int count = 0;
+            Item<T> i = item;
+            while (i != null) {
+                i = i.next;
+                count++;
+            }
+            return count;
         }
 
         @Override
