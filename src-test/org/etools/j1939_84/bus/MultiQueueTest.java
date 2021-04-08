@@ -14,8 +14,6 @@ import java.util.stream.Stream;
 import org.etools.testdoc.TestDoc;
 import org.junit.Test;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 @TestDoc(description = "Verifies queuing system works as expected.")
 public class MultiQueueTest {
     /** Add 10000 items from 25 different threads in less than 1 s */

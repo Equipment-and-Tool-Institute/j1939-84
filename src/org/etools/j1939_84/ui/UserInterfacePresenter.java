@@ -529,9 +529,4 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         }
         return file;
     }
-
-    private int getBusAddress() {
-        return getJ1939().getBus().getAddress();
-    }
-
 }
