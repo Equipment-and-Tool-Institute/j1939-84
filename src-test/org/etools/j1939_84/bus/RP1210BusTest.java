@@ -1,5 +1,5 @@
-/**
- * Copyright 2019 Equipment & Tool Institute
+/*
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus;
 
@@ -13,6 +13,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -22,6 +23,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -45,27 +47,41 @@ import org.mockito.junit.MockitoJUnitRunner;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
+@SuppressWarnings("unchecked")
 @RunWith(MockitoJUnitRunner.class)
 public class RP1210BusTest {
 
     private static final int ADDRESS = 0xA5;
     private static final byte[] ADDRESS_CLAIM_PARAMS = new byte[] { (byte) ADDRESS, 0, 0, (byte) 0xE0, (byte) 0xFF, 0,
             (byte) 0x81, 0, 0, 0 };
-    private final ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
+
+    private final ArgumentCaptor<Runnable> readExecCaptor = ArgumentCaptor.forClass(Runnable.class);
+
+    private final ArgumentCaptor<Runnable> execCaptor = ArgumentCaptor.forClass(Runnable.class);
+
     private Adapter adapter;
+
     @Mock
     private ScheduledExecutorService exec;
+
+    @Mock
+    private ExecutorService readExecutor;
+
     private RP1210Bus instance;
+
     @Mock
     private Logger logger;
+
     @Mock
     private MultiQueue<Packet> queue;
+
     @Mock
     private RP1210Library rp1210Library;
 
     private void createInstance() throws BusException {
         instance = new RP1210Bus(rp1210Library,
                                  exec,
+                                 readExecutor,
                                  queue,
                                  adapter,
                                  ADDRESS,
@@ -80,7 +96,7 @@ public class RP1210BusTest {
 
     @After
     public void tearDown() throws Exception {
-        verifyNoMoreInteractions(rp1210Library, exec, queue, logger);
+        verifyNoMoreInteractions(rp1210Library, exec, readExecutor, queue, logger);
     }
 
     private void startInstance() throws Exception {
@@ -99,8 +115,8 @@ public class RP1210BusTest {
                                               aryEq(new byte[] {}),
                                               eq((short) 0))).thenReturn((short) 0);
 
-        when(exec.scheduleAtFixedRate(runnableCaptor.capture(), eq(1L), eq(1L), eq(TimeUnit.MILLISECONDS)))
-                                                                                                           .thenReturn(null);
+        when(exec.submit(execCaptor.capture())).thenReturn(null);
+        when(readExecutor.submit(readExecCaptor.capture())).thenReturn(null);
 
         createInstance();
 
@@ -117,7 +133,7 @@ public class RP1210BusTest {
                                                  eq((short) 1),
                                                  aryEq(new byte[] {}),
                                                  eq((short) 0));
-        verify(exec).scheduleAtFixedRate(any(Runnable.class), eq(1L), eq(1L), eq(TimeUnit.MILLISECONDS));
+        verify(readExecutor).submit(any(Runnable.class));
     }
 
     @Test
@@ -160,7 +176,7 @@ public class RP1210BusTest {
     }
 
     @Test
-    public void testConstructorConnectFails() throws Exception {
+    public void testConstructorConnectFails() {
         when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 1))
                                                                                                    .thenReturn((short) 134);
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 134), any())).thenAnswer(arg0 -> {
@@ -285,7 +301,7 @@ public class RP1210BusTest {
     }
 
     @Test
-    public void testConstructorStopFails() throws Exception {
+    public void testConstructorStopFails() {
         when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 1))
                                                                                                    .thenReturn((short) 1);
 
@@ -356,7 +372,7 @@ public class RP1210BusTest {
 
         ArgumentCaptor<Callable<Integer>> submitCaptor = ArgumentCaptor.forClass(Callable.class);
         Future<Integer> future = mock(Future.class);
-        when(future.get()).thenReturn((int)500000);
+        when(future.get()).thenReturn(500000);
         when(exec.submit(submitCaptor.capture())).thenReturn(future);
 
         startInstance();
@@ -420,8 +436,10 @@ public class RP1210BusTest {
                                                                                                                  .thenReturn((short) 0);
 
         startInstance();
-        Runnable runnable = runnableCaptor.getValue();
+        Runnable runnable = readExecCaptor.getValue();
         runnable.run();
+
+        execCaptor.getValue().run();
 
         ArgumentCaptor<Packet> packetCaptor = ArgumentCaptor.forClass(Packet.class);
         verify(queue).add(packetCaptor.capture());
@@ -430,10 +448,12 @@ public class RP1210BusTest {
         assertEquals(packet, actual);
         verify(logger).log(eq(Level.FINE), anyString(), (Throwable) any());
         verify(logger).log(eq(Level.INFO), anyString(), (Throwable) any());
-        verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
+        verify(rp1210Library, atLeast(2)).RP1210_ReadMessage(eq((short) 1),
                                                            any(byte[].class),
                                                            eq((short) 2048),
                                                            eq((short) 0));
+        verify(exec).submit(any(Runnable.class));
+        verify(readExecutor, times(2)).submit(any(Runnable.class));
     }
 
     @Test
@@ -449,7 +469,7 @@ public class RP1210BusTest {
         });
 
         startInstance();
-        Runnable runnable = runnableCaptor.getValue();
+        Runnable runnable = readExecCaptor.getValue();
         runnable.run();
 
         verify(queue, never()).add(any(Packet.class));
@@ -488,8 +508,10 @@ public class RP1210BusTest {
                                                                                                                  .thenReturn((short) 0);
 
         startInstance();
-        Runnable runnable = runnableCaptor.getValue();
+        Runnable runnable = readExecCaptor.getValue();
         runnable.run();
+
+        execCaptor.getValue().run();
 
         ArgumentCaptor<Packet> packetCaptor = ArgumentCaptor.forClass(Packet.class);
         verify(queue).add(packetCaptor.capture());
@@ -498,10 +520,12 @@ public class RP1210BusTest {
         assertEquals(packet, actual);
         verify(logger).log(eq(Level.FINE), anyString(), (Throwable) any());
         verify(logger).log(eq(Level.INFO), anyString(), (Throwable) any());
-        verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
+        verify(rp1210Library, atLeast(2)).RP1210_ReadMessage(eq((short) 1),
                                                            any(byte[].class),
                                                            eq((short) 2048),
                                                            eq((short) 0));
+        verify(readExecutor, times(2)).submit(any(Runnable.class));
+        verify(exec).submit(any(Runnable.class));
     }
 
     @Test

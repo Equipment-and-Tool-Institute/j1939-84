@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -55,6 +56,8 @@ public class RP1210Bus implements Bus {
      * The thread pool used for polling
      */
     private final ScheduledExecutorService exec;
+
+    private final ExecutorService readExecutor;
 
     interface BusLogger {
 
@@ -98,6 +101,7 @@ public class RP1210Bus implements Bus {
     public RP1210Bus(Adapter adapter, int address, boolean appPacketize) throws BusException {
         this(RP1210Library.load(adapter),
              Executors.newSingleThreadScheduledExecutor(),
+             Executors.newSingleThreadExecutor(),
              new MultiQueue<>(),
              adapter,
              address,
@@ -107,31 +111,10 @@ public class RP1210Bus implements Bus {
 
     /**
      * Constructor exposed for testing
-     *
-     * @param  rp1210Library
-     *                           the {@link RP1210Library} that connects to the adapter
-     *
-     * @param  exec
-     *                           the {@link ScheduledExecutorService} that will execute tasks
-     *
-     * @param  adapter
-     *                           the {@link Adapter} thats connected to the vehicle
-     *
-     * @param  address
-     *                           the source address of this branch on the bus
-     *
-     * @param  logger
-     *                           the {@link Logger} for logging errors
-     *
-     * @param  queue
-     *                           the {@link Packet} for logging errors
-     *
-     * @throws BusException
-     *                           if there is a problem connecting to the adapter
-     *
      */
     public RP1210Bus(RP1210Library rp1210Library,
                      ScheduledExecutorService exec,
+                     ExecutorService readExecutor,
                      MultiQueue<Packet> queue,
                      Adapter adapter,
                      int address,
@@ -139,6 +122,7 @@ public class RP1210Bus implements Bus {
                      BusLogger logger) throws BusException {
         this.rp1210Library = rp1210Library;
         this.exec = exec;
+        this.readExecutor = readExecutor;
         this.queue = queue;
         this.address = address;
         this.logger = logger;
@@ -159,7 +143,7 @@ public class RP1210Bus implements Bus {
             sendCommand(CMD_ECHO_TRANSMITTED_MESSAGES, ECHO_ON);
             sendCommand(CMD_SET_ALL_FILTERS_STATES_TO_PASS);
 
-            this.exec.submit(this::poll);
+            this.readExecutor.submit(this::poll);
         } catch (Throwable e) {
             stop();
             throw new BusException("Failed to configure adapter.", e);
@@ -342,7 +326,7 @@ public class RP1210Bus implements Bus {
             }
             // this allows the other calls to have a chance
             Thread.yield();
-            exec.submit(this::poll);
+            readExecutor.submit(this::poll);
         } catch (BusException e) {
             getLogger().log(Level.SEVERE, () -> "Failed to read RP1210", e);
         }
