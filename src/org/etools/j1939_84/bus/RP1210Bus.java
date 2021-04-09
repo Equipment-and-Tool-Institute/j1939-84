@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -51,11 +50,6 @@ public class RP1210Bus implements Bus {
      * The id of this client for the {@link RP1210Library}
      */
     private final short clientId;
-
-    /**
-     * The byte array used to read data from the {@link RP1210Library}
-     */
-    private final byte[] data = new byte[2048];
 
     /**
      * The thread pool used for polling
@@ -334,15 +328,10 @@ public class RP1210Bus implements Bus {
     private void poll() {
         try {
             while (true) {
+                byte[] data = new byte[2048];
                 short rtn = rp1210Library.RP1210_ReadMessage(clientId, data, (short) data.length, BLOCKING_NONE);
                 if (rtn > 0) {
-                    Packet packet = decode(data, rtn);
-                    logger.log(Level.FINE, packet::toTimeString, null);
-                    if (packet.getSource() == getAddress() && !packet.isTransmitted()) {
-                        logger.log(Level.WARNING, () -> "Another ECU is using this address: " + packet, null);
-                        imposterDetected = true;
-                    }
-                    queue.add(packet);
+                    decodeDataAndQueuePacket(data, rtn);
                 } else if (rtn == -RP1210Library.ERR_RX_QUEUE_FULL) {
                     // RX queue full, remedy is to reread.
                     logger.log(Level.SEVERE, () -> getErrorMessage(rtn), null);
@@ -357,6 +346,18 @@ public class RP1210Bus implements Bus {
         } catch (BusException e) {
             getLogger().log(Level.SEVERE, () -> "Failed to read RP1210", e);
         }
+    }
+
+    private void decodeDataAndQueuePacket(byte[] data, short rtn) {
+        exec.submit(() -> {
+            Packet packet = decode(data, rtn);
+            logger.log(Level.FINE, packet::toTimeString, null);
+            if (packet.getSource() == getAddress() && !packet.isTransmitted()) {
+                logger.log(Level.WARNING, () -> "Another ECU is using this address: " + packet, null);
+                imposterDetected = true;
+            }
+            queue.add(packet);
+        });
     }
 
     /**
