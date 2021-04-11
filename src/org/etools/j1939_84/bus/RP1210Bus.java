@@ -7,11 +7,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.etools.j1939_84.bus.RP1210Library.BLOCKING_NONE;
 import static org.etools.j1939_84.bus.RP1210Library.CLAIM_BLOCK_UNTIL_DONE;
 import static org.etools.j1939_84.bus.RP1210Library.CMD_ECHO_TRANSMITTED_MESSAGES;
-import static org.etools.j1939_84.bus.RP1210Library.CMD_GET_PROTOCOL_CONNECTION_SPEED;
 import static org.etools.j1939_84.bus.RP1210Library.CMD_PROTECT_J1939_ADDRESS;
 import static org.etools.j1939_84.bus.RP1210Library.CMD_SET_ALL_FILTERS_STATES_TO_PASS;
 import static org.etools.j1939_84.bus.RP1210Library.ECHO_ON;
-import static org.etools.j1939_84.bus.RP1210Library.NOTIFICATION_NONE;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -19,12 +17,10 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -55,20 +51,14 @@ public class RP1210Bus implements Bus {
     /**
      * The thread pool used for polling
      */
-    private final ScheduledExecutorService exec;
+    private final ExecutorService decodingExecutor;
 
-    private final ExecutorService readExecutor;
-
-    interface BusLogger {
-
-        void log(Level severe, Supplier<String> string, Throwable e);
-
-    }
+    private final ExecutorService rp1210Executor;
 
     /**
      * The {@link Logger} for errors
      */
-    private final BusLogger logger;
+    private final Logger logger;
 
     /**
      * The {@link RP1210Library}
@@ -93,36 +83,31 @@ public class RP1210Bus implements Bus {
 
     private boolean imposterDetected;
 
-    private static BusLogger createBusAsyncLogger(Logger logger) {
-        Executor exe = Executors.newSingleThreadExecutor();
-        return (severity, string, e) -> exe.execute(() -> logger.log(severity, string.get(), e));
-    }
-
     public RP1210Bus(Adapter adapter, int address, boolean appPacketize) throws BusException {
         this(RP1210Library.load(adapter),
-             Executors.newSingleThreadScheduledExecutor(),
+             Executors.newFixedThreadPool(2),
              Executors.newSingleThreadExecutor(),
              new MultiQueue<>(),
              adapter,
              address,
              appPacketize,
-             createBusAsyncLogger(J1939_84.getLogger()));
+             J1939_84.getLogger());
     }
 
     /**
      * Constructor exposed for testing
      */
     public RP1210Bus(RP1210Library rp1210Library,
-                     ScheduledExecutorService exec,
-                     ExecutorService readExecutor,
+                     ExecutorService decodingExecutor,
+                     ExecutorService rp1210Executor,
                      MultiQueue<Packet> queue,
                      Adapter adapter,
                      int address,
                      boolean appPacketize,
-                     BusLogger logger) throws BusException {
+                     Logger logger) throws BusException {
         this.rp1210Library = rp1210Library;
-        this.exec = exec;
-        this.readExecutor = readExecutor;
+        this.decodingExecutor = decodingExecutor;
+        this.rp1210Executor = rp1210Executor;
         this.queue = queue;
         this.address = address;
         this.logger = logger;
@@ -143,7 +128,7 @@ public class RP1210Bus implements Bus {
             sendCommand(CMD_ECHO_TRANSMITTED_MESSAGES, ECHO_ON);
             sendCommand(CMD_SET_ALL_FILTERS_STATES_TO_PASS);
 
-            this.readExecutor.submit(this::poll);
+            this.rp1210Executor.submit(this::poll);
         } catch (Throwable e) {
             stop();
             throw new BusException("Failed to configure adapter.", e);
@@ -168,16 +153,16 @@ public class RP1210Bus implements Bus {
     @Override
     public int getConnectionSpeed() throws BusException {
         try {
-            return exec.submit(() -> {
+            return rp1210Executor.submit(() -> {
                 byte[] bytes = new byte[128];
-                sendCommand(CMD_GET_PROTOCOL_CONNECTION_SPEED, bytes);
+                sendCommand(RP1210Library.CMD_GET_PROTOCOL_CONNECTION_SPEED, bytes);
                 return Integer.parseInt(new String(bytes, UTF_8).trim());
             }).get();
         } catch (InterruptedException e) {
-            logger.log(Level.WARNING, () -> "Unable to read bus speed.", e);
+            logger.log(Level.WARNING, "Unable to read bus speed.", e);
             throw new BusException("Unable to read bus speed.", e);
         } catch (ExecutionException e) {
-            logger.log(Level.WARNING, () -> "Unable to read bus speed.", e.getCause());
+            logger.log(Level.WARNING, "Unable to read bus speed.", e.getCause());
             throw new BusException("Unable to read bus speed.", e.getCause());
         }
     }
@@ -201,11 +186,11 @@ public class RP1210Bus implements Bus {
         byte[] data = encode(tx);
         try (Stream<Packet> stream = read(1000, TimeUnit.MILLISECONDS)) {
             // rp1210 libraries may not be thread safe
-            Optional<String> error = exec.submit(() -> {
+            Optional<String> error = rp1210Executor.submit(() -> {
                 short rtn = rp1210Library.RP1210_SendMessage(clientId,
                                                              data,
                                                              (short) data.length,
-                                                             NOTIFICATION_NONE,
+                                                             RP1210Library.NOTIFICATION_NONE,
                                                              BLOCKING_NONE);
                 if (rtn > 127 || rtn < 0) {
                     return Optional.of(getErrorMessage(rtn));
@@ -257,9 +242,8 @@ public class RP1210Bus implements Bus {
         if (timestamp < lastTimestamp) {
             Instant time = Instant.now();
             timestampStartNanoseconds = time.getNano() + time.getEpochSecond() * GIGA - timestamp;
-            getLogger().log(Level.INFO,
-                            () -> String.format("adapter time offset: %,d ns %s", timestampStartNanoseconds, time),
-                            null);
+            logger.log(Level.INFO,
+                       String.format("adapter time offset: %,d ns %s", timestampStartNanoseconds, time));
         }
         lastTimestamp = timestamp;
 
@@ -286,7 +270,7 @@ public class RP1210Bus implements Bus {
      *                    the {@link Packet} to encode
      * @return        a byte array of the encoded packet
      */
-    private byte[] encode(Packet packet) {
+    static public byte[] encode(Packet packet) {
         byte[] buf = new byte[packet.getLength() + 6];
         int id = packet.getId(0xFFFF);
         buf[0] = (byte) id;
@@ -301,10 +285,6 @@ public class RP1210Bus implements Bus {
         return buf;
     }
 
-    private BusLogger getLogger() {
-        return logger;
-    }
-
     /**
      * Checks the {@link RP1210Library} for any incoming messages. Any incoming
      * messages are decoded and added to the queue
@@ -312,13 +292,13 @@ public class RP1210Bus implements Bus {
     private void poll() {
         try {
             while (true) {
-                byte[] data = new byte[2048];
+                byte[] data = new byte[32];
                 short rtn = rp1210Library.RP1210_ReadMessage(clientId, data, (short) data.length, BLOCKING_NONE);
                 if (rtn > 0) {
                     decodeDataAndQueuePacket(data, rtn);
                 } else if (rtn == -RP1210Library.ERR_RX_QUEUE_FULL) {
                     // RX queue full, remedy is to reread.
-                    logger.log(Level.SEVERE, () -> getErrorMessage(rtn), null);
+                    logger.log(Level.SEVERE, getErrorMessage(rtn));
                 } else {
                     checkReturnCode(rtn);
                     break;
@@ -326,18 +306,18 @@ public class RP1210Bus implements Bus {
             }
             // this allows the other calls to have a chance
             Thread.yield();
-            readExecutor.submit(this::poll);
+            rp1210Executor.submit(this::poll);
         } catch (BusException e) {
-            getLogger().log(Level.SEVERE, () -> "Failed to read RP1210", e);
+            logger.log(Level.SEVERE, "Failed to read RP1210", e);
         }
     }
 
     private void decodeDataAndQueuePacket(byte[] data, short rtn) {
-        exec.submit(() -> {
+        decodingExecutor.submit(() -> {
             Packet packet = decode(data, rtn);
-            logger.log(Level.FINE, packet::toTimeString, null);
+            logger.log(Level.FINE, packet.toTimeString());
             if (packet.getSource() == getAddress() && !packet.isTransmitted()) {
-                logger.log(Level.WARNING, () -> "Another ECU is using this address: " + packet, null);
+                logger.log(Level.WARNING, "Another ECU is using this address: " + packet);
                 imposterDetected = true;
             }
             queue.add(packet);
@@ -368,12 +348,12 @@ public class RP1210Bus implements Bus {
     public void stop() throws BusException {
         try {
             if (rp1210Library != null) {
-                exec.submit(() -> rp1210Library.RP1210_ClientDisconnect(clientId)).get();
+                rp1210Executor.submit(() -> rp1210Library.RP1210_ClientDisconnect(clientId)).get();
             }
         } catch (Exception e) {
             throw new BusException("Failed to stop RP1210.", e);
         } finally {
-            exec.shutdown();
+            rp1210Executor.shutdown();
         }
     }
 

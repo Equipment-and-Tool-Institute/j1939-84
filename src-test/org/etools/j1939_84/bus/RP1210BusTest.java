@@ -86,7 +86,7 @@ public class RP1210BusTest {
                                  adapter,
                                  ADDRESS,
                                  true,
-                                 (severity, string, e) -> logger.log(severity, string.get(), e));
+                                 logger);
     }
 
     @Before
