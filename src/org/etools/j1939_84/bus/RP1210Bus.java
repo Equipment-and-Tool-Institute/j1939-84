@@ -347,9 +347,7 @@ public class RP1210Bus implements Bus {
      */
     public void stop() throws BusException {
         try {
-            if (rp1210Library != null) {
-                rp1210Executor.submit(() -> rp1210Library.RP1210_ClientDisconnect(clientId)).get();
-            }
+            rp1210Executor.submit(() -> rp1210Library.RP1210_ClientDisconnect(clientId)).get();
         } catch (Exception e) {
             throw new BusException("Failed to stop RP1210.", e);
         } finally {
