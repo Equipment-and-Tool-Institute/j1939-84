@@ -1,31 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch4jConfig>
-	<dontWrapJar>false</dontWrapJar>
 	<headerType>gui</headerType>
 	<jar>..\dist\J1939-84.jar</jar>
 	<outfile>..\dist\J1939-84.exe</outfile>
-	<errTitle></errTitle>
-	<cmdLine></cmdLine>
 	<chdir>.</chdir>
-	<priority>normal</priority>
-	<downloadUrl></downloadUrl>
-	<supportUrl></supportUrl>
-	<stayAlive>false</stayAlive>
-	<restartOnCrash>false</restartOnCrash>
-	<manifest></manifest>
-	<icon></icon>
+	<priority>high</priority>
 	<jre>
 		<path>jre</path>
-		<bundledJre64Bit>false</bundledJre64Bit>
-		<bundledJreAsFallback>false</bundledJreAsFallback>
-		<minVersion>1.8.0</minVersion>
-		<maxVersion></maxVersion>
-		<jdkPreference>jdkOnly</jdkPreference>
-		<runtimeBits>32</runtimeBits>
-		<initialHeapSize>512</initialHeapSize>
-		<maxHeapSize>512</maxHeapSize>
+		<initialHeapSize>128</initialHeapSize>
+		<maxHeapSize>128</maxHeapSize>
+		<opt>-server</opt>
 		<opt>-XX:+UseG1GC</opt>
-		<opt>-XX:MaxGCPauseMillis=40</opt>
+		<opt>-XX:MaxGCPauseMillis=4</opt>
 		<opt>-Xlog:gc:file=%TEMP%\j1939-84-gc.txt</opt>
 	</jre>
 </launch4jConfig>
