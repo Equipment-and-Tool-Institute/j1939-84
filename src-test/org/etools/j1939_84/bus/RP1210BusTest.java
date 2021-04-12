@@ -423,28 +423,27 @@ public class RP1210BusTest {
                 (byte) 0x06, (byte) 0x56, (byte) 0x34, (byte) 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xAA, (byte) 0xBB,
                 (byte) 0xCC, (byte) 0xDD, (byte) 0xEE };
         when(rp1210Library.RP1210_ReadMessage(eq((short) 1), any(byte[].class), eq((short) 32), eq((short) 0)))
-                                                                                                                 .thenAnswer(arg0 -> {
-                                                                                                                     byte[] data = arg0.getArgument(1);
-                                                                                                                     System.arraycopy(encodedPacket,
-                                                                                                                                      0,
-                                                                                                                                      data,
-                                                                                                                                      0,
-                                                                                                                                      encodedPacket.length);
-                                                                                                                     return (short) encodedPacket.length;
-                                                                                                                 })
-                                                                                                                 .thenReturn((short) 0);
+                                                                                                               .thenAnswer(arg0 -> {
+                                                                                                                   byte[] data = arg0.getArgument(1);
+                                                                                                                   System.arraycopy(encodedPacket,
+                                                                                                                                    0,
+                                                                                                                                    data,
+                                                                                                                                    0,
+                                                                                                                                    encodedPacket.length);
+                                                                                                                   return (short) encodedPacket.length;
+                                                                                                               })
+                                                                                                               .thenReturn((short) 0);
 
         startInstance();
-        Runnable runnable = rp1210Captor.getValue();
-        runnable.run();
-
-        rp1210Captor.getValue().run();
+        rp1210Captor.getAllValues().forEach(v->v.run());
+        decodingCaptor.getAllValues().forEach(v->v.run());
 
         ArgumentCaptor<Packet> packetCaptor = ArgumentCaptor.forClass(Packet.class);
         verify(queue).add(packetCaptor.capture());
-        Packet actual = packetCaptor.getValue();
 
+        Packet actual = packetCaptor.getValue();
         assertEquals(packet, actual);
+
         verify(logger).log(eq(Level.FINE), anyString());
         verify(logger).log(eq(Level.INFO), anyString());
         verify(rp1210Library, atLeast(2)).RP1210_ReadMessage(eq((short) 1),
@@ -458,7 +457,7 @@ public class RP1210BusTest {
     @Test
     public void testPollFails() throws Exception {
         when(rp1210Library.RP1210_ReadMessage(eq((short) 1), any(byte[].class), eq((short) 32), eq((short) 0)))
-                                                                                                                 .thenReturn((short) -99);
+                                                                                                               .thenReturn((short) -99);
 
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
             byte[] dest = arg0.getArgument(1);
@@ -495,16 +494,16 @@ public class RP1210BusTest {
                 (byte) 0x06, (byte) 0x56, (byte) 0x34, (byte) 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xAA, (byte) 0xBB,
                 (byte) 0xCC, (byte) 0xDD, (byte) 0xEE };
         when(rp1210Library.RP1210_ReadMessage(eq((short) 1), any(byte[].class), eq((short) 32), eq((short) 0)))
-                                                                                                                 .thenAnswer(arg0 -> {
-                                                                                                                     byte[] data = arg0.getArgument(1);
-                                                                                                                     System.arraycopy(encodedPacket,
-                                                                                                                                      0,
-                                                                                                                                      data,
-                                                                                                                                      0,
-                                                                                                                                      encodedPacket.length);
-                                                                                                                     return (short) encodedPacket.length;
-                                                                                                                 })
-                                                                                                                 .thenReturn((short) 0);
+                                                                                                               .thenAnswer(arg0 -> {
+                                                                                                                   byte[] data = arg0.getArgument(1);
+                                                                                                                   System.arraycopy(encodedPacket,
+                                                                                                                                    0,
+                                                                                                                                    data,
+                                                                                                                                    0,
+                                                                                                                                    encodedPacket.length);
+                                                                                                                   return (short) encodedPacket.length;
+                                                                                                               })
+                                                                                                               .thenReturn((short) 0);
 
         startInstance();
         Runnable runnable = rp1210Captor.getValue();
