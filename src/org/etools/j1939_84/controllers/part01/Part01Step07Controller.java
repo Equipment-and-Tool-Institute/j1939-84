@@ -220,10 +220,10 @@ public class Part01Step07Controller extends StepController {
 
         // 6.1.7.4.a. Destination Specific (DS) DM19 to each OBD ECU (plus all
         // ECUs that responded to global DM19).
-        var dsResults = globalPackets.stream()
-                                     .map(ParsedPacket::getSourceAddress)
-                                     .map(a -> getVehicleInformationModule().requestDM19(getListener(), a))
-                                     .collect(Collectors.toList());
+        var dsResults = getDataRepository().getObdModuleAddresses()
+                                           .stream()
+                                           .map(a -> getVehicleInformationModule().requestDM19(getListener(), a))
+                                           .collect(Collectors.toList());
 
         // 6.1.7.5.a Compare to ECU address + CAL ID + CVN list created from global DM19 request and fail if any
         // difference.
