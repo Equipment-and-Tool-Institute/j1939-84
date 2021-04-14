@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -228,7 +229,6 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
 
 
         // Module 1B - Missing CVN as non-OBD ECU
-        dataRepository.putObdModule(new OBDModuleInformation(0x1B));
         DM19CalibrationInformationPacket dm191B = createDM19(0x1B, "", "1234", 1);
         when(vehicleInformationModule.requestDM19(any(), eq(0x1B))).thenReturn(BusResult.of(dm191B));
         globalDM19s.add(dm191B);
@@ -241,7 +241,6 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         globalDM19s.add(dm190C);
 
         // Module 1C - Missing CVN as non-OBD Module
-        dataRepository.putObdModule(new OBDModuleInformation(0x1C));
         DM19CalibrationInformationPacket dm191C = createDM19(0x1C, "CALID", "", 1);
         when(vehicleInformationModule.requestDM19(any(), eq(0x1C))).thenReturn(BusResult.of(dm191C));
         globalDM19s.add(dm191C);
@@ -255,7 +254,6 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
 
         // Module 1D - Non-Printable Chars, padded incorrectly in CalId as
         // non-OBD Module
-        dataRepository.putObdModule(new OBDModuleInformation(0x1D));
         DM19CalibrationInformationPacket dm191D = createDM19(0x1D, "CALID\u0000F", "1234", 1);
         when(vehicleInformationModule.requestDM19(any(), eq(0x1D))).thenReturn(BusResult.of(dm191D));
         globalDM19s.add(dm191D);
@@ -288,7 +286,6 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         globalDM19s.add(dm190E);
 
         // Module 1E - CalId all 0xFF and CVN all 0x00 as OBD Module
-        dataRepository.putObdModule(new OBDModuleInformation(0x1E));
         Packet packet1E = Packet.create(0,
                                         0x1E,
                                         0x00,
@@ -357,12 +354,20 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         // assertEquals(List.of(), listener.getOutcomes());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
+                                        WARN,
+                                        "6.1.7.3.c.i - Non-OBD ECU Vehicle Navigation (28) provided CAL ID");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.1.7.3.c.i - Non-OBD ECU Electrical System (30) provided CAL ID");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
                                         FAIL,
                                         "6.1.7.2.b.ii - Brakes - Drive Axle #2 (14) CAL ID not formatted correctly (contains non-printable ASCII)");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.7.2.b.ii - Electrical System (30) CAL ID not formatted correctly (contains non-printable ASCII)");
+                                        WARN,
+                                        "6.1.7.3.c.iii - Electrical System (30) CAL ID not formatted correctly (contains non-printable ASCII)");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -373,44 +378,15 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                         "6.1.7.2.b.iii - Received CVN is all 0x00 from Brakes - Drive Axle #2 (14)");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.7.2.b.iii - Received CAL ID is all 0xFF from Electrical System (30)");
+                                        WARN,
+                                        "6.1.7.3.c.iv - Received CAL ID is all 0xFF from Electrical System (30)");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.7.2.b.iii - Received CAL ID is all 0xFF from Electrical System (30)");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.7.2.b.iii - Received CVN is all 0x00 from Electrical System (30)");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.7.2.b.ii - Brakes - Drive Axle #2 (14) CAL ID not formatted correctly (contains non-printable ASCII)");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.7.2.b.ii - Brakes - Drive Axle #2 (14) CAL ID not formatted correctly (contains non-printable ASCII)");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.7.2.b.iii - Received CAL ID is all 0xFF from Brakes - Drive Axle #2 (14)");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.7.2.b.iii - Received CVN is all 0x00 from Brakes - Drive Axle #2 (14)");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.7.2.b.ii - Brakes - Drive Axle #2 (14) CAL ID not formatted correctly (contains non-printable ASCII)");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.7.2.b.ii - Electrical System (30) CAL ID not formatted correctly (contains non-printable ASCII)");
+                                        "6.1.7.3.c.iv Received CVN is all 0x00 from Electrical System (30)");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.1.7.5.a - Difference compared to data received during global request from Brakes - System Controller (11)");
-
     }
 }

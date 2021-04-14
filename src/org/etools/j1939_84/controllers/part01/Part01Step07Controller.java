@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
@@ -220,10 +221,12 @@ public class Part01Step07Controller extends StepController {
 
         // 6.1.7.4.a. Destination Specific (DS) DM19 to each OBD ECU (plus all
         // ECUs that responded to global DM19).
-        var dsResults = getDataRepository().getObdModuleAddresses()
-                                           .stream()
-                                           .map(a -> getVehicleInformationModule().requestDM19(getListener(), a))
-                                           .collect(Collectors.toList());
+        var dsResults = Stream.concat(getDataRepository().getObdModuleAddresses().stream(),
+                                      globalPackets.stream().map(ParsedPacket::getSourceAddress))
+                              .distinct()
+                              .sorted()
+                              .map(a -> getVehicleInformationModule().requestDM19(getListener(), a))
+                              .collect(Collectors.toList());
 
         // 6.1.7.5.a Compare to ECU address + CAL ID + CVN list created from global DM19 request and fail if any
         // difference.
