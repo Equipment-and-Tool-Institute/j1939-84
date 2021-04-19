@@ -40,7 +40,6 @@ public class DM5DiagnosticReadinessPacketTest extends DiagnosticReadinessPacketT
 
     @Test
     @Override
-    @TestDoc()
     public void test0x00() {
         super.test0x00();
     }
