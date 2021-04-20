@@ -263,7 +263,7 @@
     </target>
 
     <target name="testdoc.jar" depends="init">
-        <javac srcdir="${src-test}" destdir="${build}" includeantruntime="false" debug="true" target="11"
+        <javac srcdir="${src-test}" destdir="${build}" includeantruntime="false" debug="true" target="11" source="11"
                classpath="${src-test}" includes="**/TestDoc*.java,**/TestItem*.java">
             <classpath>
                 <fileset dir="${lib-test}">
