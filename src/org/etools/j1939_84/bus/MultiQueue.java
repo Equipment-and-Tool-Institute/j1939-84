@@ -1,13 +1,13 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus;
 
-import java.util.ArrayList;
 import java.util.Spliterator;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.stream.BaseStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -34,8 +34,7 @@ public class MultiQueue<T> implements AutoCloseable {
 
     @Override
     public void close() {
-        // close all of the spliterators.
-        spliterators.values().forEach(SpliteratorImplementation<T>::close);
+        spliterators.keySet().forEach(BaseStream::close);
     }
 
     /**
@@ -44,7 +43,7 @@ public class MultiQueue<T> implements AutoCloseable {
      *
      * @param  stream Original stream.
      * @param  time   New timeout for this stream.
-     * @param  unit
+     * @param  unit   the unit of the timeout
      * @return        The new stream, independent of the original, but starting at the same
      *                location the original is right now.
      */
@@ -57,8 +56,7 @@ public class MultiQueue<T> implements AutoCloseable {
         Stream<T> newStream = StreamSupport.stream(newSpliterator, false);
         spliterators.put(newStream, newSpliterator);
         newSpliterator.setTimeout(time, unit);
-        newStream.onClose(newSpliterator::close);
-        return newStream;
+        return newStream.onClose(newSpliterator::close);
     }
 
     /**
@@ -67,8 +65,8 @@ public class MultiQueue<T> implements AutoCloseable {
      * unit).
      *
      * @param stream Stream created from stream(timeout, unit)
-     * @param time
-     * @param unit
+     * @param time   the new timeout
+     * @param unit   the unit of the new timeout
      */
     public void resetTimeout(Stream<T> stream, int time, TimeUnit unit) {
         MultiQueue.SpliteratorImplementation<T> spliterator = spliterators.get(stream);
@@ -91,8 +89,7 @@ public class MultiQueue<T> implements AutoCloseable {
         SpliteratorImplementation<T> spliterator = new SpliteratorImplementation<>(list, timeout, unit);
         Stream<T> stream = StreamSupport.stream(spliterator, false);
         spliterators.put(stream, spliterator);
-        stream.onClose(spliterator::close);
-        return stream;
+        return stream.onClose(spliterator::close);
     }
 
     static private class Item<T> {
@@ -109,6 +106,7 @@ public class MultiQueue<T> implements AutoCloseable {
             return next;
         }
 
+        @SuppressWarnings("SameParameterValue")
         synchronized MultiQueue.Item<T> next(long delay) {
             if (next == null) {
                 try {

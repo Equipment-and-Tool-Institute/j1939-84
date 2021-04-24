@@ -6,8 +6,6 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
-import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 import org.etools.j1939_84.bus.j1939.packets.model.Spn;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -31,8 +29,7 @@ public class GenericPacketTest {
     public void testPgn0() {
         byte[] data = new byte[] { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88 };
         Packet packet = Packet.create(0, 0, 0, false, data);
-        PgnDefinition pgnDefinition = J1939DaRepository.getInstance().findPgnDefinition(0);
-        GenericPacket instance = new GenericPacket(packet, pgnDefinition);
+        GenericPacket instance = new GenericPacket(packet);
 
         List<Spn> spns = instance.getSpns();
         assertEquals(10, spns.size());
@@ -50,4 +47,5 @@ public class GenericPacketTest {
         expected += "  SPN  4207, Message Checksum: 8.000000 count" + NL;
         assertEquals(expected, instance.toString());
     }
+
 }
