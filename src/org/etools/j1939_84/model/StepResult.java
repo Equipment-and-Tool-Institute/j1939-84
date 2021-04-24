@@ -9,9 +9,8 @@ import static org.etools.j1939_84.model.Outcome.INCOMPLETE;
 import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
@@ -19,7 +18,7 @@ import java.util.Set;
 public class StepResult implements IResult {
     private final String name;
     private final int partNumber;
-    private final Set<ActionOutcome> results = new HashSet<>();
+    private final Collection<ActionOutcome> results = new ArrayList<>();
     private final int stepNumber;
     private Outcome outcome;
 
