@@ -598,11 +598,11 @@ public class UserInterfacePresenterTest {
         verify(view).setAdapterComboBoxEnabled(false);
         verify(view).setSelectFileButtonEnabled(false);
         verify(view).setProgressBarValue(0, 3, 3);
-        verify(view).setProgressBarText("Unexpected Service Tool Message from SA 0xF9 observed. Please disconnect the other ECU using SA 0xF9.");
-        verify(view).displayDialog("Unexpected Service Tool Message from SA 0xF9 observed. Please disconnect the other ECU using SA 0xF9.",
-                                   "Communications Error",
-                                   JOptionPane.ERROR_MESSAGE,
-                                   false);
+        String text = "Unexpected Service Tool Message from SA 0xF9 observed. " + NL +
+                "Please disconnect the other ECU using SA 0xF9." + NL +
+                "The application must be restarted in order to continue.";
+        verify(view).setProgressBarText(text);
+        verify(view).displayDialog(text, "Communications Error", JOptionPane.ERROR_MESSAGE, false);
 
         verify(view).setReadVehicleInfoButtonEnabled(true);
         verify(view).setAdapterComboBoxEnabled(true);

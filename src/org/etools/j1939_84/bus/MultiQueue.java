@@ -7,7 +7,6 @@ import java.util.Spliterator;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.stream.BaseStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -34,7 +33,7 @@ public class MultiQueue<T> implements AutoCloseable {
 
     @Override
     public void close() {
-        spliterators.keySet().forEach(BaseStream::close);
+        spliterators.values().forEach(SpliteratorImplementation::close);
     }
 
     /**
