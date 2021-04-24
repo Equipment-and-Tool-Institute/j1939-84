@@ -24,7 +24,9 @@ import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.MultiQueue;
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
+import org.etools.j1939_84.bus.j1939.J1939TP;
 import org.etools.j1939_84.resources.Resources;
 
 /**
@@ -34,6 +36,17 @@ import org.etools.j1939_84.resources.Resources;
  * The expected name is j1939_84x.log where is in the numbers
  */
 public class FileBus implements Bus {
+
+    public static void main(String... args) throws BusException {
+        J1939TP bus = new J1939TP(new FileBus(0xF9));
+        J1939 j1939 = new J1939(bus);
+        bus.setJ1939(j1939);
+
+        j1939.read(1, TimeUnit.DAYS)
+             .forEach(System.out::println);
+
+        System.exit(0);
+    }
 
     private long firstNanos = -1;
     private long epochNanos = -1;
