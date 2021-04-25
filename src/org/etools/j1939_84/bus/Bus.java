@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus;
@@ -48,7 +48,7 @@ public interface Bus extends AutoCloseable {
         new Thread(() -> stream.forEach(p -> {
             System.err.println(prefix.apply(p));
         })).start();
-        return stream;
+        return () -> stream.close();
     }
 
     /**
