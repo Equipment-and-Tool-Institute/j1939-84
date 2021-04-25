@@ -433,7 +433,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.12.2.a (A7.1.c) - #1 SLOT identifier for SPN 157 from Engine #1 (0) is invalid");
+                                        "6.1.12.2.a (A7.1.c) - #1 SLOT identifier for SPN 157 FMI 0 from Engine #1 (0) is invalid");
 
         verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
 

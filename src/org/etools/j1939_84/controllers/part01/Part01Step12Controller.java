@@ -183,8 +183,8 @@ public class Part01Step12Controller extends StepController {
             // appropriate for use in test results.
             int slotIdentifier = result.getSlot().getId();
             if (!VALID_SLOTS.contains(slotIdentifier)) {
-                addFailure("6.1.12.2.a (A7.1.c) - #" + slotIdentifier + " SLOT identifier for SPN " + spnId + " from "
-                        + moduleName + " is invalid");
+                addFailure("6.1.12.2.a (A7.1.c) - #" + slotIdentifier + " SLOT identifier for SPN " + spnId
+                        + " FMI " + result.getFmi() + " from " + moduleName + " is invalid");
             }
         }
     }
