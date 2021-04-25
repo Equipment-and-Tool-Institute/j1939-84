@@ -38,6 +38,8 @@ import org.etools.j1939_84.resources.Resources;
 public class FileBus implements Bus {
 
     public static void main(String... args) throws BusException {
+        // If the source address is set to 0xF9, transmitted packets will NOT be replayed
+        // Setting the source address to another value (such as 0xFA), will replay transmitted packets
         J1939TP bus = new J1939TP(new FileBus(0xF9));
         J1939 j1939 = new J1939(bus);
         bus.setJ1939(j1939);
