@@ -38,6 +38,8 @@ public class J1939TP implements Bus {
     final static public int T4 = 1050;
     final static public Map<Integer, String> table7;
     final static public int Th = 500;
+    final static public int Tr = 200;
+    final static public int TrPlus = 220;
     static private final Logger logger = Logger.getLogger(J1939TP.class.getName());
 
     static {
@@ -53,7 +55,6 @@ public class J1939TP implements Bus {
         err.put(9, "\"Total Message Size\" is greater than 1785 bytes");
         err.put(250, "If a Connection Abort reason is identified that is not listed in the table use code 250");
 
-        // noinspection Java9CollectionFactory
         table7 = Collections.unmodifiableMap(err);
     }
 
@@ -83,10 +84,10 @@ public class J1939TP implements Bus {
 
     public J1939TP(Bus bus, int address) throws BusException {
         this.bus = bus;
+        stream = bus.read(9999, TimeUnit.DAYS);
         inbound = new EchoBus(address);
-        stream = bus.read(9999, TimeUnit.DAYS).onClose(inbound::close);
         // start processing
-        exec.execute(() -> stream.forEach(this::receive));
+        exec.execute(() -> stream.forEach(p -> receive(p)));
     }
 
     static private String getAbortError(int code) {
@@ -94,10 +95,10 @@ public class J1939TP implements Bus {
     }
 
     /** We do not care about interruptions. */
-    static private void sleep() {
+    static private void sleep(int duration) {
         try {
-            Thread.sleep(50);
-        } catch (InterruptedException ignored) {
+            Thread.sleep(duration);
+        } catch (InterruptedException e) {
         }
     }
 
@@ -106,7 +107,6 @@ public class J1939TP implements Bus {
         exec.shutdownNow();
         stream.close();
         bus.close();
-        inbound.close();
     }
 
     /**
@@ -188,11 +188,14 @@ public class J1939TP implements Bus {
                                  * Timeout is reset inside receiveBam to account for time
                                  * spent starting this thread.
                                  */
+                                Stream<Packet> bamStream = bus.duplicate(stream, T2, TimeUnit.MILLISECONDS);
                                 exec.execute(() -> {
-                                    try (Stream<Packet> bamStream = bus.duplicate(stream, T2, TimeUnit.MILLISECONDS)) {
+                                    try {
                                         receiveBam(packet, bamStream);
                                     } catch (Throwable t) {
                                         error("Failed to process packet:" + packet, t);
+                                    } finally {
+                                        bamStream.close();
                                     }
                                 });
                                 return;
@@ -395,7 +398,7 @@ public class J1939TP implements Bus {
                              end);
             Arrays.fill(buf, end + 1, buf.length, (byte) 0xFF);
             buf[0] = (byte) (i + 1);
-            sleep();
+            sleep(50);
             Packet dp = Packet.create(id, sourceAddress, buf);
 
             fine("tx DT.DP", dp);

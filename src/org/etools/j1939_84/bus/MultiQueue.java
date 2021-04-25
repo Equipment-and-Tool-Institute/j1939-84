@@ -33,6 +33,7 @@ public class MultiQueue<T> implements AutoCloseable {
 
     @Override
     public void close() {
+        // close all of the spliterators.
         spliterators.values().forEach(SpliteratorImplementation::close);
     }
 
