@@ -26,17 +26,9 @@ public class GenericPacket extends ParsedPacket {
     private List<Spn> spns;
 
     public GenericPacket(Packet packet) {
-        this(packet, getJ1939DaRepository().findPgnDefinition(packet.getPgn()));
-    }
-
-    public GenericPacket(Packet packet, PgnDefinition pgnDefinition) {
-        this(packet, pgnDefinition, new SpnDataParser());
-    }
-
-    GenericPacket(Packet packet, PgnDefinition pgnDefinition, SpnDataParser parser) {
         super(packet);
-        this.pgnDefinition = pgnDefinition;
-        this.parser = parser;
+        pgnDefinition = getJ1939DaRepository().findPgnDefinition(packet.getPgn());
+        parser = new SpnDataParser();
     }
 
     private static J1939DaRepository getJ1939DaRepository() {

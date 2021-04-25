@@ -848,7 +848,7 @@ public class J1939Test {
         public static int PGN = -1;
 
         public TestPacket(Packet packet) {
-            super(packet, null);
+            super(packet);
         }
     }
 
