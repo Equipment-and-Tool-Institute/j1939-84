@@ -86,9 +86,10 @@ public class VinDecoderTest {
 
         assertTrue("VIN is valid", instance.isVinValid("2G1WB5E37E1110567"));
         assertTrue("VIN is valid", instance.isVinValid("1XPBDK9X1LD708195"));
+        assertFalse("VIN is invalid with bad model year", instance.isVinValid("1VTAZ3NR1UZA70835"));
 
         assertTrue("Check Digit 0:", instance.isVinValid("38Z63P7W0GCRB5050"));
-        assertTrue("Check Digit 1:", instance.isVinValid("1VTAZ3NR1UZA70835"));
+        assertTrue("Check Digit 1:", instance.isVinValid("WYSHUV571C50P2806"));
         assertTrue("Check Digit 2:", instance.isVinValid("2UNLM4Y22KF0E2219"));
         assertTrue("Check Digit 3:", instance.isVinValid("PBJ1GXMU3NDE71284"));
         assertTrue("Check Digit 4:", instance.isVinValid("0C1H83214Y4JF6614"));
@@ -97,7 +98,7 @@ public class VinDecoderTest {
         assertTrue("Check Digit 7:", instance.isVinValid("9BY7UYCC7210U3767"));
         assertTrue("Check Digit 8:", instance.isVinValid("TT4GR5BH8EVNJ7856"));
         assertTrue("Check Digit 9:", instance.isVinValid("3EA4ZN5H9CKJU9042"));
-        assertTrue("Check Digit X:", instance.isVinValid("N09EHGGTXUT589046"));
+        assertTrue("Check Digit X:", instance.isVinValid("RYZA0YM5X5SJL1774"));
     }
 
     @Test

@@ -87,12 +87,16 @@ public class VinDecoder {
      */
     public int getModelYear(String vin) {
         if (isVinValid(vin)) {
-            Integer result = MODEL_YEARS.get(Character.toString(vin.charAt(9)));
+            Integer result = getModelYearValue(vin);
             if (result != null) {
                 return result;
             }
         }
         return -1;
+    }
+
+    private Integer getModelYearValue(String vin) {
+        return MODEL_YEARS.get(Character.toString(vin.charAt(9)));
     }
 
     /**
@@ -120,6 +124,10 @@ public class VinDecoder {
 
         if (calculateCheckSum(sanitizedVin) != sanitizedVin.charAt(8)) {
             return false; // Bad Checksum
+        }
+
+        if (getModelYearValue(vin) == null) {
+            return false; // The model year is not valid
         }
 
         try {
