@@ -17,10 +17,17 @@ public class VinDecoder {
 
     public static final int MAX_MODEL_YEAR = 2039;
     public static final int MIN_MODEL_YEAR = 2010;
+
     public static final int VIN_LENGTH = 17; // characters
-    private static final int[] LETTER_VALUE = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7,
-            8, 0, 1, 2, 3, 4, 5, 0, 7, 0, 9, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+    // @formatter:off
+    private static final int[] LETTER_VALUE = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0,
+         // A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z
+            1, 2, 3, 4, 5, 6, 7, 8, 0, 1, 2, 3, 4, 5, 0, 7, 0, 9, 2, 3, 4, 5, 6, 7, 8, 9 };
+    // @formatter:on
+
     private static final Map<String, Integer> MODEL_YEARS = new HashMap<>();
+
     private static final int[] WEIGHT = { 8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2 };
 
     static {
@@ -68,7 +75,7 @@ public class VinDecoder {
             sum += LETTER_VALUE[vin.charAt(i) - '0'] * WEIGHT[i];
         }
         int checkSum = sum % 11;
-        return checkSum == 1 ? 'X' : (char) (checkSum + '0');
+        return checkSum == 10 ? 'X' : (char) (checkSum + '0');
     }
 
     /**
