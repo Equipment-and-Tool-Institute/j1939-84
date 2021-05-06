@@ -254,10 +254,6 @@ public class J1939 {
                                                        || (p.getDestination() == 0 && p.getLength() > 8)));
     }
 
-    public void incrementWarning() {
-        warnings++;
-    }
-
     /**
      * Returns a Subclass of {@link ParsedPacket} that corresponds to the given
      * {@link Packet}
@@ -638,7 +634,7 @@ public class J1939 {
                                      if (response.map(J1939::isBusy).orElse(true)) {
                                          logInfo(
                                                  "second DS request after global busy NACK: " + dsRequest + " -> "
-                                                 + response);
+                                                         + response);
                                      }
                                  }
                                  return response.orElse(e);
@@ -697,7 +693,7 @@ public class J1939 {
                            .map(rawPacket -> {
                                try {
                                    listener.onResult(rawPacket.toTimeString());
-                                   Either<T, AcknowledgmentPacket> pp= process(rawPacket);
+                                   Either<T, AcknowledgmentPacket> pp = process(rawPacket);
                                    listener.onResult(pp.resolve().toString());
                                    return pp;
                                } catch (PacketException e) {
@@ -781,7 +777,7 @@ public class J1939 {
     }
 
     private void logTiming(ResultsListener listener, String message) {
-        incrementWarning();
+        warnings++;
         listener.onResult(message);
         getLogger().warning(message);
     }

@@ -492,9 +492,6 @@ public class J1939TP implements Bus {
     }
 
     public void warn(String msg, Object... a) {
-        if (j1939 != null) {
-            j1939.incrementWarning();
-        }
         logger.warning(String.format(msg, a));
     }
 
