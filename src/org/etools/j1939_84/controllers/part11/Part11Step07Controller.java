@@ -91,18 +91,6 @@ public class Part11Step07Controller extends StepController {
 
         getEngineSpeedModule().startMonitoringEngineSpeed(executor, stopPrediciate);
 
-        // 6.11.7.1.a. Broadcast data received shall comply with the values defined in Section A.1.
-        // 6.11.7.3.a. Identify any broadcast data meeting warning criteria in Table A1 during engine idle periods.
-        // 6.11.7.2.c. Fail if any broadcast data is missing according to Table A1,
-        // or otherwise meets failure criteria during engine idle speed periods.
-        executor.submit(() -> {
-            getJ1939().readGenericPacket(stopPrediciate)
-                      .filter(p -> getEngineSpeedModule().isEngineAtIdle())
-                      .forEach(p -> {
-                          validator.reportImplausibleSPNValues(p, getListener(), true, "6.11.7.3.a");
-                      });
-        });
-
         // Report the engine data while the test is going on
         executor.scheduleAtFixedRate(() -> {
             String msg = getDateTimeModule().getTime() + " Test Update:" + NL;
@@ -142,6 +130,20 @@ public class Part11Step07Controller extends StepController {
         msg2 += "Test will continue for an additional %1$d seconds" + NL + NL;
         msg2 += "Press OK to continue";
         displayInstructionAndWait(format(msg2, calculateSecondsRemaining()), "Step 6.11.7.1.f", WARNING);
+
+        // This logic has been moved to only report implausible values when the engine is at idle after the engine
+        // has been at 1150 RPMs for over 300 seconds
+        // 6.11.7.1.a. Broadcast data received shall comply with the values defined in Section A.1.
+        // 6.11.7.3.a. Identify any broadcast data meeting warning criteria in Table A1 during engine idle periods.
+        // 6.11.7.2.c. Fail if any broadcast data is missing according to Table A1,
+        // or otherwise meets failure criteria during engine idle speed periods.
+        executor.submit(() -> {
+            getJ1939().readGenericPacket(stopPrediciate)
+                      .filter(p -> getEngineSpeedModule().isEngineAtIdle())
+                      .forEach(p -> {
+                          validator.reportImplausibleSPNValues(p, getListener(), true, "6.11.7.3.a");
+                      });
+        });
 
         // 6.11.7.4.a. Once 620 seconds of engine operation overall in part 11 have elapsed (including over 300 seconds
         // of engine operation over 1150 rpm), end periodic DM20 and DM28 and continue with test 6.11.8.
