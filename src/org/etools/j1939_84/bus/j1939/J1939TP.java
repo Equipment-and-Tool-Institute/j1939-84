@@ -75,8 +75,6 @@ public class J1939TP implements Bus {
      * The inbound stream that RTS and BAM announcements will be detected on.
      */
     private final Stream<Packet> stream;
-    /** Optional j1939 used solely for counting warnings. */
-    private J1939 j1939;
 
     public J1939TP(Bus bus) throws BusException {
         this(bus, bus.getAddress());
@@ -484,11 +482,6 @@ public class J1939TP implements Bus {
                              .orElse(new CtsBusException());
         }
         return response;
-    }
-
-    /** Used to count warnings. */
-    public void setJ1939(J1939 j1939) {
-        this.j1939 = j1939;
     }
 
     public void warn(String msg, Object... a) {
