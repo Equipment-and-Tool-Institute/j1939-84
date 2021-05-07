@@ -50,7 +50,7 @@ public class Part11Step07Controller extends StepController {
 
     private final AtomicBoolean isComplete = new AtomicBoolean(false);
     private final Set<String> reportedFailures = new HashSet<>();
-    private final Predicate<Either<GenericPacket, AcknowledgmentPacket>> stopPrediciate = e -> !isComplete.get();
+    private final Predicate<Either<GenericPacket, AcknowledgmentPacket>> stopPredicate = e -> !isComplete.get();
     private int requestCount = 0;
 
     public Part11Step07Controller() {
@@ -89,7 +89,7 @@ public class Part11Step07Controller extends StepController {
     @Override
     protected void run() throws Throwable {
 
-        getEngineSpeedModule().startMonitoringEngineSpeed(executor, stopPrediciate);
+        getEngineSpeedModule().startMonitoringEngineSpeed(executor, stopPredicate);
 
         // Report the engine data while the test is going on
         executor.scheduleAtFixedRate(() -> {
@@ -138,7 +138,7 @@ public class Part11Step07Controller extends StepController {
         // 6.11.7.2.c. Fail if any broadcast data is missing according to Table A1,
         // or otherwise meets failure criteria during engine idle speed periods.
         executor.submit(() -> {
-            getJ1939().readGenericPacket(stopPrediciate)
+            getJ1939().readGenericPacket(stopPredicate)
                       .filter(p -> getEngineSpeedModule().isEngineAtIdle())
                       .forEach(p -> {
                           validator.reportImplausibleSPNValues(p, getListener(), true, "6.11.7.3.a");
