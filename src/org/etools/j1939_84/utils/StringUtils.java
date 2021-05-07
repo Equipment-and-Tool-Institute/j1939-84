@@ -15,7 +15,6 @@ import java.util.regex.Pattern;
  */
 public class StringUtils {
 
-    private static final Pattern BINARY_PATTERN = Pattern.compile("\b[01]+\b");
     private static final Pattern NON_NUMERIC_PATTERN = Pattern.compile("[0-9]+");
     private static final Pattern NON_PRINTABLE_PATTERN = Pattern.compile(".*[^\\p{Print}].*");
 
@@ -24,13 +23,6 @@ public class StringUtils {
      */
     public static boolean containsNonPrintableAsciiCharacter(String string) {
         return NON_PRINTABLE_PATTERN.matcher(string).matches();
-    }
-
-    /*
-     * @param string String to be checked for non-binary characters
-     */
-    public static boolean containsOnlyBinaryValues(String string) {
-        return BINARY_PATTERN.matcher(string).matches();
     }
 
     /*
@@ -74,20 +66,6 @@ public class StringUtils {
         } else {
             return input.substring(0, ++index);
         }
-    }
-
-    public static String capitalizeString(String string) {
-        char[] chars = string.toLowerCase().toCharArray();
-        boolean found = false;
-        for (int i = 0; i < chars.length; i++) {
-            if (!found && Character.isLetter(chars[i])) {
-                chars[i] = Character.toUpperCase(chars[i]);
-                found = true;
-            } else if (Character.isWhitespace(chars[i]) || chars[i] == '.' || chars[i] == '\'') {
-                found = false;
-            }
-        }
-        return String.valueOf(chars);
     }
 
 }
