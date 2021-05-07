@@ -42,7 +42,6 @@ public class FileBus implements Bus {
         // Setting the source address to another value (such as 0xFA), will replay transmitted packets
         J1939TP bus = new J1939TP(new FileBus(0xF9));
         J1939 j1939 = new J1939(bus);
-        bus.setJ1939(j1939);
 
         j1939.read(1, TimeUnit.DAYS)
              .forEach(System.out::println);

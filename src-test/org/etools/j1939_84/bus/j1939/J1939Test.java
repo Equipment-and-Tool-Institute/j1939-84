@@ -400,91 +400,93 @@ public class J1939Test {
     @Test
     public void testBamTimeout() throws Exception {
         EchoBus bus2 = new EchoBus(0);
-        Bus bus = new J1939TP(bus2, 0);
+        try (Bus bus = new J1939TP(bus2, 0)) {
 
-        Stream<Packet> requestStream = bus.read(1, TimeUnit.HOURS);
-        new Thread(() -> {
-            try {
-                // wait for request
-                requestStream.findAny();
-                // wait to cause warning
-                Thread.sleep(650);
-                bus.send(Packet.create(VehicleIdentificationPacket.PGN,
-                                       0xFF,
-                                       1,
-                                       2,
-                                       3,
-                                       4,
-                                       5,
-                                       6,
-                                       7,
-                                       8,
-                                       9,
-                                       10,
-                                       11,
-                                       12,
-                                       13,
-                                       14,
-                                       15,
-                                       16,
-                                       17));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<VehicleIdentificationPacket> response = new J1939(new J1939TP(bus2, 0xF9))
-                                                                                                .requestGlobal("VIN",
-                                                                                                               VehicleIdentificationPacket.class,
-                                                                                                               listener);
-        assertEquals(0, response.getPackets().size());
-        /* verify there is an error */
-        assertTrue(listener.getResults()
-                           .matches("(?s).*Timeout - No Response.*"));
+            Stream<Packet> requestStream = bus.read(1, TimeUnit.HOURS);
+            new Thread(() -> {
+                try {
+                    // wait for request
+                    requestStream.findAny();
+                    // wait to cause warning
+                    Thread.sleep(650);
+                    bus.send(Packet.create(VehicleIdentificationPacket.PGN,
+                                           0xFF,
+                                           1,
+                                           2,
+                                           3,
+                                           4,
+                                           5,
+                                           6,
+                                           7,
+                                           8,
+                                           9,
+                                           10,
+                                           11,
+                                           12,
+                                           13,
+                                           14,
+                                           15,
+                                           16,
+                                           17));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+            TestResultsListener listener = new TestResultsListener();
+            RequestResult<VehicleIdentificationPacket> response = new J1939(new J1939TP(bus2, 0xF9))
+                                                                                                    .requestGlobal("VIN",
+                                                                                                                   VehicleIdentificationPacket.class,
+                                                                                                                   listener);
+            assertEquals(0, response.getPackets().size());
+            /* verify there is an error */
+            assertTrue(listener.getResults()
+                               .matches("(?s).*Timeout - No Response.*"));
+        }
     }
 
     /** Request the VIN without a delay and verify no warning. */
     @Test
     public void testBamTimeoutNoWarn() throws Exception {
         EchoBus bus2 = new EchoBus(0);
-        Bus bus = new J1939TP(bus2, 0);
-        Stream<Packet> requestStream = bus.read(1, TimeUnit.HOURS);
-        new Thread(() -> {
-            try {
-                // wait for request
-                requestStream.findAny();
-                // Thread.sleep(300); test the test
-                bus.send(Packet.create(VehicleIdentificationPacket.PGN,
-                                       0xFF,
-                                       1,
-                                       2,
-                                       3,
-                                       4,
-                                       5,
-                                       6,
-                                       7,
-                                       8,
-                                       9,
-                                       10,
-                                       11,
-                                       12,
-                                       13,
-                                       14,
-                                       15,
-                                       16,
-                                       17));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<VehicleIdentificationPacket> response = new J1939(new J1939TP(bus2, 0xF9))
-                                                                                                .requestGlobal("VIN",
-                                                                                                               VehicleIdentificationPacket.class,
-                                                                                                               listener);
-        assertEquals(1, response.getPackets().size());
-        /* verify there is not a warning. */
-        assertFalse(listener.getResults().matches("(?s).*TIMING: Late BAM response.*"));
+        try (Bus bus = new J1939TP(bus2, 0);) {
+            Stream<Packet> requestStream = bus.read(1, TimeUnit.HOURS);
+            new Thread(() -> {
+                try {
+                    // wait for request
+                    requestStream.findAny();
+                    // Thread.sleep(300); test the test
+                    bus.send(Packet.create(VehicleIdentificationPacket.PGN,
+                                           0xFF,
+                                           1,
+                                           2,
+                                           3,
+                                           4,
+                                           5,
+                                           6,
+                                           7,
+                                           8,
+                                           9,
+                                           10,
+                                           11,
+                                           12,
+                                           13,
+                                           14,
+                                           15,
+                                           16,
+                                           17));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+            TestResultsListener listener = new TestResultsListener();
+            RequestResult<VehicleIdentificationPacket> response = new J1939(new J1939TP(bus2, 0xF9))
+                                                                                                    .requestGlobal("VIN",
+                                                                                                                   VehicleIdentificationPacket.class,
+                                                                                                                   listener);
+            assertEquals(1, response.getPackets().size());
+            /* verify there is not a warning. */
+            assertFalse(listener.getResults().matches("(?s).*TIMING: Late BAM response.*"));
+        }
     }
 
     /**
@@ -493,48 +495,49 @@ public class J1939Test {
     @Test
     public void testBamTimeoutWarn() throws Exception {
         EchoBus bus2 = new EchoBus(0);
-        Bus bus = new J1939TP(bus2, 0);
+        try (Bus bus = new J1939TP(bus2, 0)) {
 
-        Stream<Packet> requestStream = bus.read(1, TimeUnit.HOURS);
-        new Thread(() -> {
-            try {
-                // wait for request
-                requestStream.findAny();
-                // wait to cause warning
-                Thread.sleep(300);
-                bus.send(Packet.create(VehicleIdentificationPacket.PGN,
-                                       0xFF,
-                                       1,
-                                       2,
-                                       3,
-                                       4,
-                                       5,
-                                       6,
-                                       7,
-                                       8,
-                                       9,
-                                       10,
-                                       11,
-                                       12,
-                                       13,
-                                       14,
-                                       15,
-                                       16,
-                                       17));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<VehicleIdentificationPacket> response = new J1939(new J1939TP(bus2, 0xF9))
-                                                                                                .requestGlobal("VIN",
-                                                                                                               VehicleIdentificationPacket.class,
-                                                                                                               listener);
-        assertEquals(1, response.getPackets().size());
-        /* verify there is a warning */
-        assertTrue(listener.getResults()
-                           .matches(
-                                    "(?s).*TIMING: Late response -  [\\d:.]+ 18ECFF00 \\[8] 20 11 00 03 FF EC FE 00.*"));
+            Stream<Packet> requestStream = bus.read(1, TimeUnit.HOURS);
+            new Thread(() -> {
+                try {
+                    // wait for request
+                    requestStream.findAny();
+                    // wait to cause warning
+                    Thread.sleep(300);
+                    bus.send(Packet.create(VehicleIdentificationPacket.PGN,
+                                           0xFF,
+                                           1,
+                                           2,
+                                           3,
+                                           4,
+                                           5,
+                                           6,
+                                           7,
+                                           8,
+                                           9,
+                                           10,
+                                           11,
+                                           12,
+                                           13,
+                                           14,
+                                           15,
+                                           16,
+                                           17));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+            TestResultsListener listener = new TestResultsListener();
+            RequestResult<VehicleIdentificationPacket> response = new J1939(new J1939TP(bus2, 0xF9))
+                                                                                                    .requestGlobal("VIN",
+                                                                                                                   VehicleIdentificationPacket.class,
+                                                                                                                   listener);
+            assertEquals(1, response.getPackets().size());
+            /* verify there is a warning */
+            assertTrue(listener.getResults()
+                               .matches(
+                                        "(?s).*TIMING: Late response -  [\\d:.]+ 18ECFF00 \\[8] 20 11 00 03 FF EC FE 00.*"));
+        }
     }
 
     /**
@@ -544,48 +547,49 @@ public class J1939Test {
     public void testDSTimeoutWarn() throws Exception {
         EchoBus bus2 = new EchoBus(0);
         bus2.log(p -> p.toTimeString());
-        J1939TP bus = new J1939TP(bus2, 0);
+        try (J1939TP bus = new J1939TP(bus2, 0)) {
 
-        Stream<Packet> requestStream = bus.read(1, TimeUnit.HOURS);
-        new Thread(() -> {
-            try {
-                // wait for request
-                requestStream.findAny();
-                // wait to cause warning
-                Thread.sleep(300);
-                bus.sendDestinationSpecific(0xF9,
-                                            Packet.create(VehicleIdentificationPacket.PGN,
-                                                          0x00,
-                                                          1,
-                                                          2,
-                                                          3,
-                                                          4,
-                                                          5,
-                                                          6,
-                                                          7,
-                                                          8,
-                                                          9,
-                                                          10,
-                                                          11,
-                                                          12,
-                                                          13,
-                                                          14,
-                                                          15,
-                                                          16,
-                                                          17));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
-        TestResultsListener listener = new TestResultsListener();
-        new J1939(new J1939TP(bus2, 0xF9)).requestDS("VIN",
-                                                     VehicleIdentificationPacket.class,
-                                                     0,
-                                                     listener);
-        /* verify there is a warning */
-        assertTrue(listener.getResults()
-                           .matches(
-                                    "(?s).*TIMING: Late response -  [\\d:.]+ 18ECF900 \\[8] 10 11 00 03 FF EC FE 00.*"));
+            Stream<Packet> requestStream = bus.read(1, TimeUnit.HOURS);
+            new Thread(() -> {
+                try {
+                    // wait for request
+                    requestStream.findAny();
+                    // wait to cause warning
+                    Thread.sleep(300);
+                    bus.sendDestinationSpecific(0xF9,
+                                                Packet.create(VehicleIdentificationPacket.PGN,
+                                                              0x00,
+                                                              1,
+                                                              2,
+                                                              3,
+                                                              4,
+                                                              5,
+                                                              6,
+                                                              7,
+                                                              8,
+                                                              9,
+                                                              10,
+                                                              11,
+                                                              12,
+                                                              13,
+                                                              14,
+                                                              15,
+                                                              16,
+                                                              17));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+            TestResultsListener listener = new TestResultsListener();
+            new J1939(new J1939TP(bus2, 0xF9)).requestDS("VIN",
+                                                         VehicleIdentificationPacket.class,
+                                                         0,
+                                                         listener);
+            /* verify there is a warning */
+            assertTrue(listener.getResults()
+                               .matches(
+                                        "(?s).*TIMING: Late response -  [\\d:.]+ 18ECF900 \\[8] 10 11 00 03 FF EC FE 00.*"));
+        }
     }
 
     @Test
@@ -845,6 +849,7 @@ public class J1939Test {
 
     final private static class TestPacket extends GenericPacket {
         // used by tests in getPgn(Packet)
+        @SuppressWarnings("unused")
         public static int PGN = -1;
 
         public TestPacket(Packet packet) {
