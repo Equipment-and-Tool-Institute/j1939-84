@@ -313,7 +313,6 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         globalDM19s.add(dm191E);
 
         // Non-NACK from non-reporting OBD Module - Module M
-
         when(vehicleInformationModule.requestDM19(any())).thenReturn(globalDM19s);
 
         VehicleInformation vehicleInformation = new VehicleInformation();
@@ -344,12 +343,12 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         verify(vehicleInformationModule).requestDM19(any());
         verify(vehicleInformationModule).requestDM19(any(), eq(0x0A));
         verify(vehicleInformationModule).requestDM19(any(), eq(0x0B));
-        verify(vehicleInformationModule).requestDM19(any(), eq(0x1B));
         verify(vehicleInformationModule).requestDM19(any(), eq(0x0C));
-        verify(vehicleInformationModule).requestDM19(any(), eq(0x1C));
         verify(vehicleInformationModule).requestDM19(any(), eq(0x0D));
-        verify(vehicleInformationModule).requestDM19(any(), eq(0x1D));
         verify(vehicleInformationModule).requestDM19(any(), eq(0x0E));
+        verify(vehicleInformationModule).requestDM19(any(), eq(0x1B));
+        verify(vehicleInformationModule).requestDM19(any(), eq(0x1C));
+        verify(vehicleInformationModule).requestDM19(any(), eq(0x1D));
         verify(vehicleInformationModule).requestDM19(any(), eq(0x1E));
 
         // assertEquals(List.of(), listener.getOutcomes());
@@ -389,6 +388,5 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.1.7.5.a - Difference compared to data received during global request from Brakes - System Controller (11)");
-
     }
 }

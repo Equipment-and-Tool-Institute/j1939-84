@@ -156,4 +156,14 @@ public class SpnDataParserTest {
         assertEquals((byte) 0x88, resultData[7]);
     }
 
+    @Test
+    public void testTooFewBytes() {
+        byte[] data = { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88 };
+        SpnDefinition definition = new SpnDefinition(0, null, 10, 1, 0);
+
+        byte[] resultData = instance.parse(data, definition, 8);
+
+        assertEquals(0, resultData.length);
+    }
+
 }

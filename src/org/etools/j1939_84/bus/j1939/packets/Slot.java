@@ -41,7 +41,7 @@ public class Slot {
      */
     public String asString(byte[] data) {
         if (data.length == 0) {
-            return "";
+            return "Not Available";
         }
 
         if (isAscii()) {
@@ -199,8 +199,12 @@ public class Slot {
     }
 
     public boolean isNotAvailable(byte[] data) {
-        if (length == 1 || isAscii() || data.length == 0) {
+        if (length == 1 || isAscii()) {
             return false;
+        }
+
+        if (data.length == 0) {
+            return true;
         }
 
         long value = toValue(data);

@@ -15,7 +15,6 @@ import java.util.regex.Pattern;
  */
 public class StringUtils {
 
-    private static final Pattern BINARY_PATTERN = Pattern.compile("\b[01]+\b");
     private static final Pattern NON_NUMERIC_PATTERN = Pattern.compile("[0-9]+");
     private static final Pattern NON_PRINTABLE_PATTERN = Pattern.compile(".*[^\\p{Print}].*");
 
@@ -24,13 +23,6 @@ public class StringUtils {
      */
     public static boolean containsNonPrintableAsciiCharacter(String string) {
         return NON_PRINTABLE_PATTERN.matcher(string).matches();
-    }
-
-    /*
-     * @param string String to be checked for non-binary characters
-     */
-    public static boolean containsOnlyBinaryValues(String string) {
-        return BINARY_PATTERN.matcher(string).matches();
     }
 
     /*

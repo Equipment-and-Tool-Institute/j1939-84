@@ -23,7 +23,6 @@ import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.RP1210;
 import org.etools.j1939_84.bus.RP1210Bus;
 import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.J1939TP;
 import org.etools.j1939_84.controllers.OverallController;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -498,9 +497,6 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         this.bus = bus;
 
         j1939 = new J1939(bus);
-        if (bus instanceof J1939TP) {
-            ((J1939TP) bus).setJ1939(j1939);
-        }
 
         vehicleInformationModule.setJ1939(getJ1939());
     }

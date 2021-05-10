@@ -65,7 +65,7 @@ public class Part01Step09Controller extends StepController {
     @Override
     protected void run() throws Throwable {
 
-        // 6.1.9.1.a Destination Specific (DS) Component ID request (PGN 59904) for PGN 65259 (SPNs 586, 587, and 588)
+        // 6.1.9.1.a Destination Specific (DS) Component ID request (PG 59904) for PG 65259 (SPs 586, 587, and 588)
         // to each OBD ECU.
         // 6.1.9.1.b Display each positive return in the log.
         var dsPackets = getDataRepository().getObdModuleAddresses()
@@ -79,9 +79,8 @@ public class Part01Step09Controller extends StepController {
 
         if (dsPackets.isEmpty()) {
             addFailure("6.1.9.2.a - There are no positive responses");
-        } else {
-            dsPackets.forEach(this::save);
         }
+        dsPackets.forEach(this::save);
 
         int function0SourceAddress = getDataRepository().getFunctionZeroAddress();
         String function0Name = Lookup.getAddressName(function0SourceAddress);
@@ -97,55 +96,55 @@ public class Part01Step09Controller extends StepController {
         } else {
             String serialNumber = function0Packet.getSerialNumber();
             int length = serialNumber.length();
-            if (length >= 6) {
-                String endingCharacters = serialNumber.substring((length - 6), length);
+            if (length >= 5) {
+                String endingCharacters = serialNumber.substring((length - 5), length);
                 if (!containsOnlyNumericAsciiCharacters(endingCharacters)) {
-                    // 6.1.9.2.c. Fail if the serial number field (SPN 588) from any function 0
-                    // device does not end in 6 numeric characters (ASCII 0 through ASCII 9).
-                    addFailure("6.1.9.2.c - Serial number field (SPN 588) from " + function0Name
-                            + " does not end in 6 numeric characters");
+                    // 6.1.9.2.c. Fail if the serial number field (SP 588) from any function 0
+                    // device does not end in five numeric characters (ASCII 0 through ASCII 9).
+                    addFailure("6.1.9.2.c - Serial number field (SP 588) from " + function0Name
+                            + " does not end in five numeric characters");
                 }
             }
 
-            // 6.1.9.3.a. Warn if the serial number field (SPN 588) from any function 0 device is less than 8 characters
-            // long.
+            // 6.1.9.3.a. INFO if the serial number field (SP 588) from any function 0 device is
+            // less than eight characters long.
             if (length < 8) {
-                addWarning("6.1.9.3.a - Serial number field (SPN 588) from " + function0Name
-                        + " is less than 8 characters long");
+                addInfo("6.1.9.3.a - Serial number field (SP 588) from " + function0Name
+                        + " is less than eight characters long");
             }
         }
 
-        // 6.1.9.2.d. Fail if the make (SPN 586) from any OBD ECU contains any unprintable ASCII characters.
+        // 6.1.9.2.d. Fail if the make (SP 586) from any OBD ECU contains any unprintable ASCII characters.
         dsPackets.stream()
                  .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                  .filter(p -> containsNonPrintableAsciiCharacter(p.getMake()))
                  .map(ParsedPacket::getModuleName)
                  .forEach(moduleName -> {
-                     addFailure("6.1.9.2.d - The make (SPN 586) from " + moduleName
+                     addFailure("6.1.9.2.d - The make (SP 586) from " + moduleName
                              + " contains any unprintable ASCII characters");
                  });
 
-        // 6.1.9.2.d. Fail if the model (SPN 587) from any OBD ECU contains any unprintable ASCII characters.
+        // 6.1.9.2.d. Fail if the model (SP 587) from any OBD ECU contains any unprintable ASCII characters.
         dsPackets.stream()
                  .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                  .filter(p -> containsNonPrintableAsciiCharacter(p.getModel()))
                  .map(ParsedPacket::getModuleName)
                  .forEach(moduleName -> {
-                     addFailure("6.1.9.2.d - The model (SPN 587) from " + moduleName
+                     addFailure("6.1.9.2.d - The model (SP 587) from " + moduleName
                              + " contains any unprintable ASCII characters");
                  });
 
-        // 6.1.9.2.d. Fail if the serial number (SPN 588) from any OBD ECU contains any unprintable ASCII characters.
+        // 6.1.9.2.d. Fail if the serial number (SP 588) from any OBD ECU contains any unprintable ASCII characters.
         dsPackets.stream()
                  .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                  .filter(p -> containsNonPrintableAsciiCharacter(p.getSerialNumber()))
                  .map(ParsedPacket::getModuleName)
                  .forEach(moduleName -> {
-                     addFailure("6.1.9.2.d - The serial number (SPN 588) from " + moduleName
+                     addFailure("6.1.9.2.d - The serial number (SP 588) from " + moduleName
                              + " contains any unprintable ASCII characters");
                  });
 
-        // 6.1.9.3.b. For OBD ECUs, Warn if the make field (SPN 586) is longer than 5 ASCII characters.
+        // 6.1.9.3.b. For OBD ECUs, Warn if the make field (SP 586) is longer than five ASCII characters.
         dsPackets.stream()
                  .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                  .filter(p -> {
@@ -154,11 +153,11 @@ public class Part01Step09Controller extends StepController {
                  })
                  .map(ParsedPacket::getModuleName)
                  .forEach(moduleName -> {
-                     addWarning("6.1.9.3.b - The make field (SPN 586) from " + moduleName
-                             + " is longer than 5 ASCII characters");
+                     addWarning("6.1.9.3.b - The make field (SP 586) from " + moduleName
+                             + " is longer than five ASCII characters");
                  });
 
-        // 6.1.9.3.c. For OBD ECUs, Warn if the make field (SPN 586) is less than 2 ASCII characters.
+        // 6.1.9.3.c. For OBD ECUs, Warn if the make field (SP 586) is less than two ASCII characters.
         dsPackets.stream()
                  .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                  .filter(p -> {
@@ -167,11 +166,11 @@ public class Part01Step09Controller extends StepController {
                  })
                  .map(ParsedPacket::getModuleName)
                  .forEach(moduleName -> {
-                     addWarning("6.1.9.3.c - The make field (SPN 586) from " + moduleName
-                             + " is less than 2 ASCII characters");
+                     addWarning("6.1.9.3.c - The make field (SP 586) from " + moduleName
+                             + " is less than two ASCII characters");
                  });
 
-        // 6.1.9.3.d. For OBD ECUs, Warn if the model field (SPN 587) is less than 1 character long.
+        // 6.1.9.3.d. For OBD ECUs, Warn if the model field (SP 587) is less than one character long.
         dsPackets.stream()
                  .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                  .filter(p -> {
@@ -180,11 +179,11 @@ public class Part01Step09Controller extends StepController {
                  })
                  .map(ParsedPacket::getModuleName)
                  .forEach(moduleName -> {
-                     addWarning("6.1.9.3.d - The model field (SPN 587) from " + moduleName
-                             + " is less than 1 ASCII characters");
+                     addWarning("6.1.9.3.d - The model field (SP 587) from " + moduleName
+                             + " is less than one ASCII characters");
                  });
 
-        // 6.1.9.4.a. Global Component ID request (PGN 59904) for PGN 65259 (SPNs 586, 587, and 588).
+        // 6.1.9.4.a. Global Component ID request (PG 59904) for PG 65259 (SPs 586, 587, and 588).
         // 6.1.9.4.b. Display each positive return in the log.
         var globalPackets = getVehicleInformationModule()
                                                          .requestComponentIdentification(getListener())

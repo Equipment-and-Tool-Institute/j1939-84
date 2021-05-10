@@ -25,6 +25,9 @@ public class SpnDataParser {
         }
 
         int endByte = startByte + byteLength;
+        if (endByte > data.length) {
+            return new byte[0];
+        }
 
         byte[] subData = Arrays.copyOfRange(data, startByte, endByte);
         if (startBit != 1) {

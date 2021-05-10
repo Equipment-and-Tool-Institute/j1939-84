@@ -18,6 +18,16 @@ import org.junit.Test;
  * @author Matt Gumbel (matt@soliddesign.net)
  */
 public class SlotTest {
+
+    @Test
+    public void testNoData() {
+        Slot slot = J1939DaRepository.findSlot(205, 0);
+        byte[] data = {};
+        assertEquals("Not Available", slot.asString(data));
+        assertTrue(slot.isNotAvailable(data));
+        assertFalse(slot.isError(data));
+    }
+
     @Test
     public void test10BitsAsPercent() {
         Slot slot = J1939DaRepository.findSlot(205, 0);
