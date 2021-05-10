@@ -15,12 +15,15 @@ import org.junit.Test;
 
 public class SummaryModuleTest {
 
+    private PartResultRepository partResultRepository;
+
     private SummaryModule instance;
 
     @Before
     public void setUp() {
         PartResultRepository.setInstance(null);
-        instance = new SummaryModule();
+        partResultRepository = PartResultRepository.getInstance();
+        instance = new SummaryModule(partResultRepository);
     }
 
     @After
@@ -30,14 +33,12 @@ public class SummaryModuleTest {
 
     @Test
     public void testOutput() {
-        instance.addOutcome(1, 1, Outcome.FAIL, "Part 1 Step 1 Fail");
-        instance.addOutcome(1, 2, Outcome.INCOMPLETE, "Part 1 Step 2 Incomplete");
-        instance.addOutcome(1, 3, Outcome.WARN, "Part 1 Step 1 Warning");
-        // TIMING removed
-        // instance.addOutcome(1, 4, Outcome.TIMING, "Part 1 Step 1 Timing");
-        instance.addOutcome(1, 5, Outcome.PASS, "Part 1 Step 1 Pass");
-        instance.addOutcome(1, 6, Outcome.INFO, "Part 1 Step 1 Info");
-        instance.addOutcome(1, 7, Outcome.ABORT, "Part 1 Step 1 Fail");
+        partResultRepository.addOutcome(1, 1, Outcome.FAIL, "Part 1 Step 1 Fail");
+        partResultRepository.addOutcome(1, 2, Outcome.INCOMPLETE, "Part 1 Step 2 Incomplete");
+        partResultRepository.addOutcome(1, 3, Outcome.WARN, "Part 1 Step 1 Warning");
+        partResultRepository.addOutcome(1, 5, Outcome.PASS, "Part 1 Step 1 Pass");
+        partResultRepository.addOutcome(1, 6, Outcome.INFO, "Part 1 Step 1 Info");
+        partResultRepository.addOutcome(1, 7, Outcome.ABORT, "Part 1 Step 1 Fail");
 
         String actual = instance.generateSummary();
         String expected = "";
