@@ -119,7 +119,7 @@ public class Part01Step14Controller extends StepController {
                          MonitoredSystem dm5System = getDM5System(dm26System.getId(), dm26System.getSourceAddress());
                          return dm5System != null
                                  && !dm5System.getStatus().isEnabled()
-                                 && (!dm26System.getStatus().isComplete() || dm26System.getStatus().isEnabled());
+                                 && !(dm26System.getStatus().isComplete() && !dm26System.getStatus().isEnabled());
                      })
                      .forEach(dm26System -> {
                          String moduleName = Lookup.getAddressName(dm26System.getSourceAddress());
