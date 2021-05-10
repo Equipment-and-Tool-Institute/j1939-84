@@ -369,10 +369,8 @@ public abstract class Controller {
         setJ1939(j1939);
         if (listener instanceof CompositeResultsListener) {
             compositeListener = (CompositeResultsListener) listener;
-        } else if (reportFileModule != null) {
-            compositeListener = new CompositeResultsListener(listener, reportFileModule, partResultRepository);
         } else {
-            compositeListener = new CompositeResultsListener(listener, partResultRepository);
+            compositeListener = new CompositeResultsListener(listener, reportFileModule, partResultRepository);
         }
         ending = null;
     }
