@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.etools.j1939_84.controllers.PartResultRepository;
-import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.IResult;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
@@ -24,18 +23,17 @@ public class SummaryModule {
     private final PartResultRepository partResultRepository;
 
     public SummaryModule() {
-        partResultRepository = PartResultRepository.getInstance();
+        this(PartResultRepository.getInstance());
+    }
+
+    public SummaryModule(PartResultRepository partResultRepository) {
+        this.partResultRepository = partResultRepository;
     }
 
     private static String dots(int length) {
         char[] charArray = new char[length];
         Arrays.fill(charArray, '.');
         return new String(charArray);
-    }
-
-    public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
-        StepResult stepResult = getStepResult(partNumber, stepNumber);
-        stepResult.addResult(new ActionOutcome(outcome, message));
     }
 
     public String generateSummary() {
@@ -53,10 +51,6 @@ public class SummaryModule {
 
     private List<PartResult> getPartResults() {
         return partResultRepository.getPartResults();
-    }
-
-    private StepResult getStepResult(int partNumber, int stepNumber) {
-        return partResultRepository.getStepResult(partNumber, stepNumber);
     }
 
     public long getOutcomeCount(Outcome outcome) {

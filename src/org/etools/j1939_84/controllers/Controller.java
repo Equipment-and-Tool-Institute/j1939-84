@@ -367,7 +367,9 @@ public abstract class Controller {
 
     private void setupRun(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
         setJ1939(j1939);
-        if (reportFileModule != null) {
+        if (listener instanceof CompositeResultsListener) {
+            compositeListener = (CompositeResultsListener) listener;
+        } else if (reportFileModule != null) {
             compositeListener = new CompositeResultsListener(listener, reportFileModule, partResultRepository);
         } else {
             compositeListener = new CompositeResultsListener(listener, partResultRepository);
