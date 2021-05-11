@@ -17,6 +17,13 @@ import org.junit.Test;
 
 public class J1939DaRepositoryTest {
     @Test
+    public void test3069() {
+        J1939DaRepository j1939 = J1939DaRepository.getInstance();
+        assertEquals(1, j1939.findSpnDefinition(3069).getStartByte());
+        assertEquals("DM21",j1939.findPgnDefinition(49408).getAcronym());
+    }
+
+    @Test
     public void listMissingDMs() {
         J1939DaRepository j1939da = J1939DaRepository.getInstance();
         List<PgnDefinition> dmPgns = j1939da

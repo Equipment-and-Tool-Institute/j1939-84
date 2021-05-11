@@ -147,3 +147,11 @@
 
 ; DM57
 -5843,Engine OBD Warm-up Sequence,,1,BIT,0,2
+
+; DM58
+-8555,Rationality Fault SPN,,1,,0,21
+-8556,Rationality Fault SPN Data Value,,1,,0,24
+
+; DM59
+-3295,Continuous-MI Time While engine Operating,,1,,0,16
+-3296,Time Elapsed Since DTCs Were Erased,,1,,0,16
