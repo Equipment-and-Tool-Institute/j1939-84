@@ -2,25 +2,61 @@ package org.etools.j1939_84.bus.j1939;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.Slot;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
-import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 import org.junit.Test;
 
 public class J1939DaRepositoryTest {
+
+    private static String[] variableLengthDMs = new String[] { "DM19", "DM24", "DM25", "DM30", "DM31", "DM33" };
+
     @Test
     public void test3069() {
+        final int SPN = 3069;
         J1939DaRepository j1939 = J1939DaRepository.getInstance();
-        assertEquals(1, j1939.findSpnDefinition(3069).getStartByte());
-        assertEquals("DM21",j1939.findPgnDefinition(49408).getAcronym());
+        assertEquals(1, j1939.findSpnDefinition(SPN).getStartByte());
+        assertEquals("DM21", j1939.findPgnDefinition(49408).getAcronym());
+        assertNotEquals("Slot", "UNK", j1939.findSLOT(j1939.findSpnDefinition(SPN).getSlotNumber(), SPN).getType());
+    }
+
+    @Test
+    public void testGeneralPacketContaining3069() {
+        Packet packet = Packet.create(0xC1FF, 0x00, 0, 0, 0, 0, 0, 0, 0, 0);
+        var genericPacket = new GenericPacket(packet);
+        System.out.println(genericPacket);
+        assertEquals(0.0, genericPacket.getSpn(3069).get().getValue(), 0.0);
+    }
+
+    @Test
+    public void testDMMissingSlots() {
+        J1939DaRepository j1939da = J1939DaRepository.getInstance();
+        boolean fail = false;
+        for (var p : j1939da.getPgnDefinitions().values()) {
+            String acronym = p.getAcronym();
+            if (acronym.startsWith("DM") && !Arrays.asList(variableLengthDMs).contains(acronym)) {
+                for (var s : p.getSpnDefinitions()) {
+                    if ("UNK".equals(j1939da.findSLOT(s.getSlotNumber(), s.getSpnId()).getType())) {
+                        fail = true;
+                        System.err.println("SLOT: " + acronym + " " + s.getSpnId() + " " + s.getLabel());
+                    }
+                }
+            }
+        }
+        assertFalse(fail);
     }
 
     @Test
@@ -38,20 +74,19 @@ public class J1939DaRepositoryTest {
         dmPgns.stream()
               .peek(p -> System.err.println(p.getAcronym()))
               .flatMap(d -> d.getSpnDefinitions().stream())
-              .filter(s -> s.getStartByte() == -1)
+              // .filter(s -> s.getStartByte() == -1) filter for missing only
               .forEach(s -> System.err.println("  " + s.getStartByte() + "." + s.getStartBit() + "\t"
                       + s.getLabel() + "\t"
                       // indicate missing SLOTs
-                      + (j1939da.findSLOT(-1, s.getSpnId()) == null ? "MISSING SLOT" : "ok")));
+                      + ("UNK".equals(j1939da.findSLOT(-1, s.getSpnId()).getType()) ? "MISSING SLOT" : "ok")));
 
         // We expect to not have definitions for DMs that have no fixed length information. The fault DMs(DM1, DM2, et.
         // al.) are variable length, but do have fixed length data in them.
-        String[] variableLengthDMs = new String[] { "DM19", "DM24", "DM25", "DM30", "DM31", "DM33" };
         Object[] missingDms = dmPgns.stream()
                                     .filter(p -> p.getSpnDefinitions().stream().anyMatch(s -> s.getStartByte() == -1))
                                     .map(PgnDefinition::getAcronym)
                                     .toArray(String[]::new);
-        assertArrayEquals(variableLengthDMs, missingDms);
+        assertArrayEquals("Missing j1939da addendum.", variableLengthDMs, missingDms);
     }
 
     @Test

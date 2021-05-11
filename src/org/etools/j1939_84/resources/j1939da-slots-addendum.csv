@@ -16,6 +16,18 @@
 -1217,Freeze Frame Length,,1,,0,8
 -4263,Manufacturer Specific information,,1,,0,0
 
+; DM5
+-1218,Active Trouble Code Count,,1,,0,8
+-1219,Previously Active Diagnostic Trouble Code Count,,1,,0,8
+-1220,OBD Compliance,,1,,0,8
+-1221,Continuously Monitored Systems Support/Status,,1,,0,8
+-1222,Non-continuously Monitored Systems Support,,1,,0,16
+-1223,Non-continuously Monitored Systems Status,,1,,0,16
+
+; DM7
+-4148,SPN Identifying Component / System,,1,,0,24
+-4149,FMI Identifying Component / System Specific Test,,1,,0,5
+
 ; DM8
 -1224,Test Identifier,,1,,0,8
 -1225,Test Type/Component Identifier,,1,,0,8
@@ -69,6 +81,17 @@
 -1596,Security Entity Length,,1,,0,12
 -1479,Security Entity Type,BIT,1,,0,4
 -1597,Data Security Parameter,,1,,0,8
+
+;DM20
+-3048,Ignition Cycle Counter,,1,,0,16
+-3049,OBD Monitoring Conditions Encountered,,1,,0,16
+-3066,SPN of Applicable System Monitor,,1,,0,24
+-3067,Applicable System Monitor Numerator,,1,,0,16
+-3068,Applicable System Monitor Denominator,,1,,0,16
+
+; DM21
+-3069,Distance Traveled While MIL is Activated,,1,km,0,16
+-3294,Distance Since Diagnostic Trouble Codes Cleared,,1,km,0,16
 
 ; DM22
 -3034,Individual DTC Clear/Reset Control Byte,,1,,0,8
@@ -144,6 +167,10 @@
 
 ; DM40
 -4147,Failure Specific B1 Counter,,0.1,hr,0,16
+
+; DM56
+-5844,Model Year,ASCII,1,,0,64
+-5845,Certification Engine Family Name,ASCII,1,,0,0
 
 ; DM57
 -5843,Engine OBD Warm-up Sequence,,1,BIT,0,2
