@@ -89,11 +89,13 @@ public class J1939DaRepository {
             // unaltered, so some processing is required to convert byte.bit
             // specifications into ints.
             InputStream is = new SequenceInputStream(Resources.class.getResourceAsStream("j1939da-extract.csv"),
-                                                           Resources.class.getResourceAsStream("j1939da-addendum.csv"));
+                                                     Resources.class.getResourceAsStream("j1939da-addendum.csv"));
             InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
             try (CSVReader reader = new CSVReaderBuilder(isReader).withSkipLines(2).build()) {
                 // collect spns under the pgn
                 Collection<Object[]> table = StreamSupport.stream(reader.spliterator(), false)
+                                                          // allow for blank lines
+                                                          .filter(line -> line.length > 1)
                                                           // map line to [pgn,spn] where pgn may be null
                                                           .map(line -> {
                                                               try {
@@ -220,7 +222,7 @@ public class J1939DaRepository {
         String[] values;
 
         InputStream is = new SequenceInputStream(Resources.class.getResourceAsStream("j1939da-slots.csv"),
-                                                       Resources.class.getResourceAsStream("j1939da-slots-addendum.csv"));
+                                                 Resources.class.getResourceAsStream("j1939da-slots-addendum.csv"));
         InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.UTF_8);
         try (CSVReader reader = new CSVReaderBuilder(isReader)
                                                               .withSkipLines(2)
