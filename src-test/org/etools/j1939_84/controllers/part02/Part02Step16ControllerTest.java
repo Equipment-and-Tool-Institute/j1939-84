@@ -357,6 +357,33 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testHappyPathNoFailures() {
+        var packet = create(0, 0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
+        var globalPacket = create(0, 0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
+        var dsPacket = AcknowledgmentPacket.create(0, NACK, 0, 0xF9, DM34NTEStatus.PGN);
+        System.out.println(globalPacket.getPacket());
+        System.out.println(packet.getPacket());
+        when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, packet));
+        when(diagnosticMessageModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
+
+        var vehInfo = new VehicleInformation();
+        vehInfo.setFuelType(FuelType.DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+        OBDModuleInformation obdModule = new OBDModuleInformation(0);
+        obdModule.set(packet, 1);
+        dataRepository.putObdModule(obdModule);
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM34(any());
+        verify(diagnosticMessageModule).requestDM34(any(), eq(0));
+
+        assertEquals("", listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals(List.of(), listener.getOutcomes());
+    }
+
+    @Test
     public void testFailFor() {
         var packet = new DM34NTEStatus(Packet.create(PGN, 0x01, 0x05, 0x05, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF));
         var globalPacket = create(0, 0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
