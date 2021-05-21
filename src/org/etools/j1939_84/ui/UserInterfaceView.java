@@ -22,6 +22,7 @@ import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.prefs.Preferences;
 
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -71,6 +72,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
     private final Executor swingExecutor;
     private JButton abortButton;
     private JComboBox<String> adapterComboBox;
+    private JComboBox<String> speedComboBox;
     private JLabel adapterLabel;
     private JLabel calsLabel;
     private JScrollPane calsScrollPane;
@@ -200,7 +202,18 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      */
     @Override
     public void setAdapterComboBoxEnabled(boolean enabled) {
-        refreshUI(() -> getAdapterComboBox().setEnabled(enabled));
+        refreshUI(() -> {
+            getAdapterComboBox().setEnabled(enabled);
+            getSpeedComboBox().setEnabled(enabled);
+        });
+    }
+
+    private JComboBox<String> getSpeedComboBox() {
+        if (speedComboBox == null) {
+            speedComboBox = new JComboBox<>();
+            speedComboBox.setToolTipText("RP1210 Communications Speed");
+        }
+        return speedComboBox;
     }
 
     /*
@@ -339,22 +352,13 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             adapterComboBox.addItemListener(e -> {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     getController().onAdapterComboBoxItemSelected((String) e.getItem());
+                    speedComboBox.removeAllItems();
+                    ((Adapter) e.getItem()).getConnectionStrings().forEach(s -> speedComboBox.addItem(s));
+                    speedComboBox.setSelectedItem("Auto");
                 }
             });
         }
         return adapterComboBox;
-    }
-
-    /**
-     * Creates, caches and returns the label for the Adapter Combo Box Selector
-     *
-     * @return JLabel
-     */
-    private JLabel getAdapterLabel() {
-        if (adapterLabel == null) {
-            adapterLabel = new JLabel("Vehicle Adapter:");
-        }
-        return adapterLabel;
     }
 
     /**
@@ -572,7 +576,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             GridBagLayout layout = new GridBagLayout();
             layout.columnWidths = new int[] { 0, 0, 0 };
             layout.rowHeights = new int[] { 0, 0 };
-            layout.columnWeights = new double[] { 0.0, Double.MIN_VALUE, 0.0 };
+            layout.columnWeights = new double[] { 0.0, Double.MIN_VALUE, Double.MIN_VALUE, 0.0 };
             layout.rowWeights = new double[] { 0, 0 };
             reportSetupPanel.setLayout(layout);
 
@@ -581,7 +585,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             adapterLabelGbc.anchor = GridBagConstraints.EAST;
             adapterLabelGbc.gridx = 0;
             adapterLabelGbc.gridy = 0;
-            reportSetupPanel.add(getAdapterLabel(), adapterLabelGbc);
+            reportSetupPanel.add(new JLabel("Vehicle Adapter:"), adapterLabelGbc);
 
             GridBagConstraints comboBoxGbc = new GridBagConstraints();
             comboBoxGbc.insets = new Insets(5, 0, 5, 5);
@@ -589,6 +593,13 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             comboBoxGbc.gridx = 1;
             comboBoxGbc.gridy = 0;
             reportSetupPanel.add(getAdapterComboBox(), comboBoxGbc);
+
+            GridBagConstraints speedBoxGbc = new GridBagConstraints();
+            speedBoxGbc.insets = new Insets(5, 5, 5, 5);
+            speedBoxGbc.anchor = GridBagConstraints.WEST;
+            speedBoxGbc.gridx = 2;
+            speedBoxGbc.gridy = 0;
+            reportSetupPanel.add(getSpeedComboBox(), speedBoxGbc);
 
             GridBagConstraints fileLabelGbc = new GridBagConstraints();
             fileLabelGbc.insets = new Insets(0, 5, 5, 5);
@@ -602,12 +613,13 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             fileButtonGbc.anchor = GridBagConstraints.WEST;
             fileButtonGbc.gridx = 1;
             fileButtonGbc.gridy = 1;
+            fileButtonGbc.gridwidth = 2;
             reportSetupPanel.add(getSelectFileButton(), fileButtonGbc);
 
             GridBagConstraints helpButtonGbc = new GridBagConstraints();
             helpButtonGbc.insets = new Insets(5, 0, 5, 5);
             helpButtonGbc.anchor = GridBagConstraints.WEST;
-            helpButtonGbc.gridx = 2;
+            helpButtonGbc.gridx = 3;
             helpButtonGbc.gridy = 0;
             helpButtonGbc.gridheight = 2;
             helpButtonGbc.fill = GridBagConstraints.BOTH;

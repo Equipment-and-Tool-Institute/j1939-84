@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.bus;
 
+import java.util.List;
+
 /**
  * Represents a vehicle communications adapter
  *
@@ -26,10 +28,12 @@ public class Adapter {
      */
     private final String name;
 
+    private final List<String> connectionStrings;
+
     private final long timestampWeight;
 
     /**
-     * Constructor
+     * Constructor used in tests.
      *
      * @param name
      *                     the display name for the adapter
@@ -39,7 +43,7 @@ public class Adapter {
      *                     the device ID
      */
     public Adapter(String name, String dllName, short deviceId) {
-        this(name, dllName, deviceId, 1);
+        this(name, dllName, deviceId, 1, List.of("J1939:Baud=Auto", "J1939:Baud=500", "J1939:Baud=250"));
     }
 
     /**
@@ -52,11 +56,16 @@ public class Adapter {
      * @param deviceId
      *                     the device ID
      */
-    public Adapter(String name, String dllName, short deviceId, long timestampWeight) {
+    public Adapter(String name, String dllName, short deviceId, long timestampWeight, List<String> connectionStrings) {
         this.name = name;
         this.dllName = dllName;
         this.deviceId = deviceId;
         this.timestampWeight = timestampWeight;
+        this.connectionStrings = connectionStrings;
+    }
+
+    public List<String> getConnectionStrings() {
+        return connectionStrings;
     }
 
     /**
