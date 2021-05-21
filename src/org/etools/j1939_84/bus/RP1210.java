@@ -154,7 +154,7 @@ public class RP1210 {
      * @throws BusException
      *                          if there is a problem setting the adapter
      */
-    public Bus setAdapter(Adapter adapter, int address) throws BusException {
+    public Bus setAdapter(Adapter adapter, String connectionString, int address) throws BusException {
         if (engine != null) {
             try {
                 engine.close();
@@ -169,7 +169,7 @@ public class RP1210 {
             engine = new Engine(bus);
             return bus;
         } else {
-            return new J1939TP(new RP1210Bus(adapter, address, true));
+            return new J1939TP(new RP1210Bus(adapter, connectionString, address, true));
         }
     }
 

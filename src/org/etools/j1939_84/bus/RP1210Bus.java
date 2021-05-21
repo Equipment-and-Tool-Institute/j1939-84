@@ -82,12 +82,13 @@ public class RP1210Bus implements Bus {
 
     private boolean imposterDetected;
 
-    public RP1210Bus(Adapter adapter, int address, boolean appPacketize) throws BusException {
+    public RP1210Bus(Adapter adapter, String connectionString, int address, boolean appPacketize) throws BusException {
         this(RP1210Library.load(adapter),
              Executors.newFixedThreadPool(2),
              Executors.newSingleThreadExecutor(),
              new MultiQueue<>(),
              adapter,
+             connectionString,
              address,
              appPacketize,
              J1939_84.getLogger());
@@ -101,6 +102,7 @@ public class RP1210Bus implements Bus {
                      ExecutorService rp1210Executor,
                      MultiQueue<Packet> queue,
                      Adapter adapter,
+                     String connectionString,
                      int address,
                      boolean appPacketize,
                      Logger logger) throws BusException {
@@ -115,7 +117,7 @@ public class RP1210Bus implements Bus {
 
         clientId = rp1210Library.RP1210_ClientConnect(0,
                                                       adapter.getDeviceId(),
-                                                      "J1939:Baud=Auto",
+                                                      connectionString,// "J1939:Baud=Auto",
                                                       0,
                                                       0,
                                                       (short) (appPacketize ? 1 : 0));

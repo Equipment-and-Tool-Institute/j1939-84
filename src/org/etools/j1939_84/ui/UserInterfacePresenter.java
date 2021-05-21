@@ -72,6 +72,8 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
     private J1939 j1939;
 
+    private String selectedConnectionString;
+
     /**
      * Default Constructor
      *
@@ -204,23 +206,12 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
     }
 
     @Override
-    public void onAdapterComboBoxItemSelected(String selectedAdapterName) {
+    public void onAdapterComboBoxItemSelected(Adapter adapter, String connectionString) {
         // Connecting to the adapter can take "a while"
         executor.execute(() -> {
+            this.selectedAdapter = adapter;
+            this.selectedConnectionString = connectionString;
             resetView();
-            getView().setAdapterComboBoxEnabled(false);
-            getView().setSelectFileButtonEnabled(false);
-            getView().setProgressBarText("Connecting to Adapter");
-
-            Adapter matchedAdapter = null;
-            for (Adapter adapter : getAdapters()) {
-                String name = adapter.getName();
-                if (name.equals(selectedAdapterName)) {
-                    matchedAdapter = adapter;
-                    break;
-                }
-            }
-            setSelectedAdapter(matchedAdapter);
             checkSetupComplete();
         });
     }
@@ -281,7 +272,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
             getView().setAdapterComboBoxEnabled(false);
             getView().setSelectFileButtonEnabled(false);
             boolean result = false;
-
+            setSelectedAdapter(selectedAdapter, selectedConnectionString);
             ResultsListener resultsListener = getResultsListener();
             try {
                 if (bus.imposterDetected()) {
@@ -458,11 +449,11 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      * @param selectedAdapter
      *                            the selectedAdapter to set
      */
-    private void setSelectedAdapter(Adapter selectedAdapter) {
+    private void setSelectedAdapter(Adapter selectedAdapter, String connectionString) {
         try {
             Bus bus;
             if (selectedAdapter != null) {
-                bus = rp1210.setAdapter(selectedAdapter, 0xF9);
+                bus = rp1210.setAdapter(selectedAdapter, connectionString, 0xF9);
             } else {
                 bus = null;
             }

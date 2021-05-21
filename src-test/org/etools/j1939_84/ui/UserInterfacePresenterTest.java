@@ -98,7 +98,7 @@ public class UserInterfacePresenterTest {
         adapters.add(adapter1);
         adapters.add(adapter2);
         when(rp1210.getAdapters()).thenReturn(adapters);
-        when(rp1210.setAdapter(any(), eq(0xF9))).thenReturn(rp1210Bus);
+        when(rp1210.setAdapter(any(), eq("J1939:Baud=Auto"), eq(0xF9))).thenReturn(rp1210Bus);
 
         instance = new UserInterfacePresenter(view,
                                               vehicleInformationModule,
@@ -149,7 +149,7 @@ public class UserInterfacePresenterTest {
 
         verify(rp1210Bus).stop();
         verify(rp1210).getAdapters();
-        verify(rp1210).setAdapter(adapter1, 0xF9);
+        verify(rp1210).setAdapter(adapter1, "J1939:Baud=Auto", 0xF9);
     }
 
     @Test
@@ -179,7 +179,7 @@ public class UserInterfacePresenterTest {
 
         verify(rp1210Bus).stop();
         verify(rp1210).getAdapters();
-        verify(rp1210).setAdapter(adapter1, 0xF9);
+        verify(rp1210).setAdapter(adapter1, "J1939:Baud=Auto", 0xF9);
     }
 
     @Test
@@ -246,7 +246,7 @@ public class UserInterfacePresenterTest {
         verify(reportFileModule).setReportFile(eq(file));
 
         verify(rp1210).getAdapters();
-        verify(rp1210).setAdapter(adapter1, 0xF9);
+        verify(rp1210).setAdapter(adapter1, "J1939:Baud=Auto", 0xF9);
     }
 
     @Test
@@ -276,7 +276,7 @@ public class UserInterfacePresenterTest {
         verify(reportFileModule).setReportFile(eq(null));
 
         verify(rp1210).getAdapters();
-        verify(rp1210).setAdapter(adapter1, 0xF9);
+        verify(rp1210).setAdapter(adapter1, "J1939:Baud=Auto", 0xF9);
     }
 
     @Test
@@ -427,7 +427,7 @@ public class UserInterfacePresenterTest {
         executor.run();
 
         verify(rp1210).getAdapters();
-        verify(rp1210).setAdapter(adapter1, 0xF9);
+        verify(rp1210).setAdapter(adapter1, "J1939:Baud=Auto", 0xF9);
         verify(vehicleInformationModule).setJ1939(any(J1939.class));
         verify(vehicleInformationModule).reset();
 

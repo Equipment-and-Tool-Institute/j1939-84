@@ -76,12 +76,12 @@ public class UserInterfaceViewTest {
 
     @Test
     public void testAdapterComboBox() {
-        JComboBox<String> adapterComboBox = instance.getAdapterComboBox();
+        JComboBox<Adapter> adapterComboBox = instance.getAdapterComboBox();
         assertTrue(adapterComboBox.isEnabled());
         assertNull(adapterComboBox.getSelectedItem());
         assertEquals(2, adapterComboBox.getItemCount());
-        assertEquals("Adapter1", adapterComboBox.getItemAt(0));
-        assertEquals("Adapter2", adapterComboBox.getItemAt(1));
+        assertEquals("Adapter1", adapterComboBox.getItemAt(0).getName());
+        assertEquals("Adapter2", adapterComboBox.getItemAt(1).getName());
 
         adapterComboBox.setSelectedIndex(1);
         verify(controller).onAdapterComboBoxItemSelected("Adapter2");

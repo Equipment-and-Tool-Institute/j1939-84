@@ -71,7 +71,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
     private final Presenter controller;
     private final Executor swingExecutor;
     private JButton abortButton;
-    private JComboBox<String> adapterComboBox;
+    private JComboBox<Adapter> adapterComboBox;
     private JComboBox<String> speedComboBox;
     private JLabel adapterLabel;
     private JLabel calsLabel;
@@ -211,7 +211,15 @@ public class UserInterfaceView implements UserInterfaceContract.View {
     private JComboBox<String> getSpeedComboBox() {
         if (speedComboBox == null) {
             speedComboBox = new JComboBox<>();
+            speedComboBox.setEditable(true);
             speedComboBox.setToolTipText("RP1210 Communications Speed");
+            speedComboBox.addItemListener(e -> {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    getController().onAdapterComboBoxItemSelected(getAdapterComboBox().getItemAt(getAdapterComboBox().getSelectedIndex()),
+                                                                  speedComboBox.getItemAt(speedComboBox.getSelectedIndex()));
+                }
+            });
+
         }
         return speedComboBox;
     }
@@ -337,24 +345,24 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      *
      * @return JComboBox
      */
-    JComboBox<String> getAdapterComboBox() {
+    JComboBox<Adapter> getAdapterComboBox() {
         if (adapterComboBox == null) {
             adapterComboBox = new JComboBox<>();
             for (Adapter adapter : getController().getAdapters()) {
-                adapterComboBox.addItem(adapter.getName());
+                adapterComboBox.addItem(adapter);
             }
             adapterComboBox.setToolTipText("RP1210 Communications Adapter");
             adapterComboBox.setSelectedIndex(-1);
             if (isAutoMode()) {
                 adapterComboBox.setSelectedIndex(0);
-                getController().onAdapterComboBoxItemSelected(adapterComboBox.getItemAt(0));
+                getController().onAdapterComboBoxItemSelected(adapterComboBox.getItemAt(0),
+                                                              speedComboBox.getItemAt(speedComboBox.getSelectedIndex()));
             }
             adapterComboBox.addItemListener(e -> {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
-                    getController().onAdapterComboBoxItemSelected((String) e.getItem());
                     speedComboBox.removeAllItems();
                     ((Adapter) e.getItem()).getConnectionStrings().forEach(s -> speedComboBox.addItem(s));
-                    speedComboBox.setSelectedItem("Auto");
+                    getSpeedComboBox().setSelectedItem("J1939:Baud=Auto");
                 }
             });
         }

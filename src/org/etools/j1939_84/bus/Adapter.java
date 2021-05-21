@@ -99,4 +99,7 @@ public class Adapter {
         return timestampWeight;
     }
 
+    public String toString() {
+        return getName();
+    }
 }
