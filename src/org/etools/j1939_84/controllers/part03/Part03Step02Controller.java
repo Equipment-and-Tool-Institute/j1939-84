@@ -89,6 +89,7 @@ public class Part03Step02Controller extends StepController {
             foundDTC = globalPackets.stream()
                                     .map(DiagnosticTroubleCodePacket::getDtcs)
                                     .map(dtcs -> !dtcs.isEmpty())
+                                    .filter(hasDTCs -> hasDTCs)
                                     .findFirst()
                                     .orElse(false);
 
