@@ -19,10 +19,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
@@ -138,6 +140,38 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
     @Test
     public void testGetTotalSteps() {
         assertEquals(0, instance.getTotalSteps());
+    }
+
+    @Test
+    public void testHappyPathNoFailures() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+
+        var nack = AcknowledgmentPacket.create(0, AcknowledgmentPacket.Response.NACK);
+        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, nack));
+
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc1);
+        when(diagnosticMessageModule.requestDM12(any(), eq(1))).thenReturn(new BusResult<>(false, dm12_1));
+
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12_1));
+
+        runTest();
+
+        String expectedMessages = "Step 6.4.2.1.a - Requesting DM12 Attempt 1";
+        assertEquals(expectedMessages, listener.getMessages());
+
+        String expectedResults = "" + NL;
+        expectedResults += "Attempt 1" + NL;
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(diagnosticMessageModule).requestDM12(any());
+        verify(diagnosticMessageModule).requestDM12(any(), eq(1));
+        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+
+        assertEquals(0, dateTimeModule.getTimeAsLong());
+
+        assertEquals(List.of(), listener.getOutcomes());
     }
 
     @Test
@@ -301,6 +335,38 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         WARN,
                                         "6.4.2.3.b - More than one ECU reported a confirmed and active DTC");
+    }
+
+    @Test
+    public void testMultipleModulesWithOneDTC() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+
+        var dm12_0 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
+        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, dm12_0));
+
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc1);
+        when(diagnosticMessageModule.requestDM12(any(), eq(1))).thenReturn(new BusResult<>(false, dm12_1));
+
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12_0, dm12_1));
+
+        runTest();
+
+        String expectedMessages = "Step 6.4.2.1.a - Requesting DM12 Attempt 1";
+        assertEquals(expectedMessages, listener.getMessages());
+
+        String expectedResults = "" + NL;
+        expectedResults += "Attempt 1" + NL;
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(diagnosticMessageModule).requestDM12(any());
+        verify(diagnosticMessageModule).requestDM12(any(), eq(1));
+        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+
+        assertEquals(0, dateTimeModule.getTimeAsLong());
+
+        assertEquals(List.of(), listener.getOutcomes());
     }
 
     @Test

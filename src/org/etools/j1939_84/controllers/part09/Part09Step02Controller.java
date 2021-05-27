@@ -21,7 +21,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * DM12: Emissions Related Active DTCs
+ * 6.9.2 DM12: Emissions Related Active DTCs
  */
 public class Part09Step02Controller extends StepController {
     private static final int PART_NUMBER = 9;

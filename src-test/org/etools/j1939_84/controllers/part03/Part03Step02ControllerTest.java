@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -135,6 +136,36 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
     @Test
     public void testGetTotalSteps() {
         assertEquals(0, instance.getTotalSteps());
+    }
+
+    @Test
+    public void testHappyPathNoFailures() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+
+        var nack = AcknowledgmentPacket.create(0, AcknowledgmentPacket.Response.NACK);
+        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, nack));
+
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        var dm6_1 = DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1);
+        when(diagnosticMessageModule.requestDM6(any(), eq(1))).thenReturn(new RequestResult<>(false, dm6_1));
+
+        when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6_1));
+
+        runTest();
+
+        String expectedMessages = "Step 6.3.2.1.a - Requesting DM6 Attempt 1";
+        assertEquals(expectedMessages, listener.getMessages());
+
+        String expectedResults = "" + NL;
+        expectedResults += "Attempt 1" + NL;
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(diagnosticMessageModule).requestDM6(any());
+        verify(diagnosticMessageModule).requestDM6(any(), eq(1));
+        verify(diagnosticMessageModule).requestDM6(any(), eq(0));
+
+        assertEquals(0, dateTimeModule.getTimeAsLong());
     }
 
     @Test
@@ -257,6 +288,36 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         WARN,
                                         "6.3.2.3.b - More than one ECU reported a pending DTC");
+    }
+
+    @Test
+    public void testMultipleModulesWithOneDTC() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+
+        var dm6_0 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
+        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6_0));
+
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        var dm6_1 = DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1);
+        when(diagnosticMessageModule.requestDM6(any(), eq(1))).thenReturn(new RequestResult<>(false, dm6_1));
+
+        when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6_0, dm6_1));
+
+        runTest();
+
+        String expectedMessages = "Step 6.3.2.1.a - Requesting DM6 Attempt 1";
+        assertEquals(expectedMessages, listener.getMessages());
+
+        String expectedResults = "" + NL;
+        expectedResults += "Attempt 1" + NL;
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(diagnosticMessageModule).requestDM6(any());
+        verify(diagnosticMessageModule).requestDM6(any(), eq(1));
+        verify(diagnosticMessageModule).requestDM6(any(), eq(0));
+
+        assertEquals(0, dateTimeModule.getTimeAsLong());
     }
 
     @Test
