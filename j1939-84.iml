@@ -63,6 +63,8 @@
       <sourceFolder url="file://$MODULE_DIR$/testdoc" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/.apt_generated" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib-test" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src-test/org/etools/j1939_84/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/org/etools/j1939_84/resources" type="java-resource" />
     </content>
     <orderEntry type="jdk" jdkName="11 (2)" jdkType="JavaSDK" />
     <orderEntry type="module-library">
