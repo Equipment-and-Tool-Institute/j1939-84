@@ -117,7 +117,7 @@ public class RP1210Bus implements Bus {
 
         clientId = rp1210Library.RP1210_ClientConnect(0,
                                                       adapter.getDeviceId(),
-                                                      connectionString,// "J1939:Baud=Auto",
+                                                      connectionString,
                                                       0,
                                                       0,
                                                       (short) (appPacketize ? 1 : 0));

@@ -1,0 +1,1 @@
+These are the original Help Files in Word and PDF.  The PDF version is also copied to src/org/etools/j1939_84/ui/help.pdf for distribution with the application.
