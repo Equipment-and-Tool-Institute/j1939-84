@@ -82,7 +82,7 @@ public class RP1210BusTest {
                                  decodingExecutor,
                                  rp1210Executor,
                                  queue,
-                                 adapter,
+                                 adapter,"J1939:Baud=Auto",
                                  ADDRESS,
                                  true,
                                  logger);

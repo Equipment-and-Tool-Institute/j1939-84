@@ -58,7 +58,7 @@ public class RP1210Test {
         if (!adapter.isPresent()) {
             throw new IllegalArgumentException("Unknown RP1210 Adapter");
         }
-        RP1210Bus rawBus = new RP1210Bus(adapter.get(), 0xF9, true);
+        RP1210Bus rawBus = new RP1210Bus(adapter.get(), "J1939:Baud=Auto", 0xF9, true);
         // rawBus.log(p -> "raw: " + p.toTimeString());
         Bus tpBus = new J1939TP(rawBus);
         // try (Stream<Packet> read = bus.read(2000, TimeUnit.MILLISECONDS);)
@@ -212,7 +212,7 @@ public class RP1210Test {
         RP1210 instance = createInstance("test/rp1210/RP121032.INI");
         List<Adapter> adapters = instance.getAdapters();
         Adapter adapter = adapters.get(0);
-        Bus bus = instance.setAdapter(adapter, 0xA5);
+        Bus bus = instance.setAdapter(adapter, "J1939:Baud=Auto", 0xA5);
         assertTrue(bus instanceof EchoBus);
         assertEquals(0xA5, bus.getAddress());
     }

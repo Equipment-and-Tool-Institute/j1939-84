@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.j1939.J1939TP;
@@ -108,13 +110,23 @@ public class RP1210 {
                         String vendorName = vendorSection.getOrDefault("Name", "");
 
                         long timestampWeight = getTimestampWeight(vendorSection);
-
                         // loop through protocols to find J1939
                         for (String protocolId : getProtocols(vendorSection)) {
                             Section protocolSection = driverIni.get("ProtocolInformation" + protocolId);
+                            List<String> connectionStrings = Stream.of(protocolSection.getOrDefault("ProtocolSpeed",
+                                                                                                    "Auto")
+                                                                                      .split("[, ]"))
+                                                                   .map(s -> "J1939:Baud=" + s)
+                                                                   .collect(Collectors.toList());
+
                             if (isJ1939Section(protocolSection)) {
                                 Arrays.stream(getDevices(protocolSection))
-                                      .map(devId -> createAdapter(id, driverIni, vendorName, timestampWeight, devId))
+                                      .map(devId -> createAdapter(id,
+                                                                  driverIni,
+                                                                  vendorName,
+                                                                  timestampWeight,
+                                                                  devId,
+                                                                  connectionStrings))
                                       .forEach(list::add);
                             }
                         }
@@ -142,7 +154,7 @@ public class RP1210 {
      * @throws BusException
      *                          if there is a problem setting the adapter
      */
-    public Bus setAdapter(Adapter adapter, int address) throws BusException {
+    public Bus setAdapter(Adapter adapter, String connectionString, int address) throws BusException {
         if (engine != null) {
             try {
                 engine.close();
@@ -157,7 +169,7 @@ public class RP1210 {
             engine = new Engine(bus);
             return bus;
         } else {
-            return new J1939TP(new RP1210Bus(adapter, address, true));
+            return new J1939TP(new RP1210Bus(adapter, connectionString, address, true));
         }
     }
 
@@ -199,9 +211,14 @@ public class RP1210 {
         return timestampWeight;
     }
 
-    private static Adapter createAdapter(String id, Ini driver, String vendorName, long timestampWeight, String devId) {
+    private static Adapter createAdapter(String id,
+                                         Ini driver,
+                                         String vendorName,
+                                         long timestampWeight,
+                                         String devId,
+                                         List<String> connectionStrings) {
         short deviceId = Short.parseShort(devId);
         String deviceName = driver.get("DeviceInformation" + devId).getOrDefault("DeviceDescription", "UNKNOWN");
-        return new Adapter(vendorName + " - " + deviceName, id, deviceId, timestampWeight);
+        return new Adapter(vendorName + " - " + deviceName, id, deviceId, timestampWeight, connectionStrings);
     }
 }
