@@ -5,8 +5,11 @@ package org.etools.j1939_84.ui;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -31,7 +34,6 @@ import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-import org.etools.j1939_84.ui.help.HelpView;
 
 /**
  * The Class that controls the behavior of the {@link UserInterfaceView}
@@ -47,8 +49,6 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
     static final String FILE_SUFFIX = "j1939-84";
 
     private final Executor executor;
-
-    private final HelpView helpView;
 
     private final OverallController overallController;
 
@@ -87,7 +87,6 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
              new ReportFileModule(),
              Runtime.getRuntime(),
              Executors.newSingleThreadExecutor(),
-             new HelpView(),
              new OverallController());
     }
 
@@ -106,9 +105,6 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      *                                     the {@link Runtime}
      * @param executor
      *                                     the {@link Executor} used to execute {@link Thread} s
-     * @param helpView
-     *                                     the {@link HelpView} that will display help for the
-     *                                     application
      *
      * @param overallController
      *                                     the {@link OverallController} which will run all the other
@@ -120,14 +116,12 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
                                   ReportFileModule reportFileModule,
                                   Runtime runtime,
                                   Executor executor,
-                                  HelpView helpView,
                                   OverallController overallController) {
         this.view = view;
         this.vehicleInformationModule = vehicleInformationModule;
         this.rp1210 = rp1210;
         this.reportFileModule = reportFileModule;
         this.executor = executor;
-        this.helpView = helpView;
         this.overallController = overallController;
         runtime.addShutdownHook(new Thread(reportFileModule::onProgramExit, "Shutdown Hook Thread"));
     }
@@ -256,7 +250,21 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
     @Override
     public void onHelpButtonClicked() {
-        helpView.setVisible(true);
+        try {
+            File helpFile = File.createTempFile("J1939-84-help-", ".pdf");
+            Files.copy(getClass().getResourceAsStream("help.pdf"),
+                       helpFile.toPath(),
+                       StandardCopyOption.REPLACE_EXISTING);
+            Desktop.getDesktop().open(helpFile);
+        } catch (IOException e) {
+            String message = "Error opening help.";
+            getLogger().log(Level.SEVERE, message, e);
+            if (e.getMessage() != null) {
+                message += NL + e.getMessage();
+            }
+            getView().displayDialog(message, "Unable to open help.", JOptionPane.ERROR_MESSAGE, false);
+        }
+
     }
 
     /*

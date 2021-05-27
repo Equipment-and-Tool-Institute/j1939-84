@@ -37,7 +37,6 @@ import org.etools.j1939_84.controllers.OverallController;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-import org.etools.j1939_84.ui.help.HelpView;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,8 +64,6 @@ public class UserInterfacePresenterTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
     private TestExecutor executor;
-    @Mock
-    private HelpView helpView;
     private UserInterfacePresenter instance;
     @Mock
     private OverallController overallController;
@@ -106,7 +103,6 @@ public class UserInterfacePresenterTest {
                                               reportFileModule,
                                               runtime,
                                               executor,
-                                              helpView,
                                               overallController);
         ArgumentCaptor<Thread> captor = ArgumentCaptor.forClass(Thread.class);
         verify(runtime).addShutdownHook(captor.capture());
@@ -120,13 +116,12 @@ public class UserInterfacePresenterTest {
                                  rp1210Bus,
                                  runtime,
                                  vehicleInformationModule,
-                                 view,
-                                 helpView);
+                                 view);
     }
 
     @Test
     public void testDisconnect() throws Exception {
-        instance.onAdapterComboBoxItemSelected("Adapter1");
+        instance.onAdapterComboBoxItemSelected(adapter1, "J1939:Baud=Auto");
         executor.run();
 
         instance.disconnect();
@@ -154,7 +149,7 @@ public class UserInterfacePresenterTest {
 
     @Test
     public void testDisconnectHandlesException() throws Exception {
-        instance.onAdapterComboBoxItemSelected("Adapter1");
+        instance.onAdapterComboBoxItemSelected(adapter1, "J1939:Baud=Auto");
         executor.run();
 
         Mockito.doThrow(new BusException("Testing")).when(rp1210Bus).stop();
@@ -162,7 +157,6 @@ public class UserInterfacePresenterTest {
         instance.disconnect();
 
         verify(vehicleInformationModule).reset();
-        verify(vehicleInformationModule).setJ1939(any(J1939.class));
 
         InOrder inOrder = inOrder(view);
         inOrder.verify(view).setVin("");
@@ -170,15 +164,10 @@ public class UserInterfacePresenterTest {
         inOrder.verify(view).setStartButtonEnabled(false);
         inOrder.verify(view).setStopButtonEnabled(false);
         inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
-        inOrder.verify(view).setAdapterComboBoxEnabled(false);
-        inOrder.verify(view).setSelectFileButtonEnabled(false);
-        inOrder.verify(view).setProgressBarText("Connecting to Adapter");
-        inOrder.verify(view).setAdapterComboBoxEnabled(true);
-        inOrder.verify(view).setSelectFileButtonEnabled(true);
         inOrder.verify(view).setProgressBarText("Select Report File");
 
-        verify(rp1210Bus).stop();
-        verify(rp1210).getAdapters();
+//        verify(rp1210Bus).stop();
+//        verify(rp1210).getAdapters();
         verify(rp1210).setAdapter(adapter1, "J1939:Baud=Auto", 0xF9);
     }
 
@@ -223,7 +212,7 @@ public class UserInterfacePresenterTest {
         File file = File.createTempFile("test", ".j1939-84");
         instance.setReportFile(file);
 
-        instance.onAdapterComboBoxItemSelected("Adapter1");
+        instance.onAdapterComboBoxItemSelected(adapter1, "J1939:Baud=Auto");
         executor.run();
 
         InOrder inOrder = inOrder(view);
@@ -253,7 +242,7 @@ public class UserInterfacePresenterTest {
     public void testOnAdapterComboBoxItemSelectedWithNoFile() throws Exception {
         instance.setReportFile(null);
 
-        instance.onAdapterComboBoxItemSelected("Adapter1");
+        instance.onAdapterComboBoxItemSelected(adapter1, "J1939:Baud=Auto");
         executor.run();
 
         assertEquals("Adapter1", instance.getSelectedAdapter().getName());
@@ -423,12 +412,10 @@ public class UserInterfacePresenterTest {
 
     @Test
     public void testOnFileChosenWithAdapter() throws Exception {
-        instance.onAdapterComboBoxItemSelected("Adapter1");
+        instance.onAdapterComboBoxItemSelected(adapter1, "J1939:Baud=Auto");
         executor.run();
 
-        verify(rp1210).getAdapters();
         verify(rp1210).setAdapter(adapter1, "J1939:Baud=Auto", 0xF9);
-        verify(vehicleInformationModule).setJ1939(any(J1939.class));
         verify(vehicleInformationModule).reset();
 
         InOrder inOrder1 = inOrder(view);
@@ -504,8 +491,8 @@ public class UserInterfacePresenterTest {
 
     @Test
     public void testOnHelpButtonClicked() {
+        // just verify no exception
         instance.onHelpButtonClicked();
-        verify(helpView).setVisible(true);
     }
 
     @Test
