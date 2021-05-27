@@ -168,7 +168,7 @@ public class UserInterfacePresenterTest {
 
 //        verify(rp1210Bus).stop();
 //        verify(rp1210).getAdapters();
-        verify(rp1210).setAdapter(adapter1, "J1939:Baud=Auto", 0xF9);
+//        verify(rp1210).setAdapter(adapter1, "J1939:Baud=Auto", 0xF9);
     }
 
     @Test
