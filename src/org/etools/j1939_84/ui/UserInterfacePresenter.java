@@ -5,8 +5,11 @@ package org.etools.j1939_84.ui;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -31,7 +34,6 @@ import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-import org.etools.j1939_84.ui.help.HelpView;
 
 /**
  * The Class that controls the behavior of the {@link UserInterfaceView}
@@ -47,8 +49,6 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
     static final String FILE_SUFFIX = "j1939-84";
 
     private final Executor executor;
-
-    private final HelpView helpView;
 
     private final OverallController overallController;
 
@@ -72,6 +72,8 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
     private J1939 j1939;
 
+    private String selectedConnectionString;
+
     /**
      * Default Constructor
      *
@@ -85,7 +87,6 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
              new ReportFileModule(),
              Runtime.getRuntime(),
              Executors.newSingleThreadExecutor(),
-             new HelpView(),
              new OverallController());
     }
 
@@ -104,9 +105,6 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      *                                     the {@link Runtime}
      * @param executor
      *                                     the {@link Executor} used to execute {@link Thread} s
-     * @param helpView
-     *                                     the {@link HelpView} that will display help for the
-     *                                     application
      *
      * @param overallController
      *                                     the {@link OverallController} which will run all the other
@@ -118,14 +116,12 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
                                   ReportFileModule reportFileModule,
                                   Runtime runtime,
                                   Executor executor,
-                                  HelpView helpView,
                                   OverallController overallController) {
         this.view = view;
         this.vehicleInformationModule = vehicleInformationModule;
         this.rp1210 = rp1210;
         this.reportFileModule = reportFileModule;
         this.executor = executor;
-        this.helpView = helpView;
         this.overallController = overallController;
         runtime.addShutdownHook(new Thread(reportFileModule::onProgramExit, "Shutdown Hook Thread"));
     }
@@ -204,23 +200,12 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
     }
 
     @Override
-    public void onAdapterComboBoxItemSelected(String selectedAdapterName) {
+    public void onAdapterComboBoxItemSelected(Adapter adapter, String connectionString) {
         // Connecting to the adapter can take "a while"
         executor.execute(() -> {
+            this.selectedAdapter = adapter;
+            this.selectedConnectionString = connectionString;
             resetView();
-            getView().setAdapterComboBoxEnabled(false);
-            getView().setSelectFileButtonEnabled(false);
-            getView().setProgressBarText("Connecting to Adapter");
-
-            Adapter matchedAdapter = null;
-            for (Adapter adapter : getAdapters()) {
-                String name = adapter.getName();
-                if (name.equals(selectedAdapterName)) {
-                    matchedAdapter = adapter;
-                    break;
-                }
-            }
-            setSelectedAdapter(matchedAdapter);
             checkSetupComplete();
         });
     }
@@ -265,7 +250,21 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
     @Override
     public void onHelpButtonClicked() {
-        helpView.setVisible(true);
+        try {
+            File helpFile = File.createTempFile("J1939-84-help-", ".pdf");
+            Files.copy(getClass().getResourceAsStream("help.pdf"),
+                       helpFile.toPath(),
+                       StandardCopyOption.REPLACE_EXISTING);
+            Desktop.getDesktop().open(helpFile);
+        } catch (IOException e) {
+            String message = "Error opening help.";
+            getLogger().log(Level.SEVERE, message, e);
+            if (e.getMessage() != null) {
+                message += NL + e.getMessage();
+            }
+            getView().displayDialog(message, "Unable to open help.", JOptionPane.ERROR_MESSAGE, false);
+        }
+
     }
 
     /*
@@ -281,7 +280,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
             getView().setAdapterComboBoxEnabled(false);
             getView().setSelectFileButtonEnabled(false);
             boolean result = false;
-
+            setSelectedAdapter(selectedAdapter, selectedConnectionString);
             ResultsListener resultsListener = getResultsListener();
             try {
                 if (bus.imposterDetected()) {
@@ -458,11 +457,11 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      * @param selectedAdapter
      *                            the selectedAdapter to set
      */
-    private void setSelectedAdapter(Adapter selectedAdapter) {
+    private void setSelectedAdapter(Adapter selectedAdapter, String connectionString) {
         try {
             Bus bus;
             if (selectedAdapter != null) {
-                bus = rp1210.setAdapter(selectedAdapter, 0xF9);
+                bus = rp1210.setAdapter(selectedAdapter, connectionString, 0xF9);
             } else {
                 bus = null;
             }

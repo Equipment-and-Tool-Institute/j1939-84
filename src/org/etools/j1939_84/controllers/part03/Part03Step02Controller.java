@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -86,11 +85,7 @@ public class Part03Step02Controller extends StepController {
                 break;
             }
 
-            foundDTC = globalPackets.stream()
-                                    .map(DiagnosticTroubleCodePacket::getDtcs)
-                                    .map(dtcs -> !dtcs.isEmpty())
-                                    .findFirst()
-                                    .orElse(false);
+            foundDTC = globalPackets.stream().anyMatch(p -> !p.getDtcs().isEmpty());
 
             if (!foundDTC) {
                 if (attempts == 5 * 60) {

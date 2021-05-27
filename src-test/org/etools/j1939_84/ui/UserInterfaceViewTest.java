@@ -50,11 +50,15 @@ public class UserInterfaceViewTest {
 
     private UserInterfaceView instance;
 
+    private Adapter adapter1;
+
+    private Adapter adapter2;
+
     @Before
     public void setUp() throws Exception {
         List<Adapter> adapters = new ArrayList<>();
-        adapters.add(new Adapter("Adapter1", "SD", (short) 1));
-        adapters.add(new Adapter("Adapter2", "SD", (short) 2));
+        adapters.add(adapter1 = new Adapter("Adapter1", "SD", (short) 1));
+        adapters.add(adapter2 = new Adapter("Adapter2", "SD", (short) 2));
         when(controller.getAdapters()).thenReturn(adapters);
 
         when(buildNumber.getVersionNumber()).thenReturn("12.34");
@@ -76,18 +80,18 @@ public class UserInterfaceViewTest {
 
     @Test
     public void testAdapterComboBox() {
-        JComboBox<String> adapterComboBox = instance.getAdapterComboBox();
+        JComboBox<Adapter> adapterComboBox = instance.getAdapterComboBox();
         assertTrue(adapterComboBox.isEnabled());
         assertNull(adapterComboBox.getSelectedItem());
         assertEquals(2, adapterComboBox.getItemCount());
-        assertEquals("Adapter1", adapterComboBox.getItemAt(0));
-        assertEquals("Adapter2", adapterComboBox.getItemAt(1));
+        assertEquals("Adapter1", adapterComboBox.getItemAt(0).getName());
+        assertEquals("Adapter2", adapterComboBox.getItemAt(1).getName());
 
         adapterComboBox.setSelectedIndex(1);
-        verify(controller).onAdapterComboBoxItemSelected("Adapter2");
+        verify(controller).onAdapterComboBoxItemSelected(adapter2, "J1939:Baud=Auto");
 
         adapterComboBox.setSelectedIndex(0);
-        verify(controller).onAdapterComboBoxItemSelected("Adapter1");
+        verify(controller).onAdapterComboBoxItemSelected(adapter1, "J1939:Baud=Auto");
 
         instance.setAdapterComboBoxEnabled(false);
         assertFalse(adapterComboBox.isEnabled());

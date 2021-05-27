@@ -65,10 +65,10 @@ public interface UserInterfaceContract {
         /**
          * Called when the user has selected an adapter
          *
-         * @param selectedAdapterName
-         *                                the name of the selected adapter
+         * @param selectedAdapterName the name of the selected adapter
+         * @param connectionString    RP1210 connection string.
          */
-        void onAdapterComboBoxItemSelected(String selectedAdapterName);
+        void onAdapterComboBoxItemSelected(Adapter adapter, String connectionString);
 
         /**
          * Called when the use has selected a report file
