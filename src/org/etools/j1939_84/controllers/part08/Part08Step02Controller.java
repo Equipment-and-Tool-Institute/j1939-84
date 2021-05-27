@@ -80,9 +80,7 @@ public class Part08Step02Controller extends StepController {
             getListener().onResult(NL + "Attempt " + attempts);
             globalPackets = getDiagnosticMessageModule().requestDM12(getListener()).getPackets();
 
-            foundDTC.set(globalPackets.stream()
-                                      .map(DiagnosticTroubleCodePacket::getDtcs)
-                                      .anyMatch(dtcs -> !dtcs.isEmpty()));
+            foundDTC.set(globalPackets.stream().anyMatch(p -> !p.getDtcs().isEmpty()));
 
             if (!foundDTC.get()) {
                 if (attempts == 5 * 60) {
