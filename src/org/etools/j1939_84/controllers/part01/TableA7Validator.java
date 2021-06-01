@@ -174,12 +174,8 @@ public class TableA7Validator {
                 var list = expectedTestResults.stream()
                                               .map(r -> r.getSpn() + ":" + r.getFmi())
                                               .collect(Collectors.joining(", "));
-                String message = "6.1.12.2.a (A7.2.a) - " + monitorName + " is missing required Test Result";
-                if (expectedTestResults.size() > 1) {
-                    message = message + ", one of: " + list;
-                } else {
-                    message = message + ": " + list;
-                }
+                String message = "6.1.12.2.a (A7.2.a) - " + monitorName + " is missing required Test Result, "
+                        + expectedTestResults.size() + " of: " + list;
                 listener.addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, message);
             }
             return isValid;
