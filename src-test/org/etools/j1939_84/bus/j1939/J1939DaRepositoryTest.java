@@ -4,9 +4,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +20,7 @@ import org.junit.Test;
 
 public class J1939DaRepositoryTest {
 
-    private static String[] variableLengthDMs = new String[] { "DM19", "DM24", "DM25", "DM30", "DM31", "DM33" };
+    private static final String[] variableLengthDMs = new String[] { "DM19", "DM24", "DM25", "DM30", "DM31", "DM33" };
 
     @Test
     public void test3069() {
@@ -33,12 +31,13 @@ public class J1939DaRepositoryTest {
         assertNotEquals("Slot", "UNK", j1939.findSLOT(j1939.findSpnDefinition(SPN).getSlotNumber(), SPN).getType());
     }
 
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
     public void testGeneralPacketContaining3069() {
-        Packet packet = Packet.create(0xC1FF, 0x00, 0, 0, 0, 0, 0, 0, 0, 0);
+        Packet packet = Packet.create(0xC1FF, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88);
         var genericPacket = new GenericPacket(packet);
         System.out.println(genericPacket);
-        assertEquals(0.0, genericPacket.getSpn(3069).get().getValue(), 0.0);
+        assertEquals(8721.0, genericPacket.getSpn(3069).get().getValue(), 0.0);
     }
 
     @Test
