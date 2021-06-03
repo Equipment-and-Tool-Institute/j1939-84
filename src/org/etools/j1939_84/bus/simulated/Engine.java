@@ -428,6 +428,8 @@ public class Engine implements AutoCloseable {
                                                       SupportedSPN.create(1325, true, false, false, 1),
                                                       SupportedSPN.create(1326, true, false, false, 1),
                                                       SupportedSPN.create(1413, false, true, false, 1),
+                                                      SupportedSPN.create(1634, false, true, false, 15),
+                                                      SupportedSPN.create(1635, false, true, false, 4),
                                                       SupportedSPN.create(2630, true, false, false, 1),
                                                       SupportedSPN.create(2791, false, true, false, 1),
                                                       SupportedSPN.create(2978, false, true, false, 1),

@@ -1,11 +1,9 @@
-/**
+/*
  *
  */
 package org.etools.j1939_84.controllers.part01;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,24 +17,20 @@ import org.junit.Test;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
+@SuppressWarnings({ "SimplifiableAssertion" })
 public class TableA7RowValidatorTest {
 
     private TableA7RowValidator instance;
 
+    @SuppressWarnings("SameParameterValue")
     private static ExpectedTestResult expectedTestResult(int spn, int fmi) {
         return new ExpectedTestResult(spn, fmi);
     }
 
     private static ScaledTestResult scaledTestResult(int spn, int fmi) {
-        ScaledTestResult mock = mock(ScaledTestResult.class);
-        when(mock.getSpn()).thenReturn(spn);
-        when(mock.getFmi()).thenReturn(fmi);
-        return mock;
+        return ScaledTestResult.create(247, spn, fmi, 0, 0, 0, 0);
     }
 
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
     public void setUp() throws Exception {
         instance = new TableA7RowValidator();
@@ -151,6 +145,20 @@ public class TableA7RowValidatorTest {
         expectedTestResults.add(expectedTestResult(3055, 18));
 
         assertEquals(true, instance.isValid(actualTestResults, expectedTestResults, 2));
+    }
+
+    @Test
+    public void testInvalidMin2WithDuplicates() {
+        Collection<ScaledTestResult> actualTestResults = new ArrayList<>();
+        actualTestResults.add(scaledTestResult(157, 18));
+        actualTestResults.add(scaledTestResult(157, 18));
+
+        Collection<ExpectedTestResult> expectedTestResults = new ArrayList<>();
+        expectedTestResults.add(expectedTestResult(157, 18));
+        expectedTestResults.add(expectedTestResult(157, 17));
+        expectedTestResults.add(expectedTestResult(157, 16));
+
+        assertEquals(false, instance.isValid(actualTestResults, expectedTestResults, 2));
     }
 
     @Test

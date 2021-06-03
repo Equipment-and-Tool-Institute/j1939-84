@@ -103,6 +103,7 @@ public class TableA7ValidatorTest {
         return testResults;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void remove(Collection<ScaledTestResult> testResults, int spn, int fmi) {
         for (ScaledTestResult testResult : testResults) {
             if (testResult.getSpn() == spn && testResult.getFmi() == fmi) {
@@ -140,7 +141,7 @@ public class TableA7ValidatorTest {
         verify(listener).addOutcome(PART_NUMBER,
                                     STEP_NUMBER,
                                     FAIL,
-                                    "6.1.12.2.a (A7.2.a) - Fuel system pressure control low is missing required Test Result, one of: 157:18, 164:18, 3055:18");
+                                    "6.1.12.2.a (A7.2.a) - Fuel system pressure control low is missing required Test Result, 3 of: 157:18, 164:18, 3055:18");
     }
 
     @Test

@@ -22,7 +22,6 @@ import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.prefs.Preferences;
 
-import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -73,7 +72,6 @@ public class UserInterfaceView implements UserInterfaceContract.View {
     private JButton abortButton;
     private JComboBox<Adapter> adapterComboBox;
     private JComboBox<String> speedComboBox;
-    private JLabel adapterLabel;
     private JLabel calsLabel;
     private JScrollPane calsScrollPane;
     private JTextArea calsTextField;
@@ -356,12 +354,12 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             if (isAutoMode()) {
                 adapterComboBox.setSelectedIndex(0);
                 getController().onAdapterComboBoxItemSelected(adapterComboBox.getItemAt(0),
-                                                              speedComboBox.getItemAt(speedComboBox.getSelectedIndex()));
+                                                              getSpeedComboBox().getItemAt(getSpeedComboBox().getSelectedIndex()));
             }
             adapterComboBox.addItemListener(e -> {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
-                    speedComboBox.removeAllItems();
-                    ((Adapter) e.getItem()).getConnectionStrings().forEach(s -> speedComboBox.addItem(s));
+                    getSpeedComboBox().removeAllItems();
+                    ((Adapter) e.getItem()).getConnectionStrings().forEach(s -> getSpeedComboBox().addItem(s));
                     getSpeedComboBox().setSelectedItem("J1939:Baud=Auto");
                 }
             });

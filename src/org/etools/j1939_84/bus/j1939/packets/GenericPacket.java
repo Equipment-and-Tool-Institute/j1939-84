@@ -93,8 +93,10 @@ public class GenericPacket extends ParsedPacket {
             byte[] bytes = getPacket().getBytes();
             for (SpnDefinition definition : spnDefinitions) {
                 Slot slot = getJ1939DaRepository().findSLOT(definition.getSlotNumber(), definition.getSpnId());
-                byte[] data = parser.parse(bytes, definition, slot.getLength());
-                spns.add(new Spn(definition.getSpnId(), definition.getLabel(), slot, data));
+                if (slot.getLength() != 0) {
+                    byte[] data = parser.parse(bytes, definition, slot.getLength());
+                    spns.add(new Spn(definition.getSpnId(), definition.getLabel(), slot, data));
+                }
             }
         }
         return spns;
