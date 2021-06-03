@@ -106,9 +106,8 @@ public class TableA7Validator {
         }
         rows.add(new Row("Engine Exhaust Sensor Heater", 1, etr(3222, 1), etr(3222, 2)));
         rows.add(new Row("Engine Exhaust Sensor Heater", 1, etr(3232, 1), etr(3232, 2)));
-        rows.add(new Row("Conversion Efficiency", 1, etr(4364, 17), etr(4364, 18), etr(4364, 31)));
         rows.add(new Row("Fuel System Monitor", 1, etr(651, 3), etr(651, 4), etr(651, 5), etr(6575, 2)));
-        rows.add(new Row("EVAP Monitor", 1, etr(7835, 7), etr(7835, 20), etr(7835, 21)));
+        rows.add(new Row("EVAP Monitor", 1, etr(7835, 7), etr(7835, 20), etr(7835, 21), etr(3053, 1), etr(3053, 2)));
         return rows;
     }
 
