@@ -20,6 +20,8 @@ import java.util.List;
 
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
+import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
@@ -302,5 +304,22 @@ public class TableA1ValidatorTest {
                                         WARN,
                                         "6.1.26 - N.6 SPN 190 provided by non-OBD ECU Turbocharger (2)");
         verify(mockListener).addOutcome(1, 26, INFO, "6.1.26 - N.6 SPN 96 provided by non-OBD ECU Turbocharger (2)");
+    }
+
+    @Test
+    public void testNotAvailableForDM19() {
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        obdModuleInformation.set(DM24SPNSupportPacket.create(0,
+                                                             SupportedSPN.create(1634, true, true, true, 15),
+                                                             SupportedSPN.create(1635, true, true, true, 15)),
+                                 1);
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var calInfo = new DM19CalibrationInformationPacket.CalibrationInformation("CALID", "BADBEEF");
+        var packet = DM19CalibrationInformationPacket.create(0, 0xF9, calInfo);
+
+        instance.reportNotAvailableSPNs(packet, listener, "6.1.26");
+
+        assertEquals(List.of(), listener.getOutcomes());
     }
 }
