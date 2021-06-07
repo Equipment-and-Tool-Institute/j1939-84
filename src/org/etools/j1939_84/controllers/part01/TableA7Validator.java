@@ -174,7 +174,7 @@ public class TableA7Validator {
                                               .map(r -> r.getSpn() + ":" + r.getFmi())
                                               .collect(Collectors.joining(", "));
                 String message = "6.1.12.2.a (A7.2.a) - " + monitorName + " is missing required Test Result, "
-                        + expectedTestResults.size() + " of: " + list;
+                        + minimumContains + " of: " + list;
                 listener.addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, message);
             }
             return isValid;

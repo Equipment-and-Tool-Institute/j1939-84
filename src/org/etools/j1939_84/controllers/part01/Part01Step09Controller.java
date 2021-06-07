@@ -104,6 +104,9 @@ public class Part01Step09Controller extends StepController {
                     addFailure("6.1.9.2.c - Serial number field (SP 588) from " + function0Name
                             + " does not end in five numeric characters");
                 }
+            } else {
+                addFailure("6.1.9.2.c - Serial number field (SP 588) from " + function0Name
+                        + " does not end in five numeric characters");
             }
 
             // 6.1.9.3.a. INFO if the serial number field (SP 588) from any function 0 device is

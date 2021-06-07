@@ -253,7 +253,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.2.7.2.a - There are no positive response from Engine #1 (0)");
+                                        "6.2.7.4.a - There is no positive response from Engine #1 (0)");
     }
 
     @Test
@@ -285,7 +285,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.2.7.2.a - There are no positive response from Unknown (-1)");
+                                        "6.2.7.4.a - There is no positive response from Unknown (-1)");
     }
 
     @Test

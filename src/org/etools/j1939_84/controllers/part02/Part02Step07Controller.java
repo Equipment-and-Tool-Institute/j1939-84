@@ -3,13 +3,14 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
+import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
+
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -76,7 +77,7 @@ public class Part02Step07Controller extends StepController {
             if (packet != null) {
                 boolean hasResponse = dsPackets.stream().anyMatch(p -> p.getSourceAddress() == address);
                 if (!hasResponse) {
-                    addFailure("6.2.7.2.a - " + Lookup.getAddressName(address)
+                    addFailure("6.2.7.2.a - " + getAddressName(address)
                             + " did not support PGN 65259 with the engine running");
                 }
             }
@@ -103,14 +104,13 @@ public class Part02Step07Controller extends StepController {
                                                   .map(OBDModuleInformation::getSourceAddress)
                                                   .findFirst()
                                                   .orElse(-1);
-        String function0ModuleName = Lookup.getAddressName(function0Address);
 
         var function0GlobalPacket = globalPackets.stream()
                                                  .filter(p -> p.getSourceAddress() == function0Address)
                                                  .findFirst()
                                                  .orElse(null);
         if (function0GlobalPacket == null) {
-            addFailure("6.2.7.2.a - There are no positive response from " + function0ModuleName);
+            addFailure("6.2.7.4.a - There is no positive response from " + getAddressName(function0Address));
         } else {
             // 6.2.7.4.b. Fail if the global response does not match the destination specific response from function 0.
             var function0DSPacket = dsPackets.stream()
@@ -119,7 +119,7 @@ public class Part02Step07Controller extends StepController {
                                              .orElse(null);
             if (!function0GlobalPacket.equals(function0DSPacket)) {
                 addFailure("6.2.7.4.b - Global response does not match the destination specific response from "
-                        + function0ModuleName);
+                        + getAddressName(function0Address));
             }
         }
 
@@ -132,7 +132,7 @@ public class Part02Step07Controller extends StepController {
 
             var globalResponse = globalPackets.stream().anyMatch(p -> p.getSourceAddress() == address);
             if (!globalResponse) {
-                addWarning("6.2.7.5.a - " + Lookup.getAddressName(address)
+                addWarning("6.2.7.5.a - " + getAddressName(address)
                         + " did not support PGN 65259 with the engine running");
             }
         }

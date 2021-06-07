@@ -15,8 +15,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
+import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
@@ -355,6 +357,85 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
+
+        assertEquals(List.of(), listener.getOutcomes());
+    }
+
+    @Test
+    public void testFailureWithNullSerialNumber() {
+        var dataPacket = Packet.create(ComponentIdentificationPacket.PGN,
+                                       0,
+                                       0x44,
+                                       0x54,
+                                       0x44,
+                                       0x53,
+                                       0x43,
+                                       0x2A,
+                                       0x39,
+                                       0x33,
+                                       0x36,
+                                       0x4E,
+                                       0x31,
+                                       0x36,
+                                       0x2A,
+                                       0x00,
+                                       0x00,
+                                       0x00,
+                                       0x00,
+                                       0x00,
+                                       0x00,
+                                       0x00,
+                                       0x00,
+                                       0x00,
+                                       0x00,
+                                       0x00,
+                                       0x00,
+                                       0x00,
+                                       0x00,
+                                       0x2A,
+                                       0x20,
+                                       0x20,
+                                       0x20,
+                                       0x20,
+                                       0x20,
+                                       0x20,
+                                       0x20,
+                                       0x20,
+                                       0x20,
+                                       0x20,
+                                       0x2A);
+        ComponentIdentificationPacket packet = new ComponentIdentificationPacket(dataPacket);
+
+        dataRepository.putObdModule(new OBDModuleInformation(0, 0));
+
+        when(vehicleInformationModule.requestComponentIdentification(any()))
+                                                                            .thenReturn(RequestResult.of(packet));
+
+        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+                                                                                   .thenReturn(BusResult.of(packet));
+
+        runTest();
+
+        assertEquals(packet.getComponentIdentification(),
+                     dataRepository.getObdModule(0)
+                                   .get(ComponentIdentificationPacket.class, 1)
+                                   .getComponentIdentification());
+
+        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+
+        // Verify the documentation was recorded correctly
+        assertEquals("", listener.getMessages());
+        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.9.2.c - Serial number field (SP 588) from Engine #1 (0) does not end in five numeric characters");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.1.9.3.a - Serial number field (SP 588) from Engine #1 (0) is less than eight characters long");
     }
 
     @Test
