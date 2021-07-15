@@ -393,10 +393,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         when(busMock.imposterDetected()).thenReturn(true);
         runTest();
 
-        verify(busService).setup(eq(j1939), any());
-
         verify(broadcastValidator).getMaximumBroadcastPeriod();
-        verify(busService).readBus(12, "6.1.26.1.a");
         verify(broadcastValidator).buildPGNPacketsMap(packets);
         verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
                                                          any(),
@@ -415,11 +412,10 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         eq("6.1.26.2.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
+        verify(busService).readBus(12, "6.1.26.1.a");
         verify(busService).collectNonOnRequestPGNs(supportedSpns);
         verify(busService).getPGNsForDSRequest(List.of(), supportedSpns.subList(1, supportedSpns.size()));
-        verify(busService).readBus(
-                                   12,
-                                   "6.1.26.1.a");
+
         verify(mockListener).addOutcome(1,
                                         26,
                                         WARN,
