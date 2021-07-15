@@ -194,15 +194,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                  eq("6.1.26.6.a")))
                                                                                    .thenReturn(List.of("111"));
 
-        OBDModuleInformation module0 = new OBDModuleInformation(0);
-        DM24SPNSupportPacket dm24SPNSupportPacket = DM24SPNSupportPacket.create(0,
+        OBDModuleInformation module1 = new OBDModuleInformation(1);
+        DM24SPNSupportPacket dm24SPNSupportPacket = DM24SPNSupportPacket.create(1,
                                                                                 SupportedSPN.create(111,
                                                                                                     false,
                                                                                                     true,
                                                                                                     false,
                                                                                                     1));
-        module0.set(dm24SPNSupportPacket, 1);
-        dataRepository.putObdModule(module0);
+        module1.set(dm24SPNSupportPacket, 1);
+        dataRepository.putObdModule(module1);
 
         when(busService.collectNonOnRequestPGNs(any())).thenReturn(List.of(11111, 22222, 33333));
 
@@ -234,8 +234,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(busService).setup(eq(j1939), any());
-        verify(busService).collectNonOnRequestPGNs(any());
-        verify(busService).getPGNsForDSRequest(any(), any());
+        verify(busService, times(2)).collectNonOnRequestPGNs(any());
+        verify(busService, times(2)).getPGNsForDSRequest(any(), any());
         verify(busService).dsRequest(eq(22222), eq(0), any());
         verify(busService).dsRequest(eq(44444), eq(0), any());
         verify(busService).dsRequest(eq(55555), eq(0), any());
@@ -257,6 +257,14 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                     eq(1),
                                                                     eq(26),
                                                                     eq("6.1.26.2.a"));
+        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(1),
+                                                                    any(),
+                                                                    any(),
+                                                                    eq(List.of(11111, 22222, 33333)),
+                                                                    any(ResultsListener.class),
+                                                                    eq(1),
+                                                                    eq(26),
+                                                                    eq("6.1.26.2.a"));
 
         pgns.forEach(pgn -> {
             verify(broadcastValidator).collectAndReportNotAvailableSPNs(any(),
@@ -270,17 +278,27 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
             verify(broadcastValidator).collectAndReportNotAvailableSPNs(any(),
                                                                         eq(pgn),
                                                                         any(),
+                                                                        eq(1),
+                                                                        any(ResultsListener.class),
+                                                                        eq(1),
+                                                                        eq(26),
+                                                                        eq("6.1.26.6.a"));
+            verify(broadcastValidator).collectAndReportNotAvailableSPNs(any(),
+                                                                        eq(pgn),
+                                                                        any(),
                                                                         isNull(),
                                                                         any(ResultsListener.class),
                                                                         eq(1),
                                                                         eq(26),
                                                                         eq("6.1.26.6.a"));
-
+            verify(busService).dsRequest(eq(pgn), eq(0), any());
+            verify(busService).dsRequest(eq(pgn), eq(1), any());
         });
 
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
         pgns.forEach(pgn -> {
             verify(busService).globalRequest(eq(pgn), any());
+            verify(busService).dsRequest(eq(pgn), eq(0), any());
         });
         verify(busService).readBus(eq(0),
                                    eq("6.1.26.1.a"));
@@ -333,7 +351,11 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         String expectedMsg = "Test 1.26 - Verifying Engine #1 (0)" + NL;
         expectedMsg += "Test 1.26 - Verifying Engine #1 (0)" + NL;
         expectedMsg += "Test 1.26 - Verifying Engine #1 (0)" + NL;
-        expectedMsg += "Test 1.26 - Verifying Engine #1 (0)";
+        expectedMsg += "Test 1.26 - Verifying Engine #1 (0)" + NL;
+        expectedMsg += "Test 1.26 - Verifying Engine #2 (1)" + NL;
+        expectedMsg += "Test 1.26 - Verifying Engine #2 (1)" + NL;
+        expectedMsg += "Test 1.26 - Verifying Engine #2 (1)" + NL;
+        expectedMsg += "Test 1.26 - Verifying Engine #2 (1)";
         assertEquals(expectedMsg, listener.getMessages());
     }
 
@@ -414,7 +436,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
         verify(busService).readBus(12, "6.1.26.1.a");
         verify(busService).collectNonOnRequestPGNs(supportedSpns);
-        verify(busService).getPGNsForDSRequest(List.of(), supportedSpns.subList(1, supportedSpns.size()));
+        verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns.subList(1, supportedSpns.size())));
+        verify(busService).getPGNsForDSRequest(any(), any());
 
         verify(mockListener).addOutcome(1,
                                         26,
@@ -526,11 +549,11 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         verify(tableA1Validator).reportExpectedMessages(any(ResultsListener.class));
         packets.forEach(packet -> {
             verify(tableA1Validator).reportNotAvailableSPNs(eq(packet),
-                                                                any(ResultsListener.class),
+                                                            any(ResultsListener.class),
                                                             eq("6.1.26.2.a"));
             verify(tableA1Validator).reportImplausibleSPNValues(eq(packet),
-                                                            any(ResultsListener.class),
-                                                            eq(false),
+                                                                any(ResultsListener.class),
+                                                                eq(false),
                                                                 eq("6.1.26.2.d"));
             verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet),
                                                                     any(ResultsListener.class),
@@ -652,7 +675,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                 eq(false),
                                                                 eq("6.1.26.2.d"));
             verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet),
-                                                                    any(ResultsListener.class),
+                                                                any(ResultsListener.class),
                                                                     eq("6.1.26.2.e"));
             verify(tableA1Validator).reportDuplicateSPNs(any(),
                                                          any(ResultsListener.class),
