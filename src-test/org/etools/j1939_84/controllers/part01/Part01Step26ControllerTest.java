@@ -24,8 +24,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -567,7 +565,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void runWithInterrupptedFailure() {
+    public void runWithInterruptFailure() {
         // SPNs
         // 111 - Broadcast with value
         // 444 - DS with value
@@ -575,7 +573,6 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         List<SupportedSPN> supportedSPNList = spns(111, 444);
 
         OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
-        OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
         obdModule0.set(DM24SPNSupportPacket.create(0,
                                                    SupportedSPN.create(111,
                                                                        false,
@@ -583,29 +580,20 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                        false,
                                                                        1)),
                        1);
+        dataRepository.putObdModule(obdModule0);
+        OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
         obdModule1.set(DM24SPNSupportPacket.create(1,
                                                    supportedSPNList.toArray(new SupportedSPN[0])),
                        1);
 
-        dataRepository.putObdModule(obdModule0);
         dataRepository.putObdModule(obdModule1);
 
         when(broadcastValidator.getMaximumBroadcastPeriod()).thenReturn(3);
+        when(busService.readBus(eq(12), eq("6.1.26.1.a"))).thenAnswer(instance.stop());
 
         List<GenericPacket> packets = new ArrayList<>();
         GenericPacket packet1 = packet(111, false);
         packets.add(packet1);
-        when(busService.readBus(eq(12), eq("6.1.26.1.a"))).thenReturn(Stream.of());
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    throw new InterruptedException();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, 750);
 
         Bus busMock = mock(Bus.class);
         when(j1939.getBus()).thenReturn(busMock);
