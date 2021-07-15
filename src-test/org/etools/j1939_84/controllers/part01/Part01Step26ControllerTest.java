@@ -259,7 +259,6 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                     eq(1),
                                                                     eq(26),
                                                                     eq("6.1.26.2.a"));
-        // 222, 333, 444, 555, 666, 777, 888, 999
 
         pgns.forEach(pgn -> {
             verify(broadcastValidator).collectAndReportNotAvailableSPNs(any(),
@@ -564,7 +563,6 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         assertEquals(expected, listener.getResults());
 
         String expectedMsg = "";
-        // expectedMsg += "Test 1.26 - Verifying Engine #2 (1)";
         assertEquals(expectedMsg, listener.getMessages());
     }
 
