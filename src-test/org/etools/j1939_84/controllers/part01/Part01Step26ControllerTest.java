@@ -589,11 +589,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule1);
 
         when(broadcastValidator.getMaximumBroadcastPeriod()).thenReturn(3);
-        when(busService.readBus(eq(12), eq("6.1.26.1.a"))).thenAnswer(instance.stop());
 
         List<GenericPacket> packets = new ArrayList<>();
         GenericPacket packet1 = packet(111, false);
         packets.add(packet1);
+
+        when(busService.readBus(eq(12), eq("6.1.26.1.a"))).thenAnswer(a -> {
+            instance.stop();
+            return packets.stream();
+        });
 
         Bus busMock = mock(Bus.class);
         when(j1939.getBus()).thenReturn(busMock);
@@ -601,7 +605,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(broadcastValidator).getMaximumBroadcastPeriod();
-        verify(broadcastValidator).buildPGNPacketsMap(List.of());
+        verify(broadcastValidator).buildPGNPacketsMap(List.of(packet1));
         verify(broadcastValidator).reportBroadcastPeriod(any(),
                                                          eq(List.of(111, 111, 444)),
                                                          any(ResultsListener.class),
@@ -610,7 +614,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(0),
                                                                     any(),
-                                                                    eq(List.of(111)),
+                                                                    eq(List.of()),
                                                                     eq(List.of()),
                                                                     any(ResultsListener.class),
                                                                     eq(1),
@@ -639,16 +643,36 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         verify(busService).readBus(eq(12), eq("6.1.26.1.a"));
         verify(busService, times(2))
                                     .collectNonOnRequestPGNs(eq(List.of(111, 111, 444)));
-        verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of(111)));
+        verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of(111, 444)));
 
         verify(tableA1Validator).reportExpectedMessages(any(ResultsListener.class));
         packets.forEach(packet -> {
-
+            verify(tableA1Validator).reportNotAvailableSPNs(eq(packet),
+                                                            any(ResultsListener.class),
+                                                            eq("6.1.26.2.a"));
+            verify(tableA1Validator).reportImplausibleSPNValues(eq(packet),
+                                                                any(ResultsListener.class),
+                                                                eq(false),
+                                                                eq("6.1.26.2.d"));
+            verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet),
+                                                                    any(ResultsListener.class),
+                                                                    eq("6.1.26.2.e"));
             verify(tableA1Validator).reportDuplicateSPNs(any(),
                                                          any(ResultsListener.class),
                                                          eq("6.1.26.2.f"));
+            verify(tableA1Validator).reportProvidedButNotSupportedSPNs(eq(packet),
+                                                                       any(ResultsListener.class),
+                                                                       eq("6.1.26.4.a"));
+            verify(tableA1Validator).reportPacketIfNotReported(eq(packet),
+                                                               any(ResultsListener.class),
+                                                               eq(false));
         });
+
+        verify(tableA1Validator).reportImplausibleSPNValues(any(),
+                                                            any(ResultsListener.class),
+                                                            eq(false),
+                                                            eq("6.1.26.2.d"));
         verify(tableA1Validator).reportDuplicateSPNs(any(),
                                                      any(ResultsListener.class),
                                                      eq("6.1.26.6.f"));
