@@ -159,7 +159,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
     }
 
    @Test
-    public void runWithPgnVerification() {
+   public void testRunWithPgnVerification() {
         // SPNs
         // 111 - Broadcast with value
         // 222 - Not Broadcast not found
@@ -560,7 +560,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void runWithInterruptedExceptionToForcePacketStreamClose() {
+    public void testInterruptedExceptionToForcePacketStreamClose() {
         // SPNs
         // 111 - Broadcast with value
         // 444 - DS with value
@@ -663,7 +663,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void runWithUiInterruption() {
+    public void runWithUiInterruptionFailure() {
         // SPNs
         // 111 - Broadcast with value
         // 444 - DS with value
