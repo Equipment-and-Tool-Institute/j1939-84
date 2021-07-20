@@ -25,6 +25,9 @@ public class VehicleIdentificationPacket extends GenericPacket {
         super(packet);
     }
 
+    public static VehicleIdentificationPacket create(int source, String vin) {
+        return new VehicleIdentificationPacket(Packet.create(PGN, source, vin.getBytes()));
+    }
     /**
      * Returns the data, if any, that exist beyond the asterisk
      * NOTE: this is not defined in an SAE Document as a valid SPN
