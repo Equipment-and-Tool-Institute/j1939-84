@@ -29,14 +29,12 @@ public class StringUtils {
      * @param string String to be checked for non-printable ASCII characters
      */
     public static boolean containsNonPrintableAsciiCharacter(byte[] bytes) {
-        boolean containsNonPrintableChar = false;
-
         for (int i = 0; i < bytes.length; i++) {
             if ((bytes[i] > 32) || (bytes[i] < 127)) {
-                containsNonPrintableChar = true;
+                return true;
             }
         }
-        return containsNonPrintableChar;
+        return false;
     }
 
     /*
