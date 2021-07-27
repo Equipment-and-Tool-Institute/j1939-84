@@ -54,6 +54,50 @@ public class StringUtilsTest {
         byte[] inputBytes = { (byte) 0x00, (byte) 0x01 };
         assertTrue(StringUtils.containsNonPrintableAsciiCharacter(inputBytes));
 
+        // Legit Hex values between 0x20 and 0x7F
+        byte[] inputBytesWithoutNonPrintableChar = { 0x5D,
+                0x3F,
+                0x6F,
+                0x60,
+                0x50,
+                0x42,
+                0x54,
+                0x75,
+                0x4D,
+                0x50,
+                0x52,
+                0x5F,
+                0x4B,
+                0x6A,
+                0x67,
+                0x69,
+                0x59,
+                0x76,
+                0x45,
+                0x7A };
+        assertFalse(StringUtils.containsNonPrintableAsciiCharacter(inputBytesWithoutNonPrintableChar));
+
+        byte[] inputBytesWithNonPrintableChar = { 0x5D,
+                0x3F,
+                0x6F,
+                0x60,
+                0x50,
+                0x42,
+                0x54,
+                0x75,
+                0x4D,
+                0x50,
+                0x52,
+                0x5F,
+                0x4B,
+                0x6A,
+                0x1B,  // unprintable character
+                0x69,
+                0x59,
+                0x76,
+                0x45,
+                0x7A };
+        assertTrue(StringUtils.containsNonPrintableAsciiCharacter(inputBytesWithNonPrintableChar));
     }
 
     @Test
@@ -67,6 +111,5 @@ public class StringUtilsTest {
 
         String inputStringAndNumbers = "01V#3845S58A957";
         assertFalse(StringUtils.containsOnlyNumericAsciiCharacters(inputStringAndNumbers));
-
     }
 }

@@ -30,7 +30,7 @@ public class StringUtils {
      */
     public static boolean containsNonPrintableAsciiCharacter(byte[] bytes) {
         for (int i = 0; i < bytes.length; i++) {
-            if ((bytes[i] > 32) || (bytes[i] < 127)) {
+            if ((Byte.toUnsignedInt(bytes[i]) < 32) || (Byte.toUnsignedInt(bytes[i]) > 127)) {
                 return true;
             }
         }
