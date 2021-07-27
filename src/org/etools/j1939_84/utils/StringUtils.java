@@ -26,6 +26,18 @@ public class StringUtils {
     }
 
     /*
+     * @param string String to be checked for non-printable ASCII characters
+     */
+    public static boolean containsNonPrintableAsciiCharacter(byte[] bytes) {
+        for (int i = 0; i < bytes.length; i++) {
+            if ((Byte.toUnsignedInt(bytes[i]) < 32) || (Byte.toUnsignedInt(bytes[i]) > 127)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /*
      * @param string String to be checked for non-numeric ASCII characters
      */
     public static boolean containsOnlyNumericAsciiCharacters(String string) {
