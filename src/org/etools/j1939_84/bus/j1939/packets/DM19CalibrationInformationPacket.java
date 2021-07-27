@@ -5,7 +5,6 @@ package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -138,7 +137,7 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
         private final byte[] rawCalId;
         private final byte[] rawCvn;
 
-        public CalibrationInformation(String calId, String cvn) {
+        public CalibrationInformation(String calId, String cvn, byte[] rawCalId, byte[] rawCvn) {
             if (calId.length() > 15) {
                 calibrationIdentification = calId.substring(0, 14);
             } else if (calId.length() < 15) {
@@ -155,13 +154,6 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
                 calibrationVerificationNumber = cvn;
             }
 
-            rawCalId = calibrationIdentification.getBytes(StandardCharsets.UTF_8);
-            rawCvn = calibrationVerificationNumber.getBytes(StandardCharsets.UTF_8);
-        }
-
-        public CalibrationInformation(String id, String cvn, byte[] rawCalId, byte[] rawCvn) {
-            calibrationIdentification = id;
-            calibrationVerificationNumber = cvn;
             this.rawCalId = Arrays.copyOf(rawCalId, rawCalId.length);
             this.rawCvn = Arrays.copyOf(rawCvn, rawCvn.length);
         }
