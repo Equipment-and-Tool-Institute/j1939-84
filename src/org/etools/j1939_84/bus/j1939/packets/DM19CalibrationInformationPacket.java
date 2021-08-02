@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import static java.util.Arrays.fill;
 import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
@@ -25,9 +26,18 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
     public static DM19CalibrationInformationPacket create(int address,
                                                           int destination,
                                                           CalibrationInformation... calInfos) {
-        byte[] data = new byte[0];
+        // DM19 are 20 bytes long
+        byte[] data = new byte[20];
+
         for (CalibrationInformation calInfo : calInfos) {
-            data = CollectionUtils.join(data, calInfo.getBytes());
+            // Correctly pad (using 0x00) the message to the required 20 bytes with zeros
+            int numBytes = calInfo.getBytes().length;
+            if (numBytes >= 20) {
+                data = Arrays.copyOf(calInfo.getBytes(), 20);
+            } else {
+                data = Arrays.copyOf(calInfo.getBytes(), 20);
+                fill(data, numBytes + 1, 20, (byte) 0x00);
+            }
         }
         return new DM19CalibrationInformationPacket(Packet.create(PGN | destination, address, data));
     }
@@ -44,7 +54,7 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
      * @return List of {@link CalibrationInformation}
      */
     public List<CalibrationInformation> getCalibrationInformation() {
-        if (info == null) {
+        if (info == null || info.size() == 0) {
             info = parseAllInformation();
         }
         return info;
@@ -137,23 +147,30 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
         private final byte[] rawCalId;
         private final byte[] rawCvn;
 
-        public CalibrationInformation(String calId, String cvn, byte[] rawCalId, byte[] rawCvn) {
-            if (calId.length() > 15) {
-                calibrationIdentification = calId.substring(0, 14);
-            } else if (calId.length() < 15) {
-                calibrationIdentification = String.format("%1$15s", calId);
+        public CalibrationInformation(String calId, String cvn) {
+
+            if (calId.length() >= 17) {
+                calibrationIdentification = calId.substring(0, 16);
             } else {
-                calibrationIdentification = calId;
+                // pad correctly with hex value of 0x00
+                calibrationIdentification = String.format("%0$-16s", calId).replace(' ', (char) 0x00);
             }
 
-            if (cvn.length() > 4) {
-                calibrationVerificationNumber = cvn.substring(0, 3);
-            } else if (cvn.length() < 4) {
-                calibrationVerificationNumber = String.format("%1$15s", cvn);
+            if (cvn.length() >= 5) {
+                calibrationVerificationNumber = cvn.substring(0, 4);
             } else {
-                calibrationVerificationNumber = cvn;
+                // pad correctly with hex value of 0x00
+                calibrationVerificationNumber = String.format("%0$-4s", cvn).replace(' ', (char) 0x00);
             }
 
+            rawCalId = calibrationIdentification.getBytes();
+            rawCvn = calibrationVerificationNumber.getBytes();
+
+        }
+
+        public CalibrationInformation(String id, String cvn, byte[] rawCalId, byte[] rawCvn) {
+            calibrationIdentification = id;
+            calibrationVerificationNumber = cvn;
             this.rawCalId = Arrays.copyOf(rawCalId, rawCalId.length);
             this.rawCvn = Arrays.copyOf(rawCvn, rawCvn.length);
         }
@@ -175,7 +192,7 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
         }
 
         public byte[] getBytes() {
-            return CollectionUtils.join(rawCalId, rawCvn);
+            return CollectionUtils.join(Arrays.copyOf(rawCvn, rawCvn.length), Arrays.copyOf(rawCalId, rawCalId.length));
         }
 
         @Override
