@@ -73,13 +73,14 @@ public class ParsedPacket {
      * @return       {@link String}
      */
     protected static String format(byte[] bytes) {
-        for (int i = 0; i < bytes.length; i++) {
-            int chr = bytes[i] & 0xFF;
+        byte[] localBytes = Arrays.copyOf(bytes, bytes.length);
+        for (int i = 0; i < localBytes.length; i++) {
+            int chr = localBytes[i] & 0xFF;
             if ((chr < 0x20) || ((chr > 0x7F) && (chr < 0xA0))) {
-                bytes[i] = ' ';
+                localBytes[i] = ' ';
             }
         }
-        return new String(bytes, StandardCharsets.ISO_8859_1);
+        return new String(localBytes, StandardCharsets.ISO_8859_1);
     }
 
     /**
