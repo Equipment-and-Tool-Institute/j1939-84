@@ -6,6 +6,7 @@ package org.etools.j1939_84.bus.j1939.packets;
 import static java.util.Arrays.fill;
 import static org.etools.j1939_84.J1939_84.NL;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -163,8 +164,8 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
                 calibrationVerificationNumber = String.format("%0$-4s", cvn).replace(' ', (char) 0x00);
             }
 
-            rawCalId = calibrationIdentification.getBytes();
-            rawCvn = calibrationVerificationNumber.getBytes();
+            rawCalId = calibrationIdentification.getBytes(StandardCharsets.UTF_8);
+            rawCvn = calibrationVerificationNumber.getBytes(StandardCharsets.UTF_8);
 
         }
 
