@@ -108,7 +108,7 @@ public class Part01Step07Controller extends StepController {
                          for (CalibrationInformation calInfo : p.getCalibrationInformation()) {
                              String calId = calInfo.getCalibrationIdentification();
                              String cvn = calInfo.getCalibrationVerificationNumber();
-                             if (calId.isEmpty() || cvn.isEmpty()) {
+                             if (calId.trim().isEmpty() || cvn.trim().isEmpty()) {
                                  return true;
                              }
                          }
@@ -124,8 +124,8 @@ public class Part01Step07Controller extends StepController {
                      .filter(p -> !isObdModule(p.getSourceAddress()))
                      .filter(p -> {
                          for (CalibrationInformation calInfo : p.getCalibrationInformation()) {
-                             String calId = calInfo.getCalibrationIdentification();
-                             String cvn = calInfo.getCalibrationVerificationNumber();
+                             String calId = calInfo.getCalibrationIdentification().trim();
+                             String cvn = calInfo.getCalibrationVerificationNumber().trim();
                              if (calId.isEmpty() || cvn.isEmpty()) {
                                  return true;
                              }
@@ -143,10 +143,10 @@ public class Part01Step07Controller extends StepController {
         for (DM19CalibrationInformationPacket packet : globalPackets) {
             List<CalibrationInformation> calInfoList = packet.getCalibrationInformation();
             for (CalibrationInformation calInfo : calInfoList) {
+                byte[] calId = calInfo.getRawCalId();
                 boolean isObdModule = isObdModule(packet.getSourceAddress());
-                String calId = calInfo.getCalibrationIdentification();
 
-                if (StringUtils.containsNonPrintableAsciiCharacter(calId)) {
+                if (calId != null && calId.length > 0 && StringUtils.containsNonPrintableAsciiCharacter(calId)) {
                     String moduleName = packet.getModuleName();
                     if (isObdModule) {
                         addFailure("6.1.7.2.b.ii - " + moduleName
@@ -158,19 +158,14 @@ public class Part01Step07Controller extends StepController {
                 }
 
                 byte[] rawCalId = calInfo.getRawCalId();
-                boolean paddingStarted = false;
-                for (byte val : rawCalId) {
-                    if (val == 0) {
-                        paddingStarted = true;
-                    } else if (paddingStarted) {
-                        String moduleName = packet.getModuleName();
-                        if (isObdModule(packet.getSourceAddress())) {
-                            addFailure("6.1.7.2.b.ii - " + moduleName
-                                    + " CAL ID not formatted correctly (padded incorrectly)");
-                        } else {
-                            addWarning("6.1.7.3.c.iii - " + moduleName
-                                    + " CAL ID not formatted correctly (padded incorrectly)");
-                        }
+                if (rawCalId != null && rawCalId.length > 0 && rawCalId[0] == (byte) 0x00) {
+                    String moduleName = packet.getModuleName();
+                    if (isObdModule(packet.getSourceAddress())) {
+                        addFailure("6.1.7.2.b.ii - " + moduleName
+                                + " CAL ID not formatted correctly (padded incorrectly)");
+                    } else {
+                        addWarning("6.1.7.3.c.iii - " + moduleName
+                                + " CAL ID not formatted correctly (padded incorrectly)");
                     }
                 }
             }
@@ -213,7 +208,7 @@ public class Part01Step07Controller extends StepController {
                     if (isObdModule(packet.getSourceAddress())) {
                         addFailure("6.1.7.2.b.iii - Received CVN is all 0x00 from " + moduleName);
                     } else {
-                        addFailure("6.1.7.3.c.iv Received CVN is all 0x00 from " + moduleName);
+                        addFailure("6.1.7.3.c.iv Received CVN that is all 0x00 from " + moduleName);
                     }
                 }
             }
