@@ -10,6 +10,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -71,9 +72,18 @@ public class Part01Step08Controller extends StepController {
         globalDM20s.forEach(this::save);
 
         // 6.1.8.2.a. Fail if minimum expected SPNs are not supported (in the aggregate response for the vehicle)
-        // per section A.4, Criteria for Monitor Performance Ratio Evaluation.
+        // per section A.4. When a numerator and denominator are provided as FFFF(h) and FFFF(h), the monitor identified
+        // in the label SPN shall be considered to be unsupported.
         Set<Integer> dm20Spns = globalDM20s.stream()
                                            .flatMap(dm20 -> dm20.getRatios().stream())
+                                           .peek(dm20 -> {
+                                               if (dm20.getNumerator() == 0xFF &&
+                                                       dm20.getDenominator() == 0xFF) {
+                                                   addFailure("6.1.8.2.a - "
+                                                           + (Lookup.getAddressName(dm20.getSourceAddress())
+                                                                   + " numerator and denominator are provided as 0xFFFF(h)"));
+                                               }
+                                           })
                                            .map(PerformanceRatio::getSpn)
                                            .collect(Collectors.toSet());
 
@@ -107,5 +117,4 @@ public class Part01Step08Controller extends StepController {
             addFailure(msg);
         }
     }
-
 }
