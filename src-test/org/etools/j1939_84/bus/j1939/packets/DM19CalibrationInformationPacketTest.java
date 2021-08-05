@@ -152,7 +152,7 @@ public class DM19CalibrationInformationPacketTest {
     public void testCalIdLengthGreaterThanSixteen() {
         CalibrationInformation calInfo = new CalibrationInformation("GreaterThan16Chars", "1234");
         DM19CalibrationInformationPacket instance = DM19CalibrationInformationPacket.create(0, 0, calInfo);
-        assertNotNull(calInfo);
+        assertNotNull(instance.getCalibrationInformation());
         assertEquals("GreaterThan16Char", calInfo.getCalibrationIdentification());
         assertEquals("1234", calInfo.getCalibrationVerificationNumber());
 
