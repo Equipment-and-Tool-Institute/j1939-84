@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
-import static java.util.Arrays.fill;
 import static org.etools.j1939_84.J1939_84.NL;
 
 import java.nio.charset.StandardCharsets;
@@ -36,8 +35,8 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
             if (numBytes >= 20) {
                 data = Arrays.copyOf(calInfo.getBytes(), 20);
             } else {
-                data = Arrays.copyOf(calInfo.getBytes(), 20);
-                fill(data, numBytes + 1, 20, (byte) 0x00);
+                // MSB of a 20 byte message is padded MSB to MSB of short message
+                data = Arrays.copyOf(calInfo.getBytes(), calInfo.getBytes().length);
             }
         }
         return new DM19CalibrationInformationPacket(Packet.create(PGN | destination, address, data));
@@ -125,8 +124,8 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
     private CalibrationInformation parseInformation(int startingIndex) {
         String cvn = String.format("%08X", getPacket().get32(startingIndex) & 0xFFFFFFFFL);
         byte[] bytes = getPacket().getBytes();
-        byte[] cvnBytes = Arrays.copyOfRange(bytes, startingIndex, startingIndex + 3);
-        byte[] idBytes = Arrays.copyOfRange(bytes, startingIndex + 4, startingIndex + 20);
+        byte[] cvnBytes = Arrays.copyOfRange(bytes, startingIndex, startingIndex + 4);
+        byte[] idBytes = Arrays.copyOfRange(bytes, startingIndex + 4, startingIndex + 16);
         String calId = format(idBytes);
         if (!cvn.isEmpty()) {
             cvn = "0x" + cvn;
@@ -151,16 +150,14 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
         public CalibrationInformation(String calId, String cvn) {
 
             if (calId.length() >= 17) {
-                calibrationIdentification = calId.substring(0, 16);
+                calibrationIdentification = calId.substring(0, 17);
             } else {
-                // pad correctly with hex value of 0x00
                 calibrationIdentification = String.format("%0$-16s", calId).replace(' ', (char) 0x00);
             }
 
             if (cvn.length() >= 5) {
-                calibrationVerificationNumber = cvn.substring(0, 4);
+                calibrationVerificationNumber = cvn.substring(0, 5);
             } else {
-                // pad correctly with hex value of 0x00
                 calibrationVerificationNumber = String.format("%0$-4s", cvn).replace(' ', (char) 0x00);
             }
 
