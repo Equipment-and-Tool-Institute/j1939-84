@@ -148,6 +148,14 @@ public class DiagnosticMessageModule extends FunctionalModule {
         return getJ1939().requestForAcks(listener, title, DM11ClearActiveDTCsPacket.PGN, address);
     }
 
+    public List<AcknowledgmentPacket> requestDM11(ResultsListener listener, long timeOut, TimeUnit timeUnit) {
+        return getJ1939().requestForAcks(listener,
+                                         "Global DM11 Request",
+                                         DM11ClearActiveDTCsPacket.PGN,
+                                         timeOut,
+                                         timeUnit);
+    }
+
     public RequestResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener) {
         return requestDMPackets("DM12", DM12MILOnEmissionDTCPacket.class, GLOBAL_ADDR, listener);
     }

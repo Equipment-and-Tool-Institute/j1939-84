@@ -5,6 +5,8 @@ package org.etools.j1939_84.bus.simulated;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.create;
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.ACK;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.AC_SYSTEM_REFRIGERANT;
 import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.BOOST_PRESSURE_CONTROL_SYS;
@@ -44,12 +46,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
@@ -96,6 +99,7 @@ import org.etools.j1939_84.model.SpnFmi;
 public class Engine implements AutoCloseable {
     private static final Charset A_UTF8 = StandardCharsets.UTF_8;
     private final static int ADDR = 0x00;
+    private static final int BUS_ADDR = 0xA5;
     private static final byte[] COMPONENT_ID = "INT*570261221315646M13*570HM2U3545277**".getBytes(A_UTF8);
     private static final byte[] DISTANCE = to4Bytes(256345L * 8); // km
 
@@ -261,7 +265,7 @@ public class Engine implements AutoCloseable {
 
         // DM3
         sim.response(p -> isRequestFor(DM3DiagnosticDataClearPacket.PGN, p),
-                     p -> AcknowledgmentPacket.create(ADDR,
+                     p -> create(ADDR,
                                                       NACK,
                                                       0,
                                                       p.getSource(),
@@ -288,6 +292,27 @@ public class Engine implements AutoCloseable {
                                                              pendingDTCs.toArray(new DiagnosticTroubleCode[0]))
                                                      .getPacket());
 
+        // DM11
+        sim.response(p -> isRequestFor(DM11ClearActiveDTCsPacket.PGN, p),
+                     p -> {
+                         new Timer().schedule(new TimerTask() {
+                             @Override
+                             public void run() {
+                                 sim.sendNow(create(ADDR,
+                                                    NACK,
+                                                    0,
+                                                    p.getSource(),
+                                                    DM11ClearActiveDTCsPacket.PGN).getPacket());
+                             }
+                         }, 4800);
+
+                         return create(0x85,
+                                       ACK,
+                                       0,
+                                       p.getSource(),
+                                       DM11ClearActiveDTCsPacket.PGN).getPacket();
+                     });
+
         // DM11 Global Request
         sim.response(p -> (p.getId(0xFFFF) == 0xEAFF) && p.get24(0) == DM11ClearActiveDTCsPacket.PGN,
                      p -> {
@@ -302,7 +327,7 @@ public class Engine implements AutoCloseable {
 
         // DM11 DS Request
         sim.response(p -> p.getId(0xFFFF) == (0xEA00 | Engine.ADDR) && p.get24(0) == DM11ClearActiveDTCsPacket.PGN,
-                     p -> AcknowledgmentPacket.create(ADDR, NACK, 0, p.getSource(), DM11ClearActiveDTCsPacket.PGN)
+                     p -> create(ADDR, NACK, 0, p.getSource(), DM11ClearActiveDTCsPacket.PGN)
                                               .getPacket());
 
         // DM12
