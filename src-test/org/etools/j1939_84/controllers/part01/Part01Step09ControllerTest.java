@@ -34,6 +34,8 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.testdoc.TestDoc;
+import org.etools.testdoc.TestItem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -169,7 +171,16 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         assertEquals(0, instance.getTotalSteps());
     }
 
+    /**
+     * Test module responds with correct ComponentIdentificationPacket to global
+     * request: destination specific requests returns a bus result without a packet
+     * and retries marked false (not used)
+     */
     @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.9.2.a", description = "Fail if there are no positive responses (serial number SP 588 not supported by any OBD ECU)."),
+            @TestItem(verifies = "6.1.9.2.b", description = "Fail if none of the positive responses are provided by the same SA as the SA that claims to be function 0 (engine).  (SP 588 ESN not supported by the engine function)."),
+            @TestItem(verifies = "6.1.9.5.b", description = "Fail if the global response does not match the destination specific response from function 0.") })
     public void testDestinationSpecificPacketsEmpty() {
         ComponentIdentificationPacket packet = create(0x00,
                                                       "BatMan",
@@ -207,7 +218,14 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
+    /**
+     * Test module responds with correct ComponentIdentificationPacket to global
+     * request: destination specific requests returns a packet marked
+     * with global support marked false (not used)
+     */
     @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.9.6.a", description = "Warn if Component ID not supported for the global query in 6.1.9.4, when supported by destination specific query.") })
     public void testDestinationSpecificSupportWithoutGlobalSupport() {
         ComponentIdentificationPacket packet0 = create(0,
                                                        "BatMa",
@@ -246,7 +264,13 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
+    /**
+     * Test module returns empty ComponentIdentificationPacket to global request:
+     * destination specific requests returns a good response
+     */
     @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.9.5.b", description = "Fail if the global response does not match the destination specific response from function 0.") })
     public void testGlobalRequestDoesNotMatchDestinationSpecificRequest() {
         ComponentIdentificationPacket packet1 = create(0,
                                                        "Bat",
@@ -285,7 +309,16 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
+    /**
+     * Test module responds with correct ComponentIdentificationPacket to global
+     * request: destination specific requests yields a good response
+     */
     @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.9.1.a", description = "Destination Specific (DS) Component ID request (PGNPG 59904) for PGNPG 65259 (SPs 586, 587, and 588) to each OBD ECU."),
+            @TestItem(verifies = "6.1.9.1.b", description = "Display each positive return in the log."),
+            @TestItem(verifies = "6.1.9.4.a", description = "Global Component ID request (PGNPG 59904) for PGNPG 65259 (SPs 586, 587, and 588)."),
+            @TestItem(verifies = "6.1.9.4.b", description = "Display each positive return in the log.") })
     public void testHappyPath() {
         ComponentIdentificationPacket packet0x00 = create(0,
                                                           "Bat",
@@ -361,7 +394,14 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         assertEquals(List.of(), listener.getOutcomes());
     }
 
+    /**
+     * Test module responds with correct ComponentIdentificationPacket to global
+     * request: destination specific requests yields a good response
+     */
     @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.9.2.c", description = "Destination Specific (DS) Component ID request (PGNPG 59904) for PGNPG 65259 (SPs 586, 587, and 588) to each OBD ECU."),
+            @TestItem(verifies = "6.1.9.3.a", description = "Display each positive return in the log.") })
     public void testFailureWithNullSerialNumber() {
         var dataPacket = Packet.create(ComponentIdentificationPacket.PGN,
                                        0,
@@ -438,7 +478,13 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                         "6.1.9.3.a - Serial number field (SP 588) from Engine #1 (0) is less than eight characters long");
     }
 
+    /**
+     * Test module responds with ComponentIdentificationPacket with unprintable char in make to global
+     * request: destination specific requests yields a same response
+     */
     @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.9.2.d", description = "Fail if the make (SP 586), model (SP 587), or serial number (SP 588) from any OBD ECU contains any unprintable ASCII characters.") })
     public void testMakeContainsNonPrintableAsciiCharacterFailure() {
         char unprintableAsciiLineFeed = 0x0A;
         ComponentIdentificationPacket packet = create(0,
@@ -461,7 +507,6 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
                                                                                    .thenReturn(BusResult.of(packet));
-
         runTest();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D_MAKE);
@@ -474,7 +519,13 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
+    /**
+     * Test module responds with ComponentIdentificationPacket which has make field longer than five char to global
+     * request: destination specific requests yields a same response
+     */
     @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.9.3.b", description = "Warn if the make field (SP 586) is longer than five(5) ASCII characters.") })
     public void testMakeFieldMoreThanFiveCharacters() {
 
         ComponentIdentificationPacket packet = create(0,
@@ -510,42 +561,55 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
+    // /**
+    // * Test module responds with ComponentIdentificationPacket which has make field longer than five char to global
+    // * request: destination specific requests yields a same response
+    // */
+    // @Test
+    // @TestDoc(value = {
+    // @TestItem(verifies = "6.1.9.3.b", description = "Warn if the make field (SP 586) is longer than five(5) ASCII
+    // characters.") })
+    // public void testMakeFiveCharactersWarning() {
+    // ComponentIdentificationPacket packet = create(0,
+    // "BatMan",
+    // "TheBatCave",
+    // "ST109823456",
+    // "");
+    //
+    // OBDModuleInformation obdModule = createOBDModuleInformation(0x00,
+    // 0,
+    // "BatMan",
+    // "TheBatCave",
+    // "ST109823456",
+    // "Land");
+    //
+    // dataRepository.putObdModule(obdModule);
+    //
+    // when(vehicleInformationModule.requestComponentIdentification(any()))
+    // .thenReturn(RequestResult.of(packet));
+    //
+    // when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+    // .thenReturn(BusResult.of(packet));
+    //
+    // runTest();
+    //
+    // verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
+    //
+    // verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
+    // verify(vehicleInformationModule).requestComponentIdentification(any());
+    //
+    // // Verify the documentation was recorded correctly
+    // assertEquals("", listener.getMessages());
+    // assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
+    // }
+
+    /**
+     * Test module responds with ComponentIdentificationPacket which has make field less than two char to global
+     * request: destination specific requests yields a same response
+     */
     @Test
-    public void testMakeFiveCharactersWarning() {
-        ComponentIdentificationPacket packet = create(0,
-                                                      "BatMan",
-                                                      "TheBatCave",
-                                                      "ST109823456",
-                                                      "");
-
-        OBDModuleInformation obdModule = createOBDModuleInformation(0x00,
-                                                                    0,
-                                                                    "BatMan",
-                                                                    "TheBatCave",
-                                                                    "ST109823456",
-                                                                    "Land");
-
-        dataRepository.putObdModule(obdModule);
-
-        when(vehicleInformationModule.requestComponentIdentification(any()))
-                                                                            .thenReturn(RequestResult.of(packet));
-
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
-                                                                                   .thenReturn(BusResult.of(packet));
-
-        runTest();
-
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
-
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).requestComponentIdentification(any());
-
-        // Verify the documentation was recorded correctly
-        assertEquals("", listener.getMessages());
-        assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
-    }
-
-    @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.9.3.c", description = "Warn if the make field (SP 586) is less than two(2) ASCII characters.") })
     public void testMakeLessTwoAsciiCharactersWarning() {
         ComponentIdentificationPacket packet = create(0,
                                                       "B",
@@ -580,10 +644,15 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
+    /**
+     * Test module responds with ComponentIdentificationPacket with model field which has an unprintable ASCII char
+     * in it to global request: destination specific requests yields a same response
+     */
     @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.9.2.d", description = "Fail if the make (SP 586), model (SP 587), or serial number (SP 588) from any OBD ECU contains any unprintable ASCII characters.") })
     public void testModelContainsNonPrintableAsciiCharacterFailure() {
-        // char unprintableAsciiNull = 0x0;
-        char unprintableAsciiCarriageReturn = 0xD;// 0xD;
+        char unprintableAsciiCarriageReturn = 0xD;
         String model = unprintableAsciiCarriageReturn + "TheBatCave";
         ComponentIdentificationPacket packet = create(0x00,
                                                       "Bat",
@@ -617,7 +686,13 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
+    /**
+     * Test module responds with ComponentIdentificationPacket with model field with less than one char
+     * in it to global request: destination specific requests yields a same response
+     */
     @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.9.3.d", description = "Warn if the model field (SP 587) is less than one1 character long.") })
     public void testModelLessThanOneCharactersWarning() {
         ComponentIdentificationPacket packet = create(0,
                                                       "Bat",
@@ -652,7 +727,13 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
+    /**
+     * Test module responds with empty bus result to global request:
+     * destination specific requests yields a good response
+     */
     @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.9.5.a", description = "Fail if there is no positive response from function 0. (Global request not supported or timed out.)") })
     public void testPacketsEmptyFailureGlobalRequest() {
         ComponentIdentificationPacket packet = create(0,
                                                       "Bat",
@@ -686,7 +767,13 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
+    /**
+     * Test module responds with ComponentIdentificationPacket with serial number field with that contains an
+     * unprintable ASCII char to global request: destination specific requests yields a same response
+     */
     @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.9.5.a", description = "Fail if there is no positive response from function 0. (Global request not supported or timed out.)") })
     public void testSerialNumberContainsAsciiNonPrintableCharacterFailure() {
         char unprintableAsciiNull = 0x0;
         String serialNumber = "ST" + unprintableAsciiNull + "109823456";
@@ -777,7 +864,13 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
+    /**
+     * Test module responds with ComponentIdentificationPacket with serial number field with less than 8 chars
+     * in it to global request: destination specific requests yields a same response
+     */
     @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.9.3.a", description = "Warn if the serial number field (SP 588) from any function 0 device is less than eight(8) characters long.") })
     public void testSerialNumberEightCharactersWarning() {
         ComponentIdentificationPacket packet = create(0,
                                                       "Bat",
@@ -812,7 +905,14 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
 
+    /**
+     * Test module responds with ComponentIdentificationPacket with serial number field with non-numeric value in last 5
+     * chars
+     * in it to global request: destination specific requests yields a same response
+     */
     @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.9.2.c", description = "Fail if the serial number field (SP 588) from any function 0 device does not end in 5 numeric characters(ASCII 0 through ASCII 9).") })
     public void testSerialNumberEndsWithNonNumericCharacterInLastFiveCharactersFailure() {
         ComponentIdentificationPacket packet = create(0,
                                                       "Bat",
