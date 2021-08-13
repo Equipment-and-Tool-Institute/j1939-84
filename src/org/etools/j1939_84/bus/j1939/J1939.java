@@ -556,16 +556,16 @@ public class J1939 {
         }
     }
 
+    /**
+     * Make a single Global request with standard wait bus read time specified @ 600ms.
+     */
     public List<AcknowledgmentPacket> requestForAcks(ResultsListener listener, String title, int pgn) {
-        listener.onResult("");
-        listener.onResult(getDateTimeModule().getTime() + " " + title);
-        Packet requestPacket = createRequestPacket(pgn, GLOBAL_ADDR);
-        return requestGlobalOnce(pgn, requestPacket, listener)
-                                                              .stream()
-                                                              .flatMap(e -> e.right.stream())
-                                                              .collect(Collectors.toList());
+        return requestForAcks(listener, title, pgn, GLOBAL_TIMEOUT, MILLISECONDS);
     }
 
+    /**
+     * Make a single Global request with wait bus read time specified.
+     */
     public List<AcknowledgmentPacket>
            requestForAcks(ResultsListener listener, String title, int pgn, long timeOut, TimeUnit timeUnit) {
         listener.onResult("");
@@ -577,6 +577,9 @@ public class J1939 {
                                                                                  .collect(Collectors.toList());
     }
 
+    /**
+     * Make a single DS request with no retries.
+     */
     public List<AcknowledgmentPacket> requestForAcks(ResultsListener listener, String title, int pgn, int address) {
         listener.onResult("");
         listener.onResult(getDateTimeModule().getTime() + " " + title);
