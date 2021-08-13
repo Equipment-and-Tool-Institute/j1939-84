@@ -4,6 +4,7 @@
 package org.etools.j1939_84.modules;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
@@ -248,7 +249,8 @@ public class DiagnosticMessageModuleTest {
                 + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        assertEquals(List.of(packet1), instance.requestDM11(listener));
+
+        assertEquals(List.of(packet1), instance.requestDM11(listener, 600, MILLISECONDS));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
@@ -1669,6 +1671,7 @@ public class DiagnosticMessageModuleTest {
         verify(j1939).read(anyLong(), any());
     }
 
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
     public void testRequestDM2DestinationSpecificWithEngine1Response() throws BusException {
         final int pgn = DM2PreviouslyActiveDTC.PGN;

@@ -28,11 +28,11 @@ public class DM19CalibrationInformationPacketTest {
     public void testCalibrationInformationAndToStringWithOne() {
         Packet packet = Packet.create(0,
                                       0,
-                                      0x51,
+                                      0x51,     // CVN
                                       0xBA,
                                       0xFE,
                                       0xBD,
-                                      0x41,
+                                      0x41,         // CALID
                                       0x4E,
                                       0x54,
                                       0x35,
@@ -53,11 +53,11 @@ public class DM19CalibrationInformationPacketTest {
         assertNotNull(calInfos);
         assertEquals(1, calInfos.size());
         CalibrationInformation calInfo = calInfos.get(0);
-        assertEquals("ANT5ASR1        ", calInfo.getCalibrationIdentification());
+        assertEquals("ANT5ASR1    ", calInfo.getCalibrationIdentification());
         assertEquals("0xBDFEBA51", calInfo.getCalibrationVerificationNumber());
-        assertArrayEquals(new byte[] { 65, 78, 84, 53, 65, 83, 82, 49, 32, 32, 0, 0, 0, 0, 0, 0 },
+        assertArrayEquals(new byte[] { 65, 78, 84, 53, 65, 83, 82, 49, 32, 32, 0, 0 },
                           calInfo.getRawCalId());
-        assertArrayEquals(new byte[] { 81, -70, -2 }, calInfo.getRawCvn());
+        assertArrayEquals(new byte[] { 81, -70, -2, -67 }, calInfo.getRawCvn());
 
         String expected = "DM19 from Engine #1 (0): CAL ID of ANT5ASR1 and CVN of 0xBDFEBA51";
         assertEquals(expected, instance.toString());
@@ -92,13 +92,13 @@ public class DM19CalibrationInformationPacketTest {
         assertNotNull(calInfos);
         assertEquals(1, calInfos.size());
         CalibrationInformation calInfo = calInfos.get(0);
-        assertEquals("0123456789012345", calInfo.getCalibrationIdentification());
+        assertEquals("012345678901", calInfo.getCalibrationIdentification());
         assertEquals("0xBDFEBA51", calInfo.getCalibrationVerificationNumber());
-        assertArrayEquals(new byte[] { 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49, 50, 51, 52, 53 },
+        assertArrayEquals(new byte[] { 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49 },
                           calInfo.getRawCalId());
-        assertArrayEquals(new byte[] { 81, -70, -2 }, calInfo.getRawCvn());
+        assertArrayEquals(new byte[] { 81, -70, -2, -67 }, calInfo.getRawCvn());
 
-        String expected = "DM19 from Engine #1 (0): CAL ID of 0123456789012345 and CVN of 0xBDFEBA51";
+        String expected = "DM19 from Engine #1 (0): CAL ID of 012345678901 and CVN of 0xBDFEBA51";
         assertEquals(expected, instance.toString());
     }
 
@@ -106,10 +106,9 @@ public class DM19CalibrationInformationPacketTest {
     public void testCalIdLengthLessThanFifteen() {
         CalibrationInformation calInfo = new CalibrationInformation("LessThan15Char", "1234");
         DM19CalibrationInformationPacket instance = DM19CalibrationInformationPacket.create(0, 0, calInfo);
-        assertNotNull(instance.getCalibrationInformation());
-        System.out.println("Hey " + instance.getCalibrationInformation());
         CalibrationInformation instanceCalInfo = instance.getCalibrationInformation().get(0);
-        assertEquals("LessThan15Char  ", instanceCalInfo.getCalibrationIdentification());
+        assertNotNull(instanceCalInfo);
+        assertEquals("LessThan15Ch", instanceCalInfo.getCalibrationIdentification());
         assertEquals("0x34333231", instanceCalInfo.getCalibrationVerificationNumber());
         assertArrayEquals(new byte[] { 0x4C, 0x65, 0x73, 0x73, 0x54, 0x68, 0x61, 0x6E, 0x31, 0x35, 0x43, 0x68, 0x61,
                 0x72, 0x00, 0x00 },
@@ -123,7 +122,7 @@ public class DM19CalibrationInformationPacketTest {
         DM19CalibrationInformationPacket instance = DM19CalibrationInformationPacket.create(0, 0, calInfo);
         CalibrationInformation instanceCalInfo = instance.getCalibrationInformation().get(0);
         assertNotNull(instanceCalInfo);
-        assertEquals("Equals15Characts", instanceCalInfo.getCalibrationIdentification());
+        assertEquals("Equals15Char", instanceCalInfo.getCalibrationIdentification());
         assertEquals("0x00333231", instanceCalInfo.getCalibrationVerificationNumber());
 
         assertArrayEquals(new byte[] { 0x45, 0x71, 0x75, 0x61, 0x6C, 0x73, 0x31, 0x35, 0x43, 0x68, 0x61, 0x72, 0x61,
@@ -140,25 +139,25 @@ public class DM19CalibrationInformationPacketTest {
                                                                                             calInfo);
         assertNotNull(instance.getCalibrationInformation());
         CalibrationInformation instanceCalInfo = instance.getCalibrationInformation().get(0);
-        assertEquals("Equals15Characs ", instanceCalInfo.getCalibrationIdentification());
+        assertEquals("5Equals15Cha", instanceCalInfo.getCalibrationIdentification());
         assertEquals("0x34333231", instanceCalInfo.getCalibrationVerificationNumber());
 
         assertArrayEquals(new byte[] { 0x45, 0x71, 0x75, 0x61, 0x6C, 0x73, 0x31, 0x35, 0x43, 0x68, 0x61, 0x72, 0x61,
                 0x63, 0x73, 0x00 },
                           calInfo.getRawCalId());
-        assertArrayEquals(new byte[] { 49, 50, 51, 52 }, calInfo.getRawCvn());
+        assertArrayEquals(new byte[] { 49, 50, 51, 52, 53 }, calInfo.getRawCvn());
     }
 
     @Test
     public void testCalIdLengthGreaterThanSixteen() {
         CalibrationInformation calInfo = new CalibrationInformation("GreaterThan16Chars", "1234");
         DM19CalibrationInformationPacket instance = DM19CalibrationInformationPacket.create(0, 0, calInfo);
-        assertNotNull(calInfo);
-        assertEquals("GreaterThan16Cha", calInfo.getCalibrationIdentification());
+        assertNotNull(instance.getCalibrationInformation());
+        assertEquals("GreaterThan16Char", calInfo.getCalibrationIdentification());
         assertEquals("1234", calInfo.getCalibrationVerificationNumber());
 
         assertArrayEquals(new byte[] { 0x47, 0x72, 0x65, 0x61, 0x74, 0x65, 0x72, 0x54, 0x68, 0x61, 0x6E, 0x31, 0x36,
-                0x43, 0x68, 0x61 },
+                0x43, 0x68, 0x61, 0x72 },
                           calInfo.getRawCalId());
         assertArrayEquals(new byte[] { 49, 50, 51, 52 }, calInfo.getRawCvn());
     }
@@ -238,25 +237,25 @@ public class DM19CalibrationInformationPacketTest {
         assertNotNull(calInfos);
         assertEquals(3, calInfos.size());
         CalibrationInformation calInfo1 = calInfos.get(0);
-        assertEquals("ANT5ASR1        ", calInfo1.getCalibrationIdentification());
+        assertEquals("ANT5ASR1    ", calInfo1.getCalibrationIdentification());
         assertEquals("0xBDFEBA51", calInfo1.getCalibrationVerificationNumber());
-        assertArrayEquals(new byte[] { 65, 78, 84, 53, 65, 83, 82, 49, 32, 32, 0, 0, 0, 0, 0, 0 },
+        assertArrayEquals(new byte[] { 65, 78, 84, 53, 65, 83, 82, 49, 32, 32, 0, 0 },
                           calInfo1.getRawCalId());
-        assertArrayEquals(new byte[] { 81, -70, -2 }, calInfo1.getRawCvn());
+        assertArrayEquals(new byte[] { 81, -70, -2, -67 }, calInfo1.getRawCvn());
 
         CalibrationInformation calInfo2 = calInfos.get(1);
-        assertEquals("PBT5MPR3        ", calInfo2.getCalibrationIdentification());
+        assertEquals("PBT5MPR3    ", calInfo2.getCalibrationIdentification());
         assertEquals("0x40DCBF96", calInfo2.getCalibrationVerificationNumber());
-        assertArrayEquals(new byte[] { 80, 66, 84, 53, 77, 80, 82, 51, 0, 0, 0, 0, 0, 0, 0, 0 },
+        assertArrayEquals(new byte[] { 80, 66, 84, 53, 77, 80, 82, 51, 0, 0, 0, 0 },
                           calInfo2.getRawCalId());
-        assertArrayEquals(new byte[] { -106, -65, -36 }, calInfo2.getRawCvn());
+        assertArrayEquals(new byte[] { -106, -65, -36, 64 }, calInfo2.getRawCvn());
 
         CalibrationInformation calInfo3 = calInfos.get(2);
-        assertEquals("RPRBBA10        ", calInfo3.getCalibrationIdentification());
+        assertEquals("RPRBBA10    ", calInfo3.getCalibrationIdentification());
         assertEquals("0x3EB99140", calInfo3.getCalibrationVerificationNumber());
-        assertArrayEquals(new byte[] { 82, 80, 82, 66, 66, 65, 49, 48, 0, 0, 0, 0, 0, 0, 0, 0 },
+        assertArrayEquals(new byte[] { 82, 80, 82, 66, 66, 65, 49, 48, 0, 0, 0, 0 },
                           calInfo3.getRawCalId());
-        assertArrayEquals(new byte[] { 64, -111, -71 }, calInfo3.getRawCvn());
+        assertArrayEquals(new byte[] { 64, -111, -71, 62 }, calInfo3.getRawCvn());
 
         String expected = "DM19 from Engine #1 (0): [" + NL + "  CAL ID of ANT5ASR1 and CVN of 0xBDFEBA51" + NL
                 + "  CAL ID of PBT5MPR3 and CVN of 0x40DCBF96" + NL + "  CAL ID of RPRBBA10 and CVN of 0x3EB99140" + NL
@@ -293,11 +292,11 @@ public class DM19CalibrationInformationPacketTest {
         assertNotNull(calInfos);
         assertEquals(1, calInfos.size());
         CalibrationInformation calInfo = calInfos.get(0);
-        assertEquals("ANT5ASR1        ", calInfo.getCalibrationIdentification());
+        assertEquals("ANT5ASR1    ", calInfo.getCalibrationIdentification());
         assertEquals("0x33FFAC00", calInfo.getCalibrationVerificationNumber());
-        assertArrayEquals(new byte[] { 65, 78, 84, 53, 65, 83, 82, 49, 32, 32, 0, 0, 0, 0, 0, 0 },
+        assertArrayEquals(new byte[] { 65, 78, 84, 53, 65, 83, 82, 49, 32, 32, 0, 0 },
                           calInfo.getRawCalId());
-        assertArrayEquals(new byte[] { 0, -84, -1 }, calInfo.getRawCvn());
+        assertArrayEquals(new byte[] { 0, -84, -1, 51 }, calInfo.getRawCvn());
 
         String expected = "DM19 from Engine #1 (0): CAL ID of ANT5ASR1 and CVN of 0x33FFAC00";
         assertEquals(expected, instance.toString());
@@ -332,11 +331,11 @@ public class DM19CalibrationInformationPacketTest {
         assertNotNull(calInfos);
         assertEquals(1, calInfos.size());
         CalibrationInformation calInfo = calInfos.get(0);
-        assertEquals("12DBB20002      ", calInfo.getCalibrationIdentification());
+        assertEquals("12DBB20002  ", calInfo.getCalibrationIdentification());
         assertEquals("0x0000E5DE", calInfo.getCalibrationVerificationNumber());
-        assertArrayEquals(new byte[] { 49, 50, 68, 66, 66, 50, 48, 48, 48, 50, 0, 0, 0, 0, 0, 0 },
+        assertArrayEquals(new byte[] { 49, 50, 68, 66, 66, 50, 48, 48, 48, 50, 0, 0 },
                           calInfo.getRawCalId());
-        assertArrayEquals(new byte[] { -34, -27, 0 }, calInfo.getRawCvn());
+        assertArrayEquals(new byte[] { -34, -27, 0, 0 }, calInfo.getRawCvn());
 
         String expected = "DM19 from Engine #1 (0): CAL ID of 12DBB20002 and CVN of 0x0000E5DE";
         assertEquals(expected, instance.toString());
@@ -371,11 +370,11 @@ public class DM19CalibrationInformationPacketTest {
         assertNotNull(calInfos);
         assertEquals(1, calInfos.size());
         CalibrationInformation calInfo = calInfos.get(0);
-        assertEquals("ANT5ASR1        ", calInfo.getCalibrationIdentification());
+        assertEquals("ANT5ASR1    ", calInfo.getCalibrationIdentification());
         assertEquals("0x00000000", calInfo.getCalibrationVerificationNumber());
-        assertArrayEquals(new byte[] { 65, 78, 84, 53, 65, 83, 82, 49, 32, 32, 0, 0, 0, 0, 0, 0 },
+        assertArrayEquals(new byte[] { 65, 78, 84, 53, 65, 83, 82, 49, 32, 32, 0, 0 },
                           calInfo.getRawCalId());
-        assertArrayEquals(new byte[] { 0, 0, 0 }, calInfo.getRawCvn());
+        assertArrayEquals(new byte[] { 0, 0, 0, 0 }, calInfo.getRawCvn());
 
         String expected = "DM19 from Engine #1 (0): CAL ID of ANT5ASR1 and CVN of 0x00000000";
         assertEquals(expected, instance.toString());

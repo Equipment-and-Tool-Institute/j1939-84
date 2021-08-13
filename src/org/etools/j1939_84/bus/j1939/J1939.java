@@ -556,16 +556,30 @@ public class J1939 {
         }
     }
 
+    /**
+     * Make a single Global request with standard wait bus read time specified @ 600ms.
+     */
     public List<AcknowledgmentPacket> requestForAcks(ResultsListener listener, String title, int pgn) {
+        return requestForAcks(listener, title, pgn, GLOBAL_TIMEOUT, MILLISECONDS);
+    }
+
+    /**
+     * Make a single Global request with wait bus read time specified.
+     */
+    public List<AcknowledgmentPacket>
+           requestForAcks(ResultsListener listener, String title, int pgn, long timeOut, TimeUnit timeUnit) {
         listener.onResult("");
         listener.onResult(getDateTimeModule().getTime() + " " + title);
         Packet requestPacket = createRequestPacket(pgn, GLOBAL_ADDR);
-        return requestGlobalOnce(pgn, requestPacket, listener)
-                                                              .stream()
-                                                              .flatMap(e -> e.right.stream())
-                                                              .collect(Collectors.toList());
+        return requestGlobalOnce(pgn, requestPacket, listener, timeOut, timeUnit)
+                                                                                 .stream()
+                                                                                 .flatMap(e -> e.right.stream())
+                                                                                 .collect(Collectors.toList());
     }
 
+    /**
+     * Make a single DS request with no retries.
+     */
     public List<AcknowledgmentPacket> requestForAcks(ResultsListener listener, String title, int pgn, int address) {
         listener.onResult("");
         listener.onResult(getDateTimeModule().getTime() + " " + title);
@@ -657,13 +671,24 @@ public class J1939 {
     private <T extends GenericPacket> List<Either<T, AcknowledgmentPacket>> requestGlobalOnce(int pgn,
                                                                                               Packet request,
                                                                                               ResultsListener listener) {
+        return requestGlobalOnce(pgn, request, listener, GLOBAL_TIMEOUT, MILLISECONDS);
+    }
+
+    /**
+     * Request from global only once.
+     */
+    private <T extends GenericPacket> List<Either<T, AcknowledgmentPacket>> requestGlobalOnce(int pgn,
+                                                                                              Packet request,
+                                                                                              ResultsListener listener,
+                                                                                              long timeOut,
+                                                                                              TimeUnit timeUnit) {
         if (request.getDestination() != GLOBAL_ADDR) {
             throw new IllegalArgumentException("Request not to global.");
         }
 
         List<Either<T, AcknowledgmentPacket>> result;
         try {
-            Stream<Packet> stream = read(GLOBAL_TIMEOUT, MILLISECONDS);
+            Stream<Packet> stream = read(timeOut, timeUnit);
             Packet sent = bus.send(request);
             LocalDateTime lateTime;
             if (sent != null) {
