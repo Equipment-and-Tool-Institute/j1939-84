@@ -6,14 +6,12 @@ package org.etools.j1939_84.controllers.part01;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
@@ -69,18 +67,16 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    private static DM20MonitorPerformanceRatioPacket createDM20(List<Integer> ratios) {
-        DM20MonitorPerformanceRatioPacket packet = mock(DM20MonitorPerformanceRatioPacket.class);
+    private static DM20MonitorPerformanceRatioPacket createDM20(int address, List<Integer> ratios) {
 
-        when(packet.getSourceAddress()).thenReturn(0);
+        PerformanceRatio[] performanceRatios = ratios.stream()
+                                                     .map(spn -> new PerformanceRatio(spn, 3, 4, address))
+                                                     .toArray(PerformanceRatio[]::new);
 
-        if (ratios != null) {
-            List<PerformanceRatio> perfRatios = ratios.stream()
-                                                      .map(spn -> new PerformanceRatio(spn, 0, 0, 0))
-                                                      .collect(Collectors.toList());
-            when(packet.getRatios()).thenReturn(perfRatios);
-        }
-
+        DM20MonitorPerformanceRatioPacket packet = DM20MonitorPerformanceRatioPacket.create(address,
+                                                                                            1,
+                                                                                            10,
+                                                                                            performanceRatios);
         return packet;
     }
 
@@ -129,7 +125,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     public void ignitionTypeNotSupported() {
         List<Integer> SPNs = List.of(3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057);
 
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPNs);
 
         when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
@@ -156,7 +152,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     public void minimumExpectedSPNsCompressionIgnition() {
 
         List<Integer> SPNs = List.of(3058, 3064, 5321, 3055);
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPNs);
 
         when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
@@ -188,7 +184,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     public void minimumExpectedSPNsSparkIgnition() {
 
         List<Integer> SPNs = List.of(3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057);
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPNs);
 
         when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
@@ -221,7 +217,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     public void obdModuleNull() {
         List<Integer> SPNs = List.of(5322, 5318, 3058, 3064, 5321, 3055, 4792);
 
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPNs);
 
         when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
@@ -247,7 +243,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         List<Integer> SPNs = List.of(5322, 5318, 3058, 3064, 5321, 3055, 4364);
 
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPNs);
 
         when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
@@ -335,7 +331,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     @TestDoc(value = @TestItem(verifies = "6.1.8.2.a", description = "A.4 - Compression Ignition Engine Minimum SPs Verified: SPN mismatch"))
     public void testNoSpnNPacketsMatch() {
         List<Integer> spns = List.of(5322, 5318, 3058, 3064, 5321, 3055);
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(spns);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, spns);
 
         when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
@@ -366,11 +362,12 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         List<Integer> SPNs = List.of(3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057);
 
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPNs);
 
         when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
+
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.BI_CNG);
@@ -393,8 +390,8 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     public void testAllNumeratorAndDenominatorAllFs() {
         int moduleAddress = 0;
         int spn = 524287;
-        int numerator = Byte.toUnsignedInt((byte) 0xFF);
-        int denominator = Byte.toUnsignedInt((byte) 0xFF);
+        int numerator = Byte.toUnsignedInt((byte) 0xFFFF);
+        int denominator = Byte.toUnsignedInt((byte) 0xFFFF);
         PerformanceRatio performanceRatio = new PerformanceRatio(spn, numerator, denominator, moduleAddress);
 
         DM20MonitorPerformanceRatioPacket dm20 = DM20MonitorPerformanceRatioPacket.create(0, 13, 9, performanceRatio);
@@ -410,10 +407,6 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule).requestDM20(any());
 
-        verify(mockListener).addOutcome(1,
-                                        8,
-                                        FAIL,
-                                        "6.1.8.2.a - Engine #1 (0) numerator and denominator are provided as 0xFFFF(h)");
         verify(mockListener).addOutcome(1,
                                         8,
                                         FAIL,
