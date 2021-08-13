@@ -145,8 +145,7 @@ public class DiagnosticMessageModule extends FunctionalModule {
      */
     @Deprecated
     public List<AcknowledgmentPacket> requestDM11(ResultsListener listener) {
-        final long GLOBAL_TIMEOUT = 600;
-        return requestDM11(listener, GLOBAL_TIMEOUT, MILLISECONDS);
+        return requestDM11(listener, 600, MILLISECONDS);
     }
 
     public List<AcknowledgmentPacket> requestDM11(ResultsListener listener, int address) {
