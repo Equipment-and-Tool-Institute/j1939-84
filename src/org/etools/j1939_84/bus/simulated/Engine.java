@@ -5,7 +5,6 @@ package org.etools.j1939_84.bus.simulated;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.create;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.ACK;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.AC_SYSTEM_REFRIGERANT;
@@ -53,6 +52,7 @@ import java.util.concurrent.TimeUnit;
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
@@ -265,7 +265,7 @@ public class Engine implements AutoCloseable {
 
         // DM3
         sim.response(p -> isRequestFor(DM3DiagnosticDataClearPacket.PGN, p),
-                     p -> create(ADDR,
+                     p -> AcknowledgmentPacket.create(ADDR,
                                                       NACK,
                                                       0,
                                                       p.getSource(),
@@ -298,7 +298,7 @@ public class Engine implements AutoCloseable {
                          new Timer().schedule(new TimerTask() {
                              @Override
                              public void run() {
-                                 sim.sendNow(create(ADDR,
+                                 sim.sendNow(AcknowledgmentPacket.create(ADDR,
                                                     NACK,
                                                     0,
                                                     p.getSource(),
@@ -306,7 +306,7 @@ public class Engine implements AutoCloseable {
                              }
                          }, 4800);
 
-                         return create(0x85,
+                         return AcknowledgmentPacket.create(0x85,
                                        ACK,
                                        0,
                                        p.getSource(),
@@ -327,7 +327,7 @@ public class Engine implements AutoCloseable {
 
         // DM11 DS Request
         sim.response(p -> p.getId(0xFFFF) == (0xEA00 | Engine.ADDR) && p.get24(0) == DM11ClearActiveDTCsPacket.PGN,
-                     p -> create(ADDR, NACK, 0, p.getSource(), DM11ClearActiveDTCsPacket.PGN)
+                     p -> AcknowledgmentPacket.create(ADDR, NACK, 0, p.getSource(), DM11ClearActiveDTCsPacket.PGN)
                                               .getPacket());
 
         // DM12
