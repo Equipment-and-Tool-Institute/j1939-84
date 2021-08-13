@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.modules;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 
@@ -139,8 +140,13 @@ public class DiagnosticMessageModule extends FunctionalModule {
         return requestDMPackets("DM6", DM6PendingEmissionDTCPacket.class, address, listener);
     }
 
+    /*
+     * TODO: Remove when Step 9.8 & 12.9 are updated to match new requirements.
+     */
+    @Deprecated
     public List<AcknowledgmentPacket> requestDM11(ResultsListener listener) {
-        return getJ1939().requestForAcks(listener, "Global DM11 Request", DM11ClearActiveDTCsPacket.PGN);
+        final long GLOBAL_TIMEOUT = 600;
+        return requestDM11(listener, GLOBAL_TIMEOUT, MILLISECONDS);
     }
 
     public List<AcknowledgmentPacket> requestDM11(ResultsListener listener, int address) {
