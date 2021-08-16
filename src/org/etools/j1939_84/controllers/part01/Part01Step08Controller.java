@@ -75,8 +75,10 @@ public class Part01Step08Controller extends StepController {
         // in the label SPN shall be considered to be unsupported.
         Set<Integer> dm20Spns = globalDM20s.stream()
                                            .flatMap(dm20 -> dm20.getRatios().stream())
-                                           .filter(p -> p.getNumerator() == 0xFFFF &&
-                                                   p.getDenominator() == 0xFFFF)
+                                           .filter(p -> {
+                                               return p.getNumerator() != 0xFFFF ||
+                                                       p.getDenominator() != 0xFFFF;
+                                           })
                                            .map(PerformanceRatio::getSpn)
                                            .collect(Collectors.toSet());
 
