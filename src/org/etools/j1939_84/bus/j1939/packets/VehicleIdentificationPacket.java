@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import org.etools.j1939_84.bus.Packet;
@@ -26,7 +27,7 @@ public class VehicleIdentificationPacket extends GenericPacket {
     }
 
     public static VehicleIdentificationPacket create(int source, String vin) {
-        return new VehicleIdentificationPacket(Packet.create(PGN, source, vin.getBytes()));
+        return new VehicleIdentificationPacket(Packet.create(PGN, source, vin.getBytes(StandardCharsets.UTF_8)));
     }
     /**
      * Returns the data, if any, that exist beyond the asterisk
