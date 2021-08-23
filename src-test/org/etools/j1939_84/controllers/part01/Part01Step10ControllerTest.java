@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.ACK;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.BUSY;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
@@ -17,7 +18,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -51,7 +51,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class Part01Step10ControllerTest extends AbstractControllerTest {
 
-    public static final TimeUnit SECONDS = TimeUnit.SECONDS;
     @Mock
     private BannerModule bannerModule;
 
@@ -138,7 +137,7 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestDM11(any(ResultsListener.class),
                                                  eq(5L),
-                                                 eq(TimeUnit.SECONDS))).thenReturn(acknowledgmentPackets);
+                                                 eq(SECONDS))).thenReturn(acknowledgmentPackets);
 
         runTest();
 
