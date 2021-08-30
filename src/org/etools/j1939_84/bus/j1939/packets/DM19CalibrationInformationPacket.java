@@ -31,14 +31,9 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
         byte[] data = new byte[0];
 
         for (CalibrationInformation calInfo : calInfos) {
-            // Correctly cut long message down - message longer than expected are simply truncated
-            int calInfoLength = calInfo.getBytes().length;
-            if (calInfoLength >= totalBytes) {
-                data = Arrays.copyOf(calInfo.getBytes(), totalBytes);
-            } else {
-                // Cal ID is padded at LSB
-                data = Arrays.copyOf(calInfo.getBytes(), totalBytes);
-            }
+            // Correctly pad message - Java pads/cuts to specified length
+            data = Arrays.copyOf(calInfo.getBytes(), totalBytes);
+
         }
         return new DM19CalibrationInformationPacket(Packet.create(PGN | destination, address, data));
     }
