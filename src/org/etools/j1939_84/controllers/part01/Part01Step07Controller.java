@@ -79,8 +79,11 @@ public class Part01Step07Controller extends StepController {
                                            .flatMap(Collection::stream)
                                            .map(CalibrationInformation::getCalibrationIdentification)
                                            .collect(Collectors.toList());
+
         if (calIds.size() < getCalIdCount()) {
             addFailure("6.1.7.2.a - Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units");
+        } else if (calIds.size() > getCalIdCount()) {
+            addWarning("6.1.7.3.a - Total number of reported CAL IDs is > user entered value for number of emission or diagnostic critical control units");
         }
 
         // 6.1.7.3.b - Warn if more than one CAL ID and CVN pair is provided in a single DM19 message.
