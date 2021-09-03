@@ -124,73 +124,141 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                  mockListener);
     }
 
+    /**
+     * Test method for
+     * {@link Part01Step07Controller#getDisplayName()}
+     */
     @Test
     public void testGetDisplayName() {
         assertEquals("Part " + PART_NUMBER + " Step " + STEP_NUMBER, instance.getDisplayName());
     }
 
+    /**
+     * Test method for
+     * {@link Part01Step07Controller#getTotalSteps()}
+     */
     @Test
     public void testGetTotalSteps() {
         assertEquals(0, instance.getTotalSteps());
     }
 
     /**
-     * Test one module responds without issue
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x00<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * good CVN/Cal Id structure</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * good CVN/Cal Id structure</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
      */
     @Test
     @TestDoc(value = {
-            @TestItem(verifies = "6.1.7"),
-            @TestItem(verifies = "6.1.7.1.a"),
-            @TestItem(verifies = "6.1.7.1.b"),
-            @TestItem(verifies = "6.1.7.1.c") }, description = "Global DM19 (send Request (PGN 59904) for PGN 54016 (SPNs 1634 and 1635))"
-                    + "<br>"
-                    + "Create list of ECU address + CAL ID + CVN. [An ECU address may report more than one CAL ID and CVN]"
-                    + "<br>"
-                    + "Display this list in the log. [Note display the CVNs using big endian format and not little endian format as given in the response]")
+            @TestItem(verifies = "6.1.7", description = "DM19: Calibration Information"),
+            @TestItem(verifies = "6.1.7.1.a", description = "Create list of ECU address + CAL ID + CVN. ([An ECU address may report more than one CAL ID and CVN])"),
+            @TestItem(verifies = "6.1.7.1.b", description = "Display this list in the log. ([NOTE: Display the CVNs using big endian format and not little endian format as given in the response.])"),
+            @TestItem(verifies = "6.1.7.4.a", description = "Destination Specific (DS) DM19 to each OBD ECU (plus all ECUs that responded to global DM19)") })
     public void testRunHappyPath() {
-        List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
+        DM19CalibrationInformationPacket dm19 = DM19CalibrationInformationPacket.create(0x00,
+                                                                                        0xF9,
+                                                                                        new CalibrationInformation("SixteenCharacters",
+                                                                                                                   "1234"));
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm19));
 
-        DM19CalibrationInformationPacket dm19 = createDM19(0, "CALID", "1234", 1);
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class), eq(0x00)))
+                                                                                        .thenReturn(BusResult.of(
+                                                                                                                 dm19));
 
-        globalDM19s.add(dm19);
-        when(vehicleInformationModule.requestDM19(any())).thenReturn(globalDM19s);
-
-        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(0x00));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
+        vehicleInformation.setCalIds(dm19.getCalibrationInformation().size());
         dataRepository.setVehicleInformation(vehicleInformation);
-
-        when(vehicleInformationModule.requestDM19(any(), eq(0)))
-                                                                .thenReturn(BusResult.of(
-                                                                                         dm19));
 
         runTest();
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
-        verify(vehicleInformationModule).requestDM19(any());
-        verify(vehicleInformationModule).requestDM19(any(), eq(0));
+        verify(vehicleInformationModule).requestDM19(any(ResultsListener.class));
+        verify(vehicleInformationModule).requestDM19(any(ResultsListener.class), eq(0x00));
 
     }
 
     /**
-     * Test one obd module responds with a CVN count of less than one
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x0E<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * bad CVN/Cal Id structure</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * bad CVN/Cal Id structure</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
      */
     @Test
     @TestDoc(value = {
-            @TestItem(verifies = "6.1.7.2.b.i") }, description = "For responses from OBD ECUs: Fail if <> 1 CVN for every CAL ID.")
+            @TestItem(verifies = "6.1.7.2.b.ii") }, description = "Fail if <> 1 CVN for every CAL ID")
     public void testObdModuleLessThan1CvnFailure() {
-        List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
-
         DM19CalibrationInformationPacket dm19 = new DM19CalibrationInformationPacket(Packet.create(DM19CalibrationInformationPacket.PGN,
                                                                                                    0x0E,
-                                                                                                   0x51,
+                                                                                                   0x51, // CVN
                                                                                                    0xBA,
                                                                                                    0xFE,
                                                                                                    0xBD,
-                                                                                                   0x20,
+                                                                                                   0x20, // Cal Id
                                                                                                    0x20,
                                                                                                    0x20,
                                                                                                    0x20,
@@ -207,15 +275,16 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                                                                                    0x20,
                                                                                                    0x20));
 
-        globalDM19s.add(dm19);
         dataRepository.putObdModule(new OBDModuleInformation(0x0E));
 
-        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(globalDM19s);
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm19));
         when(vehicleInformationModule.requestDM19(any(ResultsListener.class), eq(0x0E)))
                                                                                         .thenReturn(BusResult.of(dm19));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setCalIds(dm19.getCalibrationInformation().size());
         vehicleInformation.setEmissionUnits(1);
+
         dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
@@ -228,20 +297,51 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
-        verify(vehicleInformationModule).requestDM19(any());
-        verify(vehicleInformationModule).requestDM19(any(), eq(0x0E));
+        verify(vehicleInformationModule).requestDM19(any(ResultsListener.class));
+        verify(vehicleInformationModule).requestDM19(any(ResultsListener.class), eq(0x0E));
 
     }
 
     /**
-     * Test one non obd module respond with a CVN count of less than 1
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x0E<br>
+     * non-OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * bad CVN/Cal Id structure</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * bad CVN/Cal Id structure</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
      */
     @Test
     @TestDoc(value = {
-            @TestItem(verifies = "6.1.7.3.c.ii") }, description = "For responses from non-OBD ECUs: Warn if <> 1 CVN for every CAL ID")
+            @TestItem(verifies = "6.1.7.3.c.ii") }, description = "Warn if <> 1 CVN for every CAL ID")
     public void testNonObdModuleLessThan1CvnFailure() {
-        List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
-
         DM19CalibrationInformationPacket dm19 = new DM19CalibrationInformationPacket(Packet.create(DM19CalibrationInformationPacket.PGN,
                                                                                                    0x0E,
                                                                                                    0x51,
@@ -265,14 +365,13 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                                                                                    0x20,
                                                                                                    0x20));
 
-        globalDM19s.add(dm19);
-
-        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(globalDM19s);
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm19));
         when(vehicleInformationModule.requestDM19(any(ResultsListener.class), eq(0x0E)))
                                                                                         .thenReturn(BusResult.of(dm19));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
+        vehicleInformation.setCalIds(dm19.getCalibrationInformation().size());
         dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
@@ -289,18 +388,49 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
-        verify(vehicleInformationModule).requestDM19(any());
-        verify(vehicleInformationModule).requestDM19(any(), eq(0x0E));
+        verify(vehicleInformationModule).requestDM19(any(ResultsListener.class));
+        verify(vehicleInformationModule).requestDM19(any(ResultsListener.class), eq(0x0E));
 
     }
 
     /**
-     * Test no obd module responds
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test no module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">N/A</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">empty DM19
+     * response<br>
+     * saved Cal Ids differ</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">no DM19
+     * response</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
      */
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.7.2.a", description = "Fail if total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units (test 6.1.2)"))
     public void testAmountOfUserEnteredCalIdDiffersReportedAmountFailure() {
-        when(vehicleInformationModule.requestDM19(any())).thenReturn(List.of());
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of());
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setCalIds(5);
@@ -321,22 +451,57 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     }
 
     /**
-     * Test no response to global DM19 request; DS request return good message
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test no module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x00<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">no DM19
+     * response</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * good CVN/Cal Id structure</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
      */
     @Test
     @TestDoc(value = {
             @TestItem(verifies = "6.1.7.5.c", description = "Fail if NACK not received from OBD ECUs that did not respond to global query") })
     public void testNoNacksToGlobalQueryFromObdFailure() {
 
-        DM19CalibrationInformationPacket dm19 = createDM19(0, "CALID", "1234", 1);
+        DM19CalibrationInformationPacket dm19 = DM19CalibrationInformationPacket.create(0x00,
+                                                                                        0xF9,
+                                                                                        new CalibrationInformation("CALID",
+                                                                                                                   "1234"));
 
-        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(0x00));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
         dataRepository.setVehicleInformation(vehicleInformation);
 
-        when(vehicleInformationModule.requestDM19(any(), eq(0)))
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class), eq(0x00)))
                                                                 .thenReturn(BusResult.of(
                                                                                          dm19));
 
@@ -347,32 +512,67 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                         eq(FAIL),
                                         eq("6.1.7.5.c - OBD ECU Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query"));
 
-        verify(vehicleInformationModule).requestDM19(any());
-        verify(vehicleInformationModule).requestDM19(any(), eq(0));
+        verify(vehicleInformationModule).requestDM19(any(ResultsListener.class));
+        verify(vehicleInformationModule).requestDM19(any(ResultsListener.class), eq(0x00));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
     }
 
     /**
-     * Test obd module returns NACK to global query; DS query returns good message
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test no module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x00<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">no DM19 response<br>
+     * stored NACK
+     * response</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * good CVN/Cal Id structure</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
      */
     @Test
     @TestDoc(value = {
             @TestItem(verifies = "6.1.7.5.b", description = "Fail if NACK (PGN 59392) with mode/control byte = 3 (busy) received") })
-    public void testObdRespondsWithBusyDsQueryFailure() {
-        List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
+    public void testObdRespondsWithNackDsQueryFailure() {
+        DM19CalibrationInformationPacket dm19 = DM19CalibrationInformationPacket.create(0x00,
+                                                                                        0xF9,
+                                                                                        new CalibrationInformation("SixteenCharacter",
+                                                                                                                   "1234"));
+        dataRepository.putObdModule(new OBDModuleInformation(0x01));
+        when(vehicleInformationModule.requestDM19(any())).thenReturn(List.of(dm19));
 
-        DM19CalibrationInformationPacket dm19 = createDM19(0, "CALID", "1234", 1);
-        globalDM19s.add(dm19);
-        dataRepository.putObdModule(new OBDModuleInformation(1));
-        when(vehicleInformationModule.requestDM19(any())).thenReturn(globalDM19s);
-
-        AcknowledgmentPacket nack = AcknowledgmentPacket.create(0, NACK);
-        dataRepository.putObdModule(new OBDModuleInformation(0));
+        AcknowledgmentPacket nack = AcknowledgmentPacket.create(0x00, NACK);
+        dataRepository.putObdModule(new OBDModuleInformation(0x00));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
+        vehicleInformation.setCalIds(dm19.getCalibrationInformation().size());
+
         dataRepository.setVehicleInformation(vehicleInformation);
 
         when(vehicleInformationModule.requestDM19(any(ResultsListener.class), eq(0)))
@@ -439,24 +639,61 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     }
 
     /**
-     * Test obd module returns one to global query; DS query returns a different message
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x0B<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19 response<br>
+     * data</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * different data</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
      */
     @Test
     @TestDoc(value = {
-            @TestItem(verifies = "6.1.7.5.b", description = "Compare to ECU address + CAL ID + CVN list created from global DM19 request and fail if any difference") })
+            @TestItem(verifies = "6.1.7.5.a", description = "Compare to ECU address + CAL ID + CVN list created from global DM19 request and fail if any difference") })
     public void testEcuResponseDiffersFromGlobalDm19Failure() {
-        List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
-
         dataRepository.putObdModule(new OBDModuleInformation(0x0B));
-        DM19CalibrationInformationPacket dm190B2 = createDM19(0x0B, "ABCD", "1234", 1);
+        DM19CalibrationInformationPacket dm190B2 = DM19CalibrationInformationPacket.create(0x0B,
+                                                                                           0xF9,
+                                                                                           new CalibrationInformation("SixteenCharacter",
+                                                                                                                      "1234"));
         when(vehicleInformationModule.requestDM19(any(ResultsListener.class),
                                                   eq(0x0B))).thenReturn(BusResult.of(dm190B2));
-        DM19CalibrationInformationPacket dm190B = createDM19(0x0B, "", "1234", 1);
-        globalDM19s.add(dm190B);
-        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(globalDM19s);
+
+        DM19CalibrationInformationPacket dm190B = DM19CalibrationInformationPacket.create(0x0B,
+                                                                                          0xF9,
+                                                                                          new CalibrationInformation("CharacterSixteen",
+                                                                                                                     "1234"));
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm190B));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
+        vehicleInformation.setCalIds(dm190B.getCalibrationInformation().size());
         dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
@@ -477,15 +714,48 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
      * Test non obd module returns a message with CVNs as all zeros to global query;
      * DS query returns same message
      */
+    /**
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x1E<br>
+     * non-OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19 response<br>
+     * data</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * different data</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     @TestDoc(value = {
-            @TestItem(verifies = "6.1.7.3.c.i", description = "For responses from non-OBD ECUs: Warn if any non-OBD ECU provides CAL ID"),
-            @TestItem(verifies = "6.1.7.3.c.iv", description = "Received CVN that is all 0x00") })
+            @TestItem(verifies = "6.1.7.3.c.i", description = "Warn if any non-OBD ECU provides CAL ID"),
+            @TestItem(verifies = "6.1.7.3.c.iv", description = "Warn if any received CAL ID is all 0xFF(h) or any CVN is all 0x00(h)") })
     public void testNonObdModuleCvnAllZerosFailure() {
-        List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
-
         // Module 1E - CalId all 0x00 and CVN all 0x00 as OBD Module
-        Packet packet1E = Packet.create(0,
+        Packet packet1E = Packet.create(DM19CalibrationInformationPacket.PGN,
                                         0x1E,
                                         0x00,
                                         0x00,
@@ -508,12 +778,13 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                         0x44,
                                         0x3B);
         DM19CalibrationInformationPacket dm191E = new DM19CalibrationInformationPacket(packet1E);
+
         when(vehicleInformationModule.requestDM19(any(), eq(0x1E))).thenReturn(BusResult.of(dm191E));
-        globalDM19s.add(dm191E);
-        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(globalDM19s);
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm191E));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
+        vehicleInformation.setCalIds(dm191E.getCalibrationInformation().size());
         dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
@@ -535,17 +806,46 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     }
 
     /**
-     * Test obd module returns a message with CVNs as all 0X00 to global query;
-     * DS query returns same message
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x1E<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19 response<br>
+     * bad CVN - all 0x00</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * bad CVN - all 0x00</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
      */
     @Test
     @TestDoc(value = {
-            @TestItem(verifies = "6.1.7.2.b.iii", description = "For responses from non-OBD ECUs: Warn if any non-OBD ECU provides CAL ID") })
+            @TestItem(verifies = "6.1.7.2.b.iii", description = "Warn if any non-OBD ECU provides CAL ID") })
     public void testObdModuleCvnAllZerosFailure() {
-        List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
-
         // Module 1E - CalId all 0x00 and CVN all 0x00 as OBD Module
-        Packet packet1E = Packet.create(0,
+        Packet packet1E = Packet.create(DM19CalibrationInformationPacket.PGN,
                                         0x1E,
                                         0x00,
                                         0x00,
@@ -569,12 +869,13 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                         0x3B);
         dataRepository.putObdModule(new OBDModuleInformation(0x1E));
         DM19CalibrationInformationPacket dm191E = new DM19CalibrationInformationPacket(packet1E);
-        when(vehicleInformationModule.requestDM19(any(), eq(0x1E))).thenReturn(BusResult.of(dm191E));
-        globalDM19s.add(dm191E);
-        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(globalDM19s);
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class),
+                                                  eq(0x1E))).thenReturn(BusResult.of(dm191E));
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm191E));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
+        vehicleInformation.setCalIds(dm191E.getCalibrationInformation().size());
         dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
@@ -591,17 +892,218 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
     }
 
+    // TODO: fix this test when we get the contract as this is being handled in a future enhancement capacity
     /**
-     * Test non obd module returns a message with CVNs as all 0xFFs to global query;
-     * DS query returns same message
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x1E<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19 response<br>
+     * bad CVN - padded with 0xFF</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * bad CVN - padded with 0xFF</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
+    // @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.7.2.b.iv", description = "Fail if CVN padded incorrectly (must use 0x00h in MSB for unused bytes)") })
+    public void testObdModuleCvnMsbPaddingFailure() {
+        // Module 1E - CalId all 0x00 and CVN all 0x00 as OBD Module
+        Packet packet1E = Packet.create(DM19CalibrationInformationPacket.PGN,
+                                        0x1E,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF);
+        dataRepository.putObdModule(new OBDModuleInformation(0x1E));
+        DM19CalibrationInformationPacket dm191E = new DM19CalibrationInformationPacket(packet1E);
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class),
+                                                  eq(0x1E))).thenReturn(BusResult.of(dm191E));
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm191E));
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setEmissionUnits(1);
+        dataRepository.setVehicleInformation(vehicleInformation);
+
+        runTest();
+
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(7),
+                                        eq(FAIL),
+                                        eq("6.1.7.2.b.iv - Fail if CVN padded incorrectly (must use 0x00h in MSB for unused bytes)"));
+
+        verify(vehicleInformationModule).requestDM19(any(ResultsListener.class));
+        verify(vehicleInformationModule).requestDM19(any(), eq(0x1E));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+    }
+
+    /**
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x0E<br>
+     * non-OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19 response<br>
+     * good CVN/Cal Id data</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * good CVN/Cal Id data</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
      */
     @Test
     @TestDoc(value = {
-            @TestItem(verifies = "6.1.7.3.c.i", description = "For responses from non-OBD ECUs: Warn if any non-OBD ECU provides CAL ID"),
-            @TestItem(verifies = "6.1.7.3.c.iii", description = "For responses from non-OBD ECUs: Warn if <> 1 CVN for every CAL ID"),
-            @TestItem(verifies = "6.1.7.3.c.iv", description = "For responses from non-OBD ECUs: Warn if any received CAL ID is all 0xFF(h) or any CVN is all 0x00(h)") })
+            @TestItem(verifies = "6.1.7.3.c.i", description = "For responses from non-OBD ECUs: Warn if any non-OBD ECU provides CAL ID") })
+    public void testNonObdModuleProvidesCalIdWarning() {
+        Packet packet0E = Packet.create(DM19CalibrationInformationPacket.PGN,
+                                        0x0E,
+                                        0x51,
+                                        0xBA,
+                                        0xFE,
+                                        0xBD,
+                                        0x51,
+                                        0x61,
+                                        0x44,
+                                        0x3B,
+                                        0x51,
+                                        0x61,
+                                        0x44,
+                                        0x3B,
+                                        0x51,
+                                        0x61,
+                                        0x44,
+                                        0x3B,
+                                        0x51,
+                                        0x61,
+                                        0x44,
+                                        0x3B);
+        DM19CalibrationInformationPacket dm190E = new DM19CalibrationInformationPacket(packet0E);
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class),
+                                                  eq(0x0E)))
+                                                            .thenReturn(BusResult.of(dm190E));
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm190E));
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setEmissionUnits(1);
+        vehicleInformation.setCalIds(dm190E.getCalibrationInformation().size());
+        dataRepository.setVehicleInformation(vehicleInformation);
+
+        runTest();
+
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(7),
+                                        eq(WARN),
+                                        eq("6.1.7.3.c.i - Non-OBD ECU Brakes - Drive Axle #2 (14) provided CAL ID"));
+
+        verify(vehicleInformationModule).requestDM19(any(ResultsListener.class));
+        verify(vehicleInformationModule).requestDM19(any(), eq(0x0E));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+    }
+
+    /**
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x0E<br>
+     * non-OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19 response<br>
+     * bad CVN - all 0xFF</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * bad CVN - all 0xFF</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
+    @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.7.3.c.iv", description = "Warn if any received CAL ID is all 0xFF(h) or any CVN is all 0x00(h)") })
     public void testNonObdModuleCalIdAllFsWarning() {
-        List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
         Packet packet0E = Packet.create(0,
                                         0x0E,
                                         0x51,
@@ -628,11 +1130,11 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         when(vehicleInformationModule.requestDM19(any(ResultsListener.class),
                                                   eq(0x0E)))
                                                             .thenReturn(BusResult.of(dm190E));
-        globalDM19s.add(dm190E);
-        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(globalDM19s);
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm190E));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
+        vehicleInformation.setCalIds(dm190E.getCalibrationInformation().size());
         dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
@@ -658,15 +1160,44 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     }
 
     /**
-     * Test obd module returns a message with CVNs as all 0xFFs to global query;
-     * DS query returns same message
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x1E<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19 response<br>
+     * bad CVN/Cal Id - all 0xFF</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * bad CVN/Cal Id - all 0xFF</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
      */
     @Test
     @TestDoc(value = {
-            @TestItem(verifies = "6.1.7.2.b.ii", description = "For responses from OBD ECUs: Fail if CAL ID not formatted correctly (printable ASCII, padded incorrectly, etc.)"),
-            @TestItem(verifies = "6.1.7.2.b.iii", description = "For responses from OBD ECUs: Fail if any received CAL ID is all 0xFF(h) or any CVN is all 0x00(h)") })
+            @TestItem(verifies = "6.1.7.2.b.iii", description = "Fail if any received CAL ID is all 0xFF(h) or any CVN is all 0x00(h)") })
     public void testObdModuleCalIdAllFsWarning() {
-        List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
         Packet packet0E = Packet.create(0,
                                         0x0E,
                                         0x51,
@@ -694,11 +1225,11 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         when(vehicleInformationModule.requestDM19(any(ResultsListener.class),
                                                   eq(0x0E)))
                                                             .thenReturn(BusResult.of(dm190E));
-        globalDM19s.add(dm190E);
-        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(globalDM19s);
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm190E));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
+        vehicleInformation.setCalIds(dm190E.getCalibrationInformation().size());
         dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
@@ -720,8 +1251,39 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     }
 
     /**
-     * Test non obd module returns a message with a CAL ID containing an ASCII unprintable to global query;
-     * DS query returns same message
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x0E<br>
+     * non-OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19 response<br>
+     * bad Cal Id - contains unprintable char</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * bad Cal Id - contains unprintable char</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
      */
     @Test
     @TestDoc(value = {
@@ -760,6 +1322,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
+        vehicleInformation.setCalIds(dm190E.getCalibrationInformation().size());
         dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
@@ -781,16 +1344,194 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     }
 
     /**
-     * Test user entered number of CAL IDs differs from module report
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">User
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x0B<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19 response<br>
+     * good CVN/Cal Id</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * good differing CVN/Cal Id</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
+    @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.7.3.a", description = "Warn if total number of reported CAL IDs is > user entered value for number of emission or diagnostic critical control units (test 6.1.2)") })
+    public void testReportedCalIdCvnDifferUserEnteredWarning() {
+        // packet with one CVN/Cal Id - returned to global and DS requests
+        Packet packet = Packet.create(DM19CalibrationInformationPacket.PGN,
+                                      0x0B,
+                                      // Cal #1
+                                      0x51,
+                                      0x61,
+                                      0x44,
+                                      0x3B,
+                                      0x39,
+                                      0x38,
+                                      0x32,
+                                      0x33,
+                                      0x34,
+                                      0x35,
+                                      0x36,
+                                      0x37,
+                                      0x38,
+                                      0x39,
+                                      0x33,
+                                      0x39,
+                                      0x76,
+                                      0x33,
+                                      0x66,
+                                      0x35);
+
+        // dataRepository packet with 2 CVN/Cal Ids
+        Packet packet2 = Packet.create(DM19CalibrationInformationPacket.PGN,
+                                       0x0B,
+
+                                       // Cal #1
+                                       0x56,
+                                       0x3F,
+                                       0x66,
+                                       0x70,
+                                       0x50,
+                                       0x72,
+                                       0x54,
+                                       0x56,
+                                       0x4D,
+                                       0x50,
+                                       0x52,
+                                       0x63,
+                                       0x7A,
+                                       0x61,
+                                       0x67,
+                                       0x69,
+                                       0x59,
+                                       0x76,
+                                       0x75,
+                                       0x62,
+
+                                       // Cal #2
+                                       0x40,
+                                       0x71,
+                                       0x29,
+                                       0x3E,
+                                       0x52,
+                                       0x50,
+                                       0x52,
+                                       0x42,
+                                       0x42,
+                                       0x41,
+                                       0x39,
+                                       0x32,
+                                       0x67,
+                                       0x7C,
+                                       0x49,
+                                       0x39,
+                                       0x54,
+                                       0x38,
+                                       0x67,
+                                       0x55);
+        dataRepository.putObdModule(new OBDModuleInformation(0x0B));
+
+        DM19CalibrationInformationPacket dm190B = new DM19CalibrationInformationPacket(packet2);
+
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm190B));
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class),
+                                                  eq(0x0B))).thenReturn(BusResult.of(dm190B));
+
+        System.out.println("packet2.getCalibrationInformation().size() is: "
+                + new DM19CalibrationInformationPacket(packet2).getCalibrationInformation().size());
+        System.out.println("dm190B.getCalibrationInformation().size() is: "
+                + dm190B.getCalibrationInformation().size());
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setEmissionUnits(1);
+        vehicleInformation.setCalIds(new DM19CalibrationInformationPacket(packet).getCalibrationInformation().size());
+        dataRepository.setVehicleInformation(vehicleInformation);
+
+        runTest();
+
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(7),
+                                        eq(WARN),
+                                        eq("6.1.7.3.a - Total number of reported CAL IDs is > user entered value for number of emission or diagnostic critical control units"));
+
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(7),
+                                        eq(WARN),
+                                        eq("6.1.7.3.b - Brakes - System Controller (11) provided more than one CAL ID and CVN pair in a single DM19 message"));
+
+        verify(vehicleInformationModule).requestDM19(any(ResultsListener.class));
+        verify(vehicleInformationModule).requestDM19(any(ResultsListener.class), eq(0x0B));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+    }
+
+    /**
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x0B<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19 response<br>
+     * bad CVN/Cal Id - more than 1</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * bad CVN/Cal Id - more than 1</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
      */
     @Test
     @TestDoc(value = {
             @TestItem(verifies = "6.1.7.3.b", description = "Warn if more than one CAL ID and CVN pair is provided in a single DM19 message") })
     public void testMoreThanOneCalIdCvnPairWarning() {
-        List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
-
         // legit values 0x20 to 0x7F
-        Packet packet = Packet.create(0,
+        Packet packet = Packet.create(DM19CalibrationInformationPacket.PGN,
                                       0x0B,
                                       // Cal #1
                                       0x51,
@@ -860,15 +1601,15 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
 
         // Module 0B - Missing CalId and Different DS value as OBD ECU
         dataRepository.putObdModule(new OBDModuleInformation(0x0B));
-        DM19CalibrationInformationPacket dm190B = // createDM19(0x0B, "CALID", "1234", 2);
-                new DM19CalibrationInformationPacket(packet);
-        globalDM19s.add(dm190B);
-        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(globalDM19s);
+        DM19CalibrationInformationPacket dm190B = new DM19CalibrationInformationPacket(packet);
+
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm190B));
         when(vehicleInformationModule.requestDM19(any(ResultsListener.class),
                                                   eq(0x0B))).thenReturn(BusResult.of(dm190B));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
+        vehicleInformation.setCalIds(dm190B.getCalibrationInformation().size());
         dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
@@ -886,15 +1627,45 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     }
 
     /**
-     * Test obd module returns a message with a CAL ID padded incorrectly to global query;
-     * DS query returns same message
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x0D<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19 response<br>
+     * bad Cal Id - padding incorrect</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * bad Cal Id - padding incorrect</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
      */
     @Test
     @TestDoc(value = {
             @TestItem(verifies = "6.1.7.2.b.ii", description = "Fail if CAL ID not formatted correctly (printable ASCII, padded incorrectly, etc.)") })
-    public void testObdModuleCalIdPaddingIncorrectlyWarning() {
-        List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
-        Packet packet = Packet.create(0,
+    public void testObdModuleCalIdPaddingIncorrectlyFailure() {
+        Packet packet = Packet.create(0x00,
                                       0x0D,
                                       // Cal #1
                                       0x00,
@@ -923,11 +1694,11 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0x0D));
 
         when(vehicleInformationModule.requestDM19(any(), eq(0x0D))).thenReturn(BusResult.of(dm190D));
-        globalDM19s.add(dm190D);
-        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(globalDM19s);
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm190D));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
+        vehicleInformation.setCalIds(dm190D.getCalibrationInformation().size());
         dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
@@ -949,16 +1720,47 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     }
 
     /**
-     * Test non obd module returns a message with a CAL ID padded incorrectly to global query;
-     * DS query returns same message
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x0x0D<br>
+     * non-OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19 response<br>
+     * bad Cal Id - padding incorrect</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * bad Cal Id - padding incorrect</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
      */
     @Test
     @TestDoc(value = {
-            @TestItem(verifies = "6.1.7.3.c.i", description = "For responses from non-OBD ECUs: Warn if any non-OBD ECU provides CAL ID."),
-            @TestItem(verifies = "6.1.7.3.c.iii", description = "For responses from non-OBD ECUs: Warn if CAL ID not formatted correctly (contains non-printable ASCII, padded incorrectly, etc.)") })
-    public void testNonObdModuleCalIdPaddingIncorrectlyWarning() {
+            @TestItem(verifies = "6.1.7.3.c.i", description = "Warn if any non-OBD ECU provides CAL ID."),
+            @TestItem(verifies = "6.1.7.3.c.iii", description = "Warn if CAL ID not formatted correctly (contains non-printable ASCII, padded incorrectly, etc.)") })
+    public void testNonObdModuleCalIdPaddedIncorrectlyWarning() {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
-        Packet packet = Packet.create(0,
+        Packet packet = Packet.create(DM19CalibrationInformationPacket.PGN,
                                       0x0D,
                                       // Cal #1
                                       0x51,
@@ -989,6 +1791,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
+        vehicleInformation.setCalIds(dm190D.getCalibrationInformation().size());
         dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
@@ -1014,12 +1817,43 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     }
 
     /**
-     * Test non obd module returns a message with a CAL ID containing an ASCII unprintable to global query;
-     * DS query returns same message
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x0D<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19 response<br>
+     * bad Cal Id - contains unprintable char</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * bad Cal Id - contains unprintable char</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
      */
     @Test
     @TestDoc(value = {
-            @TestItem(verifies = "6.1.7.2.b.ii", description = "For responses from OBD ECUs: Fail if CAL ID not formatted correctly (printable ASCII, padded incorrectly, etc.)") })
+            @TestItem(verifies = "6.1.7.2.b.ii", description = "Fail if CAL ID not formatted correctly (printable ASCII, padded incorrectly, etc.)") })
     public void testObdModuleUnprintableCharacterWarning() {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
         Packet packet = Packet.create(0,
@@ -1056,6 +1890,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
+        vehicleInformation.setCalIds(dm190E.getCalibrationInformation().size());
         dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
