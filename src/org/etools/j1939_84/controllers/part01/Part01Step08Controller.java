@@ -57,8 +57,8 @@ public class Part01Step08Controller extends StepController {
               TOTAL_STEPS);
     }
 
-    private static String spnToString(List<Integer> spns) {
-        return spns.stream().map(i -> "" + i).sorted().collect(Collectors.joining(", "));
+    private static String spToString(List<Integer> sps) {
+        return sps.stream().map(i -> "" + i).sorted().collect(Collectors.joining(", "));
     }
 
     @Override
@@ -70,36 +70,41 @@ public class Part01Step08Controller extends StepController {
         // 6.1.8.1.a.i. Create list of ECU address
         globalDM20s.forEach(this::save);
 
-        // 6.1.8.2.a. Fail if minimum expected SPNs are not supported (in the aggregate response for the vehicle)
-        // per section A.4, Criteria for Monitor Performance Ratio Evaluation.
-        Set<Integer> dm20Spns = globalDM20s.stream()
+        // 6.1.8.2.a. Fail if minimum expected SPs are not supported (in the aggregate response for the vehicle)
+        // per section A.4. When a numerator and denominator are provided as FFFF(h) and FFFF(h), the monitor identified
+        // in the label SP shall be considered to be unsupported.
+        Set<Integer> dm20Sps = globalDM20s.stream()
                                            .flatMap(dm20 -> dm20.getRatios().stream())
+                                           .filter(p -> {
+                                               return p.getNumerator() != 0xFFFF ||
+                                                       p.getDenominator() != 0xFFFF;
+                                           })
                                            .map(PerformanceRatio::getSpn)
                                            .collect(Collectors.toSet());
 
         boolean failure = false;
 
-        String msg = "6.1.8.2.a - Minimum expected SPNs are not supported.";
+        String msg = "6.1.8.2.a - Minimum expected SPs are not supported.";
 
         if (getFuelType().isCompressionIgnition()) {
-            List<Integer> SPNa = new ArrayList<>(List.of(5322, 5318, 3058, 3064, 5321, 3055));
-            SPNa.removeAll(dm20Spns);
-            if (!SPNa.isEmpty()) {
-                msg += " Not Supported SPNs: " + spnToString(SPNa);
+            List<Integer> SPs = new ArrayList<>(List.of(5322, 5318, 3058, 3064, 5321, 3055));
+            SPs.removeAll(dm20Sps);
+            if (!SPs.isEmpty()) {
+                msg += " Not Supported SPs: " + spToString(SPs);
                 failure = true;
             }
 
             List<Integer> SPNn = new ArrayList<>(List.of(4792, 5308, 4364));
-            SPNn.removeAll(dm20Spns);
+            SPNn.removeAll(dm20Sps);
             if (SPNn.size() == 3) {
-                msg += " None of these SPNs are supported: " + spnToString(SPNn);
+                msg += " None of these SPs are supported: " + spToString(SPNn);
                 failure = true;
             }
         } else if (getFuelType().isSparkIgnition()) {
             List<Integer> SPNsi = new ArrayList<>(List.of(3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057));
-            SPNsi.removeAll(dm20Spns);
+            SPNsi.removeAll(dm20Sps);
             if (!SPNsi.isEmpty()) {
-                msg += " Not Supported SPNs: " + spnToString(SPNsi);
+                msg += " Not Supported SPs: " + spToString(SPNsi);
                 failure = true;
             }
         }
@@ -107,5 +112,4 @@ public class Part01Step08Controller extends StepController {
             addFailure(msg);
         }
     }
-
 }
