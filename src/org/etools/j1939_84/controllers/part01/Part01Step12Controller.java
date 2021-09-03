@@ -5,8 +5,11 @@ package org.etools.j1939_84.controllers.part01;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -83,12 +86,13 @@ public class Part01Step12Controller extends StepController {
     @Override
     protected void run() throws Throwable {
 
-        // 6.1.12.1.a. DS DM7 with TID 247 using FMI 31 for each SPN identified as providing test results in a
-        // DM24 response in step 6.1.4.1 to the SPN’s respective OBD ECU.
+        // 6.1.12.1.a. DS DM7 with TID 247 using FMI 31 for each SP identified as providing test results in a
+        // DM24 response in step 6.1.4.1 to the SP’s respective OBD ECU.
 
-        // Create list of ECU address+SPN+FMI supported test results.
-        // A.K.A Get all the obdModuleAddresses then send DM7 to each address we have and get supported SPNs
+        // Create list of ECU address+SP+FMI supported test results.
+        // A.K.A Get all the obdModuleAddresses then send DM7 to each address we have and get supported SPs
         List<ScaledTestResult> vehicleTestResults = new ArrayList<>();
+        Map<Integer, Collection<ScaledTestResult>> testResultsByModuleMap = new HashMap<>();
 
         // Record the DM30 for each module
         for (OBDModuleInformation obdModule : getDataRepository().getObdModules()) {
@@ -99,28 +103,32 @@ public class Part01Step12Controller extends StepController {
             obdModule.getTestResultSPNs()
                      .stream()
                      .mapToInt(SupportedSPN::getSpn)
-                     .forEachOrdered(spnId -> {
+                     .forEachOrdered(spId -> {
                          var dm30Packets = getDiagnosticMessageModule().requestTestResults(getListener(),
                                                                                            sourceAddress,
                                                                                            247,
-                                                                                           spnId,
+                                                                                           spId,
                                                                                            31);
                          if (dm30Packets.isEmpty()) {
-                             addFailure("6.1.12.1.a - No test result for Supported SPN " + spnId + " from "
+                             addFailure("6.1.12.2.a (A.7.2.a) - No test result for Supported SP " + spId + " from "
                                      + moduleName);
                          } else {
                              var testResults = dm30Packets
                                                           .stream()
-                                                          .peek(p -> verifyDM30PacketSupported(p, spnId))
+                                                          .peek(p -> verifyDM30PacketSupported(p, spId))
                                                           .flatMap(p -> p.getTestResults().stream())
                                                           .collect(Collectors.toList());
 
                              // 6.1.12.1.d. Warn if any ECU reports more than one set of test results for the same
-                             // SPN+FMI.
+                             // SP+FMI.
+                             testResultsByModuleMap.put(obdModule.getSourceAddress(),
+                                                        new HashSet<>(testResults));
                              tableA7Validator.findDuplicates(testResults)
+                                             .stream()
+                                             .distinct() // let's log it just once
                                              .forEach(dup -> {
-                                                 addWarning("6.1.12.2.a (A7.2.b) - " + moduleName
-                                                         + " returned duplicate test results for SPN " + dup.getSpn()
+                                                 addWarning("6.1.12.2.a (A.7.1.d) - " + moduleName
+                                                         + " returned duplicate test results for SP " + dup.getSpn()
                                                          + " FMI " + dup.getFmi());
                                              });
 
@@ -141,30 +149,43 @@ public class Part01Step12Controller extends StepController {
             }
         }
 
-        // Create list of ECU address+SPN+FMI supported test results.
+        Collection<ScaledTestResult> scaledTestResults = testResultsByModuleMap.values()
+                                                                               .stream()
+                                                                               .flatMap(Collection::stream)
+                                                                               .collect(Collectors.toList());
+        tableA7Validator.findDuplicates(scaledTestResults)
+                        .stream()
+                        .distinct() // let's log it just once
+                        .forEach(dup -> {
+                            addWarning("6.1.12.2.a (A.7.2.b) - More than one ECU responded with test results for SP "
+                                    + dup.getSpn() + " + FMI " + dup.getFmi() + " combination");
+                        });
+
+        // Create list of ECU address+SP+FMI supported test results.
         // 6.1.12.2.a. Fail/warn per section A.7 Criteria for Test Results Evaluation.
         if (getFuelType().isCompressionIgnition()) {
             tableA7Validator.validateForCompressionIgnition(vehicleTestResults, getListener());
         } else if (getFuelType().isSparkIgnition()) {
             tableA7Validator.validateForSparkIgnition(vehicleTestResults, getListener());
         }
+
     }
 
-    private void verifyDM30PacketSupported(DM30ScaledTestResultsPacket packet, int spnId) {
+    private void verifyDM30PacketSupported(DM30ScaledTestResultsPacket packet, int spId) {
 
         String moduleName = Lookup.getAddressName(packet.getSourceAddress());
 
-        // 6.1.12.1.a. Fail if no test result (comprised of a SPN+FMI with a test result
-        // and a min and max test limit) for an SPN indicated as supported is
+        // 6.1.12.1.a. Fail if no test result (comprised of a SP+FMI with a test result
+        // and a min and max test limit) for an SP indicated as supported is
         // actually reported from the ECU/device that indicated support.
 
         List<ScaledTestResult> testResults = packet.getTestResults()
                                                    .stream()
-                                                   .filter(p -> p.getSpn() == spnId)
+                                                   .filter(p -> p.getSpn() == spId)
                                                    .collect(Collectors.toList());
 
         if (testResults.isEmpty()) {
-            addFailure("6.1.12.2.a (A7.1.a) - No test result for supported SPN " + spnId + " from " + moduleName);
+            addFailure("6.1.12.2.a (A.7.1.a) - No test result for supported SP " + spId + " from " + moduleName);
         }
 
         // 6.1.12.1.b. Fail if any test result does not report the test result/min test
@@ -172,7 +193,7 @@ public class Part01Step12Controller extends StepController {
         // 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000).
         for (ScaledTestResult result : testResults) {
             if (!result.isInitialized()) {
-                addFailure("6.1.12.2.a (A7.1.b) - Test result for SPN " + spnId + " FMI " + result.getFmi() + " from "
+                addFailure("6.1.12.2.a (A.7.1.b) - Test result for SP " + spId + " FMI " + result.getFmi() + " from "
                         + moduleName
                         + " does not report the test result/min test limit/max test limit initialized properly");
             }
@@ -183,7 +204,7 @@ public class Part01Step12Controller extends StepController {
             // appropriate for use in test results.
             int slotIdentifier = result.getSlot().getId();
             if (!VALID_SLOTS.contains(slotIdentifier)) {
-                addFailure("6.1.12.2.a (A7.1.c) - #" + slotIdentifier + " SLOT identifier for SPN " + spnId
+                addFailure("6.1.12.2.a (A.7.1.c) - #" + slotIdentifier + " SLOT identifier for SP " + spId
                         + " FMI " + result.getFmi() + " from " + moduleName + " is invalid");
             }
         }
