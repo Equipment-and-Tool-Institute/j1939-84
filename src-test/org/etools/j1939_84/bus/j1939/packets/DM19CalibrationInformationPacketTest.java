@@ -7,9 +7,11 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.etools.j1939_84.bus.Packet;
@@ -24,10 +26,43 @@ import org.junit.Test;
  */
 public class DM19CalibrationInformationPacketTest {
 
+    /**
+     * Test method for {@link DM19CalibrationInformationPacket#toString()}
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DM19 Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Cal Info Details</th>
+     *
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding:3px;word-wrap:break-word">0x00</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">good DM19 response</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">one good CVN/Cal Id <br>
+     * w/ padding</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     public void testCalibrationInformationAndToStringWithOne() {
         Packet packet = Packet.create(0,
-                                      0,
+                                      0x00,
                                       0x51,     // CVN
                                       0xBA,
                                       0xFE,
@@ -53,9 +88,9 @@ public class DM19CalibrationInformationPacketTest {
         assertNotNull(calInfos);
         assertEquals(1, calInfos.size());
         CalibrationInformation calInfo = calInfos.get(0);
-        assertEquals("ANT5ASR1    ", calInfo.getCalibrationIdentification());
+        assertEquals("ANT5ASR1        ", calInfo.getCalibrationIdentification());
         assertEquals("0xBDFEBA51", calInfo.getCalibrationVerificationNumber());
-        assertArrayEquals(new byte[] { 65, 78, 84, 53, 65, 83, 82, 49, 32, 32, 0, 0 },
+        assertArrayEquals(new byte[] { 65, 78, 84, 53, 65, 83, 82, 49, 32, 32, 0, 0, 0, 0, 0, 0 },
                           calInfo.getRawCalId());
         assertArrayEquals(new byte[] { 81, -70, -2, -67 }, calInfo.getRawCvn());
 
@@ -63,15 +98,386 @@ public class DM19CalibrationInformationPacketTest {
         assertEquals(expected, instance.toString());
     }
 
+    /**
+     * Test method for {@link DM19CalibrationInformationPacket}
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DM19 Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Cal Info Details</th>
+     *
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding:3px;word-wrap:break-word">0x00</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">good DM19 response</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">5 CVN/Cal Id combos<br>
+     * 4 good<br>
+     * 1 empty</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
+    @Test
+    public void testRealDm19PulledFromTruck() {
+        Packet packet = Packet.create(DM19CalibrationInformationPacket.PGN,
+                                      0x00,
+                                      // LSB CVN; 4 bytes (checksum value of entire calibration) padding at MSB w/ 0x00
+                                      0x06, // ASCII value of ACK - unprintable char
+                                      0x7A, // z
+                                      0x6E, // n
+                                      0xC9, // É - unprintable char
+                                      // LSB Cal ID; 16 bytes; Padding at LSB w/ 0x00
+                                      0x41, // A
+                                      0x32, // 2
+                                      0x36, // 36
+                                      0x31, // 1
+                                      0x58, // X
+                                      0x58, // X
+                                      0x4D,  // M
+                                      0x5F,  // -
+                                      0x45, // E
+                                      0x37,  // 7
+                                      0x31, // 1
+                                      0x31, // 1
+                                      0x45, // E
+                                      0x33, // 3
+                                      0x31, // 1
+                                      0x44, // D
+                                      // LSB; 4 bytes (checksum value of entire calibration)
+                                      0xA8, // - unprintable
+                                      0x73, // 5
+                                      0x89, // undefined
+                                      0x13, // DC3 Ascii char undefined?
+                                      // LSB Cal ID; 16 bytes; Padding at LSB
+                                      0x4E, // N
+                                      0x4F, // O
+                                      0x78, // x
+                                      0x2D, // -
+                                      0x53, // S
+                                      0x41, // A
+                                      0x45, // E
+                                      0x31, // 1
+                                      0x34, // 4
+                                      0x61, // a
+                                      0x20, // " " - space
+                                      0x41, // A
+                                      0x54, // T
+                                      0x49, // I
+                                      0x31, // 1
+                                      0x00, // NUL
+                                      // LSB; 4 bytes (checksum value of entire calibration)
+                                      0x8C, // ¼ - unprintable
+                                      0x4B, // K
+                                      0xF9, // ù - unprintable
+                                      0xC9, // É - unprintable
+                                      // LSB Cal ID; 16 bytes; Padding at LSB
+                                      0x4E, // N
+                                      0x4F, // O
+                                      0x78, // x
+                                      0x2D, // -
+                                      0x53, // S
+                                      0x41, // A
+                                      0x45, // E
+                                      0x31, // 1
+                                      0x34, // 4
+                                      0x61, // a
+                                      0x20, // " " - space
+                                      0x41, // A
+                                      0x54, // T
+                                      0x4F, // 0
+                                      0x31, // 1
+                                      0x00, // NUL
+                                      // LSB; 4 bytes (checksum value of entire calibration)
+                                      0x00, // NUL
+                                      0x00, // NUL
+                                      0x00, // NUL
+                                      0x00, // NUL
+                                      // LSB Cal ID; 16 bytes; Padding at LSB
+                                      0xFF, // ÿ
+                                      0xFF, // ÿ
+                                      0xFF, // ÿ
+                                      0xFF, // ÿ
+                                      0xFF, // ÿ
+                                      0xFF, // ÿ
+                                      0xFF, // ÿ
+                                      0xFF, // ÿ
+                                      0xFF, // ÿ
+                                      0xFF, // ÿ
+                                      0xFF, // ÿ
+                                      0xFF, // ÿ
+                                      0xFF, // ÿ
+                                      0xFF, // ÿ
+                                      0xFF, // ÿ
+                                      0xFF, // ÿ
+                                      // LSB; 4 bytes (checksum value of entire calibration)
+                                      0xD2, // Ò - unprintable
+                                      0xBF, // ¿
+                                      0x0F, // undefined
+                                      0xA9, // ©
+                                      // LSB Cal ID; 16 bytes; Padding at LSB
+                                      0x50, // P
+                                      0x4D, // M
+                                      0x53, // S
+                                      0x31, // 1
+                                      0x32, // 2
+                                      0x33, // 3
+                                      0x34, // 4
+                                      0x31, // 1
+                                      0x41, // A
+                                      0x31, // 1
+                                      0x30, // 0
+                                      0x31, // 1
+                                      0x00, // NUL
+                                      0x00, // NUL
+                                      0x00, // NUL
+                                      0x00 // NUL
+        );
+        List<CalibrationInformation> expectedCalInfos = new ArrayList<>();
+        expectedCalInfos.add(new CalibrationInformation("A261XXM_E711E31D",
+                                                        "0xC96E7A06",
+                                                        new byte[] {
+                                                                // LSB Cal ID; 16 bytes; Padding at LSB w/ 0x00
+                                                                0x41, // A
+                                                                0x32, // 2
+                                                                0x36, // 36
+                                                                0x31, // 1
+                                                                0x58, // X
+                                                                0x58, // X
+                                                                0x4D,  // M
+                                                                0x5F,  // -
+                                                                0x45, // E
+                                                                0x37,  // 7
+                                                                0x31, // 1
+                                                                0x31, // 1
+                                                                0x45, // E
+                                                                0x33, // 3
+                                                                0x31, // 1
+                                                                0x44 // D
+                                                        },
+                                                        new byte[] {
+                                                                // LSB CVN; 4 bytes (checksum value of entire
+                                                                // calibration) padding at MSB w/ 0x00
+                                                                0x06, // ASCII value of ACK - unprintable char
+                                                                0x7A, // z
+                                                                0x6E, // n
+                                                                (byte) 0xC9 // É - unprintable char
+                                                        }));
+        expectedCalInfos.add(new CalibrationInformation("NOx-SAE14a ATI1",
+                                                        "0x138973A8",
+                                                        new byte[] {
+                                                                // LSB Cal ID; 16 bytes; Padding at LSB
+                                                                0x4E, // N
+                                                                0x4F, // O
+                                                                0x78, // x
+                                                                0x2D, // -
+                                                                0x53, // S
+                                                                0x41, // A
+                                                                0x45, // E
+                                                                0x31, // 1
+                                                                0x34, // 4
+                                                                0x61, // a
+                                                                0x20, // " " - space
+                                                                0x41, // A
+                                                                0x54, // T
+                                                                0x49, // I
+                                                                0x31, // 1
+                                                                0x00 // NUL
+                                                        },
+                                                        new byte[] {
+                                                                // LSB; 4 bytes (checksum value of entire calibration)
+                                                                (byte) 0xA8, // - unprintable
+                                                                0x73, // 5
+                                                                (byte) 0x89, // undefined
+                                                                0x13 // DC3 Ascii char undefined?
+                                                        }));
+        expectedCalInfos.add(new CalibrationInformation("NOx-SAE14a ATO1",
+                                                        "0xC9F94B8C",
+                                                        new byte[] {
+                                                                // LSB Cal ID; 16 bytes; Padding at LSB
+                                                                0x4E, // N
+                                                                0x4F, // O
+                                                                0x78, // x
+                                                                0x2D, // -
+                                                                0x53, // S
+                                                                0x41, // A
+                                                                0x45, // E
+                                                                0x31, // 1
+                                                                0x34, // 4
+                                                                0x61, // a
+                                                                0x20, // " " - space
+                                                                0x41, // A
+                                                                0x54, // T
+                                                                0x4F, // 0
+                                                                0x31, // 1
+                                                                0x00 // NUL
+                                                        },
+                                                        new byte[] {
+                                                                // LSB; 4 bytes (checksum value of entire calibration)
+                                                                (byte) 0x8C, // ¼ - unprintable
+                                                                0x4B, // K
+                                                                (byte) 0xF9, // ù - unprintable
+                                                                (byte) 0xC9 // É - unprintable
+                                                        }));
+        expectedCalInfos.add(new CalibrationInformation("ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ",
+                                                        "0x00000000",
+                                                        new byte[] {
+                                                                // LSB Cal ID; 16 bytes; Padding at LSB
+                                                                (byte) 0xFF, // ÿ
+                                                                (byte) 0xFF, // ÿ
+                                                                (byte) 0xFF, // ÿ
+                                                                (byte) 0xFF, // ÿ
+                                                                (byte) 0xFF, // ÿ
+                                                                (byte) 0xFF, // ÿ
+                                                                (byte) 0xFF, // ÿ
+                                                                (byte) 0xFF, // ÿ
+                                                                (byte) 0xFF, // ÿ
+                                                                (byte) 0xFF, // ÿ
+                                                                (byte) 0xFF, // ÿ
+                                                                (byte) 0xFF, // ÿ
+                                                                (byte) 0xFF, // ÿ
+                                                                (byte) 0xFF, // ÿ
+                                                                (byte) 0xFF, // ÿ
+                                                                (byte) 0xFF // ÿ
+                                                        },
+                                                        new byte[] {
+                                                                0x00, // NUL
+                                                                0x00, // NUL
+                                                                0x00, // NUL
+                                                                0x00 // NUL
+                                                        }
+
+        ));
+        expectedCalInfos.add(new CalibrationInformation("PMS12341A101",
+                                                        "0xA90FBFD2",
+                                                        new byte[] {
+                                                                // LSB Cal ID; 16 bytes; Padding at LSB
+                                                                0x50, // P
+                                                                0x4D, // M
+                                                                0x53, // S
+                                                                0x31, // 1
+                                                                0x32, // 2
+                                                                0x33, // 3
+                                                                0x34, // 4
+                                                                0x31, // 1
+                                                                0x41, // A
+                                                                0x31, // 1
+                                                                0x30, // 0
+                                                                0x31, // 1
+                                                                0x00, // NUL
+                                                                0x00, // NUL
+                                                                0x00, // NUL
+                                                                0x00 // NUL
+                                                        },
+                                                        new byte[] {
+                                                                (byte) 0xD2,
+                                                                // Ò - unprintable
+                                                                (byte) 0xBF, // ¿
+                                                                0x0F, // undefined
+                                                                (byte) 0xA9 } // ©
+        ));
+        DM19CalibrationInformationPacket instance = new DM19CalibrationInformationPacket(packet);
+        List<CalibrationInformation> calInfos = instance.getCalibrationInformation();
+        assertNotNull(calInfos);
+        assertEquals(5, calInfos.size());
+        assertNotEquals(expectedCalInfos, calInfos);
+
+        CalibrationInformation calInfo0 = calInfos.get(0);
+        assertEquals("A261XXM_E711E31D", calInfo0.getCalibrationIdentification());
+        assertEquals("0xC96E7A06", calInfo0.getCalibrationVerificationNumber());
+        assertArrayEquals(new byte[] { 65, 50, 54, 49, 88, 88, 77, 95, 69, 55, 49, 49, 69, 51, 49, 68 },
+                          calInfo0.getRawCalId());
+        assertArrayEquals(new byte[] { 6, 122, 110, -55 }, calInfo0.getRawCvn());
+        CalibrationInformation calInfo1 = calInfos.get(1);
+        assertEquals("NOx-SAE14a ATI1 ", calInfo1.getCalibrationIdentification());
+        assertEquals("0x138973A8", calInfo1.getCalibrationVerificationNumber());
+        assertArrayEquals(new byte[] { 78, 79, 120, 45, 83, 65, 69, 49, 52, 97, 32, 65, 84, 73, 49, 0 },
+                          calInfo1.getRawCalId());
+        assertArrayEquals(new byte[] { -88, 115, -119, 19 }, calInfo1.getRawCvn());
+        CalibrationInformation calInfo2 = calInfos.get(2);
+        assertEquals("NOx-SAE14a ATO1 ", calInfo2.getCalibrationIdentification());
+        assertEquals("0xC9F94B8C", calInfo2.getCalibrationVerificationNumber());
+        assertArrayEquals(new byte[] { 78, 79, 120, 45, 83, 65, 69, 49, 52, 97, 32, 65, 84, 79, 49, 0 },
+                          calInfo2.getRawCalId());
+        assertArrayEquals(new byte[] { -116, 75, -7, -55 }, calInfo2.getRawCvn());
+        CalibrationInformation calInfo3 = calInfos.get(3);
+        assertEquals("ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ", calInfo3.getCalibrationIdentification());
+        assertEquals("0x00000000", calInfo3.getCalibrationVerificationNumber());
+        assertArrayEquals(new byte[] { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
+                          calInfo3.getRawCalId());
+        assertArrayEquals(new byte[] { 0, 0, 0, 0 }, calInfo3.getRawCvn());
+        CalibrationInformation calInfo4 = calInfos.get(4);
+        assertEquals("PMS12341A101    ", calInfo4.getCalibrationIdentification());
+        assertEquals("0xA90FBFD2", calInfo4.getCalibrationVerificationNumber());
+        assertArrayEquals(new byte[] { 80, 77, 83, 49, 50, 51, 52, 49, 65, 49, 48, 49, 0, 0, 0, 0 },
+                          calInfo4.getRawCalId());
+        assertArrayEquals(new byte[] { -46, -65, 15, -87 }, calInfo4.getRawCvn());
+
+        String expected = "DM19 from Engine #1 (0): [" + NL;
+        expected += "  CAL ID of A261XXM_E711E31D and CVN of 0xC96E7A06" + NL;
+        expected += "  CAL ID of NOx-SAE14a ATI1 and CVN of 0x138973A8" + NL;
+        expected += "  CAL ID of NOx-SAE14a ATO1 and CVN of 0xC9F94B8C" + NL;
+        expected += "  CAL ID of ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ and CVN of 0x00000000" + NL;
+        expected += "  CAL ID of PMS12341A101 and CVN of 0xA90FBFD2" + NL;
+        expected += "]";
+        assertEquals(expected, instance.toString());
+    }
+
+    /**
+     * Test method for {@link DM19CalibrationInformationPacket#toString()}
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DM19 Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Cal Info Details</th>
+     *
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding:3px;word-wrap:break-word">0x00</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">good DM19 response</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">one good CVN/Cal Id</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     public void testCalibrationInformationAndToStringWithOneNoBlanks() {
         Packet packet = Packet.create(0,
-                                      0,
-                                      0x51,
+                                      0x00,
+                                      0x51, // CVN
                                       0xBA,
                                       0xFE,
                                       0xBD,
-                                      0x30,
+                                      0x30, // Cal Id
                                       0x31,
                                       0x32,
                                       0x33,
@@ -92,23 +498,57 @@ public class DM19CalibrationInformationPacketTest {
         assertNotNull(calInfos);
         assertEquals(1, calInfos.size());
         CalibrationInformation calInfo = calInfos.get(0);
-        assertEquals("012345678901", calInfo.getCalibrationIdentification());
+        assertEquals("0123456789012345", calInfo.getCalibrationIdentification());
         assertEquals("0xBDFEBA51", calInfo.getCalibrationVerificationNumber());
-        assertArrayEquals(new byte[] { 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49 },
+        assertArrayEquals(new byte[] { 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49, 50, 51, 52, 53 },
                           calInfo.getRawCalId());
         assertArrayEquals(new byte[] { 81, -70, -2, -67 }, calInfo.getRawCvn());
 
-        String expected = "DM19 from Engine #1 (0): CAL ID of 012345678901 and CVN of 0xBDFEBA51";
+        String expected = "DM19 from Engine #1 (0): CAL ID of 0123456789012345 and CVN of 0xBDFEBA51";
         assertEquals(expected, instance.toString());
     }
 
+    /**
+     * Test method for {@link DM19CalibrationInformationPacket#getCalibrationInformation()}
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DM19 Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Cal Info Details</th>
+     *
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding:3px;word-wrap:break-word">0x00</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">good DM19 response</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">one bad CVN/Cal Id<br>
+     * cal id <15 char
+     * </td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     public void testCalIdLengthLessThanFifteen() {
         CalibrationInformation calInfo = new CalibrationInformation("LessThan15Char", "1234");
-        DM19CalibrationInformationPacket instance = DM19CalibrationInformationPacket.create(0, 0, calInfo);
+        DM19CalibrationInformationPacket instance = DM19CalibrationInformationPacket.create(0, 0x00, calInfo);
         CalibrationInformation instanceCalInfo = instance.getCalibrationInformation().get(0);
         assertNotNull(instanceCalInfo);
-        assertEquals("LessThan15Ch", instanceCalInfo.getCalibrationIdentification());
+        assertEquals("LessThan15Char  ", instanceCalInfo.getCalibrationIdentification());
         assertEquals("0x34333231", instanceCalInfo.getCalibrationVerificationNumber());
         assertArrayEquals(new byte[] { 0x4C, 0x65, 0x73, 0x73, 0x54, 0x68, 0x61, 0x6E, 0x31, 0x35, 0x43, 0x68, 0x61,
                 0x72, 0x00, 0x00 },
@@ -116,13 +556,47 @@ public class DM19CalibrationInformationPacketTest {
         assertArrayEquals(new byte[] { 49, 50, 51, 52 }, calInfo.getRawCvn());
     }
 
+    /**
+     * Test method for {@link DM19CalibrationInformationPacket#getCalibrationInformation()}
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DM19 Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Cal Info Details</th>
+     *
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding:3px;word-wrap:break-word">0x00</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">good DM19 response</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">one bad CVN/Cal Id<br>
+     * cvn <4 char
+     * </td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     public void testCvnLengthLessThanFour() {
         CalibrationInformation calInfo = new CalibrationInformation("Equals15Characts", "123");
         DM19CalibrationInformationPacket instance = DM19CalibrationInformationPacket.create(0, 0, calInfo);
         CalibrationInformation instanceCalInfo = instance.getCalibrationInformation().get(0);
         assertNotNull(instanceCalInfo);
-        assertEquals("Equals15Char", instanceCalInfo.getCalibrationIdentification());
+        assertEquals("Equals15Characts", instanceCalInfo.getCalibrationIdentification());
         assertEquals("0x00333231", instanceCalInfo.getCalibrationVerificationNumber());
 
         assertArrayEquals(new byte[] { 0x45, 0x71, 0x75, 0x61, 0x6C, 0x73, 0x31, 0x35, 0x43, 0x68, 0x61, 0x72, 0x61,
@@ -131,6 +605,40 @@ public class DM19CalibrationInformationPacketTest {
         assertArrayEquals(new byte[] { 49, 50, 51, 0 }, calInfo.getRawCvn());
     }
 
+    /**
+     * Test method for {@link DM19CalibrationInformationPacket#getCalibrationInformation()}
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DM19 Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Cal Info Details</th>
+     *
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding:3px;word-wrap:break-word">0x00</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">bad DM19 response</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">one bad CVN/Cal Id<br>
+     * cvn >4 char
+     * </td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     public void testCvnLengthGreaterThanFour() {
         CalibrationInformation calInfo = new CalibrationInformation("Equals15Characs", "12345");
@@ -139,7 +647,7 @@ public class DM19CalibrationInformationPacketTest {
                                                                                             calInfo);
         assertNotNull(instance.getCalibrationInformation());
         CalibrationInformation instanceCalInfo = instance.getCalibrationInformation().get(0);
-        assertEquals("5Equals15Cha", instanceCalInfo.getCalibrationIdentification());
+        assertEquals("5Equals15Characs", instanceCalInfo.getCalibrationIdentification());
         assertEquals("0x34333231", instanceCalInfo.getCalibrationVerificationNumber());
 
         assertArrayEquals(new byte[] { 0x45, 0x71, 0x75, 0x61, 0x6C, 0x73, 0x31, 0x35, 0x43, 0x68, 0x61, 0x72, 0x61,
@@ -148,10 +656,44 @@ public class DM19CalibrationInformationPacketTest {
         assertArrayEquals(new byte[] { 49, 50, 51, 52, 53 }, calInfo.getRawCvn());
     }
 
+    /**
+     * Test method for {@link DM19CalibrationInformationPacket#getCalibrationInformation()}
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DM19 Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Cal Info Details</th>
+     *
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding:3px;word-wrap:break-word">0x00</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">bad DM19 response</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">one bad CVN/Cal Id<br>
+     * cal Id >16 char
+     * </td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     public void testCalIdLengthGreaterThanSixteen() {
         CalibrationInformation calInfo = new CalibrationInformation("GreaterThan16Chars", "1234");
-        DM19CalibrationInformationPacket instance = DM19CalibrationInformationPacket.create(0, 0, calInfo);
+        DM19CalibrationInformationPacket instance = DM19CalibrationInformationPacket.create(0x00, 0, calInfo);
         assertNotNull(instance.getCalibrationInformation());
         assertEquals("GreaterThan16Char", calInfo.getCalibrationIdentification());
         assertEquals("1234", calInfo.getCalibrationVerificationNumber());
@@ -162,16 +704,49 @@ public class DM19CalibrationInformationPacketTest {
         assertArrayEquals(new byte[] { 49, 50, 51, 52 }, calInfo.getRawCvn());
     }
 
+    /**
+     * Test method for {@link DM19CalibrationInformationPacket#getCalibrationInformation()}
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DM19 Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Cal Info Details</th>
+     *
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding:3px;word-wrap:break-word">0x00</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">good DM19 response</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">three good CVN/Cal Id
+     * </td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     public void testCalibrationInformationWithThree() {
         Packet packet = Packet.create(0,
-                                      0,
+                                      0x00,
                                       // Cal #1
-                                      0x51,
+                                      0x51, // CVN
                                       0xBA,
                                       0xFE,
                                       0xBD,
-                                      0x41,
+                                      0x41, // Cal Id
                                       0x4E,
                                       0x54,
                                       0x35,
@@ -189,11 +764,11 @@ public class DM19CalibrationInformationPacketTest {
                                       0x00,
 
                                       // Cal #2
-                                      0x96,
+                                      0x96, // CVN
                                       0xBF,
                                       0xDC,
                                       0x40,
-                                      0x50,
+                                      0x50, // Cal Id
                                       0x42,
                                       0x54,
                                       0x35,
@@ -211,11 +786,11 @@ public class DM19CalibrationInformationPacketTest {
                                       0x00,
 
                                       // Cal #3
-                                      0x40,
+                                      0x40, // CVN
                                       0x91,
                                       0xB9,
                                       0x3E,
-                                      0x52,
+                                      0x52, // Cal Id
                                       0x50,
                                       0x52,
                                       0x42,
@@ -237,23 +812,23 @@ public class DM19CalibrationInformationPacketTest {
         assertNotNull(calInfos);
         assertEquals(3, calInfos.size());
         CalibrationInformation calInfo1 = calInfos.get(0);
-        assertEquals("ANT5ASR1    ", calInfo1.getCalibrationIdentification());
+        assertEquals("ANT5ASR1        ", calInfo1.getCalibrationIdentification());
         assertEquals("0xBDFEBA51", calInfo1.getCalibrationVerificationNumber());
-        assertArrayEquals(new byte[] { 65, 78, 84, 53, 65, 83, 82, 49, 32, 32, 0, 0 },
+        assertArrayEquals(new byte[] { 65, 78, 84, 53, 65, 83, 82, 49, 32, 32, 0, 0, 0, 0, 0, 0 },
                           calInfo1.getRawCalId());
         assertArrayEquals(new byte[] { 81, -70, -2, -67 }, calInfo1.getRawCvn());
 
         CalibrationInformation calInfo2 = calInfos.get(1);
-        assertEquals("PBT5MPR3    ", calInfo2.getCalibrationIdentification());
+        assertEquals("PBT5MPR3        ", calInfo2.getCalibrationIdentification());
         assertEquals("0x40DCBF96", calInfo2.getCalibrationVerificationNumber());
-        assertArrayEquals(new byte[] { 80, 66, 84, 53, 77, 80, 82, 51, 0, 0, 0, 0 },
+        assertArrayEquals(new byte[] { 80, 66, 84, 53, 77, 80, 82, 51, 0, 0, 0, 0, 0, 0, 0, 0 },
                           calInfo2.getRawCalId());
         assertArrayEquals(new byte[] { -106, -65, -36, 64 }, calInfo2.getRawCvn());
 
         CalibrationInformation calInfo3 = calInfos.get(2);
-        assertEquals("RPRBBA10    ", calInfo3.getCalibrationIdentification());
+        assertEquals("RPRBBA10        ", calInfo3.getCalibrationIdentification());
         assertEquals("0x3EB99140", calInfo3.getCalibrationVerificationNumber());
-        assertArrayEquals(new byte[] { 82, 80, 82, 66, 66, 65, 49, 48, 0, 0, 0, 0 },
+        assertArrayEquals(new byte[] { 82, 80, 82, 66, 66, 65, 49, 48, 0, 0, 0, 0, 0, 0, 0, 0 },
                           calInfo3.getRawCalId());
         assertArrayEquals(new byte[] { 64, -111, -71, 62 }, calInfo3.getRawCvn());
 
@@ -263,15 +838,49 @@ public class DM19CalibrationInformationPacketTest {
         assertEquals(expected, instance.toString());
     }
 
+    /**
+     * Test method for {@link DM19CalibrationInformationPacket#getCalibrationInformation()}
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DM19 Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Cal Info Details</th>
+     *
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding:3px;word-wrap:break-word">0x00</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">bad DM19 response</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">one bad CVN/Cal Id<br>
+     * Cal Id <16 char
+     * </td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
-    public void testCalibrationInformationWithThreeDigitCVN() {
+    public void testCalIsLengthLessThanSixteen() {
         Packet packet = Packet.create(0,
                                       0,
-                                      0x00,
+                                      0x00, // CVN
                                       0xAC,
                                       0xFF,
                                       0x33,
-                                      0x41,
+                                      0x41, // Cal Id
                                       0x4E,
                                       0x54,
                                       0x35,
@@ -292,9 +901,9 @@ public class DM19CalibrationInformationPacketTest {
         assertNotNull(calInfos);
         assertEquals(1, calInfos.size());
         CalibrationInformation calInfo = calInfos.get(0);
-        assertEquals("ANT5ASR1    ", calInfo.getCalibrationIdentification());
+        assertEquals("ANT5ASR1        ", calInfo.getCalibrationIdentification());
         assertEquals("0x33FFAC00", calInfo.getCalibrationVerificationNumber());
-        assertArrayEquals(new byte[] { 65, 78, 84, 53, 65, 83, 82, 49, 32, 32, 0, 0 },
+        assertArrayEquals(new byte[] { 65, 78, 84, 53, 65, 83, 82, 49, 32, 32, 0, 0, 0, 0, 0, 0 },
                           calInfo.getRawCalId());
         assertArrayEquals(new byte[] { 0, -84, -1, 51 }, calInfo.getRawCvn());
 
@@ -302,6 +911,40 @@ public class DM19CalibrationInformationPacketTest {
         assertEquals(expected, instance.toString());
     }
 
+    /**
+     * Test method for {@link DM19CalibrationInformationPacket#getCalibrationInformation()}
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DM19 Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Cal Info Details</th>
+     *
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding:3px;word-wrap:break-word">0x00</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">bad DM19 response</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">one bad CVN/Cal Id<br>
+     * Cal Id <16 char
+     * </td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     public void testCalibrationInformationWithTwoDigitCVN() {
         Packet packet = Packet.create(0,
@@ -331,9 +974,9 @@ public class DM19CalibrationInformationPacketTest {
         assertNotNull(calInfos);
         assertEquals(1, calInfos.size());
         CalibrationInformation calInfo = calInfos.get(0);
-        assertEquals("12DBB20002  ", calInfo.getCalibrationIdentification());
+        assertEquals("12DBB20002      ", calInfo.getCalibrationIdentification());
         assertEquals("0x0000E5DE", calInfo.getCalibrationVerificationNumber());
-        assertArrayEquals(new byte[] { 49, 50, 68, 66, 66, 50, 48, 48, 48, 50, 0, 0 },
+        assertArrayEquals(new byte[] { 49, 50, 68, 66, 66, 50, 48, 48, 48, 50, 0, 0, 0, 0, 0, 0 },
                           calInfo.getRawCalId());
         assertArrayEquals(new byte[] { -34, -27, 0, 0 }, calInfo.getRawCvn());
 
@@ -341,6 +984,40 @@ public class DM19CalibrationInformationPacketTest {
         assertEquals(expected, instance.toString());
     }
 
+    /**
+     * Test method for {@link DM19CalibrationInformationPacket#getCalibrationInformation()}
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DM19 Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Cal Info Details</th>
+     *
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding:3px;word-wrap:break-word">0x00</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">bad DM19 response</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">one bad CVN/Cal Id<br>
+     * cvn all 0x00
+     * </td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     public void testCalibrationInformationWithZeroDigitCVN() {
         Packet packet = Packet.create(0,
@@ -370,9 +1047,9 @@ public class DM19CalibrationInformationPacketTest {
         assertNotNull(calInfos);
         assertEquals(1, calInfos.size());
         CalibrationInformation calInfo = calInfos.get(0);
-        assertEquals("ANT5ASR1    ", calInfo.getCalibrationIdentification());
+        assertEquals("ANT5ASR1        ", calInfo.getCalibrationIdentification());
         assertEquals("0x00000000", calInfo.getCalibrationVerificationNumber());
-        assertArrayEquals(new byte[] { 65, 78, 84, 53, 65, 83, 82, 49, 32, 32, 0, 0 },
+        assertArrayEquals(new byte[] { 65, 78, 84, 53, 65, 83, 82, 49, 32, 32, 0, 0, 0, 0, 0, 0 },
                           calInfo.getRawCalId());
         assertArrayEquals(new byte[] { 0, 0, 0, 0 }, calInfo.getRawCvn());
 
@@ -380,6 +1057,40 @@ public class DM19CalibrationInformationPacketTest {
         assertEquals(expected, instance.toString());
     }
 
+    /**
+     * Test method for {@link Packet#equals(Object)} via {@link DM19CalibrationInformationPacket#equals(Object)}
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DM19 Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Cal Info Details</th>
+     *
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding:3px;word-wrap:break-word">0xFE</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">bad DM19 response</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">one bad CVN/Cal Id<br>
+     * Cal Id <16 char
+     * </td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     public void testEqualsAndHashcode() {
         Packet packet1 = Packet.create(0xBADF, 0xFE, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88);
@@ -393,6 +1104,40 @@ public class DM19CalibrationInformationPacketTest {
         assertTrue(instance1.hashCode() == instance2.hashCode());
     }
 
+    /**
+     * Test method for {@link Packet#equals(Object)} via {@link DM19CalibrationInformationPacket#equals(Object)}
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DM19 Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Cal Info Details</th>
+     *
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding:3px;word-wrap:break-word">0xFE</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">bad DM19 response</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">one bad CVN/Cal Id<br>
+     * Cal Id <16 char
+     * </td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     public void testEqualsThis() {
         Packet packet = Packet.create(0xBADF, 0xFE, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88);
@@ -401,6 +1146,40 @@ public class DM19CalibrationInformationPacketTest {
         assertTrue(instance.hashCode() == instance.hashCode());
     }
 
+    /**
+     * Test method for {@link Packet#equals(Object)} via {@link DM19CalibrationInformationPacket#equals(Object)}
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DM19 Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Cal Info Details</th>
+     *
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding:3px;word-wrap:break-word">0xFE</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">bad DM19 response</td>
+     * <td style="text-align:center;border-left:1px solid
+     * #ddd;padding:3px;word-wrap:break-word">one bad CVN/Cal Id<br>
+     * Cal Id <16 char
+     * </td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     public void testNotEqualsObject() {
         Packet packet = Packet.create(0xBADF, 0xFE, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88);
@@ -408,6 +1187,10 @@ public class DM19CalibrationInformationPacketTest {
         assertFalse(instance.equals(new Object()));
     }
 
+    /**
+     * Test method for
+     * {@link DM19CalibrationInformationPacket#PGN}
+     */
     @Test
     public void testPGN() {
         assertEquals(54016, DM19CalibrationInformationPacket.PGN);

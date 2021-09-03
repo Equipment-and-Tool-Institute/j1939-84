@@ -27,17 +27,13 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
                                                           int destination,
                                                           CalibrationInformation... calInfos) {
         // DM19 are 20 bytes long
-        byte[] data = new byte[20];
+        int totalBytes = 20;
+        byte[] data = new byte[0];
 
         for (CalibrationInformation calInfo : calInfos) {
-            // Correctly pad (using 0x00) the message to the required 20 bytes with zeros
-            int numBytes = calInfo.getBytes().length;
-            if (numBytes >= 20) {
-                data = Arrays.copyOf(calInfo.getBytes(), 20);
-            } else {
-                // MSB of a 20 byte message is padded MSB to MSB of short message
-                data = Arrays.copyOf(calInfo.getBytes(), calInfo.getBytes().length);
-            }
+            // Correctly pad message - Java pads/cuts to specified length
+            data = Arrays.copyOf(calInfo.getBytes(), totalBytes);
+
         }
         return new DM19CalibrationInformationPacket(Packet.create(PGN | destination, address, data));
     }
@@ -125,7 +121,7 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
         String cvn = String.format("%08X", getPacket().get32(startingIndex) & 0xFFFFFFFFL);
         byte[] bytes = getPacket().getBytes();
         byte[] cvnBytes = Arrays.copyOfRange(bytes, startingIndex, startingIndex + 4);
-        byte[] idBytes = Arrays.copyOfRange(bytes, startingIndex + 4, startingIndex + 16);
+        byte[] idBytes = Arrays.copyOfRange(bytes, startingIndex + 4, startingIndex + 20);
         String calId = format(idBytes);
         if (!cvn.isEmpty()) {
             cvn = "0x" + cvn;
