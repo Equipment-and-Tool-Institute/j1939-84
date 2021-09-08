@@ -10,6 +10,7 @@ import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -212,8 +213,44 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
 
     }
 
+    /**
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x00<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * good CVN/Cal Id structure</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * good CVN/Cal Id structure</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
-    public void testJoe() {
+    public void testRealDataFromTruck() {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
         DM19CalibrationInformationPacket dm19 = new DM19CalibrationInformationPacket(Packet.create(DM19CalibrationInformationPacket.PGN,
@@ -387,7 +424,23 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(PART_NUMBER),
                                         eq(STEP_NUMBER),
                                         eq(WARN),
-                                        eq(""));
+                                        eq("6.1.7.3.a - Total number of reported CAL IDs is > user entered value for number of emission or diagnostic critical control units"));
+        verify(mockListener).addOutcome(eq(PART_NUMBER),
+                                        eq(STEP_NUMBER),
+                                        eq(WARN),
+                                        eq("6.1.7.3.b - Engine #1 (0) provided more than one CAL ID and CVN pair in a single DM19 message"));
+        verify(mockListener, times(4)).addOutcome(eq(PART_NUMBER),
+                                                  eq(STEP_NUMBER),
+                                                  eq(FAIL),
+                                                  eq("6.1.7.2.b.ii - Engine #1 (0) CAL ID not formatted correctly (contains non-printable ASCII)"));
+        verify(mockListener).addOutcome(eq(PART_NUMBER),
+                                        eq(STEP_NUMBER),
+                                        eq(FAIL),
+                                        eq("6.1.7.2.b.iii - Received CVN is all 0x00 from Engine #1 (0)"));
+        verify(mockListener).addOutcome(eq(PART_NUMBER),
+                                        eq(STEP_NUMBER),
+                                        eq(FAIL),
+                                        eq("6.1.7.2.b.iii - Received CAL ID is all 0xFF from Engine #1 (0)"));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -781,7 +834,48 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     }
 
     /**
-     * Test obd module returns BUSY to global query; DS query returns good message
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test no module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;border-bottom:1px solid #ddd;padding: 3px;word-wrap:break-word">0x00<br>
+     * OBD</td>
+     * <td style="text-align:center;border-bottom:1px solid #ddd;border-left:1px solid #ddd;padding:
+     * 3px;word-wrap:break-word">good DM19
+     * response</td>
+     * <td style="text-align:center;border-bottom:1px solid #ddd;border-left:1px solid #ddd;padding:
+     * 3px;word-wrap:break-word">good DM19
+     * response</td>
+     * </tr>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x01<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">NACK response<br>
+     * BUSY</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
      */
     @Test
     @TestDoc(value = {
@@ -789,23 +883,25 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     public void testObdRespondHasBusyAtByte3Failure() {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
-        DM19CalibrationInformationPacket dm19a0 = createDM19(0, "CALID", "1234", 1);
+        DM19CalibrationInformationPacket dm19a0 = createDM19(0x00, "SixteenCharacters", "1234", 1);
         globalDM19s.add(dm19a0);
-        DM19CalibrationInformationPacket dm19a1 = createDM19(1, "CALID", "1234", 1);
+        DM19CalibrationInformationPacket dm19a1 = createDM19(0x01, "SixteenCharacters", "1234", 1);
         globalDM19s.add(dm19a1);
-        dataRepository.putObdModule(new OBDModuleInformation(1));
+        dataRepository.putObdModule(new OBDModuleInformation(0x01));
         when(vehicleInformationModule.requestDM19(any())).thenReturn(globalDM19s);
 
-        AcknowledgmentPacket nack = AcknowledgmentPacket.create(0, BUSY);
-        dataRepository.putObdModule(new OBDModuleInformation(0));
+        AcknowledgmentPacket nack = AcknowledgmentPacket.create(0x00, BUSY);
+        dataRepository.putObdModule(new OBDModuleInformation(0x00));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
+        vehicleInformation.setCalIds(dm19a0.getCalibrationInformation().size()
+                + dm19a1.getCalibrationInformation().size());
         dataRepository.setVehicleInformation(vehicleInformation);
 
-        when(vehicleInformationModule.requestDM19(any(ResultsListener.class), eq(0)))
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class), eq(0x00)))
                                                                                      .thenReturn(BusResult.of(nack));
-        when(vehicleInformationModule.requestDM19(any(ResultsListener.class), eq(1)))
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class), eq(0x01)))
                                                                                      .thenReturn(BusResult.of(dm19a0));
 
         runTest();
