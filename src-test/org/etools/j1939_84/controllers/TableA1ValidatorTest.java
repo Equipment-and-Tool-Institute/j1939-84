@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -315,7 +316,11 @@ public class TableA1ValidatorTest {
                                  1);
         dataRepository.putObdModule(obdModuleInformation);
 
-        var calInfo = new DM19CalibrationInformationPacket.CalibrationInformation("CALID", "BADBEEF");
+        var calInfo = new DM19CalibrationInformationPacket.CalibrationInformation("CALID",
+                                                                                  "BADBEEF",
+                                                                                  "CALID".getBytes(
+                                                                                                   StandardCharsets.UTF_8),
+                                                                                  "BADBEEF".getBytes(StandardCharsets.UTF_8));
         var packet = DM19CalibrationInformationPacket.create(0, 0xF9, calInfo);
 
         instance.reportNotAvailableSPNs(packet, listener, "6.1.26");
