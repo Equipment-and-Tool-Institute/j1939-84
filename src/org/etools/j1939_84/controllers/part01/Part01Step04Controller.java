@@ -109,7 +109,7 @@ public class Part01Step04Controller extends StepController {
         missingAddresses.stream()
                         .map(Lookup::getAddressName)
                         .forEach(moduleName -> {
-                            addFailure("6.1.4.2.a - Retry was required to obtain DM25 response from " + moduleName);
+                            addFailure("6.1.4.2.a - Retry was required to obtain DM24 response from " + moduleName);
                         });
 
         // 6.1.4.1.c Create vehicle list of supported SPNs for data stream
