@@ -84,7 +84,7 @@ public class RP1210Bus implements Bus {
 
     public RP1210Bus(Adapter adapter, String connectionString, int address, boolean appPacketize) throws BusException {
         this(RP1210Library.load(adapter),
-             Executors.newFixedThreadPool(2),
+             Executors.newSingleThreadExecutor(),
              Executors.newSingleThreadExecutor(),
              new MultiQueue<>(),
              adapter,
@@ -188,11 +188,7 @@ public class RP1210Bus implements Bus {
         try (Stream<Packet> stream = read(1000, TimeUnit.MILLISECONDS)) {
             // rp1210 libraries may not be thread safe
             Optional<String> error = rp1210Executor.submit(() -> {
-                short rtn = rp1210Library.RP1210_SendMessage(clientId,
-                                                             data,
-                                                             (short) data.length,
-                                                             RP1210Library.NOTIFICATION_NONE,
-                                                             BLOCKING_NONE);
+                short rtn = sendRaw(data);
                 if (rtn > 127 || rtn < 0) {
                     return Optional.of(getErrorMessage(rtn));
                 }
@@ -213,6 +209,15 @@ public class RP1210Bus implements Bus {
             throw new BusException("Failed to send: " + tx, t);
         }
 
+    }
+
+    /** exposed for tests */
+    short sendRaw(byte[] data) {
+        return rp1210Library.RP1210_SendMessage(clientId,
+                                                data,
+                                                (short) data.length,
+                                                RP1210Library.NOTIFICATION_NONE,
+                                                BLOCKING_NONE);
     }
 
     /**

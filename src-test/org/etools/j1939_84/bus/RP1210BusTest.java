@@ -21,6 +21,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.math.BigInteger;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -82,7 +83,8 @@ public class RP1210BusTest {
                                  decodingExecutor,
                                  rp1210Executor,
                                  queue,
-                                 adapter,"J1939:Baud=Auto",
+                                 adapter,
+                                 "J1939:Baud=Auto",
                                  ADDRESS,
                                  true,
                                  logger);
@@ -435,8 +437,8 @@ public class RP1210BusTest {
                                                                                                                .thenReturn((short) 0);
 
         startInstance();
-        rp1210Captor.getAllValues().forEach(v->v.run());
-        decodingCaptor.getAllValues().forEach(v->v.run());
+        rp1210Captor.getAllValues().forEach(v -> v.run());
+        decodingCaptor.getAllValues().forEach(v -> v.run());
 
         ArgumentCaptor<Packet> packetCaptor = ArgumentCaptor.forClass(Packet.class);
         verify(queue).add(packetCaptor.capture());
@@ -660,4 +662,36 @@ public class RP1210BusTest {
         verify(rp1210Executor).shutdown();
     }
 
+    /** Traffic generator to verify that packet order is preserved. Requires adapter to run. */
+    public static void main(String... args) throws Exception {
+        Adapter adapter = new Adapter("Nexiq USBLink 2", "NULN2R32", (short) 1);
+        final int TOOL = 0xFA;
+        try (RP1210Bus bus = new RP1210Bus(adapter, "J1939:Baud=Auto", TOOL, true)) {
+
+            Stream<Packet> in = bus.read(1, TimeUnit.DAYS);
+            // log any out of order
+            new Thread(new Runnable() {
+                long last;
+                Packet lastPacket;
+
+                @Override
+                public void run() {
+                    in.filter(p -> p.getSource() == TOOL)
+                      .forEach(p -> {
+                          long n = new BigInteger(p.getBytes()).longValue();
+                          if (n - last <= 0)
+                              System.err.println("XXX " + lastPacket + " -> " + p);
+                          last = n;
+                          lastPacket = p;
+                      });
+                }
+            }, "order validation").start();
+
+            BigInteger number = new BigInteger("1000000000000000", 16);
+            while (true) {
+                bus.sendRaw(bus.encode(Packet.create(0x18FFFF, TOOL, number.toByteArray())));
+                number = number.add(BigInteger.ONE);
+            }
+        }
+    }
 }
