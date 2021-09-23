@@ -63,16 +63,16 @@ public class Part01Step14Controller extends StepController {
     @Override
     protected void run() throws Throwable {
 
-        // 6.1.14.1.a. Global DM26 (send Request (PGN 59904) for PGN 64952 (SPNs 3301-3305)).
+        // 6.1.14.1.a. Global DM26 (send Request (PG 59904) for PG 64952 (SPs 3301-3305)).
         var globalPackets = getDiagnosticMessageModule().requestDM26(getListener())
                                                         .getPackets()
                                                         .stream()
                                                         .filter(p -> isObdModule(p.getSourceAddress()))
                                                         .collect(Collectors.toList());
 
-        // 6.1.14.2.f. Fail if no OBD ECU provides DM26.
+        // 6.1.14.2.g. Fail if no OBD ECU provides DM26.
         if (globalPackets.isEmpty()) {
-            addFailure("6.1.14.2.f - No OBD ECU provided DM26");
+            addFailure("6.1.14.2.g - No OBD ECU provided DM26");
         } else {
             // 6.1.14.1.a.i. Create list by ECU address of all data and current status for use later in the test.
             globalPackets.forEach(this::save);
@@ -108,10 +108,8 @@ public class Part01Step14Controller extends StepController {
                                  + " in DM5 is reported as supported and is reported as complete/not supported DM26 response");
                      });
 
-        // 6.1.14.2.b. Fail if any response for each monitor not supported in DM5 by a given ECU is not also reported
-        // in DM26 as “0=monitor complete this cycle or not supported” in SP 3303 bits 5-7 and
-        // [also reported in DM26 as] “0=monitor disabled for rest of this cycle or not supported” in
-        // SP 3303 bits 1 and 2 and SP 3304.
+        // 6.1.14.2.b Fail if any response for each monitor not supported in DM5 by a given ECU is also reported in DM26
+        // as “1=monitor not complete this monitoring cycle” in SP 3303 bits 5-7
         globalPackets.stream()
                      .flatMap(p -> p.getMonitoredSystems().stream())
                      .sorted()
@@ -119,16 +117,33 @@ public class Part01Step14Controller extends StepController {
                          MonitoredSystem dm5System = getDM5System(dm26System.getId(), dm26System.getSourceAddress());
                          return dm5System != null
                                  && !dm5System.getStatus().isEnabled()
-                                 && !(dm26System.getStatus().isComplete() && !dm26System.getStatus().isEnabled());
+                                 && !dm26System.getStatus().isComplete();
                      })
                      .forEach(dm26System -> {
                          String moduleName = Lookup.getAddressName(dm26System.getSourceAddress());
                          String systemName = dm26System.getName().trim();
                          addFailure("6.1.14.2.b - " + moduleName + " response for a monitor " + systemName
+                                 + " in DM5 is reported as not supported and is reported as not complete by DM26 response");
+                     });
+        // 6.1.14.2.c. Fail if any response for each monitor not supported in DM5 by a given ECU is also reported in
+        // DM26 as “0=monitor enabled for this monitoring cycle” in SP 3303 bits 1 and 2 and SP 3304
+        globalPackets.stream()
+                     .flatMap(p -> p.getMonitoredSystems().stream())
+                     .sorted()
+                     .filter(dm26System -> {
+                         MonitoredSystem dm5System = getDM5System(dm26System.getId(), dm26System.getSourceAddress());
+                         return dm5System != null
+                                 && !dm5System.getStatus().isEnabled()
+                                 && dm26System.getStatus().isEnabled();
+                     })
+                     .forEach(dm26System -> {
+                         String moduleName = Lookup.getAddressName(dm26System.getSourceAddress());
+                         String systemName = dm26System.getName().trim();
+                         addFailure("6.1.14.2.c - " + moduleName + " response for a monitor " + systemName
                                  + " in DM5 is reported as not supported and is not reported as disabled and complete/not supported by DM26 response");
                      });
 
-        // 6.1.14.2.c Fail if any response from an ECU indicating support for CCM monitor in DM5 reports
+        // 6.1.14.2.d Fail if any response from an ECU indicating support for CCM monitor in DM5 reports
         // “0=monitor disabled for rest of this cycle or not supported” in SP 3303 bit 3.
         globalPackets.stream()
                      .flatMap(p -> p.getMonitoredSystems().stream())
@@ -142,25 +157,25 @@ public class Part01Step14Controller extends StepController {
                      .forEach(dm26System -> {
                          String moduleName = Lookup.getAddressName(dm26System.getSourceAddress());
                          String systemName = dm26System.getName().trim();
-                         addFailure("6.1.14.2.c - " + moduleName + " response for a monitor " + systemName
-                                 + " in DM5 is reported as supported and is reported as disabled/not supported by DM26 response");
+                         addFailure("6.1.14.2.d - " + moduleName + " indicates support for " + systemName
+                                 + " in DM5 is reported as disabled/not supported in SP 3303 bit 3");
                      });
 
-        // 6.1.14.2.d. Fail if any response indicates number of warm-ups since code clear (SPN 3302) is not zero.
+        // 6.1.14.2.e. Fail if any response indicates number of warm-ups since code clear (SP 3302) is not zero.
         globalPackets.stream()
                      .filter(packet -> packet.getWarmUpsSinceClear() != 0)
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> {
-                         addFailure("6.1.14.2.d - " + moduleName
+                         addFailure("6.1.14.2.e - " + moduleName
                                  + " response indicates number of warm-ups since code clear is not zero");
                      });
 
-        // 6.1.14.2.e. Fail if any response indicates time since engine start (SPN 3301) is not zero.
+        // 6.1.14.2.f. Fail if any response indicates time since engine start (SP 3301) is not zero.
         globalPackets.stream()
                      .filter(packet -> packet.getTimeSinceEngineStart() != 0)
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> {
-                         addFailure("6.1.14.2.e - " + moduleName
+                         addFailure("6.1.14.2.f - " + moduleName
                                  + " response indicates time since engine start is not zero");
                      });
 
