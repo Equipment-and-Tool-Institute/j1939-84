@@ -10,6 +10,7 @@ import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -209,6 +210,243 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
 
         verify(vehicleInformationModule).requestDM19(any(ResultsListener.class));
         verify(vehicleInformationModule).requestDM19(any(ResultsListener.class), eq(0x00));
+
+    }
+
+    /**
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x00<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * good CVN/Cal Id structure</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response<br>
+     * good CVN/Cal Id structure</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
+    @Test
+    public void testRealDataFromTruck() {
+        List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
+
+        DM19CalibrationInformationPacket dm19 = new DM19CalibrationInformationPacket(Packet.create(DM19CalibrationInformationPacket.PGN,
+                                                                                                   0x00,
+                                                                                                   // LSB CVN; 4 bytes
+                                                                                                   // (checksum value of
+                                                                                                   // entire
+                                                                                                   // calibration)
+                                                                                                   // padding at MSB w/
+                                                                                                   // 0x00
+                                                                                                   0x06, // ASCII value
+                                                                                                         // of ACK -
+                                                                                                         // unprintable
+                                                                                                         // char
+                                                                                                   0x7A, // z
+                                                                                                   0x6E, // n
+                                                                                                   0xC9, // É -
+                                                                                                         // unprintable
+                                                                                                         // char
+                                                                                                   // LSB Cal ID; 16
+                                                                                                   // bytes; Padding at
+                                                                                                   // LSB w/ 0x00
+                                                                                                   0x41, // A
+                                                                                                   0x32, // 2
+                                                                                                   0x36, // 36
+                                                                                                   0x31, // 1
+                                                                                                   0x58, // X
+                                                                                                   0x58, // X
+                                                                                                   0x4D,  // M
+                                                                                                   0x5F,  // -
+                                                                                                   0x45, // E
+                                                                                                   0x37,  // 7
+                                                                                                   0x31, // 1
+                                                                                                   0x31, // 1
+                                                                                                   0x45, // E
+                                                                                                   0x33, // 3
+                                                                                                   0x31, // 1
+                                                                                                   0x44, // D
+                                                                                                   // LSB; 4 bytes
+                                                                                                   // (checksum value of
+                                                                                                   // entire
+                                                                                                   // calibration)
+                                                                                                   0xA8, // -
+                                                                                                         // unprintable
+                                                                                                   0x73, // 5
+                                                                                                   0x89, // undefined
+                                                                                                   0x13, // DC3 Ascii
+                                                                                                         // char
+                                                                                                         // undefined?
+                                                                                                   // LSB Cal ID; 16
+                                                                                                   // bytes; Padding at
+                                                                                                   // LSB
+                                                                                                   0x4E, // N
+                                                                                                   0x4F, // O
+                                                                                                   0x78, // x
+                                                                                                   0x2D, // -
+                                                                                                   0x53, // S
+                                                                                                   0x41, // A
+                                                                                                   0x45, // E
+                                                                                                   0x31, // 1
+                                                                                                   0x34, // 4
+                                                                                                   0x61, // a
+                                                                                                   0x20, // " " - space
+                                                                                                   0x41, // A
+                                                                                                   0x54, // T
+                                                                                                   0x49, // I
+                                                                                                   0x31, // 1
+                                                                                                   0x00, // NUL
+                                                                                                   // LSB; 4 bytes
+                                                                                                   // (checksum value of
+                                                                                                   // entire
+                                                                                                   // calibration)
+                                                                                                   0x8C, // ¼ -
+                                                                                                         // unprintable
+                                                                                                   0x4B, // K
+                                                                                                   0xF9, // ù -
+                                                                                                         // unprintable
+                                                                                                   0xC9, // É -
+                                                                                                         // unprintable
+                                                                                                   // LSB Cal ID; 16
+                                                                                                   // bytes; Padding at
+                                                                                                   // LSB
+                                                                                                   0x4E, // N
+                                                                                                   0x4F, // O
+                                                                                                   0x78, // x
+                                                                                                   0x2D, // -
+                                                                                                   0x53, // S
+                                                                                                   0x41, // A
+                                                                                                   0x45, // E
+                                                                                                   0x31, // 1
+                                                                                                   0x34, // 4
+                                                                                                   0x61, // a
+                                                                                                   0x20, // " " - space
+                                                                                                   0x41, // A
+                                                                                                   0x54, // T
+                                                                                                   0x4F, // 0
+                                                                                                   0x31, // 1
+                                                                                                   0x00, // NUL
+                                                                                                   // LSB; 4 bytes
+                                                                                                   // (checksum value of
+                                                                                                   // entire
+                                                                                                   // calibration)
+                                                                                                   0x00, // NUL
+                                                                                                   0x00, // NUL
+                                                                                                   0x00, // NUL
+                                                                                                   0x00, // NUL
+                                                                                                   // LSB Cal ID; 16
+                                                                                                   // bytes; Padding at
+                                                                                                   // LSB
+                                                                                                   0xFF, // ÿ
+                                                                                                   0xFF, // ÿ
+                                                                                                   0xFF, // ÿ
+                                                                                                   0xFF, // ÿ
+                                                                                                   0xFF, // ÿ
+                                                                                                   0xFF, // ÿ
+                                                                                                   0xFF, // ÿ
+                                                                                                   0xFF, // ÿ
+                                                                                                   0xFF, // ÿ
+                                                                                                   0xFF, // ÿ
+                                                                                                   0xFF, // ÿ
+                                                                                                   0xFF, // ÿ
+                                                                                                   0xFF, // ÿ
+                                                                                                   0xFF, // ÿ
+                                                                                                   0xFF, // ÿ
+                                                                                                   0xFF, // ÿ
+                                                                                                   // LSB; 4 bytes
+                                                                                                   // (checksum value of
+                                                                                                   // entire
+                                                                                                   // calibration)
+                                                                                                   0xD2, // Ò -
+                                                                                                         // unprintable
+                                                                                                   0xBF, // ¿
+                                                                                                   0x0F, // undefined
+                                                                                                   0xA9, // ©
+                                                                                                   // LSB Cal ID; 16
+                                                                                                   // bytes; Padding at
+                                                                                                   // LSB
+                                                                                                   0x50, // P
+                                                                                                   0x4D, // M
+                                                                                                   0x53, // S
+                                                                                                   0x31, // 1
+                                                                                                   0x32, // 2
+                                                                                                   0x33, // 3
+                                                                                                   0x34, // 4
+                                                                                                   0x31, // 1
+                                                                                                   0x41, // A
+                                                                                                   0x31, // 1
+                                                                                                   0x30, // 0
+                                                                                                   0x31, // 1
+                                                                                                   0x00, // NUL
+                                                                                                   0x00, // NUL
+                                                                                                   0x00, // NUL
+                                                                                                   0x00 // NUL
+        ));
+
+        globalDM19s.add(dm19);
+        when(vehicleInformationModule.requestDM19(any())).thenReturn(globalDM19s);
+
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setEmissionUnits(1);
+        dataRepository.setVehicleInformation(vehicleInformation);
+
+        when(vehicleInformationModule.requestDM19(any(), eq(0)))
+                                                                .thenReturn(BusResult.of(
+                                                                                         dm19));
+
+        runTest();
+
+        verify(mockListener).addOutcome(eq(PART_NUMBER),
+                                        eq(STEP_NUMBER),
+                                        eq(WARN),
+                                        eq("6.1.7.3.a - Total number of reported CAL IDs is > user entered value for number of emission or diagnostic critical control units"));
+        verify(mockListener).addOutcome(eq(PART_NUMBER),
+                                        eq(STEP_NUMBER),
+                                        eq(WARN),
+                                        eq("6.1.7.3.b - Engine #1 (0) provided more than one CAL ID and CVN pair in a single DM19 message"));
+        verify(mockListener, times(4)).addOutcome(eq(PART_NUMBER),
+                                                  eq(STEP_NUMBER),
+                                                  eq(FAIL),
+                                                  eq("6.1.7.2.b.ii - Engine #1 (0) CAL ID not formatted correctly (contains non-printable ASCII)"));
+        verify(mockListener).addOutcome(eq(PART_NUMBER),
+                                        eq(STEP_NUMBER),
+                                        eq(FAIL),
+                                        eq("6.1.7.2.b.iii - Received CVN is all 0x00 from Engine #1 (0)"));
+        verify(mockListener).addOutcome(eq(PART_NUMBER),
+                                        eq(STEP_NUMBER),
+                                        eq(FAIL),
+                                        eq("6.1.7.2.b.iii - Received CAL ID is all 0xFF from Engine #1 (0)"));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(vehicleInformationModule).requestDM19(any());
+        verify(vehicleInformationModule).requestDM19(any(), eq(0));
 
     }
 
@@ -596,7 +834,48 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     }
 
     /**
-     * Test obd module returns BUSY to global query; DS query returns good message
+     * Test method for {@link Part01Step07Controller#run()}.
+     * Test no module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Address</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">DS
+     * Response</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;border-bottom:1px solid #ddd;padding: 3px;word-wrap:break-word">0x00<br>
+     * OBD</td>
+     * <td style="text-align:center;border-bottom:1px solid #ddd;border-left:1px solid #ddd;padding:
+     * 3px;word-wrap:break-word">good DM19
+     * response</td>
+     * <td style="text-align:center;border-bottom:1px solid #ddd;border-left:1px solid #ddd;padding:
+     * 3px;word-wrap:break-word">good DM19
+     * response</td>
+     * </tr>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x01<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM19
+     * response</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">NACK response<br>
+     * BUSY</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
      */
     @Test
     @TestDoc(value = {
@@ -604,23 +883,25 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     public void testObdRespondHasBusyAtByte3Failure() {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
-        DM19CalibrationInformationPacket dm19a0 = createDM19(0, "CALID", "1234", 1);
+        DM19CalibrationInformationPacket dm19a0 = createDM19(0x00, "SixteenCharacters", "1234", 1);
         globalDM19s.add(dm19a0);
-        DM19CalibrationInformationPacket dm19a1 = createDM19(1, "CALID", "1234", 1);
+        DM19CalibrationInformationPacket dm19a1 = createDM19(0x01, "SixteenCharacters", "1234", 1);
         globalDM19s.add(dm19a1);
-        dataRepository.putObdModule(new OBDModuleInformation(1));
+        dataRepository.putObdModule(new OBDModuleInformation(0x01));
         when(vehicleInformationModule.requestDM19(any())).thenReturn(globalDM19s);
 
-        AcknowledgmentPacket nack = AcknowledgmentPacket.create(0, BUSY);
-        dataRepository.putObdModule(new OBDModuleInformation(0));
+        AcknowledgmentPacket nack = AcknowledgmentPacket.create(0x00, BUSY);
+        dataRepository.putObdModule(new OBDModuleInformation(0x00));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
+        vehicleInformation.setCalIds(dm19a0.getCalibrationInformation().size()
+                + dm19a1.getCalibrationInformation().size());
         dataRepository.setVehicleInformation(vehicleInformation);
 
-        when(vehicleInformationModule.requestDM19(any(ResultsListener.class), eq(0)))
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class), eq(0x00)))
                                                                                      .thenReturn(BusResult.of(nack));
-        when(vehicleInformationModule.requestDM19(any(ResultsListener.class), eq(1)))
+        when(vehicleInformationModule.requestDM19(any(ResultsListener.class), eq(0x01)))
                                                                                      .thenReturn(BusResult.of(dm19a0));
 
         runTest();
