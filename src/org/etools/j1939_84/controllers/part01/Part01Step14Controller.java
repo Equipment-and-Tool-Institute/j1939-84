@@ -134,7 +134,7 @@ public class Part01Step14Controller extends StepController {
                          MonitoredSystem dm5System = getDM5System(dm26System.getId(), dm26System.getSourceAddress());
                          return dm5System != null
                                  && !dm5System.getStatus().isEnabled()
-                                 && !dm26System.getStatus().isEnabled();
+                                 && dm26System.getStatus().isEnabled();
                      })
                      .forEach(dm26System -> {
                          String moduleName = Lookup.getAddressName(dm26System.getSourceAddress());
@@ -158,7 +158,7 @@ public class Part01Step14Controller extends StepController {
                          String moduleName = Lookup.getAddressName(dm26System.getSourceAddress());
                          String systemName = dm26System.getName().trim();
                          addFailure("6.1.14.2.d - " + moduleName + " indicates support for " + systemName
-                                 + " in DM5 is reported as supported and is reported as disabled/not supported by DM26 response");
+                                 + " in DM5 is reported as disabled/not supported in SP 3303 bit 3");
                      });
 
         // 6.1.14.2.e. Fail if any response indicates number of warm-ups since code clear (SP 3302) is not zero.
