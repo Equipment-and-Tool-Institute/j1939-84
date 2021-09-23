@@ -45,7 +45,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -97,7 +97,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
     private ReportFileModule reportFileModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     private static List<SupportedSPN> spns(int... ids) {
         return Arrays.stream(ids).mapToObj(id -> {
@@ -131,7 +131,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               tableA1Validator,
                                               j1939DaRepository,
                                               broadcastValidator,
@@ -143,7 +143,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After

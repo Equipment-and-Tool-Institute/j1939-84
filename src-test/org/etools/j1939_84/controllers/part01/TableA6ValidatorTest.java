@@ -23,7 +23,7 @@ import static org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus.findSt
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
-import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSystems;
+import static org.etools.j1939_84.modules.CommunicationsModule.getCompositeSystems;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -38,7 +38,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.VehicleInformation;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.junit.After;
 import org.junit.Before;
@@ -62,7 +62,7 @@ public class TableA6ValidatorTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     private TableA6Validator instance;
 
@@ -84,7 +84,7 @@ public class TableA6ValidatorTest {
     @After
     public void tearDown() {
         verifyNoMoreInteractions(mockListener,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  vehicleInformationModule);
     }
 

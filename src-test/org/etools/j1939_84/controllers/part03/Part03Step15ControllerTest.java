@@ -26,7 +26,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -48,7 +48,7 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -87,7 +87,7 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -96,7 +96,7 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -108,7 +108,7 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  vehicleInformationModule,
                                  mockListener,
-                                 diagnosticMessageModule);
+                                 communicationsModule);
     }
 
     @Test
@@ -138,14 +138,14 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 0);
 
-        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, dm21));
+        when(communicationsModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, dm21));
 
         runTest();
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
 
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0));
+        verify(communicationsModule).requestDM21(any(), eq(0));
 
     }
 
@@ -164,10 +164,10 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
         AcknowledgmentPacket ackPacket = AcknowledgmentPacket.create(1, NACK);
         DM21DiagnosticReadinessPacket dm21_2 = DM21DiagnosticReadinessPacket.create(2, 0, 0, 0, 90, 0);
         DM21DiagnosticReadinessPacket dm21_3 = DM21DiagnosticReadinessPacket.create(3, 0, 0, 0, 90, 0);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, dm21));
-        when(diagnosticMessageModule.requestDM21(any(), eq(1))).thenReturn(new BusResult<>(false, ackPacket));
-        when(diagnosticMessageModule.requestDM21(any(), eq(2))).thenReturn(new BusResult<>(false, dm21_2));
-        when(diagnosticMessageModule.requestDM21(any(), eq(3))).thenReturn(new BusResult<>(false, dm21_3));
+        when(communicationsModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, dm21));
+        when(communicationsModule.requestDM21(any(), eq(1))).thenReturn(new BusResult<>(false, ackPacket));
+        when(communicationsModule.requestDM21(any(), eq(2))).thenReturn(new BusResult<>(false, dm21_2));
+        when(communicationsModule.requestDM21(any(), eq(3))).thenReturn(new BusResult<>(false, dm21_3));
 
         runTest();
 
@@ -175,10 +175,10 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
 
 
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(1));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(2));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(3));
+        verify(communicationsModule).requestDM21(any(), eq(0));
+        verify(communicationsModule).requestDM21(any(), eq(1));
+        verify(communicationsModule).requestDM21(any(), eq(2));
+        verify(communicationsModule).requestDM21(any(), eq(3));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -202,10 +202,10 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 0);
 
-        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, dm21));
-        when(diagnosticMessageModule.requestDM21(any(), eq(1))).thenReturn(new BusResult<>(true));
+        when(communicationsModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, dm21));
+        when(communicationsModule.requestDM21(any(), eq(1))).thenReturn(new BusResult<>(true));
         var ack = AcknowledgmentPacket.create(2, ACK);
-        when(diagnosticMessageModule.requestDM21(any(), eq(2))).thenReturn(new BusResult<>(false, ack));
+        when(communicationsModule.requestDM21(any(), eq(2))).thenReturn(new BusResult<>(false, ack));
 
         runTest();
 
@@ -213,9 +213,9 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
 
 
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(1));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(2));
+        verify(communicationsModule).requestDM21(any(), eq(0));
+        verify(communicationsModule).requestDM21(any(), eq(1));
+        verify(communicationsModule).requestDM21(any(), eq(2));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,

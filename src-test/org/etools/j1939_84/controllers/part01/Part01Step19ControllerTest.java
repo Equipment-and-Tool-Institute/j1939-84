@@ -32,7 +32,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -62,7 +62,7 @@ public class Part01Step19ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -97,7 +97,7 @@ public class Part01Step19ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               dataRepository,
                                               DateTimeModule.getInstance());
 
@@ -108,7 +108,7 @@ public class Part01Step19ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -117,7 +117,7 @@ public class Part01Step19ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -205,22 +205,22 @@ public class Part01Step19ControllerTest extends AbstractControllerTest {
     public void testNackNotReceivedFailure() {
 
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
-        when(diagnosticMessageModule.requestDM23(any(ResultsListener.class),
-                                                 eq(0x01))).thenReturn(new BusResult<>(false, Optional.empty()));
+        when(communicationsModule.requestDM23(any(ResultsListener.class),
+                                              eq(0x01))).thenReturn(new BusResult<>(false, Optional.empty()));
 
         dataRepository.putObdModule(new OBDModuleInformation(0x58));
         var packet58 = DM23PreviouslyMILOnEmissionDTCPacket.create(0x58, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM23(any(ResultsListener.class),
-                                                 eq(0x58))).thenReturn(new BusResult<>(false, packet58));
+        when(communicationsModule.requestDM23(any(ResultsListener.class),
+                                              eq(0x58))).thenReturn(new BusResult<>(false, packet58));
 
-        when(diagnosticMessageModule.requestDM23(any(ResultsListener.class))).thenReturn(new RequestResult<>(false,
-                                                                                                             packet58));
+        when(communicationsModule.requestDM23(any(ResultsListener.class))).thenReturn(new RequestResult<>(false,
+                                                                                                          packet58));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM23(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM23(any(ResultsListener.class), eq(0x01));
-        verify(diagnosticMessageModule).requestDM23(any(ResultsListener.class), eq(0x58));
+        verify(communicationsModule).requestDM23(any(ResultsListener.class));
+        verify(communicationsModule).requestDM23(any(ResultsListener.class), eq(0x01));
+        verify(communicationsModule).requestDM23(any(ResultsListener.class), eq(0x58));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -299,7 +299,7 @@ public class Part01Step19ControllerTest extends AbstractControllerTest {
                                                                                                               0x00,
                                                                                                               0x00,
                                                                                                               0x00));
-        when(diagnosticMessageModule.requestDM23(any(ResultsListener.class), eq(0x01)))
+        when(communicationsModule.requestDM23(any(ResultsListener.class), eq(0x01)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet1));
 
@@ -309,7 +309,7 @@ public class Part01Step19ControllerTest extends AbstractControllerTest {
                                                                                                    ON,
                                                                                                    OFF,
                                                                                                    OFF);
-        when(diagnosticMessageModule.requestDM23(any(ResultsListener.class)))
+        when(communicationsModule.requestDM23(any(ResultsListener.class)))
                                                                              .thenReturn(new RequestResult<>(false,
                                                                                                              packet1,
                                                                                                              packet3));
@@ -319,15 +319,15 @@ public class Part01Step19ControllerTest extends AbstractControllerTest {
                                                                                                       OFF,
                                                                                                       OFF,
                                                                                                       OFF);
-        when(diagnosticMessageModule.requestDM23(any(ResultsListener.class), eq(0x03)))
+        when(communicationsModule.requestDM23(any(ResultsListener.class), eq(0x03)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    obdPacket3));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM23(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM23(any(ResultsListener.class), eq(0x01));
-        verify(diagnosticMessageModule).requestDM23(any(ResultsListener.class), eq(0x03));
+        verify(communicationsModule).requestDM23(any(ResultsListener.class));
+        verify(communicationsModule).requestDM23(any(ResultsListener.class), eq(0x01));
+        verify(communicationsModule).requestDM23(any(ResultsListener.class), eq(0x03));
 
         assertEquals("", listener.getResults());
 
@@ -405,7 +405,7 @@ public class Part01Step19ControllerTest extends AbstractControllerTest {
                                                                                                    dtc1,
                                                                                                    dtc2,
                                                                                                    dtc3);
-        when(diagnosticMessageModule.requestDM23(any(ResultsListener.class), eq(0x01)))
+        when(communicationsModule.requestDM23(any(ResultsListener.class), eq(0x01)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet1));
 
@@ -420,19 +420,19 @@ public class Part01Step19ControllerTest extends AbstractControllerTest {
                                                                                                               0x00,
                                                                                                               0x00,
                                                                                                               0x00));
-        when(diagnosticMessageModule.requestDM23(any(ResultsListener.class),
-                                                 eq(0x03))).thenReturn(new BusResult<>(false,
+        when(communicationsModule.requestDM23(any(ResultsListener.class),
+                                              eq(0x03))).thenReturn(new BusResult<>(false,
                                                                                        packet3));
 
-        when(diagnosticMessageModule.requestDM23(any(ResultsListener.class))).thenReturn(new RequestResult<>(false,
-                                                                                                             packet1,
-                                                                                                             packet3));
+        when(communicationsModule.requestDM23(any(ResultsListener.class))).thenReturn(new RequestResult<>(false,
+                                                                                                          packet1,
+                                                                                                          packet3));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM23(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM23(any(ResultsListener.class), eq(0x01));
-        verify(diagnosticMessageModule).requestDM23(any(ResultsListener.class), eq(0x03));
+        verify(communicationsModule).requestDM23(any(ResultsListener.class));
+        verify(communicationsModule).requestDM23(any(ResultsListener.class), eq(0x01));
+        verify(communicationsModule).requestDM23(any(ResultsListener.class), eq(0x03));
 
         assertEquals("", listener.getResults());
 
@@ -505,7 +505,7 @@ public class Part01Step19ControllerTest extends AbstractControllerTest {
                                                                                                    OFF,
                                                                                                    OFF,
                                                                                                    OFF);
-        when(diagnosticMessageModule.requestDM23(any(ResultsListener.class), eq(0x01)))
+        when(communicationsModule.requestDM23(any(ResultsListener.class), eq(0x01)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet1));
 
@@ -521,20 +521,20 @@ public class Part01Step19ControllerTest extends AbstractControllerTest {
                                                                                                               0x00,
                                                                                                               0x00,
                                                                                                               0x00));
-        when(diagnosticMessageModule.requestDM23(any(ResultsListener.class), eq(0x03)))
+        when(communicationsModule.requestDM23(any(ResultsListener.class), eq(0x03)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet3));
 
-        when(diagnosticMessageModule.requestDM23(any(ResultsListener.class)))
+        when(communicationsModule.requestDM23(any(ResultsListener.class)))
                                                                              .thenReturn(new RequestResult<>(false,
                                                                                                              packet1,
                                                                                                              packet3));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM23(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM23(any(ResultsListener.class), eq(0x01));
-        verify(diagnosticMessageModule).requestDM23(any(ResultsListener.class), eq(0x03));
+        verify(communicationsModule).requestDM23(any(ResultsListener.class));
+        verify(communicationsModule).requestDM23(any(ResultsListener.class), eq(0x01));
+        verify(communicationsModule).requestDM23(any(ResultsListener.class), eq(0x03));
 
         assertEquals("", listener.getResults());
 
@@ -589,18 +589,18 @@ public class Part01Step19ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
         AcknowledgmentPacket packet1 = AcknowledgmentPacket.create(0x01, NACK);
 
-        when(diagnosticMessageModule.requestDM23(any(ResultsListener.class), eq(0x01)))
+        when(communicationsModule.requestDM23(any(ResultsListener.class), eq(0x01)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet1));
 
-        when(diagnosticMessageModule.requestDM23(any(ResultsListener.class)))
+        when(communicationsModule.requestDM23(any(ResultsListener.class)))
                                                                              .thenReturn(new RequestResult<>(false,
                                                                                                              List.of()));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM23(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM23(any(ResultsListener.class), eq(0x01));
+        verify(communicationsModule).requestDM23(any(ResultsListener.class));
+        verify(communicationsModule).requestDM23(any(ResultsListener.class), eq(0x01));
 
         assertEquals("", listener.getResults());
 
@@ -669,7 +669,7 @@ public class Part01Step19ControllerTest extends AbstractControllerTest {
     public void testNoErrors() {
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
         AcknowledgmentPacket ackPacket1 = AcknowledgmentPacket.create(0x01, NACK);
-        when(diagnosticMessageModule.requestDM23(any(ResultsListener.class), eq(0x01)))
+        when(communicationsModule.requestDM23(any(ResultsListener.class), eq(0x01)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    ackPacket1));
 
@@ -684,19 +684,19 @@ public class Part01Step19ControllerTest extends AbstractControllerTest {
                                                                                                               0x00,
                                                                                                               0x00,
                                                                                                               0x00));
-        when(diagnosticMessageModule.requestDM23(any(ResultsListener.class), eq(0x33)))
+        when(communicationsModule.requestDM23(any(ResultsListener.class), eq(0x33)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet33));
 
-        when(diagnosticMessageModule.requestDM23(any(ResultsListener.class)))
+        when(communicationsModule.requestDM23(any(ResultsListener.class)))
                                                                              .thenReturn(new RequestResult<>(false,
                                                                                                              packet33));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM23(any());
-        verify(diagnosticMessageModule).requestDM23(any(), eq(0x01));
-        verify(diagnosticMessageModule).requestDM23(any(), eq(0x33));
+        verify(communicationsModule).requestDM23(any());
+        verify(communicationsModule).requestDM23(any(), eq(0x01));
+        verify(communicationsModule).requestDM23(any(), eq(0x33));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

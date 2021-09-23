@@ -11,7 +11,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.VinDecoder;
@@ -50,7 +50,7 @@ public class Part01Step05Controller extends StepController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(),
+              new CommunicationsModule(),
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);

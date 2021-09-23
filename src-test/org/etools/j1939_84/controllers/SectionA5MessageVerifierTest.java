@@ -44,7 +44,7 @@ import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.junit.After;
@@ -63,7 +63,7 @@ public class SectionA5MessageVerifierTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     private SectionA5MessageVerifier instance;
 
@@ -86,7 +86,7 @@ public class SectionA5MessageVerifierTest {
         listener = new TestResultsListener(mockListener);
 
         instance = new SectionA5MessageVerifier(dataRepository,
-                                                diagnosticMessageModule,
+                                                communicationsModule,
                                                 vehicleInformationModule,
                                                 PART_NUMBER,
                                                 STEP_NUMBER);
@@ -95,7 +95,7 @@ public class SectionA5MessageVerifierTest {
     @After
     public void tearDown() {
         DateTimeModule.setInstance(null);
-        verifyNoMoreInteractions(diagnosticMessageModule,
+        verifyNoMoreInteractions(communicationsModule,
                                  mockListener,
                                  vehicleInformationModule);
     }
@@ -103,7 +103,7 @@ public class SectionA5MessageVerifierTest {
     @Test
     public void testSetJ1939() {
         instance.setJ1939(j1939);
-        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(communicationsModule).setJ1939(j1939);
         verify(vehicleInformationModule).setJ1939(j1939);
     }
 
@@ -114,11 +114,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM6(listener, 0)).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM6(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertTrue(instance.checkDM6(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM6(listener, 0);
+        verify(communicationsModule).requestDM6(listener, 0);
     }
 
     @Test
@@ -129,11 +129,11 @@ public class SectionA5MessageVerifierTest {
 
         var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
         var packet = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM6(listener, 0)).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM6(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertFalse(instance.checkDM6(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM6(listener, 0);
+        verify(communicationsModule).requestDM6(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -147,11 +147,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM6(listener, 0)).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM6(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertFalse(instance.checkDM6(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM6(listener, 0);
+        verify(communicationsModule).requestDM6(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -166,11 +166,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM6(listener, 0)).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM6(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertTrue(instance.checkDM6(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestDM6(listener, 0);
+        verify(communicationsModule).requestDM6(listener, 0);
     }
 
     @Test
@@ -181,11 +181,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM6(listener, 0)).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM6(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertFalse(instance.checkDM6(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestDM6(listener, 0);
+        verify(communicationsModule).requestDM6(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.2.3.4.a - Engine #1 (0) erased DM6 data");
     }
 
@@ -197,11 +197,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM12(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM12(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM12(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM12(listener, 0);
+        verify(communicationsModule).requestDM12(listener, 0);
     }
 
     @Test
@@ -212,11 +212,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM12(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM12(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM12(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM12(listener, 0);
+        verify(communicationsModule).requestDM12(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -231,11 +231,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM12(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM12(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM12(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM12(listener, 0);
+        verify(communicationsModule).requestDM12(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -250,11 +250,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM12(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM12(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM12(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestDM12(listener, 0);
+        verify(communicationsModule).requestDM12(listener, 0);
     }
 
     @Test
@@ -265,11 +265,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM12(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM12(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM12(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestDM12(listener, 0);
+        verify(communicationsModule).requestDM12(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.2.3.4.a - Engine #1 (0) erased DM12 data");
     }
 
@@ -281,11 +281,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM23(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM23(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM23(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM23(listener, 0);
+        verify(communicationsModule).requestDM23(listener, 0);
     }
 
     @Test
@@ -296,11 +296,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM23(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM23(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM23(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM23(listener, 0);
+        verify(communicationsModule).requestDM23(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -315,11 +315,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM23PreviouslyMILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM23(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM23(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM23(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM23(listener, 0);
+        verify(communicationsModule).requestDM23(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -334,11 +334,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM23PreviouslyMILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM23(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM23(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM23(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestDM23(listener, 0);
+        verify(communicationsModule).requestDM23(listener, 0);
     }
 
     @Test
@@ -349,11 +349,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM23(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM23(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM23(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestDM23(listener, 0);
+        verify(communicationsModule).requestDM23(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.2.3.4.a - Engine #1 (0) erased DM23 data");
     }
 
@@ -364,11 +364,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM29DtcCounts.create(0, 0, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM29(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM29(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM29(listener, 0);
+        verify(communicationsModule).requestDM29(listener, 0);
     }
 
     @Test
@@ -378,11 +378,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM29DtcCounts.create(0, 0, 1, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM29(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM29(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM29(listener, 0);
+        verify(communicationsModule).requestDM29(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -396,11 +396,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM29DtcCounts.create(0, 0, 0, 0, 1, 0, 0);
-        when(diagnosticMessageModule.requestDM29(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM29(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM29(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM29(listener, 0);
+        verify(communicationsModule).requestDM29(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -414,11 +414,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM29DtcCounts.create(0, 0, 0, 0, 0, 1, 0);
-        when(diagnosticMessageModule.requestDM29(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM29(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM29(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM29(listener, 0);
+        verify(communicationsModule).requestDM29(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -432,11 +432,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM29DtcCounts.create(0, 0, 1, 0, 1, 1, 0);
-        when(diagnosticMessageModule.requestDM29(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM29(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM29(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestDM29(listener, 0);
+        verify(communicationsModule).requestDM29(listener, 0);
     }
 
     @Test
@@ -446,11 +446,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM29DtcCounts.create(0, 0, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM29(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM29(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestDM29(listener, 0);
+        verify(communicationsModule).requestDM29(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.2.3.4.a - Engine #1 (0) erased DM29 data");
     }
 
@@ -466,11 +466,11 @@ public class SectionA5MessageVerifierTest {
                                                          0x22,
                                                          List.of(),
                                                          List.of(CompositeSystem.COMPREHENSIVE_COMPONENT));
-        when(diagnosticMessageModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM5(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM5(listener, 0);
+        verify(communicationsModule).requestDM5(listener, 0);
     }
 
     @Test
@@ -480,11 +480,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM5DiagnosticReadinessPacket.create(0, 1, 0, 0x22);
-        when(diagnosticMessageModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM5(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM5(listener, 0);
+        verify(communicationsModule).requestDM5(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -498,11 +498,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM5DiagnosticReadinessPacket.create(0, 0, 1, 0x22);
-        when(diagnosticMessageModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM5(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM5(listener, 0);
+        verify(communicationsModule).requestDM5(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -517,11 +517,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM5DiagnosticReadinessPacket.create(0, 1, 0, 0x22, List.of(), List.of(CompositeSystem.CATALYST));
-        when(diagnosticMessageModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM5(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM5(listener, 0);
+        verify(communicationsModule).requestDM5(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -535,11 +535,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM5DiagnosticReadinessPacket.create(0, 1, 1, 0x22);
-        when(diagnosticMessageModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM5(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestDM5(listener, 0);
+        verify(communicationsModule).requestDM5(listener, 0);
     }
 
     @Test
@@ -549,11 +549,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM5DiagnosticReadinessPacket.create(0, 0xFF, 0xFF, 0x22);
-        when(diagnosticMessageModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM5(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestDM5(listener, 0);
+        verify(communicationsModule).requestDM5(listener, 0);
     }
 
     @Test
@@ -563,11 +563,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22);
-        when(diagnosticMessageModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM5(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestDM5(listener, 0);
+        verify(communicationsModule).requestDM5(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.2.3.4.a - Engine #1 (0) erased DM5 data");
     }
 
@@ -579,11 +579,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM25ExpandedFreezeFrame.create(0);
-        when(diagnosticMessageModule.requestDM25(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM25(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM25(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM25(listener, 0);
+        verify(communicationsModule).requestDM25(listener, 0);
     }
 
     @Test
@@ -594,11 +594,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM25ExpandedFreezeFrame.create(0, freezeFrame);
-        when(diagnosticMessageModule.requestDM25(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM25(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM25(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM25(listener, 0);
+        verify(communicationsModule).requestDM25(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -613,11 +613,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM25ExpandedFreezeFrame.create(0, freezeFrame);
-        when(diagnosticMessageModule.requestDM25(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM25(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM25(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestDM25(listener, 0);
+        verify(communicationsModule).requestDM25(listener, 0);
     }
 
     @Test
@@ -628,11 +628,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM25ExpandedFreezeFrame.create(0);
-        when(diagnosticMessageModule.requestDM25(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM25(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM25(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestDM25(listener, 0);
+        verify(communicationsModule).requestDM25(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.2.3.4.a - Engine #1 (0) erased DM25 data");
     }
 
@@ -645,11 +645,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM31DtcToLampAssociation.create(0, 0);
-        when(diagnosticMessageModule.requestDM31(listener, 0)).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM31(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertTrue(instance.checkDM31(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM31(listener, 0);
+        verify(communicationsModule).requestDM31(listener, 0);
     }
 
     @Test
@@ -661,11 +661,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM31DtcToLampAssociation.create(0, 0, dtcLampStatus);
-        when(diagnosticMessageModule.requestDM31(listener, 0)).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM31(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertFalse(instance.checkDM31(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM31(listener, 0);
+        verify(communicationsModule).requestDM31(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -681,11 +681,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM31DtcToLampAssociation.create(0, 0, dtcLampStatus);
-        when(diagnosticMessageModule.requestDM31(listener, 0)).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM31(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertTrue(instance.checkDM31(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestDM31(listener, 0);
+        verify(communicationsModule).requestDM31(listener, 0);
     }
 
     @Test
@@ -697,11 +697,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM31DtcToLampAssociation.create(0, 0);
-        when(diagnosticMessageModule.requestDM31(listener, 0)).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM31(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertFalse(instance.checkDM31(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestDM31(listener, 0);
+        verify(communicationsModule).requestDM31(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.2.3.4.a - Engine #1 (0) erased DM31 data");
     }
 
@@ -712,11 +712,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM21(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM21(listener, 0);
+        verify(communicationsModule).requestDM21(listener, 0);
     }
 
     @Test
@@ -726,11 +726,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM21DiagnosticReadinessPacket.create(0, 0, 1, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM21(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM21(listener, 0);
+        verify(communicationsModule).requestDM21(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -744,11 +744,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1, 0);
-        when(diagnosticMessageModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM21(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM21(listener, 0);
+        verify(communicationsModule).requestDM21(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -762,11 +762,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM21DiagnosticReadinessPacket.create(0, 0, 0, 1, 0, 0);
-        when(diagnosticMessageModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM21(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM21(listener, 0);
+        verify(communicationsModule).requestDM21(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -780,11 +780,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 1);
-        when(diagnosticMessageModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM21(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM21(listener, 0);
+        verify(communicationsModule).requestDM21(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -798,11 +798,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1, 0);
-        when(diagnosticMessageModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM21(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestDM21(listener, 0);
+        verify(communicationsModule).requestDM21(listener, 0);
     }
 
     @Test
@@ -812,11 +812,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM21(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM21(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestDM21(listener, 0);
+        verify(communicationsModule).requestDM21(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.2.3.4.a - Engine #1 (0) erased DM21 data");
     }
 
@@ -827,11 +827,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM26TripDiagnosticReadinessPacket.create(0, 0, 0);
-        when(diagnosticMessageModule.requestDM26(listener, 0)).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM26(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertTrue(instance.checkDM26(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM26(listener, 0);
+        verify(communicationsModule).requestDM26(listener, 0);
     }
 
     @Test
@@ -841,11 +841,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM26TripDiagnosticReadinessPacket.create(0, 0, 1);
-        when(diagnosticMessageModule.requestDM26(listener, 0)).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM26(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertFalse(instance.checkDM26(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestDM26(listener, 0);
+        verify(communicationsModule).requestDM26(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -859,11 +859,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM26TripDiagnosticReadinessPacket.create(0, 0, 1);
-        when(diagnosticMessageModule.requestDM26(listener, 0)).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM26(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertTrue(instance.checkDM26(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestDM26(listener, 0);
+        verify(communicationsModule).requestDM26(listener, 0);
     }
 
     @Test
@@ -873,11 +873,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM26TripDiagnosticReadinessPacket.create(0, 0, 0);
-        when(diagnosticMessageModule.requestDM26(listener, 0)).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM26(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertFalse(instance.checkDM26(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestDM26(listener, 0);
+        verify(communicationsModule).requestDM26(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.2.3.4.a - Engine #1 (0) erased DM26 data");
     }
 
@@ -890,11 +890,11 @@ public class SectionA5MessageVerifierTest {
 
         var ratio = new PerformanceRatio(123, 1, 2, 0);
         var packet = DM20MonitorPerformanceRatioPacket.create(0, 13, 9, ratio);
-        when(diagnosticMessageModule.requestDM20(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM20(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM20(listener, SECTION, 0));
 
-        verify(diagnosticMessageModule).requestDM20(listener, 0);
+        verify(communicationsModule).requestDM20(listener, 0);
     }
 
     @Test
@@ -906,11 +906,11 @@ public class SectionA5MessageVerifierTest {
 
         var ratio = new PerformanceRatio(123, 0, 0, 0);
         var packet = DM20MonitorPerformanceRatioPacket.create(0, 0, 0, ratio);
-        when(diagnosticMessageModule.requestDM20(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM20(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM20(listener, SECTION, 0));
 
-        verify(diagnosticMessageModule).requestDM20(listener, 0);
+        verify(communicationsModule).requestDM20(listener, 0);
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.2.3.4.a - Engine #1 (0) erased DM20 data");
     }
@@ -937,11 +937,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM28(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM28(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM28(listener, SECTION, 0));
 
-        verify(diagnosticMessageModule).requestDM28(listener, 0);
+        verify(communicationsModule).requestDM28(listener, 0);
     }
 
     @Test
@@ -952,11 +952,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM28(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM28(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM28(listener, SECTION, 0));
 
-        verify(diagnosticMessageModule).requestDM28(listener, 0);
+        verify(communicationsModule).requestDM28(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.2.3.4.a - Engine #1 (0) erased DM28 data");
     }
 
@@ -985,11 +985,11 @@ public class SectionA5MessageVerifierTest {
 
         var timer = EngineHoursTimer.create(1, 2, 3);
         var packet = DM33EmissionIncreasingAECDActiveTime.create(0, 0, timer);
-        when(diagnosticMessageModule.requestDM33(listener, 0)).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM33(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertTrue(instance.checkDM33(listener, SECTION, 0));
 
-        verify(diagnosticMessageModule).requestDM33(listener, 0);
+        verify(communicationsModule).requestDM33(listener, 0);
     }
 
     @Test
@@ -1001,12 +1001,12 @@ public class SectionA5MessageVerifierTest {
 
         var timer = EngineHoursTimer.create(1, 0, 0);
         var packet = DM33EmissionIncreasingAECDActiveTime.create(0, 0, timer);
-        when(diagnosticMessageModule.requestDM33(listener, 0)).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM33(listener, 0)).thenReturn(RequestResult.of(packet));
 
         boolean condition = instance.checkDM33(listener, SECTION, 0);
         assertFalse(condition);
 
-        verify(diagnosticMessageModule).requestDM33(listener, 0);
+        verify(communicationsModule).requestDM33(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -1029,11 +1029,11 @@ public class SectionA5MessageVerifierTest {
 
         var timer = EngineHoursTimer.create(1, 0, 0);
         var packet = DM33EmissionIncreasingAECDActiveTime.create(0, 0, timer);
-        when(diagnosticMessageModule.requestDM33(listener, 0)).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM33(listener, 0)).thenReturn(RequestResult.of(packet));
 
         assertTrue(instance.checkDM33(listener, SECTION, 0));
 
-        verify(diagnosticMessageModule).requestDM33(listener, 0);
+        verify(communicationsModule).requestDM33(listener, 0);
     }
 
     @Test
@@ -1044,11 +1044,11 @@ public class SectionA5MessageVerifierTest {
 
         var tr = ScaledTestResult.create(247, 123, 12, 1, 0, 0, 0);
         var packet = DM30ScaledTestResultsPacket.create(0, 0, tr);
-        when(diagnosticMessageModule.requestTestResult(listener, 0, 247, 123, 31)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestTestResult(listener, 0, 247, 123, 31)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkTestResults(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestTestResult(listener, 0, 247, 123, 31);
+        verify(communicationsModule).requestTestResult(listener, 0, 247, 123, 31);
     }
 
     @Test
@@ -1059,11 +1059,11 @@ public class SectionA5MessageVerifierTest {
 
         var tr = ScaledTestResult.create(247, 123, 12, 1, 1, 0, 0);
         var packet = DM30ScaledTestResultsPacket.create(0, 0, tr);
-        when(diagnosticMessageModule.requestTestResult(listener, 0, 247, 123, 31)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestTestResult(listener, 0, 247, 123, 31)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkTestResults(listener, SECTION, 0, true));
 
-        verify(diagnosticMessageModule).requestTestResult(listener, 0, 247, 123, 31);
+        verify(communicationsModule).requestTestResult(listener, 0, 247, 123, 31);
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -1079,11 +1079,11 @@ public class SectionA5MessageVerifierTest {
 
         var tr = ScaledTestResult.create(247, 123, 12, 1, 1, 0, 0);
         var packet = DM30ScaledTestResultsPacket.create(0, 0, tr);
-        when(diagnosticMessageModule.requestTestResult(listener, 0, 247, 123, 31)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestTestResult(listener, 0, 247, 123, 31)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkTestResults(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestTestResult(listener, 0, 247, 123, 31);
+        verify(communicationsModule).requestTestResult(listener, 0, 247, 123, 31);
     }
 
     @Test
@@ -1094,11 +1094,11 @@ public class SectionA5MessageVerifierTest {
 
         var tr = ScaledTestResult.create(247, 123, 12, 1, 0xFB00, 0xFFFF, 0xFFFF);
         var packet = DM30ScaledTestResultsPacket.create(0, 0, tr);
-        when(diagnosticMessageModule.requestTestResult(listener, 0, 247, 123, 31)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestTestResult(listener, 0, 247, 123, 31)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkTestResults(listener, SECTION, 0, false));
 
-        verify(diagnosticMessageModule).requestTestResult(listener, 0, 247, 123, 31);
+        verify(communicationsModule).requestTestResult(listener, 0, 247, 123, 31);
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,

@@ -25,7 +25,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -67,7 +67,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     /*
      * All values must be checked prior to mocking so that we are not creating
@@ -111,7 +111,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
                                               vehicleInformationModule,
                                               dataRepository,
                                               DateTimeModule.getInstance(),
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -120,7 +120,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
 
     }
 
@@ -131,7 +131,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  vehicleInformationModule,
                                  mockListener,
-                                 diagnosticMessageModule);
+                                 communicationsModule);
     }
 
     /**
@@ -145,7 +145,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
         String famName = familyName.replace("A", "*");
 
         List<DM56EngineFamilyPacket> parsedPackets = List.of(createDM56(2006, "2006E-MY", famName));
-        when(diagnosticMessageModule.requestDM56(any())).thenReturn(parsedPackets);
+        when(communicationsModule.requestDM56(any())).thenReturn(parsedPackets);
 
         runTest();
 
@@ -154,7 +154,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
 
-        verify(diagnosticMessageModule).requestDM56(any());
+        verify(communicationsModule).requestDM56(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -169,7 +169,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
         String famName = familyName.replace("*", "44*");
 
         List<DM56EngineFamilyPacket> parsedPackets = List.of(createDM56(2006, "2006E-MY", famName));
-        when(diagnosticMessageModule.requestDM56(any())).thenReturn(parsedPackets);
+        when(communicationsModule.requestDM56(any())).thenReturn(parsedPackets);
 
         runTest();
 
@@ -178,7 +178,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
 
-        verify(diagnosticMessageModule).requestDM56(any());
+        verify(communicationsModule).requestDM56(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -191,13 +191,13 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
     @TestDoc(value = @TestItem(verifies = "6.1.6.2.a", description = "Engine model year does not match user input"))
     public void testEngineModelYearDoesNotMatch() {
         List<DM56EngineFamilyPacket> parsedPackets = List.of(createDM56(2010, "2010E-MY", familyName));
-        when(diagnosticMessageModule.requestDM56(any())).thenReturn(parsedPackets);
+        when(communicationsModule.requestDM56(any())).thenReturn(parsedPackets);
 
         runTest();
 
         verify(mockListener).addOutcome(1, 6, FAIL, "6.1.6.2.a - Engine model year does not match user input");
 
-        verify(diagnosticMessageModule).requestDM56(any());
+        verify(communicationsModule).requestDM56(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -212,7 +212,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
         String famName = familyName.replace(" OBD*", "");
 
         List<DM56EngineFamilyPacket> parsedPackets = List.of(createDM56(2006, "2006E-MY", famName));
-        when(diagnosticMessageModule.requestDM56(any())).thenReturn(parsedPackets);
+        when(communicationsModule.requestDM56(any())).thenReturn(parsedPackets);
 
         runTest();
 
@@ -221,7 +221,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
 
-        verify(diagnosticMessageModule).requestDM56(any());
+        verify(communicationsModule).requestDM56(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -238,11 +238,11 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
         String famName = familyName.replace('*', Character.MIN_VALUE);
 
         List<DM56EngineFamilyPacket> parsedPackets = List.of(createDM56(2006, "2006E-MY", famName));
-        when(diagnosticMessageModule.requestDM56(any())).thenReturn(parsedPackets);
+        when(communicationsModule.requestDM56(any())).thenReturn(parsedPackets);
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM56(any());
+        verify(communicationsModule).requestDM56(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -259,7 +259,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
         String famName = familyName.replace("*", "4");
 
         List<DM56EngineFamilyPacket> parsedPackets = List.of(createDM56(2006, "2006E-MY", famName));
-        when(diagnosticMessageModule.requestDM56(any())).thenReturn(parsedPackets);
+        when(communicationsModule.requestDM56(any())).thenReturn(parsedPackets);
 
         runTest();
 
@@ -268,7 +268,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
 
-        verify(diagnosticMessageModule).requestDM56(any());
+        verify(communicationsModule).requestDM56(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -295,14 +295,14 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
                     + "Not formatted correctly")
     public void testModelYearField() {
         List<DM56EngineFamilyPacket> parsedPackets = List.of(createDM56(2006, "2006V-MY", familyName));
-        when(diagnosticMessageModule.requestDM56(any())).thenReturn(parsedPackets);
+        when(communicationsModule.requestDM56(any())).thenReturn(parsedPackets);
 
         runTest();
 
         verify(mockListener).addOutcome(1, 6, FAIL, "6.1.6.2.b - Indicates 'V' instead of 'E' for cert type");
         verify(mockListener).addOutcome(1, 6, FAIL, "6.1.6.2.c - Not formatted correctly");
 
-        verify(diagnosticMessageModule).requestDM56(any());
+        verify(communicationsModule).requestDM56(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -314,11 +314,11 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.6", description = "No packets are returned"))
     public void testPacketsEmpty() {
-        when(diagnosticMessageModule.requestDM56(any())).thenReturn(List.of());
+        when(communicationsModule.requestDM56(any())).thenReturn(List.of());
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM56(any());
+        verify(communicationsModule).requestDM56(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("6.1.6.1.a - DM56 is not supported" + NL, listener.getResults());
@@ -331,13 +331,13 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
     @TestDoc(value = @TestItem(verifies = "6.1.6", description = "Happy Path with no errors and one packet"))
     public void testRunHappyPath() {
         DM56EngineFamilyPacket dm56 = DM56EngineFamilyPacket.create(0, 2006, true, familyName);
-        when(diagnosticMessageModule.requestDM56(any())).thenReturn(List.of(dm56));
+        when(communicationsModule.requestDM56(any())).thenReturn(List.of(dm56));
 
         runTest();
 
         assertSame(dm56, dataRepository.getObdModule(0).getLatest(DM56EngineFamilyPacket.class));
 
-        verify(diagnosticMessageModule).requestDM56(any());
+        verify(communicationsModule).requestDM56(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

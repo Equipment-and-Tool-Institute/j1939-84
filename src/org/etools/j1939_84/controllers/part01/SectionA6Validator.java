@@ -20,7 +20,7 @@ import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 
 /**
  * @author Marianne Schaefer (marianne.schaefer@gmail.com)
@@ -153,7 +153,7 @@ public class SectionA6Validator {
         // A6.2.b. If one or more responses indicates the status bit for a supported monitor is 1 = not complete,
         // A6.2.b.i. Then the composite vehicle readiness shall indicate 1 = not complete for that status bit/monitor,
         // A6.2..b.ii. Else it shall indicate 0 = complete for that status bit/monitor).
-        var compositeSystems = DiagnosticMessageModule.getCompositeSystems(obdPackets, true);
+        var compositeSystems = CommunicationsModule.getCompositeSystems(obdPackets, true);
 
         // A6.2.c. Fail if composite vehicle readiness does not meet any of the criteria in Table A-6.
         tableA6Validator.verify(listener, compositeSystems, section + " (A6.2.c)");

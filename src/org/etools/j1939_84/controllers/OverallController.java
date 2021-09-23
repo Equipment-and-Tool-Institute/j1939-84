@@ -24,7 +24,7 @@ import org.etools.j1939_84.controllers.part11.Part11Controller;
 import org.etools.j1939_84.controllers.part12.Part12Controller;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -49,7 +49,7 @@ public class OverallController extends Controller {
              dataRepository,
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              new Part01Controller(dataRepository),
              new Part02Controller(dataRepository),
              new Part03Controller(dataRepository),
@@ -70,7 +70,7 @@ public class OverallController extends Controller {
                               DataRepository dataRepository,
                               EngineSpeedModule engineSpeedModule,
                               VehicleInformationModule vehicleInformationModule,
-                              DiagnosticMessageModule diagnosticMessageModule,
+                              CommunicationsModule communicationsModule,
                               PartController... partControllers) {
         super(executor,
               bannerModule,
@@ -78,7 +78,7 @@ public class OverallController extends Controller {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
         this.partControllers.addAll(Arrays.asList(partControllers));
     }
 

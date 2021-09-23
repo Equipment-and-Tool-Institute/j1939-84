@@ -45,7 +45,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -61,7 +61,7 @@ public abstract class StepController extends Controller {
                              DataRepository dataRepository,
                              EngineSpeedModule engineSpeedModule,
                              VehicleInformationModule vehicleInformationModule,
-                             DiagnosticMessageModule diagnosticMessageModule,
+                             CommunicationsModule communicationsModule,
                              int partNumber,
                              int stepNumber,
                              int totalSteps) {
@@ -71,7 +71,7 @@ public abstract class StepController extends Controller {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
         this.partNumber = partNumber;
         this.stepNumber = stepNumber;
         this.totalSteps = totalSteps;

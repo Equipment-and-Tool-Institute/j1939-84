@@ -24,7 +24,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -46,7 +46,7 @@ public class Part07Step13ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -83,7 +83,7 @@ public class Part07Step13ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -92,7 +92,7 @@ public class Part07Step13ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -102,7 +102,7 @@ public class Part07Step13ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -132,14 +132,14 @@ public class Part07Step13ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0, 9, 5), 5);
         dataRepository.putObdModule(obdModuleInformation);
         var dm20 = DM20MonitorPerformanceRatioPacket.create(0, 12, 5);
-        when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(BusResult.of(dm20));
+        when(communicationsModule.requestDM20(any(), eq(0))).thenReturn(BusResult.of(dm20));
 
         // Won't be asked for DM20
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any(), eq(0));
+        verify(communicationsModule).requestDM20(any(), eq(0));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -152,11 +152,11 @@ public class Part07Step13ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0, 9, 5), 5);
         dataRepository.putObdModule(obdModuleInformation);
         var dm20 = DM20MonitorPerformanceRatioPacket.create(0, 14, 5);
-        when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(BusResult.of(dm20));
+        when(communicationsModule.requestDM20(any(), eq(0))).thenReturn(BusResult.of(dm20));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any(), eq(0));
+        verify(communicationsModule).requestDM20(any(), eq(0));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -172,11 +172,11 @@ public class Part07Step13ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM20MonitorPerformanceRatioPacket.create(0, 9, 5), 5);
         dataRepository.putObdModule(obdModuleInformation);
         var dm20 = DM20MonitorPerformanceRatioPacket.create(0, 9, 5);
-        when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(BusResult.of(dm20));
+        when(communicationsModule.requestDM20(any(), eq(0))).thenReturn(BusResult.of(dm20));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any(), eq(0));
+        verify(communicationsModule).requestDM20(any(), eq(0));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

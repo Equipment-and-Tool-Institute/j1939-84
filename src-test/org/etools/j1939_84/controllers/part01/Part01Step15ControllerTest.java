@@ -27,7 +27,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -59,7 +59,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -94,7 +94,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               dataRepository,
                                               new TestDateTimeModule());
 
@@ -105,7 +105,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -114,7 +114,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -158,12 +158,12 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
 
-        when(diagnosticMessageModule.readDM1(any(ResultsListener.class))).thenReturn(List.of());
+        when(communicationsModule.readDM1(any(ResultsListener.class))).thenReturn(List.of());
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).readDM1(any(ResultsListener.class));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).readDM1(any(ResultsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.15.2.e - No OBD ECU provided a DM1");
 
@@ -214,12 +214,12 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                                                  OFF);
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
 
-        when(diagnosticMessageModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet1));
+        when(communicationsModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet1));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).readDM1(any(ResultsListener.class));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).readDM1(any(ResultsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -280,12 +280,12 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                                                  dtc3);
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
 
-        when(diagnosticMessageModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet1));
+        when(communicationsModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet1));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).readDM1(any(ResultsListener.class));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).readDM1(any(ResultsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -362,12 +362,12 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         // make the module and OBD
         dataRepository.putObdModule(new OBDModuleInformation(0x03));
 
-        when(diagnosticMessageModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet2, packet3));
+        when(communicationsModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet2, packet3));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).readDM1(any(ResultsListener.class));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).readDM1(any(ResultsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -443,12 +443,12 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         // make the module and OBD
         dataRepository.putObdModule(new OBDModuleInformation(0x03));
 
-        when(diagnosticMessageModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet2, packet3));
+        when(communicationsModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet2, packet3));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).readDM1(any(ResultsListener.class));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).readDM1(any(ResultsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -506,12 +506,12 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         // make the module and OBD
         dataRepository.putObdModule(new OBDModuleInformation(0x03));
         // return the OBD module's packet when requested
-        when(diagnosticMessageModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet3));
+        when(communicationsModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet3));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).readDM1(any(ResultsListener.class));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).readDM1(any(ResultsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -599,12 +599,12 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(0x17));
 
-        when(diagnosticMessageModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet2));
+        when(communicationsModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet2));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).readDM1(any(ResultsListener.class));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).readDM1(any(ResultsListener.class));
 
         assertEquals("", listener.getResults());
     }
@@ -654,12 +654,12 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         // make it an OBD module
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
         // return the packet with the active dtc and a MIL on for the OBD module
-        when(diagnosticMessageModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet1));
+        when(communicationsModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet1));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).readDM1(any(ResultsListener.class));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).readDM1(any(ResultsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,

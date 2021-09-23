@@ -35,27 +35,27 @@ import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 public class SectionA5MessageVerifier {
 
     private final DataRepository dataRepository;
-    private final DiagnosticMessageModule diagMsgModule;
+    private final CommunicationsModule diagMsgModule;
     private final VehicleInformationModule vehInfoModule;
     private final int partNumber;
     private final int stepNumber;
 
     SectionA5MessageVerifier(int partNumber, int stepNumber) {
         this(DataRepository.getInstance(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              new VehicleInformationModule(),
              partNumber,
              stepNumber);
     }
 
     protected SectionA5MessageVerifier(DataRepository dataRepository,
-                                       DiagnosticMessageModule diagMsgModule,
+                                       CommunicationsModule diagMsgModule,
                                        VehicleInformationModule vehInfoModule,
                                        int partNumber,
                                        int stepNumber) {

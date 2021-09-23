@@ -31,7 +31,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -60,7 +60,7 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -98,7 +98,7 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               dataRepository,
                                               sectionA6Validator,
                                               DateTimeModule.getInstance());
@@ -111,7 +111,7 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
 
     }
 
@@ -124,7 +124,7 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                                  vehicleInformationModule,
                                  mockListener,
                                  sectionA6Validator,
-                                 diagnosticMessageModule);
+                                 communicationsModule);
     }
 
     /**
@@ -248,11 +248,11 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                                                                                                 packet0,
                                                                                                 packet17,
                                                                                                 packet21);
-        when(diagnosticMessageModule.requestDM5(any())).thenReturn(globalRequestResponse);
+        when(communicationsModule.requestDM5(any())).thenReturn(globalRequestResponse);
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM5(any());
+        verify(communicationsModule).requestDM5(any());
 
         verify(sectionA6Validator).verify(any(), eq("6.1.13.2.a"), eq(globalRequestResponse));
 
@@ -329,18 +329,18 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
         RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(false,
                                                                                                 List.of(),
                                                                                                 List.of(ackPacket0x44));
-        when(diagnosticMessageModule.requestDM5(any(ResultsListener.class))).thenReturn(globalRequestResponse);
+        when(communicationsModule.requestDM5(any(ResultsListener.class))).thenReturn(globalRequestResponse);
 
         BusResult<DM5DiagnosticReadinessPacket> busResult0x44 = new BusResult<>(false,
                                                                                 ackPacket0x44);
-        when(diagnosticMessageModule.requestDM5(any(), eq(0x44))).thenReturn(busResult0x44);
+        when(communicationsModule.requestDM5(any(), eq(0x44))).thenReturn(busResult0x44);
 
         dataRepository.putObdModule(new OBDModuleInformation(0x44));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM5(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM5(any(ResultsListener.class), eq(0x44));
+        verify(communicationsModule).requestDM5(any(ResultsListener.class));
+        verify(communicationsModule).requestDM5(any(ResultsListener.class), eq(0x44));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -438,7 +438,7 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                                                                                                  0x1E));
         BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false,
                                                                                 packet0x00);
-        when(diagnosticMessageModule.requestDM5(any(ResultsListener.class), eq(0x00))).thenReturn(busResult0x00);
+        when(communicationsModule.requestDM5(any(ResultsListener.class), eq(0x00))).thenReturn(busResult0x00);
 
         DM5DiagnosticReadinessPacket packet0x17 = new DM5DiagnosticReadinessPacket(Packet.create(PGN,
                                                                                                  0x17,
@@ -452,16 +452,16 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                                                                                                  0x1E));
         BusResult<DM5DiagnosticReadinessPacket> busResult0x17 = new BusResult<>(false,
                                                                                 packet0x17);
-        when(diagnosticMessageModule.requestDM5(any(), eq(0x17))).thenReturn(busResult0x17);
+        when(communicationsModule.requestDM5(any(), eq(0x17))).thenReturn(busResult0x17);
 
         AcknowledgmentPacket ackPacket0x21 = AcknowledgmentPacket.create(0x21, NACK);
         BusResult<DM5DiagnosticReadinessPacket> busResult0x21 = new BusResult<>(false,
                                                                                 ackPacket0x21);
-        when(diagnosticMessageModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
+        when(communicationsModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
         RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(false,
                                                                                                 List.of(packet0x00),
                                                                                                 List.of(ackPacket0x44));
-        when(diagnosticMessageModule.requestDM5(any(ResultsListener.class))).thenReturn(globalRequestResponse);
+        when(communicationsModule.requestDM5(any(ResultsListener.class))).thenReturn(globalRequestResponse);
 
         dataRepository.putObdModule(new OBDModuleInformation(0x00));
         dataRepository.putObdModule(new OBDModuleInformation(0x17));
@@ -469,10 +469,10 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM5(any());
-        verify(diagnosticMessageModule).requestDM5(any(), eq(0x00));
-        verify(diagnosticMessageModule).requestDM5(any(), eq(0x17));
-        verify(diagnosticMessageModule).requestDM5(any(), eq(0x21));
+        verify(communicationsModule).requestDM5(any());
+        verify(communicationsModule).requestDM5(any(), eq(0x00));
+        verify(communicationsModule).requestDM5(any(), eq(0x17));
+        verify(communicationsModule).requestDM5(any(), eq(0x21));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -591,15 +591,15 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                                                                                          false,
                                                                                          List.of(packet0, packet21),
                                                                                          List.of(packet23));
-        when(diagnosticMessageModule.requestDM5(any())).thenReturn(globalResponse);
+        when(communicationsModule.requestDM5(any())).thenReturn(globalResponse);
 
-        when(diagnosticMessageModule.requestDM5(any(), eq(0x00)))
+        when(communicationsModule.requestDM5(any(), eq(0x00)))
                                                                  .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(diagnosticMessageModule.requestDM5(any(), eq(0x17)))
+        when(communicationsModule.requestDM5(any(), eq(0x17)))
                                                                  .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(diagnosticMessageModule.requestDM5(any(), eq(0x21)))
+        when(communicationsModule.requestDM5(any(), eq(0x21)))
                                                                  .thenReturn(new BusResult<>(false, packet21V2));
-        when(diagnosticMessageModule.requestDM5(any(), eq(0x23)))
+        when(communicationsModule.requestDM5(any(), eq(0x23)))
                                                                  .thenReturn(new BusResult<>(false, packet23));
 
         dataRepository.putObdModule(new OBDModuleInformation(0x00));
@@ -609,11 +609,11 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM5(any());
-        verify(diagnosticMessageModule).requestDM5(any(), eq(0x00));
-        verify(diagnosticMessageModule).requestDM5(any(), eq(0x17));
-        verify(diagnosticMessageModule).requestDM5(any(), eq(0x21));
-        verify(diagnosticMessageModule).requestDM5(any(), eq(0x23));
+        verify(communicationsModule).requestDM5(any());
+        verify(communicationsModule).requestDM5(any(), eq(0x00));
+        verify(communicationsModule).requestDM5(any(), eq(0x17));
+        verify(communicationsModule).requestDM5(any(), eq(0x21));
+        verify(communicationsModule).requestDM5(any(), eq(0x23));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -787,8 +787,8 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                                                                                                    0x00,
                                                                                                    0x00,
                                                                                                    0x00));
-        when(diagnosticMessageModule.requestDM5(any(ResultsListener.class),
-                                                eq(0x17))).thenReturn(new BusResult<>(false, dsPacket0x17));
+        when(communicationsModule.requestDM5(any(ResultsListener.class),
+                                             eq(0x17))).thenReturn(new BusResult<>(false, dsPacket0x17));
 
         dataRepository.putObdModule(new OBDModuleInformation(0x23));
         AcknowledgmentPacket nackPacket0x23 = AcknowledgmentPacket.create(0x23,
@@ -796,20 +796,20 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                                                                           1,
                                                                           0xF9,
                                                                           PGN);
-        when(diagnosticMessageModule.requestDM5(any(ResultsListener.class),
-                                                eq(0x23))).thenReturn(new BusResult<>(false, nackPacket0x23));
+        when(communicationsModule.requestDM5(any(ResultsListener.class),
+                                             eq(0x23))).thenReturn(new BusResult<>(false, nackPacket0x23));
 
         RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(
                                                                                                 false,
                                                                                                 List.of(packet0x17),
                                                                                                 List.of());
-        when(diagnosticMessageModule.requestDM5(any(ResultsListener.class))).thenReturn(globalRequestResponse);
+        when(communicationsModule.requestDM5(any(ResultsListener.class))).thenReturn(globalRequestResponse);
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM5(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM5(any(ResultsListener.class), eq(0x17));
-        verify(diagnosticMessageModule).requestDM5(any(ResultsListener.class), eq(0x23));
+        verify(communicationsModule).requestDM5(any(ResultsListener.class));
+        verify(communicationsModule).requestDM5(any(ResultsListener.class), eq(0x17));
+        verify(communicationsModule).requestDM5(any(ResultsListener.class), eq(0x23));
 
         verify(mockListener).addOutcome(
                                         1,

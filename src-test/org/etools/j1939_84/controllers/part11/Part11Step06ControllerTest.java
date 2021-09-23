@@ -25,7 +25,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -47,7 +47,7 @@ public class Part11Step06ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -84,7 +84,7 @@ public class Part11Step06ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -93,7 +93,7 @@ public class Part11Step06ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -103,7 +103,7 @@ public class Part11Step06ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -139,11 +139,11 @@ public class Part11Step06ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
         var dm28_1 = DM28PermanentEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF);
 
-        when(diagnosticMessageModule.requestDM28(any())).thenReturn(RequestResult.of(dm28_0, dm28_1));
+        when(communicationsModule.requestDM28(any())).thenReturn(RequestResult.of(dm28_0, dm28_1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM28(any());
+        verify(communicationsModule).requestDM28(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -154,11 +154,11 @@ public class Part11Step06ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
         var dm28_1 = DM28PermanentEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF);
 
-        when(diagnosticMessageModule.requestDM28(any())).thenReturn(RequestResult.of(dm28_1));
+        when(communicationsModule.requestDM28(any())).thenReturn(RequestResult.of(dm28_1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM28(any());
+        verify(communicationsModule).requestDM28(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -174,11 +174,11 @@ public class Part11Step06ControllerTest extends AbstractControllerTest {
         var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
         var dm28_0 = DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
 
-        when(diagnosticMessageModule.requestDM28(any())).thenReturn(RequestResult.of(dm28_0));
+        when(communicationsModule.requestDM28(any())).thenReturn(RequestResult.of(dm28_0));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM28(any());
+        verify(communicationsModule).requestDM28(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

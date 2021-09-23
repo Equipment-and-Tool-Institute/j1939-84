@@ -52,9 +52,9 @@ import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 
-public class DiagnosticMessageModule extends FunctionalModule {
+public class CommunicationsModule extends FunctionalModule {
 
-    public DiagnosticMessageModule() {
+    public CommunicationsModule() {
         super();
     }
 

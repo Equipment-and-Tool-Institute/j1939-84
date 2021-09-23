@@ -28,7 +28,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -50,7 +50,7 @@ public class Part08Step04ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -87,7 +87,7 @@ public class Part08Step04ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -96,7 +96,7 @@ public class Part08Step04ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -106,7 +106,7 @@ public class Part08Step04ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -140,11 +140,11 @@ public class Part08Step04ControllerTest extends AbstractControllerTest {
 
         var dm23_0 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc);
         var dm23_1 = DM23PreviouslyMILOnEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM23(any())).thenReturn(RequestResult.of(dm23_0, dm23_1));
+        when(communicationsModule.requestDM23(any())).thenReturn(RequestResult.of(dm23_0, dm23_1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM23(any());
+        verify(communicationsModule).requestDM23(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -158,11 +158,11 @@ public class Part08Step04ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM23(any())).thenReturn(RequestResult.of(dm23));
+        when(communicationsModule.requestDM23(any())).thenReturn(RequestResult.of(dm23));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM23(any());
+        verify(communicationsModule).requestDM23(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -182,11 +182,11 @@ public class Part08Step04ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc2);
-        when(diagnosticMessageModule.requestDM23(any())).thenReturn(RequestResult.of(dm23));
+        when(communicationsModule.requestDM23(any())).thenReturn(RequestResult.of(dm23));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM23(any());
+        verify(communicationsModule).requestDM23(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -206,11 +206,11 @@ public class Part08Step04ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, FAST_FLASH, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM23(any())).thenReturn(RequestResult.of(dm23));
+        when(communicationsModule.requestDM23(any())).thenReturn(RequestResult.of(dm23));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM23(any());
+        verify(communicationsModule).requestDM23(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

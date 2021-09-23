@@ -26,7 +26,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -48,7 +48,7 @@ public class Part03Step14ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -87,7 +87,7 @@ public class Part03Step14ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -96,7 +96,7 @@ public class Part03Step14ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -108,7 +108,7 @@ public class Part03Step14ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  vehicleInformationModule,
                                  mockListener,
-                                 diagnosticMessageModule);
+                                 communicationsModule);
     }
 
     @Test
@@ -149,7 +149,7 @@ public class Part03Step14ControllerTest extends AbstractControllerTest {
                 0xBB, // Applicable System Monitor Denominator
         };
         var dm20Packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data));
-        when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(BusResult.of(dm20Packet));
+        when(communicationsModule.requestDM20(any(), eq(0))).thenReturn(BusResult.of(dm20Packet));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
@@ -159,13 +159,13 @@ public class Part03Step14ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
 
-        verify(diagnosticMessageModule).requestDM20(any(), eq(0));
+        verify(communicationsModule).requestDM20(any(), eq(0));
     }
 
     @Test
     public void testEmptyPackets() {
 
-        when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(BusResult.empty());
+        when(communicationsModule.requestDM20(any(), eq(0))).thenReturn(BusResult.empty());
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
@@ -176,6 +176,6 @@ public class Part03Step14ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
 
-        verify(diagnosticMessageModule).requestDM20(any(), eq(0));
+        verify(communicationsModule).requestDM20(any(), eq(0));
     }
 }

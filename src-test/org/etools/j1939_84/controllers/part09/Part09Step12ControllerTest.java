@@ -32,7 +32,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -54,7 +54,7 @@ public class Part09Step12ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -91,7 +91,7 @@ public class Part09Step12ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -100,7 +100,7 @@ public class Part09Step12ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -110,7 +110,7 @@ public class Part09Step12ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -141,16 +141,16 @@ public class Part09Step12ControllerTest extends AbstractControllerTest {
         obdModule0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 9);
         dataRepository.putObdModule(obdModule0);
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
+        when(communicationsModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         var nack = AcknowledgmentPacket.create(1, NACK);
-        when(diagnosticMessageModule.requestDM28(any(), eq(1))).thenReturn(new BusResult<>(false, nack));
+        when(communicationsModule.requestDM28(any(), eq(1))).thenReturn(new BusResult<>(false, nack));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM28(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM28(any(), eq(1));
+        verify(communicationsModule).requestDM28(any(), eq(0));
+        verify(communicationsModule).requestDM28(any(), eq(1));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -164,11 +164,11 @@ public class Part09Step12ControllerTest extends AbstractControllerTest {
         obdModule0.set(DM12MILOnEmissionDTCPacket.create(0, ALTERNATE_OFF, OFF, OFF, OFF, dtc), 9);
         dataRepository.putObdModule(obdModule0);
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, ALTERNATE_OFF, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
+        when(communicationsModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM28(any(), eq(0));
+        verify(communicationsModule).requestDM28(any(), eq(0));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -185,11 +185,11 @@ public class Part09Step12ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var dtc = DiagnosticTroubleCode.create(123, 1, 0, 3);
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
+        when(communicationsModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM28(any(), eq(0));
+        verify(communicationsModule).requestDM28(any(), eq(0));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -207,11 +207,11 @@ public class Part09Step12ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule0);
 
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
+        when(communicationsModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM28(any(), eq(0));
+        verify(communicationsModule).requestDM28(any(), eq(0));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -224,11 +224,11 @@ public class Part09Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNoNACK() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
-        when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(BusResult.empty());
+        when(communicationsModule.requestDM28(any(), eq(0))).thenReturn(BusResult.empty());
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM28(any(), eq(0));
+        verify(communicationsModule).requestDM28(any(), eq(0));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

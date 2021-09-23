@@ -19,7 +19,7 @@ import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -144,7 +144,7 @@ public class AbstractPartControllerTest {
     protected VehicleInformationModule vehicleInformationModule;
 
     @Mock
-    protected DiagnosticMessageModule diagnosticMessageModule;
+    protected CommunicationsModule communicationsModule;
 
     protected int partNumber;
 

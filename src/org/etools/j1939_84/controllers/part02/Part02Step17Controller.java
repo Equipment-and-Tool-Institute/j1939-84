@@ -27,7 +27,7 @@ import org.etools.j1939_84.controllers.TableA1Validator;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -54,7 +54,7 @@ public class Part02Step17Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              new TableA1Validator(DataRepository.getInstance(), PART_NUMBER, STEP_NUMBER),
              J1939DaRepository.getInstance(),
              new BroadcastValidator(DataRepository.getInstance(), J1939DaRepository.getInstance()),
@@ -67,7 +67,7 @@ public class Part02Step17Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule,
+                           CommunicationsModule communicationsModule,
                            TableA1Validator tableA1Validator,
                            J1939DaRepository j1939DaRepository,
                            BroadcastValidator broadcastValidator,
@@ -78,7 +78,7 @@ public class Part02Step17Controller extends StepController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);

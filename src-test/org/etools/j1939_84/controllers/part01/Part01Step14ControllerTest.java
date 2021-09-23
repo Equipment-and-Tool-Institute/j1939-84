@@ -29,7 +29,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -57,7 +57,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -93,7 +93,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               dataRepository,
                                               DateTimeModule.getInstance());
 
@@ -104,7 +104,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -113,7 +113,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -157,20 +157,20 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
         obdModule.set(DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22, enabledSystems, completeSystems), 1);
         dataRepository.putObdModule(obdModule);
-        when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26));
+        when(communicationsModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         var nack = AcknowledgmentPacket.create(1, NACK);
-        when(diagnosticMessageModule.requestDM26(any(), eq(1))).thenReturn(new RequestResult<>(false, nack));
+        when(communicationsModule.requestDM26(any(), eq(1))).thenReturn(new RequestResult<>(false, nack));
 
-        when(diagnosticMessageModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
+        when(communicationsModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM26(any());
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM26(any(), eq(1));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM26(any());
+        verify(communicationsModule).requestDM26(any(), eq(0));
+        verify(communicationsModule).requestDM26(any(), eq(1));
 
         String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant         enabled, not complete" + NL;
@@ -196,12 +196,12 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForNoDm26() {
-        when(diagnosticMessageModule.requestDM26(any())).thenReturn(RequestResult.empty());
+        when(communicationsModule.requestDM26(any())).thenReturn(RequestResult.empty());
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM26(any());
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM26(any());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.14.2.f - No OBD ECU provided DM26");
 
@@ -236,14 +236,14 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         obdModule.set(DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22, enabledSystems, completeSystems), 1);
         dataRepository.putObdModule(obdModule);
 
-        when(diagnosticMessageModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
-        when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26));
+        when(communicationsModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
+        when(communicationsModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM26(any());
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM26(any());
+        verify(communicationsModule).requestDM26(any(), eq(0));
 
         String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant         enabled, not complete" + NL;
@@ -304,14 +304,14 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         obdModule.set(DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22, dm5SupportedSystem, completeSystems), 1);
         dataRepository.putObdModule(obdModule);
 
-        when(diagnosticMessageModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
-        when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26));
+        when(communicationsModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
+        when(communicationsModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM26(any());
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM26(any());
+        verify(communicationsModule).requestDM26(any(), eq(0));
 
         String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant         enabled, not complete" + NL;
@@ -363,14 +363,14 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         obdModule.set(DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22, enabledSystems, completeSystems), 1);
         dataRepository.putObdModule(obdModule);
 
-        when(diagnosticMessageModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
-        when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26));
+        when(communicationsModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
+        when(communicationsModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM26(any());
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM26(any());
+        verify(communicationsModule).requestDM26(any(), eq(0));
 
         String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant         enabled, not complete" + NL;
@@ -430,14 +430,14 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         obdModule.set(DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22, dm5SupportedSystems, completeSystems), 1);
         dataRepository.putObdModule(obdModule);
 
-        when(diagnosticMessageModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
-        when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26));
+        when(communicationsModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
+        when(communicationsModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM26(any());
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM26(any());
+        verify(communicationsModule).requestDM26(any(), eq(0));
 
         String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant         enabled, not complete" + NL;
@@ -491,14 +491,14 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         obdModule.set(DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22, enabledSystems, completeSystems), 1);
         dataRepository.putObdModule(obdModule);
 
-        when(diagnosticMessageModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
-        when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26));
+        when(communicationsModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
+        when(communicationsModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM26(any());
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM26(any());
+        verify(communicationsModule).requestDM26(any(), eq(0));
 
         String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant         enabled, not complete" + NL;
@@ -552,14 +552,14 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         obdModule.set(DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22, enabledSystems, completeSystems), 1);
         dataRepository.putObdModule(obdModule);
 
-        when(diagnosticMessageModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
-        when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26));
+        when(communicationsModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
+        when(communicationsModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM26(any());
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM26(any());
+        verify(communicationsModule).requestDM26(any(), eq(0));
 
         String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant         enabled, not complete" + NL;
@@ -618,16 +618,16 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         obdModule1.set(DM5DiagnosticReadinessPacket.create(1, 0, 0, 0x22, enabledSystems, completeSystems), 1);
         dataRepository.putObdModule(obdModule1);
 
-        when(diagnosticMessageModule.requestDM26(any())).thenReturn(RequestResult.of(dm26_0, dm26_1));
-        when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26_0));
-        when(diagnosticMessageModule.requestDM26(any(), eq(1))).thenReturn(RequestResult.of(dm26_1));
+        when(communicationsModule.requestDM26(any())).thenReturn(RequestResult.of(dm26_0, dm26_1));
+        when(communicationsModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26_0));
+        when(communicationsModule.requestDM26(any(), eq(1))).thenReturn(RequestResult.of(dm26_1));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM26(any());
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM26(any(), eq(1));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM26(any());
+        verify(communicationsModule).requestDM26(any(), eq(0));
+        verify(communicationsModule).requestDM26(any(), eq(1));
 
         String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant     not enabled,     complete" + NL;
@@ -681,16 +681,16 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         obdModule.set(DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22, enabledSystems, completeSystems), 1);
         dataRepository.putObdModule(obdModule);
 
-        when(diagnosticMessageModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
+        when(communicationsModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
 
         var dm26Ds = DM26TripDiagnosticReadinessPacket.create(0, 1, 0, enabledSystems, completeSystems);
-        when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26Ds));
+        when(communicationsModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26Ds));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM26(any());
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM26(any());
+        verify(communicationsModule).requestDM26(any(), eq(0));
 
         String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant         enabled, not complete" + NL;
@@ -743,19 +743,19 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
         obdModule.set(DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22, enabledSystems, completeSystems), 1);
         dataRepository.putObdModule(obdModule);
-        when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26));
+        when(communicationsModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
-        when(diagnosticMessageModule.requestDM26(any(), eq(1))).thenReturn(RequestResult.empty());
+        when(communicationsModule.requestDM26(any(), eq(1))).thenReturn(RequestResult.empty());
 
-        when(diagnosticMessageModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
+        when(communicationsModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM26(any());
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM26(any(), eq(1));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM26(any());
+        verify(communicationsModule).requestDM26(any(), eq(0));
+        verify(communicationsModule).requestDM26(any(), eq(1));
 
         String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant         enabled, not complete" + NL;

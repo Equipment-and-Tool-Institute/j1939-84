@@ -26,7 +26,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -48,7 +48,7 @@ public class Part07Step06ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -85,7 +85,7 @@ public class Part07Step06ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -94,7 +94,7 @@ public class Part07Step06ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -104,7 +104,7 @@ public class Part07Step06ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -141,11 +141,11 @@ public class Part07Step06ControllerTest extends AbstractControllerTest {
         var dm5_1 = DM5DiagnosticReadinessPacket.create(1, 0xFF, 0, 0x22);
 
         var dm5_2 = DM5DiagnosticReadinessPacket.create(2, 1, 0, 0x05);
-        when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5_0, dm5_1, dm5_2));
+        when(communicationsModule.requestDM5(any())).thenReturn(RequestResult.of(dm5_0, dm5_1, dm5_2));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM5(any());
+        verify(communicationsModule).requestDM5(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -161,11 +161,11 @@ public class Part07Step06ControllerTest extends AbstractControllerTest {
 
         var dm5_0 = DM5DiagnosticReadinessPacket.create(0, 1, 1, 0x22);
 
-        when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5_0));
+        when(communicationsModule.requestDM5(any())).thenReturn(RequestResult.of(dm5_0));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM5(any());
+        verify(communicationsModule).requestDM5(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -183,11 +183,11 @@ public class Part07Step06ControllerTest extends AbstractControllerTest {
 
         var dm5_0 = DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22);
 
-        when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5_0));
+        when(communicationsModule.requestDM5(any())).thenReturn(RequestResult.of(dm5_0));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM5(any());
+        verify(communicationsModule).requestDM5(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -206,11 +206,11 @@ public class Part07Step06ControllerTest extends AbstractControllerTest {
 
         var dm5_0 = DM5DiagnosticReadinessPacket.create(0, 0, 2, 0x22);
 
-        when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5_0));
+        when(communicationsModule.requestDM5(any())).thenReturn(RequestResult.of(dm5_0));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM5(any());
+        verify(communicationsModule).requestDM5(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

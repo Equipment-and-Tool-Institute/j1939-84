@@ -28,7 +28,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -50,7 +50,7 @@ public class Part06Step04ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -87,7 +87,7 @@ public class Part06Step04ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -96,7 +96,7 @@ public class Part06Step04ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -106,7 +106,7 @@ public class Part06Step04ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -141,11 +141,11 @@ public class Part06Step04ControllerTest extends AbstractControllerTest {
 
         var dm1_0 = DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc);
         var dm1_1 = DM1ActiveDTCsPacket.create(1, NOT_SUPPORTED, NOT_SUPPORTED, NOT_SUPPORTED, NOT_SUPPORTED);
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_1));
+        when(communicationsModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_1));
 
         runTest();
 
-        verify(diagnosticMessageModule).readDM1(any());
+        verify(communicationsModule).readDM1(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -163,11 +163,11 @@ public class Part06Step04ControllerTest extends AbstractControllerTest {
 
         var dm1_0 = DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc);
         var dm1_1 = DM1ActiveDTCsPacket.create(1, ON, ON, ON, ON);
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_1));
+        when(communicationsModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_1));
 
         runTest();
 
-        verify(diagnosticMessageModule).readDM1(any());
+        verify(communicationsModule).readDM1(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -187,11 +187,11 @@ public class Part06Step04ControllerTest extends AbstractControllerTest {
 
         var dm1_0 = DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc2);
         var dm1_1 = DM1ActiveDTCsPacket.create(1, ON, ON, ON, ON);
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_1));
+        when(communicationsModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_1));
 
         runTest();
 
-        verify(diagnosticMessageModule).readDM1(any());
+        verify(communicationsModule).readDM1(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -213,11 +213,11 @@ public class Part06Step04ControllerTest extends AbstractControllerTest {
 
         var dm1_0 = DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc);
         var dm1_1 = DM1ActiveDTCsPacket.create(1, ON, ON, ON, ON);
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_1));
+        when(communicationsModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_1));
 
         runTest();
 
-        verify(diagnosticMessageModule).readDM1(any());
+        verify(communicationsModule).readDM1(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

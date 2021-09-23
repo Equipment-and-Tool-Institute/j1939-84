@@ -28,7 +28,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -55,7 +55,7 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -91,7 +91,7 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               dateTimeModule,
                                               dataRepository);
         setup(instance,
@@ -101,7 +101,7 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -110,7 +110,7 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -135,14 +135,14 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(2));
 
-        when(diagnosticMessageModule.requestDM11(any(ResultsListener.class),
-                                                 eq(5L),
-                                                 eq(SECONDS))).thenReturn(acknowledgmentPackets);
+        when(communicationsModule.requestDM11(any(ResultsListener.class),
+                                              eq(5L),
+                                              eq(SECONDS))).thenReturn(acknowledgmentPackets);
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM11(any(), eq(5L), eq(SECONDS));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM11(any(), eq(5L), eq(SECONDS));
 
         verify(mockListener).addOutcome(1, 10, FAIL, "6.1.10.2.a - The request for DM11 was NACK'ed by Engine #2 (1)");
 
@@ -168,12 +168,12 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        when(diagnosticMessageModule.requestDM11(any(), eq(5L), eq(SECONDS))).thenReturn(acknowledgmentPackets);
+        when(communicationsModule.requestDM11(any(), eq(5L), eq(SECONDS))).thenReturn(acknowledgmentPackets);
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM11(any(ResultsListener.class), eq(5L), eq(SECONDS));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM11(any(ResultsListener.class), eq(5L), eq(SECONDS));
 
         verify(mockListener).addOutcome(1, 10, WARN, "6.1.10.3.a - The request for DM11 was ACK'ed by Engine #1 (0)");
 
@@ -215,15 +215,15 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        when(diagnosticMessageModule.requestDM11(any(ResultsListener.class),
-                                                 eq(5L),
-                                                 eq(SECONDS))).thenReturn(List.of(acknowledgmentPacket));
+        when(communicationsModule.requestDM11(any(ResultsListener.class),
+                                              eq(5L),
+                                              eq(SECONDS))).thenReturn(List.of(acknowledgmentPacket));
 
         runTest();
 
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM11(any(ResultsListener.class), eq(5L), eq(SECONDS));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM11(any(ResultsListener.class), eq(5L), eq(SECONDS));
 
         String expectedMessages = "";
         assertEquals(expectedMessages, listener.getMessages());
@@ -238,14 +238,14 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
             @TestItem(verifies = "6.1.10.1.c", description = "Pass if no response to the global DM11 query has been received in 5 s") })
     public void testNoResponseInFiveSeconds() {
 
-        when(diagnosticMessageModule.requestDM11(any(ResultsListener.class),
-                                                 eq(5L),
-                                                 eq(SECONDS))).thenReturn(List.of());
+        when(communicationsModule.requestDM11(any(ResultsListener.class),
+                                              eq(5L),
+                                              eq(SECONDS))).thenReturn(List.of());
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM11(any(ResultsListener.class), eq(5L), eq(SECONDS));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM11(any(ResultsListener.class), eq(5L), eq(SECONDS));
 
         String expectedMessages = "";
         assertEquals(expectedMessages, listener.getMessages());
@@ -262,14 +262,14 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
     public void testNackReturnedToDm11Request() {
         AcknowledgmentPacket ackPacket = AcknowledgmentPacket.create(0, NACK);
         dataRepository.putObdModule(new OBDModuleInformation(0));
-        when(diagnosticMessageModule.requestDM11(any(ResultsListener.class),
-                                                 eq(5L),
-                                                 eq(SECONDS))).thenReturn(List.of(ackPacket));
+        when(communicationsModule.requestDM11(any(ResultsListener.class),
+                                              eq(5L),
+                                              eq(SECONDS))).thenReturn(List.of(ackPacket));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM11(any(ResultsListener.class), eq(5L), eq(SECONDS));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM11(any(ResultsListener.class), eq(5L), eq(SECONDS));
 
         verify(mockListener).addOutcome(1,
                                         10,

@@ -26,7 +26,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -48,7 +48,7 @@ public class Part11Step10ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -85,7 +85,7 @@ public class Part11Step10ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -94,7 +94,7 @@ public class Part11Step10ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -104,7 +104,7 @@ public class Part11Step10ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -165,15 +165,15 @@ public class Part11Step10ControllerTest extends AbstractControllerTest {
                                                                       0x00,
                                                                       0x00));
 
-        when(diagnosticMessageModule.requestDM5(any(), eq(0x00))).thenReturn(BusResult.of(packet0));
-        when(diagnosticMessageModule.requestDM5(any(), eq(0x17))).thenReturn(BusResult.of(packet17));
-        when(diagnosticMessageModule.requestDM5(any(), eq(0x23))).thenReturn(BusResult.of(packet23));
+        when(communicationsModule.requestDM5(any(), eq(0x00))).thenReturn(BusResult.of(packet0));
+        when(communicationsModule.requestDM5(any(), eq(0x17))).thenReturn(BusResult.of(packet17));
+        when(communicationsModule.requestDM5(any(), eq(0x23))).thenReturn(BusResult.of(packet23));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM5(any(), eq(0x00));
-        verify(diagnosticMessageModule).requestDM5(any(), eq(0x17));
-        verify(diagnosticMessageModule).requestDM5(any(), eq(0x23));
+        verify(communicationsModule).requestDM5(any(), eq(0x00));
+        verify(communicationsModule).requestDM5(any(), eq(0x17));
+        verify(communicationsModule).requestDM5(any(), eq(0x23));
 
         assertSame(packet0, dataRepository.getObdModule(0).getLatest(DM5DiagnosticReadinessPacket.class));
 
