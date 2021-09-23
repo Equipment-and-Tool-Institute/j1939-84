@@ -32,7 +32,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -62,7 +62,7 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -97,7 +97,7 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               dataRepository,
                                               DateTimeModule.getInstance());
 
@@ -108,7 +108,7 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -117,7 +117,7 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -203,22 +203,22 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
             @TestItem(verifies = "6.1.20.4.b", description = "Fail if NACK not received from OBD ECUs that did not respond to global query.") })
     public void testNackNotReceivedFailure() {
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
-        when(diagnosticMessageModule.requestDM28(any(ResultsListener.class),
-                                                 eq(0x01))).thenReturn(new BusResult<>(false));
+        when(communicationsModule.requestDM28(any(ResultsListener.class),
+                                              eq(0x01))).thenReturn(new BusResult<>(false));
 
         dataRepository.putObdModule(new OBDModuleInformation(0x21));
         var packet21 = DM28PermanentEmissionDTCPacket.create(0x21, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM28(any(ResultsListener.class),
-                                                 eq(0x21))).thenReturn(new BusResult<>(false, packet21));
+        when(communicationsModule.requestDM28(any(ResultsListener.class),
+                                              eq(0x21))).thenReturn(new BusResult<>(false, packet21));
 
-        when(diagnosticMessageModule.requestDM28(any(ResultsListener.class))).thenReturn(new RequestResult<>(false,
-                                                                                                             packet21));
+        when(communicationsModule.requestDM28(any(ResultsListener.class))).thenReturn(new RequestResult<>(false,
+                                                                                                          packet21));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM28(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM28(any(ResultsListener.class), eq(0x01));
-        verify(diagnosticMessageModule).requestDM28(any(ResultsListener.class), eq(0x21));
+        verify(communicationsModule).requestDM28(any(ResultsListener.class));
+        verify(communicationsModule).requestDM28(any(ResultsListener.class), eq(0x01));
+        verify(communicationsModule).requestDM28(any(ResultsListener.class), eq(0x21));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -294,7 +294,7 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
                                                                                                   0x00,
                                                                                                   0x00,
                                                                                                   0x00));
-        when(diagnosticMessageModule.requestDM28(any(ResultsListener.class), eq(0x01)))
+        when(communicationsModule.requestDM28(any(ResultsListener.class), eq(0x01)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet1));
 
@@ -305,7 +305,7 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
                                                                                         OFF,
                                                                                         OFF,
                                                                                         OFF);
-        when(diagnosticMessageModule.requestDM28(any(ResultsListener.class)))
+        when(communicationsModule.requestDM28(any(ResultsListener.class)))
                                                                              .thenReturn(new RequestResult<>(false,
                                                                                                              packet1,
                                                                                                              packet17));
@@ -316,14 +316,14 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
                                                                                            OFF,
                                                                                            ON,
                                                                                            OFF);
-        when(diagnosticMessageModule.requestDM28(any(), eq(0x17)))
+        when(communicationsModule.requestDM28(any(), eq(0x17)))
                                                                   .thenReturn(new BusResult<>(false, obdPacket17));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM28(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM28(any(ResultsListener.class), eq(0x01));
-        verify(diagnosticMessageModule).requestDM28(any(ResultsListener.class), eq(0x17));
+        verify(communicationsModule).requestDM28(any(ResultsListener.class));
+        verify(communicationsModule).requestDM28(any(ResultsListener.class), eq(0x01));
+        verify(communicationsModule).requestDM28(any(ResultsListener.class), eq(0x17));
 
         assertEquals("", listener.getResults());
 
@@ -388,8 +388,8 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
     public void testEcuReportPermanentDtcFailure() {
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
         var ackPacket1 = AcknowledgmentPacket.create(0x01, NACK);
-        when(diagnosticMessageModule.requestDM28(any(ResultsListener.class),
-                                                 eq(0x01))).thenReturn(new BusResult<>(false, ackPacket1));
+        when(communicationsModule.requestDM28(any(ResultsListener.class),
+                                              eq(0x01))).thenReturn(new BusResult<>(false, ackPacket1));
 
         dataRepository.putObdModule(new OBDModuleInformation(0x03));
         var dtc3 = DiagnosticTroubleCode.create(609, 19, 0, 0);
@@ -401,18 +401,18 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
                                                             OFF,
                                                             dtc3);
 
-        when(diagnosticMessageModule.requestDM28(any()))
+        when(communicationsModule.requestDM28(any()))
                                                         .thenReturn(new RequestResult<>(false,
                                                                                         List.of(packet3),
                                                                                         List.of(ackPacket1)));
-        when(diagnosticMessageModule.requestDM28(any(), eq(0x03)))
+        when(communicationsModule.requestDM28(any(), eq(0x03)))
                                                                   .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM28(any());
-        verify(diagnosticMessageModule).requestDM28(any(), eq(0x01));
-        verify(diagnosticMessageModule).requestDM28(any(), eq(0x03));
+        verify(communicationsModule).requestDM28(any());
+        verify(communicationsModule).requestDM28(any(), eq(0x01));
+        verify(communicationsModule).requestDM28(any(), eq(0x03));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -478,8 +478,8 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
     public void testEcuDoesNotReportMilOffFailure() {
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
         var packet1 = DM28PermanentEmissionDTCPacket.create(0x01, ON, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM28(any(ResultsListener.class),
-                                                 eq(0x01))).thenReturn(new BusResult<>(false, packet1));
+        when(communicationsModule.requestDM28(any(ResultsListener.class),
+                                              eq(0x01))).thenReturn(new BusResult<>(false, packet1));
 
         dataRepository.putObdModule(new OBDModuleInformation(0x03));
         var packet3 = DM28PermanentEmissionDTCPacket.create(
@@ -488,11 +488,11 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
                                                             OFF,
                                                             OFF,
                                                             OFF);
-        when(diagnosticMessageModule.requestDM28(any(ResultsListener.class), eq(0x03)))
+        when(communicationsModule.requestDM28(any(ResultsListener.class), eq(0x03)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet3));
 
-        when(diagnosticMessageModule.requestDM28(any(ResultsListener.class)))
+        when(communicationsModule.requestDM28(any(ResultsListener.class)))
                                                                              .thenReturn(new RequestResult<>(false,
                                                                                                              List.of(packet1,
                                                                                                                      packet3),
@@ -500,9 +500,9 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM28(any());
-        verify(diagnosticMessageModule).requestDM28(any(), eq(0x01));
-        verify(diagnosticMessageModule).requestDM28(any(), eq(0x03));
+        verify(communicationsModule).requestDM28(any());
+        verify(communicationsModule).requestDM28(any(), eq(0x01));
+        verify(communicationsModule).requestDM28(any(), eq(0x03));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -556,18 +556,18 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
     public void testNoObdProvidesDm28Failure() {
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
         var ackPacket1 = AcknowledgmentPacket.create(0x01, NACK);
-        when(diagnosticMessageModule.requestDM28(any(ResultsListener.class),
-                                                 eq(0x01))).thenReturn(new BusResult<>(false, ackPacket1));
+        when(communicationsModule.requestDM28(any(ResultsListener.class),
+                                              eq(0x01))).thenReturn(new BusResult<>(false, ackPacket1));
 
-        when(diagnosticMessageModule.requestDM28(any(ResultsListener.class)))
+        when(communicationsModule.requestDM28(any(ResultsListener.class)))
                                                                              .thenReturn(new RequestResult<>(false,
                                                                                                              List.of(),
                                                                                                              List.of()));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM28(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM28(any(ResultsListener.class), eq(0x01));
+        verify(communicationsModule).requestDM28(any(ResultsListener.class));
+        verify(communicationsModule).requestDM28(any(ResultsListener.class), eq(0x01));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -635,21 +635,21 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
         var ackPacket1 = AcknowledgmentPacket.create(0x01,
                                                      NACK);
-        when(diagnosticMessageModule.requestDM28(any(), eq(0x01)))
+        when(communicationsModule.requestDM28(any(), eq(0x01)))
                                                                   .thenReturn(new BusResult<>(false, ackPacket1));
 
         dataRepository.putObdModule(new OBDModuleInformation(0x21));
         var packet21 = DM28PermanentEmissionDTCPacket.create(0x21, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM28(any(), eq(0x21)))
+        when(communicationsModule.requestDM28(any(), eq(0x21)))
                                                                   .thenReturn(new BusResult<>(false, packet21));
-        when(diagnosticMessageModule.requestDM28(any()))
+        when(communicationsModule.requestDM28(any()))
                                                         .thenReturn(new RequestResult<>(false, packet21));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM28(any());
-        verify(diagnosticMessageModule).requestDM28(any(), eq(0x01));
-        verify(diagnosticMessageModule).requestDM28(any(), eq(0x21));
+        verify(communicationsModule).requestDM28(any());
+        verify(communicationsModule).requestDM28(any(), eq(0x01));
+        verify(communicationsModule).requestDM28(any(), eq(0x21));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

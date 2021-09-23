@@ -28,7 +28,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -50,7 +50,7 @@ public class Part12Step09ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -92,7 +92,7 @@ public class Part12Step09ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               verifier);
 
         setup(instance,
@@ -102,7 +102,7 @@ public class Part12Step09ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -112,7 +112,7 @@ public class Part12Step09ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener,
                                  verifier);
     }
@@ -141,22 +141,22 @@ public class Part12Step09ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var nack0 = AcknowledgmentPacket.create(0, NACK);
-        when(diagnosticMessageModule.requestDM11(any(), eq(0))).thenReturn(List.of(nack0));
+        when(communicationsModule.requestDM11(any(), eq(0))).thenReturn(List.of(nack0));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         var nack1 = AcknowledgmentPacket.create(1, NACK);
-        when(diagnosticMessageModule.requestDM11(any(), eq(1))).thenReturn(List.of(nack1));
+        when(communicationsModule.requestDM11(any(), eq(1))).thenReturn(List.of(nack1));
 
         var ack = AcknowledgmentPacket.create(2, ACK);
-        when(diagnosticMessageModule.requestDM11(any())).thenReturn(List.of(ack));
+        when(communicationsModule.requestDM11(any())).thenReturn(List.of(ack));
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
 
-        verify(diagnosticMessageModule).requestDM11(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM11(any(), eq(1));
-        verify(diagnosticMessageModule).requestDM11(any());
+        verify(communicationsModule).requestDM11(any(), eq(0));
+        verify(communicationsModule).requestDM11(any(), eq(1));
+        verify(communicationsModule).requestDM11(any());
 
         verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.2.b"), eq("6.12.9.2.c"), eq(false));
         verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.4.c"), eq("6.12.9.4.d"), eq(true));
@@ -173,16 +173,16 @@ public class Part12Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNoNACK() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
-        when(diagnosticMessageModule.requestDM11(any(), eq(0))).thenReturn(List.of());
+        when(communicationsModule.requestDM11(any(), eq(0))).thenReturn(List.of());
 
-        when(diagnosticMessageModule.requestDM11(any())).thenReturn(List.of());
+        when(communicationsModule.requestDM11(any())).thenReturn(List.of());
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
 
-        verify(diagnosticMessageModule).requestDM11(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM11(any());
+        verify(communicationsModule).requestDM11(any(), eq(0));
+        verify(communicationsModule).requestDM11(any());
 
         verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.2.b"), eq("6.12.9.2.c"), eq(false));
         verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.4.c"), eq("6.12.9.4.d"), eq(true));
@@ -203,16 +203,16 @@ public class Part12Step09ControllerTest extends AbstractControllerTest {
     public void testFailureForNACK() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var nack0 = AcknowledgmentPacket.create(0, NACK);
-        when(diagnosticMessageModule.requestDM11(any(), eq(0))).thenReturn(List.of(nack0));
+        when(communicationsModule.requestDM11(any(), eq(0))).thenReturn(List.of(nack0));
 
-        when(diagnosticMessageModule.requestDM11(any())).thenReturn(List.of(nack0));
+        when(communicationsModule.requestDM11(any())).thenReturn(List.of(nack0));
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
 
-        verify(diagnosticMessageModule).requestDM11(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM11(any());
+        verify(communicationsModule).requestDM11(any(), eq(0));
+        verify(communicationsModule).requestDM11(any());
 
         verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.2.b"), eq("6.12.9.2.c"), eq(false));
         verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.4.c"), eq("6.12.9.4.d"), eq(true));
@@ -233,17 +233,17 @@ public class Part12Step09ControllerTest extends AbstractControllerTest {
     public void testWarningForACK() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var nack0 = AcknowledgmentPacket.create(0, NACK);
-        when(diagnosticMessageModule.requestDM11(any(), eq(0))).thenReturn(List.of(nack0));
+        when(communicationsModule.requestDM11(any(), eq(0))).thenReturn(List.of(nack0));
 
         var ack0 = AcknowledgmentPacket.create(0, ACK);
-        when(diagnosticMessageModule.requestDM11(any())).thenReturn(List.of(ack0));
+        when(communicationsModule.requestDM11(any())).thenReturn(List.of(ack0));
 
         runTest();
 
         verify(verifier).setJ1939(j1939);
 
-        verify(diagnosticMessageModule).requestDM11(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM11(any());
+        verify(communicationsModule).requestDM11(any(), eq(0));
+        verify(communicationsModule).requestDM11(any());
 
         verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.2.b"), eq("6.12.9.2.c"), eq(false));
         verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.9.4.c"), eq("6.12.9.4.d"), eq(true));

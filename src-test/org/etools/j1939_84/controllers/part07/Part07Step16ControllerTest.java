@@ -27,7 +27,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -49,7 +49,7 @@ public class Part07Step16ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -89,7 +89,7 @@ public class Part07Step16ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               verifier);
 
         setup(instance,
@@ -99,7 +99,7 @@ public class Part07Step16ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -109,7 +109,7 @@ public class Part07Step16ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener,
                                  verifier);
     }
@@ -140,14 +140,14 @@ public class Part07Step16ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
         var nackPacket = AcknowledgmentPacket.create(0, NACK);
-        when(diagnosticMessageModule.requestDM3(any())).thenReturn(List.of(nackPacket));
-        when(diagnosticMessageModule.requestDM3(any(), eq(0)))
+        when(communicationsModule.requestDM3(any())).thenReturn(List.of(nackPacket));
+        when(communicationsModule.requestDM3(any(), eq(0)))
                                                               .thenReturn(List.of(nackPacket));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM3(any());
-        verify(diagnosticMessageModule).requestDM3(any(), eq(0));
+        verify(communicationsModule).requestDM3(any());
+        verify(communicationsModule).requestDM3(any(), eq(0));
 
         verify(verifier).setJ1939(any());
         verify(verifier).verifyDataNotErased(any(), eq("6.7.16.2.a"));
@@ -173,14 +173,14 @@ public class Part07Step16ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        when(diagnosticMessageModule.requestDM3(any(), eq(0)))
+        when(communicationsModule.requestDM3(any(), eq(0)))
                                                               .thenReturn(List.of(AcknowledgmentPacket.create(0,
                                                                                                               ACK)));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM3(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM3(any());
+        verify(communicationsModule).requestDM3(any(), eq(0));
+        verify(communicationsModule).requestDM3(any());
 
         verify(verifier).setJ1939(any());
         verify(verifier).verifyDataNotErased(any(), eq("6.7.16.2.a"));

@@ -20,7 +20,7 @@ import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -48,7 +48,7 @@ public abstract class Controller {
     private final PartResultRepository partResultRepository;
     private final VehicleInformationModule vehicleInformationModule;
     private final DateTimeModule dateTimeModule;
-    private final DiagnosticMessageModule diagnosticMessageModule;
+    private final CommunicationsModule communicationsModule;
     private final DataRepository dataRepository;
     private CompositeResultsListener compositeListener;
     private J1939 j1939;
@@ -59,7 +59,7 @@ public abstract class Controller {
                          DataRepository dataRepository,
                          EngineSpeedModule engineSpeedModule,
                          VehicleInformationModule vehicleInformationModule,
-                         DiagnosticMessageModule diagnosticMessageModule) {
+                         CommunicationsModule communicationsModule) {
         this(executor,
              bannerModule,
              dateTimeModule,
@@ -67,7 +67,7 @@ public abstract class Controller {
              PartResultRepository.getInstance(),
              engineSpeedModule,
              vehicleInformationModule,
-             diagnosticMessageModule);
+             communicationsModule);
     }
 
     protected Controller(Executor executor,
@@ -77,13 +77,13 @@ public abstract class Controller {
                          PartResultRepository partResultRepository,
                          EngineSpeedModule engineSpeedModule,
                          VehicleInformationModule vehicleInformationModule,
-                         DiagnosticMessageModule diagnosticMessageModule) {
+                         CommunicationsModule communicationsModule) {
         this.executor = executor;
         this.engineSpeedModule = engineSpeedModule;
         this.bannerModule = bannerModule;
         this.vehicleInformationModule = vehicleInformationModule;
         this.dateTimeModule = dateTimeModule;
-        this.diagnosticMessageModule = diagnosticMessageModule;
+        this.communicationsModule = communicationsModule;
         this.partResultRepository = partResultRepository;
         this.dataRepository = dataRepository;
     }
@@ -307,8 +307,8 @@ public abstract class Controller {
         return vehicleInformationModule;
     }
 
-    protected DiagnosticMessageModule getDiagnosticMessageModule() {
-        return diagnosticMessageModule;
+    protected CommunicationsModule getDiagnosticMessageModule() {
+        return communicationsModule;
     }
 
     protected DataRepository getDataRepository() {

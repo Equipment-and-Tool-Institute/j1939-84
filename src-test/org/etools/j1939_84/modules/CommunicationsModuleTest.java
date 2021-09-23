@@ -55,13 +55,13 @@ import org.mockito.junit.MockitoJUnitRunner;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
- * Unit tests for the {@link DiagnosticMessageModule} class
+ * Unit tests for the {@link CommunicationsModule} class
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
 @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The values returned are properly ignored on verify statements.")
 @RunWith(MockitoJUnitRunner.class)
-public class DiagnosticMessageModuleTest {
+public class CommunicationsModuleTest {
 
     public static final int REQUEST_PGN = 0xEA00;
     public static final int ACK_PGN = AcknowledgmentPacket.PGN;
@@ -69,7 +69,7 @@ public class DiagnosticMessageModuleTest {
      * The Bus address of the tool for testing purposes
      */
     private static final int BUS_ADDR = 0xA5;
-    private DiagnosticMessageModule instance;
+    private CommunicationsModule instance;
 
     @Spy
     private J1939 j1939;
@@ -78,7 +78,7 @@ public class DiagnosticMessageModuleTest {
     public void setUp() throws Exception {
         DataRepository.clearInstance();
         DateTimeModule.setInstance(new TestDateTimeModule());
-        instance = new DiagnosticMessageModule();
+        instance = new CommunicationsModule();
         instance.setJ1939(j1939);
     }
 

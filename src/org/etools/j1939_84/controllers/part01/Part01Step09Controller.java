@@ -20,7 +20,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -40,7 +40,7 @@ public class Part01Step09Controller extends StepController {
              new VehicleInformationModule(),
              dataRepository,
              DateTimeModule.getInstance(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     protected Part01Step09Controller(Executor executor,
@@ -49,14 +49,14 @@ public class Part01Step09Controller extends StepController {
                                      VehicleInformationModule vehicleInformationModule,
                                      DataRepository dataRepository,
                                      DateTimeModule dateTimeModule,
-                                     DiagnosticMessageModule diagnosticMessageModule) {
+                                     CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);

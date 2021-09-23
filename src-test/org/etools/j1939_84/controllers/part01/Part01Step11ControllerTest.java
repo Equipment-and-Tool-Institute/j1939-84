@@ -29,7 +29,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -57,7 +57,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -90,7 +90,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         instance = new Part01Step11Controller(executor,
                                               engineSpeedModule,
                                               bannerModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               vehicleInformationModule,
                                               dataRepository,
                                               DateTimeModule.getInstance());
@@ -101,7 +101,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -109,7 +109,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         verifyNoMoreInteractions(executor,
                                  engineSpeedModule,
                                  bannerModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  vehicleInformationModule,
                                  mockListener);
     }
@@ -171,15 +171,15 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0x21));
 
         // return empty list
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class)))
                                                         .thenReturn(new RequestResult<>(false, List.of(), List.of()));
 
         DM21DiagnosticReadinessPacket packet4 = create(0x00, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0x00)))
+        when(communicationsModule.requestDM21(any(), eq(0x00)))
                                                                .thenReturn(new BusResult<>(false, packet4));
 
         DM21DiagnosticReadinessPacket packet5 = create(0x17, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x17)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x17)))
                                                                 .thenReturn(new BusResult<>(false, packet5));
 
         AcknowledgmentPacket ackPacket = AcknowledgmentPacket.create(0x21,
@@ -187,17 +187,17 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                                                      0,
                                                                      0x21,
                                                                      DM21DiagnosticReadinessPacket.PGN);
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x21)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x21)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    ackPacket));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class), eq(0x00));
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class), eq(0x17));
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class), eq(0x21));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM21(any(ResultsListener.class));
+        verify(communicationsModule).requestDM21(any(ResultsListener.class), eq(0x00));
+        verify(communicationsModule).requestDM21(any(ResultsListener.class), eq(0x17));
+        verify(communicationsModule).requestDM21(any(ResultsListener.class), eq(0x21));
 
         verify(mockListener).addOutcome(1,
                                         11,
@@ -291,21 +291,21 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         List<DM21DiagnosticReadinessPacket> globalPackets = new ArrayList<>();
 
         DM21DiagnosticReadinessPacket packet0x00 = create(0x00, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x00)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x00)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet0x00));
         globalPackets.add(packet0x00);
 
         DM21DiagnosticReadinessPacket packet0x17 = create(0x17, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x17)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x17)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet0x17));
         globalPackets.add(packet0x17);
 
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x21)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x21)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    Optional.empty()));
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class)))
                                                                              .thenReturn(new RequestResult<>(false,
                                                                                                              globalPackets,
                                                                                                              List.of()));
@@ -313,11 +313,11 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM21(any());
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0x00));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0x17));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0x21));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM21(any());
+        verify(communicationsModule).requestDM21(any(), eq(0x00));
+        verify(communicationsModule).requestDM21(any(), eq(0x17));
+        verify(communicationsModule).requestDM21(any(), eq(0x21));
 
         verify(mockListener).addOutcome(1,
                                         11,
@@ -387,7 +387,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         List<DM21DiagnosticReadinessPacket> globalPackets = new ArrayList<>();
 
         DM21DiagnosticReadinessPacket packet0x00 = create(0x00, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x00)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x00)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet0x00));
         globalPackets.add(packet0x00);
@@ -396,28 +396,28 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         globalPackets.add(packet0x17);
 
         DM21DiagnosticReadinessPacket dsPacket0x17 = create(0x17, 0, 0, 0, 2, 0);
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x17)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x17)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    dsPacket0x17));
 
         DM21DiagnosticReadinessPacket packet0x21 = create(0x21, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x21)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x21)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet0x21));
         globalPackets.add(packet0x21);
 
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class)))
                                                                              .thenReturn(new RequestResult<>(false,
                                                                                                              globalPackets,
                                                                                                              List.of()));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class), eq(0x00));
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class), eq(0x17));
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class), eq(0x21));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM21(any(ResultsListener.class));
+        verify(communicationsModule).requestDM21(any(ResultsListener.class), eq(0x00));
+        verify(communicationsModule).requestDM21(any(ResultsListener.class), eq(0x17));
+        verify(communicationsModule).requestDM21(any(ResultsListener.class), eq(0x21));
 
         verify(mockListener).addOutcome(1,
                                         11,
@@ -500,7 +500,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         List<DM21DiagnosticReadinessPacket> globalPackets = new ArrayList<>();
 
         DM21DiagnosticReadinessPacket packet0x00 = create(0x00, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x00)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x00)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet0x00));
         globalPackets.add(packet0x00);
@@ -510,31 +510,31 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                                                          0,
                                                                          0x09,
                                                                          DM21DiagnosticReadinessPacket.PGN);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0x09)))
+        when(communicationsModule.requestDM21(any(), eq(0x09)))
                                                                   .thenReturn(new BusResult<>(false, ackPacket0x09));
 
         DM21DiagnosticReadinessPacket packet0x17 = create(0x17, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0x17)))
+        when(communicationsModule.requestDM21(any(), eq(0x17)))
                                                                   .thenReturn(new BusResult<>(false, packet0x17));
         globalPackets.add(packet0x17);
 
         DM21DiagnosticReadinessPacket packet0x21 = create(0x21, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x21)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x21)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet0x21));
 
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class))).thenReturn(new RequestResult<>(false,
-                                                                                        globalPackets,
-                                                                                        List.of()));
+        when(communicationsModule.requestDM21(any(ResultsListener.class))).thenReturn(new RequestResult<>(false,
+                                                                                                          globalPackets,
+                                                                                                          List.of()));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class), eq(0x00));
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class), eq(0x09));
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class), eq(0x17));
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class), eq(0x21));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM21(any(ResultsListener.class));
+        verify(communicationsModule).requestDM21(any(ResultsListener.class), eq(0x00));
+        verify(communicationsModule).requestDM21(any(ResultsListener.class), eq(0x09));
+        verify(communicationsModule).requestDM21(any(ResultsListener.class), eq(0x17));
+        verify(communicationsModule).requestDM21(any(ResultsListener.class), eq(0x21));
 
         verify(mockListener).addOutcome(1,
                                         11,
@@ -614,21 +614,21 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         DM21DiagnosticReadinessPacket packet0x00 = create(0x00, 0, 0, 0, 0, 0);
         packets.add(packet0x00);
         // Destination Specific response
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x00)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x00)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet0x00));
         // Global response
         DM21DiagnosticReadinessPacket packet0x09 = create(0x09, 0, 0, 0, 0, 0);
         packets.add(packet0x09);
         // Destination Specific response
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x09)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x09)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    Optional.empty()));
         // Global response
         DM21DiagnosticReadinessPacket packet0x17 = create(0x17, 0, 0, 0, 0, 0);
         packets.add(packet0x17);
         // Destination Specific response
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x17)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x17)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet0x17));
 
@@ -636,21 +636,21 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         DM21DiagnosticReadinessPacket packet0x21 = create(0x21, 0, 0, 0, 0, 0);
         packets.add(packet0x21);
         // Destination Specific response
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class),
-                                                 eq(0x21))).thenReturn(new BusResult<>(false,
+        when(communicationsModule.requestDM21(any(ResultsListener.class),
+                                              eq(0x21))).thenReturn(new BusResult<>(false,
                                                                                        packet0x21));
         // returned RequestResult
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class))).thenReturn(new RequestResult<>(false,
-                                                                                                             packets,
-                                                                                                             List.of()));
+        when(communicationsModule.requestDM21(any(ResultsListener.class))).thenReturn(new RequestResult<>(false,
+                                                                                                          packets,
+                                                                                                          List.of()));
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class), eq(0x00));
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class), eq(0x09));
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class), eq(0x17));
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class), eq(0x21));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM21(any(ResultsListener.class));
+        verify(communicationsModule).requestDM21(any(ResultsListener.class), eq(0x00));
+        verify(communicationsModule).requestDM21(any(ResultsListener.class), eq(0x09));
+        verify(communicationsModule).requestDM21(any(ResultsListener.class), eq(0x17));
+        verify(communicationsModule).requestDM21(any(ResultsListener.class), eq(0x21));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -723,29 +723,29 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         packets.add(packet17);
         packets.add(packet21);
         // Global DM21 request response - return packets
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class)))
                                                                              .thenReturn(new RequestResult<>(false,
                                                                                                              packets,
                                                                                                              List.of()));
         // DS to 0x00 response - return packet0
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x00)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x00)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet0));
         // DS to 0x17 response - return packet17
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x17)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x17)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet17));
 
-        when(diagnosticMessageModule.requestDM21(any(), eq(0x21)))
+        when(communicationsModule.requestDM21(any(), eq(0x21)))
                                                                   .thenReturn(new BusResult<>(false, packet21));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM21(any());
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0x00));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0x17));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0x21));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM21(any());
+        verify(communicationsModule).requestDM21(any(), eq(0x00));
+        verify(communicationsModule).requestDM21(any(), eq(0x17));
+        verify(communicationsModule).requestDM21(any(), eq(0x21));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -818,30 +818,30 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         packets.add(globalPacket0x00);
         packets.add(globalPacket0x17);
         packets.add(globalPacket0x21);
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class)))
                                                                              .thenReturn(new RequestResult<>(false,
                                                                                                              packets,
                                                                                                              List.of()));
 
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x00)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x00)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    globalPacket0x00));
 
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x17)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x17)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    globalPacket0x17));
 
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x21)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x21)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    globalPacket0x21));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0x00));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0x17));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0x21));
-        verify(diagnosticMessageModule).requestDM21(any());
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM21(any(), eq(0x00));
+        verify(communicationsModule).requestDM21(any(), eq(0x17));
+        verify(communicationsModule).requestDM21(any(), eq(0x21));
+        verify(communicationsModule).requestDM21(any());
 
         verify(mockListener).addOutcome(1,
                                         11,
@@ -918,13 +918,13 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
 
         DM21DiagnosticReadinessPacket packet0x00 = create(0x00, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x00)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x00)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet0x00));
         packets.add(packet0x00);
 
         DM21DiagnosticReadinessPacket packet0x17 = create(0x17, 0, 10, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x17)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x17)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet0x17));
         packets.add(packet0x17);
@@ -935,22 +935,22 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                                                                         0,
                                                                                         0,
                                                                                         0);
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class), eq(0x21)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x21)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet0x21));
         packets.add(packet0x21);
-        when(diagnosticMessageModule.requestDM21(any(ResultsListener.class)))
+        when(communicationsModule.requestDM21(any(ResultsListener.class)))
                                                                              .thenReturn(new RequestResult<>(false,
                                                                                                              packets,
                                                                                                              List.of()));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM21(any());
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0x00));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0x17));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0x21));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM21(any());
+        verify(communicationsModule).requestDM21(any(), eq(0x00));
+        verify(communicationsModule).requestDM21(any(), eq(0x17));
+        verify(communicationsModule).requestDM21(any(), eq(0x21));
 
         verify(mockListener).addOutcome(1,
                                         11,
@@ -1028,28 +1028,28 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet0x00 = create(0x00, 0, 0, 0, 0, 0);
         packets.add(packet0x00);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0x00)))
+        when(communicationsModule.requestDM21(any(), eq(0x00)))
                                                                   .thenReturn(new BusResult<>(false, packet0x00));
 
         DM21DiagnosticReadinessPacket packet0x17 = create(0x17, 0, 0, 0, 20, 0);
         packets.add(packet0x17);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0x17)))
+        when(communicationsModule.requestDM21(any(), eq(0x17)))
                                                                   .thenReturn(new BusResult<>(false, packet0x17));
 
         DM21DiagnosticReadinessPacket packet0x21 = create(0x21, 0, 0, 0, 0, 0);
         packets.add(packet0x21);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0x21)))
+        when(communicationsModule.requestDM21(any(), eq(0x21)))
                                                                   .thenReturn(new BusResult<>(false, packet0x21));
-        when(diagnosticMessageModule.requestDM21(any()))
+        when(communicationsModule.requestDM21(any()))
                                                         .thenReturn(new RequestResult<>(false, packets, List.of()));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class), eq(0x00));
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class), eq(0x17));
-        verify(diagnosticMessageModule).requestDM21(any(ResultsListener.class), eq(0x21));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM21(any(ResultsListener.class));
+        verify(communicationsModule).requestDM21(any(ResultsListener.class), eq(0x00));
+        verify(communicationsModule).requestDM21(any(ResultsListener.class), eq(0x17));
+        verify(communicationsModule).requestDM21(any(ResultsListener.class), eq(0x21));
 
         verify(mockListener).addOutcome(1,
                                         11,
@@ -1127,31 +1127,31 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
 
         DM21DiagnosticReadinessPacket packet0x00 = create(0x00, 0, 0, 0, 0, 25);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0x00)))
+        when(communicationsModule.requestDM21(any(), eq(0x00)))
                                                                   .thenReturn(new BusResult<>(false, packet0x00));
         packets.add(packet0x00);
 
         DM21DiagnosticReadinessPacket packet0x17 = create(0x17, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0x17)))
+        when(communicationsModule.requestDM21(any(), eq(0x17)))
                                                                   .thenReturn(new BusResult<>(false, packet0x17));
         packets.add(packet0x17);
 
         DM21DiagnosticReadinessPacket packet0x21 = create(0x21, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0x21)))
+        when(communicationsModule.requestDM21(any(), eq(0x21)))
                                                                   .thenReturn(new BusResult<>(false, packet0x21));
         packets.add(packet0x21);
 
-        when(diagnosticMessageModule.requestDM21(any()))
+        when(communicationsModule.requestDM21(any()))
                                                         .thenReturn(new RequestResult<>(false, packets, List.of()));
 
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0x00));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0x17));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0x21));
-        verify(diagnosticMessageModule).requestDM21(any());
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM21(any(), eq(0x00));
+        verify(communicationsModule).requestDM21(any(), eq(0x17));
+        verify(communicationsModule).requestDM21(any(), eq(0x21));
+        verify(communicationsModule).requestDM21(any());
 
         verify(mockListener).addOutcome(1,
                                         11,

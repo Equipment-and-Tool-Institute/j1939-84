@@ -24,7 +24,7 @@ public class Part02ControllerTest extends AbstractPartControllerTest {
                                         DataRepository.newInstance(),
                                         engineSpeedModule,
                                         vehicleInformationModule,
-                                        diagnosticMessageModule,
+                                        communicationsModule,
                                         step01Controller,
                                         step02Controller,
                                         step03Controller,

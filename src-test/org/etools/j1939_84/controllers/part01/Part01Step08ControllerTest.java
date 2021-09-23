@@ -25,7 +25,7 @@ import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -51,7 +51,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
     @Mock
     private EngineSpeedModule engineSpeedModule;
     @Mock
@@ -91,7 +91,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               dataRepository,
                                               DateTimeModule.getInstance());
 
@@ -102,7 +102,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
 
     }
 
@@ -113,7 +113,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -127,7 +127,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPs);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
@@ -137,7 +137,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -154,7 +154,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         List<Integer> SPs = List.of(3058, 3064, 5321, 3055);
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPs);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
@@ -164,7 +164,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,
@@ -186,7 +186,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         List<Integer> SPs = List.of(3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057);
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPs);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
@@ -196,8 +196,8 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM20(any());
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,
@@ -219,7 +219,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPs);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.DSL);
@@ -227,7 +227,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -245,7 +245,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPs);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
@@ -255,7 +255,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -268,7 +268,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.8.2.a", description = "A.4 - Compression Ignition Engine Minimum SPs Verified: none - empty packet returned"))
     public void testEmptyPacketsCompressionIgnition() {
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.empty());
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.empty());
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.DSL);
@@ -276,7 +276,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,
@@ -294,7 +294,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.8.2.a", description = "A.4 - Spark Ignition Engine Minimum SPs Verified: none - empty packet returned"))
     public void testEmptyPacketsSparkIgnition() {
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.empty());
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.empty());
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.BI_CNG);
@@ -302,7 +302,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,
@@ -333,7 +333,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         List<Integer> sps = List.of(5322, 5318, 3058, 3064, 5321, 3055);
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, sps);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.BI_DSL);
@@ -341,7 +341,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,
@@ -364,7 +364,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(0x00, SPs);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
         dataRepository.putObdModule(new OBDModuleInformation(0x00));
 
@@ -375,7 +375,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any(ResultsListener.class));
+        verify(communicationsModule).requestDM20(any(ResultsListener.class));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -433,7 +433,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
                                                                                                                1,
                                                                                                                0x00));
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
         dataRepository.putObdModule(new OBDModuleInformation(0x00));
 
@@ -443,7 +443,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,

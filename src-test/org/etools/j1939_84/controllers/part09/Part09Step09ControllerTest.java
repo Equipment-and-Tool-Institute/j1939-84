@@ -26,7 +26,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -48,7 +48,7 @@ public class Part09Step09ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -85,7 +85,7 @@ public class Part09Step09ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -94,7 +94,7 @@ public class Part09Step09ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -104,7 +104,7 @@ public class Part09Step09ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -132,21 +132,21 @@ public class Part09Step09ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
+        when(communicationsModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         var dm21_1 = DM21DiagnosticReadinessPacket.create(1, 0, 0, 0, 0xFFFF, 0xFFFF);
-        when(diagnosticMessageModule.requestDM21(any(), eq(1))).thenReturn(BusResult.of(dm21_1));
+        when(communicationsModule.requestDM21(any(), eq(1))).thenReturn(BusResult.of(dm21_1));
 
         dataRepository.putObdModule(new OBDModuleInformation(2));
         var nack = AcknowledgmentPacket.create(2, NACK);
-        when(diagnosticMessageModule.requestDM21(any(), eq(2))).thenReturn(BusResult.of(nack));
+        when(communicationsModule.requestDM21(any(), eq(2))).thenReturn(BusResult.of(nack));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(1));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(2));
+        verify(communicationsModule).requestDM21(any(), eq(0));
+        verify(communicationsModule).requestDM21(any(), eq(1));
+        verify(communicationsModule).requestDM21(any(), eq(2));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -157,11 +157,11 @@ public class Part09Step09ControllerTest extends AbstractControllerTest {
     public void testFailureForMIL() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1, 0);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
+        when(communicationsModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0));
+        verify(communicationsModule).requestDM21(any(), eq(0));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -175,11 +175,11 @@ public class Part09Step09ControllerTest extends AbstractControllerTest {
     public void testFailureForTSCC() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 1);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
+        when(communicationsModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0));
+        verify(communicationsModule).requestDM21(any(), eq(0));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -193,11 +193,11 @@ public class Part09Step09ControllerTest extends AbstractControllerTest {
     public void testFailureForNoDM21() {
         dataRepository.putObdModule(new OBDModuleInformation(2));
         var nack = AcknowledgmentPacket.create(2, NACK);
-        when(diagnosticMessageModule.requestDM21(any(), eq(2))).thenReturn(BusResult.of(nack));
+        when(communicationsModule.requestDM21(any(), eq(2))).thenReturn(BusResult.of(nack));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM21(any(), eq(2));
+        verify(communicationsModule).requestDM21(any(), eq(2));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -211,15 +211,15 @@ public class Part09Step09ControllerTest extends AbstractControllerTest {
     public void testFailureForNoNACK() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
+        when(communicationsModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
 
         dataRepository.putObdModule(new OBDModuleInformation(2));
-        when(diagnosticMessageModule.requestDM21(any(), eq(2))).thenReturn(BusResult.empty());
+        when(communicationsModule.requestDM21(any(), eq(2))).thenReturn(BusResult.empty());
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(2));
+        verify(communicationsModule).requestDM21(any(), eq(0));
+        verify(communicationsModule).requestDM21(any(), eq(2));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

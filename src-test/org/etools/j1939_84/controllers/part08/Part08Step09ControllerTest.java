@@ -30,7 +30,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -52,7 +52,7 @@ public class Part08Step09ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -89,7 +89,7 @@ public class Part08Step09ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -98,7 +98,7 @@ public class Part08Step09ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -108,7 +108,7 @@ public class Part08Step09ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -148,11 +148,11 @@ public class Part08Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
         var dm31_1 = DM31DtcToLampAssociation.create(1, 0);
 
-        when(diagnosticMessageModule.requestDM31(any())).thenReturn(RequestResult.of(dm31_0, dm31_1));
+        when(communicationsModule.requestDM31(any())).thenReturn(RequestResult.of(dm31_0, dm31_1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM31(any());
+        verify(communicationsModule).requestDM31(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -161,11 +161,11 @@ public class Part08Step09ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testNoResponses() {
-        when(diagnosticMessageModule.requestDM31(any())).thenReturn(RequestResult.empty());
+        when(communicationsModule.requestDM31(any())).thenReturn(RequestResult.empty());
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM31(any());
+        verify(communicationsModule).requestDM31(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -186,11 +186,11 @@ public class Part08Step09ControllerTest extends AbstractControllerTest {
         var lampStatus3 = DTCLampStatus.create(dtc3, OFF, OFF, OFF, OFF);
         var dm31 = DM31DtcToLampAssociation.create(0, 0, lampStatus1, lampStatus2, lampStatus3);
 
-        when(diagnosticMessageModule.requestDM31(any())).thenReturn(RequestResult.of(dm31));
+        when(communicationsModule.requestDM31(any())).thenReturn(RequestResult.of(dm31));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM31(any());
+        verify(communicationsModule).requestDM31(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -213,11 +213,11 @@ public class Part08Step09ControllerTest extends AbstractControllerTest {
         var lampStatus2 = DTCLampStatus.create(dtc2, OFF, OFF, OFF, OFF);
         var dm31 = DM31DtcToLampAssociation.create(0, 0, lampStatus1, lampStatus2);
 
-        when(diagnosticMessageModule.requestDM31(any())).thenReturn(RequestResult.of(dm31));
+        when(communicationsModule.requestDM31(any())).thenReturn(RequestResult.of(dm31));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM31(any());
+        verify(communicationsModule).requestDM31(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -240,11 +240,11 @@ public class Part08Step09ControllerTest extends AbstractControllerTest {
         var lampStatus2 = DTCLampStatus.create(dtc2, OFF, NOT_SUPPORTED, OFF, OFF);
         var dm31 = DM31DtcToLampAssociation.create(0, 0, lampStatus1, lampStatus2);
 
-        when(diagnosticMessageModule.requestDM31(any())).thenReturn(RequestResult.of(dm31));
+        when(communicationsModule.requestDM31(any())).thenReturn(RequestResult.of(dm31));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM31(any());
+        verify(communicationsModule).requestDM31(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

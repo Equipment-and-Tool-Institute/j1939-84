@@ -36,7 +36,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -58,7 +58,7 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -161,7 +161,7 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               translator,
                                               validator);
 
@@ -172,7 +172,7 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -183,10 +183,10 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener,
                                  validator,
-                                 diagnosticMessageModule);
+                                 communicationsModule);
     }
 
     @Test
@@ -217,11 +217,11 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
         moduleInfo.set(createDM24(), 1);
         dataRepository.putObdModule(moduleInfo);
 
-        when(diagnosticMessageModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(createDM25()));
+        when(communicationsModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(createDM25()));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM25(any(), eq(0));
+        verify(communicationsModule).requestDM25(any(), eq(0));
         verify(validator).reportWarnings(any(), any(), eq("6.3.13.2.e"));
 
         String expected = "";
@@ -316,13 +316,13 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(moduleInfo);
 
         DM25ExpandedFreezeFrame dm25 = DM25ExpandedFreezeFrame.create(0, new FreezeFrame(dtc, Spn.create(91, 10)));
-        when(diagnosticMessageModule.requestDM25(any(), eq(0)))
+        when(communicationsModule.requestDM25(any(), eq(0)))
                                                                .thenReturn(new BusResult<>(true))
                                                                .thenReturn(BusResult.of(dm25));
 
         runTest();
 
-        verify(diagnosticMessageModule, times(2)).requestDM25(any(), eq(0));
+        verify(communicationsModule, times(2)).requestDM25(any(), eq(0));
         verify(validator).reportWarnings(any(), any(), eq("6.3.13.2.e"));
 
         String expected = "";
@@ -353,11 +353,11 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
 
         DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(102, 4, 0, 1);
         DM25ExpandedFreezeFrame dm25 = DM25ExpandedFreezeFrame.create(0, new FreezeFrame(dtc, Spn.create(91, 10)));
-        when(diagnosticMessageModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(dm25));
+        when(communicationsModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(dm25));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM25(any(), eq(0));
+        verify(communicationsModule).requestDM25(any(), eq(0));
         verify(validator).reportWarnings(any(), any(), eq("6.3.13.2.e"));
 
         String expected = "";
@@ -390,11 +390,11 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
         DM25ExpandedFreezeFrame dm25 = DM25ExpandedFreezeFrame.create(0,
                                                                       new FreezeFrame(dtc1, Spn.create(91, 10)),
                                                                       new FreezeFrame(dtc2, Spn.create(91, 100)));
-        when(diagnosticMessageModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(dm25));
+        when(communicationsModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(dm25));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM25(any(), eq(0));
+        verify(communicationsModule).requestDM25(any(), eq(0));
         verify(validator, times(2)).reportWarnings(any(), any(), eq("6.3.13.2.e"));
 
         String expected = "";
@@ -434,11 +434,11 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(moduleInfo);
 
         DM25ExpandedFreezeFrame dm25 = DM25ExpandedFreezeFrame.create(0, new FreezeFrame(dtc, Spn.create(91, 10)));
-        when(diagnosticMessageModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(dm25));
+        when(communicationsModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(dm25));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM25(any(), eq(0));
+        verify(communicationsModule).requestDM25(any(), eq(0));
         verify(validator).reportWarnings(any(), any(), eq("6.3.13.2.e"));
 
         String expected = "";
@@ -462,13 +462,13 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         dataRepository.putObdModule(moduleInfo);
 
-        when(diagnosticMessageModule.requestDM25(any(), eq(0)))
+        when(communicationsModule.requestDM25(any(), eq(0)))
                                                                .thenReturn(new BusResult<>(true))
                                                                .thenReturn(new BusResult<>(true));
 
         runTest();
 
-        verify(diagnosticMessageModule, times(2)).requestDM25(any(), eq(0));
+        verify(communicationsModule, times(2)).requestDM25(any(), eq(0));
 
         assertEquals("", listener.getResults());
 

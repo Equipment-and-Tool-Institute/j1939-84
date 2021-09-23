@@ -28,7 +28,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -50,7 +50,7 @@ public class Part09Step20ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -87,7 +87,7 @@ public class Part09Step20ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -96,7 +96,7 @@ public class Part09Step20ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -106,7 +106,7 @@ public class Part09Step20ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -134,19 +134,19 @@ public class Part09Step20ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(RequestResult.of(dm6));
+        when(communicationsModule.requestDM6(any(), eq(0))).thenReturn(RequestResult.of(dm6));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         var nack = AcknowledgmentPacket.create(1, NACK);
-        when(diagnosticMessageModule.requestDM6(any(), eq(1))).thenReturn(new RequestResult<>(false, nack));
+        when(communicationsModule.requestDM6(any(), eq(1))).thenReturn(new RequestResult<>(false, nack));
 
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(RequestResult.of(dm6));
+        when(communicationsModule.requestDM6(any())).thenReturn(RequestResult.of(dm6));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM6(any());
-        verify(diagnosticMessageModule).requestDM6(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM6(any(), eq(1));
+        verify(communicationsModule).requestDM6(any());
+        verify(communicationsModule).requestDM6(any(), eq(0));
+        verify(communicationsModule).requestDM6(any(), eq(1));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -157,14 +157,14 @@ public class Part09Step20ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
         var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(RequestResult.of(dm6));
+        when(communicationsModule.requestDM6(any(), eq(0))).thenReturn(RequestResult.of(dm6));
 
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(RequestResult.of(dm6));
+        when(communicationsModule.requestDM6(any())).thenReturn(RequestResult.of(dm6));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM6(any());
-        verify(diagnosticMessageModule).requestDM6(any(), eq(0));
+        verify(communicationsModule).requestDM6(any());
+        verify(communicationsModule).requestDM6(any(), eq(0));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -178,14 +178,14 @@ public class Part09Step20ControllerTest extends AbstractControllerTest {
     public void testFailureForNoDM6() {
         dataRepository.putObdModule(new OBDModuleInformation(1));
         var nack = AcknowledgmentPacket.create(1, NACK);
-        when(diagnosticMessageModule.requestDM6(any(), eq(1))).thenReturn(new RequestResult<>(false, nack));
+        when(communicationsModule.requestDM6(any(), eq(1))).thenReturn(new RequestResult<>(false, nack));
 
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(RequestResult.of());
+        when(communicationsModule.requestDM6(any())).thenReturn(RequestResult.of());
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM6(any());
-        verify(diagnosticMessageModule).requestDM6(any(), eq(1));
+        verify(communicationsModule).requestDM6(any());
+        verify(communicationsModule).requestDM6(any(), eq(1));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -199,15 +199,15 @@ public class Part09Step20ControllerTest extends AbstractControllerTest {
     public void testFailureForDifference() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var dm6 = DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(RequestResult.of(dm6));
+        when(communicationsModule.requestDM6(any(), eq(0))).thenReturn(RequestResult.of(dm6));
 
         var dm6_2 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(RequestResult.of(dm6_2));
+        when(communicationsModule.requestDM6(any())).thenReturn(RequestResult.of(dm6_2));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM6(any());
-        verify(diagnosticMessageModule).requestDM6(any(), eq(0));
+        verify(communicationsModule).requestDM6(any());
+        verify(communicationsModule).requestDM6(any(), eq(0));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -221,18 +221,18 @@ public class Part09Step20ControllerTest extends AbstractControllerTest {
     public void testFailureForNoNACK() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(RequestResult.of(dm6));
+        when(communicationsModule.requestDM6(any(), eq(0))).thenReturn(RequestResult.of(dm6));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
-        when(diagnosticMessageModule.requestDM6(any(), eq(1))).thenReturn(RequestResult.empty());
+        when(communicationsModule.requestDM6(any(), eq(1))).thenReturn(RequestResult.empty());
 
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(RequestResult.of(dm6));
+        when(communicationsModule.requestDM6(any())).thenReturn(RequestResult.of(dm6));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM6(any());
-        verify(diagnosticMessageModule).requestDM6(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM6(any(), eq(1));
+        verify(communicationsModule).requestDM6(any());
+        verify(communicationsModule).requestDM6(any(), eq(0));
+        verify(communicationsModule).requestDM6(any(), eq(1));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

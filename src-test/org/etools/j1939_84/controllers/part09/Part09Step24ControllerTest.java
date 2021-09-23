@@ -28,7 +28,7 @@ import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -50,7 +50,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -87,7 +87,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -96,7 +96,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -106,7 +106,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -139,7 +139,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
         obdModule.set(dsPacket, 9);
         dataRepository.putObdModule(obdModule);
 
-        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(dsPacket));
+        when(communicationsModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(dsPacket));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
@@ -148,7 +148,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
+        verify(communicationsModule).requestDM33(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -158,7 +158,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoResponsesCIEngine() {
 
-        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.empty());
+        when(communicationsModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.empty());
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2025);
@@ -173,7 +173,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
+        verify(communicationsModule).requestDM33(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -191,7 +191,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
         var previousPacket = create(0, 0, timer1);
         var packet = create(0, 0, timer1, timer2);
 
-        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(packet));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
@@ -205,7 +205,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
+        verify(communicationsModule).requestDM33(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -222,7 +222,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
         var timer2 = EngineHoursTimer.create(1, 7, 9);
         var packet = create(0, 0, timer1);
 
-        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(packet));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2024);
@@ -235,7 +235,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
+        verify(communicationsModule).requestDM33(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -251,7 +251,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
         var globalPacket = create(0, 0, EngineHoursTimer.create(1, 4, 10));
         var dsPacket = create(0, 0, EngineHoursTimer.create(1, 7, 9));
 
-        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(dsPacket));
+        when(communicationsModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(dsPacket));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
@@ -265,7 +265,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
+        verify(communicationsModule).requestDM33(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -281,7 +281,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
         var globalPacket = create(0, 0, EngineHoursTimer.create(1, 7, 9));
         var dsPacket = create(0, 0, EngineHoursTimer.create(1, 3, 10));
 
-        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(dsPacket));
+        when(communicationsModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(dsPacket));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
@@ -295,7 +295,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
+        verify(communicationsModule).requestDM33(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -311,7 +311,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
         var globalPacket = create(0, 0, EngineHoursTimer.create(1, 7, 9));
         var dsPacket = create(0, 0, EngineHoursTimer.create(1, 3, 10));
 
-        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(dsPacket));
+        when(communicationsModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(dsPacket));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2025);
@@ -325,7 +325,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
+        verify(communicationsModule).requestDM33(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

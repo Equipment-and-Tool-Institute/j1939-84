@@ -4,7 +4,7 @@
 package org.etools.j1939_84.controllers.part02;
 
 import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
-import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSystems;
+import static org.etools.j1939_84.modules.CommunicationsModule.getCompositeSystems;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ import org.etools.j1939_84.controllers.part01.SectionA6Validator;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -42,7 +42,7 @@ public class Part02Step02Controller extends StepController {
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              DateTimeModule.getInstance(),
              new SectionA6Validator(dataRepository, PART_NUMBER, STEP_NUMBER),
              dataRepository);
@@ -52,7 +52,7 @@ public class Part02Step02Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule,
+                           CommunicationsModule communicationsModule,
                            DateTimeModule dateTimeModule,
                            SectionA6Validator sectionA6Validator,
                            DataRepository dataRepository) {
@@ -62,7 +62,7 @@ public class Part02Step02Controller extends StepController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);

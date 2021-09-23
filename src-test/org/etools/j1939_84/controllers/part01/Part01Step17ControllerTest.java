@@ -30,7 +30,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -60,7 +60,7 @@ public class Part01Step17ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -96,7 +96,7 @@ public class Part01Step17ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               dataRepository,
                                               DateTimeModule.getInstance());
 
@@ -107,7 +107,7 @@ public class Part01Step17ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -116,7 +116,7 @@ public class Part01Step17ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -181,26 +181,26 @@ public class Part01Step17ControllerTest extends AbstractControllerTest {
                                                                                 OFF,
                                                                                 OFF);
 
-        when(diagnosticMessageModule.requestDM6(any(ResultsListener.class), eq(0x00)))
+        when(communicationsModule.requestDM6(any(ResultsListener.class), eq(0x00)))
                                                                                       .thenReturn(new RequestResult<>(false,
                                                                                                                       List.of(packet),
                                                                                                                       List.of()));
 
-        when(diagnosticMessageModule.requestDM6(any(ResultsListener.class)))
+        when(communicationsModule.requestDM6(any(ResultsListener.class)))
                                                                             .thenReturn(new RequestResult<>(false,
                                                                                                             List.of(packet),
                                                                                                             List.of()));
-        when(diagnosticMessageModule.requestDM6(any(ResultsListener.class), eq(0x01)))
+        when(communicationsModule.requestDM6(any(ResultsListener.class), eq(0x01)))
                                                                                       .thenReturn(new RequestResult<>(false,
                                                                                                                       List.of(),
                                                                                                                       List.of()));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM6(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM6(any(ResultsListener.class), eq(0x00));
-        verify(diagnosticMessageModule).requestDM6(any(ResultsListener.class), eq(0x01));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM6(any(ResultsListener.class));
+        verify(communicationsModule).requestDM6(any(ResultsListener.class), eq(0x00));
+        verify(communicationsModule).requestDM6(any(ResultsListener.class), eq(0x01));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -280,25 +280,25 @@ public class Part01Step17ControllerTest extends AbstractControllerTest {
 
         DM6PendingEmissionDTCPacket obdPacket3 = DM6PendingEmissionDTCPacket.create(0x03, OFF, OFF, OFF, OFF);
 
-        when(diagnosticMessageModule.requestDM6(any()))
+        when(communicationsModule.requestDM6(any()))
                                                        .thenReturn(new RequestResult<>(false,
                                                                                        List.of(packet1, packet3),
                                                                                        List.of()));
-        when(diagnosticMessageModule.requestDM6(any(), eq(0x01)))
+        when(communicationsModule.requestDM6(any(), eq(0x01)))
                                                                  .thenReturn(new RequestResult<>(false,
                                                                                                  List.of(packet1),
                                                                                                  List.of()));
-        when(diagnosticMessageModule.requestDM6(any(), eq(0x03)))
+        when(communicationsModule.requestDM6(any(), eq(0x03)))
                                                                  .thenReturn(new RequestResult<>(false,
                                                                                                  List.of(obdPacket3),
                                                                                                  List.of()));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM6(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM6(any(ResultsListener.class), eq(0x01));
-        verify(diagnosticMessageModule).requestDM6(any(), eq(0x03));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM6(any(ResultsListener.class));
+        verify(communicationsModule).requestDM6(any(ResultsListener.class), eq(0x01));
+        verify(communicationsModule).requestDM6(any(), eq(0x03));
 
         assertEquals("", listener.getResults());
 
@@ -368,26 +368,26 @@ public class Part01Step17ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0x00));
         dataRepository.putObdModule(new OBDModuleInformation(0x03));
 
-        when(diagnosticMessageModule.requestDM6(any(ResultsListener.class)))
+        when(communicationsModule.requestDM6(any(ResultsListener.class)))
                                                                             .thenReturn(new RequestResult<>(false,
                                                                                                             List.of(packet0,
                                                                                                                     packet3),
                                                                                                             List.of()));
-        when(diagnosticMessageModule.requestDM6(any(ResultsListener.class), eq(0x00)))
+        when(communicationsModule.requestDM6(any(ResultsListener.class), eq(0x00)))
                                                                                       .thenReturn(new RequestResult<>(false,
                                                                                                                       List.of(packet0),
                                                                                                                       List.of()));
-        when(diagnosticMessageModule.requestDM6(any(ResultsListener.class), eq(0x03)))
+        when(communicationsModule.requestDM6(any(ResultsListener.class), eq(0x03)))
                                                                                       .thenReturn(new RequestResult<>(false,
                                                                                                                       List.of(packet3),
                                                                                                                       List.of()));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM6(any());
-        verify(diagnosticMessageModule).requestDM6(any(ResultsListener.class), eq(0x00));
-        verify(diagnosticMessageModule).requestDM6(any(ResultsListener.class), eq(0x03));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM6(any());
+        verify(communicationsModule).requestDM6(any(ResultsListener.class), eq(0x00));
+        verify(communicationsModule).requestDM6(any(ResultsListener.class), eq(0x03));
 
         assertEquals("", listener.getResults());
 
@@ -456,26 +456,26 @@ public class Part01Step17ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
         dataRepository.putObdModule(new OBDModuleInformation(0x03));
 
-        when(diagnosticMessageModule.requestDM6(any(ResultsListener.class)))
+        when(communicationsModule.requestDM6(any(ResultsListener.class)))
                                                                             .thenReturn(new RequestResult<>(false,
                                                                                                             List.of(packet1,
                                                                                                                     packet3),
                                                                                                             List.of()));
-        when(diagnosticMessageModule.requestDM6(any(ResultsListener.class), eq(0x01)))
+        when(communicationsModule.requestDM6(any(ResultsListener.class), eq(0x01)))
                                                                                       .thenReturn(new RequestResult<>(false,
                                                                                                                       List.of(packet1),
                                                                                                                       List.of()));
-        when(diagnosticMessageModule.requestDM6(any(ResultsListener.class), eq(0x03)))
+        when(communicationsModule.requestDM6(any(ResultsListener.class), eq(0x03)))
                                                                                       .thenReturn(new RequestResult<>(false,
                                                                                                                       List.of(packet3),
                                                                                                                       List.of()));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM6(any());
-        verify(diagnosticMessageModule).requestDM6(any(), eq(0x01));
-        verify(diagnosticMessageModule).requestDM6(any(), eq(0x03));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM6(any());
+        verify(communicationsModule).requestDM6(any(), eq(0x01));
+        verify(communicationsModule).requestDM6(any(), eq(0x03));
 
         assertEquals("", listener.getResults());
 
@@ -531,20 +531,20 @@ public class Part01Step17ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
 
-        when(diagnosticMessageModule.requestDM6(any(ResultsListener.class)))
+        when(communicationsModule.requestDM6(any(ResultsListener.class)))
                                                                             .thenReturn(new RequestResult<>(false,
                                                                                                             List.of(),
                                                                                                             List.of()));
-        when(diagnosticMessageModule.requestDM6(any(ResultsListener.class), eq(0x01)))
+        when(communicationsModule.requestDM6(any(ResultsListener.class), eq(0x01)))
                                                                                       .thenReturn(new RequestResult<>(false,
                                                                                                                       List.of(),
                                                                                                                       List.of(ackPacket1)));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM6(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM6(any(ResultsListener.class), eq(0x01));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM6(any(ResultsListener.class));
+        verify(communicationsModule).requestDM6(any(ResultsListener.class), eq(0x01));
 
         assertEquals("", listener.getResults());
 
@@ -637,20 +637,20 @@ public class Part01Step17ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
 
-        when(diagnosticMessageModule.requestDM6(any(ResultsListener.class)))
+        when(communicationsModule.requestDM6(any(ResultsListener.class)))
                                                        .thenReturn(new RequestResult<>(false,
                                                                                        List.of(packet1),
                                                                                        List.of()));
-        when(diagnosticMessageModule.requestDM6(any(ResultsListener.class), eq(0x01)))
+        when(communicationsModule.requestDM6(any(ResultsListener.class), eq(0x01)))
                                                                  .thenReturn(new RequestResult<>(false,
                                                                                                  List.of(packet1),
                                                                                                  List.of()));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM6(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM6(any(ResultsListener.class), eq(0x01));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM6(any(ResultsListener.class));
+        verify(communicationsModule).requestDM6(any(ResultsListener.class), eq(0x01));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

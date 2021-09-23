@@ -24,7 +24,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -46,7 +46,7 @@ public class Part09Step06ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -83,7 +83,7 @@ public class Part09Step06ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -92,7 +92,7 @@ public class Part09Step06ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -102,7 +102,7 @@ public class Part09Step06ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -138,23 +138,23 @@ public class Part09Step06ControllerTest extends AbstractControllerTest {
 
         ScaledTestResult str1 = ScaledTestResult.create(247, 123, 14, 0, 0, 0, 0);
         var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str1, str2);
-        when(diagnosticMessageModule.requestTestResults(any(),
-                                                        eq(0),
-                                                        eq(247),
-                                                        eq(123),
-                                                        eq(31))).thenReturn(List.of(dm30_123));
+        when(communicationsModule.requestTestResults(any(),
+                                                     eq(0),
+                                                     eq(247),
+                                                     eq(123),
+                                                     eq(31))).thenReturn(List.of(dm30_123));
 
         var dm30_456 = DM30ScaledTestResultsPacket.create(0, 0, str3);
-        when(diagnosticMessageModule.requestTestResults(any(),
-                                                        eq(0),
-                                                        eq(247),
-                                                        eq(456),
-                                                        eq(31))).thenReturn(List.of(dm30_456));
+        when(communicationsModule.requestTestResults(any(),
+                                                     eq(0),
+                                                     eq(247),
+                                                     eq(456),
+                                                     eq(31))).thenReturn(List.of(dm30_456));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(123), eq(31));
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(456), eq(31));
+        verify(communicationsModule).requestTestResults(any(), eq(0), eq(247), eq(123), eq(31));
+        verify(communicationsModule).requestTestResults(any(), eq(0), eq(247), eq(456), eq(31));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -172,15 +172,15 @@ public class Part09Step06ControllerTest extends AbstractControllerTest {
 
         ScaledTestResult str2 = ScaledTestResult.create(247, 123, 13, 0, 0, 0, 0);
         var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str2);
-        when(diagnosticMessageModule.requestTestResults(any(),
-                                                        eq(0),
-                                                        eq(247),
-                                                        eq(123),
-                                                        eq(31))).thenReturn(List.of(dm30_123));
+        when(communicationsModule.requestTestResults(any(),
+                                                     eq(0),
+                                                     eq(247),
+                                                     eq(123),
+                                                     eq(31))).thenReturn(List.of(dm30_123));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(123), eq(31));
+        verify(communicationsModule).requestTestResults(any(), eq(0), eq(247), eq(123), eq(31));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

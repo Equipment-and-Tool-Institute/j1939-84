@@ -26,7 +26,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -48,7 +48,7 @@ public class Part09Step16ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -85,7 +85,7 @@ public class Part09Step16ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -94,7 +94,7 @@ public class Part09Step16ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -104,7 +104,7 @@ public class Part09Step16ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -134,28 +134,28 @@ public class Part09Step16ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM26TripDiagnosticReadinessPacket.create(0, 0, 0), 8);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm26_0 = DM26TripDiagnosticReadinessPacket.create(0, 0, 0);
-        when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26_0));
+        when(communicationsModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26_0));
 
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
         obdModuleInformation1.set(DM26TripDiagnosticReadinessPacket.create(1, 0, 1), 8);
         dataRepository.putObdModule(obdModuleInformation1);
         var dm26_1 = DM26TripDiagnosticReadinessPacket.create(1, 0, 0);
-        when(diagnosticMessageModule.requestDM26(any(), eq(1))).thenReturn(RequestResult.of(dm26_1));
+        when(communicationsModule.requestDM26(any(), eq(1))).thenReturn(RequestResult.of(dm26_1));
 
         dataRepository.putObdModule(new OBDModuleInformation(2));
         var dm26_2 = DM26TripDiagnosticReadinessPacket.create(2, 100, 100);
-        when(diagnosticMessageModule.requestDM26(any(), eq(2))).thenReturn(RequestResult.of(dm26_2));
+        when(communicationsModule.requestDM26(any(), eq(2))).thenReturn(RequestResult.of(dm26_2));
 
         dataRepository.putObdModule(new OBDModuleInformation(3));
         var nack = AcknowledgmentPacket.create(3, NACK);
-        when(diagnosticMessageModule.requestDM26(any(), eq(3))).thenReturn(new RequestResult<>(false, nack));
+        when(communicationsModule.requestDM26(any(), eq(3))).thenReturn(new RequestResult<>(false, nack));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM26(any(), eq(1));
-        verify(diagnosticMessageModule).requestDM26(any(), eq(2));
-        verify(diagnosticMessageModule).requestDM26(any(), eq(3));
+        verify(communicationsModule).requestDM26(any(), eq(0));
+        verify(communicationsModule).requestDM26(any(), eq(1));
+        verify(communicationsModule).requestDM26(any(), eq(2));
+        verify(communicationsModule).requestDM26(any(), eq(3));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -168,11 +168,11 @@ public class Part09Step16ControllerTest extends AbstractControllerTest {
         obdModuleInformation1.set(DM26TripDiagnosticReadinessPacket.create(1, 0, 1), 8);
         dataRepository.putObdModule(obdModuleInformation1);
         var dm26_1 = DM26TripDiagnosticReadinessPacket.create(1, 0, 1);
-        when(diagnosticMessageModule.requestDM26(any(), eq(1))).thenReturn(RequestResult.of(dm26_1));
+        when(communicationsModule.requestDM26(any(), eq(1))).thenReturn(RequestResult.of(dm26_1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM26(any(), eq(1));
+        verify(communicationsModule).requestDM26(any(), eq(1));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -185,11 +185,11 @@ public class Part09Step16ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNoNACK() {
         dataRepository.putObdModule(new OBDModuleInformation(1));
-        when(diagnosticMessageModule.requestDM26(any(), eq(1))).thenReturn(RequestResult.of());
+        when(communicationsModule.requestDM26(any(), eq(1))).thenReturn(RequestResult.of());
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM26(any(), eq(1));
+        verify(communicationsModule).requestDM26(any(), eq(1));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

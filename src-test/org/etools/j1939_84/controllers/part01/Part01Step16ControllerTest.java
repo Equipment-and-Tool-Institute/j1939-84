@@ -30,7 +30,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -56,7 +56,7 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -90,7 +90,7 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               dataRepository,
                                               DateTimeModule.getInstance());
 
@@ -101,7 +101,7 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
 
     }
 
@@ -112,7 +112,7 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  vehicleInformationModule,
                                  mockListener,
-                                 diagnosticMessageModule);
+                                 communicationsModule);
     }
 
     /**
@@ -158,14 +158,14 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
 
         var dtc1 = DiagnosticTroubleCode.create(123, 1, 1, 1);
         var packet1 = DM2PreviouslyActiveDTC.create(0x00, OFF, OFF, OFF, OFF, dtc1);
-        when(diagnosticMessageModule.requestDM2(any(ResultsListener.class))).thenReturn(RequestResult.of(packet1));
-        when(diagnosticMessageModule.requestDM2(any(ResultsListener.class),
-                                                eq(0x00))).thenReturn(BusResult.of(packet1));
+        when(communicationsModule.requestDM2(any(ResultsListener.class))).thenReturn(RequestResult.of(packet1));
+        when(communicationsModule.requestDM2(any(ResultsListener.class),
+                                             eq(0x00))).thenReturn(BusResult.of(packet1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM2(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM2(any(ResultsListener.class), eq(0x00));
+        verify(communicationsModule).requestDM2(any(ResultsListener.class));
+        verify(communicationsModule).requestDM2(any(ResultsListener.class), eq(0x00));
 
         verify(mockListener).addOutcome(1,
                                         16,
@@ -245,14 +245,14 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0x00));
 
         var packet1 = DM2PreviouslyActiveDTC.create(0x00, NOT_SUPPORTED, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM2(any(ResultsListener.class))).thenReturn(RequestResult.of(packet1));
-        when(diagnosticMessageModule.requestDM2(any(ResultsListener.class),
-                                                eq(0x00))).thenReturn(BusResult.of(packet1));
+        when(communicationsModule.requestDM2(any(ResultsListener.class))).thenReturn(RequestResult.of(packet1));
+        when(communicationsModule.requestDM2(any(ResultsListener.class),
+                                             eq(0x00))).thenReturn(BusResult.of(packet1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM2(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM2(any(ResultsListener.class), eq(0x00));
+        verify(communicationsModule).requestDM2(any(ResultsListener.class));
+        verify(communicationsModule).requestDM2(any(ResultsListener.class), eq(0x00));
 
         verify(mockListener).addOutcome(1,
                                         16,
@@ -306,15 +306,15 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
     public void testMILOff() {
         var packet1 = DM2PreviouslyActiveDTC.create(0x00, OFF, OFF, OFF, OFF);
         dataRepository.putObdModule(new OBDModuleInformation(0x00));
-        when(diagnosticMessageModule.requestDM2(any(ResultsListener.class))).thenReturn(RequestResult.of(packet1));
-        when(diagnosticMessageModule.requestDM2(any(ResultsListener.class),
-                                                eq(0x00))).thenReturn(new BusResult<>(false, packet1));
+        when(communicationsModule.requestDM2(any(ResultsListener.class))).thenReturn(RequestResult.of(packet1));
+        when(communicationsModule.requestDM2(any(ResultsListener.class),
+                                             eq(0x00))).thenReturn(new BusResult<>(false, packet1));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM2(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM2(any(ResultsListener.class), eq(0x00));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM2(any(ResultsListener.class));
+        verify(communicationsModule).requestDM2(any(ResultsListener.class), eq(0x00));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -364,14 +364,14 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
 
         var dtc = DiagnosticTroubleCode.create(12, 1, 1, 1);
         var packet1 = DM2PreviouslyActiveDTC.create(0x00, SLOW_FLASH, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM2(any(ResultsListener.class))).thenReturn(RequestResult.of(packet1));
-        when(diagnosticMessageModule.requestDM2(any(ResultsListener.class),
-                                                eq(0x00))).thenReturn(BusResult.of(packet1));
+        when(communicationsModule.requestDM2(any(ResultsListener.class))).thenReturn(RequestResult.of(packet1));
+        when(communicationsModule.requestDM2(any(ResultsListener.class),
+                                             eq(0x00))).thenReturn(BusResult.of(packet1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM2(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM2(any(ResultsListener.class), eq(0x00));
+        verify(communicationsModule).requestDM2(any(ResultsListener.class));
+        verify(communicationsModule).requestDM2(any(ResultsListener.class), eq(0x00));
 
         verify(mockListener).addOutcome(1,
                                         16,
@@ -427,11 +427,11 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
             @TestItem(verifies = "6.1.16.2.c", description = "Fail if any non-OBD ECU does not report MIL off or not supported") })
     public void testNonObdModuleMilOnFailure() {
         var packet1 = DM2PreviouslyActiveDTC.create(0x00, ON, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM2(any(ResultsListener.class))).thenReturn(RequestResult.of(packet1));
+        when(communicationsModule.requestDM2(any(ResultsListener.class))).thenReturn(RequestResult.of(packet1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM2(any(ResultsListener.class));
+        verify(communicationsModule).requestDM2(any(ResultsListener.class));
 
         verify(mockListener).addOutcome(1,
                                         16,
@@ -498,21 +498,21 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(0x00));
         var packet1 = DM2PreviouslyActiveDTC.create(0x00, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM2(any(ResultsListener.class),
-                                                eq(0x00))).thenReturn(BusResult.of(packet1));
+        when(communicationsModule.requestDM2(any(ResultsListener.class),
+                                             eq(0x00))).thenReturn(BusResult.of(packet1));
 
         dataRepository.putObdModule(new OBDModuleInformation(0x03));
         DM2PreviouslyActiveDTC packet4 = DM2PreviouslyActiveDTC.create(0x03, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM2(any(ResultsListener.class),
-                                                eq(0x03))).thenReturn(BusResult.of(packet4));
+        when(communicationsModule.requestDM2(any(ResultsListener.class),
+                                             eq(0x03))).thenReturn(BusResult.of(packet4));
 
-        when(diagnosticMessageModule.requestDM2(any(ResultsListener.class))).thenReturn(RequestResult.of(packet1));
+        when(communicationsModule.requestDM2(any(ResultsListener.class))).thenReturn(RequestResult.of(packet1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM2(any());
-        verify(diagnosticMessageModule).requestDM2(any(), eq(0x00));
-        verify(diagnosticMessageModule).requestDM2(any(), eq(0x03));
+        verify(communicationsModule).requestDM2(any());
+        verify(communicationsModule).requestDM2(any(), eq(0x00));
+        verify(communicationsModule).requestDM2(any(), eq(0x03));
 
         verify(mockListener).addOutcome(1,
                                         16,
@@ -578,25 +578,25 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(0x00));
         DM2PreviouslyActiveDTC packet2 = DM2PreviouslyActiveDTC.create(0x00, OFF, ON, OFF, OFF);
-        when(diagnosticMessageModule.requestDM2(any(ResultsListener.class),
-                                                eq(0x00))).thenReturn(BusResult.of(packet2));
+        when(communicationsModule.requestDM2(any(ResultsListener.class),
+                                             eq(0x00))).thenReturn(BusResult.of(packet2));
 
         DM2PreviouslyActiveDTC packet1 = DM2PreviouslyActiveDTC.create(0x00, OFF, OFF, OFF, OFF);
 
         dataRepository.putObdModule(new OBDModuleInformation(0x03));
         AcknowledgmentPacket packet4 = AcknowledgmentPacket.create(0x03, NACK);
-        when(diagnosticMessageModule.requestDM2(any(), eq(0x03))).thenReturn(BusResult.of(packet4));
+        when(communicationsModule.requestDM2(any(), eq(0x03))).thenReturn(BusResult.of(packet4));
 
         DM2PreviouslyActiveDTC packet3 = DM2PreviouslyActiveDTC.create(0x03, OFF, OFF, OFF, OFF);
 
-        when(diagnosticMessageModule.requestDM2(any(ResultsListener.class))).thenReturn(RequestResult.of(packet1,
-                                                                                                         packet3));
+        when(communicationsModule.requestDM2(any(ResultsListener.class))).thenReturn(RequestResult.of(packet1,
+                                                                                                      packet3));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM2(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM2(any(ResultsListener.class), eq(0x00));
-        verify(diagnosticMessageModule).requestDM2(any(ResultsListener.class), eq(0x03));
+        verify(communicationsModule).requestDM2(any(ResultsListener.class));
+        verify(communicationsModule).requestDM2(any(ResultsListener.class), eq(0x00));
+        verify(communicationsModule).requestDM2(any(ResultsListener.class), eq(0x03));
 
         verify(mockListener).addOutcome(1,
                                         16,
@@ -664,20 +664,20 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(0x00));
         DM2PreviouslyActiveDTC packet1 = DM2PreviouslyActiveDTC.create(0x00, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM2(any(), eq(0x00))).thenReturn(BusResult.of(packet1));
+        when(communicationsModule.requestDM2(any(), eq(0x00))).thenReturn(BusResult.of(packet1));
 
         dataRepository.putObdModule(new OBDModuleInformation(0x03));
         AcknowledgmentPacket packet4 = AcknowledgmentPacket.create(0x03, NACK);
-        when(diagnosticMessageModule.requestDM2(any(ResultsListener.class),
-                                                eq(0x03))).thenReturn(BusResult.of(packet4));
+        when(communicationsModule.requestDM2(any(ResultsListener.class),
+                                             eq(0x03))).thenReturn(BusResult.of(packet4));
 
-        when(diagnosticMessageModule.requestDM2(any(ResultsListener.class))).thenReturn(RequestResult.of(packet1));
+        when(communicationsModule.requestDM2(any(ResultsListener.class))).thenReturn(RequestResult.of(packet1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM2(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM2(any(ResultsListener.class), eq(0x00));
-        verify(diagnosticMessageModule).requestDM2(any(ResultsListener.class), eq(0x03));
+        verify(communicationsModule).requestDM2(any(ResultsListener.class));
+        verify(communicationsModule).requestDM2(any(ResultsListener.class), eq(0x00));
+        verify(communicationsModule).requestDM2(any(ResultsListener.class), eq(0x03));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

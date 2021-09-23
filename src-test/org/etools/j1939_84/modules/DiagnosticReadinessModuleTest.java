@@ -9,7 +9,7 @@ import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.AC_SYSTEM_RE
 import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.BOOST_PRESSURE_CONTROL_SYS;
 import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.CATALYST;
 import static org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus.findStatus;
-import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSystems;
+import static org.etools.j1939_84.modules.CommunicationsModule.getCompositeSystems;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -42,7 +42,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
- * Unit tests for the {@link DiagnosticMessageModule}
+ * Unit tests for the {@link CommunicationsModule}
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
@@ -51,7 +51,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public class DiagnosticReadinessModuleTest {
 
     private static final int BUS_ADDR = 0xA5;
-    private DiagnosticMessageModule instance;
+    private CommunicationsModule instance;
     @Spy
     private J1939 j1939;
     private TestResultsListener listener;
@@ -64,7 +64,7 @@ public class DiagnosticReadinessModuleTest {
     public void setUp() throws Exception {
         listener = new TestResultsListener();
         DateTimeModule.setInstance(new TestDateTimeModule());
-        instance = new DiagnosticMessageModule();
+        instance = new CommunicationsModule();
         instance.setJ1939(j1939);
         DataRepository.clearInstance();
     }

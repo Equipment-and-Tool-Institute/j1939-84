@@ -36,7 +36,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.SupportedSpnModule;
@@ -78,7 +78,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
     @Mock
     private ResultsListener mockListener;
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
     @Mock
     private ReportFileModule reportFileModule;
     @Mock
@@ -107,7 +107,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               supportedSpnModule,
                                               dataRepository,
                                               DateTimeModule.getInstance());
@@ -119,7 +119,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -128,7 +128,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener,
                                  supportedSpnModule);
     }
@@ -141,7 +141,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        when(diagnosticMessageModule.requestDM24(any(), eq(0)))
+        when(communicationsModule.requestDM24(any(), eq(0)))
                                                                .thenReturn(BusResult.of(packet1));
 
         VehicleInformation vehicleInfo = new VehicleInformation();
@@ -150,8 +150,8 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM24(any(), eq(0));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM24(any(), eq(0));
 
         verify(engineSpeedModule).setJ1939(j1939);
 
@@ -197,11 +197,11 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         when(packet1.getSourceAddress()).thenReturn(0);
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
-        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(BusResult.of(packet1));
+        when(communicationsModule.requestDM24(any(), eq(0))).thenReturn(BusResult.of(packet1));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         AcknowledgmentPacket packet4 = AcknowledgmentPacket.create(1, NACK);
-        when(diagnosticMessageModule.requestDM24(any(), eq(1)))
+        when(communicationsModule.requestDM24(any(), eq(1)))
                                                                .thenReturn(BusResult.empty())
                                                                .thenReturn(BusResult.of(packet4));
 
@@ -212,9 +212,9 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM24(any(), eq(0));
-        verify(diagnosticMessageModule, times(2)).requestDM24(any(), eq(1));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM24(any(), eq(0));
+        verify(communicationsModule, times(2)).requestDM24(any(), eq(1));
 
         verify(engineSpeedModule).setJ1939(j1939);
 
@@ -283,7 +283,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                                                                               0x1B,
                                                                               0x01));
 
-        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(BusResult.of(packet1));
+        when(communicationsModule.requestDM24(any(), eq(0))).thenReturn(BusResult.of(packet1));
 
         //@formatter:off
         DM24SPNSupportPacket packet4 = new DM24SPNSupportPacket(Packet.create(DM24SPNSupportPacket.PGN,
@@ -322,7 +322,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                 0x00, 0x1F, 0x00, 0x00, 0x00, 0x1F, 0x00, 0x00, 0x00, 0x1F, 0x00, 0x00, 0x00, 0x1F, 0x00));
         //@formatter:on
 
-        when(diagnosticMessageModule.requestDM24(any(), eq(1))).thenReturn(BusResult.of(packet4));
+        when(communicationsModule.requestDM24(any(), eq(1))).thenReturn(BusResult.of(packet4));
 
         VehicleInformation vehicleInfo = new VehicleInformation();
         vehicleInfo.setFuelType(BI_GAS);
@@ -333,9 +333,9 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM24(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM24(any(), eq(1));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM24(any(), eq(0));
+        verify(communicationsModule).requestDM24(any(), eq(1));
 
         verify(engineSpeedModule).setJ1939(j1939);
 

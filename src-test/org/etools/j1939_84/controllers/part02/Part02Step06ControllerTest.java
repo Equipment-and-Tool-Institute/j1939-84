@@ -23,7 +23,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -57,7 +57,7 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     private DataRepository dataRepository;
 
@@ -76,7 +76,7 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
                                                                      vehicleInformationModule,
                                                                      dataRepository,
                                                                      DateTimeModule.getInstance(),
-                                                                     diagnosticMessageModule);
+                                                                     communicationsModule);
 
         setup(instance,
               listener,
@@ -85,7 +85,7 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -95,7 +95,7 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  vehicleInformationModule,
                                  mockListener,
-                                 diagnosticMessageModule);
+                                 communicationsModule);
     }
 
     @Test
@@ -106,12 +106,12 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation1);
 
         var packet1 = DM56EngineFamilyPacket.create(1, 2021, true, "Engine Family Different");
-        when(diagnosticMessageModule.requestDM56(any(), eq(1))).thenReturn(List.of(packet1));
+        when(communicationsModule.requestDM56(any(), eq(1))).thenReturn(List.of(packet1));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM56(any(), eq(1));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM56(any(), eq(1));
 
         verify(mockListener).addOutcome(2,
                                         6,
@@ -130,11 +130,11 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation0);
 
         var packet0 = DM56EngineFamilyPacket.create(0, 2020, true, "Engine Family");
-        when(diagnosticMessageModule.requestDM56(any(), eq(0))).thenReturn(List.of(packet0));
+        when(communicationsModule.requestDM56(any(), eq(0))).thenReturn(List.of(packet0));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM56(any(), eq(0));
+        verify(communicationsModule).requestDM56(any(), eq(0));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -144,11 +144,11 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoPackets() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
-        when(diagnosticMessageModule.requestDM56(any(), eq(0))).thenReturn(List.of());
+        when(communicationsModule.requestDM56(any(), eq(0))).thenReturn(List.of());
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM56(any(), eq(0));
+        verify(communicationsModule).requestDM56(any(), eq(0));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

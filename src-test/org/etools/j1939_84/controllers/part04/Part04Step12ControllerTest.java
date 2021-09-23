@@ -25,7 +25,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -47,7 +47,7 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -84,7 +84,7 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -93,7 +93,7 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -103,7 +103,7 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -137,7 +137,7 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.setSupportedSPNs(List.of(supportedSPN0));
         dataRepository.putObdModule(obdModuleInformation0);
         var dm30_0 = DM30ScaledTestResultsPacket.create(0, 0, str0);
-        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(246), eq(5846), eq(31))).thenReturn(List.of(
+        when(communicationsModule.requestTestResults(any(), eq(0), eq(246), eq(5846), eq(31))).thenReturn(List.of(
                                                                                                                      dm30_0));
 
         // Module 1 doesn't support TID 246 - requires another request
@@ -148,22 +148,22 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
         obdModuleInformation1.setSupportedSPNs(List.of(supportedSPN1));
         dataRepository.putObdModule(obdModuleInformation1);
 
-        when(diagnosticMessageModule.requestTestResults(any(), eq(1), eq(246), eq(5846), eq(31))).thenReturn(List.of());
+        when(communicationsModule.requestTestResults(any(), eq(1), eq(246), eq(5846), eq(31))).thenReturn(List.of());
         var dm30_1 = DM30ScaledTestResultsPacket.create(1, 0, str1);
-        when(diagnosticMessageModule.requestTestResults(any(),
-                                                        eq(1),
-                                                        eq(247),
-                                                        eq(supportedSPN1.getSpn()),
-                                                        eq(31))).thenReturn(List.of(dm30_1));
+        when(communicationsModule.requestTestResults(any(),
+                                                     eq(1),
+                                                     eq(247),
+                                                     eq(supportedSPN1.getSpn()),
+                                                     eq(31))).thenReturn(List.of(dm30_1));
 
         // Module 2 doesn't have Scaled Test Results
         dataRepository.putObdModule(new OBDModuleInformation(2));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(246), eq(5846), eq(31));
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(1), eq(246), eq(5846), eq(31));
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(1), eq(247), eq(supportedSPN1.getSpn()), eq(31));
+        verify(communicationsModule).requestTestResults(any(), eq(0), eq(246), eq(5846), eq(31));
+        verify(communicationsModule).requestTestResults(any(), eq(1), eq(246), eq(5846), eq(31));
+        verify(communicationsModule).requestTestResults(any(), eq(1), eq(247), eq(supportedSPN1.getSpn()), eq(31));
 
         // Verify non-initialized tests are stored
         List<ScaledTestResult> nonInitializedTests = dataRepository.getObdModule(0).getNonInitializedTests();
@@ -189,7 +189,7 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
 
         ScaledTestResult str1 = ScaledTestResult.create(247, 159, 8, 129, 0, 0, 0);
         var dm30_0 = DM30ScaledTestResultsPacket.create(0, 0, str0, str1);
-        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(246), eq(5846), eq(31))).thenReturn(List.of(
+        when(communicationsModule.requestTestResults(any(), eq(0), eq(246), eq(5846), eq(31))).thenReturn(List.of(
                                                                                                                      dm30_0));
 
         // Module 1 doesn't support TID 246 - requires another request
@@ -200,21 +200,21 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
         obdModuleInformation1.setSupportedSPNs(List.of(supportedSPN1));
         dataRepository.putObdModule(obdModuleInformation1);
 
-        when(diagnosticMessageModule.requestTestResults(any(), eq(1), eq(246), eq(5846), eq(31))).thenReturn(List.of());
+        when(communicationsModule.requestTestResults(any(), eq(1), eq(246), eq(5846), eq(31))).thenReturn(List.of());
         ScaledTestResult str12 = ScaledTestResult.create(247, 200, 8, 129, 0, 0, 0);
         var dm30_1 = DM30ScaledTestResultsPacket.create(1, 0, str11, str12);
-        when(diagnosticMessageModule.requestTestResults(any(),
-                                                        eq(1),
-                                                        eq(247),
-                                                        eq(supportedSPN1.getSpn()),
-                                                        eq(31)))
+        when(communicationsModule.requestTestResults(any(),
+                                                     eq(1),
+                                                     eq(247),
+                                                     eq(supportedSPN1.getSpn()),
+                                                     eq(31)))
                                                                 .thenReturn(List.of(dm30_1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(246), eq(5846), eq(31));
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(1), eq(246), eq(5846), eq(31));
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(1), eq(247), eq(supportedSPN1.getSpn()), eq(31));
+        verify(communicationsModule).requestTestResults(any(), eq(0), eq(246), eq(5846), eq(31));
+        verify(communicationsModule).requestTestResults(any(), eq(1), eq(246), eq(5846), eq(31));
+        verify(communicationsModule).requestTestResults(any(), eq(1), eq(247), eq(supportedSPN1.getSpn()), eq(31));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

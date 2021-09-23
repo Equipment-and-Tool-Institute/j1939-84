@@ -27,7 +27,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -49,7 +49,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -88,7 +88,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -97,7 +97,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -109,7 +109,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  vehicleInformationModule,
                                  mockListener,
-                                 diagnosticMessageModule);
+                                 communicationsModule);
     }
 
     @Test
@@ -134,14 +134,14 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testNoMessages() {
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.empty());
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.empty());
 
         runTest();
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM29(any());
+        verify(communicationsModule).requestDM29(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -152,7 +152,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForMILCountGreaterThanZero() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 1, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
@@ -165,7 +165,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM29(any());
+        verify(communicationsModule).requestDM29(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -176,7 +176,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForPreviousMILCountGreaterThanZero() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 1, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
@@ -189,7 +189,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM29(any());
+        verify(communicationsModule).requestDM29(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -200,7 +200,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForPermanentDTCCountGreaterThanZero() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 0, 1);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
@@ -213,7 +213,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM29(any());
+        verify(communicationsModule).requestDM29(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -224,7 +224,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNoEmissionPendingCount() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 0, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         moduleInfo.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 3);
@@ -235,7 +235,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM29(any());
+        verify(communicationsModule).requestDM29(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -246,7 +246,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferenceFromDM6WithMore() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
@@ -260,7 +260,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM29(any());
+        verify(communicationsModule).requestDM29(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -271,7 +271,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferenceFromDM6WithLess() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
@@ -283,7 +283,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM29(any());
+        verify(communicationsModule).requestDM29(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -294,7 +294,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferencePendingCounts() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 0, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
@@ -307,7 +307,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM29(any());
+        verify(communicationsModule).requestDM29(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -318,7 +318,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForLessThanDM27DTCs() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
@@ -332,7 +332,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM29(any());
+        verify(communicationsModule).requestDM29(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -343,7 +343,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForWrongNotSupportedValue() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
@@ -355,7 +355,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM29(any());
+        verify(communicationsModule).requestDM29(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -366,14 +366,14 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNonOBD() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 1, 1, 1);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         runTest();
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM29(any());
+        verify(communicationsModule).requestDM29(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -414,7 +414,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForMoreThanOnePendingCounts() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 2, 2, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
@@ -428,7 +428,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM29(any());
+        verify(communicationsModule).requestDM29(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -444,7 +444,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     public void testFailureForMoreThanOneModuleReportingPendingCounts() {
         DM29DtcCounts dm29_0 = DM29DtcCounts.create(0, 0, 1, 1, 0, 0, 0);
         DM29DtcCounts dm29_1 = DM29DtcCounts.create(1, 0, 1, 1, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0, dm29_1));
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0, dm29_1));
 
         OBDModuleInformation moduleInfo0 = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
@@ -463,7 +463,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM29(any());
+        verify(communicationsModule).requestDM29(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -478,7 +478,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoFailures() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 0, 0);
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
         OBDModuleInformation moduleInfo0 = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
@@ -491,7 +491,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM29(any());
+        verify(communicationsModule).requestDM29(any());
 
     }
 }

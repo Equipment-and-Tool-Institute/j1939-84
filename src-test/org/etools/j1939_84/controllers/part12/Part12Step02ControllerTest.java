@@ -29,7 +29,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -51,7 +51,7 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -88,7 +88,7 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -97,7 +97,7 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -107,7 +107,7 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -145,7 +145,7 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM26TripDiagnosticReadinessPacket.create(0, 0, 0, List.of(), List.of()), 11);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm26_0 = DM26TripDiagnosticReadinessPacket.create(0, 0, 0, List.of(), List.of());
-        when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26_0));
+        when(communicationsModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26_0));
 
         // Module 1 responds with changing status, but doesn't support any systems (probably not a real world test)
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
@@ -158,12 +158,12 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
                                   11);
         dataRepository.putObdModule(obdModuleInformation1);
         var dm26_1 = DM26TripDiagnosticReadinessPacket.create(1, 0, 0, List.of(), List.of());
-        when(diagnosticMessageModule.requestDM26(any(), eq(1))).thenReturn(RequestResult.of(dm26_1));
+        when(communicationsModule.requestDM26(any(), eq(1))).thenReturn(RequestResult.of(dm26_1));
 
         // Module 2 NACKs the request
         dataRepository.putObdModule(new OBDModuleInformation(2));
         var nack = AcknowledgmentPacket.create(2, NACK);
-        when(diagnosticMessageModule.requestDM26(any(), eq(2))).thenReturn(new RequestResult<>(false, nack));
+        when(communicationsModule.requestDM26(any(), eq(2))).thenReturn(new RequestResult<>(false, nack));
 
         // Module 3 responds and doesn't change complete state and has all completions
         OBDModuleInformation obdModuleInformation3 = new OBDModuleInformation(3);
@@ -186,14 +186,14 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
                                                               0,
                                                               List.of(CompositeSystem.values()),
                                                               List.of(CompositeSystem.values()));
-        when(diagnosticMessageModule.requestDM26(any(), eq(3))).thenReturn(RequestResult.of(dm26_3));
+        when(communicationsModule.requestDM26(any(), eq(3))).thenReturn(RequestResult.of(dm26_3));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM26(any(), eq(1));
-        verify(diagnosticMessageModule).requestDM26(any(), eq(2));
-        verify(diagnosticMessageModule).requestDM26(any(), eq(3));
+        verify(communicationsModule).requestDM26(any(), eq(0));
+        verify(communicationsModule).requestDM26(any(), eq(1));
+        verify(communicationsModule).requestDM26(any(), eq(2));
+        verify(communicationsModule).requestDM26(any(), eq(3));
 
         assertSame(dm26_0, dataRepository.getObdModule(0).getLatest(DM26TripDiagnosticReadinessPacket.class));
         assertSame(dm26_1, dataRepository.getObdModule(1).getLatest(DM26TripDiagnosticReadinessPacket.class));
@@ -223,11 +223,11 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
                                   11);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm26_0 = DM26TripDiagnosticReadinessPacket.create(0, 0, 0, List.of(), List.of());
-        when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26_0));
+        when(communicationsModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26_0));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0));
+        verify(communicationsModule).requestDM26(any(), eq(0));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -293,11 +293,11 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNoNACK() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
-        when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of());
+        when(communicationsModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of());
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0));
+        verify(communicationsModule).requestDM26(any(), eq(0));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

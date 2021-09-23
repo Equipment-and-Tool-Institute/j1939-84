@@ -23,7 +23,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -72,7 +72,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
     private ResultsListener mockListener;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private ReportFileModule reportFileModule;
@@ -92,7 +92,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               dataRepository,
                                               DateTimeModule.getInstance());
 
@@ -103,7 +103,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -112,9 +112,9 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener,
-                                 diagnosticMessageModule);
+                                 communicationsModule);
     }
 
     @Test
@@ -141,11 +141,11 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
 
         SupportedSPN spn2 = SupportedSPN.create(456, true, true, true, 1);
         DM24SPNSupportPacket packet0 = DM24SPNSupportPacket.create(0, spn2);
-        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
+        when(communicationsModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM24(any(), eq(0));
+        verify(communicationsModule).requestDM24(any(), eq(0));
 
         assertEquals("", listener.getResults());
 
@@ -182,11 +182,11 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdInfo0);
 
         DM24SPNSupportPacket packet0 = DM24SPNSupportPacket.create(0, spn1, spn2);
-        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
+        when(communicationsModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM24(any(), eq(0));
+        verify(communicationsModule).requestDM24(any(), eq(0));
 
         assertEquals("", listener.getResults());
     }

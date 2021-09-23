@@ -11,7 +11,7 @@ import org.etools.j1939_84.controllers.PartController;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -27,7 +27,7 @@ public class Part05Controller extends PartController {
              dataRepository,
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              new Part05Step01Controller(),
              new Part05Step02Controller(),
              new Part05Step03Controller(),
@@ -46,7 +46,7 @@ public class Part05Controller extends PartController {
                             DataRepository dataRepository,
                             EngineSpeedModule engineSpeedModule,
                             VehicleInformationModule vehicleInformationModule,
-                            DiagnosticMessageModule diagnosticMessageModule,
+                            CommunicationsModule communicationsModule,
                             StepController... stepControllers) {
         super(executor,
               bannerModule,
@@ -54,7 +54,7 @@ public class Part05Controller extends PartController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               5,
               stepControllers);
     }

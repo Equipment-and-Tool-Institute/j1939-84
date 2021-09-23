@@ -36,7 +36,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -65,7 +65,7 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -102,7 +102,7 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
                                               vehicleInformationModule,
                                               dataRepository,
                                               DateTimeModule.getInstance(),
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -111,7 +111,7 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -120,7 +120,7 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -129,11 +129,11 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         dataRepository.putObdModule(obdModuleInformation);
 
-        when(diagnosticMessageModule.requestDM31(any(), eq(0x00))).thenReturn(RequestResult.empty());
+        when(communicationsModule.requestDM31(any(), eq(0x00))).thenReturn(RequestResult.empty());
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM31(any(), eq(0x00));
+        verify(communicationsModule).requestDM31(any(), eq(0x00));
 
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
@@ -150,14 +150,14 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
 
         AcknowledgmentPacket ackPacket0x00 = AcknowledgmentPacket.create(0, NACK);
 
-        when(diagnosticMessageModule.requestDM31(any(), eq(0x00)))
+        when(communicationsModule.requestDM31(any(), eq(0x00)))
                                                                   .thenReturn(new RequestResult<>(false,
                                                                                                   List.of(),
                                                                                                   List.of(ackPacket0x00)));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM31(any(), eq(0x00));
+        verify(communicationsModule).requestDM31(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -172,23 +172,23 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
         DiagnosticTroubleCode dtc = create(609, 19, 1, 1);
         DTCLampStatus dtcLampStatus = create(dtc, OFF, SLOW_FLASH, OTHER, OTHER);
         DM31DtcToLampAssociation packet = DM31DtcToLampAssociation.create(0, 0, dtcLampStatus);
-        when(diagnosticMessageModule.requestDM31(any(), eq(0x00))).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM31(any(), eq(0x00))).thenReturn(RequestResult.of(packet));
 
         DiagnosticTroubleCode dtc1 = create(4334, 77, 0, 23);
         DTCLampStatus dtcLampStatus1 = create(dtc1, ON, FAST_FLASH, OTHER, OTHER);
         DM31DtcToLampAssociation packet1 = DM31DtcToLampAssociation.create(1, 0, dtcLampStatus1);
-        when(diagnosticMessageModule.requestDM31(any(), eq(0x01))).thenReturn(RequestResult.of(packet1));
+        when(communicationsModule.requestDM31(any(), eq(0x01))).thenReturn(RequestResult.of(packet1));
 
         DiagnosticTroubleCode dtc2 = create(62002, 77, 0, 23);
         DTCLampStatus dtcLampStatus2 = create(dtc2, ON, ON, ON, ON);
         DM31DtcToLampAssociation packet2 = DM31DtcToLampAssociation.create(2, 0, dtcLampStatus2);
-        when(diagnosticMessageModule.requestDM31(any(), eq(0x02))).thenReturn(RequestResult.of(packet2));
+        when(communicationsModule.requestDM31(any(), eq(0x02))).thenReturn(RequestResult.of(packet2));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM31(any(), eq(0x00));
-        verify(diagnosticMessageModule).requestDM31(any(), eq(0x01));
-        verify(diagnosticMessageModule).requestDM31(any(), eq(0x02));
+        verify(communicationsModule).requestDM31(any(), eq(0x00));
+        verify(communicationsModule).requestDM31(any(), eq(0x01));
+        verify(communicationsModule).requestDM31(any(), eq(0x02));
 
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
@@ -242,11 +242,11 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
                 0xFF, // Lamp Status/State
         };
         DM31DtcToLampAssociation packet = new DM31DtcToLampAssociation(Packet.create(PGN, 0x00, data));
-        when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM31(any(), eq(0))).thenReturn(RequestResult.of(packet));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM31(any(), eq(0));
+        verify(communicationsModule).requestDM31(any(), eq(0));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

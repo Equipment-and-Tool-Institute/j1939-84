@@ -31,7 +31,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -62,7 +62,7 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -98,7 +98,7 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               dataRepository,
                                               DateTimeModule.getInstance());
 
@@ -109,7 +109,7 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -118,7 +118,7 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -211,22 +211,22 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
                                                                                     OFF,
                                                                                     OFF);
 
-        when(diagnosticMessageModule.requestDM12(any(ResultsListener.class)))
+        when(communicationsModule.requestDM12(any(ResultsListener.class)))
                                                                              .thenReturn(new RequestResult<>(false,
                                                                                                              List.of(dm12Packet33),
                                                                                                              List.of()));
-        when(diagnosticMessageModule.requestDM12(any(ResultsListener.class), eq(0x01)))
+        when(communicationsModule.requestDM12(any(ResultsListener.class), eq(0x01)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    Optional.empty()));
-        when(diagnosticMessageModule.requestDM12(any(ResultsListener.class), eq(0x33)))
+        when(communicationsModule.requestDM12(any(ResultsListener.class), eq(0x33)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    dm12Packet33));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM12(any());
-        verify(diagnosticMessageModule).requestDM12(any(), eq(0x01));
-        verify(diagnosticMessageModule).requestDM12(any(), eq(0x33));
+        verify(communicationsModule).requestDM12(any());
+        verify(communicationsModule).requestDM12(any(), eq(0x01));
+        verify(communicationsModule).requestDM12(any(), eq(0x33));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -311,24 +311,24 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
 
         DM12MILOnEmissionDTCPacket obdPacket3 = DM12MILOnEmissionDTCPacket.create(0x03, OFF, OFF, OFF, OFF);
 
-        when(diagnosticMessageModule.requestDM12(any(ResultsListener.class)))
+        when(communicationsModule.requestDM12(any(ResultsListener.class)))
                                                                              .thenReturn(new RequestResult<>(false,
                                                                                                              List.of(packet1,
                                                                                                                      packet3),
                                                                                                              List.of()));
 
-        when(diagnosticMessageModule.requestDM12(any(ResultsListener.class), eq(0x01)))
+        when(communicationsModule.requestDM12(any(ResultsListener.class), eq(0x01)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet1));
-        when(diagnosticMessageModule.requestDM12(any(ResultsListener.class), eq(0x03)))
+        when(communicationsModule.requestDM12(any(ResultsListener.class), eq(0x03)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    obdPacket3));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM12(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM12(any(ResultsListener.class), eq(0x01));
-        verify(diagnosticMessageModule).requestDM12(any(ResultsListener.class), eq(0x03));
+        verify(communicationsModule).requestDM12(any(ResultsListener.class));
+        verify(communicationsModule).requestDM12(any(ResultsListener.class), eq(0x01));
+        verify(communicationsModule).requestDM12(any(ResultsListener.class), eq(0x03));
 
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -396,7 +396,7 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
         DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(609, 19, 0, 0);
         DM12MILOnEmissionDTCPacket packet1 = DM12MILOnEmissionDTCPacket.create(0x01, OFF, OFF, OFF, OFF, dtc);
-        when(diagnosticMessageModule.requestDM12(any(ResultsListener.class), eq(0x01)))
+        when(communicationsModule.requestDM12(any(ResultsListener.class), eq(0x01)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet1));
         dataRepository.putObdModule(new OBDModuleInformation(0x03));
@@ -411,11 +411,11 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
                                                                                           0x00,
                                                                                           0x00,
                                                                                           0x00));
-        when(diagnosticMessageModule.requestDM12(any(ResultsListener.class), eq(0x03)))
+        when(communicationsModule.requestDM12(any(ResultsListener.class), eq(0x03)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet3));
 
-        when(diagnosticMessageModule.requestDM12(any(ResultsListener.class)))
+        when(communicationsModule.requestDM12(any(ResultsListener.class)))
                                                                              .thenReturn(new RequestResult<>(false,
                                                                                                              List.of(packet1,
                                                                                                                      packet3),
@@ -423,9 +423,9 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM12(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM12(any(ResultsListener.class), eq(0x01));
-        verify(diagnosticMessageModule).requestDM12(any(ResultsListener.class), eq(0x03));
+        verify(communicationsModule).requestDM12(any(ResultsListener.class));
+        verify(communicationsModule).requestDM12(any(ResultsListener.class), eq(0x01));
+        verify(communicationsModule).requestDM12(any(ResultsListener.class), eq(0x03));
 
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -492,17 +492,17 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
     public void testMilNotOffFailure() {
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
         DM12MILOnEmissionDTCPacket packet1 = DM12MILOnEmissionDTCPacket.create(0x01, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM12(any(ResultsListener.class), eq(0x01)))
+        when(communicationsModule.requestDM12(any(ResultsListener.class), eq(0x01)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet1));
 
         dataRepository.putObdModule(new OBDModuleInformation(0x03));
         DM12MILOnEmissionDTCPacket packet3 = DM12MILOnEmissionDTCPacket.create(0x03, ON, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM12(any(ResultsListener.class), eq(0x03)))
+        when(communicationsModule.requestDM12(any(ResultsListener.class), eq(0x03)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet3));
 
-        when(diagnosticMessageModule.requestDM12(any(ResultsListener.class)))
+        when(communicationsModule.requestDM12(any(ResultsListener.class)))
                                                                              .thenReturn(new RequestResult<>(false,
                                                                                                              List.of(packet1,
                                                                                                                      packet3),
@@ -510,9 +510,9 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM12(any());
-        verify(diagnosticMessageModule).requestDM12(any(), eq(0x01));
-        verify(diagnosticMessageModule).requestDM12(any(), eq(0x03));
+        verify(communicationsModule).requestDM12(any());
+        verify(communicationsModule).requestDM12(any(), eq(0x01));
+        verify(communicationsModule).requestDM12(any(), eq(0x03));
 
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -567,19 +567,19 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
     public void testNoObdProvidesDm12Failure() {
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
         AcknowledgmentPacket ackPacket1 = AcknowledgmentPacket.create(0x01, NACK);
-        when(diagnosticMessageModule.requestDM12(any(ResultsListener.class), eq(0x01)))
+        when(communicationsModule.requestDM12(any(ResultsListener.class), eq(0x01)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    ackPacket1));
 
-        when(diagnosticMessageModule.requestDM12(any(ResultsListener.class)))
+        when(communicationsModule.requestDM12(any(ResultsListener.class)))
                                                                              .thenReturn(new RequestResult<>(false,
                                                                                                              List.of(),
                                                                                                              List.of()));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM12(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM12(any(ResultsListener.class), eq(0x01));
+        verify(communicationsModule).requestDM12(any(ResultsListener.class));
+        verify(communicationsModule).requestDM12(any(ResultsListener.class), eq(0x01));
 
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -656,23 +656,23 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
                                                                                           0x00,
                                                                                           0x00,
                                                                                           0x00));
-        when(diagnosticMessageModule.requestDM12(any(ResultsListener.class),
-                                                 eq(0x01))).thenReturn(new BusResult<>(false, packet1));
+        when(communicationsModule.requestDM12(any(ResultsListener.class),
+                                              eq(0x01))).thenReturn(new BusResult<>(false, packet1));
 
         dataRepository.putObdModule(new OBDModuleInformation(0x33));
         AcknowledgmentPacket ackPacket33 = AcknowledgmentPacket.create(0x33, NACK);
-        when(diagnosticMessageModule.requestDM12(any(ResultsListener.class),
-                                                 eq(0x33))).thenReturn(new BusResult<>(false, ackPacket33));
+        when(communicationsModule.requestDM12(any(ResultsListener.class),
+                                              eq(0x33))).thenReturn(new BusResult<>(false, ackPacket33));
 
-        when(diagnosticMessageModule.requestDM12(any(ResultsListener.class))).thenReturn(new RequestResult<>(false,
-                                                                                                             packet1));
+        when(communicationsModule.requestDM12(any(ResultsListener.class))).thenReturn(new RequestResult<>(false,
+                                                                                                          packet1));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM12(any(ResultsListener.class));
-        verify(diagnosticMessageModule).requestDM12(any(ResultsListener.class), eq(0x01));
-        verify(diagnosticMessageModule).requestDM12(any(ResultsListener.class), eq(0x33));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM12(any(ResultsListener.class));
+        verify(communicationsModule).requestDM12(any(ResultsListener.class), eq(0x01));
+        verify(communicationsModule).requestDM12(any(ResultsListener.class), eq(0x33));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

@@ -27,7 +27,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -49,7 +49,7 @@ public class Part12Step06ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -86,7 +86,7 @@ public class Part12Step06ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -95,7 +95,7 @@ public class Part12Step06ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -105,7 +105,7 @@ public class Part12Step06ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -134,11 +134,11 @@ public class Part12Step06ControllerTest extends AbstractControllerTest {
         var dm1_0 = DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF);
         var dm1_1 = DM1ActiveDTCsPacket.create(1, NOT_SUPPORTED, OFF, OFF, OFF);
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_1));
+        when(communicationsModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_1));
 
         runTest();
 
-        verify(diagnosticMessageModule).readDM1(any());
+        verify(communicationsModule).readDM1(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -148,11 +148,11 @@ public class Part12Step06ControllerTest extends AbstractControllerTest {
     public void testWarningForAlternativeOff() {
         var dm1_0 = DM1ActiveDTCsPacket.create(0, ALTERNATE_OFF, OFF, OFF, OFF);
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0));
+        when(communicationsModule.readDM1(any())).thenReturn(List.of(dm1_0));
 
         runTest();
 
-        verify(diagnosticMessageModule).readDM1(any());
+        verify(communicationsModule).readDM1(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -166,11 +166,11 @@ public class Part12Step06ControllerTest extends AbstractControllerTest {
     public void testFailureForMILNotOff() {
         var dm1_0 = DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF);
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0));
+        when(communicationsModule.readDM1(any())).thenReturn(List.of(dm1_0));
 
         runTest();
 
-        verify(diagnosticMessageModule).readDM1(any());
+        verify(communicationsModule).readDM1(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -185,11 +185,11 @@ public class Part12Step06ControllerTest extends AbstractControllerTest {
         var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
         var dm1_0 = DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc);
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0));
+        when(communicationsModule.readDM1(any())).thenReturn(List.of(dm1_0));
 
         runTest();
 
-        verify(diagnosticMessageModule).readDM1(any());
+        verify(communicationsModule).readDM1(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

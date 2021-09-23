@@ -27,7 +27,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -49,7 +49,7 @@ public class Part05Step03ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -86,7 +86,7 @@ public class Part05Step03ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -95,7 +95,7 @@ public class Part05Step03ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -105,7 +105,7 @@ public class Part05Step03ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -146,11 +146,11 @@ public class Part05Step03ControllerTest extends AbstractControllerTest {
         // Module 2 is a non-OBD Module
         var dm1_2 = DM1ActiveDTCsPacket.create(2, OFF, OFF, OFF, OFF);
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_1, dm1_2));
+        when(communicationsModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_1, dm1_2));
 
         runTest();
 
-        verify(diagnosticMessageModule).readDM1(any());
+        verify(communicationsModule).readDM1(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -166,11 +166,11 @@ public class Part05Step03ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(456, 14, 1, 1);
         var dm1_0 = DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc1);
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0));
+        when(communicationsModule.readDM1(any())).thenReturn(List.of(dm1_0));
 
         runTest();
 
-        verify(diagnosticMessageModule).readDM1(any());
+        verify(communicationsModule).readDM1(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -189,11 +189,11 @@ public class Part05Step03ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation0);
         var dm1_0 = DM1ActiveDTCsPacket.create(0, FAST_FLASH, OFF, OFF, OFF, dtc0);
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0));
+        when(communicationsModule.readDM1(any())).thenReturn(List.of(dm1_0));
 
         runTest();
 
-        verify(diagnosticMessageModule).readDM1(any());
+        verify(communicationsModule).readDM1(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

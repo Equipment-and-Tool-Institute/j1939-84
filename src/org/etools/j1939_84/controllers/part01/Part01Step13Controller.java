@@ -3,7 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSystems;
+import static org.etools.j1939_84.modules.CommunicationsModule.getCompositeSystems;
 
 import java.util.Collection;
 import java.util.List;
@@ -21,7 +21,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -41,7 +41,7 @@ public class Part01Step13Controller extends StepController {
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              dataRepository,
              new SectionA6Validator(dataRepository, PART_NUMBER, STEP_NUMBER),
              DateTimeModule.getInstance());
@@ -51,7 +51,7 @@ public class Part01Step13Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule,
+                           CommunicationsModule communicationsModule,
                            DataRepository dataRepository,
                            SectionA6Validator sectionA6Validator,
                            DateTimeModule dateTimeModule) {
@@ -61,7 +61,7 @@ public class Part01Step13Controller extends StepController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
