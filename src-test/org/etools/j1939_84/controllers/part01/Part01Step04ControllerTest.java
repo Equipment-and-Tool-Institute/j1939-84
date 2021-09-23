@@ -223,7 +223,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.4.2.a - Retry was required to obtain DM25 response from Engine #2 (1)");
+                                        "6.1.4.2.a - Retry was required to obtain DM24 response from Engine #2 (1)");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
