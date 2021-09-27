@@ -3,7 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket.PGN;
+import static net.solidDesign.j1939.packets.DM5DiagnosticReadinessPacket.PGN;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
@@ -13,7 +13,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
+import net.solidDesign.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;

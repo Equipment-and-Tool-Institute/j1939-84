@@ -3,18 +3,18 @@
  */
 package org.etools.j1939_84.controllers.part12;
 
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.NOT_SUPPORTED;
+import static net.solidDesign.j1939.packets.LampStatus.NOT_SUPPORTED;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
+import net.solidDesign.j1939.packets.DiagnosticTroubleCodePacket;
+import net.solidDesign.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.CommunicationsModule;
+import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 

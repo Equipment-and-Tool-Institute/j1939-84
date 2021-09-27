@@ -18,12 +18,12 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.Either;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
-import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
+import net.solidDesign.j1939.packets.AcknowledgmentPacket;
+import net.solidDesign.j1939.packets.DM20MonitorPerformanceRatioPacket;
+import net.solidDesign.j1939.packets.DM28PermanentEmissionDTCPacket;
+import net.solidDesign.j1939.packets.GenericPacket;
+import net.solidDesign.j1939.packets.ParsedPacket;
+import net.solidDesign.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ReplayListener;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -31,7 +31,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TableA1Validator;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.CommunicationsModule;
+import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 

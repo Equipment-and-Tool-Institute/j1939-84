@@ -8,8 +8,8 @@ import static org.etools.j1939_84.model.Outcome.WARN;
 
 import java.util.List;
 
-import org.etools.j1939_84.bus.j1939.packets.FreezeFrame;
-import org.etools.j1939_84.bus.j1939.packets.model.Spn;
+import net.solidDesign.j1939.packets.FreezeFrame;
+import net.solidDesign.j1939.packets.model.Spn;
 
 public class TableA2ValueValidator {
 

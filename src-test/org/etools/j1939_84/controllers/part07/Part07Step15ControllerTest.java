@@ -3,8 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.ACK;
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static net.solidDesign.j1939.packets.AcknowledgmentPacket.Response.ACK;
+import static net.solidDesign.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -17,11 +17,11 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
-import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
-import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
+import net.solidDesign.j1939.J1939;
+import net.solidDesign.j1939.packets.AcknowledgmentPacket;
+import net.solidDesign.j1939.packets.DM30ScaledTestResultsPacket;
+import net.solidDesign.j1939.packets.ScaledTestResult;
+import net.solidDesign.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
@@ -29,7 +29,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.CommunicationsModule;
+import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;

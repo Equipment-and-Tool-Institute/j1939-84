@@ -4,7 +4,7 @@
 package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
+import static net.solidDesign.j1939.J1939.GLOBAL_ADDR;
 import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -25,11 +25,11 @@ import java.util.stream.Stream;
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
-import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
+import net.solidDesign.j1939.J1939;
+import net.solidDesign.j1939.packets.AddressClaimPacket;
+import net.solidDesign.j1939.packets.DM56EngineFamilyPacket;
+import net.solidDesign.j1939.packets.DM5DiagnosticReadinessPacket;
+import net.solidDesign.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.RequestResult;
