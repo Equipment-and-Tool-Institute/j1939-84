@@ -65,11 +65,11 @@ import org.etools.j1939_84.bus.j1939.packets.HighResVehicleDistancePacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.TotalVehicleDistancePacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
-import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.DateTimeModule;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import net.solidDesign.j1939.CommunicationsListener;
 
 /**
  * A Wrapper around a {@link Bus} that provides functionality specific to SAE
@@ -475,7 +475,7 @@ public class J1939 {
     public <T extends GenericPacket> BusResult<T> requestDS(String title,
                                                             Class<T> clas,
                                                             int address,
-                                                            ResultsListener listener) {
+                                                            CommunicationsListener listener) {
         int pgn = getPgn(clas);
         Packet requestPacket = createRequestPacket(pgn, address);
         return requestDS(title, pgn, requestPacket, listener);
@@ -484,7 +484,7 @@ public class J1939 {
     public <T extends GenericPacket> BusResult<T> requestDS(String title,
                                                             int pgn,
                                                             Packet request,
-                                                            ResultsListener listener) {
+                                                            CommunicationsListener listener) {
         listener.onResult("");
         if (title != null) {
             listener.onResult(getDateTimeModule().getTime() + " " + title);
@@ -516,7 +516,7 @@ public class J1939 {
      */
     private <T extends GenericPacket> Optional<Either<T, AcknowledgmentPacket>> requestDSOnce(int pgn,
                                                                                               Packet request,
-                                                                                              ResultsListener listener) {
+                                                                                              CommunicationsListener listener) {
 
         if (request.getDestination() == GLOBAL_ADDR) {
             throw new IllegalArgumentException("Request to global.");
@@ -559,7 +559,7 @@ public class J1939 {
     /**
      * Make a single Global request with standard wait bus read time specified @ 600ms.
      */
-    public List<AcknowledgmentPacket> requestForAcks(ResultsListener listener, String title, int pgn) {
+    public List<AcknowledgmentPacket> requestForAcks(CommunicationsListener listener, String title, int pgn) {
         return requestForAcks(listener, title, pgn, GLOBAL_TIMEOUT, MILLISECONDS);
     }
 
@@ -567,7 +567,7 @@ public class J1939 {
      * Make a single Global request with wait bus read time specified.
      */
     public List<AcknowledgmentPacket>
-           requestForAcks(ResultsListener listener, String title, int pgn, long timeOut, TimeUnit timeUnit) {
+           requestForAcks(CommunicationsListener listener, String title, int pgn, long timeOut, TimeUnit timeUnit) {
         listener.onResult("");
         listener.onResult(getDateTimeModule().getTime() + " " + title);
         Packet requestPacket = createRequestPacket(pgn, GLOBAL_ADDR);
@@ -580,7 +580,8 @@ public class J1939 {
     /**
      * Make a single DS request with no retries.
      */
-    public List<AcknowledgmentPacket> requestForAcks(ResultsListener listener, String title, int pgn, int address) {
+    public List<AcknowledgmentPacket>
+           requestForAcks(CommunicationsListener listener, String title, int pgn, int address) {
         listener.onResult("");
         listener.onResult(getDateTimeModule().getTime() + " " + title);
         Packet requestPacket = createRequestPacket(pgn, address);
@@ -592,7 +593,7 @@ public class J1939 {
 
     public <T extends GenericPacket> RequestResult<T> requestGlobal(String title,
                                                                     Class<T> clas,
-                                                                    ResultsListener listener) {
+                                                                    CommunicationsListener listener) {
         int pgn = getPgn(clas);
         Packet requestPacket = createRequestPacket(pgn, GLOBAL_ADDR);
         return requestGlobal(title, pgn, requestPacket, listener);
@@ -601,7 +602,7 @@ public class J1939 {
     public <T extends GenericPacket> RequestResult<T> requestGlobal(String title,
                                                                     int pgn,
                                                                     Packet requestPacket,
-                                                                    ResultsListener listener) {
+                                                                    CommunicationsListener listener) {
         boolean retry = false;
 
         listener.onResult("");
@@ -670,7 +671,7 @@ public class J1939 {
      */
     private <T extends GenericPacket> List<Either<T, AcknowledgmentPacket>> requestGlobalOnce(int pgn,
                                                                                               Packet request,
-                                                                                              ResultsListener listener) {
+                                                                                              CommunicationsListener listener) {
         return requestGlobalOnce(pgn, request, listener, GLOBAL_TIMEOUT, MILLISECONDS);
     }
 
@@ -679,7 +680,7 @@ public class J1939 {
      */
     private <T extends GenericPacket> List<Either<T, AcknowledgmentPacket>> requestGlobalOnce(int pgn,
                                                                                               Packet request,
-                                                                                              ResultsListener listener,
+                                                                                              CommunicationsListener listener,
                                                                                               long timeOut,
                                                                                               TimeUnit timeUnit) {
         if (request.getDestination() != GLOBAL_ADDR) {
@@ -748,7 +749,7 @@ public class J1939 {
                                                                      int spn,
                                                                      int fmi,
                                                                      int address,
-                                                                     ResultsListener listener) {
+                                                                     CommunicationsListener listener) {
         if (address == GLOBAL_ADDR) {
             throw new IllegalArgumentException("DM7 request to global.");
         }
@@ -801,13 +802,13 @@ public class J1939 {
         }
     }
 
-    private void logTiming(ResultsListener listener, String message) {
+    private void logTiming(CommunicationsListener listener, String message) {
         warnings++;
         listener.onResult(message);
         getLogger().warning(message);
     }
 
-    private void logWarning(ResultsListener listener, String message) {
+    private void logWarning(CommunicationsListener listener, String message) {
         listener.onResult(message);
         getLogger().warning(message);
     }
