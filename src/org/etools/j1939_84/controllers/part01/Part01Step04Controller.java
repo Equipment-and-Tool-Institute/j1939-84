@@ -76,7 +76,7 @@ public class Part01Step04Controller extends StepController {
         // 64950 (SPNs 3297, 4100-4103)) to each OBD ECU.6
         var responses = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM24(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM24(getListener(), a))
                                            .map(BusResult::requestResult)
                                            .collect(Collectors.toList());
 
@@ -101,7 +101,7 @@ public class Part01Step04Controller extends StepController {
         missingAddresses.removeAll(nackAddresses);
 
         missingAddresses.stream()
-                        .map(address -> getDiagnosticMessageModule().requestDM24(getListener(), address))
+                        .map(address -> getCommunicationsModule().requestDM24(getListener(), address))
                         .map(BusResult::requestResult)
                         .forEach(responses::add);
 

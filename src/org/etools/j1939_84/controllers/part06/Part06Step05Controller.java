@@ -63,7 +63,7 @@ public class Part06Step05Controller extends StepController {
         getDataRepository().getObdModuleAddresses()
                            .stream()
                            .filter(this::providedDM20InPart5)
-                           .map(a -> getDiagnosticMessageModule().requestDM20(getListener(), a))
+                           .map(a -> getCommunicationsModule().requestDM20(getListener(), a))
                            .flatMap(BusResult::toPacketStream)
                            .filter(p -> p.getIgnitionCycles() != getPart5IgnCycles(p.getSourceAddress()) + 2)
                            .map(ParsedPacket::getModuleName)

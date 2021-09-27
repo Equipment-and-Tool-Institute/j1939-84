@@ -68,7 +68,7 @@ public class Part09Step13Controller extends StepController {
                                            .collect(Collectors.toList());
 
         var results = addresses.stream()
-                               .map(a -> getDiagnosticMessageModule().requestDM31(getListener(), a))
+                               .map(a -> getCommunicationsModule().requestDM31(getListener(), a))
                                .collect(Collectors.toList());
 
         var packets = filterRequestResultPackets(results);

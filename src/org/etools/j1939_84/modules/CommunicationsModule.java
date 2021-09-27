@@ -6,6 +6,7 @@ package org.etools.j1939_84.modules;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
+import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,10 +22,12 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
@@ -47,8 +50,11 @@ import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
+import org.etools.j1939_84.bus.j1939.packets.IdleOperationPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
+import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 
@@ -306,6 +312,77 @@ public class CommunicationsModule extends FunctionalModule {
 
     public List<DM56EngineFamilyPacket> requestDM56(ResultsListener listener) {
         return requestDMPackets("DM56", DM56EngineFamilyPacket.class, GLOBAL_ADDR, listener).getPackets();
+    }
+
+    /**
+     * Requests the Vehicle Identification from all vehicle modules and
+     * generates adds the information gathered to the report returning the
+     * Packets returned by the query.
+     *
+     * @param  listener
+     *                      the {@link ResultsListener} that will be given the report
+     * @return          List of {@link VehicleIdentificationPacket}
+     */
+    public List<VehicleIdentificationPacket> reportVin(ResultsListener listener) {
+        return getJ1939().requestGlobal("Global VIN Request", VehicleIdentificationPacket.class, listener).getPackets();
+    }
+
+    public BusResult<EngineHoursPacket> requestEngineHours(ResultsListener listener, int address) {
+        return getJ1939().requestDS("Destination Specific Engine Hours Request to " + getAddressName(address),
+                                    EngineHoursPacket.class,
+                                    address,
+                                    listener);
+    }
+
+    public BusResult<IdleOperationPacket> requestIdleOperation(ResultsListener listener, int address) {
+        return getJ1939().requestDS("Destination Specific Idle Operation Request to " + getAddressName(address),
+                                    IdleOperationPacket.class,
+                                    address,
+                                    listener);
+    }
+
+    public List<DM19CalibrationInformationPacket> requestDM19(ResultsListener listener) {
+        return requestDMPackets("DM19", DM19CalibrationInformationPacket.class, GLOBAL_ADDR, listener).getPackets();
+    }
+
+    public BusResult<DM19CalibrationInformationPacket> requestDM19(ResultsListener listener, int address) {
+        return requestDMPackets("DM19", DM19CalibrationInformationPacket.class, address, listener).busResult();
+    }
+
+    /**
+     * Requests globally the Component Identification from all vehicle modules
+     * and generates a {@link String} that's suitable for inclusion in the
+     * report
+     *
+     * @param  listener
+     *                      the {@link ResultsListener} that will be given the report
+     * @return          {@link List} of {@link ComponentIdentificationPacket}
+     */
+    public RequestResult<ComponentIdentificationPacket> requestComponentIdentification(ResultsListener listener) {
+        listener.onResult("");
+        return getJ1939().requestGlobal("Global Component Identification Request",
+                                        ComponentIdentificationPacket.class,
+                                        listener);
+    }
+
+    /**
+     * Requests the Component Identification from all specified address and
+     * generates a {@link String} that's suitable for inclusion in the report
+     *
+     * @param  listener
+     *                      the {@link ResultsListener} that will be given the report
+     * @param  address
+     *                      the address of vehicle module to which the message will be
+     *                      addressed
+     * @return          {@link List} of {@link ComponentIdentificationPacket}
+     */
+    public BusResult<ComponentIdentificationPacket> requestComponentIdentification(ResultsListener listener,
+                                                                                   int address) {
+        return getJ1939().requestDS("Destination Specific Component Identification Request to "
+                + getAddressName(address),
+                                    ComponentIdentificationPacket.class,
+                                    address,
+                                    listener);
     }
 
 }

@@ -57,7 +57,7 @@ public class Part09Step20Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.9.20.1.a. Global DM6 [(send Request (PGN 59904) for PGN 65227 (SPNs 1213-1215, 1706, and 3038)]).
-        var globalPackets = getDiagnosticMessageModule().requestDM6(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM6(getListener()).getPackets();
 
         // 6.9.20.2.a. Fail if any ECU reports a pending DTC.
         globalPackets.stream()
@@ -76,7 +76,7 @@ public class Part09Step20Controller extends StepController {
         // 6.9.20.3.a. DS DM6 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM6(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM6(getListener(), a))
                                            .collect(Collectors.toList());
 
         // 6.9.20.4.a. Fail if any difference compared to data received during global request.

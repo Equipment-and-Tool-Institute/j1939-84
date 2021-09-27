@@ -74,7 +74,7 @@ public class Part04Step13Controller extends StepController {
         var dsPackets = getDataRepository().getObdModules()
                                            .stream()
                                            .map(OBDModuleInformation::getSourceAddress)
-                                           .map(a -> getDiagnosticMessageModule().requestDM3(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM3(getListener(), a))
                                            .flatMap(Collection::stream)
                                            .collect(Collectors.toList());
 
@@ -108,7 +108,7 @@ public class Part04Step13Controller extends StepController {
                  });
 
         // 6.4.13.3.a. Global DM3
-        getDiagnosticMessageModule().requestDM3(getListener());
+        getCommunicationsModule().requestDM3(getListener());
 
         // 6.4.13.3.b. Wait 5 seconds before checking for erased information.
         pause("Step 6.4.13.3.b - Waiting %1$d seconds before checking for erased information", 5L);

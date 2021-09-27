@@ -69,7 +69,7 @@ public class Part12Step09Controller extends StepController {
         // 6.12.9.1.a. DS DM11 [send Request (PGN 59904) for PGN 65235] to each OBD ECU.
         var dsPackets = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM11(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM11(getListener(), a))
                                            .flatMap(Collection::stream)
                                            .collect(Collectors.toList());
 
@@ -86,7 +86,7 @@ public class Part12Step09Controller extends StepController {
         verifier.verifyDataNotPartialErased(getListener(), "6.12.9.2.b", "6.12.9.2.c", false);
 
         // 6.12.9.3.a. Global DM11.
-        var globalPackets = getDiagnosticMessageModule().requestDM11(getListener());
+        var globalPackets = getCommunicationsModule().requestDM11(getListener());
 
         var obdPackets = globalPackets.stream()
                                       .filter(p -> isObdModule(p.getSourceAddress()))

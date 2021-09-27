@@ -10,8 +10,8 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.CommunicationsModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.VinDecoder;
@@ -60,7 +60,7 @@ public class Part01Step05Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.1.5.1.a. Global Request (PGN 59904) for PGN 65260 Vehicle ID (SPN 237) VIN.
-        List<VehicleIdentificationPacket> packets = getVehicleInformationModule().reportVin(getListener());
+        List<VehicleIdentificationPacket> packets = getCommunicationsModule().reportVin(getListener());
 
         // 6.1.5.2.a. Fail if no VIN is provided by any ECU.
         if (packets.isEmpty()) {

@@ -60,7 +60,7 @@ public class Part02Step12Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.2.12.1.a. Global DM29 (send Request (PGN 59904) for PGN 40448 (SPNs 4104-4108)).
-        List<DM29DtcCounts> globalPackets = getDiagnosticMessageModule().requestDM29(getListener()).getPackets();
+        List<DM29DtcCounts> globalPackets = getCommunicationsModule().requestDM29(getListener()).getPackets();
 
         // 6.2.12.2.a. For OBD ECUs that did support DM27 in step 6.2.10, fail if any ECU does not report
         // pending/all pending/MIL on/previously MIL on/permanent = 0/0/0/0/0.
@@ -112,7 +112,7 @@ public class Part02Step12Controller extends StepController {
         // 6.2.12.3.a. DS DM29 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM29(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM29(getListener(), a))
                                            .collect(Collectors.toList());
 
         // 6.2.12.4.a. Fail if any difference compared to data received during global request.

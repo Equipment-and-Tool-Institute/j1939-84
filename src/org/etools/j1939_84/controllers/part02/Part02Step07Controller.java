@@ -17,8 +17,8 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.CommunicationsModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -139,7 +139,7 @@ public class Part02Step07Controller extends StepController {
     }
 
     private List<ComponentIdentificationPacket> requestComponentIds() {
-        return getVehicleInformationModule().requestComponentIdentification(getListener()).getPackets();
+        return getCommunicationsModule().requestComponentIdentification(getListener()).getPackets();
     }
 
     private ComponentIdentificationPacket getPart1Packet(int address) {
@@ -147,6 +147,6 @@ public class Part02Step07Controller extends StepController {
     }
 
     private BusResult<ComponentIdentificationPacket> requestComponentId(int address) {
-        return getVehicleInformationModule().requestComponentIdentification(getListener(), address);
+        return getCommunicationsModule().requestComponentIdentification(getListener(), address);
     }
 }

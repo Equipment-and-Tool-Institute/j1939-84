@@ -58,7 +58,7 @@ public class Part09Step15Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.9.15.1.a. Global DM29 [(send Request (PGN 59904) for PGN 40448 (SPNs 4104-4108)]).
-        var packets = getDiagnosticMessageModule().requestDM29(getListener()).getPackets();
+        var packets = getCommunicationsModule().requestDM29(getListener()).getPackets();
 
         // 6.9.15.2.a. Fail if any ECU reports > 0 for emission-related pending
         packets.stream()

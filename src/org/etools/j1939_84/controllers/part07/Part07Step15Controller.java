@@ -101,7 +101,7 @@ public class Part07Step15Controller extends StepController {
     }
 
     private BusResult<DM30ScaledTestResultsPacket> getAllTestResults(int address) {
-        return getDiagnosticMessageModule().requestTestResult(getListener(), address, 246, 5846, 31);
+        return getCommunicationsModule().requestTestResult(getListener(), address, 246, 5846, 31);
     }
 
     private static boolean testResultsSame(Collection<ScaledTestResult> testResults1,
@@ -151,7 +151,7 @@ public class Part07Step15Controller extends StepController {
     }
 
     private BusResult<DM30ScaledTestResultsPacket> getTestResults(int address, int spn) {
-        return getDiagnosticMessageModule().requestTestResult(getListener(), address, 247, spn, 31);
+        return getCommunicationsModule().requestTestResult(getListener(), address, 247, spn, 31);
     }
 
     private static boolean isNACKed(BusResult<DM30ScaledTestResultsPacket> singleTestResponse) {

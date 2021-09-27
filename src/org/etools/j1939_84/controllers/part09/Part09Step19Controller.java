@@ -62,7 +62,7 @@ public class Part09Step19Controller extends StepController {
         // ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM12(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM12(getListener(), a))
                                            .collect(Collectors.toList());
 
         var packets = filterPackets(dsResults);

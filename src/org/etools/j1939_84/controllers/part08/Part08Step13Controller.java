@@ -69,7 +69,7 @@ public class Part08Step13Controller extends StepController {
         for (OBDModuleInformation obdInfo : getDataRepository().getObdModules()) {
 
             // 6.8.13.2.a. Fail if any ECU does not NACK
-            boolean nacked = getDiagnosticMessageModule().requestDM3(getListener(), obdInfo.getSourceAddress())
+            boolean nacked = getCommunicationsModule().requestDM3(getListener(), obdInfo.getSourceAddress())
                                                          .stream()
                                                          .map(AcknowledgmentPacket::getResponse)
                                                          .anyMatch(r -> r == NACK);
@@ -85,7 +85,7 @@ public class Part08Step13Controller extends StepController {
         verifier.verifyDataNotErased(getListener(), "6.8.13.2.a");
 
         // 6.8.13.3.a. Global DM3.
-        getDiagnosticMessageModule().requestDM3(getListener());
+        getCommunicationsModule().requestDM3(getListener());
 
         // 6.8.13.3.b. Wait 5 seconds before checking for erased information.
         pause("Step 6.8.13.3.b - Waiting %1$d seconds before checking for erased information", 5);

@@ -63,7 +63,7 @@ public class Part03Step14Controller extends StepController {
         getDataRepository().getObdModuleAddresses()
                            .stream()
                            .sorted()
-                           .map(address -> getDiagnosticMessageModule().requestDM20(getListener(), address))
+                           .map(address -> getCommunicationsModule().requestDM20(getListener(), address))
                            .map(BusResult::requestResult)
                            .map(RequestResult::getPackets)
                            .flatMap(Collection::stream)

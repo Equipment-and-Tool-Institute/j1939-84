@@ -64,7 +64,7 @@ public class Part01Step14Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.1.14.1.a. Global DM26 (send Request (PG 59904) for PG 64952 (SPs 3301-3305)).
-        var globalPackets = getDiagnosticMessageModule().requestDM26(getListener())
+        var globalPackets = getCommunicationsModule().requestDM26(getListener())
                                                         .getPackets()
                                                         .stream()
                                                         .filter(p -> isObdModule(p.getSourceAddress()))
@@ -187,7 +187,7 @@ public class Part01Step14Controller extends StepController {
         // 6.1.14.4.a. DS DM26 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM26(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM26(getListener(), a))
                                            .collect(Collectors.toList());
 
         // 6.1.14.5.a. Fail if any difference compared to data received during global request.

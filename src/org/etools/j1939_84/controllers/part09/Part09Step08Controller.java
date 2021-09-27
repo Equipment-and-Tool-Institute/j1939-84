@@ -72,7 +72,7 @@ public class Part09Step08Controller extends StepController {
                            .map(OBDModuleInformation::getSourceAddress)
                            .filter(a -> getDTCs(DM12MILOnEmissionDTCPacket.class, a, 9).isEmpty())
                            .forEach(a -> {
-                               getDiagnosticMessageModule().requestDM11(getListener(), a);
+                               getCommunicationsModule().requestDM11(getListener(), a);
                            });
 
         // 6.9.8.1.b Wait 5 seconds before checking for erased data.
@@ -89,7 +89,7 @@ public class Part09Step08Controller extends StepController {
                            .map(OBDModuleInformation::getSourceAddress)
                            .filter(a -> !getDTCs(DM12MILOnEmissionDTCPacket.class, a, 9).isEmpty())
                            .forEach(a -> {
-                               getDiagnosticMessageModule().requestDM11(getListener(), a);
+                               getCommunicationsModule().requestDM11(getListener(), a);
                            });
 
         // 6.9.8.3.b Wait 5 seconds before checking for erased data.
@@ -101,7 +101,7 @@ public class Part09Step08Controller extends StepController {
         verifier.verifyDataNotPartialErased(getListener(), "6.9.8.4.a", "6.9.8.4.b", false);
 
         // 6.9.8.5.a Global DM11 ([send Request (PGN 59904) for PGN 65235]).
-        var packets = getDiagnosticMessageModule().requestDM11(getListener());
+        var packets = getCommunicationsModule().requestDM11(getListener());
 
         // 6.9.8.5.b Wait 5 seconds before checking for erased data.
         pause("Step 6.9.8.5.b - Waiting %1$d seconds before checking for erased data", 5);

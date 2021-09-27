@@ -61,7 +61,7 @@ public class Part08Step04Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.8.4.1.a Global DM23 [(send Request (PGN 59904) for PGN 64949 (SPNs 1213-1215, 1706, and 3038)]).
-        var packets = getDiagnosticMessageModule().requestDM23(getListener())
+        var packets = getCommunicationsModule().requestDM23(getListener())
                                                   .getPackets()
                                                   .stream()
                                                   .filter(p -> isObdModule(p.getSourceAddress()))

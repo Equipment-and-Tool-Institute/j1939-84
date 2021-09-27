@@ -55,7 +55,7 @@ public class Part06Step02Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.6.2.1.a Global DM5 [(send Request (PGN 59904) for PGN 65230 (SPNs 1218-1219)]).
-        var globalPackets = getDiagnosticMessageModule().requestDM5(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM5(getListener()).getPackets();
 
         // Save the DM5 response for each OBD ECU
         globalPackets.forEach(this::save);

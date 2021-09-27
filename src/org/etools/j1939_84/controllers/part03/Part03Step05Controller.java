@@ -71,7 +71,7 @@ public class Part03Step05Controller extends StepController {
 
                                // 6.3.5.1.a DS DM31 (send Request (PGN 59904) for PGN 41728 (SPNs 1214-1215, 4113,
                                // 4117)) to ECU with DM6 pending DTC.
-                               var response = getDiagnosticMessageModule().requestDM31(getListener(), moduleAddress);
+                               var response = getCommunicationsModule().requestDM31(getListener(), moduleAddress);
 
                                List<DM31DtcToLampAssociation> packets = response.getPackets();
                                if (!packets.isEmpty()) {

@@ -80,11 +80,11 @@ public class Part08Step14Controller extends StepController {
 
     private List<DM30ScaledTestResultsPacket> requestTestResults(OBDModuleInformation moduleInformation,
                                                                  ScaledTestResult str) {
-        return getDiagnosticMessageModule().requestTestResults(getListener(),
-                                                               moduleInformation.getSourceAddress(),
-                                                               250,
-                                                               str.getSpn(),
-                                                               str.getFmi());
+        return getCommunicationsModule().requestTestResults(getListener(),
+                                                            moduleInformation.getSourceAddress(),
+                                                            250,
+                                                            str.getSpn(),
+                                                            str.getFmi());
     }
 
 }

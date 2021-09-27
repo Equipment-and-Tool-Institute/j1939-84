@@ -68,7 +68,7 @@ public class Part04Step14Controller extends StepController {
                 int fmi = str.getFmi();
 
                 // 6.4.14.2.a. Fail if any [Scaled Test Result is] now reporting initialized values.
-                getDiagnosticMessageModule().requestTestResults(getListener(), moduleAddress, 250, spn, fmi)
+                getCommunicationsModule().requestTestResults(getListener(), moduleAddress, 250, spn, fmi)
                                             .stream()
                                             .map(DM30ScaledTestResultsPacket::getTestResults)
                                             .flatMap(Collection::stream)

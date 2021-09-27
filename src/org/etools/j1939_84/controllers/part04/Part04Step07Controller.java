@@ -73,7 +73,7 @@ public class Part04Step07Controller extends StepController {
                 continue;
             }
 
-            var response = getDiagnosticMessageModule().requestDM31(getListener(), moduleAddress);
+            var response = getCommunicationsModule().requestDM31(getListener(), moduleAddress);
 
             var packets = response.getPackets();
             packets.forEach(this::save);

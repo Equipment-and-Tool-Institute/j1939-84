@@ -28,8 +28,8 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.CommunicationsModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -197,21 +197,21 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.requestComponentIdentification(any()))
+        when(communicationsModule.requestComponentIdentification(any(ResultsListener.class)))
                                                                             .thenReturn(RequestResult.of(
                                                                                                          packet));
 
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x00)))
+        when(communicationsModule.requestComponentIdentification(any(ResultsListener.class), eq(0x00)))
                                                                                       .thenReturn(new BusResult<>(false));
 
         runTest();
 
+        verify(communicationsModule).requestComponentIdentification(any(ResultsListener.class));
+        verify(communicationsModule).requestComponentIdentification(any(ResultsListener.class), eq(0x00));
+
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_A);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_B);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
-
-        verify(vehicleInformationModule).requestComponentIdentification(any());
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0x00));
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -244,20 +244,20 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule0);
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(vehicleInformationModule.requestComponentIdentification(any()))
+        when(communicationsModule.requestComponentIdentification(any()))
                                                                             .thenReturn(RequestResult.of(packet0));
 
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x00)))
+        when(communicationsModule.requestComponentIdentification(any(), eq(0x00)))
                                                                                       .thenReturn(BusResult.of(packet0));
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x01)))
+        when(communicationsModule.requestComponentIdentification(any(), eq(0x01)))
                                                                                       .thenReturn(BusResult.of(packet1));
         runTest();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_6_A);
+        verify(communicationsModule).requestComponentIdentification(any());
+        verify(communicationsModule).requestComponentIdentification(any(), eq(0x00));
+        verify(communicationsModule).requestComponentIdentification(any(), eq(0x01));
 
-        verify(vehicleInformationModule).requestComponentIdentification(any());
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0x00));
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0x01));
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_6_A);
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -290,19 +290,19 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule0x00);
 
         // Global request response
-        when(vehicleInformationModule.requestComponentIdentification(any()))
+        when(communicationsModule.requestComponentIdentification(any(ResultsListener.class)))
                                                                             .thenReturn(RequestResult.of(packet2));
 
         // Destination specific responses
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+        when(communicationsModule.requestComponentIdentification(any(ResultsListener.class), eq(0)))
                                                                                    .thenReturn(BusResult.of(packet1));
 
         runTest();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
+        verify(communicationsModule).requestComponentIdentification(any(ResultsListener.class), eq(0));
+        verify(communicationsModule).requestComponentIdentification(any(ResultsListener.class));
 
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -347,20 +347,20 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(2));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
-        when(vehicleInformationModule.requestComponentIdentification(any()))
+        when(communicationsModule.requestComponentIdentification(any()))
                                                                             .thenReturn(RequestResult.of(
                                                                                                          packet0x00,
                                                                                                          packet0x01,
                                                                                                          packet0x02,
                                                                                                          packet0x03));
 
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x00)))
+        when(communicationsModule.requestComponentIdentification(any(), eq(0x00)))
                                                                                       .thenReturn(BusResult.of(packet0x00));
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x01)))
+        when(communicationsModule.requestComponentIdentification(any(), eq(0x01)))
                                                                                       .thenReturn(BusResult.of(packet0x01));
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x02)))
+        when(communicationsModule.requestComponentIdentification(any(), eq(0x02)))
                                                                                       .thenReturn(BusResult.of(packet0x02));
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x03)))
+        when(communicationsModule.requestComponentIdentification(any(), eq(0x03)))
                                                                                       .thenReturn(BusResult.of(packet0x03));
 
         runTest();
@@ -381,17 +381,18 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                    .get(ComponentIdentificationPacket.class, 1)
                                    .getComponentIdentification());
 
-        verify(vehicleInformationModule).requestComponentIdentification(any());
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(2));
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(3));
-
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
 
         assertEquals(List.of(), listener.getOutcomes());
+
+        verify(communicationsModule).requestComponentIdentification(any());
+        verify(communicationsModule).requestComponentIdentification(any(), eq(0));
+        verify(communicationsModule).requestComponentIdentification(any(), eq(1));
+        verify(communicationsModule).requestComponentIdentification(any(), eq(2));
+        verify(communicationsModule).requestComponentIdentification(any(), eq(3));
+
     }
 
     /**
@@ -448,10 +449,10 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(0, 0));
 
-        when(vehicleInformationModule.requestComponentIdentification(any()))
+        when(communicationsModule.requestComponentIdentification(any()))
                                                                             .thenReturn(RequestResult.of(packet));
 
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+        when(communicationsModule.requestComponentIdentification(any(), eq(0)))
                                                                                    .thenReturn(BusResult.of(packet));
 
         runTest();
@@ -461,12 +462,12 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                    .get(ComponentIdentificationPacket.class, 1)
                                    .getComponentIdentification());
 
-        verify(vehicleInformationModule).requestComponentIdentification(any());
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
+
+        verify(communicationsModule).requestComponentIdentification(any());
+        verify(communicationsModule).requestComponentIdentification(any(), eq(0));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -502,17 +503,17 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule0x00);
 
-        when(vehicleInformationModule.requestComponentIdentification(any()))
+        when(communicationsModule.requestComponentIdentification(any()))
                                                                             .thenReturn(RequestResult.of(packet));
 
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+        when(communicationsModule.requestComponentIdentification(any(), eq(0)))
                                                                                    .thenReturn(BusResult.of(packet));
         runTest();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D_MAKE);
+        verify(communicationsModule).requestComponentIdentification(any(), eq(0));
+        verify(communicationsModule).requestComponentIdentification(any());
 
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D_MAKE);
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -543,18 +544,18 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.requestComponentIdentification(any()))
+        when(communicationsModule.requestComponentIdentification(any()))
                                                                             .thenReturn(RequestResult.of(packet));
 
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+        when(communicationsModule.requestComponentIdentification(any(), eq(0)))
                                                                                    .thenReturn(BusResult.of(packet));
 
         runTest();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
+        verify(communicationsModule).requestComponentIdentification(any(), eq(0));
+        verify(communicationsModule).requestComponentIdentification(any());
 
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -626,18 +627,18 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.requestComponentIdentification(any()))
+        when(communicationsModule.requestComponentIdentification(any()))
                                                                             .thenReturn(RequestResult.of(packet));
 
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+        when(communicationsModule.requestComponentIdentification(any(), eq(0)))
                                                                                    .thenReturn(BusResult.of(packet));
 
         runTest();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_C);
+        verify(communicationsModule).requestComponentIdentification(any(), eq(0));
+        verify(communicationsModule).requestComponentIdentification(any());
 
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_C);
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -669,17 +670,17 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.requestComponentIdentification(any()))
+        when(communicationsModule.requestComponentIdentification(any(ResultsListener.class)))
                                                                             .thenReturn(RequestResult.of(packet));
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+        when(communicationsModule.requestComponentIdentification(any(ResultsListener.class), eq(0)))
                                                                                    .thenReturn(BusResult.of(packet));
 
         runTest();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D_MODEL);
+        verify(communicationsModule).requestComponentIdentification(any(ResultsListener.class), eq(0));
+        verify(communicationsModule).requestComponentIdentification(any(ResultsListener.class));
 
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D_MODEL);
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -709,18 +710,18 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.requestComponentIdentification(any()))
+        when(communicationsModule.requestComponentIdentification(any(ResultsListener.class)))
                                                                             .thenReturn(RequestResult.of(packet));
 
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+        when(communicationsModule.requestComponentIdentification(any(ResultsListener.class), eq(0)))
                                                                                    .thenReturn(BusResult.of(packet));
 
         runTest();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_D);
+        verify(communicationsModule).requestComponentIdentification(any(ResultsListener.class), eq(0));
+        verify(communicationsModule).requestComponentIdentification(any(ResultsListener.class));
 
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_D);
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -749,18 +750,18 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                                                     "Land");
         dataRepository.putObdModule(obdModule);
 
-        when(vehicleInformationModule.requestComponentIdentification(any()))
+        when(communicationsModule.requestComponentIdentification(any()))
                                                                             .thenReturn(new RequestResult<>(false));
 
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+        when(communicationsModule.requestComponentIdentification(any(), eq(0)))
                                                                                    .thenReturn(BusResult.of(packet));
 
         runTest();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
+        verify(communicationsModule).requestComponentIdentification(any(), eq(0));
+        verify(communicationsModule).requestComponentIdentification(any());
 
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -834,30 +835,30 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule0x02);
         dataRepository.putObdModule(obdModule0x03);
 
-        when(vehicleInformationModule.requestComponentIdentification(any()))
+        when(communicationsModule.requestComponentIdentification(any()))
                                                                             .thenReturn(RequestResult.of(packet0x00,
                                                                                                          packet0x01,
                                                                                                          packet0x02,
                                                                                                          packet0x03));
 
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+        when(communicationsModule.requestComponentIdentification(any(ResultsListener.class), eq(0)))
                                                                                    .thenReturn(BusResult.of(packet0x00));
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(1)))
+        when(communicationsModule.requestComponentIdentification(any(ResultsListener.class), eq(1)))
                                                                                    .thenReturn(BusResult.of(packet0x01));
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(2)))
+        when(communicationsModule.requestComponentIdentification(any(ResultsListener.class), eq(2)))
                                                                                    .thenReturn(BusResult.of(packet0x02));
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(3)))
+        when(communicationsModule.requestComponentIdentification(any(ResultsListener.class), eq(3)))
                                                                                    .thenReturn(BusResult.of(packet0x03));
 
         runTest();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D_SN);
+        verify(communicationsModule).requestComponentIdentification(any(ResultsListener.class), eq(0));
+        verify(communicationsModule).requestComponentIdentification(any(ResultsListener.class), eq(1));
+        verify(communicationsModule).requestComponentIdentification(any(ResultsListener.class), eq(2));
+        verify(communicationsModule).requestComponentIdentification(any(ResultsListener.class), eq(3));
+        verify(communicationsModule).requestComponentIdentification(any(ResultsListener.class));
 
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(2));
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(3));
-        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D_SN);
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -887,18 +888,18 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule0x00);
 
-        when(vehicleInformationModule.requestComponentIdentification(any()))
+        when(communicationsModule.requestComponentIdentification(any(ResultsListener.class)))
                                                                             .thenReturn(RequestResult.of(packet));
 
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0x00)))
+        when(communicationsModule.requestComponentIdentification(any(ResultsListener.class), eq(0x00)))
                                                                                       .thenReturn(BusResult.of(packet));
 
         runTest();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, INFO, EXPECTED_INFO_MESSAGE_3_A);
+        verify(communicationsModule).requestComponentIdentification(any());
+        verify(communicationsModule).requestComponentIdentification(any(), eq(0x00));
 
-        verify(vehicleInformationModule).requestComponentIdentification(any());
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0x00));
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, INFO, EXPECTED_INFO_MESSAGE_3_A);
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -929,18 +930,18 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule0x00);
 
-        when(vehicleInformationModule.requestComponentIdentification(any()))
+        when(communicationsModule.requestComponentIdentification(any(ResultsListener.class)))
                                                                             .thenReturn(RequestResult.of(packet));
 
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
+        when(communicationsModule.requestComponentIdentification(any(ResultsListener.class), eq(0)))
                                                                                    .thenReturn(BusResult.of(packet));
 
         runTest();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_C);
+        verify(communicationsModule).requestComponentIdentification(any(), eq(0));
+        verify(communicationsModule).requestComponentIdentification(any());
 
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_C);
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());

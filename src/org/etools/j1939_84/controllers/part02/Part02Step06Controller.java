@@ -62,7 +62,7 @@ public class Part02Step06Controller extends StepController {
         // 6.2.6.1.a. DS DM56 (send Request (PGN 59904) for PGN 64711 (SPNs 5844 and 5845)) to each OBD ECU.
         var packets = getDataRepository().getObdModuleAddresses()
                                          .stream()
-                                         .map(a -> getDiagnosticMessageModule().requestDM56(getListener(), a))
+                                         .map(a -> getCommunicationsModule().requestDM56(getListener(), a))
                                          .flatMap(Collection::stream)
                                          .collect(Collectors.toList());
 

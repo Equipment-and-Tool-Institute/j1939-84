@@ -74,7 +74,7 @@ public class Part03Step02Controller extends StepController {
             updateProgress("Step 6.3.2.1.a - Requesting DM6 Attempt " + attempts);
 
             getListener().onResult(NL + "Attempt " + attempts);
-            globalPackets = getDiagnosticMessageModule().requestDM6(getListener()).getPackets();
+            globalPackets = getCommunicationsModule().requestDM6(getListener()).getPackets();
 
             // 6.3.2.2.a. Fail if no OBD ECU supports DM6.
             boolean hasNoObdPackets = globalPackets.stream()
@@ -129,7 +129,7 @@ public class Part03Step02Controller extends StepController {
 
         // 6.3.2.4 DS DM6 to each OBD ECU.
         var dsResults = obdModuleAddresses.stream()
-                                          .map(a -> getDiagnosticMessageModule().requestDM6(getListener(), a))
+                                          .map(a -> getCommunicationsModule().requestDM6(getListener(), a))
                                           .collect(Collectors.toList());
 
         // 6.3.2.5.a Fail if any difference compared to data received with global request.

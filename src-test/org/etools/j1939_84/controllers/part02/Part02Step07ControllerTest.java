@@ -25,8 +25,8 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.CommunicationsModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -140,23 +140,23 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         module0.set(ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0"), 1);
         dataRepository.putObdModule(module0);
         var packet0 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0))).thenReturn(BusResult.of(packet0));
+        when(communicationsModule.requestComponentIdentification(any(), eq(0))).thenReturn(BusResult.of(packet0));
 
         var module1 = new OBDModuleInformation(1);
         module1.set(ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1"), 1);
         dataRepository.putObdModule(module1);
         var packet1 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(1))).thenReturn(BusResult.of(packet1));
+        when(communicationsModule.requestComponentIdentification(any(), eq(1))).thenReturn(BusResult.of(packet1));
 
         var packet00 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
         var packet11 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
-        when(vehicleInformationModule.requestComponentIdentification(any())).thenReturn(RequestResult.of(packet00,
+        when(communicationsModule.requestComponentIdentification(any())).thenReturn(RequestResult.of(packet00,
                                                                                                          packet11));
         runTest();
 
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(communicationsModule).requestComponentIdentification(any(), eq(0));
+        verify(communicationsModule).requestComponentIdentification(any(), eq(1));
+        verify(communicationsModule).requestComponentIdentification(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -169,22 +169,22 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         module0.set(ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0"), 1);
         dataRepository.putObdModule(module0);
         var packet0 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0))).thenReturn(BusResult.of(packet0));
+        when(communicationsModule.requestComponentIdentification(any(), eq(0))).thenReturn(BusResult.of(packet0));
 
         var module1 = new OBDModuleInformation(1);
         module1.set(ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1"), 1);
         dataRepository.putObdModule(module1);
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(1))).thenReturn(BusResult.empty());
+        when(communicationsModule.requestComponentIdentification(any(), eq(1))).thenReturn(BusResult.empty());
 
         var packet00 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
         var packet11 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
-        when(vehicleInformationModule.requestComponentIdentification(any())).thenReturn(RequestResult.of(packet00,
+        when(communicationsModule.requestComponentIdentification(any())).thenReturn(RequestResult.of(packet00,
                                                                                                          packet11));
         runTest();
 
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(communicationsModule).requestComponentIdentification(any(), eq(0));
+        verify(communicationsModule).requestComponentIdentification(any(), eq(1));
+        verify(communicationsModule).requestComponentIdentification(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -200,23 +200,23 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         module0.set(ComponentIdentificationPacket.create(0, "make", "model", "serialNumber", "unit"), 1);
         dataRepository.putObdModule(module0);
         var packet0 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0))).thenReturn(BusResult.of(packet0));
+        when(communicationsModule.requestComponentIdentification(any(), eq(0))).thenReturn(BusResult.of(packet0));
 
         var module1 = new OBDModuleInformation(1);
         module1.set(ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1"), 1);
         dataRepository.putObdModule(module1);
         var packet1 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(1))).thenReturn(BusResult.of(packet1));
+        when(communicationsModule.requestComponentIdentification(any(), eq(1))).thenReturn(BusResult.of(packet1));
 
         var packet00 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
         var packet11 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
-        when(vehicleInformationModule.requestComponentIdentification(any())).thenReturn(RequestResult.of(packet00,
+        when(communicationsModule.requestComponentIdentification(any())).thenReturn(RequestResult.of(packet00,
                                                                                                          packet11));
         runTest();
 
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(communicationsModule).requestComponentIdentification(any(), eq(0));
+        verify(communicationsModule).requestComponentIdentification(any(), eq(1));
+        verify(communicationsModule).requestComponentIdentification(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -232,21 +232,21 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         module0.set(ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0"), 1);
         dataRepository.putObdModule(module0);
         var packet0 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0))).thenReturn(BusResult.of(packet0));
+        when(communicationsModule.requestComponentIdentification(any(), eq(0))).thenReturn(BusResult.of(packet0));
 
         var module1 = new OBDModuleInformation(1);
         module1.set(ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1"), 1);
         dataRepository.putObdModule(module1);
         var packet1 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(1))).thenReturn(BusResult.of(packet1));
+        when(communicationsModule.requestComponentIdentification(any(), eq(1))).thenReturn(BusResult.of(packet1));
 
         var packet11 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
-        when(vehicleInformationModule.requestComponentIdentification(any())).thenReturn(RequestResult.of(packet11));
+        when(communicationsModule.requestComponentIdentification(any())).thenReturn(RequestResult.of(packet11));
         runTest();
 
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(communicationsModule).requestComponentIdentification(any(), eq(0));
+        verify(communicationsModule).requestComponentIdentification(any(), eq(1));
+        verify(communicationsModule).requestComponentIdentification(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -262,23 +262,23 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         module0.set(ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0"), 1);
         dataRepository.putObdModule(module0);
         var packet0 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0))).thenReturn(BusResult.of(packet0));
+        when(communicationsModule.requestComponentIdentification(any(), eq(0))).thenReturn(BusResult.of(packet0));
 
         var module1 = new OBDModuleInformation(1);
         module1.set(ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1"), 1);
         dataRepository.putObdModule(module1);
         var packet1 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(1))).thenReturn(BusResult.of(packet1));
+        when(communicationsModule.requestComponentIdentification(any(), eq(1))).thenReturn(BusResult.of(packet1));
 
         var packet00 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
         var packet11 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
-        when(vehicleInformationModule.requestComponentIdentification(any())).thenReturn(RequestResult.of(packet00,
+        when(communicationsModule.requestComponentIdentification(any())).thenReturn(RequestResult.of(packet00,
                                                                                                          packet11));
         runTest();
 
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(communicationsModule).requestComponentIdentification(any(ResultsListener.class), eq(0));
+        verify(communicationsModule).requestComponentIdentification(any(ResultsListener.class), eq(1));
+        verify(communicationsModule).requestComponentIdentification(any(ResultsListener.class));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -294,23 +294,23 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         module0.set(ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0"), 1);
         dataRepository.putObdModule(module0);
         var packet0 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0))).thenReturn(BusResult.of(packet0));
+        when(communicationsModule.requestComponentIdentification(any(), eq(0))).thenReturn(BusResult.of(packet0));
 
         var module1 = new OBDModuleInformation(1);
         module1.set(ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1"), 1);
         dataRepository.putObdModule(module1);
         var packet1 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(1))).thenReturn(BusResult.of(packet1));
+        when(communicationsModule.requestComponentIdentification(any(), eq(1))).thenReturn(BusResult.of(packet1));
 
         var packet00 = ComponentIdentificationPacket.create(0, "make", "model", "serialNumber", "unit");
         var packet11 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
-        when(vehicleInformationModule.requestComponentIdentification(any())).thenReturn(RequestResult.of(packet00,
+        when(communicationsModule.requestComponentIdentification(any())).thenReturn(RequestResult.of(packet00,
                                                                                                          packet11));
         runTest();
 
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(communicationsModule).requestComponentIdentification(any(ResultsListener.class), eq(0));
+        verify(communicationsModule).requestComponentIdentification(any(ResultsListener.class), eq(1));
+        verify(communicationsModule).requestComponentIdentification(any(ResultsListener.class));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -326,22 +326,24 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         module0.set(ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0"), 1);
         dataRepository.putObdModule(module0);
         var packet0 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(0))).thenReturn(BusResult.of(packet0));
+        when(communicationsModule.requestComponentIdentification(any(ResultsListener.class),
+                                                                 eq(0))).thenReturn(BusResult.of(packet0));
 
         var module1 = new OBDModuleInformation(1);
         module1.set(ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1"), 1);
         dataRepository.putObdModule(module1);
         var packet1 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
-        when(vehicleInformationModule.requestComponentIdentification(any(), eq(1))).thenReturn(BusResult.of(packet1));
+        when(communicationsModule.requestComponentIdentification(any(ResultsListener.class),
+                                                                 eq(1))).thenReturn(BusResult.of(packet1));
 
         var packet00 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
-        when(vehicleInformationModule.requestComponentIdentification(any())).thenReturn(RequestResult.of(packet00));
+        when(communicationsModule.requestComponentIdentification(any(ResultsListener.class))).thenReturn(RequestResult.of(packet00));
 
         runTest();
 
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).requestComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).requestComponentIdentification(any());
+        verify(communicationsModule).requestComponentIdentification(any(), eq(0));
+        verify(communicationsModule).requestComponentIdentification(any(), eq(1));
+        verify(communicationsModule).requestComponentIdentification(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

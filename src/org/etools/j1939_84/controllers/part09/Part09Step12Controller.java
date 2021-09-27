@@ -63,7 +63,7 @@ public class Part09Step12Controller extends StepController {
         // ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM28(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM28(getListener(), a))
                                            .map(BusResult::requestResult)
                                            .collect(Collectors.toList());
 

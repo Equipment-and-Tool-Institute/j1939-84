@@ -72,7 +72,7 @@ public class Part01Step13Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.1.13.1.a. Global DM5 (send Request (PGN 59904) for PGN 65230 (SPNs 1218-1223)).
-        RequestResult<DM5DiagnosticReadinessPacket> response = getDiagnosticMessageModule().requestDM5(getListener());
+        RequestResult<DM5DiagnosticReadinessPacket> response = getCommunicationsModule().requestDM5(getListener());
         List<DM5DiagnosticReadinessPacket> obdGlobalPackets = response.getPackets()
                                                                       .stream()
                                                                       .filter(DM5DiagnosticReadinessPacket::isObd)
@@ -130,7 +130,7 @@ public class Part01Step13Controller extends StepController {
         // 6.1.13.3.a. DS DM5 to each OBD ECU.
         var dsPackets = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM5(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM5(getListener(), a))
                                            .collect(Collectors.toList());
 
         // 6.1.13.4.a. Fail if any difference compared to data received during global request.

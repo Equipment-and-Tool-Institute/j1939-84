@@ -61,7 +61,7 @@ public class Part02Step04Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.2.4.1.a. Global DM20 (send Request (PGN 59904) for PGN 49664 (SPNs 3048-3049, 3066-3068)).
-        var globalPackets = getDiagnosticMessageModule().requestDM20(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM20(getListener()).getPackets();
 
         // 6.2.4.2.a. Fail if any ECU reports different SPNs as supported for data than in part 1.
         globalPackets.stream()
@@ -105,7 +105,7 @@ public class Part02Step04Controller extends StepController {
         // 6.2.4.3.a. DS DM20 to ECUs that responded to global DM20 in part 1.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM20(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM20(getListener(), a))
                                            .collect(toList());
 
         // 6.2.4.4.a. Fail if any difference compared to data received during global request in 6.2.4.1.

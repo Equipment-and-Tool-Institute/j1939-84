@@ -60,8 +60,8 @@ public class Part11Step10Controller extends StepController {
         // 6.11.10.1.a. DS DM5 [(send Request (PGN 59904) for PGN 65230 (SPNs 1218-1223)]) to each OBD ECU.
         var packets = filterPackets(getDataRepository().getObdModuleAddresses()
                                                        .stream()
-                                                       .map(a -> getDiagnosticMessageModule().requestDM5(getListener(),
-                                                                                                         a))
+                                                       .map(a -> getCommunicationsModule().requestDM5(getListener(),
+                                                                                                      a))
                                                        .collect(Collectors.toList()));
 
         // 6.11.10.1.b. Record all data (i.e., which monitors are supported and complete or supported and incomplete).

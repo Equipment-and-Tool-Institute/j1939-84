@@ -104,11 +104,11 @@ public class Part01Step12Controller extends StepController {
                      .stream()
                      .mapToInt(SupportedSPN::getSpn)
                      .forEachOrdered(spId -> {
-                         var dm30Packets = getDiagnosticMessageModule().requestTestResults(getListener(),
-                                                                                           sourceAddress,
-                                                                                           247,
-                                                                                           spId,
-                                                                                           31);
+                         var dm30Packets = getCommunicationsModule().requestTestResults(getListener(),
+                                                                                        sourceAddress,
+                                                                                        247,
+                                                                                        spId,
+                                                                                        31);
                          if (dm30Packets.isEmpty()) {
                              addFailure("6.1.12.2.a (A.7.2.a) - No test result for Supported SP " + spId + " from "
                                      + moduleName);

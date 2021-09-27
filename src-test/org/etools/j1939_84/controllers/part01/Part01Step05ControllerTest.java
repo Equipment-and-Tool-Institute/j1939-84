@@ -22,6 +22,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -47,6 +48,8 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
 
     @Mock
     private BannerModule bannerModule;
+
+    private CommunicationsModule communicationsModule;
 
     private DataRepository dataRepository;
 
@@ -79,8 +82,9 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
         vinDecoder = new VinDecoder();
-
         dataRepository = DataRepository.newInstance();
+        communicationsModule = new CommunicationsModule();
+        communicationsModule.setJ1939(j1939);
 
         instance = new Part01Step05Controller(
                                               executor,
@@ -98,7 +102,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              null);
+              communicationsModule);
     }
 
     @After
@@ -173,7 +177,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         obdModule1.set(packet, 0x01);
         dataRepository.putObdModule(obdModule1);
 
-        when(vehicleInformationModule.reportVin(any(ResultsListener.class))).thenReturn(List.of(packet));
+        when(communicationsModule.reportVin(any(ResultsListener.class))).thenReturn(List.of(packet));
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin(vin);
         vehicleInformation.setVehicleModelYear(2037);
@@ -181,10 +185,9 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(engineSpeedModule).setJ1939(j1939);
+        verify(communicationsModule).reportVin(any(ResultsListener.class));
 
-        verify(vehicleInformationModule).setJ1939(j1939);
-        verify(vehicleInformationModule).reportVin(any(ResultsListener.class));
+        verify(engineSpeedModule).setJ1939(j1939);
     }
 
     /**
@@ -238,7 +241,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule2 = new OBDModuleInformation((1));
         obdModule2.set(packet2, 1);
         dataRepository.putObdModule(obdModule2);
-        when(vehicleInformationModule.reportVin(any(ResultsListener.class))).thenReturn(List.of(packet1, packet2));
+        when(communicationsModule.reportVin(any(ResultsListener.class))).thenReturn(List.of(packet1, packet2));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin(vin);
@@ -246,6 +249,8 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
+
+        verify(communicationsModule).reportVin(any(ResultsListener.class));
 
         verify(engineSpeedModule).setJ1939(j1939);
 
@@ -258,9 +263,6 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
                                         5,
                                         WARN,
                                         "6.1.5.3.b - More than one VIN response from an ECU");
-
-        verify(vehicleInformationModule).setJ1939(j1939);
-        verify(vehicleInformationModule).reportVin(any(ResultsListener.class));
     }
 
     /**
@@ -318,7 +320,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule2 = new OBDModuleInformation((0x00));
         obdModule2.set(packet2, 1);
 
-        when(vehicleInformationModule.reportVin(any(ResultsListener.class))).thenReturn(List.of(packet1, packet2));
+        when(communicationsModule.reportVin(any(ResultsListener.class))).thenReturn(List.of(packet1, packet2));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin(vin);
@@ -326,6 +328,9 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
+
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).reportVin(any(ResultsListener.class));
 
         verify(engineSpeedModule).setJ1939(j1939);
 
@@ -337,9 +342,6 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
                                         5,
                                         WARN,
                                         "6.1.5.3.c - VIN provided from more than one non-OBD ECU");
-
-        verify(vehicleInformationModule).setJ1939(j1939);
-        verify(vehicleInformationModule).reportVin(any(ResultsListener.class));
     }
 
     /**
@@ -382,7 +384,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         VehicleIdentificationPacket packet = VehicleIdentificationPacket.create(0x01, vin);
         OBDModuleInformation obdModule1 = new OBDModuleInformation((0x01));
         obdModule1.set(packet, 1);
-        when(vehicleInformationModule.reportVin(any(ResultsListener.class))).thenReturn(List.of(packet));
+        when(communicationsModule.reportVin(any(ResultsListener.class))).thenReturn(List.of(packet));
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin(vin);
         vehicleInformation.setVehicleModelYear(2014);
@@ -390,15 +392,14 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
 
         runTest();
 
+        verify(communicationsModule).reportVin(any(ResultsListener.class));
+
         verify(engineSpeedModule).setJ1939(j1939);
 
         verify(mockListener).addOutcome(1,
                                         5,
                                         WARN,
                                         "6.1.5.3.a - Non-OBD ECU responded with VIN");
-
-        verify(vehicleInformationModule).setJ1939(j1939);
-        verify(vehicleInformationModule).reportVin(any(ResultsListener.class));
     }
 
     /**
@@ -443,7 +444,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule1 = new OBDModuleInformation((0x01));
         obdModule1.set(packet, 1);
         dataRepository.putObdModule(obdModule1);
-        when(vehicleInformationModule.reportVin(any(ResultsListener.class))).thenReturn((List.of(packet)));
+        when(communicationsModule.reportVin(any(ResultsListener.class))).thenReturn((List.of(packet)));
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin(vin);
         vehicleInformation.setVehicleModelYear(2019);
@@ -451,15 +452,14 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
 
         runTest();
 
+        verify(communicationsModule).reportVin(any(ResultsListener.class));
+
         verify(engineSpeedModule).setJ1939(j1939);
 
         verify(mockListener).addOutcome(1,
                                         5,
                                         FAIL,
                                         "6.1.5.2.d - 10th character of VIN does not match model year of vehicle entered by user earlier in this part");
-
-        verify(vehicleInformationModule).setJ1939(j1939);
-        verify(vehicleInformationModule).reportVin(any(ResultsListener.class));
     }
 
     /**
@@ -507,7 +507,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         obdModule1.set(packet, 1);
         dataRepository.putObdModule(obdModule1);
 
-        when(vehicleInformationModule.reportVin(any(ResultsListener.class))).thenReturn((List.of(packet)));
+        when(communicationsModule.reportVin(any(ResultsListener.class))).thenReturn((List.of(packet)));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin(vin);
@@ -515,6 +515,8 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
+
+        verify(communicationsModule).reportVin(any(ResultsListener.class));
 
         verify(engineSpeedModule).setJ1939(j1939);
 
@@ -531,9 +533,6 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
                                         5,
                                         WARN,
                                         "6.1.5.3.d - Manufacturer defined data follows the VIN");
-
-        verify(vehicleInformationModule).setJ1939(j1939);
-        verify(vehicleInformationModule).reportVin(any(ResultsListener.class));
     }
 
     /**
@@ -589,7 +588,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule2 = new OBDModuleInformation((0x00));
         obdModule2.set(packet2, 1);
         dataRepository.putObdModule(obdModule2);
-        when(vehicleInformationModule.reportVin(any(ResultsListener.class))).thenReturn(List.of(packet1, packet2));
+        when(communicationsModule.reportVin(any(ResultsListener.class))).thenReturn(List.of(packet1, packet2));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin(vin);
@@ -598,15 +597,14 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
 
         runTest();
 
+        verify(communicationsModule).reportVin(any(ResultsListener.class));
+
         verify(engineSpeedModule).setJ1939(j1939);
 
         verify(mockListener).addOutcome(1,
                                         5,
                                         FAIL,
                                         "6.1.5.2.b - More than one OBD ECU responded with VIN");
-
-        verify(vehicleInformationModule).setJ1939(j1939);
-        verify(vehicleInformationModule).reportVin(any(ResultsListener.class));
     }
 
     /**
@@ -650,7 +648,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule1 = new OBDModuleInformation((0x01));
         obdModule1.set(packet, 1);
         dataRepository.putObdModule(obdModule1);
-        when(vehicleInformationModule.reportVin(any(ResultsListener.class))).thenReturn((List.of(packet)));
+        when(communicationsModule.reportVin(any(ResultsListener.class))).thenReturn((List.of(packet)));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin("1XPBDK9X1LD708195");
@@ -659,15 +657,15 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
 
         runTest();
 
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).reportVin(any(ResultsListener.class));
+
         verify(engineSpeedModule).setJ1939(j1939);
 
         verify(mockListener).addOutcome(1,
                                         5,
                                         FAIL,
                                         "6.1.5.2.c - VIN does not match user entered VIN");
-
-        verify(vehicleInformationModule).setJ1939(j1939);
-        verify(vehicleInformationModule).reportVin(any(ResultsListener.class));
     }
 
     /**
@@ -711,7 +709,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule1 = new OBDModuleInformation((0x01));
         obdModule1.set(packet, 1);
         dataRepository.putObdModule(obdModule1);
-        when(vehicleInformationModule.reportVin(any(ResultsListener.class))).thenReturn((List.of(packet)));
+        when(communicationsModule.reportVin(any(ResultsListener.class))).thenReturn((List.of(packet)));
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin(vin);
         dataRepository.setVehicleInformation(vehicleInformation);
@@ -720,13 +718,12 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
 
+        verify(communicationsModule).reportVin(any(ResultsListener.class));
+
         verify(mockListener).addOutcome(1,
                                         5,
                                         FAIL,
                                         "6.1.5.2.e - VIN is not valid (not 17 legal chars, incorrect checksum, or non-numeric sequence");
-
-        verify(vehicleInformationModule).setJ1939(j1939);
-        verify(vehicleInformationModule).reportVin(any(ResultsListener.class));
 
     }
 
@@ -763,13 +760,12 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
     @TestDoc(@TestItem(verifies = "6.1.5.2.a", description = "Fail if no VIN is provided by any ECU"))
     public void testPacketsEmptyFailure() {
 
-        when(vehicleInformationModule.reportVin(any())).thenReturn(List.of());
+        when(communicationsModule.reportVin(any(ResultsListener.class))).thenReturn(List.of());
 
         runTest();
 
-        verify(mockListener).addOutcome(1, 5, FAIL, "6.1.5.2.a - No VIN was provided by any ECU");
+        verify(communicationsModule).reportVin(any());
 
-        verify(vehicleInformationModule).setJ1939(j1939);
-        verify(vehicleInformationModule).reportVin(any());
+        verify(mockListener).addOutcome(1, 5, FAIL, "6.1.5.2.a - No VIN was provided by any ECU");
     }
 }

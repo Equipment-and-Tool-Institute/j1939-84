@@ -64,7 +64,7 @@ public class Part06Step04Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.6.4.1.a Receive broadcast DM1 [(PGN 65226 (SPNs 1213-1215, 3038, 1706)]).
-        List<DM1ActiveDTCsPacket> packets = getDiagnosticMessageModule().readDM1(getListener())
+        List<DM1ActiveDTCsPacket> packets = getCommunicationsModule().readDM1(getListener())
                                                                         .stream()
                                                                         .filter(p -> isObdModule(p.getSourceAddress()))
                                                                         .collect(Collectors.toList());

@@ -63,7 +63,7 @@ public class Part02Step11Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.2.11.1.a. Global DM27 (send Request (PGN 59904) for PGN 64898 (SPNs 1213-1215, 3038, 1706)).
-        var globalPackets = getDiagnosticMessageModule().requestDM27(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM27(getListener()).getPackets();
 
         Set<Integer> globalPacketAddresses = globalPackets.stream()
                                                           .map(ParsedPacket::getSourceAddress)
@@ -104,7 +104,7 @@ public class Part02Step11Controller extends StepController {
         // 6.2.11.3.a. DS DM27 to each OBD ECU that supported DM27.
         var dsPackets = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM27(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM27(getListener(), a))
                                            .map(BusResult::requestResult)
                                            .flatMap(r -> r.getPackets().stream())
                                            .collect(Collectors.toList());

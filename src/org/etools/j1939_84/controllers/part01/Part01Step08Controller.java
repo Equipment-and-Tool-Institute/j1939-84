@@ -65,7 +65,7 @@ public class Part01Step08Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.1.8.1.a. Global DM20 (send Request (PGN 59904) for PGN 49664
-        var globalDM20s = getDiagnosticMessageModule().requestDM20(getListener()).getPackets();
+        var globalDM20s = getCommunicationsModule().requestDM20(getListener()).getPackets();
 
         // 6.1.8.1.a.i. Create list of ECU address
         globalDM20s.forEach(this::save);

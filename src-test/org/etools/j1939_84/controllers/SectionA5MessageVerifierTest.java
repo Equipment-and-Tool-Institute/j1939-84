@@ -43,8 +43,8 @@ import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.CommunicationsModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.junit.After;
@@ -1113,11 +1113,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = IdleOperationPacket.create(0, 101);
-        when(vehicleInformationModule.requestIdleOperation(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestIdleOperation(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkEngineIdleTime(listener, SECTION, 0));
 
-        verify(vehicleInformationModule).requestIdleOperation(listener, 0);
+        verify(communicationsModule).requestIdleOperation(listener, 0);
     }
 
     @Test
@@ -1127,11 +1127,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = IdleOperationPacket.create(0, 0);
-        when(vehicleInformationModule.requestIdleOperation(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestIdleOperation(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkEngineIdleTime(listener, SECTION, 0));
 
-        verify(vehicleInformationModule).requestIdleOperation(listener, 0);
+        verify(communicationsModule).requestIdleOperation(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -1152,11 +1152,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = EngineHoursPacket.create(0, 101);
-        when(vehicleInformationModule.requestEngineHours(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestEngineHours(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkEngineRunTime(listener, SECTION, 0));
 
-        verify(vehicleInformationModule).requestEngineHours(listener, 0);
+        verify(communicationsModule).requestEngineHours(listener, 0);
     }
 
     @Test
@@ -1166,11 +1166,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = EngineHoursPacket.create(0, 0);
-        when(vehicleInformationModule.requestEngineHours(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestEngineHours(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkEngineRunTime(listener, SECTION, 0));
 
-        verify(vehicleInformationModule).requestEngineHours(listener, 0);
+        verify(communicationsModule).requestEngineHours(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,

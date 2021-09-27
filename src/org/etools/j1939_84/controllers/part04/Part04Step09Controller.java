@@ -60,7 +60,7 @@ public class Part04Step09Controller extends StepController {
     @Override
     protected void run() throws Throwable {
 
-        var globalPackets = getDiagnosticMessageModule().requestDM27(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM27(getListener()).getPackets();
 
         // 6.4.9.2.a (if supported) Fail if any ECU reports a pending DTC.
         globalPackets.stream()
@@ -86,7 +86,7 @@ public class Part04Step09Controller extends StepController {
         // 6.4.9.3.a DS DM27 to each OBD ECU.
         var dsResults = obdModuleAddresses
                                           .stream()
-                                          .map(a -> getDiagnosticMessageModule().requestDM27(getListener(), a))
+                                          .map(a -> getCommunicationsModule().requestDM27(getListener(), a))
                                           .collect(Collectors.toList());
 
         // 6.4.9.4.a (if supported) Fail if any difference compared to data received from global request.

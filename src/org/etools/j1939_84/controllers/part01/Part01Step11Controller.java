@@ -64,7 +64,7 @@ public class Part01Step11Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.1.11.1.a. Global DM21 (send Request (PG 59904) for PG 49408
-        List<DM21DiagnosticReadinessPacket> globalPackets = getDiagnosticMessageModule()
+        List<DM21DiagnosticReadinessPacket> globalPackets = getCommunicationsModule()
                                                                                         .requestDM21(getListener())
                                                                                         .getPackets();
 
@@ -110,7 +110,7 @@ public class Part01Step11Controller extends StepController {
         // 6.1.11.3.a. DS DM21 to each OBD ECU
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(addr -> getDiagnosticMessageModule().requestDM21(getListener(), addr))
+                                           .map(addr -> getCommunicationsModule().requestDM21(getListener(), addr))
                                            .collect(Collectors.toList());
 
         // ignore missing responses and NACKs

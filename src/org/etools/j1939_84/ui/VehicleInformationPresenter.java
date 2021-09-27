@@ -24,6 +24,7 @@ import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.VinDecoder;
@@ -62,6 +63,11 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      * The value the user has entered for the certification intent
      */
     private String certificationIntent;
+    /**
+     * The communications module for talking to bus
+     */
+    private final CommunicationsModule communicationsModule;
+
     /**
      * The value the user has entered for the number of emissions units on the
      * vehicle
@@ -112,7 +118,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     public VehicleInformationPresenter(VehicleInformationContract.View view,
                                        VehicleInformationListener listener,
                                        J1939 j1939) {
-        this(view, listener, j1939, new VehicleInformationModule(), new VinDecoder());
+        this(view, listener, j1939, new VehicleInformationModule(), new VinDecoder(), new CommunicationsModule());
     }
 
     /**
@@ -122,12 +128,15 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
                                        VehicleInformationListener listener,
                                        J1939 j1939,
                                        VehicleInformationModule vehicleInformationModule,
-                                       VinDecoder vinDecoder) {
+                                       VinDecoder vinDecoder,
+                                       CommunicationsModule communicationsModule) {
         this.view = swingProxy(view, VehicleInformationContract.View.class);
         this.listener = listener;
         this.vehicleInformationModule = vehicleInformationModule;
         this.vehicleInformationModule.setJ1939(j1939);
         this.vinDecoder = vinDecoder;
+        this.communicationsModule = communicationsModule;
+        this.communicationsModule.setJ1939(j1939);
     }
 
     public static <T> T swingProxy(T o, Class<T> cls) {
@@ -192,7 +201,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
 
             emissionUnitsFound = obdModules
                                            .stream()
-                                           .map(address -> vehicleInformationModule.requestComponentIdentification(NOOP,
+                                           .map(address -> communicationsModule.requestComponentIdentification(NOOP,
                                                                                                                    address)
                                                                                    .getPacket()
                                                                                    .map(e -> e.resolve(p -> p,
@@ -212,7 +221,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         }
 
         try {
-            calIdsFound = vehicleInformationModule.requestDM19(NOOP);
+            calIdsFound = communicationsModule.requestDM19(NOOP);
             view.setCalIds((int) calIdsFound.stream().mapToLong(p -> p.getCalibrationInformation().size()).sum());
         } catch (Exception e) {
             getLogger().log(INFO, "Error reading calibration IDs", e);

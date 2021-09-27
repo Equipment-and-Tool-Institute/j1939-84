@@ -229,11 +229,11 @@ public class Part11Step07Controller extends StepController {
     }
 
     private Stream<DM20MonitorPerformanceRatioPacket> requestDM20(boolean logPackets, int address) {
-        return getDiagnosticMessageModule().requestDM20(getListener(logPackets), address).toPacketStream();
+        return getCommunicationsModule().requestDM20(getListener(logPackets), address).toPacketStream();
     }
 
     private Stream<DM28PermanentEmissionDTCPacket> requestDM28(boolean logPackets, int address) {
-        return getDiagnosticMessageModule().requestDM28(getListener(logPackets), address).toPacketStream();
+        return getCommunicationsModule().requestDM28(getListener(logPackets), address).toPacketStream();
     }
 
     private boolean denominatorsIncreased(DM20MonitorPerformanceRatioPacket currentPacket) {

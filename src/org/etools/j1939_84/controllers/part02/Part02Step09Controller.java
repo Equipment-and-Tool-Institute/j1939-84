@@ -62,7 +62,7 @@ public class Part02Step09Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.2.9.1 a. Global DM21 (send Request (PGN 59904) for PGN 49408 (SPNs 3069, 3294-3296)).
-        var globalPackets = getDiagnosticMessageModule().requestDM21(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM21(getListener()).getPackets();
 
         // 6.2.9.2 a. Fail if any ECU reports > 0 distance SCC (SPN 3294).
         globalPackets.stream()
@@ -134,7 +134,7 @@ public class Part02Step09Controller extends StepController {
         List<AcknowledgmentPacket> dsAcks = new ArrayList<>();
 
         obdModuleAddresses.forEach(address -> {
-            var result = getDiagnosticMessageModule().requestDM21(getListener(), address);
+            var result = getCommunicationsModule().requestDM21(getListener(), address);
             dsPackets.addAll(result.requestResult().getPackets());
             dsAcks.addAll(result.requestResult().getAcks());
         });

@@ -78,7 +78,7 @@ public class Part02Step15Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.2.15.1.a. Global DM33 (send Request (PGN 59904) for PGN 41216 (SPNs 4124-4126)).
-        var globalPackets = getDiagnosticMessageModule().requestDM33(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM33(getListener()).getPackets();
 
         // 6.2.15.1.b. Create list of reported EI-AECD timers by ECU.
         globalPackets.forEach(this::save);
@@ -107,8 +107,8 @@ public class Part02Step15Controller extends StepController {
         List<Integer> obdModuleAddresses = getDataRepository().getObdModuleAddresses();
         var dsResponses = obdModuleAddresses
                                             .stream()
-                                            .map(address -> getDiagnosticMessageModule().requestDM33(getListener(),
-                                                                                                     address))
+                                            .map(address -> getCommunicationsModule().requestDM33(getListener(),
+                                                                                                  address))
                                             .collect(Collectors.toList());
 
         // 6.2.15.5.a. Fail if any difference is detected when response data is compared to data received
