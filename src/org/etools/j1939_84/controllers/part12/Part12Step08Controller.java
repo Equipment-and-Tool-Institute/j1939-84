@@ -80,7 +80,7 @@ public class Part12Step08Controller extends StepController {
     }
 
     private List<DM30ScaledTestResultsPacket> requestTestResults(int address, int spn, int fmi) {
-        return getDiagnosticMessageModule().requestTestResults(getListener(), address, 250, spn, fmi);
+        return getCommunicationsModule().requestTestResults(getListener(), address, 250, spn, fmi);
     }
 
 }

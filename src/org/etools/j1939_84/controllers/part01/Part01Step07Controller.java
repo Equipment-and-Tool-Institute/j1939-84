@@ -18,8 +18,8 @@ import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.CommunicationsModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.StringUtils;
@@ -67,7 +67,7 @@ public class Part01Step07Controller extends StepController {
     protected void run() throws Throwable {
         // 6.1.7.1.a. Global DM19 (send Request (PGN 59904) for PGN 54016
         // 6.1.7.1.c. Display this list in the log.
-        var globalPackets = getVehicleInformationModule().requestDM19(getListener());
+        var globalPackets = getCommunicationsModule().requestDM19(getListener());
 
         // 6.1.7.1.a.b. Create list of ECU address + CAL ID + CVN
         globalPackets.forEach(this::save);
@@ -223,7 +223,7 @@ public class Part01Step07Controller extends StepController {
                                       globalPackets.stream().map(ParsedPacket::getSourceAddress))
                               .distinct()
                               .sorted()
-                              .map(a -> getVehicleInformationModule().requestDM19(getListener(), a))
+                              .map(a -> getCommunicationsModule().requestDM19(getListener(), a))
                               .collect(Collectors.toList());
 
         // 6.1.7.5.a Compare to ECU address + CAL ID + CVN list created from global DM19 request and fail if any

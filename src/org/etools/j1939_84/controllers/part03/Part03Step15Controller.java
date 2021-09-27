@@ -64,7 +64,7 @@ public class Part03Step15Controller extends StepController {
                            .getObdModuleAddresses()
                            .stream()
                            .sorted()
-                           .forEach(address -> getDiagnosticMessageModule().requestDM21(getListener(), address)
+                           .forEach(address -> getCommunicationsModule().requestDM21(getListener(), address)
                                                                            .getPacket()
                                                                            .ifPresentOrElse(packet -> {
                                                                                if (packet.left.isPresent()) {

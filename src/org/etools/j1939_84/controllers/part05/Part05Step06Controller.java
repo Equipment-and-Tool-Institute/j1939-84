@@ -63,7 +63,7 @@ public class Part05Step06Controller extends StepController {
                            .stream()
                            .filter(m -> m.get(DM20MonitorPerformanceRatioPacket.class, 1) != null)
                            .map(OBDModuleInformation::getSourceAddress)
-                           .map(a -> getDiagnosticMessageModule().requestDM20(getListener(), a))
+                           .map(a -> getCommunicationsModule().requestDM20(getListener(), a))
                            .flatMap(BusResult::toPacketStream)
                            .forEach(this::save);
     }

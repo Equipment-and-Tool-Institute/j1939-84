@@ -58,7 +58,7 @@ public class Part12Step06Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.12.6.1.a. Receive broadcast info ([PGN 65226 (SPNs 1213-1215, 1706, 3038)]).
-        var dm1s = getDiagnosticMessageModule().readDM1(getListener());
+        var dm1s = getCommunicationsModule().readDM1(getListener());
 
         // 6.12.6.2.a. Fail if any ECU does not report MIL off or not supported. See Section A.8 for allowed values.
         dm1s.stream()

@@ -55,7 +55,7 @@ public class Part11Step04Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.11.4.1.a. Global DM29 [(send Request (PGN 59904) for PGN 40448 (SPNs 4104-4108)]).
-        var packets = getDiagnosticMessageModule().requestDM29(getListener()).getPackets();
+        var packets = getCommunicationsModule().requestDM29(getListener()).getPackets();
 
         packets.forEach(this::save);
 

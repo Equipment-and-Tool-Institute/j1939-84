@@ -68,7 +68,7 @@ public class Part12Step03Controller extends StepController {
         // 6.12.3.1.a. DS DM5 [(send Request (PGN 59904) for PGN 65230 (SPNs 1221-1223)]) to each OBD ECU.
         var packets = getDataRepository().getObdModuleAddresses()
                                          .stream()
-                                         .map(a -> getDiagnosticMessageModule().requestDM5(getListener(), a))
+                                         .map(a -> getCommunicationsModule().requestDM5(getListener(), a))
                                          .map(BusResult::requestResult)
                                          .map(RequestResult::getPackets)
                                          .flatMap(Collection::stream)

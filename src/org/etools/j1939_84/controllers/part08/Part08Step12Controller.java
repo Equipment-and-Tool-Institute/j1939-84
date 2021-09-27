@@ -85,11 +85,11 @@ public class Part08Step12Controller extends StepController {
                                                      .collect(Collectors.toList());
 
         var dsResults = addresses.stream()
-                                 .map(a -> getDiagnosticMessageModule().requestDM22(getListener(),
-                                                                                    a,
-                                                                                    CLR_ACT_REQ,
-                                                                                    0x7FFFF,
-                                                                                    31))
+                                 .map(a -> getCommunicationsModule().requestDM22(getListener(),
+                                                                                 a,
+                                                                                 CLR_ACT_REQ,
+                                                                                 0x7FFFF,
+                                                                                 31))
                                  .collect(Collectors.toList());
 
         var packets = filterPackets(dsResults);
@@ -169,11 +169,11 @@ public class Part08Step12Controller extends StepController {
         dsResults = new ArrayList<>();
         for (int address : addresses) {
             for (DiagnosticTroubleCode dtc : getDTCs(address)) {
-                dsResults.add(getDiagnosticMessageModule().requestDM22(getListener(),
-                                                                       address,
-                                                                       CLR_PA_REQ,
-                                                                       dtc.getSuspectParameterNumber(),
-                                                                       dtc.getFailureModeIndicator()));
+                dsResults.add(getCommunicationsModule().requestDM22(getListener(),
+                                                                    address,
+                                                                    CLR_PA_REQ,
+                                                                    dtc.getSuspectParameterNumber(),
+                                                                    dtc.getFailureModeIndicator()));
             }
         }
 
@@ -236,7 +236,7 @@ public class Part08Step12Controller extends StepController {
 
         // 6.8.12.7.a. Global DM22 using DM12 MIL On DTC SPN and FMI with control byte = 1, Request to Clear/Reset
         // Previously Active DTC.
-        var globalResults = getDiagnosticMessageModule().requestDM22(getListener(), CLR_PA_REQ, 0x7FFFF, 31);
+        var globalResults = getCommunicationsModule().requestDM22(getListener(), CLR_PA_REQ, 0x7FFFF, 31);
         packets = globalResults.getPackets();
         acks = globalResults.getAcks();
 
@@ -284,7 +284,7 @@ public class Part08Step12Controller extends StepController {
 
         // 6.8.12.9.a. Global DM22 using DM12 MIL On DTC SPN and FMI with control byte = 17, Request to Clear/Reset
         // Active DTC.
-        globalResults = getDiagnosticMessageModule().requestDM22(getListener(), CLR_ACT_REQ, 0x7FFFF, 31);
+        globalResults = getCommunicationsModule().requestDM22(getListener(), CLR_ACT_REQ, 0x7FFFF, 31);
         packets = globalResults.getPackets();
         acks = globalResults.getAcks();
 

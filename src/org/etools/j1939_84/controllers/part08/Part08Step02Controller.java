@@ -78,7 +78,7 @@ public class Part08Step02Controller extends StepController {
             updateProgress("Step 6.8.2.1.a - Requesting DM12 Attempt " + attempts);
 
             getListener().onResult(NL + "Attempt " + attempts);
-            globalPackets = getDiagnosticMessageModule().requestDM12(getListener()).getPackets();
+            globalPackets = getCommunicationsModule().requestDM12(getListener()).getPackets();
 
             foundDTC.set(globalPackets.stream().anyMatch(p -> !p.getDtcs().isEmpty()));
 
@@ -127,7 +127,7 @@ public class Part08Step02Controller extends StepController {
         // 6.8.2.3.a. DS DM12 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM12(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM12(getListener(), a))
                                            .map(BusResult::requestResult)
                                            .collect(Collectors.toList());
 

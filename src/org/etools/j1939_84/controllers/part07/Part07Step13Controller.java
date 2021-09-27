@@ -63,7 +63,7 @@ public class Part07Step13Controller extends StepController {
         getDataRepository().getObdModuleAddresses()
                            .stream()
                            .filter(a -> getIgnCycles(a) != -1)
-                           .map(a -> getDiagnosticMessageModule().requestDM20(getListener(), a))
+                           .map(a -> getCommunicationsModule().requestDM20(getListener(), a))
                            .flatMap(BusResult::toPacketStream)
                            .peek(this::save)
                            .filter(p -> p.getIgnitionCycles() != getIgnCycles(p.getSourceAddress()) + 3)

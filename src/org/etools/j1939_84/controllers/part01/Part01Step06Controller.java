@@ -58,7 +58,7 @@ public class Part01Step06Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.1.6.1.a. Global DM56 (send Request (PGN 59904) for PGN 64711 (SPNs 5844 and 5845)).
-        List<DM56EngineFamilyPacket> packets = getDiagnosticMessageModule().requestDM56(getListener());
+        List<DM56EngineFamilyPacket> packets = getCommunicationsModule().requestDM56(getListener());
         if (packets.isEmpty()) {
             getListener().onResult("6.1.6.1.a - DM56 is not supported");
             return;

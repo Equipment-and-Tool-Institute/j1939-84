@@ -63,7 +63,7 @@ public class Part01Step16Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.1.16.1.a. Global DM2 (send Request (PGN 59904) for PGN 65227 (SPNs 1213-1215, 3038, 1706))
-        var globalPackets = getDiagnosticMessageModule().requestDM2(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM2(getListener()).getPackets();
 
         // 6.1.16.2.a Fail if any OBD ECU reports a previously active DTC.
         globalPackets.stream()
@@ -99,7 +99,7 @@ public class Part01Step16Controller extends StepController {
         // 6.1.16.3.a DS DM2 to each OBD ECU
         var dsResult = getDataRepository().getObdModuleAddresses()
                                           .stream()
-                                          .map(a -> getDiagnosticMessageModule().requestDM2(getListener(), a))
+                                          .map(a -> getCommunicationsModule().requestDM2(getListener(), a))
                                           .collect(Collectors.toList());
 
         // 6.1.16.4.a Fail if any responses differ from global responses

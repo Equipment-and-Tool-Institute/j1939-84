@@ -84,11 +84,11 @@ public class Part09Step06Controller extends StepController {
 
     private List<DM30ScaledTestResultsPacket> requestTestResults(OBDModuleInformation moduleInformation,
                                                                  int spn) {
-        return getDiagnosticMessageModule().requestTestResults(getListener(),
-                                                               moduleInformation.getSourceAddress(),
-                                                               247,
-                                                               spn,
-                                                               31);
+        return getCommunicationsModule().requestTestResults(getListener(),
+                                                            moduleInformation.getSourceAddress(),
+                                                            247,
+                                                            spn,
+                                                            31);
     }
 
 }

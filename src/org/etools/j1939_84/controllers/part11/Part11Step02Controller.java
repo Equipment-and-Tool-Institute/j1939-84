@@ -55,7 +55,7 @@ public class Part11Step02Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.11.2.1.a. Global DM26 ([send Request (PGN 59904) for PGN 64952 (SPN 3301)]).
-        var packets = getDiagnosticMessageModule().requestDM26(getListener()).getPackets();
+        var packets = getCommunicationsModule().requestDM26(getListener()).getPackets();
 
         // 6.11.2.1.a.i. Record time since engine start.
         packets.forEach(this::save);

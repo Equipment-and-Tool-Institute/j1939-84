@@ -61,7 +61,7 @@ public class Part01Step23Controller extends StepController {
     protected void run() throws Throwable {
         // 6.1.23.1.a. Global DM31 (send Request (PGN 59904) for PGN 41728 (SPNs 1214-1215, 4113, 4117)).
         // 6.1.23.2.a. Fail if any received ECU response does not report MIL off.
-        getDiagnosticMessageModule().requestDM31(getListener())
+        getCommunicationsModule().requestDM31(getListener())
                                     .getPackets()
                                     .stream()
                                     .filter(Part01Step23Controller::isMilNotOff)

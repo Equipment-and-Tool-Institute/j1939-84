@@ -19,8 +19,8 @@ import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.CommunicationsModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -35,7 +35,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 public abstract class Controller {
 
-    private static final List<Ending> INTERUPPTABLE_ENDINGS = List.of(Ending.STOPPED,
+    private static final List<Ending> INTERRUPTIBLE_ENDINGS = List.of(Ending.STOPPED,
                                                                       Ending.ABORTED,
                                                                       Ending.FAILED,
                                                                       Ending.COMPLETED);
@@ -96,7 +96,7 @@ public abstract class Controller {
      *                                  if the ending has been set
      */
     public static void checkEnding() throws InterruptedException {
-        if (getEnding() != null && INTERUPPTABLE_ENDINGS.contains(getEnding())) {
+        if (getEnding() != null && INTERRUPTIBLE_ENDINGS.contains(getEnding())) {
             throw new InterruptedException(getEnding().toString());
         }
     }
@@ -233,7 +233,7 @@ public abstract class Controller {
         this.j1939 = j1939;
         getVehicleInformationModule().setJ1939(this.j1939);
         getEngineSpeedModule().setJ1939(this.j1939);
-        getDiagnosticMessageModule().setJ1939(this.j1939);
+        getCommunicationsModule().setJ1939(this.j1939);
     }
 
     /**
@@ -307,7 +307,7 @@ public abstract class Controller {
         return vehicleInformationModule;
     }
 
-    protected CommunicationsModule getDiagnosticMessageModule() {
+    protected CommunicationsModule getCommunicationsModule() {
         return communicationsModule;
     }
 

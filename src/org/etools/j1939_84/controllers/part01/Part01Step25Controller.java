@@ -69,7 +69,7 @@ public class Part01Step25Controller extends StepController {
         // 6.1.25.1.a. DS DM20 (send Request (PGN 59904) for PGN 49664 to each OBD ECU.
         getDataRepository().getObdModules().forEach(module -> {
             // Request DM20 from the module
-            var dm20BusResult = getDiagnosticMessageModule().requestDM20(getListener(), module.getSourceAddress());
+            var dm20BusResult = getCommunicationsModule().requestDM20(getListener(), module.getSourceAddress());
 
             // 6.1.25.2.a. Fail if retry was required to obtain DM20 response.
             String moduleName = module.getModuleName();

@@ -56,7 +56,7 @@ public class Part12Step07Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.12.7.1.a. Global DM21 (send Request (PGN 59904) for PGN 49408 (SPNs 3294, 3296)].
-        var dm21s = getDiagnosticMessageModule().requestDM21(getListener()).getPackets();
+        var dm21s = getCommunicationsModule().requestDM21(getListener()).getPackets();
 
         dm21s.forEach(this::save);
 

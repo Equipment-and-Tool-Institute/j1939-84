@@ -65,7 +65,7 @@ public class Part06Step09Controller extends StepController {
         // to ECU(s) reporting DM12 MIL on DTC active.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM31(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM31(getListener(), a))
                                            .collect(Collectors.toList());
 
         List<DM31DtcToLampAssociation> packets = filterRequestResultPackets(dsResults);

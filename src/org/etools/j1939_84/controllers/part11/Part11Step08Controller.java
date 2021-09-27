@@ -90,14 +90,14 @@ public class Part11Step08Controller extends StepController {
                                                      .collect(Collectors.toList());
 
         var dsResults = addresses.stream()
-                                 .map(a -> getDiagnosticMessageModule().requestDM20(getListener(), a))
+                                 .map(a -> getCommunicationsModule().requestDM20(getListener(), a))
                                  .collect(Collectors.toList());
 
         // 6.11.8.1.b. If no response [(transport protocol RTS or NACK(Busy) in 220 ms]), then retry DS DM20 request to
         // the OBD ECU. ([Do not attempt retry for NACKs that indicate not supported]).
         List<Integer> missingAddresses = determineNoResponseAddresses(dsResults, addresses);
         missingAddresses.stream()
-                        .map(address -> getDiagnosticMessageModule().requestDM20(getListener(), address))
+                        .map(address -> getCommunicationsModule().requestDM20(getListener(), address))
                         .forEach(dsResults::add);
 
         // 6.11.8.2.a. Fail if retry was required to obtain DM20 response.

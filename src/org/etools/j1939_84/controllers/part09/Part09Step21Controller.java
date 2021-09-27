@@ -56,7 +56,7 @@ public class Part09Step21Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.9.21.1.a. Global DM5 [(send Request (PGN 59904) for PGN 65230 (SPNs 1218-1219)]).
-        getDiagnosticMessageModule().requestDM5(getListener())
+        getCommunicationsModule().requestDM5(getListener())
                                     .getPackets()
                                     .stream()
                                     .peek(this::save)

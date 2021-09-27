@@ -17,8 +17,8 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.CommunicationsModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -70,7 +70,7 @@ public class Part02Step05Controller extends StepController {
         getDataRepository().getObdModuleAddresses()
                            .stream()
                            .filter(a -> !getCalibrationInfo(a).isEmpty())
-                           .map(a -> getVehicleInformationModule().requestDM19(getListener(), a))
+                           .map(a -> getCommunicationsModule().requestDM19(getListener(), a))
                            .map(BusResult::requestResult)
                            .map(RequestResult::getPackets)
                            .flatMap(Collection::stream)

@@ -60,7 +60,7 @@ public class Part01Step20Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.1.20.1.a. Global DM28 for PGN 64896
-        var globalPackets = getDiagnosticMessageModule().requestDM28(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM28(getListener()).getPackets();
 
         // 6.1.20.2.a. Fail if any ECU reports permanent DTCs.
         globalPackets.stream()
@@ -87,7 +87,7 @@ public class Part01Step20Controller extends StepController {
         // 6.1.20.3.a. DS DM28 to all OBD ECUs.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM28(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM28(getListener(), a))
                                            .collect(Collectors.toList());
 
         // 6.1.20.4.a. Fail if any difference compared to data received during global request.

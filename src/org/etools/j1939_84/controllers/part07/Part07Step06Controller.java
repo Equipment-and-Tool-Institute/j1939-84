@@ -59,7 +59,7 @@ public class Part07Step06Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.7.6.1.a Global DM5 [(send Request (PGN 59904) for PGN 65230 (SPNs 1218-1219)]).
-        var obdPackets = getDiagnosticMessageModule().requestDM5(getListener())
+        var obdPackets = getCommunicationsModule().requestDM5(getListener())
                                                      .getPackets()
                                                      .stream()
                                                      .filter(p -> isObdModule(p.getSourceAddress()))

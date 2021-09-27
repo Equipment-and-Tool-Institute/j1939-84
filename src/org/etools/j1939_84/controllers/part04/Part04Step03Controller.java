@@ -64,7 +64,7 @@ public class Part04Step03Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.4.3.1.a Receive broadcast data ([PGN 65226 (SPNs 1213-1215, 3038, 1706)]).
-        List<DM1ActiveDTCsPacket> packets = getDiagnosticMessageModule().readDM1(getListener());
+        List<DM1ActiveDTCsPacket> packets = getCommunicationsModule().readDM1(getListener());
 
         // 6.4.3.2.a Fail if no ECU reports an active DTC and MIL on.
         boolean noReports = packets.stream()

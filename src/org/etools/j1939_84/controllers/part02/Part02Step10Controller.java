@@ -14,8 +14,8 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.CommunicationsModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -60,8 +60,6 @@ public class Part02Step10Controller extends StepController {
     @Override
     protected void run() throws Throwable {
 
-        // getDiagnosticMessageModule().setJ1939(getJ1939());
-
         for (OBDModuleInformation obdModule : getDataRepository().getObdModules()) {
 
             int sourceAddress = obdModule.getSourceAddress();
@@ -71,11 +69,11 @@ public class Part02Step10Controller extends StepController {
             // response.
             List<ScaledTestResult> newTestResults = obdModule.getTestResultSPNs()
                                                              .stream()
-                                                             .flatMap(spn -> getDiagnosticMessageModule().requestTestResults(getListener(),
-                                                                                                                             sourceAddress,
-                                                                                                                             247,
-                                                                                                                             spn.getSpn(),
-                                                                                                                             31)
+                                                             .flatMap(spn -> getCommunicationsModule().requestTestResults(getListener(),
+                                                                                                                          sourceAddress,
+                                                                                                                          247,
+                                                                                                                          spn.getSpn(),
+                                                                                                                          31)
                                                                                                          .stream())
                                                              .flatMap(p -> p.getTestResults().stream())
                                                              .collect(Collectors.toList());

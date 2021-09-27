@@ -75,7 +75,7 @@ public class Part02Step08Controller extends StepController {
             int address = obdModuleInformation.getSourceAddress();
             String moduleName = Lookup.getAddressName(address);
 
-            var result = getDiagnosticMessageModule().requestDM26(getListener(), address);
+            var result = getCommunicationsModule().requestDM26(getListener(), address);
 
             var resultPackets = result.getPackets();
             if (resultPackets != null) {
@@ -125,7 +125,7 @@ public class Part02Step08Controller extends StepController {
         reportDuplicateCompositeSystems(dsPackets, "6.2.8.3.a");
 
         // 6.2.8.4.a Global DM26.
-        var globalPackets = getDiagnosticMessageModule().requestDM26(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM26(getListener()).getPackets();
 
         // 6.2.8.4.b Record time since engine start (SPN 3301) from each ECU and timestamp of when message was received.
         // This is accomplished by keeping around the packets received.

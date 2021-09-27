@@ -63,11 +63,11 @@ public class Part12Step10Controller extends StepController {
                              .map(SpnFmi::of)
                              .distinct()
                              .forEach(k -> {
-                                 getDiagnosticMessageModule().requestTestResults(getListener(),
-                                                                                 moduleInformation.getSourceAddress(),
-                                                                                 250,
-                                                                                 k.spn,
-                                                                                 k.fmi);
+                                 getCommunicationsModule().requestTestResults(getListener(),
+                                                                              moduleInformation.getSourceAddress(),
+                                                                              250,
+                                                                              k.spn,
+                                                                              k.fmi);
                              });
         }
 

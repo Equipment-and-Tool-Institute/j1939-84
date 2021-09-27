@@ -61,7 +61,7 @@ public class Part09Step23Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.9.23.1.a. Receive DM1 broadcast [(PGN 65226 (SPNs 1213-1215, 1706, and 3038)]).
-        List<DM1ActiveDTCsPacket> packets = getDiagnosticMessageModule().readDM1(getListener())
+        List<DM1ActiveDTCsPacket> packets = getCommunicationsModule().readDM1(getListener())
                                                                         .stream()
                                                                         .peek(this::save)
                                                                         .peek(p -> {

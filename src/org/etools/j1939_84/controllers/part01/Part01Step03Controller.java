@@ -62,7 +62,7 @@ public class Part01Step03Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.1.3.1.a. Global5 DM5 (send Request (PGN 59904) for PGN 65230 (SPN 1220)).
-        RequestResult<DM5DiagnosticReadinessPacket> response = getDiagnosticMessageModule().requestDM5(getListener());
+        RequestResult<DM5DiagnosticReadinessPacket> response = getCommunicationsModule().requestDM5(getListener());
 
         // 6.1.3.1.b. Fail if any ECU responds with a NACK (for PGN 65230).
         boolean nacked = response.getAcks().stream().anyMatch(packet -> packet.getResponse() == Response.NACK);

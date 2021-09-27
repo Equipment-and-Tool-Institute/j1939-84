@@ -60,7 +60,7 @@ public class Part01Step19Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.1.19.1.a. Global DM23 for PGN 65236
-        var globalPackets = getDiagnosticMessageModule().requestDM23(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM23(getListener()).getPackets();
 
         // 6.1.19.2.a. Fail if any ECU reports previously active DTCs.
         globalPackets.stream()
@@ -87,7 +87,7 @@ public class Part01Step19Controller extends StepController {
         // 6.1.19.3.a. DS DM23 to all OBD ECUs.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM23(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM23(getListener(), a))
                                            .collect(Collectors.toList());
 
         // 6.1.19.4.a. Fail if any difference compared to data received during global request.

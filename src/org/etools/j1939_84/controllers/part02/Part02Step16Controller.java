@@ -66,7 +66,7 @@ public class Part02Step16Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.2.16.1.a. Global DM34 (send Request (PGN 59904) for PGN 40960 (SPNs 4127-4132)).
-        var globalPackets = getDiagnosticMessageModule().requestDM34(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM34(getListener()).getPackets();
 
         // 6.2.16.2.a. Fail if no ECU responds, unless the user selected SI technology.
         if (globalPackets.isEmpty() && !getFuelType().isSparkIgnition()) {
@@ -172,7 +172,7 @@ public class Part02Step16Controller extends StepController {
         // 6.2.16.3.a. DS DM34 to each OBD ECU which responded to the DM34 global request in step 1.
         var dsResponses = obdAddresses
                                       .stream()
-                                      .map(a -> getDiagnosticMessageModule().requestDM34(getListener(), a))
+                                      .map(a -> getCommunicationsModule().requestDM34(getListener(), a))
                                       .collect(Collectors.toList());
 
         // 6.2.16.4.a. Fail if any difference compared to data received from global request.

@@ -65,7 +65,7 @@ public class Part07Step16Controller extends StepController {
         verifier.setJ1939(getJ1939());
 
         // 6.7.16.1.a. Global DM3 [(send Request (PGN 59904) for PGN 65228]).
-        getDiagnosticMessageModule().requestDM3(getListener());
+        getCommunicationsModule().requestDM3(getListener());
 
         // 6.7.16.1.b. Wait 5 seconds before checking for erased information.
         pause("Step 6.7.16.1.b - Waiting %1$d seconds before checking for erased information", 5L);
@@ -76,7 +76,7 @@ public class Part07Step16Controller extends StepController {
         // 6.7.16.3.a. DS DM3 to each OBD ECU.
         var dsPackets = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM3(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM3(getListener(), a))
                                            .flatMap(Collection::stream)
                                            .collect(Collectors.toList());
 

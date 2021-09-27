@@ -64,7 +64,7 @@ public class Part07Step02Controller extends StepController {
         // ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM23(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM23(getListener(), a))
                                            .collect(Collectors.toList());
 
         var packets = filterPackets(dsResults);

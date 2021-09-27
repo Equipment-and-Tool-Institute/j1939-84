@@ -62,7 +62,7 @@ public class Part01Step18Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.1.18.1.a. Global DM12 for PGN 65236
-        var globalPackets = getDiagnosticMessageModule().requestDM12(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM12(getListener()).getPackets();
 
         // 6.1.18.2.a. Fail if any ECU reports active DTCs.
         globalPackets.stream()
@@ -89,7 +89,7 @@ public class Part01Step18Controller extends StepController {
         // 6.1.18.3.a. DS DM12 to all OBD ECUs.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM12(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM12(getListener(), a))
                                            .collect(Collectors.toList());
 
         // 6.1.18.4.a. Fail if any difference compared to data received during global request.

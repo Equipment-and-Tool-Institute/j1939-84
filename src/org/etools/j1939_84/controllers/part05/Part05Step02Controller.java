@@ -60,7 +60,7 @@ public class Part05Step02Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.5.2.1.a Global DM12 [(send Request (PGN 59904) for PGN 65236 (SPNs 1213-1215, 1706, and 3038)]).
-        var globalPackets = getDiagnosticMessageModule().requestDM12(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM12(getListener()).getPackets();
 
         globalPackets.forEach(this::save);
 

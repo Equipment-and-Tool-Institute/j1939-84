@@ -60,7 +60,7 @@ public class Part08Step07Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.8.7.1.a. Global DM28 [(send Request (PGN 59904) for PGN 64896 (SPNs 1213-1215, 1706, and 3038)]).
-        var globalPackets = getDiagnosticMessageModule().requestDM28(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM28(getListener()).getPackets();
 
         globalPackets.forEach(this::save);
 
@@ -105,7 +105,7 @@ public class Part08Step07Controller extends StepController {
         // 6.8.7.4.a. DS DM28 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM28(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM28(getListener(), a))
                                            .collect(Collectors.toList());
 
         // 6.8.7.5.a. Fail if any difference in data compared to global response.

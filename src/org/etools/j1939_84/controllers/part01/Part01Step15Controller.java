@@ -64,7 +64,7 @@ public class Part01Step15Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.1.15.1.a. Gather broadcast DM1 data from all ECUs (PG 65226)
-        List<DM1ActiveDTCsPacket> packets = getDiagnosticMessageModule().readDM1(getListener());
+        List<DM1ActiveDTCsPacket> packets = getCommunicationsModule().readDM1(getListener());
 
         // 6.1.15.2.a. Fail if any OBD ECU reports an active DTC.
         packets.stream()

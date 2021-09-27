@@ -62,7 +62,7 @@ public class Part03Step09Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.3.9.1.a Global DM12 (send Request (PGN 59904) for PGN 65236 (SPNs 1213-1215, 1706, and 3038)).
-        var globalPackets = getDiagnosticMessageModule().requestDM12(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM12(getListener()).getPackets();
 
         // 6.3.9.2.a Fail if any ECU reports an active DTC.
         globalPackets.stream()
@@ -99,8 +99,8 @@ public class Part03Step09Controller extends StepController {
         // 6.3.9.3.a DS DM12 to each OBD ECU.
         var dsResults = obdModuleAddresses
                                           .stream()
-                                          .map(address -> getDiagnosticMessageModule().requestDM12(getListener(),
-                                                                                                   address))
+                                          .map(address -> getCommunicationsModule().requestDM12(getListener(),
+                                                                                                address))
                                           .collect(Collectors.toList());
 
         // 6.3.9.4.a Fail if any difference compared to data received from global request.

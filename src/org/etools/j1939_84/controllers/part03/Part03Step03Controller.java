@@ -60,7 +60,7 @@ public class Part03Step03Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.3.3.1.a Global DM27 (send Request (PGN 59904) for PGN 64898 (SPNs 1213-1215, 3038, 1706)).
-        var globalPackets = getDiagnosticMessageModule().requestDM27(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM27(getListener()).getPackets();
 
         // 6.3.3.2.a Fail if (if supported) no ECU reports the same DTC observed in step 6.3.2.1 in a positive DM27
         // response.
@@ -92,7 +92,7 @@ public class Part03Step03Controller extends StepController {
         // 6.3.3.4.a DS DM27 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM27(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM27(getListener(), a))
                                            .map(BusResult::requestResult)
                                            .collect(Collectors.toList());
 

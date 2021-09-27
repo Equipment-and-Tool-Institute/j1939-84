@@ -67,7 +67,7 @@ public class Part02Step14Controller extends StepController {
                            .stream()
                            .filter(module -> !module.getFreezeFrameSPNs().isEmpty())
                            .map(OBDModuleInformation::getSourceAddress)
-                           .flatMap(address -> getDiagnosticMessageModule().requestDM25(getListener(), address)
+                           .flatMap(address -> getCommunicationsModule().requestDM25(getListener(), address)
                                                                            .getPacket()
                                                                            .stream())
                            .flatMap(e -> e.left.stream())

@@ -69,7 +69,7 @@ public class Part07Step17Controller extends StepController {
 
                 // 6.7.17.2.a. Fail if any non-initialized tests reports now report initialized values.
                 // Use this to help verify no diagnostic information was cleared with DM3 request.
-                getDiagnosticMessageModule().requestTestResults(getListener(), moduleAddress, 250, spn, fmi)
+                getCommunicationsModule().requestTestResults(getListener(), moduleAddress, 250, spn, fmi)
                                             .stream()
                                             .map(DM30ScaledTestResultsPacket::getTestResults)
                                             .flatMap(Collection::stream)

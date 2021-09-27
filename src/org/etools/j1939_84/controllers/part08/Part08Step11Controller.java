@@ -76,7 +76,7 @@ public class Part08Step11Controller extends StepController {
     }
 
     private List<DM30ScaledTestResultsPacket> requestTest(int address, int spn) {
-        return getDiagnosticMessageModule().requestTestResults(getListener(), address, 247, spn, 31);
+        return getCommunicationsModule().requestTestResults(getListener(), address, 247, spn, 31);
     }
 
 }

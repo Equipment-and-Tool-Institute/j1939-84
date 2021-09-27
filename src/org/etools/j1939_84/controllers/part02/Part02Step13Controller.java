@@ -62,7 +62,7 @@ public class Part02Step13Controller extends StepController {
         // 6.2.13.1.a. DS DM31 (send Request (PGN 59904) for PGN 41728 (SPNs 1214-1215, 4113, 4117)) to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM31(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM31(getListener(), a))
                                            .collect(Collectors.toList());
 
         List<DM31DtcToLampAssociation> dsPackets = filterRequestResultPackets(dsResults);

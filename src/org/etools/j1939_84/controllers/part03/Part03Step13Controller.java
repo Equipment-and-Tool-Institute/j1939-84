@@ -83,8 +83,8 @@ public class Part03Step13Controller extends StepController {
         // 6.3.13.1.a. DS DM25 (send Request (PGN 59904) for PGN 64951 (SPNs 3300, 1214-1215)) to each OBD ECU.
         var responses = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(address -> getDiagnosticMessageModule().requestDM25(getListener(),
-                                                                                                    address))
+                                           .map(address -> getCommunicationsModule().requestDM25(getListener(),
+                                                                                                 address))
                                            .map(BusResult::requestResult)
                                            .collect(Collectors.toList());
 
@@ -107,7 +107,7 @@ public class Part03Step13Controller extends StepController {
         missingAddresses.removeAll(nackAddresses);
 
         missingAddresses.stream()
-                        .map(address -> getDiagnosticMessageModule().requestDM25(getListener(), address))
+                        .map(address -> getCommunicationsModule().requestDM25(getListener(), address))
                         .map(BusResult::requestResult)
                         .forEach(responses::add);
 
