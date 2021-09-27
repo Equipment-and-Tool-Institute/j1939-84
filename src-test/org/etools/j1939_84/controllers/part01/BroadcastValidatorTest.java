@@ -28,10 +28,10 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
-import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
-import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
-import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
-import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
+import net.solidDesign.j1939.packets.GenericPacket;
+import net.solidDesign.j1939.packets.SupportedSPN;
+import net.solidDesign.j1939.packets.model.PgnDefinition;
+import net.solidDesign.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.controllers.BroadcastValidator;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;

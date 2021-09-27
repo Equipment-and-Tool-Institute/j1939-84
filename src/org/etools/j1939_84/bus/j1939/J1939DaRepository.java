@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.etools.j1939_84.bus.j1939.packets.Slot;
-import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
-import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
+import net.solidDesign.j1939.packets.Slot;
+import net.solidDesign.j1939.packets.model.PgnDefinition;
+import net.solidDesign.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.resources.Resources;
 
 import com.opencsv.CSVReader;

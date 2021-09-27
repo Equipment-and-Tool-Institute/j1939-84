@@ -3,10 +3,10 @@
  */
 package org.etools.j1939_84.controllers.part09;
 
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ALTERNATE_OFF;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.NOT_SUPPORTED;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
+import static net.solidDesign.j1939.packets.LampStatus.ALTERNATE_OFF;
+import static net.solidDesign.j1939.packets.LampStatus.NOT_SUPPORTED;
+import static net.solidDesign.j1939.packets.LampStatus.OFF;
+import static net.solidDesign.j1939.packets.LampStatus.ON;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -17,9 +17,6 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
@@ -27,7 +24,6 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -39,6 +35,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import net.solidDesign.j1939.J1939;
+import net.solidDesign.j1939.modules.CommunicationsModule;
+import net.solidDesign.j1939.packets.DM1ActiveDTCsPacket;
+import net.solidDesign.j1939.packets.DiagnosticTroubleCode;
 
 @RunWith(MockitoJUnitRunner.class)
 public class Part09Step23ControllerTest extends AbstractControllerTest {

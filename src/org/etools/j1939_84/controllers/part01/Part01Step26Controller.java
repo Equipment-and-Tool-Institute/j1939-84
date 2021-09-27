@@ -16,10 +16,10 @@ import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
-import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
-import org.etools.j1939_84.bus.j1939.packets.model.Spn;
-import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
+import net.solidDesign.j1939.packets.GenericPacket;
+import net.solidDesign.j1939.packets.SupportedSPN;
+import net.solidDesign.j1939.packets.model.Spn;
+import net.solidDesign.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.controllers.BroadcastValidator;
 import org.etools.j1939_84.controllers.BusService;
 import org.etools.j1939_84.controllers.Controller;
@@ -29,7 +29,7 @@ import org.etools.j1939_84.controllers.TableA1Validator;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.CommunicationsModule;
+import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 

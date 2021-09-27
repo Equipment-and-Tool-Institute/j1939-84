@@ -25,11 +25,11 @@ import java.util.concurrent.Executors;
 
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket;
-import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
+import net.solidDesign.j1939.J1939;
+import net.solidDesign.j1939.packets.AcknowledgmentPacket;
+import net.solidDesign.j1939.packets.EngineSpeedPacket;
+import net.solidDesign.j1939.packets.GenericPacket;
+import net.solidDesign.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.utils.CollectionUtils;
 import org.etools.testdoc.TestDoc;
 import org.etools.testdoc.TestItem;

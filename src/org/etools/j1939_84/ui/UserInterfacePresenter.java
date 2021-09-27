@@ -25,7 +25,7 @@ import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.RP1210;
 import org.etools.j1939_84.bus.RP1210Bus;
-import org.etools.j1939_84.bus.j1939.J1939;
+import net.solidDesign.j1939.J1939;
 import org.etools.j1939_84.controllers.OverallController;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;

@@ -6,7 +6,7 @@ package org.etools.j1939_84.model;
 
 import java.util.Objects;
 
-import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
+import net.solidDesign.j1939.packets.ScaledTestResult;
 
 public class SpnFmi {
     public final int spn;

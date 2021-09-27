@@ -46,7 +46,7 @@ import javax.swing.text.DefaultCaret;
 import org.etools.j1939_84.BuildNumber;
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.Adapter;
-import org.etools.j1939_84.bus.j1939.J1939;
+import net.solidDesign.j1939.J1939;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.resources.Resources;

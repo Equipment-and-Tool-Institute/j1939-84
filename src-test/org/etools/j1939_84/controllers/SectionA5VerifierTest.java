@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import org.etools.j1939_84.bus.j1939.J1939;
+import net.solidDesign.j1939.J1939;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;

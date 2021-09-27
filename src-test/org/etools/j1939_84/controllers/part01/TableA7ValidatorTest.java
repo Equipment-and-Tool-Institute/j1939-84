@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
+import net.solidDesign.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.junit.After;
