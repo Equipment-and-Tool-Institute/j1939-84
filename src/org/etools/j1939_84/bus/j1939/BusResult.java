@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.Either;
-import net.solidDesign.j1939.packets.AcknowledgmentPacket;
-import net.solidDesign.j1939.packets.ParsedPacket;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.model.RequestResult;
 
 /**

@@ -19,10 +19,10 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
-import net.solidDesign.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
-import net.solidDesign.j1939.packets.AcknowledgmentPacket;
-import net.solidDesign.j1939.packets.GenericPacket;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.controllers.BusService;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;

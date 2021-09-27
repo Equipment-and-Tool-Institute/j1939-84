@@ -3,9 +3,9 @@
  */
 package org.etools.j1939_84.modules;
 
-import net.solidDesign.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.Lookup;
-import net.solidDesign.j1939.packets.GenericPacket;
+import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.model.RequestResult;
 
 import net.solidDesign.j1939.CommunicationsListener;

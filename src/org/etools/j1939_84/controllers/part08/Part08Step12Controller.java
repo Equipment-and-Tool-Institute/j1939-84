@@ -3,14 +3,14 @@
  */
 package org.etools.j1939_84.controllers.part08;
 
-import static net.solidDesign.j1939.packets.AcknowledgmentPacket.Response.ACK;
-import static net.solidDesign.j1939.packets.AcknowledgmentPacket.Response.NACK;
-import static net.solidDesign.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_ACK;
-import static net.solidDesign.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_NACK;
-import static net.solidDesign.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_REQ;
-import static net.solidDesign.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_ACK;
-import static net.solidDesign.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_NACK;
-import static net.solidDesign.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_REQ;
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.ACK;
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.bus.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_ACK;
+import static org.etools.j1939_84.bus.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_NACK;
+import static org.etools.j1939_84.bus.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_REQ;
+import static org.etools.j1939_84.bus.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_ACK;
+import static org.etools.j1939_84.bus.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_NACK;
+import static org.etools.j1939_84.bus.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_REQ;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,15 +19,15 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.Lookup;
-import net.solidDesign.j1939.packets.DM12MILOnEmissionDTCPacket;
-import net.solidDesign.j1939.packets.DiagnosticTroubleCode;
-import net.solidDesign.j1939.packets.ParsedPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.SectionA5Verifier;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 

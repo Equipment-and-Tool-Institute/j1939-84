@@ -11,9 +11,9 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.util.List;
 
-import net.solidDesign.j1939.packets.DiagnosticTroubleCode;
-import net.solidDesign.j1939.packets.FreezeFrame;
-import net.solidDesign.j1939.packets.model.Spn;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939_84.bus.j1939.packets.FreezeFrame;
+import org.etools.j1939_84.bus.j1939.packets.model.Spn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

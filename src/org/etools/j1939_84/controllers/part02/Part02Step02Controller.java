@@ -4,7 +4,7 @@
 package org.etools.j1939_84.controllers.part02;
 
 import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
-import static net.solidDesign.j1939.modules.CommunicationsModule.getCompositeSystems;
+import static org.etools.j1939_84.modules.CommunicationsModule.getCompositeSystems;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,17 +13,17 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.BusResult;
-import net.solidDesign.j1939.packets.CompositeMonitoredSystem;
-import net.solidDesign.j1939.packets.DM5DiagnosticReadinessPacket;
-import net.solidDesign.j1939.packets.MonitoredSystem;
-import net.solidDesign.j1939.packets.ParsedPacket;
+import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
+import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.part01.SectionA6Validator;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 

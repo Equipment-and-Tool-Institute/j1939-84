@@ -10,8 +10,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 
-import net.solidDesign.j1939.packets.AcknowledgmentPacket;
-import net.solidDesign.j1939.packets.ParsedPacket;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

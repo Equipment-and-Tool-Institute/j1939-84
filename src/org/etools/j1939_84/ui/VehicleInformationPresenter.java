@@ -4,8 +4,8 @@
 package org.etools.j1939_84.ui;
 
 import static java.util.logging.Level.INFO;
-import static net.solidDesign.j1939.packets.ComponentIdentificationPacket.create;
 import static org.etools.j1939_84.J1939_84.getLogger;
+import static org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket.create;
 import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 
 import java.lang.reflect.Proxy;
@@ -16,19 +16,18 @@ import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
 
+import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
+import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.VinDecoder;
-
-import net.solidDesign.j1939.J1939;
-import net.solidDesign.j1939.modules.CommunicationsModule;
-import net.solidDesign.j1939.packets.AddressClaimPacket;
-import net.solidDesign.j1939.packets.ComponentIdentificationPacket;
-import net.solidDesign.j1939.packets.DM19CalibrationInformationPacket;
 
 /**
  * The Presenter which controls the logic in the
@@ -203,19 +202,19 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
             emissionUnitsFound = obdModules
                                            .stream()
                                            .map(address -> communicationsModule.requestComponentIdentification(NOOP,
-                                                                                                               address)
-                                                                               .getPacket()
-                                                                               .map(e -> e.resolve(p -> p,
-                                                                                                   ack -> create(address,
-                                                                                                                 "ERROR",
-                                                                                                                 "ERROR",
-                                                                                                                 "ERROR",
-                                                                                                                 "ERROR")))
-                                                                               .orElse(create(address,
-                                                                                              "MISSING",
-                                                                                              "MISSING",
-                                                                                              "MISSING",
-                                                                                              "MISSING")))
+                                                                                                                   address)
+                                                                                   .getPacket()
+                                                                                   .map(e -> e.resolve(p -> p,
+                                                                                                       ack -> create(address,
+                                                                                                                     "ERROR",
+                                                                                                                     "ERROR",
+                                                                                                                     "ERROR",
+                                                                                                                     "ERROR")))
+                                                                                   .orElse(create(address,
+                                                                                                  "MISSING",
+                                                                                                  "MISSING",
+                                                                                                  "MISSING",
+                                                                                                  "MISSING")))
                                            .collect(Collectors.toList());
         } catch (Exception e) {
             getLogger().log(INFO, "Error reading OBD ECUs", e);

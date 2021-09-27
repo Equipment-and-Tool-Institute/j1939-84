@@ -31,7 +31,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.text.AbstractDocument;
 
 import org.etools.j1939_84.J1939_84;
-import net.solidDesign.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.ui.widgets.LengthLimitedDocument;

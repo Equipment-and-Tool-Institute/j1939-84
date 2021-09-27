@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import net.solidDesign.j1939.packets.ScaledTestResult;
+import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.model.ExpectedTestResult;
 import org.junit.Before;
 import org.junit.Test;

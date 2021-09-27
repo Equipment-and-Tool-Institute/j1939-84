@@ -12,11 +12,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import net.solidDesign.j1939.J1939;
 import org.etools.j1939_84.bus.Packet;
-import net.solidDesign.j1939.packets.GenericPacket;
-import net.solidDesign.j1939.packets.Slot;
-import net.solidDesign.j1939.packets.model.PgnDefinition;
+import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
+import org.etools.j1939_84.bus.j1939.packets.Slot;
+import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 import org.junit.Test;
 
 public class J1939DaRepositoryTest {

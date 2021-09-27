@@ -26,7 +26,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executor;
 
-import net.solidDesign.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.PartResultRepository;
 import org.etools.j1939_84.controllers.QuestionListener;
@@ -36,7 +36,7 @@ import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
+import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;

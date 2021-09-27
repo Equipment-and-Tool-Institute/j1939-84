@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import net.solidDesign.j1939.packets.AddressClaimPacket;
-import net.solidDesign.j1939.packets.ComponentIdentificationPacket;
-import net.solidDesign.j1939.packets.DM19CalibrationInformationPacket;
+import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
+import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
