@@ -6,8 +6,9 @@ package org.etools.j1939_84.modules;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
-import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
+
+import net.solidDesign.j1939.CommunicationsListener;
 
 /**
  * Super class for all Functional Modules
@@ -41,7 +42,7 @@ public abstract class FunctionalModule {
     protected <T extends GenericPacket> RequestResult<T> requestDMPackets(String dmName,
                                                                           Class<T> clazz,
                                                                           int address,
-                                                                          ResultsListener listener) {
+                                                                          CommunicationsListener listener) {
         if (address == J1939.GLOBAL_ADDR) {
             String title = "Global " + dmName + " Request";
             return getJ1939().requestGlobal(title, clazz, listener);
