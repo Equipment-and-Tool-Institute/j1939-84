@@ -24,7 +24,7 @@ import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.MultiQueue;
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939;
+import net.solidDesign.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.J1939TP;
 import org.etools.j1939_84.controllers.DataRepository;

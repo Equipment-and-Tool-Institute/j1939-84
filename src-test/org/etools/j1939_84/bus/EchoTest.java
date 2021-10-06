@@ -8,9 +8,9 @@ import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
-import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
+import net.solidDesign.j1939.J1939;
+import net.solidDesign.j1939.packets.ParsedPacket;
+import net.solidDesign.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.bus.simulated.Sim;
 import org.junit.Test;
 

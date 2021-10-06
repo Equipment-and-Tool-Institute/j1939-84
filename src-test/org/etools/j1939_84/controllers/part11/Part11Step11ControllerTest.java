@@ -3,8 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part11;
 
+import static net.solidDesign.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -19,9 +19,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
@@ -30,7 +27,6 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -42,6 +38,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import net.solidDesign.j1939.J1939;
+import net.solidDesign.j1939.modules.CommunicationsModule;
+import net.solidDesign.j1939.packets.AcknowledgmentPacket;
+import net.solidDesign.j1939.packets.DM26TripDiagnosticReadinessPacket;
 
 @RunWith(MockitoJUnitRunner.class)
 public class Part11Step11ControllerTest extends AbstractControllerTest {

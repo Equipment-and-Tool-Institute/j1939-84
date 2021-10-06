@@ -14,9 +14,6 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
-import org.etools.j1939_84.bus.j1939.packets.EngineHoursTimer;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
@@ -27,7 +24,6 @@ import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -39,6 +35,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import net.solidDesign.j1939.J1939;
+import net.solidDesign.j1939.modules.CommunicationsModule;
+import net.solidDesign.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
+import net.solidDesign.j1939.packets.EngineHoursTimer;
 
 @RunWith(MockitoJUnitRunner.class)
 public class Part09Step07ControllerTest extends AbstractControllerTest {

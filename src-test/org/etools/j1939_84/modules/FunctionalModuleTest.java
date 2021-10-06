@@ -6,7 +6,7 @@ package org.etools.j1939_84.modules;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
-import org.etools.j1939_84.bus.j1939.J1939;
+import net.solidDesign.j1939.J1939;
 import org.junit.Before;
 import org.junit.Test;
 

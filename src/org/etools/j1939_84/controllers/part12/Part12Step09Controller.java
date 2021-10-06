@@ -3,8 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part12;
 
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.ACK;
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static net.solidDesign.j1939.packets.AcknowledgmentPacket.Response.ACK;
+import static net.solidDesign.j1939.packets.AcknowledgmentPacket.Response.NACK;
 
 import java.util.Collection;
 import java.util.List;
@@ -12,13 +12,13 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
+import net.solidDesign.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.SectionA5Verifier;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.CommunicationsModule;
+import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
