@@ -3,8 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static net.solidDesign.j1939.packets.AcknowledgmentPacket.Response.NACK;
-import static net.solidDesign.j1939.modules.CommunicationsModule.getCompositeSystems;
+import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static net.soliddesign.j1939tools.modules.CommunicationsModule.getCompositeSystems;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -14,18 +14,21 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
-import net.solidDesign.j1939.packets.CompositeMonitoredSystem;
-import net.solidDesign.j1939.packets.CompositeSystem;
-import net.solidDesign.j1939.packets.DM26TripDiagnosticReadinessPacket;
-import net.solidDesign.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+
+import net.soliddesign.j1939tools.j1939.Lookup;
+import net.soliddesign.j1939tools.j1939.packets.CompositeMonitoredSystem;
+import net.soliddesign.j1939tools.j1939.packets.CompositeSystem;
+import net.soliddesign.j1939tools.j1939.packets.DM26TripDiagnosticReadinessPacket;
+import net.soliddesign.j1939tools.j1939.packets.MonitoredSystem;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
+
+;
 
 /**
  * 6.2.8 DM26: Diagnostic readiness 3

@@ -4,7 +4,7 @@
 package org.etools.j1939_84.modules;
 
 import static java.time.temporal.ChronoUnit.MILLIS;
-import static net.solidDesign.j1939.J1939.ENGINE_ADDR;
+import static net.soliddesign.j1939tools.j1939.J1939.ENGINE_ADDR;
 import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
@@ -18,11 +18,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import org.etools.j1939_84.bus.Either;
-import net.solidDesign.j1939.packets.AcknowledgmentPacket;
-import net.solidDesign.j1939.packets.EngineSpeedPacket;
-import net.solidDesign.j1939.packets.GenericPacket;
 import org.etools.j1939_84.model.KeyState;
+
+import net.soliddesign.j1939tools.bus.Either;
+import net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket;
+import net.soliddesign.j1939tools.j1939.packets.EngineSpeedPacket;
+import net.soliddesign.j1939tools.j1939.packets.GenericPacket;
+import net.soliddesign.j1939tools.modules.FunctionalModule;
 
 /**
  * {@link FunctionalModule} used to determine if the Engine is communicating

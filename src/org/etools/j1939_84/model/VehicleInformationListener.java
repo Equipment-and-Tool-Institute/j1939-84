@@ -5,6 +5,7 @@ package org.etools.j1939_84.model;
 
 import org.etools.j1939_84.controllers.ResultsListener;
 
+
 /**
  * The Listener which is called once the user has entered
  * {@link VehicleInformation}

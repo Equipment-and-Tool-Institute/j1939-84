@@ -20,7 +20,6 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import net.solidDesign.j1939.J1939;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -28,9 +27,8 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.FaultModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
@@ -41,6 +39,10 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import net.soliddesign.j1939tools.j1939.J1939;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 @RunWith(MockitoJUnitRunner.class)
 public class Part07Step18ControllerTest extends AbstractControllerTest {
@@ -77,18 +79,21 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
 
     private StepController instance;
 
+    private FaultModule faultModule;
+
     @Before
     public void setUp() throws Exception {
         dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
-
+        faultModule = new FaultModule();
         instance = new Part07Step18Controller(executor,
                                               bannerModule,
                                               DateTimeModule.getInstance(),
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              communicationsModule);
+                                              communicationsModule,
+                                              faultModule);
 
         setup(instance,
               listener,

@@ -7,6 +7,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import net.soliddesign.j1939tools.utils.NumberFormatter;
+
 /**
  * Unit tests for the {@link NumberFormatter} class
  *

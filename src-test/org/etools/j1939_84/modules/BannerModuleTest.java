@@ -6,6 +6,7 @@ package org.etools.j1939_84.modules;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 import org.etools.j1939_84.BuildNumber;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.junit.Before;

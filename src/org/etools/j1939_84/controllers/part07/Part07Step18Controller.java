@@ -16,10 +16,12 @@ import java.util.concurrent.Executors;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.FaultModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.7.18 Complete Part 7 Operating Cycle and Implant Fault B
@@ -29,6 +31,8 @@ public class Part07Step18Controller extends StepController {
     private static final int STEP_NUMBER = 18;
     private static final int TOTAL_STEPS = 0;
 
+    private final FaultModule faultModule;
+
     Part07Step18Controller() {
         this(Executors.newSingleThreadScheduledExecutor(),
              new BannerModule(),
@@ -36,7 +40,8 @@ public class Part07Step18Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new CommunicationsModule());
+             new CommunicationsModule(),
+             new FaultModule());
     }
 
     Part07Step18Controller(Executor executor,
@@ -45,7 +50,8 @@ public class Part07Step18Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           CommunicationsModule communicationsModule) {
+                           CommunicationsModule communicationsModule,
+                           FaultModule faultModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
@@ -56,6 +62,8 @@ public class Part07Step18Controller extends StepController {
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
+
+        this.faultModule = faultModule;
     }
 
     @Override
@@ -63,6 +71,7 @@ public class Part07Step18Controller extends StepController {
         // 6.7.18.1.a. Turn the engine off.
         // 6.2.18.1.a. Turn Engine Off and keep the ignition key in the off position.
         ensureKeyStateIs(KEY_OFF, "6.7.18.1.a");
+        faultModule.setJ1939(getJ1939());
 
         // 6.7.18.1.b. Keep the ignition key in the off position.
         // 6.7.18.1.c. Implant Fault B according to engine manufacturer’s instruction.
@@ -71,7 +80,7 @@ public class Part07Step18Controller extends StepController {
         message += NL + NL + "Press OK to continue";
         displayInstructionAndWait(message, "Step 6.7.18.1.b", WARNING);
         if (isTesting()) {
-            getVehicleInformationModule().implantFaultB(getListener());
+            faultModule.implantFaultB(getListener());
         }
 
         // 6.7.18.1.d. Turn ignition key to the ON position.

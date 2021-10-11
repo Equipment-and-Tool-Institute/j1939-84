@@ -3,11 +3,11 @@
  */
 package org.etools.j1939_84.controllers.part04;
 
+import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.ACK;
+import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.BUSY;
+import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.DENIED;
+import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.J1939_84.NL;
-import static net.solidDesign.j1939.packets.AcknowledgmentPacket.Response.ACK;
-import static net.solidDesign.j1939.packets.AcknowledgmentPacket.Response.BUSY;
-import static net.solidDesign.j1939.packets.AcknowledgmentPacket.Response.DENIED;
-import static net.solidDesign.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
@@ -20,8 +20,6 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import net.solidDesign.j1939.J1939;
-import net.solidDesign.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.SectionA5Verifier;
@@ -29,8 +27,6 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -42,6 +38,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import net.soliddesign.j1939tools.j1939.J1939;
+import net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 @RunWith(MockitoJUnitRunner.class)
 public class Part04Step13ControllerTest extends AbstractControllerTest {

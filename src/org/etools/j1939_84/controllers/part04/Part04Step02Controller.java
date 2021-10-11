@@ -3,8 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part04;
 
+import static net.soliddesign.j1939tools.j1939.packets.LampStatus.ON;
 import static org.etools.j1939_84.J1939_84.NL;
-import static net.solidDesign.j1939.packets.LampStatus.ON;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
@@ -15,19 +15,20 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
-import net.solidDesign.j1939.packets.DM12MILOnEmissionDTCPacket;
-import net.solidDesign.j1939.packets.DM6PendingEmissionDTCPacket;
-import net.solidDesign.j1939.packets.DiagnosticTroubleCode;
-import net.solidDesign.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+
+import net.soliddesign.j1939tools.bus.BusResult;
+import net.soliddesign.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM6PendingEmissionDTCPacket;
+import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.4.2 DM12: Emissions Related Active DTCs

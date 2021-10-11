@@ -7,14 +7,14 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import net.solidDesign.j1939.packets.DM30ScaledTestResultsPacket;
-import net.solidDesign.j1939.packets.ScaledTestResult;
+import net.soliddesign.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
+import net.soliddesign.j1939tools.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 

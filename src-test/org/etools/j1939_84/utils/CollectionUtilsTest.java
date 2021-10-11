@@ -13,10 +13,11 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import org.etools.j1939_84.bus.Packet;
-import net.solidDesign.j1939.packets.DM20MonitorPerformanceRatioPacket;
-import net.solidDesign.j1939.packets.DM30ScaledTestResultsPacket;
 import org.junit.Test;
+
+import net.soliddesign.j1939tools.bus.Packet;
+import net.soliddesign.j1939tools.j1939.packets.DM20MonitorPerformanceRatioPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
 
 /**
  * The unit test for {@link CollectionUtils}

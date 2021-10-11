@@ -25,13 +25,14 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.etools.j1939_84.BuildNumber;
-import org.etools.j1939_84.bus.Adapter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import net.soliddesign.j1939tools.bus.Adapter;
 
 /**
  * The class that unit tests the {@link UserInterfaceView}
@@ -107,7 +108,7 @@ public class UserInterfaceViewTest {
         assertEquals("J1939-84 Data Files", filter.getDescription());
         String[] extensions = filter.getExtensions();
         assertEquals(1, extensions.length);
-        assertEquals("j1939-84", extensions[0]);
+        assertEquals("j1939tools-84", extensions[0]);
     }
 
     /**

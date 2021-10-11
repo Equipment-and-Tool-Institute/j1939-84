@@ -12,12 +12,6 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
-import org.etools.j1939_84.bus.j1939.Lookup;
-import net.solidDesign.j1939.packets.GenericPacket;
-import net.solidDesign.j1939.packets.SupportedSPN;
-import net.solidDesign.j1939.packets.model.Spn;
-import net.solidDesign.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.controllers.BroadcastValidator;
 import org.etools.j1939_84.controllers.BusService;
 import org.etools.j1939_84.controllers.Controller;
@@ -26,10 +20,17 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TableA1Validator;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+
+import net.soliddesign.j1939tools.j1939.J1939DaRepository;
+import net.soliddesign.j1939tools.j1939.Lookup;
+import net.soliddesign.j1939tools.j1939.model.Spn;
+import net.soliddesign.j1939tools.j1939.model.SpnDefinition;
+import net.soliddesign.j1939tools.j1939.packets.GenericPacket;
+import net.soliddesign.j1939tools.j1939.packets.SupportedSPN;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.2.17 KOER Data stream verification

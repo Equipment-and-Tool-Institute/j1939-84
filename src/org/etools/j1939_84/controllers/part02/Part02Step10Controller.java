@@ -8,16 +8,17 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
-import net.solidDesign.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+
+import net.soliddesign.j1939tools.j1939.Lookup;
+import net.soliddesign.j1939tools.j1939.packets.ScaledTestResult;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.2.10 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results
@@ -74,7 +75,7 @@ public class Part02Step10Controller extends StepController {
                                                                                                                           247,
                                                                                                                           spn.getSpn(),
                                                                                                                           31)
-                                                                                                         .stream())
+                                                                                                      .stream())
                                                              .flatMap(p -> p.getTestResults().stream())
                                                              .collect(Collectors.toList());
 

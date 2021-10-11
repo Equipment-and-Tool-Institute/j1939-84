@@ -23,10 +23,11 @@ import org.etools.j1939_84.controllers.part10.Part10Controller;
 import org.etools.j1939_84.controllers.part11.Part11Controller;
 import org.etools.j1939_84.controllers.part12.Part12Controller;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * The Controller that manages the other Controllers each of which is

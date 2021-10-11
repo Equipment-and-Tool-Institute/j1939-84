@@ -3,8 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part04;
 
-import static net.solidDesign.j1939.packets.AcknowledgmentPacket.Response.NACK;
-import static net.solidDesign.j1939.packets.LampStatus.OFF;
+import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static net.soliddesign.j1939tools.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,22 +16,12 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
-import net.solidDesign.j1939.J1939;
-import net.solidDesign.j1939.packets.AcknowledgmentPacket;
-import net.solidDesign.j1939.packets.DM12MILOnEmissionDTCPacket;
-import net.solidDesign.j1939.packets.DM25ExpandedFreezeFrame;
-import net.solidDesign.j1939.packets.DiagnosticTroubleCode;
-import net.solidDesign.j1939.packets.FreezeFrame;
-import net.solidDesign.j1939.packets.model.Spn;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -44,6 +34,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import net.soliddesign.j1939tools.bus.BusResult;
+import net.soliddesign.j1939tools.j1939.J1939;
+import net.soliddesign.j1939tools.j1939.model.Spn;
+import net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM25ExpandedFreezeFrame;
+import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import net.soliddesign.j1939tools.j1939.packets.FreezeFrame;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 @RunWith(MockitoJUnitRunner.class)
 public class Part04Step10ControllerTest extends AbstractControllerTest {
     private static final int PART_NUMBER = 4;

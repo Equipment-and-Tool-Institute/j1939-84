@@ -9,18 +9,19 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import net.solidDesign.j1939.packets.DM12MILOnEmissionDTCPacket;
-import net.solidDesign.j1939.packets.DM1ActiveDTCsPacket;
-import net.solidDesign.j1939.packets.DiagnosticTroubleCode;
-import net.solidDesign.j1939.packets.DiagnosticTroubleCodePacket;
-import net.solidDesign.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+
+import net.soliddesign.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM1ActiveDTCsPacket;
+import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
+import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.5.3 DM1: Active Diagnostic Trouble Codes (DTCs)
@@ -63,9 +64,9 @@ public class Part05Step03Controller extends StepController {
     protected void run() throws Throwable {
         // 6.5.3.1.a Receive DM1 broadcast data ([PGN 65226 (SPNs 1213-1215, 1706, and 3038)]).
         List<DM1ActiveDTCsPacket> packets = getCommunicationsModule().readDM1(getListener())
-                                                                        .stream()
-                                                                        .filter(p -> getDTCPacket(p.getSourceAddress()) != null)
-                                                                        .collect(Collectors.toList());
+                                                                     .stream()
+                                                                     .filter(p -> getDTCPacket(p.getSourceAddress()) != null)
+                                                                     .collect(Collectors.toList());
 
         // 6.5.3.2.a For every [OBD] ECU that responded to the DM12 request in step 6.5.2.1,
         // Fail if the DM1 response for the same ECU does not include the SPN(s) and associated FMI as given in the DM12

@@ -12,6 +12,8 @@ import org.etools.testdoc.TestDoc;
 import org.junit.Before;
 import org.junit.Test;
 
+import net.soliddesign.j1939tools.j1939.model.FuelType;
+
 /**
  * Unit Test for the {@link VehicleInformation} class
  *

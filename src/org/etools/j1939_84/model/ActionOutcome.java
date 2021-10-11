@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019. Equipment & Tool Institute
+ * Copyright (c) 2021. Equipment & Tool Institute
  */
 package org.etools.j1939_84.model;
 

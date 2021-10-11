@@ -4,7 +4,7 @@
 package org.etools.j1939_84.ui;
 
 import static java.util.logging.Level.INFO;
-import static net.solidDesign.j1939.packets.ComponentIdentificationPacket.create;
+import static net.soliddesign.j1939tools.j1939.packets.ComponentIdentificationPacket.create;
 import static org.etools.j1939_84.J1939_84.getLogger;
 import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 
@@ -16,19 +16,19 @@ import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
 
-import org.etools.j1939_84.model.FuelType;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.VinDecoder;
 
-import net.solidDesign.j1939.J1939;
-import net.solidDesign.j1939.modules.CommunicationsModule;
-import net.solidDesign.j1939.packets.AddressClaimPacket;
-import net.solidDesign.j1939.packets.ComponentIdentificationPacket;
-import net.solidDesign.j1939.packets.DM19CalibrationInformationPacket;
+import net.soliddesign.j1939tools.bus.RequestResult;
+import net.soliddesign.j1939tools.j1939.J1939;
+import net.soliddesign.j1939tools.j1939.model.FuelType;
+import net.soliddesign.j1939tools.j1939.packets.AddressClaimPacket;
+import net.soliddesign.j1939tools.j1939.packets.ComponentIdentificationPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * The Presenter which controls the logic in the

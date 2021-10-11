@@ -8,18 +8,19 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import net.solidDesign.j1939.packets.DM12MILOnEmissionDTCPacket;
-import net.solidDesign.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
-import net.solidDesign.j1939.packets.DiagnosticTroubleCode;
-import net.solidDesign.j1939.packets.LampStatus;
-import net.solidDesign.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+
+import net.soliddesign.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
+import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import net.soliddesign.j1939tools.j1939.packets.LampStatus;
+import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.8.5 DM2: Previously Active Diagnostic Trouble Codes (DTCs)
@@ -62,10 +63,10 @@ public class Part08Step05Controller extends StepController {
     protected void run() throws Throwable {
         // 6.8.5.1.a Global DM2 ([send Request (PGN 59904) for PGN 65227 (SPNs 1213-1215, 3038, 1706)]).
         var packets = getCommunicationsModule().requestDM2(getListener())
-                                                  .getPackets()
-                                                  .stream()
-                                                  .filter(p -> isObdModule(p.getSourceAddress()))
-                                                  .collect(Collectors.toList());
+                                               .getPackets()
+                                               .stream()
+                                               .filter(p -> isObdModule(p.getSourceAddress()))
+                                               .collect(Collectors.toList());
 
         packets.forEach(this::save);
 

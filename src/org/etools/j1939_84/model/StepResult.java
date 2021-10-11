@@ -12,6 +12,7 @@ import static org.etools.j1939_84.model.Outcome.WARN;
 import java.util.ArrayList;
 import java.util.Collection;
 
+
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
  */
@@ -40,7 +41,7 @@ public class StepResult implements IResult {
     @Override
     public Outcome getOutcome() {
         if (results.isEmpty()) {
-            return Outcome.INCOMPLETE;
+            return INCOMPLETE;
         }
 
         if (outcome == null) {

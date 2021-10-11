@@ -12,12 +12,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
-import net.solidDesign.j1939.packets.DM24SPNSupportPacket;
-import net.solidDesign.j1939.packets.DM27AllPendingDTCsPacket;
-import net.solidDesign.j1939.packets.GenericPacket;
-import net.solidDesign.j1939.packets.ScaledTestResult;
-import net.solidDesign.j1939.packets.SupportedSPN;
+import net.soliddesign.j1939tools.j1939.Lookup;
+import net.soliddesign.j1939tools.j1939.packets.DM24SPNSupportPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM27AllPendingDTCsPacket;
+import net.soliddesign.j1939tools.j1939.packets.GenericPacket;
+import net.soliddesign.j1939tools.j1939.packets.ScaledTestResult;
+import net.soliddesign.j1939tools.j1939.packets.SupportedSPN;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)

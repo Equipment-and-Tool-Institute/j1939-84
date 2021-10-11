@@ -11,7 +11,7 @@ import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 
-import net.solidDesign.j1939.CommunicationsListener;
+import net.soliddesign.j1939tools.CommunicationsListener;
 
 /**
  * The Interface for an listener that is notified when a {@link Controller} has

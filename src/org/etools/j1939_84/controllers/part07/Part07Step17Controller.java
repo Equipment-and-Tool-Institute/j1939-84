@@ -7,16 +7,17 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import net.solidDesign.j1939.packets.DM30ScaledTestResultsPacket;
-import net.solidDesign.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+
+import net.soliddesign.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
+import net.soliddesign.j1939tools.j1939.packets.ScaledTestResult;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.7.17 DM7/DM30: Command Non-Continuously Monitored Test/Scaled Test Results
@@ -70,15 +71,15 @@ public class Part07Step17Controller extends StepController {
                 // 6.7.17.2.a. Fail if any non-initialized tests reports now report initialized values.
                 // Use this to help verify no diagnostic information was cleared with DM3 request.
                 getCommunicationsModule().requestTestResults(getListener(), moduleAddress, 250, spn, fmi)
-                                            .stream()
-                                            .map(DM30ScaledTestResultsPacket::getTestResults)
-                                            .flatMap(Collection::stream)
-                                            .filter(ScaledTestResult::isInitialized)
-                                            .forEach(s -> {
-                                                addFailure("6.7.17.2.a - " + moduleName
-                                                        + " is now reporting an initialize test for SPN = " + spn
-                                                        + ", FMI = " + fmi);
-                                            });
+                                         .stream()
+                                         .map(DM30ScaledTestResultsPacket::getTestResults)
+                                         .flatMap(Collection::stream)
+                                         .filter(ScaledTestResult::isInitialized)
+                                         .forEach(s -> {
+                                             addFailure("6.7.17.2.a - " + moduleName
+                                                     + " is now reporting an initialize test for SPN = " + spn
+                                                     + ", FMI = " + fmi);
+                                         });
             }
         }
     }

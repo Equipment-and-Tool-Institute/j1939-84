@@ -14,14 +14,14 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.etools.j1939_84.bus.Packet;
-import net.solidDesign.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
-import org.etools.j1939_84.bus.j1939.Lookup;
-import net.solidDesign.j1939.packets.GenericPacket;
-import net.solidDesign.j1939.packets.model.PgnDefinition;
-import org.etools.j1939_84.model.RequestResult;
-import org.etools.j1939_84.modules.DateTimeModule;
+import net.soliddesign.j1939tools.bus.Packet;
+import net.soliddesign.j1939tools.bus.RequestResult;
+import net.soliddesign.j1939tools.j1939.J1939;
+import net.soliddesign.j1939tools.j1939.J1939DaRepository;
+import net.soliddesign.j1939tools.j1939.Lookup;
+import net.soliddesign.j1939tools.j1939.model.PgnDefinition;
+import net.soliddesign.j1939tools.j1939.packets.GenericPacket;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 public class BusService {
 

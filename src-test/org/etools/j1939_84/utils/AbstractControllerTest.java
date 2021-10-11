@@ -7,14 +7,15 @@ import static org.mockito.Mockito.verify;
 
 import java.util.concurrent.Executor;
 
-import net.solidDesign.j1939.J1939;
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.mockito.ArgumentCaptor;
+
+import net.soliddesign.j1939tools.j1939.J1939;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
@@ -38,7 +39,7 @@ public abstract class AbstractControllerTest {
 
     /**
      * This method will execute a test and capture the results for testing
-     * verification. This method also performs the verification of the j1939
+     * verification. This method also performs the verification of the j1939tools
      * mock used in this method.
      */
     protected void runTest() {

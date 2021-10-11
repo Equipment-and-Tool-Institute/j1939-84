@@ -4,8 +4,8 @@
 
 package org.etools.j1939_84.controllers;
 
-import static net.solidDesign.j1939.packets.LampStatus.OFF;
-import static net.solidDesign.j1939.packets.LampStatus.ON;
+import static net.soliddesign.j1939tools.j1939.packets.LampStatus.OFF;
+import static net.soliddesign.j1939tools.j1939.packets.LampStatus.ON;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -15,36 +15,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
-import net.solidDesign.j1939.J1939;
-import net.solidDesign.j1939.packets.CompositeSystem;
-import net.solidDesign.j1939.packets.DM12MILOnEmissionDTCPacket;
-import net.solidDesign.j1939.packets.DM20MonitorPerformanceRatioPacket;
-import net.solidDesign.j1939.packets.DM21DiagnosticReadinessPacket;
-import net.solidDesign.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
-import net.solidDesign.j1939.packets.DM24SPNSupportPacket;
-import net.solidDesign.j1939.packets.DM25ExpandedFreezeFrame;
-import net.solidDesign.j1939.packets.DM26TripDiagnosticReadinessPacket;
-import net.solidDesign.j1939.packets.DM28PermanentEmissionDTCPacket;
-import net.solidDesign.j1939.packets.DM29DtcCounts;
-import net.solidDesign.j1939.packets.DM30ScaledTestResultsPacket;
-import net.solidDesign.j1939.packets.DM31DtcToLampAssociation;
-import net.solidDesign.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
-import net.solidDesign.j1939.packets.DM5DiagnosticReadinessPacket;
-import net.solidDesign.j1939.packets.DM6PendingEmissionDTCPacket;
-import net.solidDesign.j1939.packets.DTCLampStatus;
-import net.solidDesign.j1939.packets.DiagnosticTroubleCode;
-import net.solidDesign.j1939.packets.EngineHoursPacket;
-import net.solidDesign.j1939.packets.EngineHoursTimer;
-import net.solidDesign.j1939.packets.FreezeFrame;
-import net.solidDesign.j1939.packets.IdleOperationPacket;
-import net.solidDesign.j1939.packets.PerformanceRatio;
-import net.solidDesign.j1939.packets.ScaledTestResult;
-import net.solidDesign.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.RequestResult;
-import net.solidDesign.j1939.modules.CommunicationsModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.junit.After;
@@ -53,6 +24,36 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import net.soliddesign.j1939tools.bus.BusResult;
+import net.soliddesign.j1939tools.bus.RequestResult;
+import net.soliddesign.j1939tools.j1939.J1939;
+import net.soliddesign.j1939tools.j1939.packets.CompositeSystem;
+import net.soliddesign.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM20MonitorPerformanceRatioPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM21DiagnosticReadinessPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM24SPNSupportPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM25ExpandedFreezeFrame;
+import net.soliddesign.j1939tools.j1939.packets.DM26TripDiagnosticReadinessPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM28PermanentEmissionDTCPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM29DtcCounts;
+import net.soliddesign.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM31DtcToLampAssociation;
+import net.soliddesign.j1939tools.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
+import net.soliddesign.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM6PendingEmissionDTCPacket;
+import net.soliddesign.j1939tools.j1939.packets.DTCLampStatus;
+import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import net.soliddesign.j1939tools.j1939.packets.EngineHoursPacket;
+import net.soliddesign.j1939tools.j1939.packets.EngineHoursTimer;
+import net.soliddesign.j1939tools.j1939.packets.FreezeFrame;
+import net.soliddesign.j1939tools.j1939.packets.IdleOperationPacket;
+import net.soliddesign.j1939tools.j1939.packets.PerformanceRatio;
+import net.soliddesign.j1939tools.j1939.packets.ScaledTestResult;
+import net.soliddesign.j1939tools.j1939.packets.SupportedSPN;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SectionA5MessageVerifierTest {

@@ -3,27 +3,27 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static net.solidDesign.j1939.packets.CompositeSystem.AC_SYSTEM_REFRIGERANT;
-import static net.solidDesign.j1939.packets.CompositeSystem.BOOST_PRESSURE_CONTROL_SYS;
-import static net.solidDesign.j1939.packets.CompositeSystem.CATALYST;
-import static net.solidDesign.j1939.packets.CompositeSystem.COLD_START_AID_SYSTEM;
-import static net.solidDesign.j1939.packets.CompositeSystem.COMPREHENSIVE_COMPONENT;
-import static net.solidDesign.j1939.packets.CompositeSystem.DIESEL_PARTICULATE_FILTER;
-import static net.solidDesign.j1939.packets.CompositeSystem.EGR_VVT_SYSTEM;
-import static net.solidDesign.j1939.packets.CompositeSystem.EVAPORATIVE_SYSTEM;
-import static net.solidDesign.j1939.packets.CompositeSystem.EXHAUST_GAS_SENSOR;
-import static net.solidDesign.j1939.packets.CompositeSystem.EXHAUST_GAS_SENSOR_HEATER;
-import static net.solidDesign.j1939.packets.CompositeSystem.FUEL_SYSTEM;
-import static net.solidDesign.j1939.packets.CompositeSystem.HEATED_CATALYST;
-import static net.solidDesign.j1939.packets.CompositeSystem.MISFIRE;
-import static net.solidDesign.j1939.packets.CompositeSystem.NMHC_CONVERTING_CATALYST;
-import static net.solidDesign.j1939.packets.CompositeSystem.NOX_CATALYST_ABSORBER;
-import static net.solidDesign.j1939.packets.CompositeSystem.SECONDARY_AIR_SYSTEM;
-import static net.solidDesign.j1939.packets.MonitoredSystemStatus.findStatus;
+import static net.soliddesign.j1939tools.j1939.packets.CompositeSystem.AC_SYSTEM_REFRIGERANT;
+import static net.soliddesign.j1939tools.j1939.packets.CompositeSystem.BOOST_PRESSURE_CONTROL_SYS;
+import static net.soliddesign.j1939tools.j1939.packets.CompositeSystem.CATALYST;
+import static net.soliddesign.j1939tools.j1939.packets.CompositeSystem.COLD_START_AID_SYSTEM;
+import static net.soliddesign.j1939tools.j1939.packets.CompositeSystem.COMPREHENSIVE_COMPONENT;
+import static net.soliddesign.j1939tools.j1939.packets.CompositeSystem.DIESEL_PARTICULATE_FILTER;
+import static net.soliddesign.j1939tools.j1939.packets.CompositeSystem.EGR_VVT_SYSTEM;
+import static net.soliddesign.j1939tools.j1939.packets.CompositeSystem.EVAPORATIVE_SYSTEM;
+import static net.soliddesign.j1939tools.j1939.packets.CompositeSystem.EXHAUST_GAS_SENSOR;
+import static net.soliddesign.j1939tools.j1939.packets.CompositeSystem.EXHAUST_GAS_SENSOR_HEATER;
+import static net.soliddesign.j1939tools.j1939.packets.CompositeSystem.FUEL_SYSTEM;
+import static net.soliddesign.j1939tools.j1939.packets.CompositeSystem.HEATED_CATALYST;
+import static net.soliddesign.j1939tools.j1939.packets.CompositeSystem.MISFIRE;
+import static net.soliddesign.j1939tools.j1939.packets.CompositeSystem.NMHC_CONVERTING_CATALYST;
+import static net.soliddesign.j1939tools.j1939.packets.CompositeSystem.NOX_CATALYST_ABSORBER;
+import static net.soliddesign.j1939tools.j1939.packets.CompositeSystem.SECONDARY_AIR_SYSTEM;
+import static net.soliddesign.j1939tools.j1939.packets.MonitoredSystemStatus.findStatus;
+import static net.soliddesign.j1939tools.modules.CommunicationsModule.getCompositeSystems;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
-import static net.solidDesign.j1939.modules.CommunicationsModule.getCompositeSystems;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -31,14 +31,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.solidDesign.j1939.packets.MonitoredSystem;
-import net.solidDesign.j1939.packets.MonitoredSystemStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.VehicleInformation;
-import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.junit.After;
 import org.junit.Before;
@@ -46,6 +42,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import net.soliddesign.j1939tools.j1939.model.FuelType;
+import net.soliddesign.j1939tools.j1939.packets.MonitoredSystem;
+import net.soliddesign.j1939tools.j1939.packets.MonitoredSystemStatus;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
 
 /**
  * The unit test for {@link TableA6Validator}

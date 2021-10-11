@@ -10,13 +10,15 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 
-import net.solidDesign.j1939.packets.AcknowledgmentPacket;
-import net.solidDesign.j1939.packets.ParsedPacket;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import net.soliddesign.j1939tools.bus.RequestResult;
+import net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket;
+import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
 
 /**
  * Unit tests the {@link RequestResult} class
@@ -43,7 +45,7 @@ public class RequestResultTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.model.RequestResult#equals(java.lang.Object)}.
+     * {@link RequestResult#equals(java.lang.Object)}.
      */
     @Test
     public void testEquals() {
@@ -74,7 +76,7 @@ public class RequestResultTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.model.RequestResult#getAcks()}.
+     * {@link RequestResult#getAcks()}.
      */
     @Test
     public void testGetAcks() {
@@ -83,7 +85,7 @@ public class RequestResultTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.model.RequestResult#getEither()}.
+     * {@link RequestResult#getEither()}.
      */
     @Test
     public void testGetEither() {
@@ -92,7 +94,7 @@ public class RequestResultTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.model.RequestResult#getPackets()}.
+     * {@link RequestResult#getPackets()}.
      */
     @Test
     public void testGetPackets() {
@@ -101,7 +103,7 @@ public class RequestResultTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.model.RequestResult#hashCode()}.
+     * {@link RequestResult#hashCode()}.
      */
     @Test
     public void testHashCode() {
@@ -124,7 +126,7 @@ public class RequestResultTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.model.RequestResult#isRetryUsed()}.
+     * {@link RequestResult#isRetryUsed()}.
      */
     @Test
     public void testIsRetryUsed() {
@@ -133,7 +135,7 @@ public class RequestResultTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.model.RequestResult#RequestResult(boolean, java.util.List)}.
+     * {@link RequestResult#RequestResult(boolean, java.util.List)}.
      */
     @Test
     public void testRequestResultBooleanListOfEitherOfTAcknowledgmentPacket() {
@@ -142,7 +144,7 @@ public class RequestResultTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.model.RequestResult#RequestResult(boolean, java.util.List, java.util.List)}.
+     * {@link RequestResult#RequestResult(boolean, java.util.List, java.util.List)}.
      */
     @Test
     public void testRequestResultBooleanListOfTListOfAcknowledgmentPacket() {
@@ -151,7 +153,7 @@ public class RequestResultTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.model.RequestResult#toString()}.
+     * {@link RequestResult#toString()}.
      */
     @Test
     public void testToString() {
