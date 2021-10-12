@@ -11,7 +11,7 @@ import org.junit.Test;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class J1939_toolsTest {
+public class J1939_84Test {
 
     /**
      * @throws java.lang.Exception
