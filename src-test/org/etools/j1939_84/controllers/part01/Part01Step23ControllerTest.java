@@ -14,16 +14,10 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.Packet;
-import net.solidDesign.j1939.J1939;
-import net.solidDesign.j1939.packets.DM31DtcToLampAssociation;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -34,6 +28,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import net.soliddesign.j1939tools.bus.Packet;
+import net.soliddesign.j1939tools.bus.RequestResult;
+import net.soliddesign.j1939tools.j1939.J1939;
+import net.soliddesign.j1939tools.j1939.packets.DM31DtcToLampAssociation;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * The unit test for {@link Part01Step23Controller}
@@ -127,9 +128,9 @@ public class Part01Step23ControllerTest extends AbstractControllerTest {
                                                                        Packet.create(PGN, 0x00, data));
 
         when(communicationsModule.requestDM31(any()))
-                                                        .thenReturn(new RequestResult<>(false,
-                                                                                        Collections.singletonList(packet),
-                                                                                        Collections.emptyList()));
+                                                     .thenReturn(new RequestResult<>(false,
+                                                                                     Collections.singletonList(packet),
+                                                                                     Collections.emptyList()));
 
         runTest();
 
@@ -201,9 +202,9 @@ public class Part01Step23ControllerTest extends AbstractControllerTest {
                                                                        Packet.create(PGN, 0x00, data));
 
         when(communicationsModule.requestDM31(any()))
-                                                        .thenReturn(new RequestResult<>(false,
-                                                                                        Collections.singletonList(packet),
-                                                                                        Collections.emptyList()));
+                                                     .thenReturn(new RequestResult<>(false,
+                                                                                     Collections.singletonList(packet),
+                                                                                     Collections.emptyList()));
 
         runTest();
 

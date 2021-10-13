@@ -7,6 +7,7 @@ import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -14,16 +15,12 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import net.solidDesign.j1939.J1939;
-import net.solidDesign.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -38,6 +35,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import net.soliddesign.j1939tools.CommunicationsListener;
+import net.soliddesign.j1939tools.j1939.J1939;
+import net.soliddesign.j1939tools.j1939.packets.VehicleIdentificationPacket;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
+
 /**
  * The unit test for {@link Part01Step05Controller}
  *
@@ -49,6 +52,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
     @Mock
     private BannerModule bannerModule;
 
+    @Mock
     private CommunicationsModule communicationsModule;
 
     private DataRepository dataRepository;
@@ -75,25 +79,21 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    private VinDecoder vinDecoder;
-
     @Before
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
-        vinDecoder = new VinDecoder();
+        VinDecoder vinDecoder = new VinDecoder();
         dataRepository = DataRepository.newInstance();
-        communicationsModule = new CommunicationsModule();
-        communicationsModule.setJ1939(j1939);
 
-        instance = new Part01Step05Controller(
-                                              executor,
+        instance = new Part01Step05Controller(executor,
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
                                               vinDecoder,
                                               dataRepository,
-                                              DateTimeModule.getInstance());
+                                              DateTimeModule.getInstance(),
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -103,6 +103,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
               engineSpeedModule,
               vehicleInformationModule,
               communicationsModule);
+
     }
 
     @After
@@ -177,15 +178,17 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         obdModule1.set(packet, 0x01);
         dataRepository.putObdModule(obdModule1);
 
-        when(communicationsModule.reportVin(any(ResultsListener.class))).thenReturn(List.of(packet));
+        when(communicationsModule.reportVin(any(CommunicationsListener.class))).thenReturn(List.of(packet));
         VehicleInformation vehicleInformation = new VehicleInformation();
+
         vehicleInformation.setVin(vin);
         vehicleInformation.setVehicleModelYear(2037);
         dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
 
-        verify(communicationsModule).reportVin(any(ResultsListener.class));
+        verify(communicationsModule).setJ1939(eq(j1939));
+        verify(communicationsModule).reportVin(any(CommunicationsListener.class));
 
         verify(engineSpeedModule).setJ1939(j1939);
     }
@@ -384,11 +387,13 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         VehicleIdentificationPacket packet = VehicleIdentificationPacket.create(0x01, vin);
         OBDModuleInformation obdModule1 = new OBDModuleInformation((0x01));
         obdModule1.set(packet, 1);
-        when(communicationsModule.reportVin(any(ResultsListener.class))).thenReturn(List.of(packet));
+
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin(vin);
         vehicleInformation.setVehicleModelYear(2014);
         dataRepository.setVehicleInformation(vehicleInformation);
+
+        when(communicationsModule.reportVin(any(CommunicationsListener.class))).thenReturn(List.of(packet));
 
         runTest();
 
@@ -444,7 +449,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule1 = new OBDModuleInformation((0x01));
         obdModule1.set(packet, 1);
         dataRepository.putObdModule(obdModule1);
-        when(communicationsModule.reportVin(any(ResultsListener.class))).thenReturn((List.of(packet)));
+        when(communicationsModule.reportVin(any(CommunicationsListener.class))).thenReturn((List.of(packet)));
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin(vin);
         vehicleInformation.setVehicleModelYear(2019);

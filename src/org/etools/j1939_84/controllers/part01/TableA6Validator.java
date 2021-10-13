@@ -10,13 +10,14 @@ import static org.etools.j1939_84.model.Outcome.WARN;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.solidDesign.j1939.packets.CompositeMonitoredSystem;
-import net.solidDesign.j1939.packets.MonitoredSystem;
-import net.solidDesign.j1939.packets.MonitoredSystemStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.Outcome;
+
+import net.soliddesign.j1939tools.j1939.model.FuelType;
+import net.soliddesign.j1939tools.j1939.packets.CompositeMonitoredSystem;
+import net.soliddesign.j1939tools.j1939.packets.MonitoredSystem;
+import net.soliddesign.j1939tools.j1939.packets.MonitoredSystemStatus;
 
 /**
  * The validator for Table A.6.1 Composite vehicle readiness - Diesel Engines &

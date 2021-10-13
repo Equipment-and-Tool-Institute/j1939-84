@@ -13,18 +13,10 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.List;
 
-import net.solidDesign.j1939.J1939;
-import net.solidDesign.j1939.packets.AddressClaimPacket;
-import net.solidDesign.j1939.packets.DM19CalibrationInformationPacket;
-import net.solidDesign.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.FuelType;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
-import net.solidDesign.j1939.modules.CommunicationsModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.VinDecoder;
 import org.junit.After;
@@ -35,6 +27,14 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import net.soliddesign.j1939tools.bus.RequestResult;
+import net.soliddesign.j1939tools.j1939.J1939;
+import net.soliddesign.j1939tools.j1939.model.FuelType;
+import net.soliddesign.j1939tools.j1939.packets.AddressClaimPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)

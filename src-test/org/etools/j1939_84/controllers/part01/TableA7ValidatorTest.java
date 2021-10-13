@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.solidDesign.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.junit.After;
@@ -24,6 +23,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import net.soliddesign.j1939tools.j1939.packets.ScaledTestResult;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)

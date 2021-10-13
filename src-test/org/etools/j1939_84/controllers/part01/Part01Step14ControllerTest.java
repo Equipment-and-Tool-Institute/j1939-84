@@ -3,8 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.J1939_84.NL;
-import static net.solidDesign.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
@@ -17,19 +17,11 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import net.solidDesign.j1939.J1939;
-import net.solidDesign.j1939.packets.AcknowledgmentPacket;
-import net.solidDesign.j1939.packets.CompositeSystem;
-import net.solidDesign.j1939.packets.DM26TripDiagnosticReadinessPacket;
-import net.solidDesign.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -42,6 +34,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import net.soliddesign.j1939tools.bus.RequestResult;
+import net.soliddesign.j1939tools.j1939.J1939;
+import net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket;
+import net.soliddesign.j1939tools.j1939.packets.CompositeSystem;
+import net.soliddesign.j1939tools.j1939.packets.DM26TripDiagnosticReadinessPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * The unit test for {@link Part01Step14Controller}

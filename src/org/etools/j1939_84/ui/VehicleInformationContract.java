@@ -3,7 +3,7 @@
  */
 package org.etools.j1939_84.ui;
 
-import org.etools.j1939_84.model.FuelType;
+import net.soliddesign.j1939tools.j1939.model.FuelType;
 
 /**
  * There contractual interface between the Presenter and the View of the

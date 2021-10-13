@@ -3,22 +3,22 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
-import static net.solidDesign.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
-import net.solidDesign.j1939.packets.AcknowledgmentPacket;
-import net.solidDesign.j1939.packets.DM31DtcToLampAssociation;
-import net.solidDesign.j1939.packets.DM6PendingEmissionDTCPacket;
-import net.solidDesign.j1939.packets.DTCLampStatus;
+import net.soliddesign.j1939tools.j1939.Lookup;
+import net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM31DtcToLampAssociation;
+import net.soliddesign.j1939tools.j1939.packets.DM6PendingEmissionDTCPacket;
+import net.soliddesign.j1939tools.j1939.packets.DTCLampStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 

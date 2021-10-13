@@ -1,10 +1,10 @@
 /*
- * Copyright 2019 Equipment & Tool Institute
+ * Copyright (c) 2021. Equipment & Tool Institute
  */
 package org.etools.j1939_84.modules;
 
-import static org.etools.j1939_84.J1939_84.NL;
-import static net.solidDesign.j1939.J1939.GLOBAL_ADDR;
+import static net.soliddesign.j1939tools.J1939tools.NL;
+import static net.soliddesign.j1939tools.j1939.J1939.GLOBAL_ADDR;
 import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
@@ -18,17 +18,20 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.BusException;
-import net.solidDesign.j1939.packets.AddressClaimPacket;
-import net.solidDesign.j1939.packets.DM19CalibrationInformationPacket;
-import net.solidDesign.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
-import net.solidDesign.j1939.packets.DM56EngineFamilyPacket;
-import net.solidDesign.j1939.packets.DM5DiagnosticReadinessPacket;
-import net.solidDesign.j1939.packets.ParsedPacket;
-import net.solidDesign.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.KeyState;
-import org.etools.j1939_84.model.RequestResult;
+
+import net.soliddesign.j1939tools.CommunicationsListener;
+import net.soliddesign.j1939tools.bus.BusException;
+import net.soliddesign.j1939tools.bus.RequestResult;
+import net.soliddesign.j1939tools.j1939.packets.AddressClaimPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
+import net.soliddesign.j1939tools.j1939.packets.DM56EngineFamilyPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
+import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
+import net.soliddesign.j1939tools.j1939.packets.VehicleIdentificationPacket;
+import net.soliddesign.j1939tools.modules.FunctionalModule;
 
 /**
  * The {@link FunctionalModule} that is used to gather general information about
@@ -181,7 +184,7 @@ public class VehicleInformationModule extends FunctionalModule {
      * Sends the Request for Address Claim and reports the results
      *
      * @param listener
-     *                     the {@link ResultsListener} that will be given the report
+     *                     the {@link CommunicationsListener that will be given the report
      */
     public RequestResult<AddressClaimPacket> reportAddressClaim(ResultsListener listener) {
         RequestResult<AddressClaimPacket> responses = getJ1939().requestGlobal("Global Request for Address Claim",
@@ -198,7 +201,7 @@ public class VehicleInformationModule extends FunctionalModule {
      * Queries the bus and reports the speed of the vehicle bus
      *
      * @param listener
-     *                     the {@link ResultsListener} that will be given the report
+     *                     the {@link CommunicationsListener} that will be given the report
      */
     public void reportConnectionSpeed(ResultsListener listener) {
         String result = getTime() + " Baud Rate: ";
@@ -215,9 +218,10 @@ public class VehicleInformationModule extends FunctionalModule {
      * Sends the DM5 to determine which modules support HD-OBD. It returns a
      * {@link List} of source addresses of the modules that do support HD-OBD.
      *
-     * @return List of source addresses
+     * @return          List of source addresses
+     * @param  listener
      */
-    public List<Integer> getOBDModules(ResultsListener listener) {
+    public List<Integer> getOBDModules(CommunicationsListener listener) {
         return requestDMPackets("DM5",
                                 DM5DiagnosticReadinessPacket.class,
                                 GLOBAL_ADDR,
@@ -230,6 +234,7 @@ public class VehicleInformationModule extends FunctionalModule {
                                          .collect(Collectors.toList());
     }
 
+    // TODO move back
     public void changeKeyState(ResultsListener listener, KeyState keyState) {
         int pgn;
         if (keyState == KEY_ON_ENGINE_RUNNING) {
@@ -243,22 +248,6 @@ public class VehicleInformationModule extends FunctionalModule {
         }
 
         getJ1939().requestGlobal("Requesting " + keyState + " - REPORT IF SEEN IN THE FIELD",
-                                 pgn,
-                                 getJ1939().createRequestPacket(pgn, GLOBAL_ADDR),
-                                 listener);
-    }
-
-    public void implantFaultA(ResultsListener listener) {
-        int pgn = 0x1FFFA;
-        getJ1939().requestGlobal("Requesting Fault A to be implanted - REPORT IF SEEN IN THE FIELD",
-                                 pgn,
-                                 getJ1939().createRequestPacket(pgn, GLOBAL_ADDR),
-                                 listener);
-    }
-
-    public void implantFaultB(ResultsListener listener) {
-        int pgn = 0x1FFFB;
-        getJ1939().requestGlobal("Requesting Fault B to be implanted - REPORT IF SEEN IN THE FIELD",
                                  pgn,
                                  getJ1939().createRequestPacket(pgn, GLOBAL_ADDR),
                                  listener);

@@ -45,14 +45,14 @@ import javax.swing.text.DefaultCaret;
 
 import org.etools.j1939_84.BuildNumber;
 import org.etools.j1939_84.J1939_84;
-import org.etools.j1939_84.bus.Adapter;
-import net.solidDesign.j1939.J1939;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.resources.Resources;
 import org.etools.j1939_84.ui.UserInterfaceContract.Presenter;
 import org.etools.j1939_84.ui.widgets.SmartScroller;
 
+import net.soliddesign.j1939tools.bus.Adapter;
+import net.soliddesign.j1939tools.j1939.J1939;
 /**
  * The View for the User Interface.
  * <p>

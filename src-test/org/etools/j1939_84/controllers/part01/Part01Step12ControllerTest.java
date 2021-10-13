@@ -3,10 +3,10 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static net.soliddesign.j1939tools.j1939.model.FuelType.BATT_ELEC;
+import static net.soliddesign.j1939tools.j1939.model.FuelType.BI_DSL;
+import static net.soliddesign.j1939tools.j1939.model.FuelType.BI_GAS;
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.model.FuelType.BATT_ELEC;
-import static org.etools.j1939_84.model.FuelType.BI_DSL;
-import static org.etools.j1939_84.model.FuelType.BI_GAS;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
@@ -21,11 +21,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
-import net.solidDesign.j1939.J1939;
-import net.solidDesign.j1939.packets.DM24SPNSupportPacket;
-import net.solidDesign.j1939.packets.DM30ScaledTestResultsPacket;
-import net.solidDesign.j1939.packets.ScaledTestResult;
-import net.solidDesign.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -33,8 +28,6 @@ import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -47,6 +40,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import net.soliddesign.j1939tools.j1939.J1939;
+import net.soliddesign.j1939tools.j1939.packets.DM24SPNSupportPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
+import net.soliddesign.j1939tools.j1939.packets.ScaledTestResult;
+import net.soliddesign.j1939tools.j1939.packets.SupportedSPN;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * The unit test for {@link Part01Step12Controller}

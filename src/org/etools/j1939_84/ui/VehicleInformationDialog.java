@@ -31,13 +31,13 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.text.AbstractDocument;
 
 import org.etools.j1939_84.J1939_84;
-import net.solidDesign.j1939.J1939;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.ui.widgets.LengthLimitedDocument;
 import org.etools.j1939_84.ui.widgets.TextChangeListener;
 import org.etools.j1939_84.ui.widgets.VinSanitizingDocumentFilter;
 
+import net.soliddesign.j1939tools.j1939.J1939;
+import net.soliddesign.j1939tools.j1939.model.FuelType;
 /**
  * Dialog used to collect information about the vehicle
  *

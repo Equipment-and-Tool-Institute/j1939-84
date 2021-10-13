@@ -15,18 +15,12 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
-import net.solidDesign.j1939.J1939;
-import net.solidDesign.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -38,6 +32,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import net.soliddesign.j1939tools.bus.BusResult;
+import net.soliddesign.j1939tools.bus.RequestResult;
+import net.soliddesign.j1939tools.j1939.J1939;
+import net.soliddesign.j1939tools.j1939.packets.ComponentIdentificationPacket;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
+
+;
 
 /**
  * The unit test for {@link Part02Step07Controller}
@@ -151,7 +154,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         var packet00 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
         var packet11 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
         when(communicationsModule.requestComponentIdentification(any())).thenReturn(RequestResult.of(packet00,
-                                                                                                         packet11));
+                                                                                                     packet11));
         runTest();
 
         verify(communicationsModule).requestComponentIdentification(any(), eq(0));

@@ -3,24 +3,25 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static net.solidDesign.j1939.modules.CommunicationsModule.getCompositeSystems;
+import static net.soliddesign.j1939tools.modules.CommunicationsModule.getCompositeSystems;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import net.solidDesign.j1939.packets.AcknowledgmentPacket.Response;
-import net.solidDesign.j1939.packets.AddressClaimPacket;
-import net.solidDesign.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+
+import net.soliddesign.j1939tools.bus.RequestResult;
+import net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response;
+import net.soliddesign.j1939tools.j1939.packets.AddressClaimPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.1.3 DM5: Diagnostic Readiness 1

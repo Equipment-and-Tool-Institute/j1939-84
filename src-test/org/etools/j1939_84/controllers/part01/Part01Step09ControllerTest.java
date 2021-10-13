@@ -3,8 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static net.soliddesign.j1939tools.j1939.packets.ComponentIdentificationPacket.create;
 import static org.etools.j1939_84.J1939_84.NL;
-import static net.solidDesign.j1939.packets.ComponentIdentificationPacket.create;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
@@ -18,18 +18,11 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.BusResult;
-import net.solidDesign.j1939.J1939;
-import net.solidDesign.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -42,6 +35,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import net.soliddesign.j1939tools.bus.BusResult;
+import net.soliddesign.j1939tools.bus.Packet;
+import net.soliddesign.j1939tools.bus.RequestResult;
+import net.soliddesign.j1939tools.j1939.J1939;
+import net.soliddesign.j1939tools.j1939.packets.ComponentIdentificationPacket;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * The unit test for {@link Part01Step09Controller}
@@ -561,48 +562,6 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
     }
-
-    // /**
-    // * Test module responds with ComponentIdentificationPacket which has make field longer than five char to global
-    // * request: destination specific requests yields a same response
-    // */
-    // @Test
-    // @TestDoc(value = {
-    // @TestItem(verifies = "6.1.9.3.b", description = "Warn if the make field (SP 586) is longer than five(5) ASCII
-    // characters.") })
-    // public void testMakeFiveCharactersWarning() {
-    // ComponentIdentificationPacket packet = create(0,
-    // "BatMan",
-    // "TheBatCave",
-    // "ST109823456",
-    // "");
-    //
-    // OBDModuleInformation obdModule = createOBDModuleInformation(0x00,
-    // 0,
-    // "BatMan",
-    // "TheBatCave",
-    // "ST109823456",
-    // "Land");
-    //
-    // dataRepository.putObdModule(obdModule);
-    //
-    // when(vehicleInformationModule.requestComponentIdentification(any()))
-    // .thenReturn(RequestResult.of(packet));
-    //
-    // when(vehicleInformationModule.requestComponentIdentification(any(), eq(0)))
-    // .thenReturn(BusResult.of(packet));
-    //
-    // runTest();
-    //
-    // verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
-    //
-    // verify(vehicleInformationModule).requestComponentIdentification(any(), eq(0));
-    // verify(vehicleInformationModule).requestComponentIdentification(any());
-    //
-    // // Verify the documentation was recorded correctly
-    // assertEquals("", listener.getMessages());
-    // assertEquals("Function 0 ECU is Engine #1 (0)" + NL, listener.getResults());
-    // }
 
     /**
      * Test module responds with ComponentIdentificationPacket which has make field less than two char to global

@@ -12,9 +12,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import net.solidDesign.j1939.J1939;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.junit.After;
@@ -23,6 +21,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import net.soliddesign.j1939tools.j1939.J1939;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * The unit test for {@link SectionA5Verifier}

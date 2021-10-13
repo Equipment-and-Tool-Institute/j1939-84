@@ -8,11 +8,12 @@ import java.util.List;
 
 import javax.swing.JDialog;
 
-import org.etools.j1939_84.bus.Adapter;
-import net.solidDesign.j1939.J1939;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.ReportFileModule;
+
+import net.soliddesign.j1939tools.bus.Adapter;
+import net.soliddesign.j1939tools.j1939.J1939;
 
 /**
  * The interfaces for the UserInterface

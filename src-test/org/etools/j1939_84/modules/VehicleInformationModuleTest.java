@@ -1,10 +1,10 @@
 /*
- * Copyright 2019 Equipment & Tool Institute
+ * Copyright (c) 2021. Equipment & Tool Institute
  */
 package org.etools.j1939_84.modules;
 
-import static org.etools.j1939_84.J1939_84.NL;
-import static net.solidDesign.j1939.J1939.GLOBAL_ADDR;
+import static net.soliddesign.j1939tools.J1939tools.NL;
+import static net.soliddesign.j1939tools.j1939.J1939.GLOBAL_ADDR;
 import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -22,17 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.etools.j1939_84.bus.Bus;
-import org.etools.j1939_84.bus.BusException;
-import org.etools.j1939_84.bus.Packet;
-import net.solidDesign.j1939.J1939;
-import net.solidDesign.j1939.packets.AddressClaimPacket;
-import net.solidDesign.j1939.packets.DM56EngineFamilyPacket;
-import net.solidDesign.j1939.packets.DM5DiagnosticReadinessPacket;
-import net.solidDesign.j1939.packets.VehicleIdentificationPacket;
-import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.testdoc.TestDoc;
 import org.etools.testdoc.TestItem;
 import org.junit.After;
@@ -42,18 +32,24 @@ import org.junit.runner.RunWith;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
+import net.soliddesign.j1939tools.bus.Bus;
+import net.soliddesign.j1939tools.bus.BusException;
+import net.soliddesign.j1939tools.bus.Packet;
+import net.soliddesign.j1939tools.bus.RequestResult;
+import net.soliddesign.j1939tools.j1939.J1939;
+import net.soliddesign.j1939tools.j1939.packets.AddressClaimPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM56EngineFamilyPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
+import net.soliddesign.j1939tools.j1939.packets.VehicleIdentificationPacket;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
+import net.soliddesign.j1939tools.modules.TestDateTimeModule;
 /**
  * Unit tests for the {@link VehicleInformationModule} class
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
-@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The values returned are properly ignored on verify statements.")
 @RunWith(MockitoJUnitRunner.class)
 public class VehicleInformationModuleTest {
-
-    private static final int BUS_ADDR = 0xA5;
 
     private static final Charset UTF8 = StandardCharsets.UTF_8;
     private final TestResultsListener listener = new TestResultsListener();
@@ -66,21 +62,21 @@ public class VehicleInformationModuleTest {
         DateTimeModule.setInstance(new TestDateTimeModule());
         instance = new VehicleInformationModule();
         instance.setJ1939(j1939);
-        DataRepository.clearInstance();
     }
 
     @After
     public void tearDown() {
-        // using spy now verifyNoMoreInteractions(j1939);
+        // using spy now verifyNoMoreInteractions(j1939tools);
     }
 
     @Test
     @TestDoc(description = "Verify that engine family from the DM56 is correctly cached.", dependsOn = "DM56EngineFamilyPacketTest")
     public void testGetEngineFamilyName() throws Exception {
-        DM56EngineFamilyPacket response = mock(DM56EngineFamilyPacket.class);
-        when(response.getFamilyName()).thenReturn("family");
+        DM56EngineFamilyPacket response = DM56EngineFamilyPacket.create(0x00, 2021, true, "family");
         doReturn(new RequestResult<>(false, response)).when(j1939)
-                                                      .requestGlobal(null, DM56EngineFamilyPacket.class, NOOP);
+                                                      .requestGlobal(null,
+                                                                     DM56EngineFamilyPacket.class,
+                                                                     NOOP);
 
         String actual = instance.getEngineFamilyName();
         instance.getEngineFamilyName(); // Make sure it's cached
@@ -274,10 +270,6 @@ public class VehicleInformationModuleTest {
         verify(j1939).requestGlobal("Global Request for Address Claim", AddressClaimPacket.class, NOOP);
     }
 
-
-
-
-
     @Test
     public void testReportConnectionSpeed() throws Exception {
         Bus bus = mock(Bus.class);
@@ -305,8 +297,6 @@ public class VehicleInformationModuleTest {
         assertEquals(expected, listener.getResults());
         verify(j1939).getBus();
     }
-
-
 
     @Test
     public void testGetOBDModules() throws BusException {

@@ -11,15 +11,16 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.util.List;
 
-import net.solidDesign.j1939.packets.DiagnosticTroubleCode;
-import net.solidDesign.j1939.packets.FreezeFrame;
-import net.solidDesign.j1939.packets.model.Spn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import net.soliddesign.j1939tools.j1939.model.Spn;
+import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import net.soliddesign.j1939tools.j1939.packets.FreezeFrame;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TableA2ValueValidatorTest {

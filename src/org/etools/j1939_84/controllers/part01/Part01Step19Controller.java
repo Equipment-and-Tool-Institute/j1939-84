@@ -3,21 +3,22 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static net.solidDesign.j1939.packets.LampStatus.OFF;
+import static net.soliddesign.j1939tools.j1939.packets.LampStatus.OFF;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import net.solidDesign.j1939.packets.DiagnosticTroubleCodePacket;
-import net.solidDesign.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+
+import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
+import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.1.19 DM23: Emission Related Previously Active DTCs

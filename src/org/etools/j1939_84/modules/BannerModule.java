@@ -6,6 +6,8 @@ package org.etools.j1939_84.modules;
 import org.etools.j1939_84.BuildNumber;
 import org.etools.j1939_84.controllers.ResultsListener;
 
+import net.soliddesign.j1939tools.modules.FunctionalModule;
+
 /**
  * Generates the Banner for the Reports
  *

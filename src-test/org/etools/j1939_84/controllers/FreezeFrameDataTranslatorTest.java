@@ -9,14 +9,15 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import org.etools.j1939_84.bus.Packet;
-import net.solidDesign.j1939.packets.DM24SPNSupportPacket;
-import net.solidDesign.j1939.packets.DM25ExpandedFreezeFrame;
-import net.solidDesign.j1939.packets.FreezeFrame;
-import net.solidDesign.j1939.packets.SupportedSPN;
-import net.solidDesign.j1939.packets.model.Spn;
 import org.junit.Before;
 import org.junit.Test;
+
+import net.soliddesign.j1939tools.bus.Packet;
+import net.soliddesign.j1939tools.j1939.model.Spn;
+import net.soliddesign.j1939tools.j1939.packets.DM24SPNSupportPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM25ExpandedFreezeFrame;
+import net.soliddesign.j1939tools.j1939.packets.FreezeFrame;
+import net.soliddesign.j1939tools.j1939.packets.SupportedSPN;
 
 public class FreezeFrameDataTranslatorTest {
 

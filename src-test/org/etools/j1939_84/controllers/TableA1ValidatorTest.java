@@ -19,15 +19,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
-import net.solidDesign.j1939.packets.DM19CalibrationInformationPacket;
-import net.solidDesign.j1939.packets.DM24SPNSupportPacket;
-import net.solidDesign.j1939.packets.GenericPacket;
-import net.solidDesign.j1939.packets.SupportedSPN;
-import net.solidDesign.j1939.packets.model.PgnDefinition;
-import net.solidDesign.j1939.packets.model.Spn;
-import net.solidDesign.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.junit.After;
 import org.junit.Before;
@@ -35,6 +26,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import net.soliddesign.j1939tools.bus.Packet;
+import net.soliddesign.j1939tools.j1939.J1939DaRepository;
+import net.soliddesign.j1939tools.j1939.model.PgnDefinition;
+import net.soliddesign.j1939tools.j1939.model.Spn;
+import net.soliddesign.j1939tools.j1939.model.SpnDefinition;
+import net.soliddesign.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM24SPNSupportPacket;
+import net.soliddesign.j1939tools.j1939.packets.GenericPacket;
+import net.soliddesign.j1939tools.j1939.packets.SupportedSPN;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TableA1ValidatorTest {

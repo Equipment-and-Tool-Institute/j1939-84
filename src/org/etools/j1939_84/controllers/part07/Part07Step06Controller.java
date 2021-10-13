@@ -7,16 +7,17 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import net.solidDesign.j1939.packets.DM2PreviouslyActiveDTC;
-import net.solidDesign.j1939.packets.DM5DiagnosticReadinessPacket;
-import net.solidDesign.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+
+import net.soliddesign.j1939tools.j1939.packets.DM2PreviouslyActiveDTC;
+import net.soliddesign.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
+import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.7.6 DM5: Diagnostic Readiness 1
@@ -60,10 +61,10 @@ public class Part07Step06Controller extends StepController {
     protected void run() throws Throwable {
         // 6.7.6.1.a Global DM5 [(send Request (PGN 59904) for PGN 65230 (SPNs 1218-1219)]).
         var obdPackets = getCommunicationsModule().requestDM5(getListener())
-                                                     .getPackets()
-                                                     .stream()
-                                                     .filter(p -> isObdModule(p.getSourceAddress()))
-                                                     .collect(Collectors.toList());
+                                                  .getPackets()
+                                                  .stream()
+                                                  .filter(p -> isObdModule(p.getSourceAddress()))
+                                                  .collect(Collectors.toList());
 
         // 6.7.6.2.a Fail if any OBD ECU reports > 0 for active DTCs.
         obdPackets.stream()

@@ -16,13 +16,9 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import net.solidDesign.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.modules.BannerModule;
-import net.solidDesign.j1939.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +29,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import net.soliddesign.j1939tools.j1939.J1939;
+import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939_84.modules.VehicleInformationModule;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractPartControllerTest {
@@ -231,7 +230,7 @@ public class AbstractPartControllerTest {
             verify(stepController).getStepNumber();
         }
 
-        String partName = Lookup.getPartName(partNumber);
+        String partName = PartLookup.getPartName(partNumber);
 
         StringBuilder expectedMessages = new StringBuilder();
         for (int i = 1; i <= stepControllers.size(); i++) {
@@ -241,13 +240,13 @@ public class AbstractPartControllerTest {
                             .append(".")
                             .append(i)
                             .append(" - ")
-                            .append(Lookup.getStepName(partNumber, i));
+                            .append(PartLookup.getStepName(partNumber, i));
         }
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
         StringBuilder expectedResults = new StringBuilder(NL + "Start " + partName + NL);
         for (int i = 1; i <= stepControllers.size(); i++) {
-            String stepName = Lookup.getStepName(partNumber, i);
+            String stepName = PartLookup.getStepName(partNumber, i);
             expectedResults.append(NL)
                            .append("Start Test ")
                            .append(partNumber)
