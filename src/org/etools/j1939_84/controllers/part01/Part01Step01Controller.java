@@ -94,7 +94,7 @@ public class Part01Step01Controller extends StepController {
 
         while (getDataRepository().getVehicleInformation() == null) {
             getDateTimeModule().pauseFor(500);
-            updateProgress("Step 6.1.1.1.e Collecting Vehicle Information");
+            updateProgress(getDisplayName() + " - Collecting Vehicle Information");
         }
         getListener().onVehicleInformationReceived(getDataRepository().getVehicleInformation());
     }
