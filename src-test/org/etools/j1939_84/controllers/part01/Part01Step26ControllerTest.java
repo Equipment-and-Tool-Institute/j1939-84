@@ -102,7 +102,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
     private static List<SupportedSPN> spns(int... ids) {
         return Arrays.stream(ids).mapToObj(id -> {
-            return SupportedSPN.create(id, false, true, false, 1);
+            return SupportedSPN.create(id, false, true, false, false, 1);
         }).collect(Collectors.toList());
     }
 
@@ -181,6 +181,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                                                                       true,
                                                                                                                       true,
                                                                                                                       true,
+                                                                                                                      false,
                                                                                                                       1))
                                                                                       .toArray(SupportedSPN[]::new));
         obdModule.set(obdDM24Packet, 1);
@@ -200,6 +201,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                                 SupportedSPN.create(111,
                                                                                                     false,
                                                                                                     true,
+                                                                                                    false,
                                                                                                     false,
                                                                                                     1));
         module1.set(dm24SPNSupportPacket, 1);
@@ -384,6 +386,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                        false,
                                                                        true,
                                                                        false,
+                                                                       false,
                                                                        1)),
                        1);
         dataRepository.putObdModule(obdModule0);
@@ -487,6 +490,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                    SupportedSPN.create(111,
                                                                        false,
                                                                        true,
+                                                                       false,
                                                                        false,
                                                                        1)),
                        1);

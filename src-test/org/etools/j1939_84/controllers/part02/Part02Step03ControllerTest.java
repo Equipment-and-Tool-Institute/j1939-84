@@ -134,13 +134,13 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
     }, description = "Using a response that indicates that 6.2.3.2.b failed, verify that the failures are in the report.")
     public void testFailures() {
 
-        SupportedSPN spn1 = SupportedSPN.create(123, true, true, true, 1);
+        SupportedSPN spn1 = SupportedSPN.create(123, true, true, true, false, 1);
 
         OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
         obdInfo0.set(DM24SPNSupportPacket.create(0, spn1), 1);
         dataRepository.putObdModule(obdInfo0);
 
-        SupportedSPN spn2 = SupportedSPN.create(456, true, true, true, 1);
+        SupportedSPN spn2 = SupportedSPN.create(456, true, true, true, false, 1);
         DM24SPNSupportPacket packet0 = DM24SPNSupportPacket.create(0, spn2);
         when(communicationsModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
 
@@ -176,8 +176,8 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
     @Test
     @TestDoc(value = @TestItem(verifies = "6.2.3.2.b"), description = "Verify that step completes without errors when none of the fail criteria are met.")
     public void testNoFailures() {
-        SupportedSPN spn1 = SupportedSPN.create(123, true, true, true, 1);
-        SupportedSPN spn2 = SupportedSPN.create(456, true, true, true, 1);
+        SupportedSPN spn1 = SupportedSPN.create(123, true, true, true, false, 1);
+        SupportedSPN spn2 = SupportedSPN.create(456, true, true, true, false, 1);
         OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
         obdInfo0.set(DM24SPNSupportPacket.create(0, spn1, spn2), 1);
         dataRepository.putObdModule(obdInfo0);

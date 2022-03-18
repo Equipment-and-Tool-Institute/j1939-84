@@ -176,7 +176,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         vehicleInformation.setFuelType(BI_DSL);
         dataRepository.setVehicleInformation(vehicleInformation);
 
-        SupportedSPN supportedSPN = SupportedSPN.create(159, true, true, true, 1);
+        SupportedSPN supportedSPN = SupportedSPN.create(159, true, true, true, false, 1);
         dataRepository.putObdModule(createOBDModuleInformation(0x00, supportedSPN));
 
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 147, 31, 1, 0, 0, 0);
@@ -252,7 +252,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         vehicleInformation.setFuelType(BI_DSL);
         dataRepository.setVehicleInformation(vehicleInformation);
 
-        SupportedSPN supportedSPN = SupportedSPN.create(159, true, true, true, 1);
+        SupportedSPN supportedSPN = SupportedSPN.create(159, true, true, true, false, 1);
         dataRepository.putObdModule(createOBDModuleInformation(0x00, supportedSPN));
 
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 31, 1, 0, 0, 0);
@@ -328,7 +328,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         vehicleInformation.setFuelType(BI_GAS);
         dataRepository.setVehicleInformation(vehicleInformation);
 
-        SupportedSPN supportedSPN = SupportedSPN.create(99, true, true, true, 1);
+        SupportedSPN supportedSPN = SupportedSPN.create(99, true, true, true, false, 1);
         dataRepository.putObdModule(createOBDModuleInformation(0x00, supportedSPN));
 
         when(communicationsModule.requestTestResults(any(ResultsListener.class),
@@ -427,7 +427,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         vehicleInformation.setFuelType(BATT_ELEC);
         dataRepository.setVehicleInformation(vehicleInformation);
 
-        SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, 1);
+        SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, false, 1);
         dataRepository.putObdModule(createOBDModuleInformation(0x00, supportedSPN));
 
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 242, 0, 0, 0);
@@ -494,7 +494,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         vehicleInformation.setFuelType(BI_GAS);
         dataRepository.setVehicleInformation(vehicleInformation);
 
-        SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, 1);
+        SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, false, 1);
         dataRepository.putObdModule(createOBDModuleInformation(0x00, supportedSPN));
 
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 242, 0, 0x88, 0);
@@ -570,7 +570,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         vehicleInformation.setFuelType(BI_GAS);
         dataRepository.setVehicleInformation(vehicleInformation);
 
-        SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, 1);
+        SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, false, 1);
         dataRepository.putObdModule(createOBDModuleInformation(0x00, supportedSPN));
 
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 242, 0xFB00, 0, 0x88);
@@ -645,7 +645,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         vehicleInformation.setFuelType(BI_GAS);
         dataRepository.setVehicleInformation(vehicleInformation);
 
-        SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, 1);
+        SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, false, 1);
         dataRepository.putObdModule(createOBDModuleInformation(0x00, supportedSPN));
 
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 242, 0x25, 0, 0);
@@ -721,7 +721,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         vehicleInformation.setFuelType(BI_GAS);
         dataRepository.setVehicleInformation(vehicleInformation);
 
-        SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, 1);
+        SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, false, 1);
         dataRepository.putObdModule(createOBDModuleInformation(0x00, supportedSPN));
 
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 1, 0xFB00, 0xFFFF, 0xFFFF);
@@ -847,7 +847,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         vehicleInformation.setFuelType(BI_GAS);
         dataRepository.setVehicleInformation(vehicleInformation);
 
-        SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, 1);
+        SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, false, 1);
         dataRepository.putObdModule(createOBDModuleInformation(0x00, supportedSPN));
 
         ScaledTestResult scaledTestResult = ScaledTestResult.create(0x00, 0, 31, 0, 0, 0, 0);
@@ -933,7 +933,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         vehicleInformation.setFuelType(BI_GAS);
         dataRepository.setVehicleInformation(vehicleInformation);
 
-        SupportedSPN supportedSP = SupportedSPN.create(159, true, true, true, 1);
+        SupportedSPN supportedSP = SupportedSPN.create(159, true, true, true, false, 1);
         dataRepository.putObdModule(createOBDModuleInformation(0x00, supportedSP));
 
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 159, 18, 8, 0, 0, 0);
@@ -1024,8 +1024,8 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(BI_DSL);
         dataRepository.setVehicleInformation(vehicleInformation);
-        SupportedSPN supportedSP0x00 = SupportedSPN.create(159, true, true, true, 1);
-        SupportedSPN supportedSP0x09 = SupportedSPN.create(159, true, true, true, 1);
+        SupportedSPN supportedSP0x00 = SupportedSPN.create(159, true, true, true, false, 1);
+        SupportedSPN supportedSP0x09 = SupportedSPN.create(159, true, true, true, false, 1);
         dataRepository.putObdModule(createOBDModuleInformation(0x00, supportedSP0x00));
         dataRepository.putObdModule(createOBDModuleInformation(0x09, supportedSP0x09));
 
@@ -1128,7 +1128,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         vehicleInformation.setFuelType(BI_GAS);
         dataRepository.setVehicleInformation(vehicleInformation);
 
-        SupportedSPN supportedSP = SupportedSPN.create(159, true, true, true, 1);
+        SupportedSPN supportedSP = SupportedSPN.create(159, true, true, true, false, 1);
         dataRepository.putObdModule(createOBDModuleInformation(0x00, supportedSP));
 
         ScaledTestResult scaledTestResult2 = ScaledTestResult.create(247, 159, 18, 8, 0, 0, 0);

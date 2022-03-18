@@ -43,8 +43,6 @@ import net.soliddesign.j1939tools.j1939.packets.SupportedSPN;
 import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
 
-;
-
 @RunWith(MockitoJUnitRunner.class)
 public class Part07Step15ControllerTest extends AbstractControllerTest {
     private static final int PART_NUMBER = 7;
@@ -138,8 +136,8 @@ public class Part07Step15ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailuresWithAllResults() {
         // Module responds to all test results request
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        var supportedSPN1 = SupportedSPN.create(123, true, true, true, 1);
-        var supportedSPN2 = SupportedSPN.create(456, true, true, true, 1);
+        var supportedSPN1 = SupportedSPN.create(123, true, true, true, false, 1);
+        var supportedSPN2 = SupportedSPN.create(456, true, true, true, false, 1);
         obdModuleInformation.setSupportedSPNs(List.of(supportedSPN1, supportedSPN2));
 
         // Not Initialized
@@ -173,8 +171,8 @@ public class Part07Step15ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailuresWithIndividualResults() {
         // Module will not respond to all test results request, but will respond to individual test requests
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        var supportedSPN1 = SupportedSPN.create(123, true, true, true, 1);
-        var supportedSPN2 = SupportedSPN.create(456, true, true, true, 1);
+        var supportedSPN1 = SupportedSPN.create(123, true, true, true, false, 1);
+        var supportedSPN2 = SupportedSPN.create(456, true, true, true, false, 1);
         obdModuleInformation.setSupportedSPNs(List.of(supportedSPN1, supportedSPN2));
 
         // Not Initialized
@@ -214,8 +212,8 @@ public class Part07Step15ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailuresWithNoResults() {
         // Module will not respond to all tests results request, and will NACK individual test requests
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        var supportedSPN1 = SupportedSPN.create(123, true, true, true, 1);
-        var supportedSPN2 = SupportedSPN.create(456, true, true, true, 1);
+        var supportedSPN1 = SupportedSPN.create(123, true, true, true, false, 1);
+        var supportedSPN2 = SupportedSPN.create(456, true, true, true, false, 1);
         obdModuleInformation.setSupportedSPNs(List.of(supportedSPN1, supportedSPN2));
 
         dataRepository.putObdModule(obdModuleInformation);
@@ -246,8 +244,8 @@ public class Part07Step15ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferentTestResultsWithAllResults() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        var supportedSPN1 = SupportedSPN.create(123, true, true, true, 1);
-        var supportedSPN2 = SupportedSPN.create(456, true, true, true, 1);
+        var supportedSPN1 = SupportedSPN.create(123, true, true, true, false, 1);
+        var supportedSPN2 = SupportedSPN.create(456, true, true, true, false, 1);
         obdModuleInformation.setSupportedSPNs(List.of(supportedSPN1, supportedSPN2));
 
         // Not Initialized
@@ -280,8 +278,8 @@ public class Part07Step15ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferentTestResultsWithIndividualResults() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        var supportedSPN1 = SupportedSPN.create(123, true, true, true, 1);
-        var supportedSPN2 = SupportedSPN.create(456, true, true, true, 1);
+        var supportedSPN1 = SupportedSPN.create(123, true, true, true, false, 1);
+        var supportedSPN2 = SupportedSPN.create(456, true, true, true, false, 1);
         obdModuleInformation.setSupportedSPNs(List.of(supportedSPN1, supportedSPN2));
 
         // Not Initialized
@@ -319,7 +317,7 @@ public class Part07Step15ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNACK() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        var supportedSPN1 = SupportedSPN.create(123, true, true, true, 1);
+        var supportedSPN1 = SupportedSPN.create(123, true, true, true, false, 1);
         obdModuleInformation.setSupportedSPNs(List.of(supportedSPN1));
 
         dataRepository.putObdModule(obdModuleInformation);

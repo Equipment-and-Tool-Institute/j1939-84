@@ -22,6 +22,7 @@ import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
+import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.junit.After;
 import org.junit.Before;
@@ -36,7 +37,6 @@ import net.soliddesign.j1939tools.j1939.packets.ScaledTestResult;
 import net.soliddesign.j1939tools.j1939.packets.SupportedSPN;
 import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;;
 
 @RunWith(MockitoJUnitRunner.class)
 public class Part08Step11ControllerTest extends AbstractControllerTest {
@@ -132,10 +132,10 @@ public class Part08Step11ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
 
         int spn1 = 123;
-        var supportedSPN1 = SupportedSPN.create(spn1, true, true, true, 1);
+        var supportedSPN1 = SupportedSPN.create(spn1, true, true, true, false, 1);
 
         int spn2 = 456;
-        var supportedSPN2 = SupportedSPN.create(spn2, true, true, true, 1);
+        var supportedSPN2 = SupportedSPN.create(spn2, true, true, true, false, 1);
 
         obdModuleInformation.setSupportedSPNs(List.of(supportedSPN1, supportedSPN2));
 
