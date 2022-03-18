@@ -92,7 +92,7 @@ public class VehicleInformationPresenterTest {
         DM19CalibrationInformationPacket packet = DM19CalibrationInformationPacket.create(0x00,
                                                                                           0xF9,
                                                                                           calibrationInformation);
-        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(packet));
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of(packet));
         when(vehicleInformationModule.getVin()).thenReturn("vin");
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
         when(vinDecoder.isModelYearValid(2)).thenReturn(true);
@@ -172,7 +172,6 @@ public class VehicleInformationPresenterTest {
         verify(view).setFuelType(FuelType.DSL);
         verify(view).setNumberOfTripsForFaultBImplant(1);
         verify(view).setEmissionUnits(0);
-        verify(view).setCalIds(0);
         verify(view).setVehicleModelYear(500);
         verify(view).setEngineModelYear(500);
 

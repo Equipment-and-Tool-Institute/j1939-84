@@ -15,12 +15,11 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 import net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket;
+import net.soliddesign.j1939tools.j1939.packets.DM11ClearActiveDTCsPacket;
 import net.soliddesign.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
 import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
 import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
-
-;
 
 /**
  * 6.9.8 DM11: Diagnostic Data Clear/Reset for Active DTCs
@@ -111,6 +110,7 @@ public class Part09Step08Controller extends StepController {
 
         // 6.9.8.6.a Fail if any OBD ECU provides a NACK to the global DM11 request.
         packets.stream()
+               .map(p -> new DM11ClearActiveDTCsPacket(p.getPacket()))
                .filter(p -> isObdModule(p.getSourceAddress()))
                .filter(p -> p.getResponse() == AcknowledgmentPacket.Response.NACK)
                .map(ParsedPacket::getModuleName)
@@ -120,6 +120,7 @@ public class Part09Step08Controller extends StepController {
 
         // 6.9.8.6.b Warn if any OBD ECU provides an ACK to the global DM11 request.
         packets.stream()
+               .map(p -> new DM11ClearActiveDTCsPacket(p.getPacket()))
                .filter(p -> isObdModule(p.getSourceAddress()))
                .filter(p -> p.getResponse() == AcknowledgmentPacket.Response.ACK)
                .map(ParsedPacket::getModuleName)

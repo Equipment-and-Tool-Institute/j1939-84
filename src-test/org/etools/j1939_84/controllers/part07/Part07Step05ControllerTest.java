@@ -3,15 +3,18 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static net.soliddesign.j1939tools.j1939.packets.LampStatus.OFF;
 import static net.soliddesign.j1939tools.j1939.packets.LampStatus.ON;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -33,6 +36,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import net.soliddesign.j1939tools.CommunicationsListener;
 import net.soliddesign.j1939tools.j1939.J1939;
 import net.soliddesign.j1939tools.j1939.packets.DM1ActiveDTCsPacket;
 import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCode;
@@ -130,17 +134,26 @@ public class Part07Step05ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var dm1_0 = DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF);
+        packetList.add(dm1_0);
 
         // Non-OBD Module
         var dtc = DiagnosticTroubleCode.create(122, 12, 1, 12);
         var dm1_1 = DM1ActiveDTCsPacket.create(1, ON, OFF, OFF, OFF, dtc);
-        when(communicationsModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_1));
+        packetList.add(dm1_1);
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(9),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
         runTest();
 
-        verify(communicationsModule).readDM1(any());
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(9),
+                                          eq(SECONDS),
+                                          any(ResultsListener.class));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -149,15 +162,23 @@ public class Part07Step05ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForDTC() {
+        List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var dtc = DiagnosticTroubleCode.create(122, 12, 1, 12);
         var dm1 = DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+        packetList.add(dm1);
 
-        when(communicationsModule.readDM1(any())).thenReturn(List.of(dm1));
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(9),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
         runTest();
 
-        verify(communicationsModule).readDM1(any());
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(9),
+                                          eq(SECONDS),
+                                          any(ResultsListener.class));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -169,14 +190,23 @@ public class Part07Step05ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForMILNotOff() {
+        List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
+
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var dm1 = DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF);
+        packetList.add(dm1);
 
-        when(communicationsModule.readDM1(any())).thenReturn(List.of(dm1));
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(9),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
         runTest();
 
-        verify(communicationsModule).readDM1(any());
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(9),
+                                          eq(SECONDS),
+                                          any(ResultsListener.class));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -190,14 +220,22 @@ public class Part07Step05ControllerTest extends AbstractControllerTest {
     public void testFailureForNoDM1() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
+        List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
         // Non-OBD Module
         var dtc = DiagnosticTroubleCode.create(122, 12, 1, 12);
         var dm1 = DM1ActiveDTCsPacket.create(1, ON, OFF, OFF, OFF, dtc);
-        when(communicationsModule.readDM1(any())).thenReturn(List.of(dm1));
+        packetList.add(dm1);
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(9),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
         runTest();
 
-        verify(communicationsModule).readDM1(any());
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(9),
+                                          eq(SECONDS),
+                                          any(ResultsListener.class));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

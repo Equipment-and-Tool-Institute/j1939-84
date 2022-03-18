@@ -5,9 +5,11 @@ package org.etools.j1939_84.controllers;
 
 import static org.etools.j1939_84.model.Outcome.ABORT;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,7 +25,12 @@ import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import net.soliddesign.j1939tools.bus.BusResult;
 import net.soliddesign.j1939tools.j1939.J1939;
+import net.soliddesign.j1939tools.j1939.J1939DaRepository;
+import net.soliddesign.j1939tools.j1939.Lookup;
+import net.soliddesign.j1939tools.j1939.model.PgnDefinition;
+import net.soliddesign.j1939tools.j1939.packets.GenericPacket;
 import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
 
@@ -99,6 +106,45 @@ public abstract class Controller {
         if (getEnding() != null && INTERRUPTIBLE_ENDINGS.contains(getEnding())) {
             throw new InterruptedException(getEnding().toString());
         }
+    }
+
+    protected List<? extends GenericPacket> read(int pg, int timeout, TimeUnit timeUnit) {
+        return getCommunicationsModule().read(pg, timeout, timeUnit, getListener());
+    }
+
+    protected List<? extends GenericPacket> read(Class<? extends GenericPacket> clazz, int timeout, TimeUnit timeUnit) {
+        return getCommunicationsModule().read(clazz, timeout, timeUnit, getListener());
+    }
+
+    protected List<? extends GenericPacket> request(int pg) {
+        return getCommunicationsModule().request(pg, getListener());
+    }
+
+    protected List<? extends GenericPacket> request(Class<? extends GenericPacket> clazz) {
+        return getCommunicationsModule().request(clazz, getListener());
+    }
+
+    protected BusResult<? extends GenericPacket> request(Class<? extends GenericPacket> clazz, int address) {
+        return getCommunicationsModule().request(clazz, address, getListener());
+    }
+
+    protected List<GenericPacket> requestPackets(int address, int... pgns) throws InterruptedException {
+        String moduleName = Lookup.getAddressName(address);
+        List<GenericPacket> packets = new ArrayList<>();
+
+        for (int pgn : pgns) {
+            PgnDefinition pgnDef = getPgnDef(pgn);
+
+            incrementProgress("Requesting " + pgnDef.getLabel() + " (" + pgnDef.getAcronym() + ") from " + moduleName);
+            var response = getCommunicationsModule().request(pgn, address, getListener());
+
+            packets.addAll(response);
+        }
+        return packets;
+    }
+
+    private static PgnDefinition getPgnDef(int pg) {
+        return J1939DaRepository.getInstance().findPgnDefinition(pg);
     }
 
     /**

@@ -3,26 +3,29 @@
  */
 package org.etools.j1939_84.controllers.part04;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static net.soliddesign.j1939tools.j1939.packets.LampStatus.ON;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+
+import org.etools.j1939_84.controllers.DataRepository;
+import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.VehicleInformationModule;
 
 import net.soliddesign.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
 import net.soliddesign.j1939tools.j1939.packets.DM1ActiveDTCsPacket;
 import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCode;
 import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
 import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
-import org.etools.j1939_84.controllers.DataRepository;
-import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.modules.BannerModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
 import net.soliddesign.j1939tools.modules.CommunicationsModule;
-import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
+import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.4.3 DM1: Active Diagnostic Trouble Codes (DTCs)
@@ -64,7 +67,12 @@ public class Part04Step03Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.4.3.1.a Receive broadcast data ([PGN 65226 (SPNs 1213-1215, 3038, 1706)]).
-        List<DM1ActiveDTCsPacket> packets = getCommunicationsModule().readDM1(getListener());
+        List<DM1ActiveDTCsPacket> packets = read(DM1ActiveDTCsPacket.class,
+                                                 9,
+                                                 SECONDS).stream()
+                                                         .map(p -> new DM1ActiveDTCsPacket(p.getPacket()))
+                                                         .collect(
+                                                                  Collectors.toList());
 
         // 6.4.3.2.a Fail if no ECU reports an active DTC and MIL on.
         boolean noReports = packets.stream()

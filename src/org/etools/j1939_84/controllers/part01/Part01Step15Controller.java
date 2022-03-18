@@ -3,12 +3,14 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static net.soliddesign.j1939tools.j1939.packets.LampStatus.NOT_SUPPORTED;
 import static net.soliddesign.j1939tools.j1939.packets.LampStatus.OFF;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -22,8 +24,6 @@ import net.soliddesign.j1939tools.j1939.packets.LampStatus;
 import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
 import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
-
-;
 
 /**
  * 6.1.15 DM1: Active diagnostic trouble codes (DTCs)
@@ -67,7 +67,12 @@ public class Part01Step15Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.1.15.1.a. Gather broadcast DM1 data from all ECUs (PG 65226)
-        List<DM1ActiveDTCsPacket> packets = getCommunicationsModule().readDM1(getListener());
+        List<DM1ActiveDTCsPacket> packets = read(DM1ActiveDTCsPacket.class,
+                                                 9,
+                                                 SECONDS).stream()
+                                                         .map(p -> new DM1ActiveDTCsPacket(p.getPacket()))
+                                                         .collect(
+                                                                  Collectors.toList());
 
         // 6.1.15.2.a. Fail if any OBD ECU reports an active DTC.
         packets.stream()

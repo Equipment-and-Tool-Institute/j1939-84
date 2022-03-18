@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part06;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static net.soliddesign.j1939tools.j1939.packets.LampStatus.ON;
 
 import java.util.List;
@@ -65,8 +66,9 @@ public class Part06Step04Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.6.4.1.a Receive broadcast DM1 [(PGN 65226 (SPNs 1213-1215, 3038, 1706)]).
-        List<DM1ActiveDTCsPacket> packets = getCommunicationsModule().readDM1(getListener())
-                                                                        .stream()
+        List<DM1ActiveDTCsPacket> packets = read(DM1ActiveDTCsPacket.class, 9, SECONDS)
+                                                                                       .stream()
+                                                                                       .map(p -> new DM1ActiveDTCsPacket(p.getPacket()))
                                                                         .filter(p -> isObdModule(p.getSourceAddress()))
                                                                         .collect(Collectors.toList());
 

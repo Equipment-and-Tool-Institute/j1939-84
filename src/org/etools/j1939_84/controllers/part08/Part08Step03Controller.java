@@ -3,11 +3,13 @@
  */
 package org.etools.j1939_84.controllers.part08;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static net.soliddesign.j1939tools.j1939.packets.LampStatus.ON;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -23,8 +25,6 @@ import net.soliddesign.j1939tools.j1939.packets.LampStatus;
 import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
 import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
-
-;
 
 /**
  * 6.8.3 DM1: Active Diagnostic Trouble Codes (DTCs)
@@ -67,7 +67,12 @@ public class Part08Step03Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.8.3.1.a Receive broadcast data [(PGN 65226 (SPNs 1213-1215, 1706, and 3038)]).
-        List<DM1ActiveDTCsPacket> packets = getCommunicationsModule().readDM1(getListener());
+        List<DM1ActiveDTCsPacket> packets = read(DM1ActiveDTCsPacket.class,
+                                                 9,
+                                                 SECONDS).stream()
+                                                         .map(p -> new DM1ActiveDTCsPacket(p.getPacket()))
+                                                         .collect(
+                                                                  Collectors.toList());
 
         packets.forEach(this::save);
 

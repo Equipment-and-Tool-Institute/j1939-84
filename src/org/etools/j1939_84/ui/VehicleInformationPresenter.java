@@ -4,7 +4,6 @@
 package org.etools.j1939_84.ui;
 
 import static java.util.logging.Level.INFO;
-import static net.soliddesign.j1939tools.j1939.packets.ComponentIdentificationPacket.create;
 import static org.etools.j1939_84.J1939_84.getLogger;
 import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 
@@ -77,7 +76,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     /**
      * The component Id for the emissions units on the vehicle
      */
-    private List<ComponentIdentificationPacket> emissionUnitsFound = Collections.emptyList();
+    private final List<ComponentIdentificationPacket> emissionUnitsFound = Collections.emptyList();
     /**
      * The value the user has entered for the engine model year
      */
@@ -200,29 +199,21 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
             List<Integer> obdModules = vehicleInformationModule.getOBDModules(NOOP);
             view.setEmissionUnits(obdModules.size());
 
-            emissionUnitsFound = obdModules
-                                           .stream()
-                                           .map(address -> communicationsModule.requestComponentIdentification(NOOP,
-                                                                                                               address)
-                                                                               .getPacket()
-                                                                               .map(e -> e.resolve(p -> p,
-                                                                                                   ack -> create(address,
-                                                                                                                 "ERROR",
-                                                                                                                 "ERROR",
-                                                                                                                 "ERROR",
-                                                                                                                 "ERROR")))
-                                                                               .orElse(create(address,
-                                                                                              "MISSING",
-                                                                                              "MISSING",
-                                                                                              "MISSING",
-                                                                                              "MISSING")))
-                                           .collect(Collectors.toList());
+            obdModules.stream().peek(address -> {
+                emissionUnitsFound.addAll(communicationsModule.request(ComponentIdentificationPacket.class,
+                                                                       address,
+                                                                       NOOP)
+                                                              .toPacketStream()
+                                                              .map(p -> new ComponentIdentificationPacket(p.getPacket()))
+                                                              .collect(Collectors.toList()));
+            });
+
         } catch (Exception e) {
             getLogger().log(INFO, "Error reading OBD ECUs", e);
         }
 
         try {
-            calIdsFound = communicationsModule.requestDM19(NOOP);
+            calIdsFound = communicationsModule.requestDM19(NOOP).toPacketStream().collect(Collectors.toList());
             view.setCalIds((int) calIdsFound.stream().mapToLong(p -> p.getCalibrationInformation().size()).sum());
         } catch (Exception e) {
             getLogger().log(INFO, "Error reading calibration IDs", e);

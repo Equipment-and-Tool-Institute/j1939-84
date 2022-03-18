@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part05;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -63,10 +65,12 @@ public class Part05Step03Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.5.3.1.a Receive DM1 broadcast data ([PGN 65226 (SPNs 1213-1215, 1706, and 3038)]).
-        List<DM1ActiveDTCsPacket> packets = getCommunicationsModule().readDM1(getListener())
-                                                                     .stream()
-                                                                     .filter(p -> getDTCPacket(p.getSourceAddress()) != null)
-                                                                     .collect(Collectors.toList());
+        List<DM1ActiveDTCsPacket> packets = read(DM1ActiveDTCsPacket.class,
+                                                 9,
+                                                 SECONDS).stream()
+                                                         .map(p -> new DM1ActiveDTCsPacket(p.getPacket()))
+                                                         .filter(p -> getDTCPacket(p.getSourceAddress()) != null)
+                                                         .collect(Collectors.toList());
 
         // 6.5.3.2.a For every [OBD] ECU that responded to the DM12 request in step 6.5.2.1,
         // Fail if the DM1 response for the same ECU does not include the SPN(s) and associated FMI as given in the DM12

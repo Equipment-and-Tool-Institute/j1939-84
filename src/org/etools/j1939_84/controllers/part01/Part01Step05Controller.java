@@ -3,6 +3,7 @@ package org.etools.j1939_84.controllers.part01;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -63,7 +64,10 @@ public class Part01Step05Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.1.5.1.a. Global Request (PGN 59904) for PGN 65260 Vehicle ID (SPN 237) VIN.
-        List<VehicleIdentificationPacket> packets = getCommunicationsModule().reportVin(getListener());
+        List<VehicleIdentificationPacket> packets = request(VehicleIdentificationPacket.class)
+                                                                                              .stream()
+                                                                                              .map(p -> new VehicleIdentificationPacket(p.getPacket()))
+                                                                                              .collect(Collectors.toList());
 
         // 6.1.5.2.a. Fail if no VIN is provided by any ECU.
         if (packets.isEmpty()) {
