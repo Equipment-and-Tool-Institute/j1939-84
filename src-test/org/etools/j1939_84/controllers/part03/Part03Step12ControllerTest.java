@@ -135,7 +135,7 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testNoFailures() {
-        var spn = SupportedSPN.create(123, false, false, false, 0);
+        var spn = SupportedSPN.create(123, false, false, false, false, 0);
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         moduleInfo.set(DM24SPNSupportPacket.create(0, spn), 1);
@@ -160,8 +160,8 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForDifferenceSpnContent() {
-        var spn1 = SupportedSPN.create(123, false, false, false, 0);
-        var spn2 = SupportedSPN.create(123, true, true, true, 1);
+        var spn1 = SupportedSPN.create(123, false, false, false, false, 0);
+        var spn2 = SupportedSPN.create(123, true, true, true, false, 1);
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         moduleInfo.set(DM24SPNSupportPacket.create(0, spn1), 1);
@@ -190,8 +190,8 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForDifferentSPNs() {
-        var spn1 = SupportedSPN.create(123, false, false, false, 0);
-        var spn2 = SupportedSPN.create(456, false, false, false, 0);
+        var spn1 = SupportedSPN.create(123, false, false, false, false, 0);
+        var spn2 = SupportedSPN.create(456, false, false, false, false, 0);
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         moduleInfo.set(DM24SPNSupportPacket.create(0, spn1), 1);

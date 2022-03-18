@@ -134,7 +134,7 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         ScaledTestResult str0 = ScaledTestResult.create(247, 157, 8, 129, 100, 0, 1000);
         obdModuleInformation0.setScaledTestResults(List.of(str0));
-        SupportedSPN supportedSPN0 = SupportedSPN.create(157, true, true, true, 1);
+        SupportedSPN supportedSPN0 = SupportedSPN.create(157, true, true, true, false, 1);
         obdModuleInformation0.setSupportedSPNs(List.of(supportedSPN0));
         dataRepository.putObdModule(obdModuleInformation0);
         var dm30_0 = DM30ScaledTestResultsPacket.create(0, 0, str0);
@@ -145,7 +145,7 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
         ScaledTestResult str1 = ScaledTestResult.create(247, 159, 8, 129, 0, 0, 0);
         obdModuleInformation1.setScaledTestResults(List.of(str1));
-        SupportedSPN supportedSPN1 = SupportedSPN.create(159, true, true, true, 1);
+        SupportedSPN supportedSPN1 = SupportedSPN.create(159, true, true, true, false, 1);
         obdModuleInformation1.setSupportedSPNs(List.of(supportedSPN1));
         dataRepository.putObdModule(obdModuleInformation1);
 
@@ -184,7 +184,7 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         ScaledTestResult str0 = ScaledTestResult.create(247, 157, 8, 129, 0, 0, 0);
         obdModuleInformation0.setScaledTestResults(List.of(str0));
-        SupportedSPN supportedSPN0 = SupportedSPN.create(157, true, true, true, 1);
+        SupportedSPN supportedSPN0 = SupportedSPN.create(157, true, true, true, false, 1);
         obdModuleInformation0.setSupportedSPNs(List.of(supportedSPN0));
         dataRepository.putObdModule(obdModuleInformation0);
 
@@ -197,7 +197,7 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
         ScaledTestResult str11 = ScaledTestResult.create(247, 159, 8, 129, 0, 0, 0);
         obdModuleInformation1.setScaledTestResults(List.of(str1));
-        SupportedSPN supportedSPN1 = SupportedSPN.create(159, true, true, true, 1);
+        SupportedSPN supportedSPN1 = SupportedSPN.create(159, true, true, true, false, 1);
         obdModuleInformation1.setSupportedSPNs(List.of(supportedSPN1));
         dataRepository.putObdModule(obdModuleInformation1);
 

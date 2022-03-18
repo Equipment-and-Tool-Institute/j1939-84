@@ -102,7 +102,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
 
     private static List<SupportedSPN> spns(int... ids) {
         return Arrays.stream(ids).mapToObj(id -> {
-            return SupportedSPN.create(id, false, true, false, 1);
+            return SupportedSPN.create(id, false, true, false, false, 1);
         }).collect(Collectors.toList());
     }
 
@@ -181,6 +181,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                                                                 false,
                                                                                                                 false,
                                                                                                                 false,
+                                                                                                                false,
                                                                                                                 0))
                                                                                 .toArray(SupportedSPN[]::new));
         obdModule0.set(packet0, 1);
@@ -238,6 +239,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         DM24SPNSupportPacket packet17 = DM24SPNSupportPacket.create(17,
                                                                     supportedSpns.stream()
                                                                                  .map(spn -> SupportedSPN.create(spn,
+                                                                                                                 false,
                                                                                                                  false,
                                                                                                                  false,
                                                                                                                  false,
@@ -439,6 +441,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                        false,
                                                                        true,
                                                                        false,
+                                                                       false,
                                                                        2)),
                        1);
         dataRepository.putObdModule(obdModule0);
@@ -450,6 +453,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule17 = new OBDModuleInformation(17);
         obdModule17.set(DM24SPNSupportPacket.create(17,
                                                     SupportedSPN.create(111,
+                                                                        false,
                                                                         false,
                                                                         false,
                                                                         false,
@@ -573,6 +577,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                        false,
                                                                        true,
                                                                        false,
+                                                                       false,
                                                                        1)),
                        1);
         dataRepository.putObdModule(obdModule0);
@@ -675,6 +680,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                    SupportedSPN.create(111,
                                                                        false,
                                                                        true,
+                                                                       false,
                                                                        false,
                                                                        1)),
                        1);

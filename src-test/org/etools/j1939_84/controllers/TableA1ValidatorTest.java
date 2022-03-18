@@ -312,8 +312,8 @@ public class TableA1ValidatorTest {
     public void testNotAvailableForDM19() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         obdModuleInformation.set(DM24SPNSupportPacket.create(0,
-                                                             SupportedSPN.create(1634, true, true, true, 15),
-                                                             SupportedSPN.create(1635, true, true, true, 15)),
+                                                             SupportedSPN.create(1634, true, true, true, false, 15),
+                                                             SupportedSPN.create(1635, true, true, true, false, 15)),
                                  1);
         dataRepository.putObdModule(obdModuleInformation);
 
