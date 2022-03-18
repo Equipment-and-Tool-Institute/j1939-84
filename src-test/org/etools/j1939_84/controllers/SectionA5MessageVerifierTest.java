@@ -9,6 +9,8 @@ import static net.soliddesign.j1939tools.j1939.packets.LampStatus.ON;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -25,6 +27,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import net.soliddesign.j1939tools.CommunicationsListener;
 import net.soliddesign.j1939tools.bus.BusResult;
 import net.soliddesign.j1939tools.bus.RequestResult;
 import net.soliddesign.j1939tools.j1939.J1939;
@@ -1040,7 +1043,7 @@ public class SectionA5MessageVerifierTest {
     @Test
     public void checkTestResultsAsErasedSuccess() {
         var moduleInfo = new OBDModuleInformation(0);
-        moduleInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 0)), 1);
+        moduleInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, false, 0)), 1);
         dataRepository.putObdModule(moduleInfo);
 
         var tr = ScaledTestResult.create(247, 123, 12, 1, 0, 0, 0);
@@ -1055,7 +1058,7 @@ public class SectionA5MessageVerifierTest {
     @Test
     public void checkTestResultsAsErasedFailure() {
         var moduleInfo = new OBDModuleInformation(0);
-        moduleInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 0)), 1);
+        moduleInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, false, 0)), 1);
         dataRepository.putObdModule(moduleInfo);
 
         var tr = ScaledTestResult.create(247, 123, 12, 1, 1, 0, 0);
@@ -1075,7 +1078,7 @@ public class SectionA5MessageVerifierTest {
     @Test
     public void checkTestResultsAsNotErasedSuccess() {
         var moduleInfo = new OBDModuleInformation(0);
-        moduleInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 0)), 1);
+        moduleInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, false, 0)), 1);
         dataRepository.putObdModule(moduleInfo);
 
         var tr = ScaledTestResult.create(247, 123, 12, 1, 1, 0, 0);
@@ -1090,7 +1093,7 @@ public class SectionA5MessageVerifierTest {
     @Test
     public void checkTestResultsAsNotErasedFailure() {
         var moduleInfo = new OBDModuleInformation(0);
-        moduleInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 0)), 1);
+        moduleInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, false, 0)), 1);
         dataRepository.putObdModule(moduleInfo);
 
         var tr = ScaledTestResult.create(247, 123, 12, 1, 0xFB00, 0xFFFF, 0xFFFF);
@@ -1114,11 +1117,15 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = IdleOperationPacket.create(0, 101);
-        when(communicationsModule.requestIdleOperation(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.request(eq(IdleOperationPacket.class),
+                                          eq(0x00),
+                                          any(CommunicationsListener.class))).thenReturn(new BusResult(false, packet));
 
         assertTrue(instance.checkEngineIdleTime(listener, SECTION, 0));
 
-        verify(communicationsModule).requestIdleOperation(listener, 0);
+        verify(communicationsModule).request(eq(IdleOperationPacket.class),
+                                             eq(0x00),
+                                             any(CommunicationsListener.class));
     }
 
     @Test
@@ -1128,11 +1135,15 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = IdleOperationPacket.create(0, 0);
-        when(communicationsModule.requestIdleOperation(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.request(eq(IdleOperationPacket.class),
+                                          eq(0x00),
+                                          any(CommunicationsListener.class))).thenReturn(new BusResult(false, packet));
 
         assertFalse(instance.checkEngineIdleTime(listener, SECTION, 0));
 
-        verify(communicationsModule).requestIdleOperation(listener, 0);
+        verify(communicationsModule).request(eq(IdleOperationPacket.class),
+                                             eq(0x00),
+                                             any(CommunicationsListener.class));
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -1153,11 +1164,15 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = EngineHoursPacket.create(0, 101);
-        when(communicationsModule.requestEngineHours(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.request(eq(EngineHoursPacket.class), eq(0x00), any(CommunicationsListener.class)))
+                                                                                                                    .thenReturn(new BusResult(false,
+                                                                                                                                              packet));
 
         assertTrue(instance.checkEngineRunTime(listener, SECTION, 0));
 
-        verify(communicationsModule).requestEngineHours(listener, 0);
+        verify(communicationsModule).request(eq(EngineHoursPacket.class),
+                                             eq(0x00),
+                                             any(CommunicationsListener.class));
     }
 
     @Test
@@ -1167,11 +1182,13 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = EngineHoursPacket.create(0, 0);
-        when(communicationsModule.requestEngineHours(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.request(eq(EngineHoursPacket.class), eq(0x00), any(CommunicationsListener.class)))
+                                                                                                                    .thenReturn(new BusResult(false,
+                                                                                                                                              packet));
 
         assertFalse(instance.checkEngineRunTime(listener, SECTION, 0));
 
-        verify(communicationsModule).requestEngineHours(listener, 0);
+        verify(communicationsModule).request(eq(EngineHoursPacket.class), eq(0x00), any(CommunicationsListener.class));
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,

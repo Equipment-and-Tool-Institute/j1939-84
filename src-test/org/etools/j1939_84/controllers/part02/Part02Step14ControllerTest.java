@@ -39,8 +39,6 @@ import net.soliddesign.j1939tools.j1939.packets.SupportedSPN;
 import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
 
-;
-
 @RunWith(MockitoJUnitRunner.class)
 public class Part02Step14ControllerTest extends AbstractControllerTest {
     private static final int PART_NUMBER = 2;
@@ -147,7 +145,7 @@ public class Part02Step14ControllerTest extends AbstractControllerTest {
         when(communicationsModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
-        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)), 1);
+        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, false, 1)), 1);
         dataRepository.putObdModule(obdInfo);
 
         runTest();
@@ -167,7 +165,7 @@ public class Part02Step14ControllerTest extends AbstractControllerTest {
     public void testNoResponses() {
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
-        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)), 1);
+        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, false, 1)), 1);
         dataRepository.putObdModule(obdInfo);
 
         when(communicationsModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(true));
@@ -197,7 +195,7 @@ public class Part02Step14ControllerTest extends AbstractControllerTest {
         when(communicationsModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
-        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)), 1);
+        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, false, 1)), 1);
         dataRepository.putObdModule(obdInfo);
 
         runTest();

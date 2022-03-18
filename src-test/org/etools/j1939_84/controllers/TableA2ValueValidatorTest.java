@@ -93,38 +93,38 @@ public class TableA2ValueValidatorTest {
         verify(mockListener).addOutcome(1,
                                         2,
                                         WARN,
-                                        "6.1.2 - SPN   110, Engine Coolant Temperature: 6.000000 °C is < 7 C or > 110 C");
+                                        "6.1.2 - SPN   110, Engine Coolant Temperature: 6.000 °C is < 7 C or > 110 C");
         verify(mockListener).addOutcome(1,
                                         2,
                                         WARN,
-                                        "6.1.2 - SPN  1637, Engine Coolant Temperature (High Resolution): 6.000000 °C is < 7 C or > 110 C");
+                                        "6.1.2 - SPN  1637, Engine Coolant Temperature (High Resolution): 6.000 °C is < 7 C or > 110 C");
         verify(mockListener).addOutcome(1,
                                         2,
                                         WARN,
-                                        "6.1.2 - SPN  4076, Engine Coolant Temperature 2: 111.000000 °C is < 7 C or > 110 C");
+                                        "6.1.2 - SPN  4076, Engine Coolant Temperature 2: 111.000 °C is < 7 C or > 110 C");
         verify(mockListener).addOutcome(1,
                                         2,
                                         WARN,
-                                        "6.1.2 - SPN  4193, Engine Coolant Pump Outlet Temperature: 111.000000 °C is < 7 C or > 110 C");
-        verify(mockListener).addOutcome(1, 2, WARN, "6.1.2 - SPN  4201, Engine Speed 1: 299.000000 rpm is <= 300 rpm");
-        verify(mockListener).addOutcome(1, 2, WARN, "6.1.2 - SPN   723, Engine Speed 2: 1.000000 rpm is <= 300 rpm");
-        verify(mockListener).addOutcome(1, 2, WARN, "6.1.2 - SPN  4202, Engine Speed 3: 0.000000 rpm is <= 300 rpm");
+                                        "6.1.2 - SPN  4193, Engine Coolant Pump Outlet Temperature: 111.000 °C is < 7 C or > 110 C");
+        verify(mockListener).addOutcome(1, 2, WARN, "6.1.2 - SPN  4201, Engine Speed 1: 299.000 rpm is <= 300 rpm");
+        verify(mockListener).addOutcome(1, 2, WARN, "6.1.2 - SPN   723, Engine Speed 2: 1.000 rpm is <= 300 rpm");
+        verify(mockListener).addOutcome(1, 2, WARN, "6.1.2 - SPN  4202, Engine Speed 3: 0.000 rpm is <= 300 rpm");
         verify(mockListener).addOutcome(1,
                                         2,
                                         WARN,
-                                        "6.1.2 - SPN    92, Engine Percent Load At Current Speed: 0.000000 % is <= 0% with rpm > 300");
+                                        "6.1.2 - SPN    92, Engine Percent Load At Current Speed: 0.000 % is <= 0% with rpm > 300");
         verify(mockListener).addOutcome(1,
                                         2,
                                         WARN,
-                                        "6.1.2 - SPN   512, Driver's Demand Engine - Percent Torque: -1.000000 % is < 0% with rpm > 300");
+                                        "6.1.2 - SPN   512, Driver's Demand Engine - Percent Torque: -1.000 % is < 0% with rpm > 300");
         verify(mockListener).addOutcome(1,
                                         2,
                                         WARN,
-                                        "6.1.2 - SPN   513, Actual Engine - Percent Torque: 0.000000 % is <= 0% with rpm > 300");
+                                        "6.1.2 - SPN   513, Actual Engine - Percent Torque: 0.000 % is <= 0% with rpm > 300");
         verify(mockListener).addOutcome(1,
                                         2,
                                         WARN,
-                                        "6.1.2 - SPN  3301, Time Since Engine Start: 0.000000 seconds is = 0 seconds with rpm > 300");
+                                        "6.1.2 - SPN  3301, Time Since Engine Start: 0.000 seconds is = 0 seconds with rpm > 300");
     }
 
     @Test

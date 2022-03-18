@@ -123,7 +123,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
         ScaledTestResult testResult2 = ScaledTestResult.create(247, 5319, 3, 287, 12288, 20480, 4096);
         obdModule0.setScaledTestResults(List.of(testResult1, testResult2));
 
-        SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, 1);
+        SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, false, 1);
         obdModule0.set(DM24SPNSupportPacket.create(0, spn1), 1);
 
         dataRepository.putObdModule(obdModule0);
@@ -154,7 +154,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
         ScaledTestResult testResult2 = ScaledTestResult.create(247, 5319, 3, 287, 0, 0, 0);
         obdModule0.setScaledTestResults(List.of(testResult1));
 
-        SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, 1);
+        SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, false, 1);
         obdModule0.set(DM24SPNSupportPacket.create(0, spn1), 1);
 
         dataRepository.putObdModule(obdModule0);
@@ -202,8 +202,8 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
         ScaledTestResult testResult2 = ScaledTestResult.create(247, 987, 2, 287, 12288, 20480, 4096);
         obdModule0.setScaledTestResults(List.of(testResult1, testResult2));
 
-        SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, 1);
-        SupportedSPN spn2 = SupportedSPN.create(987, true, false, false, 1);
+        SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, false, 1);
+        SupportedSPN spn2 = SupportedSPN.create(987, true, false, false, false, 1);
         obdModule0.set(DM24SPNSupportPacket.create(0, spn1, spn2), 1);
         dataRepository.putObdModule(obdModule0);
 
@@ -247,8 +247,8 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
         ScaledTestResult testResult2 = ScaledTestResult.create(247, 987, 2, 287, 0xFB00, 0xFFFF, 0xFFFF);
         obdModule0.setScaledTestResults(List.of(testResult1, testResult2));
 
-        SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, 1);
-        SupportedSPN spn2 = SupportedSPN.create(987, true, false, false, 1);
+        SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, false, 1);
+        SupportedSPN spn2 = SupportedSPN.create(987, true, false, false, false, 1);
         obdModule0.set(DM24SPNSupportPacket.create(0, spn1, spn2), 1);
         dataRepository.putObdModule(obdModule0);
 
