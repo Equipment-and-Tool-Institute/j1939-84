@@ -164,7 +164,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
 
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
-                                       eq(9),
+                                       eq(3),
                                        eq(SECONDS),
                                        any(CommunicationsListener.class))).thenReturn(List.of());
 
@@ -172,7 +172,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
 
         verify(communicationsModule).setJ1939(j1939);
         verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
-                                          eq(9),
+                                          eq(3),
                                           eq(SECONDS),
                                           any(CommunicationsListener.class));
 
@@ -228,7 +228,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
         packetList.add(packet1);
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
-                                       eq(9),
+                                       eq(3),
                                        eq(SECONDS),
                                        any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
@@ -236,7 +236,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
 
         verify(communicationsModule).setJ1939(j1939);
         verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
-                                          eq(9),
+                                          eq(3),
                                           eq(SECONDS),
                                           any(CommunicationsListener.class));
 
@@ -302,7 +302,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
         packetList.add(packet1);
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
-                                       eq(9),
+                                       eq(3),
                                        eq(SECONDS),
                                        any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
@@ -310,7 +310,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
 
         verify(communicationsModule).setJ1939(j1939);
         verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
-                                          eq(9),
+                                          eq(3),
                                           eq(SECONDS),
                                           any(CommunicationsListener.class));
 
@@ -394,7 +394,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0x03));
 
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
-                                       eq(9),
+                                       eq(3),
                                        eq(SECONDS),
                                        any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
@@ -402,7 +402,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
 
         verify(communicationsModule).setJ1939(j1939);
         verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
-                                          eq(9),
+                                          eq(3),
                                           eq(SECONDS),
                                           any(CommunicationsListener.class));
 
@@ -485,7 +485,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0x03));
 
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
-                                       eq(9),
+                                       eq(3),
                                        eq(SECONDS),
                                        any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
@@ -493,7 +493,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
 
         verify(communicationsModule).setJ1939(j1939);
         verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
-                                          eq(9),
+                                          eq(3),
                                           eq(SECONDS),
                                           any(CommunicationsListener.class));
 
@@ -557,7 +557,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0x03));
         // return the OBD module's packet when requested
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
-                                       eq(9),
+                                       eq(3),
                                        eq(SECONDS),
                                        any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
@@ -565,7 +565,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
 
         verify(communicationsModule).setJ1939(j1939);
         verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
-                                          eq(9),
+                                          eq(3),
                                           eq(SECONDS),
                                           any(CommunicationsListener.class));
 
@@ -659,7 +659,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0x17));
 
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
-                                       eq(9),
+                                       eq(3),
                                        eq(SECONDS),
                                        any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
@@ -667,7 +667,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
 
         verify(communicationsModule).setJ1939(j1939);
         verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
-                                          eq(9),
+                                          eq(3),
                                           eq(SECONDS),
                                           any(CommunicationsListener.class));
 
@@ -723,7 +723,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
         // return the packet with the active dtc and a MIL on for the OBD module
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
-                                       eq(9),
+                                       eq(3),
                                        eq(SECONDS),
                                        any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
@@ -731,7 +731,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
 
         verify(communicationsModule).setJ1939(j1939);
         verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
-                                          eq(9),
+                                          eq(3),
                                           eq(SECONDS),
                                           any(ResultsListener.class));
 

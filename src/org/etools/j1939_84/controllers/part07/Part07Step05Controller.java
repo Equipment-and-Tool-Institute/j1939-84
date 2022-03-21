@@ -62,7 +62,7 @@ public class Part07Step05Controller extends StepController {
     protected void run() throws Throwable {
         // 6.7.5.1.a Receive broadcast data [(PGN 65226 (SPNs 1213-1215, 1706, and 3038)]).
         var packets = read(DM1ActiveDTCsPacket.class,
-                           9,
+                           3,
                            SECONDS).stream()
                                    .map(p -> new DM1ActiveDTCsPacket(p.getPacket()))
                                    .filter(p -> isObdModule(p.getSourceAddress()))

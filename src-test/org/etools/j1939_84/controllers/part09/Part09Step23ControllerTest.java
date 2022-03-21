@@ -145,14 +145,14 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
-                                       eq(9),
+                                       eq(3),
                                        eq(SECONDS),
                                        any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
         runTest();
 
         verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
-                                          eq(9),
+                                          eq(3),
                                           eq(SECONDS),
                                           any(ResultsListener.class));
 
@@ -172,14 +172,14 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
-                                       eq(9),
+                                       eq(3),
                                        eq(SECONDS),
                                        any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
         runTest();
 
         verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
-                                          eq(9),
+                                          eq(3),
                                           eq(SECONDS),
                                           any(ResultsListener.class));
 
@@ -198,14 +198,14 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
-                                       eq(9),
+                                       eq(3),
                                        eq(SECONDS),
                                        any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
         runTest();
 
         verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
-                                          eq(9),
+                                          eq(3),
                                           eq(SECONDS),
                                           any(ResultsListener.class));
 
@@ -221,14 +221,14 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForNoResponse() {
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
-                                       eq(9),
+                                       eq(3),
                                        eq(SECONDS),
                                        any(CommunicationsListener.class))).thenReturn(new ArrayList(List.of()));
 
         runTest();
 
         verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
-                                          eq(9),
+                                          eq(3),
                                           eq(SECONDS),
                                           any(ResultsListener.class));
 
@@ -250,14 +250,14 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
-                                       eq(9),
+                                       eq(3),
                                        eq(SECONDS),
                                        any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
         runTest();
 
         verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
-                                          eq(9),
+                                          eq(3),
                                           eq(SECONDS),
                                           any(ResultsListener.class));
 

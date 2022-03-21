@@ -68,7 +68,7 @@ public class Part08Step03Controller extends StepController {
 
         // 6.8.3.1.a Receive broadcast data [(PGN 65226 (SPNs 1213-1215, 1706, and 3038)]).
         List<DM1ActiveDTCsPacket> packets = read(DM1ActiveDTCsPacket.class,
-                                                 9,
+                                                 3,
                                                  SECONDS).stream()
                                                          .map(p -> new DM1ActiveDTCsPacket(p.getPacket()))
                                                          .collect(

@@ -68,7 +68,7 @@ public class Part01Step15Controller extends StepController {
 
         // 6.1.15.1.a. Gather broadcast DM1 data from all ECUs (PG 65226)
         List<DM1ActiveDTCsPacket> packets = read(DM1ActiveDTCsPacket.class,
-                                                 9,
+                                                 3,
                                                  SECONDS).stream()
                                                          .map(p -> new DM1ActiveDTCsPacket(p.getPacket()))
                                                          .collect(

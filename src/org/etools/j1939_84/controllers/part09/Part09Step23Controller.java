@@ -64,7 +64,7 @@ public class Part09Step23Controller extends StepController {
     protected void run() throws Throwable {
         // 6.9.23.1.a. Receive DM1 broadcast [(PGN 65226 (SPNs 1213-1215, 1706, and 3038)]).
         List<DM1ActiveDTCsPacket> packets = read(DM1ActiveDTCsPacket.class,
-                                                 9,
+                                                 3,
                                                  SECONDS).stream()
                                                          .map(p -> new DM1ActiveDTCsPacket(p.getPacket()))
                                                          .peek(this::save)

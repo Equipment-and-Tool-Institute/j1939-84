@@ -151,7 +151,7 @@ public class Part06Step04ControllerTest extends AbstractControllerTest {
         var dm1_1 = DM1ActiveDTCsPacket.create(1, NOT_SUPPORTED, NOT_SUPPORTED, NOT_SUPPORTED, NOT_SUPPORTED);
         packetList.add(dm1_1);
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
-                                       eq(9),
+                                       eq(3),
                                        eq(SECONDS),
                                        any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
@@ -203,7 +203,7 @@ public class Part06Step04ControllerTest extends AbstractControllerTest {
         var dm1_1 = DM1ActiveDTCsPacket.create(1, ON, ON, ON, ON);
         packetList.add(dm1_1);
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
-                                       eq(9),
+                                       eq(3),
                                        eq(SECONDS),
                                        any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
@@ -213,7 +213,7 @@ public class Part06Step04ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
 
         verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
-                                          eq(9),
+                                          eq(3),
                                           eq(SECONDS),
                                           any(ResultsListener.class));
 
@@ -239,7 +239,7 @@ public class Part06Step04ControllerTest extends AbstractControllerTest {
         packetList.add(dm1_1);
 
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
-                                       eq(9),
+                                       eq(3),
                                        eq(SECONDS),
                                        any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
