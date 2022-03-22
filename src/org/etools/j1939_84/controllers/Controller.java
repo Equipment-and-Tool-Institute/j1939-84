@@ -112,7 +112,7 @@ public abstract class Controller {
         return getCommunicationsModule().read(pg, timeout, timeUnit, getListener());
     }
 
-    protected List<? extends GenericPacket> read(Class<? extends GenericPacket> clazz, int timeout, TimeUnit timeUnit) {
+    protected <T extends GenericPacket> List<T> read(Class<T> clazz, int timeout, TimeUnit timeUnit) {
         return getCommunicationsModule().read(clazz, timeout, timeUnit, getListener());
     }
 
@@ -120,11 +120,11 @@ public abstract class Controller {
         return getCommunicationsModule().request(pg, getListener());
     }
 
-    protected List<? extends GenericPacket> request(Class<? extends GenericPacket> clazz) {
+    protected <T extends GenericPacket> List<T> request(Class<T> clazz) {
         return getCommunicationsModule().request(clazz, getListener());
     }
 
-    protected BusResult<? extends GenericPacket> request(Class<? extends GenericPacket> clazz, int address) {
+    protected <T extends GenericPacket> BusResult<T> request(Class<T> clazz, int address) {
         return getCommunicationsModule().request(clazz, address, getListener());
     }
 
