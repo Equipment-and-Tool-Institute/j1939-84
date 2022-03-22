@@ -403,8 +403,6 @@ public class SectionA5MessageVerifier {
 
         return communicationsModule.request(EngineHoursPacket.class, address, listener)
                                    .toPacketStream()
-                                   .map(GenericPacket::getPacket)
-                                   .map(p -> new EngineHoursPacket(p))
                                    .filter(p -> {
                                        return p.getEngineHours() < packet.getEngineHours();
                                    })
@@ -425,8 +423,6 @@ public class SectionA5MessageVerifier {
 
         return communicationsModule.request(IdleOperationPacket.class, address, listener)
                                    .toPacketStream()
-                                   .map(GenericPacket::getPacket)
-                                   .map(p -> new IdleOperationPacket(p))
                                    .filter(p -> {
                                        return p.getEngineIdleHours() < packet.getEngineIdleHours();
                                    })
