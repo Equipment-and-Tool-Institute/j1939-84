@@ -401,16 +401,16 @@ public class SectionA5MessageVerifier {
             return true;
         }
 
-        return communicationsModule.requestEngineHours(listener, address)
-                            .toPacketStream()
-                            .filter(p -> {
-                                return p.getEngineHours() < packet.getEngineHours();
-                            })
-                            .peek(p -> {
-                                addFailure(listener, section, false, p);
-                            })
-                            .findAny()
-                            .isEmpty();
+        return communicationsModule.request(EngineHoursPacket.class, address, listener)
+                                   .toPacketStream()
+                                   .filter(p -> {
+                                       return p.getEngineHours() < packet.getEngineHours();
+                                   })
+                                   .peek(p -> {
+                                       addFailure(listener, section, false, p);
+                                   })
+                                   .findAny()
+                                   .isEmpty();
     }
 
     boolean checkEngineIdleTime(ResultsListener listener, String section, int address) {
@@ -421,16 +421,16 @@ public class SectionA5MessageVerifier {
             return true;
         }
 
-        return communicationsModule.requestIdleOperation(listener, address)
-                            .toPacketStream()
-                            .filter(p -> {
-                                return p.getEngineIdleHours() < packet.getEngineIdleHours();
-                            })
-                            .peek(p -> {
-                                addFailure(listener, section, false, p);
-                            })
-                            .findAny()
-                            .isEmpty();
+        return communicationsModule.request(IdleOperationPacket.class, address, listener)
+                                   .toPacketStream()
+                                   .filter(p -> {
+                                       return p.getEngineIdleHours() < packet.getEngineIdleHours();
+                                   })
+                                   .peek(p -> {
+                                       addFailure(listener, section, false, p);
+                                   })
+                                   .findAny()
+                                   .isEmpty();
     }
 
     private <T extends GenericPacket> T getLatest(Class<T> clazz, int address) {

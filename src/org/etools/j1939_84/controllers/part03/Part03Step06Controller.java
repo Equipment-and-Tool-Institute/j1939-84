@@ -3,12 +3,14 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static net.soliddesign.j1939tools.j1939.packets.LampStatus.NOT_SUPPORTED;
 import static net.soliddesign.j1939tools.j1939.packets.LampStatus.OFF;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -63,7 +65,12 @@ public class Part03Step06Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.3.6.1.a Receive DM1 broadcast info (PGN 65226 (SPNs 1213-1215, 1706, and 3038)).
-        List<DM1ActiveDTCsPacket> packets = getCommunicationsModule().readDM1(getListener());
+        List<DM1ActiveDTCsPacket> packets = read(DM1ActiveDTCsPacket.class,
+                                                 3,
+                                                 SECONDS).stream()
+                                                         .map(p -> new DM1ActiveDTCsPacket(p.getPacket()))
+                                                         .collect(
+                                                                  Collectors.toList());
 
         // 6.3.6.2.a Fail if no OBD ECU supports DM1.
         boolean noObdDM1s = packets.stream().noneMatch(p -> getDataRepository().isObdModule(p.getSourceAddress()));

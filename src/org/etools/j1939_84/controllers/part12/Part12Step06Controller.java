@@ -3,10 +3,12 @@
  */
 package org.etools.j1939_84.controllers.part12;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static net.soliddesign.j1939tools.j1939.packets.LampStatus.NOT_SUPPORTED;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -14,6 +16,7 @@ import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
+import net.soliddesign.j1939tools.j1939.packets.DM1ActiveDTCsPacket;
 import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
 import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
 import net.soliddesign.j1939tools.modules.CommunicationsModule;
@@ -59,7 +62,9 @@ public class Part12Step06Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.12.6.1.a. Receive broadcast info ([PGN 65226 (SPNs 1213-1215, 1706, 3038)]).
-        var dm1s = getCommunicationsModule().readDM1(getListener());
+        var dm1s = read(DM1ActiveDTCsPacket.class, 3, SECONDS).stream().map(p -> {
+            return new DM1ActiveDTCsPacket(p.getPacket());
+        }).collect(Collectors.toList());
 
         // 6.12.6.2.a. Fail if any ECU does not report MIL off or not supported. See Section A.8 for allowed values.
         dm1s.stream()

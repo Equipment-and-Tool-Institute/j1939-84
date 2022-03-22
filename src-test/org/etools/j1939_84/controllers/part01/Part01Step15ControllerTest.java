@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static net.soliddesign.j1939tools.j1939.packets.LampStatus.ALTERNATE_OFF;
 import static net.soliddesign.j1939tools.j1939.packets.LampStatus.FAST_FLASH;
 import static net.soliddesign.j1939tools.j1939.packets.LampStatus.OFF;
@@ -12,10 +13,12 @@ import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -38,6 +41,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import net.soliddesign.j1939tools.CommunicationsListener;
 import net.soliddesign.j1939tools.j1939.J1939;
 import net.soliddesign.j1939tools.j1939.packets.DM1ActiveDTCsPacket;
 import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCode;
@@ -159,12 +163,18 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
 
-        when(communicationsModule.readDM1(any(ResultsListener.class))).thenReturn(List.of());
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(3),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(List.of());
 
         runTest();
 
         verify(communicationsModule).setJ1939(j1939);
-        verify(communicationsModule).readDM1(any(ResultsListener.class));
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(3),
+                                          eq(SECONDS),
+                                          any(CommunicationsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.15.2.e - No OBD ECU provided a DM1");
 
@@ -208,19 +218,27 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
     @TestDoc(value = {
             @TestItem(verifies = "6.1.15.3.a", description = "Warn if any ECU reports the non-preferred MIL off format. See Section A.8 for description of (0b00b, 0b00b).") })
     public void testObdAlternateOffWarning() {
-        DM1ActiveDTCsPacket packet1 = DM1ActiveDTCsPacket.create(0x01,
+        var packet1 = DM1ActiveDTCsPacket.create(0x01,
                                                                  ALTERNATE_OFF,
                                                                  OFF,
                                                                  OFF,
                                                                  OFF);
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
 
-        when(communicationsModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet1));
+        List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
+        packetList.add(packet1);
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(3),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
         runTest();
 
         verify(communicationsModule).setJ1939(j1939);
-        verify(communicationsModule).readDM1(any(ResultsListener.class));
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(3),
+                                          eq(SECONDS),
+                                          any(CommunicationsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -281,12 +299,20 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                                                  dtc3);
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
 
-        when(communicationsModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet1));
+        List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
+        packetList.add(packet1);
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(3),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
         runTest();
 
         verify(communicationsModule).setJ1939(j1939);
-        verify(communicationsModule).readDM1(any(ResultsListener.class));
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(3),
+                                          eq(SECONDS),
+                                          any(CommunicationsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -346,6 +372,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(1569, 31, 0, 0);
         var dtc2 = DiagnosticTroubleCode.create(609, 19, 0, 0);
         var dtc3 = DiagnosticTroubleCode.create(4334, 4, 0, 0);
+        List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
         DM1ActiveDTCsPacket packet2 = DM1ActiveDTCsPacket.create(0x17,
                                                                  ON,
                                                                  ALTERNATE_OFF,
@@ -354,21 +381,30 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                                                  dtc1,
                                                                  dtc2,
                                                                  dtc3);
+        packetList.add(packet2);
 
         var packet3 = DM1ActiveDTCsPacket.create(0x03,
                                                  OFF,
                                                  OFF,
                                                  OFF,
                                                  OFF);
+        packetList.add(packet3);
+
         // make the module and OBD
         dataRepository.putObdModule(new OBDModuleInformation(0x03));
 
-        when(communicationsModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet2, packet3));
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(3),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
         runTest();
 
         verify(communicationsModule).setJ1939(j1939);
-        verify(communicationsModule).readDM1(any(ResultsListener.class));
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(3),
+                                          eq(SECONDS),
+                                          any(CommunicationsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -427,6 +463,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(1569, 31, 0, 0);
         var dtc2 = DiagnosticTroubleCode.create(609, 19, 0, 0);
         var dtc3 = DiagnosticTroubleCode.create(4334, 4, 1, 0);
+        List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
         DM1ActiveDTCsPacket packet2 = DM1ActiveDTCsPacket.create(0x17,
                                                                  OFF,
                                                                  OFF,
@@ -435,21 +472,30 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                                                  dtc1,
                                                                  dtc2,
                                                                  dtc3);
+        packetList.add(packet2);
 
-        var packet3 = DM1ActiveDTCsPacket.create(0x03,
+        DM1ActiveDTCsPacket packet3 = DM1ActiveDTCsPacket.create(0x03,
                                                  OFF,
                                                  OFF,
                                                  OFF,
                                                  OFF);
+        packetList.add(packet3);
+
         // make the module and OBD
         dataRepository.putObdModule(new OBDModuleInformation(0x03));
 
-        when(communicationsModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet2, packet3));
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(3),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
         runTest();
 
         verify(communicationsModule).setJ1939(j1939);
-        verify(communicationsModule).readDM1(any(ResultsListener.class));
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(3),
+                                          eq(SECONDS),
+                                          any(CommunicationsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -498,21 +544,30 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
     public void testObdSpConversionFailure() {
         // a CM value of 1 will cause the conversion method failure
         var dtc = DiagnosticTroubleCode.create(123, 12, 1, 5);
+        List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
+
         var packet3 = DM1ActiveDTCsPacket.create(0x03,
                                                  OFF,
                                                  OFF,
                                                  OFF,
                                                  OFF,
                                                  dtc);
+        packetList.add(packet3);
         // make the module and OBD
         dataRepository.putObdModule(new OBDModuleInformation(0x03));
         // return the OBD module's packet when requested
-        when(communicationsModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet3));
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(3),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
         runTest();
 
         verify(communicationsModule).setJ1939(j1939);
-        verify(communicationsModule).readDM1(any(ResultsListener.class));
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(3),
+                                          eq(SECONDS),
+                                          any(CommunicationsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -592,20 +647,29 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
     @TestDoc(value = {
             @TestItem(verifies = "6.1.15.1.a", description = "Gather broadcast DM1 data from all ECUs [PG 65226 (SPs 1213-1215, 1706, and 3038)]") })
     public void testGatherBroadcastDm1() {
+        List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
+
         DM1ActiveDTCsPacket packet2 = DM1ActiveDTCsPacket.create(0x17,
                                                                  OFF,
                                                                  OFF,
                                                                  OFF,
                                                                  OFF);
+        packetList.add(packet2);
 
         dataRepository.putObdModule(new OBDModuleInformation(0x17));
 
-        when(communicationsModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet2));
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(3),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
         runTest();
 
         verify(communicationsModule).setJ1939(j1939);
-        verify(communicationsModule).readDM1(any(ResultsListener.class));
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(3),
+                                          eq(SECONDS),
+                                          any(CommunicationsListener.class));
 
         assertEquals("", listener.getResults());
     }
@@ -647,20 +711,29 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
     @TestDoc(value = {
             @TestItem(verifies = "6.1.15.2.b", description = "Fail if any OBD ECU does not report MIL off - see Section A.8 for allowed values") })
     public void testObdMilOnFailure() {
-        var packet1 = DM1ActiveDTCsPacket.create(0x01,
+        List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
+
+        DM1ActiveDTCsPacket packet1 = DM1ActiveDTCsPacket.create(0x01,
                                                  ON,
                                                  OFF,
                                                  OFF,
                                                  OFF);
+        packetList.add(packet1);
         // make it an OBD module
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
         // return the packet with the active dtc and a MIL on for the OBD module
-        when(communicationsModule.readDM1(any(ResultsListener.class))).thenReturn(List.of(packet1));
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(3),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
 
         runTest();
 
         verify(communicationsModule).setJ1939(j1939);
-        verify(communicationsModule).readDM1(any(ResultsListener.class));
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(3),
+                                          eq(SECONDS),
+                                          any(ResultsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,

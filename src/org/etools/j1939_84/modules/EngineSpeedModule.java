@@ -149,11 +149,11 @@ public class EngineSpeedModule extends FunctionalModule {
     }
 
     private void processIdleSpeedPacket(GenericPacket packet) {
-        packet.getSpnValue(188).forEach(idleEngineSpeed::set);
+        packet.getSpnValue(188).ifPresent(idleEngineSpeed::set);
     }
 
     private void processPedalPositionPacket(GenericPacket packet) {
-        Stream.concat(packet.getSpnValue(29), packet.getSpnValue(91))
+        Stream.concat(packet.getSpnValue(29).stream(), packet.getSpnValue(91).stream())
               .mapToDouble(v -> v)
               .max()
               .stream()
@@ -163,7 +163,7 @@ public class EngineSpeedModule extends FunctionalModule {
     private void processEngineSpeedPacket(GenericPacket packet) {
         long millisBetweenPackets = calculateMillisBetweenPackets(packet);
 
-        packet.getSpnValue(190).forEach(engineSpeed -> {
+        packet.getSpnValue(190).ifPresent(engineSpeed -> {
             currentEngineSpeed.set(engineSpeed);
             averagedEngineSpeed.set(engineSpeed / WMA_FACTOR
                     + averagedEngineSpeed.get() * (WMA_FACTOR - 1) / WMA_FACTOR);

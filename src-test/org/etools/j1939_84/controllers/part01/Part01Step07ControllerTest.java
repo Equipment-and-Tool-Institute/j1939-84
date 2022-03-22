@@ -16,8 +16,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.controllers.DataRepository;
@@ -39,8 +37,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import net.soliddesign.j1939tools.CommunicationsListener;
 import net.soliddesign.j1939tools.bus.BusResult;
 import net.soliddesign.j1939tools.bus.Packet;
+import net.soliddesign.j1939tools.bus.RequestResult;
 import net.soliddesign.j1939tools.j1939.J1939;
 import net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket;
 import net.soliddesign.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
@@ -191,7 +191,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                                                                         0xF9,
                                                                                         new CalibrationInformation("SixteenCharacters",
                                                                                                                    "1234"));
-        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm19));
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of(dm19));
 
         when(communicationsModule.requestDM19(any(ResultsListener.class), eq(0x00)))
                                                                                         .thenReturn(BusResult.of(
@@ -252,7 +252,6 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testRealDataFromTruck() {
-        List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
         DM19CalibrationInformationPacket dm19 = new DM19CalibrationInformationPacket(Packet.create(DM19CalibrationInformationPacket.PGN,
                                                                                                    0x00,
@@ -407,8 +406,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                                                                                    0x00 // NUL
         ));
 
-        globalDM19s.add(dm19);
-        when(communicationsModule.requestDM19(any())).thenReturn(globalDM19s);
+        when(communicationsModule.requestDM19(any())).thenReturn(RequestResult.of(dm19));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
@@ -516,7 +514,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(0x0E));
 
-        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm19));
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of(dm19));
         when(communicationsModule.requestDM19(any(ResultsListener.class), eq(0x0E)))
                                                                                         .thenReturn(BusResult.of(dm19));
 
@@ -604,7 +602,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                                                                                    0x20,
                                                                                                    0x20));
 
-        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm19));
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of(dm19));
         when(communicationsModule.requestDM19(any(ResultsListener.class), eq(0x0E)))
                                                                                         .thenReturn(BusResult.of(dm19));
 
@@ -669,7 +667,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.7.2.a", description = "Fail if total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units (test 6.1.2)"))
     public void testAmountOfUserEnteredCalIdDiffersReportedAmountFailure() {
-        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of());
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of());
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setCalIds(5);
@@ -741,6 +739,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         vehicleInformation.setEmissionUnits(1);
         dataRepository.setVehicleInformation(vehicleInformation);
 
+        when(communicationsModule.requestDM19(any(CommunicationsListener.class))).thenReturn(RequestResult.of());
         when(communicationsModule.requestDM19(any(ResultsListener.class), eq(0x00)))
                                                                 .thenReturn(BusResult.of(
                                                                                          dm19));
@@ -805,7 +804,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                                                                         new CalibrationInformation("SixteenCharacter",
                                                                                                                    "1234"));
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
-        when(communicationsModule.requestDM19(any())).thenReturn(List.of(dm19));
+        when(communicationsModule.requestDM19(any())).thenReturn(RequestResult.of(dm19));
 
         AcknowledgmentPacket nack = AcknowledgmentPacket.create(0x00, NACK);
         dataRepository.putObdModule(new OBDModuleInformation(0x00));
@@ -884,14 +883,11 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     @TestDoc(value = {
             @TestItem(verifies = "6.1.7.5.b", description = "Fail if NACK (PGN 59392) with mode/control byte = 3 (busy) received") })
     public void testObdRespondHasBusyAtByte3Failure() {
-        List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
         DM19CalibrationInformationPacket dm19a0 = createDM19(0x00, "SixteenCharacters", "1234", 1);
-        globalDM19s.add(dm19a0);
         DM19CalibrationInformationPacket dm19a1 = createDM19(0x01, "SixteenCharacters", "1234", 1);
-        globalDM19s.add(dm19a1);
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
-        when(communicationsModule.requestDM19(any())).thenReturn(globalDM19s);
+        when(communicationsModule.requestDM19(any())).thenReturn(RequestResult.of(dm19a0, dm19a1));
 
         AcknowledgmentPacket nack = AcknowledgmentPacket.create(0x00, BUSY);
         dataRepository.putObdModule(new OBDModuleInformation(0x00));
@@ -973,7 +969,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                                                                           0xF9,
                                                                                           new CalibrationInformation("CharacterSixteen",
                                                                                                                      "1234"));
-        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm190B));
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of(dm190B));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
@@ -1065,7 +1061,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         DM19CalibrationInformationPacket dm191E = new DM19CalibrationInformationPacket(packet1E);
 
         when(communicationsModule.requestDM19(any(), eq(0x1E))).thenReturn(BusResult.of(dm191E));
-        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm191E));
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of(dm191E));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
@@ -1156,7 +1152,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         DM19CalibrationInformationPacket dm191E = new DM19CalibrationInformationPacket(packet1E);
         when(communicationsModule.requestDM19(any(ResultsListener.class),
                                                   eq(0x1E))).thenReturn(BusResult.of(dm191E));
-        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm191E));
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of(dm191E));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
@@ -1244,7 +1240,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         DM19CalibrationInformationPacket dm191E = new DM19CalibrationInformationPacket(packet1E);
         when(communicationsModule.requestDM19(any(ResultsListener.class),
                                                   eq(0x1E))).thenReturn(BusResult.of(dm191E));
-        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm191E));
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of(dm191E));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
@@ -1329,7 +1325,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         when(communicationsModule.requestDM19(any(ResultsListener.class),
                                                   eq(0x0E)))
                                                             .thenReturn(BusResult.of(dm190E));
-        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm190E));
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of(dm190E));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
@@ -1415,7 +1411,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         when(communicationsModule.requestDM19(any(ResultsListener.class),
                                                   eq(0x0E)))
                                                             .thenReturn(BusResult.of(dm190E));
-        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm190E));
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of(dm190E));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
@@ -1510,7 +1506,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         when(communicationsModule.requestDM19(any(ResultsListener.class),
                                                   eq(0x0E)))
                                                             .thenReturn(BusResult.of(dm190E));
-        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm190E));
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of(dm190E));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
@@ -1575,7 +1571,6 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
             @TestItem(verifies = "6.1.7.3.c.i", description = "For responses from non-OBD ECUs: Warn if any non-OBD ECU provides CAL ID"),
             @TestItem(verifies = "6.1.7.3.c.iii", description = "For responses from non-OBD ECUs: Warn if <> 1 CVN for every CAL ID") })
     public void testNonObdModuleCalIdContainsNonPrintableCharWarning() {
-        List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
         Packet packet0E = Packet.create(0,
                                         0x0E,
                                         0x51,
@@ -1602,8 +1597,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         when(communicationsModule.requestDM19(any(ResultsListener.class),
                                                   eq(0x0E)))
                                                             .thenReturn(BusResult.of(dm190E));
-        globalDM19s.add(dm190E);
-        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(globalDM19s);
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of(dm190E));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
@@ -1743,7 +1737,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
 
         DM19CalibrationInformationPacket dm190B = new DM19CalibrationInformationPacket(packet2);
 
-        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm190B));
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of(dm190B));
         when(communicationsModule.requestDM19(any(ResultsListener.class),
                                                   eq(0x0B))).thenReturn(BusResult.of(dm190B));
 
@@ -1888,7 +1882,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0x0B));
         DM19CalibrationInformationPacket dm190B = new DM19CalibrationInformationPacket(packet);
 
-        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm190B));
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of(dm190B));
         when(communicationsModule.requestDM19(any(ResultsListener.class),
                                                   eq(0x0B))).thenReturn(BusResult.of(dm190B));
 
@@ -1979,7 +1973,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0x0D));
 
         when(communicationsModule.requestDM19(any(), eq(0x0D))).thenReturn(BusResult.of(dm190D));
-        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(List.of(dm190D));
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of(dm190D));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
@@ -2044,7 +2038,6 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
             @TestItem(verifies = "6.1.7.3.c.i", description = "Warn if any non-OBD ECU provides CAL ID."),
             @TestItem(verifies = "6.1.7.3.c.iii", description = "Warn if CAL ID not formatted correctly (contains non-printable ASCII, padded incorrectly, etc.)") })
     public void testNonObdModuleCalIdPaddedIncorrectlyWarning() {
-        List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
         Packet packet = Packet.create(DM19CalibrationInformationPacket.PGN,
                                       0x0D,
                                       // Cal #1
@@ -2071,8 +2064,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
 
         DM19CalibrationInformationPacket dm190D = new DM19CalibrationInformationPacket(packet);
         when(communicationsModule.requestDM19(any(), eq(0x0D))).thenReturn(BusResult.of(dm190D));
-        globalDM19s.add(dm190D);
-        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(globalDM19s);
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of(dm190D));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);
@@ -2140,7 +2132,6 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     @TestDoc(value = {
             @TestItem(verifies = "6.1.7.2.b.ii", description = "Fail if CAL ID not formatted correctly (printable ASCII, padded incorrectly, etc.)") })
     public void testObdModuleUnprintableCharacterWarning() {
-        List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
         Packet packet = Packet.create(0,
                                       0x0E,
                                       // Cal #1
@@ -2170,8 +2161,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         when(communicationsModule.requestDM19(any(ResultsListener.class),
                                                   eq(0x0E)))
                                                             .thenReturn(BusResult.of(dm190E));
-        globalDM19s.add(dm190E);
-        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(globalDM19s);
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of(dm190E));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setEmissionUnits(1);

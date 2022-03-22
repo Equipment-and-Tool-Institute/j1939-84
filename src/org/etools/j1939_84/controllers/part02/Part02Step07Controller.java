@@ -140,7 +140,17 @@ public class Part02Step07Controller extends StepController {
     }
 
     private List<ComponentIdentificationPacket> requestComponentIds() {
-        return getCommunicationsModule().requestComponentIdentification(getListener()).getPackets();
+        return request(ComponentIdentificationPacket.class)
+                                                           .stream()
+                                                           .map(p -> new ComponentIdentificationPacket(p.getPacket()))
+                                                           .collect(Collectors.toList());
+    }
+
+    private List<ComponentIdentificationPacket> requestComponentIds(int address) {
+        return requestComponentId(address)
+                                          .toPacketStream()
+                                          .map(p -> new ComponentIdentificationPacket(p.getPacket()))
+                                          .collect(Collectors.toList());
     }
 
     private ComponentIdentificationPacket getPart1Packet(int address) {
@@ -148,6 +158,6 @@ public class Part02Step07Controller extends StepController {
     }
 
     private BusResult<ComponentIdentificationPacket> requestComponentId(int address) {
-        return getCommunicationsModule().requestComponentIdentification(getListener(), address);
+        return (BusResult<ComponentIdentificationPacket>) request(ComponentIdentificationPacket.class, address);
     }
 }

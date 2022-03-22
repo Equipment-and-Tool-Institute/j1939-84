@@ -19,6 +19,7 @@ import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
+import net.soliddesign.j1939tools.j1939.packets.DM11ClearActiveDTCsPacket;
 import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
 import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
@@ -98,6 +99,7 @@ public class Part12Step09Controller extends StepController {
 
         // 6.12.9.4.a. Fail if any OBD ECU responds with a NACK.
         obdPackets.stream()
+                  .map(p -> new DM11ClearActiveDTCsPacket(p.getPacket()))
                   .filter(p -> p.getResponse() == NACK)
                   .map(ParsedPacket::getModuleName)
                   .forEach(moduleName -> {
@@ -106,6 +108,7 @@ public class Part12Step09Controller extends StepController {
 
         // 6.12.9.4.b. Warn if any OBD ECU responds with an ACK.
         obdPackets.stream()
+                  .map(p -> new DM11ClearActiveDTCsPacket(p.getPacket()))
                   .filter(p -> p.getResponse() == ACK)
                   .map(ParsedPacket::getModuleName)
                   .forEach(moduleName -> {

@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static net.soliddesign.j1939tools.j1939.packets.LampStatus.OFF;
 
 import java.util.concurrent.Executor;
@@ -15,11 +16,10 @@ import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
+import net.soliddesign.j1939tools.j1939.packets.DM1ActiveDTCsPacket;
 import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
 import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
-
-;
 
 /**
  * 6.7.5 DM1: Active Diagnostic Trouble Codes (DTCs) Actions
@@ -61,10 +61,13 @@ public class Part07Step05Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.7.5.1.a Receive broadcast data [(PGN 65226 (SPNs 1213-1215, 1706, and 3038)]).
-        var packets = getCommunicationsModule().readDM1(getListener())
-                                                  .stream()
-                                                  .filter(p -> isObdModule(p.getSourceAddress()))
-                                                  .collect(Collectors.toList());
+        var packets = read(DM1ActiveDTCsPacket.class,
+                           3,
+                           SECONDS).stream()
+                                   .map(p -> new DM1ActiveDTCsPacket(p.getPacket()))
+                                   .filter(p -> isObdModule(p.getSourceAddress()))
+                                   .collect(
+                                            Collectors.toList());
 
         // 6.7.5.2.a Fail if any OBD ECU reports an active DTC.
         packets.stream()
