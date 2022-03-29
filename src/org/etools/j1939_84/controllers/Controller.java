@@ -7,6 +7,7 @@ import static org.etools.j1939_84.model.Outcome.ABORT;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -15,6 +16,7 @@ import java.util.logging.Logger;
 
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.VehicleInformation;
@@ -31,6 +33,7 @@ import net.soliddesign.j1939tools.j1939.J1939DaRepository;
 import net.soliddesign.j1939tools.j1939.Lookup;
 import net.soliddesign.j1939tools.j1939.model.PgnDefinition;
 import net.soliddesign.j1939tools.j1939.packets.GenericPacket;
+import net.soliddesign.j1939tools.j1939.packets.SupportedSPN;
 import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
 
@@ -336,8 +339,44 @@ public abstract class Controller {
         };
     }
 
+    protected Collection<OBDModuleInformation> getObdModules() {
+        Collection<OBDModuleInformation> obdModules = getDataRepository().getObdModules();
+        if (obdModules.isEmpty()) {
+            getListener().onProgress("Requesting DM5 to gather OBD modules");
+            getCommunicationsModule().requestDM5(getListener())
+                                     .getPackets()
+                                     .stream()
+                                     .filter(packet -> packet.isObd() || packet.isHdObd())
+                                     .forEach(dm5 -> {
+                                         var moduleInfo = new OBDModuleInformation(dm5.getSourceAddress());
+                                         getDataRepository().putObdModule(moduleInfo);
+                                     });
+            obdModules = getDataRepository().getObdModules();
+        }
+
+        if (obdModules.isEmpty()) {
+            getListener().onProgress("No OBD modules detected on the bus");
+        }
+
+        return obdModules;
+    }
+
+    protected boolean moduleSupportsNOxBinning(OBDModuleInformation moduleInformation) {
+        return moduleInformation.getDataStreamSPNs()
+                                .stream()
+                                .map(SupportedSPN::getSpn)
+                                .anyMatch(s -> s == 12675);
+    }
+
     private Outcome getOutcome(int partNumber, int stepNumber) {
         return getPartResult(partNumber).getStepResult(stepNumber).getOutcome();
+    }
+
+    protected boolean moduleSupportsSpn(OBDModuleInformation moduleInformation, int spn) {
+        return moduleInformation.getDataStreamSPNs()
+                                .stream()
+                                .map(SupportedSPN::getSpn)
+                                .anyMatch(s -> s == spn);
     }
 
     /**

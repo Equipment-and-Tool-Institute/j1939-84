@@ -51,6 +51,7 @@ import net.soliddesign.j1939tools.j1939.packets.DM24SPNSupportPacket;
 import net.soliddesign.j1939tools.j1939.packets.SupportedSPN;
 import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
+import net.soliddesign.j1939tools.modules.NOxBinningModule;
 
 /**
  * The unit test for {@link Part01Step04Controller}
@@ -111,7 +112,8 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                                               communicationsModule,
                                               supportedSpnModule,
                                               dataRepository,
-                                              DateTimeModule.getInstance());
+                                              DateTimeModule.getInstance(),
+                                              new NOxBinningModule(DateTimeModule.getInstance()));
 
         setup(instance,
               listener,
