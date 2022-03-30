@@ -3,9 +3,15 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static net.soliddesign.j1939tools.j1939.model.FuelType.BATT_ELEC;
+import static net.soliddesign.j1939tools.j1939.model.FuelType.BI_DSL;
 import static net.soliddesign.j1939tools.j1939.model.FuelType.BI_GAS;
+import static net.soliddesign.j1939tools.j1939.model.FuelType.HYB_ETH;
+import static net.soliddesign.j1939tools.j1939.model.FuelType.HYB_GAS;
 import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -15,6 +21,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,6 +72,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
     private static final int PART_NUMBER = 1;
 
     private static final int STEP_NUMBER = 4;
+
     @Mock
     private BannerModule bannerModule;
 
@@ -72,19 +80,27 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
+
     @Mock
     private Executor executor;
+
     private Part01Step04Controller instance;
+
     @Mock
     private J1939 j1939;
+
     @Mock
     private ResultsListener mockListener;
+
     @Mock
     private CommunicationsModule communicationsModule;
+
     @Mock
     private ReportFileModule reportFileModule;
+
     @Mock
     private SupportedSpnModule supportedSpnModule;
+
     @Mock
     private VehicleInformationModule vehicleInformationModule;
     private TestResultsListener listener;
@@ -138,7 +154,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
     // Test handling of no response from the modules
     @Test
-    public void testEmptyObdModules() {
+    public void testEmptyObdModules() throws IOException {
         DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
         when(packet1.getSourceAddress()).thenReturn(0);
 
@@ -186,6 +202,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(supportedSpnModule).validateFreezeFrameSpns(any(), any());
 
         verify(vehicleInformationModule).setJ1939(j1939);
+        verify(vehicleInformationModule).getEngineModelYear();
     }
 
     @Test
@@ -195,7 +212,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
             @TestItem(verifies = "6.1.4.1.b", dependsOn = "J1939TPTest.testRequestTimeout"),
             @TestItem(verifies = "6.1.4.2.a,b,c")
     }, description = "Using a response that indicates that 6.1.4.2.a, 6.1.4.2.b, 6.1.4.2.c all failed, verify that the failures are in the report.")
-    public void testErroredObject() {
+    public void testErroredObject() throws IOException {
         DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
         when(packet1.getSourceAddress()).thenReturn(0);
 
@@ -239,6 +256,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(supportedSpnModule).validateFreezeFrameSpns(any(), any());
 
         verify(vehicleInformationModule).setJ1939(j1939);
+        verify(vehicleInformationModule, times(2)).getEngineModelYear();
     }
 
     @Test
@@ -265,7 +283,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
     @Test
     // Testing object without any errors.
     @TestDoc(value = @TestItem(verifies = "6.1.4.2.a,b,c"), description = "Verify that step completes without errors when none of the fail criteria are met.")
-    public void testGoodObjects() {
+    public void testGoodObjects() throws IOException {
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
         dataRepository.putObdModule(new OBDModuleInformation(1));
@@ -657,5 +675,2130 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         };
         expectedPacket4Spns.sort(Comparator.comparingInt(SupportedSPN::getSpn));
         assertEquals(expectedPacket4Spns, dataRepository.getObdModule(1).getSupportedSPNs());
+
+        verify(vehicleInformationModule, times(2)).getEngineModelYear();
+    }
+
+    @Test
+    // Testing object without any errors.
+    @TestDoc(value = @TestItem(verifies = "6.1.4.2.d"), description = "For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1 - Total) is not included in DM24 response.")
+    public void testMy2022ObjectsMissing12675() throws IOException {
+
+        //@formatter:off
+        DM24SPNSupportPacket packet1 = DM24SPNSupportPacket.create(0x00,
+                                                                   SupportedSPN.create(27, false, true, false, false, 1),
+                                                                   SupportedSPN.create(84, false, true, false, false, 1),
+                                                                   SupportedSPN.create(91, false, true, false, false, 1),
+                                                                   SupportedSPN.create(92, false, true, true, false, 1),
+                                                                   SupportedSPN.create(94, false, true, false, false, 1),
+                                                                   SupportedSPN.create(102, true, true, false, false, 1),
+                                                                   SupportedSPN.create(108, false, true, false, false, 1),
+                                                                   SupportedSPN.create(110, false, true, true, false, 1),
+                                                                   SupportedSPN.create(157, true, false, false, false, 1),
+                                                                   SupportedSPN.create(158, false, true, false, false, 1),
+                                                                   SupportedSPN.create(183, false, true, false, false, 1),
+                                                                   SupportedSPN.create(190, false, true, true, true, 2),
+                                                                   SupportedSPN.create(235, false, true, false, false, 1),
+                                                                   SupportedSPN.create(247, false, true, false, false, 1),
+                                                                   SupportedSPN.create(248, false, true, false, false, 1),
+                                                                   SupportedSPN.create(512, false, true, true, false, 1),
+                                                                   SupportedSPN.create(513, false, true, true, false, 1),
+                                                                   SupportedSPN.create(514, false, true, false, false, 1),
+                                                                   SupportedSPN.create(528, false, false, false, true, 0),
+                                                                   SupportedSPN.create(529, false, false, true, true, 2),
+                                                                   SupportedSPN.create(530, false, true, false, true, 0),
+                                                                   SupportedSPN.create(531, false, true, true, true, 1),
+                                                                   SupportedSPN.create(532, true, false, false, true, 4),
+                                                                   SupportedSPN.create(533, true, false, true, true, 2),
+                                                                   SupportedSPN.create(534, true, true, false, true, 0),
+                                                                   SupportedSPN.create(535, true, true, true, true, 1),
+                                                                   SupportedSPN.create(536, false, false, false, true, 0),
+                                                                   SupportedSPN.create(537, false, false, true, true, 0),
+                                                                   SupportedSPN.create(538, false, true, false, true, 1),
+                                                                   SupportedSPN.create(539, false, true, false, true, 1),
+                                                                   SupportedSPN.create(540, false, true, false, true, 1),
+                                                                   SupportedSPN.create(541, false, true, false, true, 1),
+                                                                   SupportedSPN.create(542, false, true, false, true, 1),
+                                                                   SupportedSPN.create(543, false, true, false, false, 1),
+                                                                   SupportedSPN.create(544, false, true, false, false, 1),
+                                                                   SupportedSPN.create(651, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1323, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1324, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1325, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1326, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1413, false, true, false, false, 1),
+                                                                   SupportedSPN.create(1634, false, true, false, false, 15),
+                                                                   SupportedSPN.create(1635, false, true, false, false, 4),
+                                                                   SupportedSPN.create(2630, true, false, false, false, 1),
+                                                                   SupportedSPN.create(2791, false, true, false, false, 1),
+                                                                   SupportedSPN.create(2978, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3031, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3058, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3226, true, true, false, false, 1),
+                                                                   SupportedSPN.create(3251, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3301, false, false, true, true, 2),
+                                                                   SupportedSPN.create(3361, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3516, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3609, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3700, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3713, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4364, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4752, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5018, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5466, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5827, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5829, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5837, false, true, false, false, 1),
+                                                                   SupportedSPN.create(6895, false, true, false, false, 1),
+                                                                   SupportedSPN.create(7333, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12691, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12730, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12797, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12783, false, true, false, false, 1));
+        //@formatter:on
+        when(communicationsModule.requestDM24(any(), eq(0))).thenReturn(BusResult.of(packet1));
+
+        OBDModuleInformation obd0x00 = new OBDModuleInformation(0);
+        obd0x00.set(packet1, 1);
+        dataRepository.putObdModule(obd0x00);
+
+        //@formatter:off
+        DM24SPNSupportPacket packet4 = DM24SPNSupportPacket.create(0x01,
+                                                                   SupportedSPN.create(27, false, true, false, false, 1),
+                                                                   SupportedSPN.create(84, false, true, false, false, 1),
+                                                                   SupportedSPN.create(91, false, true, false, false, 1),
+                                                                   SupportedSPN.create(92, false, true, true, false, 1),
+                                                                   SupportedSPN.create(94, false, true, false, false, 1),
+                                                                   SupportedSPN.create(102, true, true, false, false, 1),
+                                                                   SupportedSPN.create(108, false, true, false, false, 1),
+                                                                   SupportedSPN.create(110, false, true, true, false, 1),
+                                                                   SupportedSPN.create(157, true, false, false, false, 1),
+                                                                   SupportedSPN.create(158, false, true, false, false, 1),
+                                                                   SupportedSPN.create(183, false, true, false, false, 1),
+                                                                   SupportedSPN.create(190, false, true, true, true, 2),
+                                                                   SupportedSPN.create(235, false, true, false, false, 1),
+                                                                   SupportedSPN.create(247, false, true, false, false, 1),
+                                                                   SupportedSPN.create(248, false, true, false, false, 1),
+                                                                   SupportedSPN.create(512, false, true, true, false, 1),
+                                                                   SupportedSPN.create(513, false, true, true, false, 1),
+                                                                   SupportedSPN.create(514, false, true, false, false, 1),
+                                                                   SupportedSPN.create(528, false, false, false, true, 0),
+                                                                   SupportedSPN.create(529, false, false, true, true, 2),
+                                                                   SupportedSPN.create(530, false, true, false, true, 0),
+                                                                   SupportedSPN.create(531, false, true, true, true, 1),
+                                                                   SupportedSPN.create(532, true, false, false, true, 4),
+                                                                   SupportedSPN.create(533, true, false, true, true, 2),
+                                                                   SupportedSPN.create(534, true, true, false, true, 0),
+                                                                   SupportedSPN.create(535, true, true, true, true, 1),
+                                                                   SupportedSPN.create(536, false, false, false, true, 0),
+                                                                   SupportedSPN.create(537, false, false, true, true, 0),
+                                                                   SupportedSPN.create(538, false, true, false, true, 1),
+                                                                   SupportedSPN.create(539, false, true, false, true, 1),
+                                                                   SupportedSPN.create(540, false, true, false, true, 1),
+                                                                   SupportedSPN.create(541, false, true, false, true, 1),
+                                                                   SupportedSPN.create(542, false, true, false, true, 1),
+                                                                   SupportedSPN.create(543, false, true, false, false, 1),
+                                                                   SupportedSPN.create(544, false, true, false, false, 1),
+                                                                   SupportedSPN.create(651, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1323, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1324, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1325, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1326, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1413, false, true, false, false, 1),
+                                                                   SupportedSPN.create(1634, false, true, false, false, 15),
+                                                                   SupportedSPN.create(1635, false, true, false, false, 4),
+                                                                   SupportedSPN.create(2630, true, false, false, false, 1),
+                                                                   SupportedSPN.create(2791, false, true, false, false, 1),
+                                                                   SupportedSPN.create(2978, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3031, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3058, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3226, true, true, false, false, 1),
+                                                                   SupportedSPN.create(3251, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3301, false, false, true, true, 2),
+                                                                   SupportedSPN.create(3361, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3516, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3609, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3700, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3713, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4364, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4752, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5018, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5466, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5827, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5829, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5837, false, true, false, false, 1),
+                                                                   SupportedSPN.create(6895, false, true, false, false, 1),
+                                                                   SupportedSPN.create(7333, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12691, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12730, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12797, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12783, false, true, false, false, 1));
+        //@formatter:on
+
+        when(communicationsModule.requestDM24(any(), eq(1))).thenReturn(BusResult.of(packet4));
+        OBDModuleInformation obd0x01 = new OBDModuleInformation(0x01);
+        obd0x01.set(packet4, 1);
+        dataRepository.putObdModule(obd0x01);
+
+        VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setFuelType(BI_DSL);
+        dataRepository.setVehicleInformation(vehicleInfo);
+        when(vehicleInformationModule.getEngineModelYear()).thenReturn(2022);
+
+        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any())).thenReturn(true);
+        when(supportedSpnModule.validateFreezeFrameSpns(any(), any())).thenReturn(true);
+
+        runTest();
+
+        verify(communicationsModule).setJ1939(j1939);
+
+        verify(communicationsModule).requestDM24(any(), eq(0x00));
+
+        verify(communicationsModule).requestDM24(any(), eq(0x01));
+
+        verify(engineSpeedModule).setJ1939(j1939);
+
+        //@formatter:off
+        List<Integer> expectedDataStreamsPacket4 = Arrays.asList(27, 84, 91, 92, 94, 102, 108, 110, 158, 183, 190, 235, 
+                                                                 247, 248, 512, 513, 514, 530, 531, 534, 535, 538, 539, 
+                                                                 540, 541, 542, 543, 544, 1413, 1634, 1635, 2791, 2978, 
+                                                                 3031, 3226, 3516, 3609, 3700, 5466, 5827, 5829, 5837, 
+                                                                 6895, 7333, 12691, 12730, 12783, 12797);
+        //@formatter:on
+
+        Collections.sort(expectedDataStreamsPacket4);
+        verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(BI_DSL));
+
+        List<Integer> expectedFreezeFrames = Arrays.asList(92, 110, 190, 512, 513, 529, 531, 533, 535, 537, 3301);
+        Collections.sort(expectedFreezeFrames);
+        verify(supportedSpnModule).validateFreezeFrameSpns(any(), eq(expectedFreezeFrames));
+
+        List<SupportedSPN> expectedPacket1Spns = new ArrayList<>() {
+            {
+                add(SupportedSPN.create(27, false, true, false, false, 1));
+                add(SupportedSPN.create(84, false, true, false, false, 1));
+                add(SupportedSPN.create(91, false, true, false, false, 1));
+                add(SupportedSPN.create(92, false, true, true, false, 1));
+                add(SupportedSPN.create(94, false, true, false, false, 1));
+                add(SupportedSPN.create(102, true, true, false, false, 1));
+                add(SupportedSPN.create(108, false, true, false, false, 1));
+                add(SupportedSPN.create(110, false, true, true, false, 1));
+                add(SupportedSPN.create(157, true, false, false, false, 1));
+                add(SupportedSPN.create(158, false, true, false, false, 1));
+                add(SupportedSPN.create(183, false, true, false, false, 1));
+                add(SupportedSPN.create(190, false, true, true, true, 2));
+                add(SupportedSPN.create(235, false, true, false, false, 1));
+                add(SupportedSPN.create(247, false, true, false, false, 1));
+                add(SupportedSPN.create(248, false, true, false, false, 1));
+                add(SupportedSPN.create(512, false, true, true, false, 1));
+                add(SupportedSPN.create(513, false, true, true, false, 1));
+                add(SupportedSPN.create(514, false, true, false, false, 1));
+                add(SupportedSPN.create(528, false, false, false, true, 0));
+                add(SupportedSPN.create(529, false, false, true, true, 2));
+                add(SupportedSPN.create(530, false, true, false, true, 0));
+                add(SupportedSPN.create(531, false, true, true, true, 1));
+                add(SupportedSPN.create(532, true, false, false, true, 4));
+                add(SupportedSPN.create(533, true, false, true, true, 2));
+                add(SupportedSPN.create(534, true, true, false, true, 0));
+                add(SupportedSPN.create(535, true, true, true, true, 1));
+                add(SupportedSPN.create(536, false, false, false, true, 0));
+                add(SupportedSPN.create(537, false, false, true, true, 0));
+                add(SupportedSPN.create(538, false, true, false, true, 1));
+                add(SupportedSPN.create(539, false, true, false, true, 1));
+                add(SupportedSPN.create(540, false, true, false, true, 1));
+                add(SupportedSPN.create(541, false, true, false, true, 1));
+                add(SupportedSPN.create(542, false, true, false, true, 1));
+                add(SupportedSPN.create(543, false, true, false, false, 1));
+                add(SupportedSPN.create(544, false, true, false, false, 1));
+                add(SupportedSPN.create(651, true, false, false, false, 1));
+                add(SupportedSPN.create(1323, true, false, false, false, 1));
+                add(SupportedSPN.create(1324, true, false, false, false, 1));
+                add(SupportedSPN.create(1325, true, false, false, false, 1));
+                add(SupportedSPN.create(1326, true, false, false, false, 1));
+                add(SupportedSPN.create(1413, false, true, false, false, 1));
+                add(SupportedSPN.create(1634, false, true, false, false, 15));
+                add(SupportedSPN.create(1635, false, true, false, false, 4));
+                add(SupportedSPN.create(2630, true, false, false, false, 1));
+                add(SupportedSPN.create(2791, false, true, false, false, 1));
+                add(SupportedSPN.create(2978, false, true, false, false, 1));
+                add(SupportedSPN.create(3031, false, true, false, false, 1));
+                add(SupportedSPN.create(3058, true, false, false, false, 1));
+                add(SupportedSPN.create(3226, true, true, false, false, 1));
+                add(SupportedSPN.create(3251, true, false, false, false, 1));
+                add(SupportedSPN.create(3301, false, false, true, true, 2));
+                add(SupportedSPN.create(3361, true, false, false, false, 1));
+                add(SupportedSPN.create(3516, false, true, false, false, 1));
+                add(SupportedSPN.create(3609, false, true, false, false, 1));
+                add(SupportedSPN.create(3700, false, true, false, false, 1));
+                add(SupportedSPN.create(3713, true, false, false, false, 1));
+                add(SupportedSPN.create(4364, true, false, false, false, 1));
+                add(SupportedSPN.create(4752, true, false, false, false, 1));
+                add(SupportedSPN.create(5018, true, false, false, false, 1));
+                add(SupportedSPN.create(5466, false, true, false, false, 1));
+                add(SupportedSPN.create(5827, false, true, false, false, 1));
+                add(SupportedSPN.create(5829, false, true, false, false, 1));
+                add(SupportedSPN.create(5837, false, true, false, false, 1));
+                add(SupportedSPN.create(6895, false, true, false, false, 1));
+                add(SupportedSPN.create(7333, false, true, false, false, 1));
+                add(SupportedSPN.create(12691, false, true, false, false, 1));
+                add(SupportedSPN.create(12730, false, true, false, false, 1));
+                add(SupportedSPN.create(12783, false, true, false, false, 1));
+                add(SupportedSPN.create(12797, false, true, false, false, 1));
+            }
+        };
+        assertEquals(expectedPacket1Spns, dataRepository.getObdModule(0).getSupportedSPNs());
+
+        List<SupportedSPN> expectedPacket4Spns = new ArrayList<>() {
+            {
+                add(SupportedSPN.create(27, false, true, false, false, 1));
+                add(SupportedSPN.create(84, false, true, false, false, 1));
+                add(SupportedSPN.create(91, false, true, false, false, 1));
+                add(SupportedSPN.create(92, false, true, true, false, 1));
+                add(SupportedSPN.create(94, false, true, false, false, 1));
+                add(SupportedSPN.create(102, true, true, false, false, 1));
+                add(SupportedSPN.create(108, false, true, false, false, 1));
+                add(SupportedSPN.create(110, false, true, true, false, 1));
+                add(SupportedSPN.create(157, true, false, false, false, 1));
+                add(SupportedSPN.create(158, false, true, false, false, 1));
+                add(SupportedSPN.create(183, false, true, false, false, 1));
+                add(SupportedSPN.create(190, false, true, true, true, 2));
+                add(SupportedSPN.create(235, false, true, false, false, 1));
+                add(SupportedSPN.create(247, false, true, false, false, 1));
+                add(SupportedSPN.create(248, false, true, false, false, 1));
+                add(SupportedSPN.create(512, false, true, true, false, 1));
+                add(SupportedSPN.create(513, false, true, true, false, 1));
+                add(SupportedSPN.create(514, false, true, false, false, 1));
+                add(SupportedSPN.create(528, false, false, false, true, 0));
+                add(SupportedSPN.create(529, false, false, true, true, 2));
+                add(SupportedSPN.create(530, false, true, false, true, 0));
+                add(SupportedSPN.create(531, false, true, true, true, 1));
+                add(SupportedSPN.create(532, true, false, false, true, 4));
+                add(SupportedSPN.create(533, true, false, true, true, 2));
+                add(SupportedSPN.create(534, true, true, false, true, 0));
+                add(SupportedSPN.create(535, true, true, true, true, 1));
+                add(SupportedSPN.create(536, false, false, false, true, 0));
+                add(SupportedSPN.create(537, false, false, true, true, 0));
+                add(SupportedSPN.create(538, false, true, false, true, 1));
+                add(SupportedSPN.create(539, false, true, false, true, 1));
+                add(SupportedSPN.create(540, false, true, false, true, 1));
+                add(SupportedSPN.create(541, false, true, false, true, 1));
+                add(SupportedSPN.create(542, false, true, false, true, 1));
+                add(SupportedSPN.create(543, false, true, false, false, 1));
+                add(SupportedSPN.create(544, false, true, false, false, 1));
+                add(SupportedSPN.create(651, true, false, false, false, 1));
+                add(SupportedSPN.create(1323, true, false, false, false, 1));
+                add(SupportedSPN.create(1324, true, false, false, false, 1));
+                add(SupportedSPN.create(1325, true, false, false, false, 1));
+                add(SupportedSPN.create(1326, true, false, false, false, 1));
+                add(SupportedSPN.create(1413, false, true, false, false, 1));
+                add(SupportedSPN.create(1634, false, true, false, false, 15));
+                add(SupportedSPN.create(1635, false, true, false, false, 4));
+                add(SupportedSPN.create(2630, true, false, false, false, 1));
+                add(SupportedSPN.create(2791, false, true, false, false, 1));
+                add(SupportedSPN.create(2978, false, true, false, false, 1));
+                add(SupportedSPN.create(3031, false, true, false, false, 1));
+                add(SupportedSPN.create(3058, true, false, false, false, 1));
+                add(SupportedSPN.create(3226, true, true, false, false, 1));
+                add(SupportedSPN.create(3251, true, false, false, false, 1));
+                add(SupportedSPN.create(3301, false, false, true, true, 2));
+                add(SupportedSPN.create(3361, true, false, false, false, 1));
+                add(SupportedSPN.create(3516, false, true, false, false, 1));
+                add(SupportedSPN.create(3609, false, true, false, false, 1));
+                add(SupportedSPN.create(3700, false, true, false, false, 1));
+                add(SupportedSPN.create(3713, true, false, false, false, 1));
+                add(SupportedSPN.create(4364, true, false, false, false, 1));
+                add(SupportedSPN.create(4752, true, false, false, false, 1));
+                add(SupportedSPN.create(5018, true, false, false, false, 1));
+                add(SupportedSPN.create(5466, false, true, false, false, 1));
+                add(SupportedSPN.create(5827, false, true, false, false, 1));
+                add(SupportedSPN.create(5829, false, true, false, false, 1));
+                add(SupportedSPN.create(5837, false, true, false, false, 1));
+                add(SupportedSPN.create(6895, false, true, false, false, 1));
+                add(SupportedSPN.create(7333, false, true, false, false, 1));
+                add(SupportedSPN.create(12691, false, true, false, false, 1));
+                add(SupportedSPN.create(12730, false, true, false, false, 1));
+                add(SupportedSPN.create(12797, false, true, false, false, 1));
+                add(SupportedSPN.create(12783, false, true, false, false, 1));
+            }
+        };
+        expectedPacket4Spns.sort(Comparator.comparingInt(SupportedSPN::getSpn));
+        assertEquals(expectedPacket4Spns, dataRepository.getObdModule(1).getSupportedSPNs());
+
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(4),
+                                        eq(FAIL),
+                                        eq("6.1.4.2.d - For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1 - Total)"
+                                                + NL
+                                                + "            is not included in DM24 response from Engine #1 (0)"));
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(4),
+                                        eq(FAIL),
+                                        eq("6.1.4.2.d - For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1 - Total)"
+                                                + NL
+                                                + "            is not included in DM24 response from Engine #2 (1)"));
+
+        verify(vehicleInformationModule, times(2)).getEngineModelYear();
+    }
+
+    @Test
+    // Testing object without any errors.
+    @TestDoc(value = @TestItem(verifies = "6.1.4.2"), description = "Verify that step completes without errors when none of the fail criteria are met using a MY2022+ engine.")
+    public void testMy2022Objects() throws IOException {
+
+        //@formatter:off
+        DM24SPNSupportPacket packet1 = DM24SPNSupportPacket.create(0x00,
+                                                                   SupportedSPN.create(27, false, true, false, false, 1),
+                                                                   SupportedSPN.create(84, false, true, false, false, 1),
+                                                                   SupportedSPN.create(91, false, true, false, false, 1),
+                                                                   SupportedSPN.create(92, false, true, true, false, 1),
+                                                                   SupportedSPN.create(94, false, true, false, false, 1),
+                                                                   SupportedSPN.create(102, true, true, false, false, 1),
+                                                                   SupportedSPN.create(108, false, true, false, false, 1),
+                                                                   SupportedSPN.create(110, false, true, true, false, 1),
+                                                                   SupportedSPN.create(157, true, false, false, false, 1),
+                                                                   SupportedSPN.create(158, false, true, false, false, 1),
+                                                                   SupportedSPN.create(183, false, true, false, false, 1),
+                                                                   SupportedSPN.create(190, false, true, true, true, 2),
+                                                                   SupportedSPN.create(235, false, true, false, false, 1),
+                                                                   SupportedSPN.create(247, false, true, false, false, 1),
+                                                                   SupportedSPN.create(248, false, true, false, false, 1),
+                                                                   SupportedSPN.create(512, false, true, true, false, 1),
+                                                                   SupportedSPN.create(513, false, true, true, false, 1),
+                                                                   SupportedSPN.create(514, false, true, false, false, 1),
+                                                                   SupportedSPN.create(528, false, false, false, true, 0),
+                                                                   SupportedSPN.create(529, false, false, true, true, 2),
+                                                                   SupportedSPN.create(530, false, true, false, true, 0),
+                                                                   SupportedSPN.create(531, false, true, true, true, 1),
+                                                                   SupportedSPN.create(532, true, false, false, true, 4),
+                                                                   SupportedSPN.create(533, true, false, true, true, 2),
+                                                                   SupportedSPN.create(534, true, true, false, true, 0),
+                                                                   SupportedSPN.create(535, true, true, true, true, 1),
+                                                                   SupportedSPN.create(536, false, false, false, true, 0),
+                                                                   SupportedSPN.create(537, false, false, true, true, 0),
+                                                                   SupportedSPN.create(538, false, true, false, true, 1),
+                                                                   SupportedSPN.create(539, false, true, false, true, 1),
+                                                                   SupportedSPN.create(540, false, true, false, true, 1),
+                                                                   SupportedSPN.create(541, false, true, false, true, 1),
+                                                                   SupportedSPN.create(542, false, true, false, true, 1),
+                                                                   SupportedSPN.create(543, false, true, false, false, 1),
+                                                                   SupportedSPN.create(544, false, true, false, false, 1),
+                                                                   SupportedSPN.create(651, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1323, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1324, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1325, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1326, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1413, false, true, false, false, 1),
+                                                                   SupportedSPN.create(1634, false, true, false, false, 15),
+                                                                   SupportedSPN.create(1635, false, true, false, false, 4),
+                                                                   SupportedSPN.create(2630, true, false, false, false, 1),
+                                                                   SupportedSPN.create(2791, false, true, false, false, 1),
+                                                                   SupportedSPN.create(2978, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3031, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3058, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3226, true, true, false, false, 1),
+                                                                   SupportedSPN.create(3251, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3301, false, false, true, true, 2),
+                                                                   SupportedSPN.create(3361, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3516, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3609, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3700, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3713, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4364, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4752, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5018, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5466, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5827, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5829, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5837, false, true, false, false, 1),
+                                                                   SupportedSPN.create(6895, false, true, false, false, 1),
+                                                                   SupportedSPN.create(7333, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12675, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12691, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12730, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12797, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12783, false, true, false, false, 1));
+        //@formatter:on
+        when(communicationsModule.requestDM24(any(), eq(0))).thenReturn(BusResult.of(packet1));
+
+        OBDModuleInformation obd0x00 = new OBDModuleInformation(0);
+        obd0x00.set(packet1, 1);
+        dataRepository.putObdModule(obd0x00);
+
+        //@formatter:off
+        DM24SPNSupportPacket packet4 = DM24SPNSupportPacket.create(0x01,
+                                                                   SupportedSPN.create(27, false, true, false, false, 1),
+                                                                   SupportedSPN.create(84, false, true, false, false, 1),
+                                                                   SupportedSPN.create(91, false, true, false, false, 1),
+                                                                   SupportedSPN.create(92, false, true, true, false, 1),
+                                                                   SupportedSPN.create(94, false, true, false, false, 1),
+                                                                   SupportedSPN.create(102, true, true, false, false, 1),
+                                                                   SupportedSPN.create(108, false, true, false, false, 1),
+                                                                   SupportedSPN.create(110, false, true, true, false, 1),
+                                                                   SupportedSPN.create(157, true, false, false, false, 1),
+                                                                   SupportedSPN.create(158, false, true, false, false, 1),
+                                                                   SupportedSPN.create(183, false, true, false, false, 1),
+                                                                   SupportedSPN.create(190, false, true, true, true, 2),
+                                                                   SupportedSPN.create(235, false, true, false, false, 1),
+                                                                   SupportedSPN.create(247, false, true, false, false, 1),
+                                                                   SupportedSPN.create(248, false, true, false, false, 1),
+                                                                   SupportedSPN.create(512, false, true, true, false, 1),
+                                                                   SupportedSPN.create(513, false, true, true, false, 1),
+                                                                   SupportedSPN.create(514, false, true, false, false, 1),
+                                                                   SupportedSPN.create(528, false, false, false, true, 0),
+                                                                   SupportedSPN.create(529, false, false, true, true, 2),
+                                                                   SupportedSPN.create(530, false, true, false, true, 0),
+                                                                   SupportedSPN.create(531, false, true, true, true, 1),
+                                                                   SupportedSPN.create(532, true, false, false, true, 4),
+                                                                   SupportedSPN.create(533, true, false, true, true, 2),
+                                                                   SupportedSPN.create(534, true, true, false, true, 0),
+                                                                   SupportedSPN.create(535, true, true, true, true, 1),
+                                                                   SupportedSPN.create(536, false, false, false, true, 0),
+                                                                   SupportedSPN.create(537, false, false, true, true, 0),
+                                                                   SupportedSPN.create(538, false, true, false, true, 1),
+                                                                   SupportedSPN.create(539, false, true, false, true, 1),
+                                                                   SupportedSPN.create(540, false, true, false, true, 1),
+                                                                   SupportedSPN.create(541, false, true, false, true, 1),
+                                                                   SupportedSPN.create(542, false, true, false, true, 1),
+                                                                   SupportedSPN.create(543, false, true, false, false, 1),
+                                                                   SupportedSPN.create(544, false, true, false, false, 1),
+                                                                   SupportedSPN.create(651, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1323, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1324, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1325, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1326, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1413, false, true, false, false, 1),
+                                                                   SupportedSPN.create(1634, false, true, false, false, 15),
+                                                                   SupportedSPN.create(1635, false, true, false, false, 4),
+                                                                   SupportedSPN.create(2630, true, false, false, false, 1),
+                                                                   SupportedSPN.create(2791, false, true, false, false, 1),
+                                                                   SupportedSPN.create(2978, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3031, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3058, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3226, true, true, false, false, 1),
+                                                                   SupportedSPN.create(3251, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3301, false, false, true, true, 2),
+                                                                   SupportedSPN.create(3361, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3516, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3609, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3700, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3713, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4364, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4752, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5018, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5466, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5827, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5829, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5837, false, true, false, false, 1),
+                                                                   SupportedSPN.create(6895, false, true, false, false, 1),
+                                                                   SupportedSPN.create(7333, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12675, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12691, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12730, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12797, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12783, false, true, false, false, 1));
+        //@formatter:on
+
+        when(communicationsModule.requestDM24(any(), eq(1))).thenReturn(BusResult.of(packet4));
+        OBDModuleInformation obd0x01 = new OBDModuleInformation(0x01);
+        obd0x01.set(packet4, 1);
+        dataRepository.putObdModule(obd0x01);
+
+        VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setFuelType(BI_DSL);
+        dataRepository.setVehicleInformation(vehicleInfo);
+        when(vehicleInformationModule.getEngineModelYear()).thenReturn(2022);
+
+        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any())).thenReturn(true);
+        when(supportedSpnModule.validateFreezeFrameSpns(any(), any())).thenReturn(true);
+
+        runTest();
+
+        verify(communicationsModule).setJ1939(j1939);
+
+        verify(communicationsModule).requestDM24(any(), eq(0x00));
+
+        verify(communicationsModule).requestDM24(any(), eq(0x01));
+
+        verify(engineSpeedModule).setJ1939(j1939);
+
+        //@formatter:off
+        List<Integer> expectedDataStreamsPacket4 = Arrays.asList(27, 84, 91, 92, 94, 102, 108, 110, 158, 183, 190, 235,
+                                                                 247, 248, 512, 513, 514, 530, 531, 534, 535, 538, 539,
+                                                                 540, 541, 542, 543, 544, 1413, 1634, 1635, 2791, 2978,
+                                                                 3031, 3226, 3516, 3609, 3700, 5466, 5827, 5829, 5837,
+                                                                 6895, 7333, 12675, 12691, 12730, 12783, 12797);
+        //@formatter:on
+
+        Collections.sort(expectedDataStreamsPacket4);
+        verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(BI_DSL));
+
+        List<Integer> expectedFreezeFrames = Arrays.asList(92, 110, 190, 512, 513, 529, 531, 533, 535, 537, 3301);
+        Collections.sort(expectedFreezeFrames);
+        verify(supportedSpnModule).validateFreezeFrameSpns(any(), eq(expectedFreezeFrames));
+
+        List<SupportedSPN> expectedPacket1Spns = new ArrayList<>() {
+            {
+                add(SupportedSPN.create(27, false, true, false, false, 1));
+                add(SupportedSPN.create(84, false, true, false, false, 1));
+                add(SupportedSPN.create(91, false, true, false, false, 1));
+                add(SupportedSPN.create(92, false, true, true, false, 1));
+                add(SupportedSPN.create(94, false, true, false, false, 1));
+                add(SupportedSPN.create(102, true, true, false, false, 1));
+                add(SupportedSPN.create(108, false, true, false, false, 1));
+                add(SupportedSPN.create(110, false, true, true, false, 1));
+                add(SupportedSPN.create(157, true, false, false, false, 1));
+                add(SupportedSPN.create(158, false, true, false, false, 1));
+                add(SupportedSPN.create(183, false, true, false, false, 1));
+                add(SupportedSPN.create(190, false, true, true, true, 2));
+                add(SupportedSPN.create(235, false, true, false, false, 1));
+                add(SupportedSPN.create(247, false, true, false, false, 1));
+                add(SupportedSPN.create(248, false, true, false, false, 1));
+                add(SupportedSPN.create(512, false, true, true, false, 1));
+                add(SupportedSPN.create(513, false, true, true, false, 1));
+                add(SupportedSPN.create(514, false, true, false, false, 1));
+                add(SupportedSPN.create(528, false, false, false, true, 0));
+                add(SupportedSPN.create(529, false, false, true, true, 2));
+                add(SupportedSPN.create(530, false, true, false, true, 0));
+                add(SupportedSPN.create(531, false, true, true, true, 1));
+                add(SupportedSPN.create(532, true, false, false, true, 4));
+                add(SupportedSPN.create(533, true, false, true, true, 2));
+                add(SupportedSPN.create(534, true, true, false, true, 0));
+                add(SupportedSPN.create(535, true, true, true, true, 1));
+                add(SupportedSPN.create(536, false, false, false, true, 0));
+                add(SupportedSPN.create(537, false, false, true, true, 0));
+                add(SupportedSPN.create(538, false, true, false, true, 1));
+                add(SupportedSPN.create(539, false, true, false, true, 1));
+                add(SupportedSPN.create(540, false, true, false, true, 1));
+                add(SupportedSPN.create(541, false, true, false, true, 1));
+                add(SupportedSPN.create(542, false, true, false, true, 1));
+                add(SupportedSPN.create(543, false, true, false, false, 1));
+                add(SupportedSPN.create(544, false, true, false, false, 1));
+                add(SupportedSPN.create(651, true, false, false, false, 1));
+                add(SupportedSPN.create(1323, true, false, false, false, 1));
+                add(SupportedSPN.create(1324, true, false, false, false, 1));
+                add(SupportedSPN.create(1325, true, false, false, false, 1));
+                add(SupportedSPN.create(1326, true, false, false, false, 1));
+                add(SupportedSPN.create(1413, false, true, false, false, 1));
+                add(SupportedSPN.create(1634, false, true, false, false, 15));
+                add(SupportedSPN.create(1635, false, true, false, false, 4));
+                add(SupportedSPN.create(2630, true, false, false, false, 1));
+                add(SupportedSPN.create(2791, false, true, false, false, 1));
+                add(SupportedSPN.create(2978, false, true, false, false, 1));
+                add(SupportedSPN.create(3031, false, true, false, false, 1));
+                add(SupportedSPN.create(3058, true, false, false, false, 1));
+                add(SupportedSPN.create(3226, true, true, false, false, 1));
+                add(SupportedSPN.create(3251, true, false, false, false, 1));
+                add(SupportedSPN.create(3301, false, false, true, true, 2));
+                add(SupportedSPN.create(3361, true, false, false, false, 1));
+                add(SupportedSPN.create(3516, false, true, false, false, 1));
+                add(SupportedSPN.create(3609, false, true, false, false, 1));
+                add(SupportedSPN.create(3700, false, true, false, false, 1));
+                add(SupportedSPN.create(3713, true, false, false, false, 1));
+                add(SupportedSPN.create(4364, true, false, false, false, 1));
+                add(SupportedSPN.create(4752, true, false, false, false, 1));
+                add(SupportedSPN.create(5018, true, false, false, false, 1));
+                add(SupportedSPN.create(5466, false, true, false, false, 1));
+                add(SupportedSPN.create(5827, false, true, false, false, 1));
+                add(SupportedSPN.create(5829, false, true, false, false, 1));
+                add(SupportedSPN.create(5837, false, true, false, false, 1));
+                add(SupportedSPN.create(6895, false, true, false, false, 1));
+                add(SupportedSPN.create(7333, false, true, false, false, 1));
+                add(SupportedSPN.create(12675, false, true, false, false, 1));
+                add(SupportedSPN.create(12691, false, true, false, false, 1));
+                add(SupportedSPN.create(12730, false, true, false, false, 1));
+                add(SupportedSPN.create(12783, false, true, false, false, 1));
+                add(SupportedSPN.create(12797, false, true, false, false, 1));
+            }
+        };
+        assertEquals(expectedPacket1Spns, dataRepository.getObdModule(0).getSupportedSPNs());
+
+        List<SupportedSPN> expectedPacket4Spns = new ArrayList<>() {
+            {
+                add(SupportedSPN.create(27, false, true, false, false, 1));
+                add(SupportedSPN.create(84, false, true, false, false, 1));
+                add(SupportedSPN.create(91, false, true, false, false, 1));
+                add(SupportedSPN.create(92, false, true, true, false, 1));
+                add(SupportedSPN.create(94, false, true, false, false, 1));
+                add(SupportedSPN.create(102, true, true, false, false, 1));
+                add(SupportedSPN.create(108, false, true, false, false, 1));
+                add(SupportedSPN.create(110, false, true, true, false, 1));
+                add(SupportedSPN.create(157, true, false, false, false, 1));
+                add(SupportedSPN.create(158, false, true, false, false, 1));
+                add(SupportedSPN.create(183, false, true, false, false, 1));
+                add(SupportedSPN.create(190, false, true, true, true, 2));
+                add(SupportedSPN.create(235, false, true, false, false, 1));
+                add(SupportedSPN.create(247, false, true, false, false, 1));
+                add(SupportedSPN.create(248, false, true, false, false, 1));
+                add(SupportedSPN.create(512, false, true, true, false, 1));
+                add(SupportedSPN.create(513, false, true, true, false, 1));
+                add(SupportedSPN.create(514, false, true, false, false, 1));
+                add(SupportedSPN.create(528, false, false, false, true, 0));
+                add(SupportedSPN.create(529, false, false, true, true, 2));
+                add(SupportedSPN.create(530, false, true, false, true, 0));
+                add(SupportedSPN.create(531, false, true, true, true, 1));
+                add(SupportedSPN.create(532, true, false, false, true, 4));
+                add(SupportedSPN.create(533, true, false, true, true, 2));
+                add(SupportedSPN.create(534, true, true, false, true, 0));
+                add(SupportedSPN.create(535, true, true, true, true, 1));
+                add(SupportedSPN.create(536, false, false, false, true, 0));
+                add(SupportedSPN.create(537, false, false, true, true, 0));
+                add(SupportedSPN.create(538, false, true, false, true, 1));
+                add(SupportedSPN.create(539, false, true, false, true, 1));
+                add(SupportedSPN.create(540, false, true, false, true, 1));
+                add(SupportedSPN.create(541, false, true, false, true, 1));
+                add(SupportedSPN.create(542, false, true, false, true, 1));
+                add(SupportedSPN.create(543, false, true, false, false, 1));
+                add(SupportedSPN.create(544, false, true, false, false, 1));
+                add(SupportedSPN.create(651, true, false, false, false, 1));
+                add(SupportedSPN.create(1323, true, false, false, false, 1));
+                add(SupportedSPN.create(1324, true, false, false, false, 1));
+                add(SupportedSPN.create(1325, true, false, false, false, 1));
+                add(SupportedSPN.create(1326, true, false, false, false, 1));
+                add(SupportedSPN.create(1413, false, true, false, false, 1));
+                add(SupportedSPN.create(1634, false, true, false, false, 15));
+                add(SupportedSPN.create(1635, false, true, false, false, 4));
+                add(SupportedSPN.create(2630, true, false, false, false, 1));
+                add(SupportedSPN.create(2791, false, true, false, false, 1));
+                add(SupportedSPN.create(2978, false, true, false, false, 1));
+                add(SupportedSPN.create(3031, false, true, false, false, 1));
+                add(SupportedSPN.create(3058, true, false, false, false, 1));
+                add(SupportedSPN.create(3226, true, true, false, false, 1));
+                add(SupportedSPN.create(3251, true, false, false, false, 1));
+                add(SupportedSPN.create(3301, false, false, true, true, 2));
+                add(SupportedSPN.create(3361, true, false, false, false, 1));
+                add(SupportedSPN.create(3516, false, true, false, false, 1));
+                add(SupportedSPN.create(3609, false, true, false, false, 1));
+                add(SupportedSPN.create(3700, false, true, false, false, 1));
+                add(SupportedSPN.create(3713, true, false, false, false, 1));
+                add(SupportedSPN.create(4364, true, false, false, false, 1));
+                add(SupportedSPN.create(4752, true, false, false, false, 1));
+                add(SupportedSPN.create(5018, true, false, false, false, 1));
+                add(SupportedSPN.create(5466, false, true, false, false, 1));
+                add(SupportedSPN.create(5827, false, true, false, false, 1));
+                add(SupportedSPN.create(5829, false, true, false, false, 1));
+                add(SupportedSPN.create(5837, false, true, false, false, 1));
+                add(SupportedSPN.create(6895, false, true, false, false, 1));
+                add(SupportedSPN.create(7333, false, true, false, false, 1));
+                add(SupportedSPN.create(12675, false, true, false, false, 1));
+                add(SupportedSPN.create(12691, false, true, false, false, 1));
+                add(SupportedSPN.create(12730, false, true, false, false, 1));
+                add(SupportedSPN.create(12797, false, true, false, false, 1));
+                add(SupportedSPN.create(12783, false, true, false, false, 1));
+            }
+        };
+        expectedPacket4Spns.sort(Comparator.comparingInt(SupportedSPN::getSpn));
+        assertEquals(expectedPacket4Spns, dataRepository.getObdModule(1).getSupportedSPNs());
+
+        verify(vehicleInformationModule, times(2)).getEngineModelYear();
+    }
+
+    @Test
+    // Testing object without any errors.
+    @TestDoc(value = @TestItem(verifies = "6.1.4.2.d"), description = "For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1 - Total) is not included in DM24 response.")
+    public void testMy2022ObjectsMissing12783() throws IOException {
+
+        //@formatter:off
+        DM24SPNSupportPacket packet1 = DM24SPNSupportPacket.create(0x00,
+                                                                   SupportedSPN.create(27, false, true, false, false, 1),
+                                                                   SupportedSPN.create(84, false, true, false, false, 1),
+                                                                   SupportedSPN.create(91, false, true, false, false, 1),
+                                                                   SupportedSPN.create(92, false, true, true, false, 1),
+                                                                   SupportedSPN.create(94, false, true, false, false, 1),
+                                                                   SupportedSPN.create(102, true, true, false, false, 1),
+                                                                   SupportedSPN.create(108, false, true, false, false, 1),
+                                                                   SupportedSPN.create(110, false, true, true, false, 1),
+                                                                   SupportedSPN.create(157, true, false, false, false, 1),
+                                                                   SupportedSPN.create(158, false, true, false, false, 1),
+                                                                   SupportedSPN.create(183, false, true, false, false, 1),
+                                                                   SupportedSPN.create(190, false, true, true, true, 2),
+                                                                   SupportedSPN.create(235, false, true, false, false, 1),
+                                                                   SupportedSPN.create(247, false, true, false, false, 1),
+                                                                   SupportedSPN.create(248, false, true, false, false, 1),
+                                                                   SupportedSPN.create(512, false, true, true, false, 1),
+                                                                   SupportedSPN.create(513, false, true, true, false, 1),
+                                                                   SupportedSPN.create(514, false, true, false, false, 1),
+                                                                   SupportedSPN.create(528, false, false, false, true, 0),
+                                                                   SupportedSPN.create(529, false, false, true, true, 2),
+                                                                   SupportedSPN.create(530, false, true, false, true, 0),
+                                                                   SupportedSPN.create(531, false, true, true, true, 1),
+                                                                   SupportedSPN.create(532, true, false, false, true, 4),
+                                                                   SupportedSPN.create(533, true, false, true, true, 2),
+                                                                   SupportedSPN.create(534, true, true, false, true, 0),
+                                                                   SupportedSPN.create(535, true, true, true, true, 1),
+                                                                   SupportedSPN.create(536, false, false, false, true, 0),
+                                                                   SupportedSPN.create(537, false, false, true, true, 0),
+                                                                   SupportedSPN.create(538, false, true, false, true, 1),
+                                                                   SupportedSPN.create(539, false, true, false, true, 1),
+                                                                   SupportedSPN.create(540, false, true, false, true, 1),
+                                                                   SupportedSPN.create(541, false, true, false, true, 1),
+                                                                   SupportedSPN.create(542, false, true, false, true, 1),
+                                                                   SupportedSPN.create(543, false, true, false, false, 1),
+                                                                   SupportedSPN.create(544, false, true, false, false, 1),
+                                                                   SupportedSPN.create(651, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1323, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1324, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1325, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1326, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1413, false, true, false, false, 1),
+                                                                   SupportedSPN.create(1634, false, true, false, false, 15),
+                                                                   SupportedSPN.create(1635, false, true, false, false, 4),
+                                                                   SupportedSPN.create(2630, true, false, false, false, 1),
+                                                                   SupportedSPN.create(2791, false, true, false, false, 1),
+                                                                   SupportedSPN.create(2978, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3031, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3058, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3226, true, true, false, false, 1),
+                                                                   SupportedSPN.create(3251, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3301, false, false, true, true, 2),
+                                                                   SupportedSPN.create(3361, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3516, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3609, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3700, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3713, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4364, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4752, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5018, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5466, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5827, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5829, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5837, false, true, false, false, 1),
+                                                                   SupportedSPN.create(6895, false, true, false, false, 1),
+                                                                   SupportedSPN.create(7333, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12691, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12730, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12797, false, true, false, false, 1));
+        //@formatter:on
+        when(communicationsModule.requestDM24(any(), eq(0))).thenReturn(BusResult.of(packet1));
+
+        OBDModuleInformation obd0x00 = new OBDModuleInformation(0);
+        obd0x00.set(packet1, 1);
+        dataRepository.putObdModule(obd0x00);
+
+        //@formatter:off
+        DM24SPNSupportPacket packet4 = DM24SPNSupportPacket.create(0x01,
+                                                                   SupportedSPN.create(27, false, true, false, false, 1),
+                                                                   SupportedSPN.create(84, false, true, false, false, 1),
+                                                                   SupportedSPN.create(91, false, true, false, false, 1),
+                                                                   SupportedSPN.create(92, false, true, true, false, 1),
+                                                                   SupportedSPN.create(94, false, true, false, false, 1),
+                                                                   SupportedSPN.create(102, true, true, false, false, 1),
+                                                                   SupportedSPN.create(108, false, true, false, false, 1),
+                                                                   SupportedSPN.create(110, false, true, true, false, 1),
+                                                                   SupportedSPN.create(157, true, false, false, false, 1),
+                                                                   SupportedSPN.create(158, false, true, false, false, 1),
+                                                                   SupportedSPN.create(183, false, true, false, false, 1),
+                                                                   SupportedSPN.create(190, false, true, true, true, 2),
+                                                                   SupportedSPN.create(235, false, true, false, false, 1),
+                                                                   SupportedSPN.create(247, false, true, false, false, 1),
+                                                                   SupportedSPN.create(248, false, true, false, false, 1),
+                                                                   SupportedSPN.create(512, false, true, true, false, 1),
+                                                                   SupportedSPN.create(513, false, true, true, false, 1),
+                                                                   SupportedSPN.create(514, false, true, false, false, 1),
+                                                                   SupportedSPN.create(528, false, false, false, true, 0),
+                                                                   SupportedSPN.create(529, false, false, true, true, 2),
+                                                                   SupportedSPN.create(530, false, true, false, true, 0),
+                                                                   SupportedSPN.create(531, false, true, true, true, 1),
+                                                                   SupportedSPN.create(532, true, false, false, true, 4),
+                                                                   SupportedSPN.create(533, true, false, true, true, 2),
+                                                                   SupportedSPN.create(534, true, true, false, true, 0),
+                                                                   SupportedSPN.create(535, true, true, true, true, 1),
+                                                                   SupportedSPN.create(536, false, false, false, true, 0),
+                                                                   SupportedSPN.create(537, false, false, true, true, 0),
+                                                                   SupportedSPN.create(538, false, true, false, true, 1),
+                                                                   SupportedSPN.create(539, false, true, false, true, 1),
+                                                                   SupportedSPN.create(540, false, true, false, true, 1),
+                                                                   SupportedSPN.create(541, false, true, false, true, 1),
+                                                                   SupportedSPN.create(542, false, true, false, true, 1),
+                                                                   SupportedSPN.create(543, false, true, false, false, 1),
+                                                                   SupportedSPN.create(544, false, true, false, false, 1),
+                                                                   SupportedSPN.create(651, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1323, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1324, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1325, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1326, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1413, false, true, false, false, 1),
+                                                                   SupportedSPN.create(1634, false, true, false, false, 15),
+                                                                   SupportedSPN.create(1635, false, true, false, false, 4),
+                                                                   SupportedSPN.create(2630, true, false, false, false, 1),
+                                                                   SupportedSPN.create(2791, false, true, false, false, 1),
+                                                                   SupportedSPN.create(2978, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3031, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3058, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3226, true, true, false, false, 1),
+                                                                   SupportedSPN.create(3251, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3301, false, false, true, true, 2),
+                                                                   SupportedSPN.create(3361, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3516, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3609, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3700, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3713, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4364, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4752, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5018, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5466, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5827, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5829, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5837, false, true, false, false, 1),
+                                                                   SupportedSPN.create(6895, false, true, false, false, 1),
+                                                                   SupportedSPN.create(7333, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12691, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12730, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12797, false, true, false, false, 1));
+        //@formatter:on
+
+        when(communicationsModule.requestDM24(any(), eq(1))).thenReturn(BusResult.of(packet4));
+        OBDModuleInformation obd0x01 = new OBDModuleInformation(0x01);
+        obd0x01.set(packet4, 1);
+        dataRepository.putObdModule(obd0x01);
+
+        VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setFuelType(BATT_ELEC);
+        dataRepository.setVehicleInformation(vehicleInfo);
+        when(vehicleInformationModule.getEngineModelYear()).thenReturn(2022);
+
+        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any())).thenReturn(true);
+        when(supportedSpnModule.validateFreezeFrameSpns(any(), any())).thenReturn(true);
+
+        runTest();
+
+        verify(communicationsModule).setJ1939(j1939);
+
+        verify(communicationsModule).requestDM24(any(), eq(0x00));
+
+        verify(communicationsModule).requestDM24(any(), eq(0x01));
+
+        verify(engineSpeedModule).setJ1939(j1939);
+
+        //@formatter:off
+        List<Integer> expectedDataStreamsPacket4 = Arrays.asList(27, 84, 91, 92, 94, 102, 108, 110, 158, 183, 190, 235,
+                                                                 247, 248, 512, 513, 514, 530, 531, 534, 535, 538, 539,
+                                                                 540, 541, 542, 543, 544, 1413, 1634, 1635, 2791, 2978,
+                                                                 3031, 3226, 3516, 3609, 3700, 5466, 5827, 5829, 5837,
+                                                                 6895, 7333, 12691, 12730, 12797);
+        //@formatter:on
+
+        Collections.sort(expectedDataStreamsPacket4);
+        verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(BATT_ELEC));
+
+        List<Integer> expectedFreezeFrames = Arrays.asList(92, 110, 190, 512, 513, 529, 531, 533, 535, 537, 3301);
+        Collections.sort(expectedFreezeFrames);
+        verify(supportedSpnModule).validateFreezeFrameSpns(any(), eq(expectedFreezeFrames));
+
+        List<SupportedSPN> expectedPacket1Spns = new ArrayList<>() {
+            {
+                add(SupportedSPN.create(27, false, true, false, false, 1));
+                add(SupportedSPN.create(84, false, true, false, false, 1));
+                add(SupportedSPN.create(91, false, true, false, false, 1));
+                add(SupportedSPN.create(92, false, true, true, false, 1));
+                add(SupportedSPN.create(94, false, true, false, false, 1));
+                add(SupportedSPN.create(102, true, true, false, false, 1));
+                add(SupportedSPN.create(108, false, true, false, false, 1));
+                add(SupportedSPN.create(110, false, true, true, false, 1));
+                add(SupportedSPN.create(157, true, false, false, false, 1));
+                add(SupportedSPN.create(158, false, true, false, false, 1));
+                add(SupportedSPN.create(183, false, true, false, false, 1));
+                add(SupportedSPN.create(190, false, true, true, true, 2));
+                add(SupportedSPN.create(235, false, true, false, false, 1));
+                add(SupportedSPN.create(247, false, true, false, false, 1));
+                add(SupportedSPN.create(248, false, true, false, false, 1));
+                add(SupportedSPN.create(512, false, true, true, false, 1));
+                add(SupportedSPN.create(513, false, true, true, false, 1));
+                add(SupportedSPN.create(514, false, true, false, false, 1));
+                add(SupportedSPN.create(528, false, false, false, true, 0));
+                add(SupportedSPN.create(529, false, false, true, true, 2));
+                add(SupportedSPN.create(530, false, true, false, true, 0));
+                add(SupportedSPN.create(531, false, true, true, true, 1));
+                add(SupportedSPN.create(532, true, false, false, true, 4));
+                add(SupportedSPN.create(533, true, false, true, true, 2));
+                add(SupportedSPN.create(534, true, true, false, true, 0));
+                add(SupportedSPN.create(535, true, true, true, true, 1));
+                add(SupportedSPN.create(536, false, false, false, true, 0));
+                add(SupportedSPN.create(537, false, false, true, true, 0));
+                add(SupportedSPN.create(538, false, true, false, true, 1));
+                add(SupportedSPN.create(539, false, true, false, true, 1));
+                add(SupportedSPN.create(540, false, true, false, true, 1));
+                add(SupportedSPN.create(541, false, true, false, true, 1));
+                add(SupportedSPN.create(542, false, true, false, true, 1));
+                add(SupportedSPN.create(543, false, true, false, false, 1));
+                add(SupportedSPN.create(544, false, true, false, false, 1));
+                add(SupportedSPN.create(651, true, false, false, false, 1));
+                add(SupportedSPN.create(1323, true, false, false, false, 1));
+                add(SupportedSPN.create(1324, true, false, false, false, 1));
+                add(SupportedSPN.create(1325, true, false, false, false, 1));
+                add(SupportedSPN.create(1326, true, false, false, false, 1));
+                add(SupportedSPN.create(1413, false, true, false, false, 1));
+                add(SupportedSPN.create(1634, false, true, false, false, 15));
+                add(SupportedSPN.create(1635, false, true, false, false, 4));
+                add(SupportedSPN.create(2630, true, false, false, false, 1));
+                add(SupportedSPN.create(2791, false, true, false, false, 1));
+                add(SupportedSPN.create(2978, false, true, false, false, 1));
+                add(SupportedSPN.create(3031, false, true, false, false, 1));
+                add(SupportedSPN.create(3058, true, false, false, false, 1));
+                add(SupportedSPN.create(3226, true, true, false, false, 1));
+                add(SupportedSPN.create(3251, true, false, false, false, 1));
+                add(SupportedSPN.create(3301, false, false, true, true, 2));
+                add(SupportedSPN.create(3361, true, false, false, false, 1));
+                add(SupportedSPN.create(3516, false, true, false, false, 1));
+                add(SupportedSPN.create(3609, false, true, false, false, 1));
+                add(SupportedSPN.create(3700, false, true, false, false, 1));
+                add(SupportedSPN.create(3713, true, false, false, false, 1));
+                add(SupportedSPN.create(4364, true, false, false, false, 1));
+                add(SupportedSPN.create(4752, true, false, false, false, 1));
+                add(SupportedSPN.create(5018, true, false, false, false, 1));
+                add(SupportedSPN.create(5466, false, true, false, false, 1));
+                add(SupportedSPN.create(5827, false, true, false, false, 1));
+                add(SupportedSPN.create(5829, false, true, false, false, 1));
+                add(SupportedSPN.create(5837, false, true, false, false, 1));
+                add(SupportedSPN.create(6895, false, true, false, false, 1));
+                add(SupportedSPN.create(7333, false, true, false, false, 1));
+                add(SupportedSPN.create(12691, false, true, false, false, 1));
+                add(SupportedSPN.create(12730, false, true, false, false, 1));
+                add(SupportedSPN.create(12797, false, true, false, false, 1));
+            }
+        };
+        assertEquals(expectedPacket1Spns, dataRepository.getObdModule(0).getSupportedSPNs());
+
+        List<SupportedSPN> expectedPacket4Spns = new ArrayList<>() {
+            {
+                add(SupportedSPN.create(27, false, true, false, false, 1));
+                add(SupportedSPN.create(84, false, true, false, false, 1));
+                add(SupportedSPN.create(91, false, true, false, false, 1));
+                add(SupportedSPN.create(92, false, true, true, false, 1));
+                add(SupportedSPN.create(94, false, true, false, false, 1));
+                add(SupportedSPN.create(102, true, true, false, false, 1));
+                add(SupportedSPN.create(108, false, true, false, false, 1));
+                add(SupportedSPN.create(110, false, true, true, false, 1));
+                add(SupportedSPN.create(157, true, false, false, false, 1));
+                add(SupportedSPN.create(158, false, true, false, false, 1));
+                add(SupportedSPN.create(183, false, true, false, false, 1));
+                add(SupportedSPN.create(190, false, true, true, true, 2));
+                add(SupportedSPN.create(235, false, true, false, false, 1));
+                add(SupportedSPN.create(247, false, true, false, false, 1));
+                add(SupportedSPN.create(248, false, true, false, false, 1));
+                add(SupportedSPN.create(512, false, true, true, false, 1));
+                add(SupportedSPN.create(513, false, true, true, false, 1));
+                add(SupportedSPN.create(514, false, true, false, false, 1));
+                add(SupportedSPN.create(528, false, false, false, true, 0));
+                add(SupportedSPN.create(529, false, false, true, true, 2));
+                add(SupportedSPN.create(530, false, true, false, true, 0));
+                add(SupportedSPN.create(531, false, true, true, true, 1));
+                add(SupportedSPN.create(532, true, false, false, true, 4));
+                add(SupportedSPN.create(533, true, false, true, true, 2));
+                add(SupportedSPN.create(534, true, true, false, true, 0));
+                add(SupportedSPN.create(535, true, true, true, true, 1));
+                add(SupportedSPN.create(536, false, false, false, true, 0));
+                add(SupportedSPN.create(537, false, false, true, true, 0));
+                add(SupportedSPN.create(538, false, true, false, true, 1));
+                add(SupportedSPN.create(539, false, true, false, true, 1));
+                add(SupportedSPN.create(540, false, true, false, true, 1));
+                add(SupportedSPN.create(541, false, true, false, true, 1));
+                add(SupportedSPN.create(542, false, true, false, true, 1));
+                add(SupportedSPN.create(543, false, true, false, false, 1));
+                add(SupportedSPN.create(544, false, true, false, false, 1));
+                add(SupportedSPN.create(651, true, false, false, false, 1));
+                add(SupportedSPN.create(1323, true, false, false, false, 1));
+                add(SupportedSPN.create(1324, true, false, false, false, 1));
+                add(SupportedSPN.create(1325, true, false, false, false, 1));
+                add(SupportedSPN.create(1326, true, false, false, false, 1));
+                add(SupportedSPN.create(1413, false, true, false, false, 1));
+                add(SupportedSPN.create(1634, false, true, false, false, 15));
+                add(SupportedSPN.create(1635, false, true, false, false, 4));
+                add(SupportedSPN.create(2630, true, false, false, false, 1));
+                add(SupportedSPN.create(2791, false, true, false, false, 1));
+                add(SupportedSPN.create(2978, false, true, false, false, 1));
+                add(SupportedSPN.create(3031, false, true, false, false, 1));
+                add(SupportedSPN.create(3058, true, false, false, false, 1));
+                add(SupportedSPN.create(3226, true, true, false, false, 1));
+                add(SupportedSPN.create(3251, true, false, false, false, 1));
+                add(SupportedSPN.create(3301, false, false, true, true, 2));
+                add(SupportedSPN.create(3361, true, false, false, false, 1));
+                add(SupportedSPN.create(3516, false, true, false, false, 1));
+                add(SupportedSPN.create(3609, false, true, false, false, 1));
+                add(SupportedSPN.create(3700, false, true, false, false, 1));
+                add(SupportedSPN.create(3713, true, false, false, false, 1));
+                add(SupportedSPN.create(4364, true, false, false, false, 1));
+                add(SupportedSPN.create(4752, true, false, false, false, 1));
+                add(SupportedSPN.create(5018, true, false, false, false, 1));
+                add(SupportedSPN.create(5466, false, true, false, false, 1));
+                add(SupportedSPN.create(5827, false, true, false, false, 1));
+                add(SupportedSPN.create(5829, false, true, false, false, 1));
+                add(SupportedSPN.create(5837, false, true, false, false, 1));
+                add(SupportedSPN.create(6895, false, true, false, false, 1));
+                add(SupportedSPN.create(7333, false, true, false, false, 1));
+                add(SupportedSPN.create(12691, false, true, false, false, 1));
+                add(SupportedSPN.create(12730, false, true, false, false, 1));
+                add(SupportedSPN.create(12797, false, true, false, false, 1));
+            }
+        };
+        expectedPacket4Spns.sort(Comparator.comparingInt(SupportedSPN::getSpn));
+        assertEquals(expectedPacket4Spns, dataRepository.getObdModule(1).getSupportedSPNs());
+
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(4),
+                                        eq(FAIL),
+                                        eq("6.1.4.2.h - For all MY2022+ Plug-in HEV drives, Fail if SP 12783 (Hybrid Lifetime Distance Traveled in Charge Depleting Operation with Engine off),"
+                                                + NL + " is not included in DM24 response from Engine #1 (0)"));
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(4),
+                                        eq(FAIL),
+                                        eq("6.1.4.2.h - For all MY2022+ Plug-in HEV drives, Fail if SP 12783 (Hybrid Lifetime Distance Traveled in Charge Depleting Operation with Engine off),"
+                                                + NL + " is not included in DM24 response from Engine #2 (1)"));
+
+        verify(vehicleInformationModule, times(2)).getEngineModelYear();
+    }
+
+    @Test
+    // Testing object without any errors.
+    @TestDoc(value = @TestItem(verifies = "6.1.4.2.d"), description = "For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1 - Total) is not included in DM24 response.")
+    public void testMy2022ObjectsMissing12691() throws IOException {
+
+        //@formatter:off
+        DM24SPNSupportPacket packet1 = DM24SPNSupportPacket.create(0x00,
+                                                                   SupportedSPN.create(27, false, true, false, false, 1),
+                                                                   SupportedSPN.create(84, false, true, false, false, 1),
+                                                                   SupportedSPN.create(91, false, true, false, false, 1),
+                                                                   SupportedSPN.create(92, false, true, true, false, 1),
+                                                                   SupportedSPN.create(94, false, true, false, false, 1),
+                                                                   SupportedSPN.create(102, true, true, false, false, 1),
+                                                                   SupportedSPN.create(108, false, true, false, false, 1),
+                                                                   SupportedSPN.create(110, false, true, true, false, 1),
+                                                                   SupportedSPN.create(157, true, false, false, false, 1),
+                                                                   SupportedSPN.create(158, false, true, false, false, 1),
+                                                                   SupportedSPN.create(183, false, true, false, false, 1),
+                                                                   SupportedSPN.create(190, false, true, true, true, 2),
+                                                                   SupportedSPN.create(235, false, true, false, false, 1),
+                                                                   SupportedSPN.create(247, false, true, false, false, 1),
+                                                                   SupportedSPN.create(248, false, true, false, false, 1),
+                                                                   SupportedSPN.create(512, false, true, true, false, 1),
+                                                                   SupportedSPN.create(513, false, true, true, false, 1),
+                                                                   SupportedSPN.create(514, false, true, false, false, 1),
+                                                                   SupportedSPN.create(528, false, false, false, true, 0),
+                                                                   SupportedSPN.create(529, false, false, true, true, 2),
+                                                                   SupportedSPN.create(530, false, true, false, true, 0),
+                                                                   SupportedSPN.create(531, false, true, true, true, 1),
+                                                                   SupportedSPN.create(532, true, false, false, true, 4),
+                                                                   SupportedSPN.create(533, true, false, true, true, 2),
+                                                                   SupportedSPN.create(534, true, true, false, true, 0),
+                                                                   SupportedSPN.create(535, true, true, true, true, 1),
+                                                                   SupportedSPN.create(536, false, false, false, true, 0),
+                                                                   SupportedSPN.create(537, false, false, true, true, 0),
+                                                                   SupportedSPN.create(538, false, true, false, true, 1),
+                                                                   SupportedSPN.create(539, false, true, false, true, 1),
+                                                                   SupportedSPN.create(540, false, true, false, true, 1),
+                                                                   SupportedSPN.create(541, false, true, false, true, 1),
+                                                                   SupportedSPN.create(542, false, true, false, true, 1),
+                                                                   SupportedSPN.create(543, false, true, false, false, 1),
+                                                                   SupportedSPN.create(544, false, true, false, false, 1),
+                                                                   SupportedSPN.create(651, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1323, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1324, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1325, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1326, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1413, false, true, false, false, 1),
+                                                                   SupportedSPN.create(1634, false, true, false, false, 15),
+                                                                   SupportedSPN.create(1635, false, true, false, false, 4),
+                                                                   SupportedSPN.create(2630, true, false, false, false, 1),
+                                                                   SupportedSPN.create(2791, false, true, false, false, 1),
+                                                                   SupportedSPN.create(2978, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3031, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3058, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3226, true, true, false, false, 1),
+                                                                   SupportedSPN.create(3251, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3301, false, false, true, true, 2),
+                                                                   SupportedSPN.create(3361, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3516, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3609, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3700, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3713, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4364, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4752, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5018, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5466, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5827, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5829, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5837, false, true, false, false, 1),
+                                                                   SupportedSPN.create(6895, false, true, false, false, 1),
+                                                                   SupportedSPN.create(7333, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12730, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12797, false, true, false, false, 1));
+        //@formatter:on
+        when(communicationsModule.requestDM24(any(), eq(0))).thenReturn(BusResult.of(packet1));
+
+        OBDModuleInformation obd0x00 = new OBDModuleInformation(0);
+        obd0x00.set(packet1, 1);
+        dataRepository.putObdModule(obd0x00);
+
+        //@formatter:off
+        DM24SPNSupportPacket packet4 = DM24SPNSupportPacket.create(0x01,
+                                                                   SupportedSPN.create(27, false, true, false, false, 1),
+                                                                   SupportedSPN.create(84, false, true, false, false, 1),
+                                                                   SupportedSPN.create(91, false, true, false, false, 1),
+                                                                   SupportedSPN.create(92, false, true, true, false, 1),
+                                                                   SupportedSPN.create(94, false, true, false, false, 1),
+                                                                   SupportedSPN.create(102, true, true, false, false, 1),
+                                                                   SupportedSPN.create(108, false, true, false, false, 1),
+                                                                   SupportedSPN.create(110, false, true, true, false, 1),
+                                                                   SupportedSPN.create(157, true, false, false, false, 1),
+                                                                   SupportedSPN.create(158, false, true, false, false, 1),
+                                                                   SupportedSPN.create(183, false, true, false, false, 1),
+                                                                   SupportedSPN.create(190, false, true, true, true, 2),
+                                                                   SupportedSPN.create(235, false, true, false, false, 1),
+                                                                   SupportedSPN.create(247, false, true, false, false, 1),
+                                                                   SupportedSPN.create(248, false, true, false, false, 1),
+                                                                   SupportedSPN.create(512, false, true, true, false, 1),
+                                                                   SupportedSPN.create(513, false, true, true, false, 1),
+                                                                   SupportedSPN.create(514, false, true, false, false, 1),
+                                                                   SupportedSPN.create(528, false, false, false, true, 0),
+                                                                   SupportedSPN.create(529, false, false, true, true, 2),
+                                                                   SupportedSPN.create(530, false, true, false, true, 0),
+                                                                   SupportedSPN.create(531, false, true, true, true, 1),
+                                                                   SupportedSPN.create(532, true, false, false, true, 4),
+                                                                   SupportedSPN.create(533, true, false, true, true, 2),
+                                                                   SupportedSPN.create(534, true, true, false, true, 0),
+                                                                   SupportedSPN.create(535, true, true, true, true, 1),
+                                                                   SupportedSPN.create(536, false, false, false, true, 0),
+                                                                   SupportedSPN.create(537, false, false, true, true, 0),
+                                                                   SupportedSPN.create(538, false, true, false, true, 1),
+                                                                   SupportedSPN.create(539, false, true, false, true, 1),
+                                                                   SupportedSPN.create(540, false, true, false, true, 1),
+                                                                   SupportedSPN.create(541, false, true, false, true, 1),
+                                                                   SupportedSPN.create(542, false, true, false, true, 1),
+                                                                   SupportedSPN.create(543, false, true, false, false, 1),
+                                                                   SupportedSPN.create(544, false, true, false, false, 1),
+                                                                   SupportedSPN.create(651, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1323, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1324, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1325, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1326, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1413, false, true, false, false, 1),
+                                                                   SupportedSPN.create(1634, false, true, false, false, 15),
+                                                                   SupportedSPN.create(1635, false, true, false, false, 4),
+                                                                   SupportedSPN.create(2630, true, false, false, false, 1),
+                                                                   SupportedSPN.create(2791, false, true, false, false, 1),
+                                                                   SupportedSPN.create(2978, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3031, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3058, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3226, true, true, false, false, 1),
+                                                                   SupportedSPN.create(3251, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3301, false, false, true, true, 2),
+                                                                   SupportedSPN.create(3361, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3516, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3609, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3700, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3713, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4364, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4752, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5018, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5466, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5827, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5829, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5837, false, true, false, false, 1),
+                                                                   SupportedSPN.create(6895, false, true, false, false, 1),
+                                                                   SupportedSPN.create(7333, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12730, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12797, false, true, false, false, 1));
+        //@formatter:on
+
+        when(communicationsModule.requestDM24(any(), eq(1))).thenReturn(BusResult.of(packet4));
+        OBDModuleInformation obd0x01 = new OBDModuleInformation(0x01);
+        obd0x01.set(packet4, 1);
+        dataRepository.putObdModule(obd0x01);
+
+        VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setFuelType(HYB_GAS);
+        dataRepository.setVehicleInformation(vehicleInfo);
+        when(vehicleInformationModule.getEngineModelYear()).thenReturn(2022);
+
+        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any())).thenReturn(true);
+        when(supportedSpnModule.validateFreezeFrameSpns(any(), any())).thenReturn(true);
+
+        runTest();
+
+        verify(communicationsModule).setJ1939(j1939);
+
+        verify(communicationsModule).requestDM24(any(), eq(0x00));
+
+        verify(communicationsModule).requestDM24(any(), eq(0x01));
+
+        verify(engineSpeedModule).setJ1939(j1939);
+
+        //@formatter:off
+        List<Integer> expectedDataStreamsPacket4 = Arrays.asList(27, 84, 91, 92, 94, 102, 108, 110, 158, 183, 190, 235,
+                                                                 247, 248, 512, 513, 514, 530, 531, 534, 535, 538, 539,
+                                                                 540, 541, 542, 543, 544, 1413, 1634, 1635, 2791, 2978,
+                                                                 3031, 3226, 3516, 3609, 3700, 5466, 5827, 5829, 5837,
+                                                                 6895, 7333, 12730, 12797);
+        //@formatter:on
+
+        Collections.sort(expectedDataStreamsPacket4);
+        verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(HYB_GAS));
+
+        List<Integer> expectedFreezeFrames = Arrays.asList(92, 110, 190, 512, 513, 529, 531, 533, 535, 537, 3301);
+        Collections.sort(expectedFreezeFrames);
+        verify(supportedSpnModule).validateFreezeFrameSpns(any(), eq(expectedFreezeFrames));
+
+        List<SupportedSPN> expectedPacket1Spns = new ArrayList<>() {
+            {
+                add(SupportedSPN.create(27, false, true, false, false, 1));
+                add(SupportedSPN.create(84, false, true, false, false, 1));
+                add(SupportedSPN.create(91, false, true, false, false, 1));
+                add(SupportedSPN.create(92, false, true, true, false, 1));
+                add(SupportedSPN.create(94, false, true, false, false, 1));
+                add(SupportedSPN.create(102, true, true, false, false, 1));
+                add(SupportedSPN.create(108, false, true, false, false, 1));
+                add(SupportedSPN.create(110, false, true, true, false, 1));
+                add(SupportedSPN.create(157, true, false, false, false, 1));
+                add(SupportedSPN.create(158, false, true, false, false, 1));
+                add(SupportedSPN.create(183, false, true, false, false, 1));
+                add(SupportedSPN.create(190, false, true, true, true, 2));
+                add(SupportedSPN.create(235, false, true, false, false, 1));
+                add(SupportedSPN.create(247, false, true, false, false, 1));
+                add(SupportedSPN.create(248, false, true, false, false, 1));
+                add(SupportedSPN.create(512, false, true, true, false, 1));
+                add(SupportedSPN.create(513, false, true, true, false, 1));
+                add(SupportedSPN.create(514, false, true, false, false, 1));
+                add(SupportedSPN.create(528, false, false, false, true, 0));
+                add(SupportedSPN.create(529, false, false, true, true, 2));
+                add(SupportedSPN.create(530, false, true, false, true, 0));
+                add(SupportedSPN.create(531, false, true, true, true, 1));
+                add(SupportedSPN.create(532, true, false, false, true, 4));
+                add(SupportedSPN.create(533, true, false, true, true, 2));
+                add(SupportedSPN.create(534, true, true, false, true, 0));
+                add(SupportedSPN.create(535, true, true, true, true, 1));
+                add(SupportedSPN.create(536, false, false, false, true, 0));
+                add(SupportedSPN.create(537, false, false, true, true, 0));
+                add(SupportedSPN.create(538, false, true, false, true, 1));
+                add(SupportedSPN.create(539, false, true, false, true, 1));
+                add(SupportedSPN.create(540, false, true, false, true, 1));
+                add(SupportedSPN.create(541, false, true, false, true, 1));
+                add(SupportedSPN.create(542, false, true, false, true, 1));
+                add(SupportedSPN.create(543, false, true, false, false, 1));
+                add(SupportedSPN.create(544, false, true, false, false, 1));
+                add(SupportedSPN.create(651, true, false, false, false, 1));
+                add(SupportedSPN.create(1323, true, false, false, false, 1));
+                add(SupportedSPN.create(1324, true, false, false, false, 1));
+                add(SupportedSPN.create(1325, true, false, false, false, 1));
+                add(SupportedSPN.create(1326, true, false, false, false, 1));
+                add(SupportedSPN.create(1413, false, true, false, false, 1));
+                add(SupportedSPN.create(1634, false, true, false, false, 15));
+                add(SupportedSPN.create(1635, false, true, false, false, 4));
+                add(SupportedSPN.create(2630, true, false, false, false, 1));
+                add(SupportedSPN.create(2791, false, true, false, false, 1));
+                add(SupportedSPN.create(2978, false, true, false, false, 1));
+                add(SupportedSPN.create(3031, false, true, false, false, 1));
+                add(SupportedSPN.create(3058, true, false, false, false, 1));
+                add(SupportedSPN.create(3226, true, true, false, false, 1));
+                add(SupportedSPN.create(3251, true, false, false, false, 1));
+                add(SupportedSPN.create(3301, false, false, true, true, 2));
+                add(SupportedSPN.create(3361, true, false, false, false, 1));
+                add(SupportedSPN.create(3516, false, true, false, false, 1));
+                add(SupportedSPN.create(3609, false, true, false, false, 1));
+                add(SupportedSPN.create(3700, false, true, false, false, 1));
+                add(SupportedSPN.create(3713, true, false, false, false, 1));
+                add(SupportedSPN.create(4364, true, false, false, false, 1));
+                add(SupportedSPN.create(4752, true, false, false, false, 1));
+                add(SupportedSPN.create(5018, true, false, false, false, 1));
+                add(SupportedSPN.create(5466, false, true, false, false, 1));
+                add(SupportedSPN.create(5827, false, true, false, false, 1));
+                add(SupportedSPN.create(5829, false, true, false, false, 1));
+                add(SupportedSPN.create(5837, false, true, false, false, 1));
+                add(SupportedSPN.create(6895, false, true, false, false, 1));
+                add(SupportedSPN.create(7333, false, true, false, false, 1));
+                add(SupportedSPN.create(12730, false, true, false, false, 1));
+                add(SupportedSPN.create(12797, false, true, false, false, 1));
+            }
+        };
+        assertEquals(expectedPacket1Spns, dataRepository.getObdModule(0).getSupportedSPNs());
+
+        List<SupportedSPN> expectedPacket4Spns = new ArrayList<>() {
+            {
+                add(SupportedSPN.create(27, false, true, false, false, 1));
+                add(SupportedSPN.create(84, false, true, false, false, 1));
+                add(SupportedSPN.create(91, false, true, false, false, 1));
+                add(SupportedSPN.create(92, false, true, true, false, 1));
+                add(SupportedSPN.create(94, false, true, false, false, 1));
+                add(SupportedSPN.create(102, true, true, false, false, 1));
+                add(SupportedSPN.create(108, false, true, false, false, 1));
+                add(SupportedSPN.create(110, false, true, true, false, 1));
+                add(SupportedSPN.create(157, true, false, false, false, 1));
+                add(SupportedSPN.create(158, false, true, false, false, 1));
+                add(SupportedSPN.create(183, false, true, false, false, 1));
+                add(SupportedSPN.create(190, false, true, true, true, 2));
+                add(SupportedSPN.create(235, false, true, false, false, 1));
+                add(SupportedSPN.create(247, false, true, false, false, 1));
+                add(SupportedSPN.create(248, false, true, false, false, 1));
+                add(SupportedSPN.create(512, false, true, true, false, 1));
+                add(SupportedSPN.create(513, false, true, true, false, 1));
+                add(SupportedSPN.create(514, false, true, false, false, 1));
+                add(SupportedSPN.create(528, false, false, false, true, 0));
+                add(SupportedSPN.create(529, false, false, true, true, 2));
+                add(SupportedSPN.create(530, false, true, false, true, 0));
+                add(SupportedSPN.create(531, false, true, true, true, 1));
+                add(SupportedSPN.create(532, true, false, false, true, 4));
+                add(SupportedSPN.create(533, true, false, true, true, 2));
+                add(SupportedSPN.create(534, true, true, false, true, 0));
+                add(SupportedSPN.create(535, true, true, true, true, 1));
+                add(SupportedSPN.create(536, false, false, false, true, 0));
+                add(SupportedSPN.create(537, false, false, true, true, 0));
+                add(SupportedSPN.create(538, false, true, false, true, 1));
+                add(SupportedSPN.create(539, false, true, false, true, 1));
+                add(SupportedSPN.create(540, false, true, false, true, 1));
+                add(SupportedSPN.create(541, false, true, false, true, 1));
+                add(SupportedSPN.create(542, false, true, false, true, 1));
+                add(SupportedSPN.create(543, false, true, false, false, 1));
+                add(SupportedSPN.create(544, false, true, false, false, 1));
+                add(SupportedSPN.create(651, true, false, false, false, 1));
+                add(SupportedSPN.create(1323, true, false, false, false, 1));
+                add(SupportedSPN.create(1324, true, false, false, false, 1));
+                add(SupportedSPN.create(1325, true, false, false, false, 1));
+                add(SupportedSPN.create(1326, true, false, false, false, 1));
+                add(SupportedSPN.create(1413, false, true, false, false, 1));
+                add(SupportedSPN.create(1634, false, true, false, false, 15));
+                add(SupportedSPN.create(1635, false, true, false, false, 4));
+                add(SupportedSPN.create(2630, true, false, false, false, 1));
+                add(SupportedSPN.create(2791, false, true, false, false, 1));
+                add(SupportedSPN.create(2978, false, true, false, false, 1));
+                add(SupportedSPN.create(3031, false, true, false, false, 1));
+                add(SupportedSPN.create(3058, true, false, false, false, 1));
+                add(SupportedSPN.create(3226, true, true, false, false, 1));
+                add(SupportedSPN.create(3251, true, false, false, false, 1));
+                add(SupportedSPN.create(3301, false, false, true, true, 2));
+                add(SupportedSPN.create(3361, true, false, false, false, 1));
+                add(SupportedSPN.create(3516, false, true, false, false, 1));
+                add(SupportedSPN.create(3609, false, true, false, false, 1));
+                add(SupportedSPN.create(3700, false, true, false, false, 1));
+                add(SupportedSPN.create(3713, true, false, false, false, 1));
+                add(SupportedSPN.create(4364, true, false, false, false, 1));
+                add(SupportedSPN.create(4752, true, false, false, false, 1));
+                add(SupportedSPN.create(5018, true, false, false, false, 1));
+                add(SupportedSPN.create(5466, false, true, false, false, 1));
+                add(SupportedSPN.create(5827, false, true, false, false, 1));
+                add(SupportedSPN.create(5829, false, true, false, false, 1));
+                add(SupportedSPN.create(5837, false, true, false, false, 1));
+                add(SupportedSPN.create(6895, false, true, false, false, 1));
+                add(SupportedSPN.create(7333, false, true, false, false, 1));
+                add(SupportedSPN.create(12730, false, true, false, false, 1));
+                add(SupportedSPN.create(12797, false, true, false, false, 1));
+            }
+        };
+        expectedPacket4Spns.sort(Comparator.comparingInt(SupportedSPN::getSpn));
+        assertEquals(expectedPacket4Spns, dataRepository.getObdModule(1).getSupportedSPNs());
+
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(4),
+                                        eq(WARN),
+                                        eq("6.1.4.2.f - For all MY2022+ engines, Warn if SP 12691 (GHG Tracking Lifetime Active Technology Index) is not included in DM24 response from Engine #1 (0)"));
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(4),
+                                        eq(WARN),
+                                        eq("6.1.4.2.f - For all MY2022+ engines, Warn if SP 12691 (GHG Tracking Lifetime Active Technology Index) is not included in DM24 response from Engine #2 (1)"));
+
+        verify(vehicleInformationModule, times(2)).getEngineModelYear();
+    }
+
+    @Test
+    // Testing object without any errors.
+    @TestDoc(value = @TestItem(verifies = "6.1.4.2.d"), description = "For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1 - Total) is not included in DM24 response.")
+    public void testMy2022ObjectsMissing12730() throws IOException {
+
+        //@formatter:off
+        DM24SPNSupportPacket packet1 = DM24SPNSupportPacket.create(0x00,
+                                                                   SupportedSPN.create(27, false, true, false, false, 1),
+                                                                   SupportedSPN.create(84, false, true, false, false, 1),
+                                                                   SupportedSPN.create(91, false, true, false, false, 1),
+                                                                   SupportedSPN.create(92, false, true, true, false, 1),
+                                                                   SupportedSPN.create(94, false, true, false, false, 1),
+                                                                   SupportedSPN.create(102, true, true, false, false, 1),
+                                                                   SupportedSPN.create(108, false, true, false, false, 1),
+                                                                   SupportedSPN.create(110, false, true, true, false, 1),
+                                                                   SupportedSPN.create(157, true, false, false, false, 1),
+                                                                   SupportedSPN.create(158, false, true, false, false, 1),
+                                                                   SupportedSPN.create(183, false, true, false, false, 1),
+                                                                   SupportedSPN.create(190, false, true, true, true, 2),
+                                                                   SupportedSPN.create(235, false, true, false, false, 1),
+                                                                   SupportedSPN.create(247, false, true, false, false, 1),
+                                                                   SupportedSPN.create(248, false, true, false, false, 1),
+                                                                   SupportedSPN.create(512, false, true, true, false, 1),
+                                                                   SupportedSPN.create(513, false, true, true, false, 1),
+                                                                   SupportedSPN.create(514, false, true, false, false, 1),
+                                                                   SupportedSPN.create(528, false, false, false, true, 0),
+                                                                   SupportedSPN.create(529, false, false, true, true, 2),
+                                                                   SupportedSPN.create(530, false, true, false, true, 0),
+                                                                   SupportedSPN.create(531, false, true, true, true, 1),
+                                                                   SupportedSPN.create(532, true, false, false, true, 4),
+                                                                   SupportedSPN.create(533, true, false, true, true, 2),
+                                                                   SupportedSPN.create(534, true, true, false, true, 0),
+                                                                   SupportedSPN.create(535, true, true, true, true, 1),
+                                                                   SupportedSPN.create(536, false, false, false, true, 0),
+                                                                   SupportedSPN.create(537, false, false, true, true, 0),
+                                                                   SupportedSPN.create(538, false, true, false, true, 1),
+                                                                   SupportedSPN.create(539, false, true, false, true, 1),
+                                                                   SupportedSPN.create(540, false, true, false, true, 1),
+                                                                   SupportedSPN.create(541, false, true, false, true, 1),
+                                                                   SupportedSPN.create(542, false, true, false, true, 1),
+                                                                   SupportedSPN.create(543, false, true, false, false, 1),
+                                                                   SupportedSPN.create(544, false, true, false, false, 1),
+                                                                   SupportedSPN.create(651, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1323, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1324, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1325, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1326, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1413, false, true, false, false, 1),
+                                                                   SupportedSPN.create(1634, false, true, false, false, 15),
+                                                                   SupportedSPN.create(1635, false, true, false, false, 4),
+                                                                   SupportedSPN.create(2630, true, false, false, false, 1),
+                                                                   SupportedSPN.create(2791, false, true, false, false, 1),
+                                                                   SupportedSPN.create(2978, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3031, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3058, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3226, true, true, false, false, 1),
+                                                                   SupportedSPN.create(3251, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3301, false, false, true, true, 2),
+                                                                   SupportedSPN.create(3361, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3516, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3609, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3700, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3713, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4364, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4752, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5018, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5466, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5827, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5829, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5837, false, true, false, false, 1),
+                                                                   SupportedSPN.create(6895, false, true, false, false, 1),
+                                                                   SupportedSPN.create(7333, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12675, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12691, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12797, false, true, false, false, 1));
+        //@formatter:on
+        when(communicationsModule.requestDM24(any(), eq(0))).thenReturn(BusResult.of(packet1));
+
+        OBDModuleInformation obd0x00 = new OBDModuleInformation(0);
+        obd0x00.set(packet1, 1);
+        dataRepository.putObdModule(obd0x00);
+
+        //@formatter:off
+        DM24SPNSupportPacket packet4 = DM24SPNSupportPacket.create(0x01,
+                                                                   SupportedSPN.create(27, false, true, false, false, 1),
+                                                                   SupportedSPN.create(84, false, true, false, false, 1),
+                                                                   SupportedSPN.create(91, false, true, false, false, 1),
+                                                                   SupportedSPN.create(92, false, true, true, false, 1),
+                                                                   SupportedSPN.create(94, false, true, false, false, 1),
+                                                                   SupportedSPN.create(102, true, true, false, false, 1),
+                                                                   SupportedSPN.create(108, false, true, false, false, 1),
+                                                                   SupportedSPN.create(110, false, true, true, false, 1),
+                                                                   SupportedSPN.create(157, true, false, false, false, 1),
+                                                                   SupportedSPN.create(158, false, true, false, false, 1),
+                                                                   SupportedSPN.create(183, false, true, false, false, 1),
+                                                                   SupportedSPN.create(190, false, true, true, true, 2),
+                                                                   SupportedSPN.create(235, false, true, false, false, 1),
+                                                                   SupportedSPN.create(247, false, true, false, false, 1),
+                                                                   SupportedSPN.create(248, false, true, false, false, 1),
+                                                                   SupportedSPN.create(512, false, true, true, false, 1),
+                                                                   SupportedSPN.create(513, false, true, true, false, 1),
+                                                                   SupportedSPN.create(514, false, true, false, false, 1),
+                                                                   SupportedSPN.create(528, false, false, false, true, 0),
+                                                                   SupportedSPN.create(529, false, false, true, true, 2),
+                                                                   SupportedSPN.create(530, false, true, false, true, 0),
+                                                                   SupportedSPN.create(531, false, true, true, true, 1),
+                                                                   SupportedSPN.create(532, true, false, false, true, 4),
+                                                                   SupportedSPN.create(533, true, false, true, true, 2),
+                                                                   SupportedSPN.create(534, true, true, false, true, 0),
+                                                                   SupportedSPN.create(535, true, true, true, true, 1),
+                                                                   SupportedSPN.create(536, false, false, false, true, 0),
+                                                                   SupportedSPN.create(537, false, false, true, true, 0),
+                                                                   SupportedSPN.create(538, false, true, false, true, 1),
+                                                                   SupportedSPN.create(539, false, true, false, true, 1),
+                                                                   SupportedSPN.create(540, false, true, false, true, 1),
+                                                                   SupportedSPN.create(541, false, true, false, true, 1),
+                                                                   SupportedSPN.create(542, false, true, false, true, 1),
+                                                                   SupportedSPN.create(543, false, true, false, false, 1),
+                                                                   SupportedSPN.create(544, false, true, false, false, 1),
+                                                                   SupportedSPN.create(651, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1323, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1324, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1325, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1326, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1413, false, true, false, false, 1),
+                                                                   SupportedSPN.create(1634, false, true, false, false, 15),
+                                                                   SupportedSPN.create(1635, false, true, false, false, 4),
+                                                                   SupportedSPN.create(2630, true, false, false, false, 1),
+                                                                   SupportedSPN.create(2791, false, true, false, false, 1),
+                                                                   SupportedSPN.create(2978, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3031, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3058, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3226, true, true, false, false, 1),
+                                                                   SupportedSPN.create(3251, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3301, false, false, true, true, 2),
+                                                                   SupportedSPN.create(3361, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3516, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3609, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3700, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3713, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4364, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4752, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5018, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5466, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5827, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5829, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5837, false, true, false, false, 1),
+                                                                   SupportedSPN.create(6895, false, true, false, false, 1),
+                                                                   SupportedSPN.create(7333, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12675, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12691, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12797, false, true, false, false, 1));
+        //@formatter:on
+
+        when(communicationsModule.requestDM24(any(), eq(1))).thenReturn(BusResult.of(packet4));
+        OBDModuleInformation obd0x01 = new OBDModuleInformation(0x01);
+        obd0x01.set(packet4, 1);
+        dataRepository.putObdModule(obd0x01);
+
+        VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setFuelType(HYB_GAS);
+        dataRepository.setVehicleInformation(vehicleInfo);
+        when(vehicleInformationModule.getEngineModelYear()).thenReturn(2022);
+
+        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any())).thenReturn(true);
+        when(supportedSpnModule.validateFreezeFrameSpns(any(), any())).thenReturn(true);
+
+        runTest();
+
+        verify(communicationsModule).setJ1939(j1939);
+
+        verify(communicationsModule).requestDM24(any(), eq(0x00));
+
+        verify(communicationsModule).requestDM24(any(), eq(0x01));
+
+        verify(engineSpeedModule).setJ1939(j1939);
+
+        //@formatter:off
+        List<Integer> expectedDataStreamsPacket4 = Arrays.asList(27, 84, 91, 92, 94, 102, 108, 110, 158, 183, 190, 235,
+                                                                 247, 248, 512, 513, 514, 530, 531, 534, 535, 538, 539,
+                                                                 540, 541, 542, 543, 544, 1413, 1634, 1635, 2791, 2978,
+                                                                 3031, 3226, 3516, 3609, 3700, 5466, 5827, 5829, 5837,
+                                                                 6895, 7333, 12675, 12691, 12797);
+        //@formatter:on
+
+        Collections.sort(expectedDataStreamsPacket4);
+        verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(HYB_GAS));
+
+        List<Integer> expectedFreezeFrames = Arrays.asList(92, 110, 190, 512, 513, 529, 531, 533, 535, 537, 3301);
+        Collections.sort(expectedFreezeFrames);
+        verify(supportedSpnModule).validateFreezeFrameSpns(any(), eq(expectedFreezeFrames));
+
+        List<SupportedSPN> expectedPacket1Spns = new ArrayList<>() {
+            {
+                add(SupportedSPN.create(27, false, true, false, false, 1));
+                add(SupportedSPN.create(84, false, true, false, false, 1));
+                add(SupportedSPN.create(91, false, true, false, false, 1));
+                add(SupportedSPN.create(92, false, true, true, false, 1));
+                add(SupportedSPN.create(94, false, true, false, false, 1));
+                add(SupportedSPN.create(102, true, true, false, false, 1));
+                add(SupportedSPN.create(108, false, true, false, false, 1));
+                add(SupportedSPN.create(110, false, true, true, false, 1));
+                add(SupportedSPN.create(157, true, false, false, false, 1));
+                add(SupportedSPN.create(158, false, true, false, false, 1));
+                add(SupportedSPN.create(183, false, true, false, false, 1));
+                add(SupportedSPN.create(190, false, true, true, true, 2));
+                add(SupportedSPN.create(235, false, true, false, false, 1));
+                add(SupportedSPN.create(247, false, true, false, false, 1));
+                add(SupportedSPN.create(248, false, true, false, false, 1));
+                add(SupportedSPN.create(512, false, true, true, false, 1));
+                add(SupportedSPN.create(513, false, true, true, false, 1));
+                add(SupportedSPN.create(514, false, true, false, false, 1));
+                add(SupportedSPN.create(528, false, false, false, true, 0));
+                add(SupportedSPN.create(529, false, false, true, true, 2));
+                add(SupportedSPN.create(530, false, true, false, true, 0));
+                add(SupportedSPN.create(531, false, true, true, true, 1));
+                add(SupportedSPN.create(532, true, false, false, true, 4));
+                add(SupportedSPN.create(533, true, false, true, true, 2));
+                add(SupportedSPN.create(534, true, true, false, true, 0));
+                add(SupportedSPN.create(535, true, true, true, true, 1));
+                add(SupportedSPN.create(536, false, false, false, true, 0));
+                add(SupportedSPN.create(537, false, false, true, true, 0));
+                add(SupportedSPN.create(538, false, true, false, true, 1));
+                add(SupportedSPN.create(539, false, true, false, true, 1));
+                add(SupportedSPN.create(540, false, true, false, true, 1));
+                add(SupportedSPN.create(541, false, true, false, true, 1));
+                add(SupportedSPN.create(542, false, true, false, true, 1));
+                add(SupportedSPN.create(543, false, true, false, false, 1));
+                add(SupportedSPN.create(544, false, true, false, false, 1));
+                add(SupportedSPN.create(651, true, false, false, false, 1));
+                add(SupportedSPN.create(1323, true, false, false, false, 1));
+                add(SupportedSPN.create(1324, true, false, false, false, 1));
+                add(SupportedSPN.create(1325, true, false, false, false, 1));
+                add(SupportedSPN.create(1326, true, false, false, false, 1));
+                add(SupportedSPN.create(1413, false, true, false, false, 1));
+                add(SupportedSPN.create(1634, false, true, false, false, 15));
+                add(SupportedSPN.create(1635, false, true, false, false, 4));
+                add(SupportedSPN.create(2630, true, false, false, false, 1));
+                add(SupportedSPN.create(2791, false, true, false, false, 1));
+                add(SupportedSPN.create(2978, false, true, false, false, 1));
+                add(SupportedSPN.create(3031, false, true, false, false, 1));
+                add(SupportedSPN.create(3058, true, false, false, false, 1));
+                add(SupportedSPN.create(3226, true, true, false, false, 1));
+                add(SupportedSPN.create(3251, true, false, false, false, 1));
+                add(SupportedSPN.create(3301, false, false, true, true, 2));
+                add(SupportedSPN.create(3361, true, false, false, false, 1));
+                add(SupportedSPN.create(3516, false, true, false, false, 1));
+                add(SupportedSPN.create(3609, false, true, false, false, 1));
+                add(SupportedSPN.create(3700, false, true, false, false, 1));
+                add(SupportedSPN.create(3713, true, false, false, false, 1));
+                add(SupportedSPN.create(4364, true, false, false, false, 1));
+                add(SupportedSPN.create(4752, true, false, false, false, 1));
+                add(SupportedSPN.create(5018, true, false, false, false, 1));
+                add(SupportedSPN.create(5466, false, true, false, false, 1));
+                add(SupportedSPN.create(5827, false, true, false, false, 1));
+                add(SupportedSPN.create(5829, false, true, false, false, 1));
+                add(SupportedSPN.create(5837, false, true, false, false, 1));
+                add(SupportedSPN.create(6895, false, true, false, false, 1));
+                add(SupportedSPN.create(7333, false, true, false, false, 1));
+                add(SupportedSPN.create(12675, false, true, false, false, 1));
+                add(SupportedSPN.create(12691, false, true, false, false, 1));
+                add(SupportedSPN.create(12797, false, true, false, false, 1));
+            }
+        };
+        assertEquals(expectedPacket1Spns, dataRepository.getObdModule(0).getSupportedSPNs());
+
+        List<SupportedSPN> expectedPacket4Spns = new ArrayList<>() {
+            {
+                add(SupportedSPN.create(27, false, true, false, false, 1));
+                add(SupportedSPN.create(84, false, true, false, false, 1));
+                add(SupportedSPN.create(91, false, true, false, false, 1));
+                add(SupportedSPN.create(92, false, true, true, false, 1));
+                add(SupportedSPN.create(94, false, true, false, false, 1));
+                add(SupportedSPN.create(102, true, true, false, false, 1));
+                add(SupportedSPN.create(108, false, true, false, false, 1));
+                add(SupportedSPN.create(110, false, true, true, false, 1));
+                add(SupportedSPN.create(157, true, false, false, false, 1));
+                add(SupportedSPN.create(158, false, true, false, false, 1));
+                add(SupportedSPN.create(183, false, true, false, false, 1));
+                add(SupportedSPN.create(190, false, true, true, true, 2));
+                add(SupportedSPN.create(235, false, true, false, false, 1));
+                add(SupportedSPN.create(247, false, true, false, false, 1));
+                add(SupportedSPN.create(248, false, true, false, false, 1));
+                add(SupportedSPN.create(512, false, true, true, false, 1));
+                add(SupportedSPN.create(513, false, true, true, false, 1));
+                add(SupportedSPN.create(514, false, true, false, false, 1));
+                add(SupportedSPN.create(528, false, false, false, true, 0));
+                add(SupportedSPN.create(529, false, false, true, true, 2));
+                add(SupportedSPN.create(530, false, true, false, true, 0));
+                add(SupportedSPN.create(531, false, true, true, true, 1));
+                add(SupportedSPN.create(532, true, false, false, true, 4));
+                add(SupportedSPN.create(533, true, false, true, true, 2));
+                add(SupportedSPN.create(534, true, true, false, true, 0));
+                add(SupportedSPN.create(535, true, true, true, true, 1));
+                add(SupportedSPN.create(536, false, false, false, true, 0));
+                add(SupportedSPN.create(537, false, false, true, true, 0));
+                add(SupportedSPN.create(538, false, true, false, true, 1));
+                add(SupportedSPN.create(539, false, true, false, true, 1));
+                add(SupportedSPN.create(540, false, true, false, true, 1));
+                add(SupportedSPN.create(541, false, true, false, true, 1));
+                add(SupportedSPN.create(542, false, true, false, true, 1));
+                add(SupportedSPN.create(543, false, true, false, false, 1));
+                add(SupportedSPN.create(544, false, true, false, false, 1));
+                add(SupportedSPN.create(651, true, false, false, false, 1));
+                add(SupportedSPN.create(1323, true, false, false, false, 1));
+                add(SupportedSPN.create(1324, true, false, false, false, 1));
+                add(SupportedSPN.create(1325, true, false, false, false, 1));
+                add(SupportedSPN.create(1326, true, false, false, false, 1));
+                add(SupportedSPN.create(1413, false, true, false, false, 1));
+                add(SupportedSPN.create(1634, false, true, false, false, 15));
+                add(SupportedSPN.create(1635, false, true, false, false, 4));
+                add(SupportedSPN.create(2630, true, false, false, false, 1));
+                add(SupportedSPN.create(2791, false, true, false, false, 1));
+                add(SupportedSPN.create(2978, false, true, false, false, 1));
+                add(SupportedSPN.create(3031, false, true, false, false, 1));
+                add(SupportedSPN.create(3058, true, false, false, false, 1));
+                add(SupportedSPN.create(3226, true, true, false, false, 1));
+                add(SupportedSPN.create(3251, true, false, false, false, 1));
+                add(SupportedSPN.create(3301, false, false, true, true, 2));
+                add(SupportedSPN.create(3361, true, false, false, false, 1));
+                add(SupportedSPN.create(3516, false, true, false, false, 1));
+                add(SupportedSPN.create(3609, false, true, false, false, 1));
+                add(SupportedSPN.create(3700, false, true, false, false, 1));
+                add(SupportedSPN.create(3713, true, false, false, false, 1));
+                add(SupportedSPN.create(4364, true, false, false, false, 1));
+                add(SupportedSPN.create(4752, true, false, false, false, 1));
+                add(SupportedSPN.create(5018, true, false, false, false, 1));
+                add(SupportedSPN.create(5466, false, true, false, false, 1));
+                add(SupportedSPN.create(5827, false, true, false, false, 1));
+                add(SupportedSPN.create(5829, false, true, false, false, 1));
+                add(SupportedSPN.create(5837, false, true, false, false, 1));
+                add(SupportedSPN.create(6895, false, true, false, false, 1));
+                add(SupportedSPN.create(7333, false, true, false, false, 1));
+                add(SupportedSPN.create(12675, false, true, false, false, 1));
+                add(SupportedSPN.create(12691, false, true, false, false, 1));
+                add(SupportedSPN.create(12797, false, true, false, false, 1));
+            }
+        };
+        expectedPacket4Spns.sort(Comparator.comparingInt(SupportedSPN::getSpn));
+        assertEquals(expectedPacket4Spns, dataRepository.getObdModule(1).getSupportedSPNs());
+
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(4),
+                                        eq(WARN),
+                                        eq("6.1.4.2.e. - For all MY2022+ engines, Fail if SP 12730 (GHG Tracking Engine Run Time) is not included in DM24 response from Engine #1 (0)"));
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(4),
+                                        eq(WARN),
+                                        eq("6.1.4.2.e. - For all MY2022+ engines, Fail if SP 12730 (GHG Tracking Engine Run Time) is not included in DM24 response from Engine #2 (1)"));
+
+        verify(vehicleInformationModule, times(2)).getEngineModelYear();
+    }
+
+    @Test
+    // Testing object without any errors.
+    @TestDoc(value = @TestItem(verifies = "6.1.4.2.d"), description = "For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1 - Total) is not included in DM24 response.")
+    public void testMy2022ObjectsMissing12797() throws IOException {
+
+        //@formatter:off
+        DM24SPNSupportPacket packet1 = DM24SPNSupportPacket.create(0x00,
+                                                                   SupportedSPN.create(27, false, true, false, false, 1),
+                                                                   SupportedSPN.create(84, false, true, false, false, 1),
+                                                                   SupportedSPN.create(91, false, true, false, false, 1),
+                                                                   SupportedSPN.create(92, false, true, true, false, 1),
+                                                                   SupportedSPN.create(94, false, true, false, false, 1),
+                                                                   SupportedSPN.create(102, true, true, false, false, 1),
+                                                                   SupportedSPN.create(108, false, true, false, false, 1),
+                                                                   SupportedSPN.create(110, false, true, true, false, 1),
+                                                                   SupportedSPN.create(157, true, false, false, false, 1),
+                                                                   SupportedSPN.create(158, false, true, false, false, 1),
+                                                                   SupportedSPN.create(183, false, true, false, false, 1),
+                                                                   SupportedSPN.create(190, false, true, true, true, 2),
+                                                                   SupportedSPN.create(235, false, true, false, false, 1),
+                                                                   SupportedSPN.create(247, false, true, false, false, 1),
+                                                                   SupportedSPN.create(248, false, true, false, false, 1),
+                                                                   SupportedSPN.create(512, false, true, true, false, 1),
+                                                                   SupportedSPN.create(513, false, true, true, false, 1),
+                                                                   SupportedSPN.create(514, false, true, false, false, 1),
+                                                                   SupportedSPN.create(528, false, false, false, true, 0),
+                                                                   SupportedSPN.create(529, false, false, true, true, 2),
+                                                                   SupportedSPN.create(530, false, true, false, true, 0),
+                                                                   SupportedSPN.create(531, false, true, true, true, 1),
+                                                                   SupportedSPN.create(532, true, false, false, true, 4),
+                                                                   SupportedSPN.create(533, true, false, true, true, 2),
+                                                                   SupportedSPN.create(534, true, true, false, true, 0),
+                                                                   SupportedSPN.create(535, true, true, true, true, 1),
+                                                                   SupportedSPN.create(536, false, false, false, true, 0),
+                                                                   SupportedSPN.create(537, false, false, true, true, 0),
+                                                                   SupportedSPN.create(538, false, true, false, true, 1),
+                                                                   SupportedSPN.create(539, false, true, false, true, 1),
+                                                                   SupportedSPN.create(540, false, true, false, true, 1),
+                                                                   SupportedSPN.create(541, false, true, false, true, 1),
+                                                                   SupportedSPN.create(542, false, true, false, true, 1),
+                                                                   SupportedSPN.create(543, false, true, false, false, 1),
+                                                                   SupportedSPN.create(544, false, true, false, false, 1),
+                                                                   SupportedSPN.create(651, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1323, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1324, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1325, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1326, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1413, false, true, false, false, 1),
+                                                                   SupportedSPN.create(1634, false, true, false, false, 15),
+                                                                   SupportedSPN.create(1635, false, true, false, false, 4),
+                                                                   SupportedSPN.create(2630, true, false, false, false, 1),
+                                                                   SupportedSPN.create(2791, false, true, false, false, 1),
+                                                                   SupportedSPN.create(2978, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3031, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3058, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3226, true, true, false, false, 1),
+                                                                   SupportedSPN.create(3251, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3301, false, false, true, true, 2),
+                                                                   SupportedSPN.create(3361, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3516, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3609, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3700, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3713, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4364, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4752, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5018, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5466, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5827, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5829, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5837, false, true, false, false, 1),
+                                                                   SupportedSPN.create(6895, false, true, false, false, 1),
+                                                                   SupportedSPN.create(7333, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12691, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12730, false, true, false, false, 1));
+        //@formatter:on
+        when(communicationsModule.requestDM24(any(), eq(0))).thenReturn(BusResult.of(packet1));
+
+        OBDModuleInformation obd0x00 = new OBDModuleInformation(0);
+        obd0x00.set(packet1, 1);
+        dataRepository.putObdModule(obd0x00);
+
+        //@formatter:off
+        DM24SPNSupportPacket packet4 = DM24SPNSupportPacket.create(0x01,
+                                                                   SupportedSPN.create(27, false, true, false, false, 1),
+                                                                   SupportedSPN.create(84, false, true, false, false, 1),
+                                                                   SupportedSPN.create(91, false, true, false, false, 1),
+                                                                   SupportedSPN.create(92, false, true, true, false, 1),
+                                                                   SupportedSPN.create(94, false, true, false, false, 1),
+                                                                   SupportedSPN.create(102, true, true, false, false, 1),
+                                                                   SupportedSPN.create(108, false, true, false, false, 1),
+                                                                   SupportedSPN.create(110, false, true, true, false, 1),
+                                                                   SupportedSPN.create(157, true, false, false, false, 1),
+                                                                   SupportedSPN.create(158, false, true, false, false, 1),
+                                                                   SupportedSPN.create(183, false, true, false, false, 1),
+                                                                   SupportedSPN.create(190, false, true, true, true, 2),
+                                                                   SupportedSPN.create(235, false, true, false, false, 1),
+                                                                   SupportedSPN.create(247, false, true, false, false, 1),
+                                                                   SupportedSPN.create(248, false, true, false, false, 1),
+                                                                   SupportedSPN.create(512, false, true, true, false, 1),
+                                                                   SupportedSPN.create(513, false, true, true, false, 1),
+                                                                   SupportedSPN.create(514, false, true, false, false, 1),
+                                                                   SupportedSPN.create(528, false, false, false, true, 0),
+                                                                   SupportedSPN.create(529, false, false, true, true, 2),
+                                                                   SupportedSPN.create(530, false, true, false, true, 0),
+                                                                   SupportedSPN.create(531, false, true, true, true, 1),
+                                                                   SupportedSPN.create(532, true, false, false, true, 4),
+                                                                   SupportedSPN.create(533, true, false, true, true, 2),
+                                                                   SupportedSPN.create(534, true, true, false, true, 0),
+                                                                   SupportedSPN.create(535, true, true, true, true, 1),
+                                                                   SupportedSPN.create(536, false, false, false, true, 0),
+                                                                   SupportedSPN.create(537, false, false, true, true, 0),
+                                                                   SupportedSPN.create(538, false, true, false, true, 1),
+                                                                   SupportedSPN.create(539, false, true, false, true, 1),
+                                                                   SupportedSPN.create(540, false, true, false, true, 1),
+                                                                   SupportedSPN.create(541, false, true, false, true, 1),
+                                                                   SupportedSPN.create(542, false, true, false, true, 1),
+                                                                   SupportedSPN.create(543, false, true, false, false, 1),
+                                                                   SupportedSPN.create(544, false, true, false, false, 1),
+                                                                   SupportedSPN.create(651, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1323, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1324, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1325, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1326, true, false, false, false, 1),
+                                                                   SupportedSPN.create(1413, false, true, false, false, 1),
+                                                                   SupportedSPN.create(1634, false, true, false, false, 15),
+                                                                   SupportedSPN.create(1635, false, true, false, false, 4),
+                                                                   SupportedSPN.create(2630, true, false, false, false, 1),
+                                                                   SupportedSPN.create(2791, false, true, false, false, 1),
+                                                                   SupportedSPN.create(2978, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3031, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3058, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3226, true, true, false, false, 1),
+                                                                   SupportedSPN.create(3251, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3301, false, false, true, true, 2),
+                                                                   SupportedSPN.create(3361, true, false, false, false, 1),
+                                                                   SupportedSPN.create(3516, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3609, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3700, false, true, false, false, 1),
+                                                                   SupportedSPN.create(3713, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4364, true, false, false, false, 1),
+                                                                   SupportedSPN.create(4752, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5018, true, false, false, false, 1),
+                                                                   SupportedSPN.create(5466, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5827, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5829, false, true, false, false, 1),
+                                                                   SupportedSPN.create(5837, false, true, false, false, 1),
+                                                                   SupportedSPN.create(6895, false, true, false, false, 1),
+                                                                   SupportedSPN.create(7333, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12691, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12730, false, true, false, false, 1));
+        //@formatter:on
+
+        when(communicationsModule.requestDM24(any(), eq(1))).thenReturn(BusResult.of(packet4));
+        OBDModuleInformation obd0x01 = new OBDModuleInformation(0x01);
+        obd0x01.set(packet4, 1);
+        dataRepository.putObdModule(obd0x01);
+
+        VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setFuelType(HYB_ETH);
+        dataRepository.setVehicleInformation(vehicleInfo);
+        when(vehicleInformationModule.getEngineModelYear()).thenReturn(2022);
+
+        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any())).thenReturn(true);
+        when(supportedSpnModule.validateFreezeFrameSpns(any(), any())).thenReturn(true);
+
+        runTest();
+
+        verify(communicationsModule).setJ1939(j1939);
+
+        verify(communicationsModule).requestDM24(any(), eq(0x00));
+
+        verify(communicationsModule).requestDM24(any(), eq(0x01));
+
+        verify(engineSpeedModule).setJ1939(j1939);
+
+        //@formatter:off
+        List<Integer> expectedDataStreamsPacket4 = Arrays.asList(27, 84, 91, 92, 94, 102, 108, 110, 158, 183, 190, 235,
+                                                                 247, 248, 512, 513, 514, 530, 531, 534, 535, 538, 539,
+                                                                 540, 541, 542, 543, 544, 1413, 1634, 1635, 2791, 2978,
+                                                                 3031, 3226, 3516, 3609, 3700, 5466, 5827, 5829, 5837,
+                                                                 6895, 7333, 12691, 12730);
+        //@formatter:on
+
+        Collections.sort(expectedDataStreamsPacket4);
+        verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(HYB_ETH));
+
+        List<Integer> expectedFreezeFrames = Arrays.asList(92, 110, 190, 512, 513, 529, 531, 533, 535, 537, 3301);
+        Collections.sort(expectedFreezeFrames);
+        verify(supportedSpnModule).validateFreezeFrameSpns(any(), eq(expectedFreezeFrames));
+
+        List<SupportedSPN> expectedPacket1Spns = new ArrayList<>() {
+            {
+                add(SupportedSPN.create(27, false, true, false, false, 1));
+                add(SupportedSPN.create(84, false, true, false, false, 1));
+                add(SupportedSPN.create(91, false, true, false, false, 1));
+                add(SupportedSPN.create(92, false, true, true, false, 1));
+                add(SupportedSPN.create(94, false, true, false, false, 1));
+                add(SupportedSPN.create(102, true, true, false, false, 1));
+                add(SupportedSPN.create(108, false, true, false, false, 1));
+                add(SupportedSPN.create(110, false, true, true, false, 1));
+                add(SupportedSPN.create(157, true, false, false, false, 1));
+                add(SupportedSPN.create(158, false, true, false, false, 1));
+                add(SupportedSPN.create(183, false, true, false, false, 1));
+                add(SupportedSPN.create(190, false, true, true, true, 2));
+                add(SupportedSPN.create(235, false, true, false, false, 1));
+                add(SupportedSPN.create(247, false, true, false, false, 1));
+                add(SupportedSPN.create(248, false, true, false, false, 1));
+                add(SupportedSPN.create(512, false, true, true, false, 1));
+                add(SupportedSPN.create(513, false, true, true, false, 1));
+                add(SupportedSPN.create(514, false, true, false, false, 1));
+                add(SupportedSPN.create(528, false, false, false, true, 0));
+                add(SupportedSPN.create(529, false, false, true, true, 2));
+                add(SupportedSPN.create(530, false, true, false, true, 0));
+                add(SupportedSPN.create(531, false, true, true, true, 1));
+                add(SupportedSPN.create(532, true, false, false, true, 4));
+                add(SupportedSPN.create(533, true, false, true, true, 2));
+                add(SupportedSPN.create(534, true, true, false, true, 0));
+                add(SupportedSPN.create(535, true, true, true, true, 1));
+                add(SupportedSPN.create(536, false, false, false, true, 0));
+                add(SupportedSPN.create(537, false, false, true, true, 0));
+                add(SupportedSPN.create(538, false, true, false, true, 1));
+                add(SupportedSPN.create(539, false, true, false, true, 1));
+                add(SupportedSPN.create(540, false, true, false, true, 1));
+                add(SupportedSPN.create(541, false, true, false, true, 1));
+                add(SupportedSPN.create(542, false, true, false, true, 1));
+                add(SupportedSPN.create(543, false, true, false, false, 1));
+                add(SupportedSPN.create(544, false, true, false, false, 1));
+                add(SupportedSPN.create(651, true, false, false, false, 1));
+                add(SupportedSPN.create(1323, true, false, false, false, 1));
+                add(SupportedSPN.create(1324, true, false, false, false, 1));
+                add(SupportedSPN.create(1325, true, false, false, false, 1));
+                add(SupportedSPN.create(1326, true, false, false, false, 1));
+                add(SupportedSPN.create(1413, false, true, false, false, 1));
+                add(SupportedSPN.create(1634, false, true, false, false, 15));
+                add(SupportedSPN.create(1635, false, true, false, false, 4));
+                add(SupportedSPN.create(2630, true, false, false, false, 1));
+                add(SupportedSPN.create(2791, false, true, false, false, 1));
+                add(SupportedSPN.create(2978, false, true, false, false, 1));
+                add(SupportedSPN.create(3031, false, true, false, false, 1));
+                add(SupportedSPN.create(3058, true, false, false, false, 1));
+                add(SupportedSPN.create(3226, true, true, false, false, 1));
+                add(SupportedSPN.create(3251, true, false, false, false, 1));
+                add(SupportedSPN.create(3301, false, false, true, true, 2));
+                add(SupportedSPN.create(3361, true, false, false, false, 1));
+                add(SupportedSPN.create(3516, false, true, false, false, 1));
+                add(SupportedSPN.create(3609, false, true, false, false, 1));
+                add(SupportedSPN.create(3700, false, true, false, false, 1));
+                add(SupportedSPN.create(3713, true, false, false, false, 1));
+                add(SupportedSPN.create(4364, true, false, false, false, 1));
+                add(SupportedSPN.create(4752, true, false, false, false, 1));
+                add(SupportedSPN.create(5018, true, false, false, false, 1));
+                add(SupportedSPN.create(5466, false, true, false, false, 1));
+                add(SupportedSPN.create(5827, false, true, false, false, 1));
+                add(SupportedSPN.create(5829, false, true, false, false, 1));
+                add(SupportedSPN.create(5837, false, true, false, false, 1));
+                add(SupportedSPN.create(6895, false, true, false, false, 1));
+                add(SupportedSPN.create(7333, false, true, false, false, 1));
+                add(SupportedSPN.create(12691, false, true, false, false, 1));
+                add(SupportedSPN.create(12730, false, true, false, false, 1));
+            }
+        };
+        assertEquals(expectedPacket1Spns, dataRepository.getObdModule(0).getSupportedSPNs());
+
+        List<SupportedSPN> expectedPacket4Spns = new ArrayList<>() {
+            {
+                add(SupportedSPN.create(27, false, true, false, false, 1));
+                add(SupportedSPN.create(84, false, true, false, false, 1));
+                add(SupportedSPN.create(91, false, true, false, false, 1));
+                add(SupportedSPN.create(92, false, true, true, false, 1));
+                add(SupportedSPN.create(94, false, true, false, false, 1));
+                add(SupportedSPN.create(102, true, true, false, false, 1));
+                add(SupportedSPN.create(108, false, true, false, false, 1));
+                add(SupportedSPN.create(110, false, true, true, false, 1));
+                add(SupportedSPN.create(157, true, false, false, false, 1));
+                add(SupportedSPN.create(158, false, true, false, false, 1));
+                add(SupportedSPN.create(183, false, true, false, false, 1));
+                add(SupportedSPN.create(190, false, true, true, true, 2));
+                add(SupportedSPN.create(235, false, true, false, false, 1));
+                add(SupportedSPN.create(247, false, true, false, false, 1));
+                add(SupportedSPN.create(248, false, true, false, false, 1));
+                add(SupportedSPN.create(512, false, true, true, false, 1));
+                add(SupportedSPN.create(513, false, true, true, false, 1));
+                add(SupportedSPN.create(514, false, true, false, false, 1));
+                add(SupportedSPN.create(528, false, false, false, true, 0));
+                add(SupportedSPN.create(529, false, false, true, true, 2));
+                add(SupportedSPN.create(530, false, true, false, true, 0));
+                add(SupportedSPN.create(531, false, true, true, true, 1));
+                add(SupportedSPN.create(532, true, false, false, true, 4));
+                add(SupportedSPN.create(533, true, false, true, true, 2));
+                add(SupportedSPN.create(534, true, true, false, true, 0));
+                add(SupportedSPN.create(535, true, true, true, true, 1));
+                add(SupportedSPN.create(536, false, false, false, true, 0));
+                add(SupportedSPN.create(537, false, false, true, true, 0));
+                add(SupportedSPN.create(538, false, true, false, true, 1));
+                add(SupportedSPN.create(539, false, true, false, true, 1));
+                add(SupportedSPN.create(540, false, true, false, true, 1));
+                add(SupportedSPN.create(541, false, true, false, true, 1));
+                add(SupportedSPN.create(542, false, true, false, true, 1));
+                add(SupportedSPN.create(543, false, true, false, false, 1));
+                add(SupportedSPN.create(544, false, true, false, false, 1));
+                add(SupportedSPN.create(651, true, false, false, false, 1));
+                add(SupportedSPN.create(1323, true, false, false, false, 1));
+                add(SupportedSPN.create(1324, true, false, false, false, 1));
+                add(SupportedSPN.create(1325, true, false, false, false, 1));
+                add(SupportedSPN.create(1326, true, false, false, false, 1));
+                add(SupportedSPN.create(1413, false, true, false, false, 1));
+                add(SupportedSPN.create(1634, false, true, false, false, 15));
+                add(SupportedSPN.create(1635, false, true, false, false, 4));
+                add(SupportedSPN.create(2630, true, false, false, false, 1));
+                add(SupportedSPN.create(2791, false, true, false, false, 1));
+                add(SupportedSPN.create(2978, false, true, false, false, 1));
+                add(SupportedSPN.create(3031, false, true, false, false, 1));
+                add(SupportedSPN.create(3058, true, false, false, false, 1));
+                add(SupportedSPN.create(3226, true, true, false, false, 1));
+                add(SupportedSPN.create(3251, true, false, false, false, 1));
+                add(SupportedSPN.create(3301, false, false, true, true, 2));
+                add(SupportedSPN.create(3361, true, false, false, false, 1));
+                add(SupportedSPN.create(3516, false, true, false, false, 1));
+                add(SupportedSPN.create(3609, false, true, false, false, 1));
+                add(SupportedSPN.create(3700, false, true, false, false, 1));
+                add(SupportedSPN.create(3713, true, false, false, false, 1));
+                add(SupportedSPN.create(4364, true, false, false, false, 1));
+                add(SupportedSPN.create(4752, true, false, false, false, 1));
+                add(SupportedSPN.create(5018, true, false, false, false, 1));
+                add(SupportedSPN.create(5466, false, true, false, false, 1));
+                add(SupportedSPN.create(5827, false, true, false, false, 1));
+                add(SupportedSPN.create(5829, false, true, false, false, 1));
+                add(SupportedSPN.create(5837, false, true, false, false, 1));
+                add(SupportedSPN.create(6895, false, true, false, false, 1));
+                add(SupportedSPN.create(7333, false, true, false, false, 1));
+                add(SupportedSPN.create(12691, false, true, false, false, 1));
+                add(SupportedSPN.create(12730, false, true, false, false, 1));
+            }
+        };
+        expectedPacket4Spns.sort(Comparator.comparingInt(SupportedSPN::getSpn));
+        assertEquals(expectedPacket4Spns, dataRepository.getObdModule(1).getSupportedSPNs());
+
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(4),
+                                        eq(FAIL),
+                                        eq("6.1.4.2.g - For all MY2022+ HEV and BEV drives, Fail if SP 12797 (Hybrid Lifetime Propulsion System Active Time),"
+                                                + NL
+                                                + " is not included in DM24 response (SP 12797 is Lifetime EV Tracking Byte 1 SP) from Engine #1 (0)"));
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(4),
+                                        eq(FAIL),
+                                        eq("6.1.4.2.g - For all MY2022+ HEV and BEV drives, Fail if SP 12797 (Hybrid Lifetime Propulsion System Active Time),"
+                                                + NL
+                                                + " is not included in DM24 response (SP 12797 is Lifetime EV Tracking Byte 1 SP) from Engine #2 (1)"));
+
+        verify(vehicleInformationModule, times(2)).getEngineModelYear();
     }
 }
