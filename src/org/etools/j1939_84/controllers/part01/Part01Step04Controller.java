@@ -165,60 +165,57 @@ public class Part01Step04Controller extends StepController {
             addFailure("6.1.4.2.c - One or more SPNs for freeze frame are not supported");
         }
 
-        for (OBDModuleInformation moduleInformation : getObdModules()) {
+        for (OBDModuleInformation moduleInformation : getDataRepository().getObdModules()) {
             // For MY2022+ diesel engines
-            if (getVehicleInformationModule().getEngineModelYear() >= 2022) {
-                List<GenericPacket> packets = new ArrayList<>();
-                int address = moduleInformation.getSourceAddress();
+            boolean modelYearIs2022Plus = getVehicleInformationModule().getEngineModelYear() >= 2022;
+            List<GenericPacket> packets = new ArrayList<>();
+            int address = moduleInformation.getSourceAddress();
+            FuelType fuelType = getFuelType();
 
-                // 6.1.4.2.d. For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel
-                // Consumption Bin 1 - Total) is not included in DM24 response
+            // 6.1.4.2.d. For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel
+            // Consumption Bin 1 - Total) is not included in DM24 response
+            if (modelYearIs2022Plus && fuelType.isCompressionIgnition()) {
+                if (!moduleSupportsSpn(moduleInformation, 12675)) {
+                    addFailure(
+                               "6.1.4.2.d - For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1 - Total)"
+                                       + NL + "            is not included in DM24 response from "
+                                       + Lookup.getAddressName(moduleInformation.getSourceAddress()));
+                }
+            }
+            // 6.1.4.2.e. For all MY2022+ engines, Fail if SP 12730 (GHG Tracking Engine Run Time) is not included
+            // in DM24 response
+            if (modelYearIs2022Plus && !moduleSupportsSpn(moduleInformation, 12730)) {
+                addWarning(
+                           "6.1.4.2.e. - For all MY2022+ engines, Fail if SP 12730 (GHG Tracking Engine Run Time) is not included in DM24 response from "
+                                   + Lookup.getAddressName(moduleInformation.getSourceAddress()));
+            }
 
-                FuelType fuelType = getFuelType();
-                if (fuelType.isCompressionIgnition()) {
-                    if (!moduleSupportsNOxBinning(moduleInformation)) {
-                        addFailure(
-                                   "6.1.4.2.d - For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1 - Total)"
-                                           + NL + "            is not included in DM24 response from "
-                                           + Lookup.getAddressName(moduleInformation.getSourceAddress()));
-                    }
-                }
-                // 6.1.4.2.e. For all MY2022+ engines, Fail if SP 12730 (GHG Tracking Engine Run Time) is not included
-                // in DM24 response
-                if (!moduleSupportsSpn(moduleInformation, 12730)) {
-                    addWarning("6.1.4.2.e. - For all MY2022+ engines, Fail if SP 12730 (GHG Tracking Engine Run Time) is not included in DM24 response from "
-                            + Lookup.getAddressName(moduleInformation.getSourceAddress()));
-                }
+            // 6.1.4.2.f. For all MY2022+ engines, Warn if SP 12691 (GHG Tracking Lifetime Active Technology Index)
+            // is not included in DM24 response
+            if (modelYearIs2022Plus && !moduleSupportsSpn(moduleInformation, 12691)) {
+                addWarning(
+                           "6.1.4.2.f - For all MY2022+ engines, Warn if SP 12691 (GHG Tracking Lifetime Active Technology Index) is not included in DM24 response from "
+                                   + Lookup.getAddressName(moduleInformation.getSourceAddress()));
+            }
 
-                // 6.1.4.2.f. For all MY2022+ engines, Warn if SP 12691 (GHG Tracking Lifetime Active Technology Index)
-                // is not included in DM24 response
-                if (!moduleSupportsSpn(moduleInformation, 12691)) {
-                    addWarning("6.1.4.2.f - For all MY2022+ engines, Warn if SP 12691 (GHG Tracking Lifetime Active Technology Index) is not included in DM24 response from "
-                            + Lookup.getAddressName(moduleInformation.getSourceAddress()));
-                }
+            // 6.1.4.2.g. For all MY2022+ HEV and BEV drives, Fail if SP 12797 (Hybrid Lifetime Propulsion System
+            // Active Time), is not included in DM24 response. (SP 12797 is Lifetime EV Tracking Byte 1 SP)
+            if (modelYearIs2022Plus && (fuelType.isHybrid() || fuelType.isElectric())
+                    && !moduleSupportsSpn(moduleInformation, 12797)) {
+                addFailure(
+                           "6.1.4.2.g - For all MY2022+ HEV and BEV drives, Fail if SP 12797 (Hybrid Lifetime Propulsion System Active Time),"
+                                   + NL
+                                   + " is not included in DM24 response (SP 12797 is Lifetime EV Tracking Byte 1 SP) from "
+                                   + Lookup.getAddressName(moduleInformation.getSourceAddress()));
+            }
 
-                // 6.1.4.2.g. For all MY2022+ HEV and BEV drives, Fail if SP 12797 (Hybrid Lifetime Propulsion System
-                // Active Time), is not included in DM24 response. (SP 12797 is Lifetime EV Tracking Byte 1 SP)
-                if (fuelType.isHybrid() || fuelType.isElectric()) {
-                    if (!moduleSupportsSpn(moduleInformation, 12797)) {
-                        addFailure(
-                                   "6.1.4.2.g - For all MY2022+ HEV and BEV drives, Fail if SP 12797 (Hybrid Lifetime Propulsion System Active Time),"
-                                           + NL
-                                           + " is not included in DM24 response (SP 12797 is Lifetime EV Tracking Byte 1 SP) from "
-                                           + Lookup.getAddressName(moduleInformation.getSourceAddress()));
-                    }
-                }
-
-                // 6.1.4.2.h. For all MY2022+ Plug-in HEV drives, Fail if SP 12783 (Hybrid Lifetime Distance Traveled in
-                // Charge Depleting Operation with Engine off), is not included in DM24 response
-                if (fuelType == BATT_ELEC) {
-                    if (!moduleSupportsSpn(moduleInformation, 12783)) {
-                        addFailure(
-                                   "6.1.4.2.h - For all MY2022+ Plug-in HEV drives, Fail if SP 12783 (Hybrid Lifetime Distance Traveled in Charge Depleting Operation with Engine off),"
-                                           + NL + " is not included in DM24 response from "
-                                           + Lookup.getAddressName(moduleInformation.getSourceAddress()));
-                    }
-                }
+            // 6.1.4.2.h. For all MY2022+ Plug-in HEV drives, Fail if SP 12783 (Hybrid Lifetime Distance Traveled in
+            // Charge Depleting Operation with Engine off), is not included in DM24 response
+            if (modelYearIs2022Plus && fuelType == BATT_ELEC && !moduleSupportsSpn(moduleInformation, 12783)) {
+                addFailure(
+                           "6.1.4.2.h - For all MY2022+ Plug-in HEV drives, Fail if SP 12783 (Hybrid Lifetime Distance Traveled in Charge Depleting Operation with Engine off),"
+                                   + NL + " is not included in DM24 response from "
+                                   + Lookup.getAddressName(moduleInformation.getSourceAddress()));
             }
         }
     }

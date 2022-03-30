@@ -7,7 +7,6 @@ import static org.etools.j1939_84.model.Outcome.ABORT;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -337,35 +336,6 @@ public abstract class Controller {
                 getListener().onMessage(message, "Error", MessageType.ERROR);
             }
         };
-    }
-
-    protected Collection<OBDModuleInformation> getObdModules() {
-        Collection<OBDModuleInformation> obdModules = getDataRepository().getObdModules();
-        if (obdModules.isEmpty()) {
-            getListener().onProgress("Requesting DM5 to gather OBD modules");
-            getCommunicationsModule().requestDM5(getListener())
-                                     .getPackets()
-                                     .stream()
-                                     .filter(packet -> packet.isObd() || packet.isHdObd())
-                                     .forEach(dm5 -> {
-                                         var moduleInfo = new OBDModuleInformation(dm5.getSourceAddress());
-                                         getDataRepository().putObdModule(moduleInfo);
-                                     });
-            obdModules = getDataRepository().getObdModules();
-        }
-
-        if (obdModules.isEmpty()) {
-            getListener().onProgress("No OBD modules detected on the bus");
-        }
-
-        return obdModules;
-    }
-
-    protected boolean moduleSupportsNOxBinning(OBDModuleInformation moduleInformation) {
-        return moduleInformation.getDataStreamSPNs()
-                                .stream()
-                                .map(SupportedSPN::getSpn)
-                                .anyMatch(s -> s == 12675);
     }
 
     private Outcome getOutcome(int partNumber, int stepNumber) {
