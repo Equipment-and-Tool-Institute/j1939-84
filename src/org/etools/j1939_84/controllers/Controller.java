@@ -15,7 +15,6 @@ import java.util.logging.Logger;
 
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
-import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.VehicleInformation;
@@ -32,7 +31,6 @@ import net.soliddesign.j1939tools.j1939.J1939DaRepository;
 import net.soliddesign.j1939tools.j1939.Lookup;
 import net.soliddesign.j1939tools.j1939.model.PgnDefinition;
 import net.soliddesign.j1939tools.j1939.packets.GenericPacket;
-import net.soliddesign.j1939tools.j1939.packets.SupportedSPN;
 import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
 
@@ -340,13 +338,6 @@ public abstract class Controller {
 
     private Outcome getOutcome(int partNumber, int stepNumber) {
         return getPartResult(partNumber).getStepResult(stepNumber).getOutcome();
-    }
-
-    protected boolean moduleSupportsSpn(OBDModuleInformation moduleInformation, int spn) {
-        return moduleInformation.getDataStreamSPNs()
-                                .stream()
-                                .map(SupportedSPN::getSpn)
-                                .anyMatch(s -> s == spn);
     }
 
     /**
