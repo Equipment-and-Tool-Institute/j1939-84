@@ -91,6 +91,13 @@ public class OBDModuleInformation implements Cloneable {
         this.supportedSPNs.addAll(supportedSPNs);
     }
 
+    public boolean supportsSpn(int spn) {
+        return getSupportedSPNs()
+                                 .stream()
+                                 .map(SupportedSPN::getSpn)
+                                 .anyMatch(s -> s == spn);
+    }
+
     public List<SupportedSPN> getSupportedSPNs() {
         DM24SPNSupportPacket dm24 = get(DM24SPNSupportPacket.class, 1);
         List<SupportedSPN> spns = dm24 == null ? supportedSPNs : dm24.getSupportedSpns();
