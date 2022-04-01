@@ -34,6 +34,7 @@ public class OBDModuleInformation implements Cloneable {
                                                                       1213,
                                                                       1220,
                                                                       12675,
+                                                                      12691,
                                                                       12730,
                                                                       12783,
                                                                       12797));
