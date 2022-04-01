@@ -32,7 +32,7 @@ public class Part01Controller extends PartController {
              new Part01Step01Controller(),
              new Part01Step02Controller(),
              new Part01Step03Controller(dataRepository),
-             new Part01Step04Controller(dataRepository, DateTimeModule.getInstance()),
+             new Part01Step04Controller(dataRepository),
              new Part01Step05Controller(dataRepository),
              new Part01Step06Controller(dataRepository),
              new Part01Step07Controller(dataRepository),

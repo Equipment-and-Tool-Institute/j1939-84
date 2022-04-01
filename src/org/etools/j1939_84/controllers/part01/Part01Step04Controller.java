@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -32,7 +31,6 @@ import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
 import net.soliddesign.j1939tools.j1939.packets.SupportedSPN;
 import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
-import net.soliddesign.j1939tools.modules.NOxBinningModule;
 
 /**
  * 6.1.4 DM24: SPN support
@@ -42,12 +40,12 @@ public class Part01Step04Controller extends StepController {
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 4;
     private static final int TOTAL_STEPS = 0;
-    private final int[] pgns = IntStream.rangeClosed(0xFB02, 0xFB17).toArray();
 
     private final SupportedSpnModule supportedSpnModule;
-    private final NOxBinningModule noxBinningModule;
 
-    private final DateTimeModule dateTimeModule;
+    Part01Step04Controller(DataRepository dataRepository) {
+        this(dataRepository, DateTimeModule.getInstance());
+    }
 
     Part01Step04Controller(DataRepository dataRepository, DateTimeModule dateTimeModule) {
         this(Executors.newSingleThreadScheduledExecutor(),
@@ -57,8 +55,7 @@ public class Part01Step04Controller extends StepController {
              new CommunicationsModule(),
              new SupportedSpnModule(),
              dataRepository,
-             dateTimeModule,
-             new NOxBinningModule(dateTimeModule));
+             dateTimeModule);
     }
 
     Part01Step04Controller(Executor executor,
@@ -68,8 +65,7 @@ public class Part01Step04Controller extends StepController {
                            CommunicationsModule communicationsModule,
                            SupportedSpnModule supportedSpnModule,
                            DataRepository dataRepository,
-                           DateTimeModule dateTimeModule,
-                           NOxBinningModule noxBinningModule) {
+                           DateTimeModule dateTimeModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
@@ -81,8 +77,6 @@ public class Part01Step04Controller extends StepController {
               STEP_NUMBER,
               TOTAL_STEPS);
         this.supportedSpnModule = supportedSpnModule;
-        this.dateTimeModule = dateTimeModule;
-        this.noxBinningModule = noxBinningModule;
     }
 
     @Override
@@ -174,13 +168,12 @@ public class Part01Step04Controller extends StepController {
 
             // 6.1.4.2.d. For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel
             // Consumption Bin 1 - Total) is not included in DM24 response
-            if (modelYearIs2022Plus && fuelType.isCompressionIgnition()) {
-                if (!moduleSupportsSpn(moduleInformation, 12675)) {
+            if (modelYearIs2022Plus && fuelType.isCompressionIgnition()
+                    && !moduleSupportsSpn(moduleInformation, 12675)) {
                     addFailure(
                                "6.1.4.2.d - For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1 - Total)"
                                        + NL + "            is not included in DM24 response from "
                                        + Lookup.getAddressName(moduleInformation.getSourceAddress()));
-                }
             }
             // 6.1.4.2.e. For all MY2022+ engines, Fail if SP 12730 (GHG Tracking Engine Run Time) is not included
             // in DM24 response
