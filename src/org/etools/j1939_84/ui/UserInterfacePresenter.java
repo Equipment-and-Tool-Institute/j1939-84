@@ -475,6 +475,8 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      */
     private void setSelectedAdapter(Adapter selectedAdapter, String connectionString, int address) {
         try {
+            // close old bus before opening new bus
+            setBus(null);
             Bus bus;
             if (selectedAdapter != null) {
                 bus = getBus(selectedAdapter, connectionString, address);
@@ -523,7 +525,6 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
             engine = new Engine(bus);
             return bus;
         } else {
-
             return rp1210.setAdapter(selectedAdapter, connectionString, address);
         }
     }
@@ -546,6 +547,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         // clear old values
         if (this.bus != null) {
             this.bus.close();
+            this.bus = null;
             this.j1939 = null;
             vehicleInformationModule.setJ1939(null);
         }
