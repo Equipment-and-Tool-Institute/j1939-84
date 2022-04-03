@@ -543,11 +543,18 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
     }
 
     void setBus(Bus bus) throws BusException {
-        this.bus = bus;
-
-        j1939 = new J1939(bus);
-
-        vehicleInformationModule.setJ1939(getJ1939());
+        // clear old values
+        if (this.bus != null) {
+            this.bus.close();
+            this.j1939 = null;
+            vehicleInformationModule.setJ1939(null);
+        }
+        // set new values
+        if (bus != null) {
+            this.bus = bus;
+            this.j1939 = new J1939(bus);
+            vehicleInformationModule.setJ1939(getJ1939());
+        }
     }
 
     /**
