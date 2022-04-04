@@ -9,7 +9,6 @@ import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -233,11 +232,12 @@ public class Part11Step08ControllerTest extends AbstractControllerTest {
         var nack = AcknowledgmentPacket.create(2, NACK);
 
         when(communicationsModule.requestDM20(any(), eq(2))).thenReturn(BusResult.empty())
-                                                               .thenReturn(BusResult.of(nack));
+                                                            .thenReturn(new BusResult<>(true, nack))
+                                                            .thenReturn(new BusResult<>(false, nack));
 
         runTest();
 
-        verify(communicationsModule, times(2)).requestDM20(any(), eq(2));
+        verify(communicationsModule).requestDM20(any(), eq(2));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -245,6 +245,10 @@ public class Part11Step08ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.11.8.2.a - Retry was required to obtain DM20 response from Turbocharger (2)");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.11.8.2.c - OBD ECU Turbocharger (2) did not provide a NACK for the DS query");
     }
 
     @Test
@@ -295,7 +299,7 @@ public class Part11Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(communicationsModule, times(2)).requestDM20(any(), eq(2));
+        verify(communicationsModule).requestDM20(any(), eq(2));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
