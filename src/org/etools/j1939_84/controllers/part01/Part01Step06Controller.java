@@ -60,14 +60,19 @@ public class Part01Step06Controller extends StepController {
 
         // 6.1.6.1.a. Global DM56 (send Request (PGN 59904) for PGN 64711 (SPNs 5844 and 5845)).
         List<DM56EngineFamilyPacket> packets = getCommunicationsModule().requestDM56(getListener());
+        int engineModelYear = getDataRepository().getVehicleInformation().getEngineModelYear();
+
         if (packets.isEmpty()) {
-            getListener().onResult("6.1.6.1.a - DM56 is not supported");
+            if (engineModelYear > 2024) {
+                addFailure("6.1.6.2.f - MY2024+ Engine does not support DM56");
+            } else {
+                getListener().onResult("6.1.6.1.a - DM56 is not supported");
+            }
             return;
         }
 
         packets.forEach(this::save);
 
-        int engineModelYear = getDataRepository().getVehicleInformation().getEngineModelYear();
         for (DM56EngineFamilyPacket packet : packets) {
             if (packet.getEngineModelYear() != engineModelYear) {
                 addFailure("6.1.6.2.a - Engine model year does not match user input");

@@ -162,6 +162,32 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
     }
 
     /**
+     * Verify the error handling for 6.1.6.2.f. - Fail if MY2024+ Engine does not support DM56
+     */
+    @Test
+    @TestDoc(value = @TestItem(verifies = "6.1.6.2.f", description = "Fail if MY2024+ Engine does not support DM56)"))
+    public void testDm56NotSupportedFailure() {
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setEngineModelYear(2026);
+        dataRepository.setVehicleInformation(vehicleInformation);
+        when(communicationsModule.requestDM56(any())).thenReturn(List.of());
+
+        runTest();
+
+        verify(mockListener).addOutcome(1,
+                                        6,
+                                        FAIL,
+                                        "6.1.6.2.f - MY2024+ Engine does not support DM56");
+
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM56(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("6.1.6.1.a - DM56 is not supported" + NL, listener.getResults());
+    }
+
+    /**
      * The asterisk termination at a char location of greater than 12
      */
     @Test
