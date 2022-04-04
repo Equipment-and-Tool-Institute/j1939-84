@@ -99,7 +99,7 @@ public class Part11Step08Controller extends StepController {
         List<Integer> missingAddresses = determineNoResponseAddresses(dsResults, addresses);
         missingAddresses.stream()
                         .map(address -> getCommunicationsModule().requestDM20(getListener(), address))
-                        .peek(dsResults::add);
+                        .forEach(dsResults::add);
 
         // 6.11.8.2.a. Fail if retry was required to obtain DM20 response.
         missingAddresses.stream()
