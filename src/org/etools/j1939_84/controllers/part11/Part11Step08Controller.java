@@ -27,8 +27,6 @@ import net.soliddesign.j1939tools.j1939.packets.PerformanceRatio;
 import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
 
-;
-
 /**
  * 6.11.8 DM20: Monitor Performance Ratio
  */
@@ -101,7 +99,7 @@ public class Part11Step08Controller extends StepController {
         List<Integer> missingAddresses = determineNoResponseAddresses(dsResults, addresses);
         missingAddresses.stream()
                         .map(address -> getCommunicationsModule().requestDM20(getListener(), address))
-                        .forEach(dsResults::add);
+                        .peek(dsResults::add);
 
         // 6.11.8.2.a. Fail if retry was required to obtain DM20 response.
         missingAddresses.stream()
@@ -112,9 +110,11 @@ public class Part11Step08Controller extends StepController {
 
         var packets = filterPackets(dsResults);
 
-        // 6.11.8.2.b. Fail if any response indicates that the general denominator (SPN 3049) has not incremented
-        // by one from value earlier in part 9.
         packets.stream()
+               // 6.11.8.1.c. - Record responses for use in Part 12 test 9
+               .peek(this::save)
+               // 6.11.8.2.b. Fail if any response indicates that the general denominator (SPN 3049) has not incremented
+               // by one from value earlier in part 9.
                .filter(p -> p.getOBDConditionsCount() != getPart9GeneralDenominator(p.getSourceAddress()) + 1)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
