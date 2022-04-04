@@ -3,14 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part12;
 
-import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.ACK;
-import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
-
-import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.SectionA5Verifier;
@@ -19,13 +13,11 @@ import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
-import net.soliddesign.j1939tools.j1939.packets.DM11ClearActiveDTCsPacket;
-import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
 import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
- * 6.12.9 DM11: Diagnostic Data Clear/Reset for Active DTCs
+ * 6.12.9 DM20: Monitor Performance Ratio
  */
 public class Part12Step09Controller extends StepController {
     private static final int PART_NUMBER = 12;
@@ -68,59 +60,30 @@ public class Part12Step09Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         verifier.setJ1939(getJ1939());
-        // 6.12.9.1.a. DS DM11 [send Request (PGN 59904) for PGN 65235] to each OBD ECU.
-        var dsPackets = getDataRepository().getObdModuleAddresses()
-                                           .stream()
-                                           .map(a -> getCommunicationsModule().requestDM11(getListener(), a))
-                                           .flatMap(Collection::stream)
-                                           .collect(Collectors.toList());
-
-        // 6.12.9.1.b. Wait 5 seconds before checking for erased data.
-        pause("Step 6.12.9.1.b - Waiting %1$d seconds before checking for erased data", 5);
-
-        // 6.12.9.2.a. Fail if any OBD ECU does not respond with a NACK.
-        checkForNACKsDS(List.of(), dsPackets, "6.12.9.2.a");
-
-        // 6.12.9.2.b. Check diagnostic information as described in Section A.5 and fail if any ECU partially erases
-        // diagnostic information (pass if it erases either all or none).
-        // 6.12.9.2.c. For systems with multiple ECUs, fail if one OBD ECU or more than one OBD ECU erases diagnostic
-        // information and one or more other OBD ECUs do not erase diagnostic information.
-        verifier.verifyDataNotPartialErased(getListener(), "6.12.9.2.b", "6.12.9.2.c", false);
-
-        // 6.12.9.3.a. Global DM11.
-        var globalPackets = getCommunicationsModule().requestDM11(getListener());
-
-        var obdPackets = globalPackets.stream()
-                                      .filter(p -> isObdModule(p.getSourceAddress()))
-                                      .collect(Collectors.toList());
-
-        // 6.12.9.3.b. Wait 5 seconds before checking for erased data.
-        pause("Step 6.12.9.3.b - Waiting %1$d seconds before checking for erased data", 5);
-
-        // 6.12.9.4.a. Fail if any OBD ECU responds with a NACK.
-        obdPackets.stream()
-                  .map(p -> new DM11ClearActiveDTCsPacket(p.getPacket()))
-                  .filter(p -> p.getResponse() == NACK)
-                  .map(ParsedPacket::getModuleName)
-                  .forEach(moduleName -> {
-                      addFailure("6.12.9.4.a - " + moduleName + " responded with a NACK");
-                  });
-
-        // 6.12.9.4.b. Warn if any OBD ECU responds with an ACK.
-        obdPackets.stream()
-                  .map(p -> new DM11ClearActiveDTCsPacket(p.getPacket()))
-                  .filter(p -> p.getResponse() == ACK)
-                  .map(ParsedPacket::getModuleName)
-                  .forEach(moduleName -> {
-                      addWarning("6.12.9.4.b - " + moduleName + " responded with a ACK");
-                  });
-
-        // 6.12.9.4.c. Check diagnostic information and fail if any ECU partially erases diagnostic information
-        // (pass if it erases either all or none).
-        // 6.12.9.4.d. Fail if one OBD ECU or more than one OBD ECU erases diagnostic information and one or more
-        // other ECUs do not erase diagnostic information. See Section A.5 for the methods to check for erasure of
-        // diagnostic information.
-        verifier.verifyDataNotPartialErased(getListener(), "6.12.9.4.c", "6.12.9.4.d", true);
+        // 6.12.9 DM20: Monitor Performance Ratio // NEW Test
+        // 6.12.9.1 Actions
+        // a. DS DM20 [send Request (PG 59904) for PG 49664 (SPs 3048-3049, 3066-3068)] to ECUs that reported DM20 data
+        // earlier in Part 11.
+        // b. If no response [transport protocol RTS or NACK(Busy) in 220 ms], then retry DS DM20 request to the OBD
+        // ECU. [Do not attempt retry for NACKs that indicate not supported].
+        // c. Record responses for use in part 12 test 11 (formerly 12.9.2).
+        // 6.12.9.2 Fail Criteria
+        // a. Fail if retry was required to obtain DM20 response.
+        // b. Fail if any response indicates that the general denominator (SP 3049) is greater by more than 1 when
+        // compared to the general denominator received in Part 11 test 5.
+        // c. Fail if NACK received from OBD ECUs that previously provided a DM20 message.
+        // 6.12.9.3 Warn Criteria
+        // a. Warn if any response indicates an individual numerator or denominator that is greater than the
+        // corresponding values received in Part 11 test 8.
+        // b. Warn if any ECU response shows:
+        // i. any monitor denominator greater than the general denominator;
+        // ii. general denominator greater than the ignition cycle counter (SP 3048); or
+        // iii. if any numerator greater than the ignition cycle counter.
+        // c. Compare all values to values recorded in part 11 test 8.
+        // i. Warn if any value (numerator, denominator, or ignition cycle counter) is less than their corresponding
+        // value in part 11 test.
+        // d. If more than one ECU reports DM20 data, warn if general denominators or ignition cycle counts do not match
+        // from all ECUs.
     }
 
 }

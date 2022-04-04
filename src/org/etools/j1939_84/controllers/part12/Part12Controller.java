@@ -11,10 +11,10 @@ import org.etools.j1939_84.controllers.PartController;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.VehicleInformationModule;
 
 import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * 6.12 Part 12 Verify Deletion of Fault B from DM28
@@ -38,7 +38,8 @@ public class Part12Controller extends PartController {
              new Part12Step07Controller(),
              new Part12Step08Controller(),
              new Part12Step09Controller(),
-             new Part12Step10Controller());
+             new Part12Step10Controller(),
+             new Part12Step11Controller());
     }
 
     /**
