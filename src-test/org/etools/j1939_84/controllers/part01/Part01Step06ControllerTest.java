@@ -184,7 +184,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestDM56(any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("6.1.6.1.a - DM56 is not supported" + NL, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     /**
