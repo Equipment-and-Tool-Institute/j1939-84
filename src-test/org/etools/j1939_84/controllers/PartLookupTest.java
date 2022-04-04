@@ -42,8 +42,8 @@ public class PartLookupTest {
         assertEquals("Unknown", PartLookup.getStepName(-1, 1));
         assertEquals("Test vehicle data collection", PartLookup.getStepName(1, 1));
         assertEquals("DM5: Diagnostic readiness 1", PartLookup.getStepName(11, 10));
-        assertEquals("DM7/DM30: Command non-continuously monitored test/scaled test results",
-                     PartLookup.getStepName(12, 10));
+        assertEquals("DM7/DM30: Command Non-Continuously Monitored Test/Scaled Test Results",
+                     PartLookup.getStepName(12, 11));
     }
 
     @Test
