@@ -9,3 +9,4 @@
 9,DM20: Monitor Performance Ratio
 10,DM11: Diagnostic data clear/reset for active DTCs
 11,DM7/DM30: Command Non-Continuously Monitored Test/Scaled Test Results
+12,DM7/DM58: DM7 with TID 245 (for DM58)
