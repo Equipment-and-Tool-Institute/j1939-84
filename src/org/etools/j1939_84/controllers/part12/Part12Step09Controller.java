@@ -26,7 +26,7 @@ import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
- * 6.12.12.9 DM20: Monitor Performance Ratio
+ * 6.12.9 DM20: Monitor Performance Ratio
  */
 public class Part12Step09Controller extends StepController {
     private static final int PART_NUMBER = 12;
