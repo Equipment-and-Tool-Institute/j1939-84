@@ -192,6 +192,83 @@ public class Part12Step12ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testNonRationalitySupportFailure() {
+        int source = 0x00;
+        var dm24 = DM24SPNSupportPacket.create(source,
+                                               SupportedSPN.create(91,
+                                                                   false,
+                                                                   true,
+                                                                   true,
+                                                                   true,
+                                                                   1),
+                                               SupportedSPN.create(4145,
+                                                                   false,
+                                                                   true,
+                                                                   true,
+                                                                   true,
+                                                                   4),
+                                               SupportedSPN.create(3301,
+                                                                   false,
+                                                                   false,
+                                                                   true,
+                                                                   true,
+                                                                   2));
+
+        OBDModuleInformation obd0x00 = new OBDModuleInformation(0x00);
+        obd0x00.setSupportedSPNs(dm24.getSupportedSpns());
+        DataRepository.getInstance().putObdModule(obd0x00);
+
+        var dm58Packet91 = DM58RationalityFaultSpData.create(source,
+                                                             245,
+                                                             91,
+                                                             new int[] { 0xF0, 0xFF, 0xFF, 0xFF });
+        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
+                                              eq(source),
+                                              eq(91))).thenReturn(new BusResult<>(false, dm58Packet91));
+
+        var dm58Packet4145 = DM58RationalityFaultSpData.create(source,
+                                                               245,
+                                                               4145,
+                                                               new int[] { 0xFF, 0xFF, 0xFF, 0xFA });
+        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
+                                              eq(source),
+                                              eq(4145))).thenReturn(BusResult.empty());
+
+        var dm58Packet3301 = DM58RationalityFaultSpData.create(source,
+                                                               245,
+                                                               3301,
+                                                               new int[] { 0xFF, 0xFA, 0xFF, 0xFF });
+        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
+                                              eq(source),
+                                              eq(3301))).thenReturn(BusResult.empty());
+
+        runTest();
+
+        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), eq(91));
+        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), eq(4145));
+        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), eq(3301));
+
+        verify(mockListener).addOutcome(eq(PART_NUMBER),
+                                        eq(STEP_NUMBER),
+                                        eq(FAIL),
+                                        eq("6.12.12.3.a - NACK received for DM7 PG from OBD ECU Engine #1 (0) for SP SPN 3301 - Time Since Engine Start"));
+        verify(mockListener).addOutcome(eq(PART_NUMBER),
+                                        eq(STEP_NUMBER),
+                                        eq(FAIL),
+                                        eq("6.12.12.3.a - NACK received for DM7 PG from OBD ECU Engine #1 (0) for SP SPN 4145 - System Cumulative Continuous MI Time"));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("6.12.12.4.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from Engine #1 (0)\n",
+                     listener.getResults());
+        ActionOutcome expectedActionOutcome = new ActionOutcome(FAIL,
+                                                                "6.12.12.3.a - NACK received for DM7 PG from OBD ECU Engine #1 (0) for SP SPN 3301 - Time Since Engine Start");
+
+        ActionOutcome expectedActionOutcome2 = new ActionOutcome(FAIL,
+                                                                 "6.12.12.3.a - NACK received for DM7 PG from OBD ECU Engine #1 (0) for SP SPN 4145 - System Cumulative Continuous MI Time");
+        assertEquals(List.of(expectedActionOutcome, expectedActionOutcome2), listener.getOutcomes());
+    }
+
+    @Test
     public void testObdNoResponseFailure() {
 
         int source = 0x00;
@@ -748,132 +825,6 @@ public class Part12Step12ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         ActionOutcome expectedActionOutcome = new ActionOutcome(FAIL,
                                                                 "6.12.12.3.c - Unused bytes in DM58 are not padded with FFh in the response from Engine #1 (0) for SP SPN 3301 - Time Since Engine Start");
-
-        assertEquals(List.of(expectedActionOutcome), listener.getOutcomes());
-    }
-
-    @Test
-    public void testNonRationalitySupportFalseFailure() {
-        int source = 0x00;
-
-        OBDModuleInformation obd0x00 = new OBDModuleInformation(0x00);
-        var dm24 = DM24SPNSupportPacket.create(source,
-                                               SupportedSPN.create(91,
-                                                                   false,
-                                                                   true,
-                                                                   true,
-                                                                   true,
-                                                                   1),
-                                               SupportedSPN.create(4145,
-                                                                   false,
-                                                                   true,
-                                                                   true,
-                                                                   true,
-                                                                   4),
-                                               SupportedSPN.create(3301,
-                                                                   false,
-                                                                   false,
-                                                                   true,
-                                                                   true,
-                                                                   2));
-        obd0x00.setSupportedSPNs(dm24.getSupportedSpns());
-        DataRepository.getInstance().putObdModule(obd0x00);
-
-        var dm58Packet91 = DM58RationalityFaultSpData.create(source,
-                                                             245,
-                                                             91,
-                                                             new int[] { 0xF0, 0xFF, 0xFF, 0xFF });
-        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
-                                              eq(source),
-                                              eq(91))).thenReturn(new BusResult<>(false, dm58Packet91));
-
-        var dm58Packet4145 = DM58RationalityFaultSpData.create(source,
-                                                               245,
-                                                               4145,
-                                                               new int[] { 0xFF, 0xFF, 0xFF, 0xFA });
-        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
-                                              eq(source),
-                                              eq(4145))).thenReturn(new BusResult<>(false, dm58Packet4145));
-
-        var dm58Packet3301 = DM58RationalityFaultSpData.create(source,
-                                                               245,
-                                                               3301,
-                                                               new int[] { 0xFF, 0xFA, 0xFF, 0xFF });
-        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
-                                              eq(source),
-                                              eq(3301))).thenReturn(new BusResult<>(false, dm58Packet3301));
-
-
-        runTest();
-
-        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), eq(91));
-        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), eq(4145));
-        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), eq(3301));
-
-        verify(mockListener).addOutcome(eq(PART_NUMBER),
-                                        eq(STEP_NUMBER),
-                                        eq(FAIL),
-                                        eq("6.12.12.4.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from "));
-
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
-
-        ActionOutcome expectedActionOutcome = new ActionOutcome(FAIL,
-                                                                "6.12.12.4.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from ");
-
-        assertEquals(List.of(expectedActionOutcome), listener.getOutcomes());
-        assertEquals(List.of(), listener.getOutcomes());
-    }
-
-    @Test
-    public void testObdResponseNackRecievedFromObdFailure() {
-
-        int source = 0x00;
-        DM24SPNSupportPacket dm24Packet = getDm24SPNSupportPacket(source);
-        OBDModuleInformation obd0x00 = new OBDModuleInformation(source);
-        obd0x00.set(dm24Packet, 1);
-        DataRepository.getInstance().putObdModule(obd0x00);
-
-        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
-                                              eq(source),
-                                              eq(91))).thenReturn(new BusResult<>(false, create(0x00, NACK)));
-
-        var dm58Packet4145 = DM58RationalityFaultSpData.create(source,
-                                                               245,
-                                                               4145,
-                                                               new int[] { 0xFF, 0xFF, 0xFF, 0xFA });
-        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
-                                              eq(source),
-                                              eq(4145))).thenReturn(new BusResult<>(false, dm58Packet4145));
-
-        var dm58Packet3301 = DM58RationalityFaultSpData.create(source,
-                                                               245,
-                                                               3301,
-                                                               new int[] { 0xFF, 0xFA, 0xFF, 0xFF });
-        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
-                                              eq(source),
-                                              eq(3301))).thenReturn(new BusResult<>(false, dm58Packet3301));
-
-        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
-                                              eq(source),
-                                              eq(27))).thenReturn(new BusResult<>(false, create(source, NACK)));
-
-        runTest();
-
-        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), eq(91));
-        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), eq(4145));
-        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), eq(3301));
-        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), eq(27));
-
-        verify(mockListener).addOutcome(eq(PART_NUMBER),
-                                        eq(STEP_NUMBER),
-                                        eq(FAIL),
-                                        eq("6.12.12.3.a - NACK received for DM7 PG from OBD ECU Engine #1 (0) for SP SPN 91 - Accelerator Pedal Position 1"));
-
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
-        ActionOutcome expectedActionOutcome = new ActionOutcome(FAIL,
-                                                                "6.12.12.3.a - NACK received for DM7 PG from OBD ECU Engine #1 (0) for SP SPN 91 - Accelerator Pedal Position 1");
 
         assertEquals(List.of(expectedActionOutcome), listener.getOutcomes());
     }
