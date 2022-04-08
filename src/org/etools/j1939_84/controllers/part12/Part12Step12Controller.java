@@ -25,7 +25,7 @@ import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
- * 6.12.11 DM7/ DM30: Command Non-Continuously Monitored Test/Scaled Test Results
+ * 6.12.12 DM7/ DM30: Command Non-Continuously Monitored Test/Scaled Test Results
  */
 public class Part12Step12Controller extends StepController {
     private static final int PART_NUMBER = 12;
@@ -98,7 +98,7 @@ public class Part12Step12Controller extends StepController {
                                                                  // FBFFFFFFh (for 4 byte SP)
                                                                  if (isGreaterThanFb(packet)) {
                                                                      addFailure(
-                                                                                "6.12.12.d - Data returned is greater than 0xFB... threshold from "
+                                                                                "6.12.12.3.d - Data returned is greater than 0xFB... threshold from "
                                                                                         + module.getModuleName()
                                                                                         + " for " + spn);
 
@@ -106,10 +106,9 @@ public class Part12Step12Controller extends StepController {
                                                              })
                                                              .collect(Collectors.toList());
                       if (packets.isEmpty()) {
-                          addFailure("6.12.12.3.a - NACK received for DM7 PG from OBD ECU "
+                          addFailure("6.12.12.3.a - No packets received for DM7 PG from OBD ECU "
                                   + module.getModuleName() + " for SP " + spn);
                       }
-
                   });
 
         });
@@ -158,7 +157,7 @@ public class Part12Step12Controller extends StepController {
     }
 
     private boolean areUnusedBytesPaddedWithFFh(DM58RationalityFaultSpData packet) {
-        Slot slot = J1939DaRepository.findSlot(packet.getSpn().getId(), packet.getSpnId());
+        Slot slot = J1939DaRepository.findSlot(packet.getSpn().getId(), packet.getSpn().getSlot().getId());
 
         int slotLength = slot.getByteLength();
         int spnLength = packet.getSpnDataBytes().length;

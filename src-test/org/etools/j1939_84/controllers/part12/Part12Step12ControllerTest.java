@@ -251,20 +251,20 @@ public class Part12Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(PART_NUMBER),
                                         eq(STEP_NUMBER),
                                         eq(FAIL),
-                                        eq("6.12.12.3.a - NACK received for DM7 PG from OBD ECU Engine #1 (0) for SP SPN 3301 - Time Since Engine Start"));
+                                        eq("6.12.12.3.a - No packets received for DM7 PG from OBD ECU Engine #1 (0) for SP SPN 3301 - Time Since Engine Start"));
         verify(mockListener).addOutcome(eq(PART_NUMBER),
                                         eq(STEP_NUMBER),
                                         eq(FAIL),
-                                        eq("6.12.12.3.a - NACK received for DM7 PG from OBD ECU Engine #1 (0) for SP SPN 4145 - System Cumulative Continuous MI Time"));
+                                        eq("6.12.12.3.a - No packets received for DM7 PG from OBD ECU Engine #1 (0) for SP SPN 4145 - System Cumulative Continuous MI Time"));
 
         assertEquals("", listener.getMessages());
         assertEquals("6.12.12.4.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from Engine #1 (0)\n",
                      listener.getResults());
         ActionOutcome expectedActionOutcome = new ActionOutcome(FAIL,
-                                                                "6.12.12.3.a - NACK received for DM7 PG from OBD ECU Engine #1 (0) for SP SPN 3301 - Time Since Engine Start");
+                                                                "6.12.12.3.a - No packets received for DM7 PG from OBD ECU Engine #1 (0) for SP SPN 3301 - Time Since Engine Start");
 
         ActionOutcome expectedActionOutcome2 = new ActionOutcome(FAIL,
-                                                                 "6.12.12.3.a - NACK received for DM7 PG from OBD ECU Engine #1 (0) for SP SPN 4145 - System Cumulative Continuous MI Time");
+                                                                 "6.12.12.3.a - No packets received for DM7 PG from OBD ECU Engine #1 (0) for SP SPN 4145 - System Cumulative Continuous MI Time");
         assertEquals(List.of(expectedActionOutcome, expectedActionOutcome2), listener.getOutcomes());
     }
 
@@ -374,12 +374,12 @@ public class Part12Step12ControllerTest extends AbstractControllerTest {
                atLeastOnce()).addOutcome(eq(PART_NUMBER),
                                          eq(STEP_NUMBER),
                                          eq(FAIL),
-                                         eq("6.12.12.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 3301 - Time Since Engine Start"));
+                                         eq("6.12.12.3.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 3301 - Time Since Engine Start"));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
         ActionOutcome expectedActionOutcome = new ActionOutcome(FAIL,
-                                                                "6.12.12.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 3301 - Time Since Engine Start");
+                                                                "6.12.12.3.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 3301 - Time Since Engine Start");
 
         assertEquals(List.of(expectedActionOutcome), listener.getOutcomes());
     }
@@ -432,12 +432,12 @@ public class Part12Step12ControllerTest extends AbstractControllerTest {
                atLeastOnce()).addOutcome(eq(PART_NUMBER),
                                          eq(STEP_NUMBER),
                                          eq(FAIL),
-                                         eq("6.12.12.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 3301 - Time Since Engine Start"));
+                                         eq("6.12.12.3.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 3301 - Time Since Engine Start"));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
         ActionOutcome expectedActionOutcome = new ActionOutcome(FAIL,
-                                                                "6.12.12.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 3301 - Time Since Engine Start");
+                                                                "6.12.12.3.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 3301 - Time Since Engine Start");
 
         assertEquals(List.of(expectedActionOutcome), listener.getOutcomes());
     }
@@ -496,14 +496,14 @@ public class Part12Step12ControllerTest extends AbstractControllerTest {
                atLeastOnce()).addOutcome(eq(PART_NUMBER),
                                          eq(STEP_NUMBER),
                                          eq(FAIL),
-                                         eq("6.12.12.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 3301 - Time Since Engine Start"));
+                                         eq("6.12.12.3.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 3301 - Time Since Engine Start"));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
         ActionOutcome expectedActionOutcome = new ActionOutcome(FAIL,
                                                                 "6.12.12.3.c - Unused bytes in DM58 are not padded with FFh in the response from Engine #1 (0) for SP SPN 3301 - Time Since Engine Start");
         ActionOutcome expectedActionOutcome2 = new ActionOutcome(FAIL,
-                                                                 "6.12.12.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 3301 - Time Since Engine Start");
+                                                                 "6.12.12.3.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 3301 - Time Since Engine Start");
 
 
         assertEquals(List.of(expectedActionOutcome, expectedActionOutcome2), listener.getOutcomes());
@@ -592,12 +592,12 @@ public class Part12Step12ControllerTest extends AbstractControllerTest {
          verify(mockListener).addOutcome(eq(PART_NUMBER),
          eq(STEP_NUMBER),
          eq(FAIL),
-                                         eq("6.12.12.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 91 - Accelerator Pedal Position 1"));
+                                         eq("6.12.12.3.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 91 - Accelerator Pedal Position 1"));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
         ActionOutcome expectedActionOutcome = new ActionOutcome(FAIL,
-                                                                "6.12.12.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 91 - Accelerator Pedal Position 1");
+                                                                "6.12.12.3.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 91 - Accelerator Pedal Position 1");
 
         assertEquals(List.of(expectedActionOutcome), listener.getOutcomes());
     }
