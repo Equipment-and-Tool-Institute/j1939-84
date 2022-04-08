@@ -439,13 +439,13 @@ public class Part12Step11ControllerTest extends AbstractControllerTest {
         obd0x00.set(dm24Packet, 1);
         DataRepository.getInstance().putObdModule(obd0x00);
 
-        var dm58Packet294 = DM58RationalityFaultSpData.create(source,
+        var dm58Packet8205 = DM58RationalityFaultSpData.create(source,
                                                               245,
                                                               8205,
-                                                              new int[] { 0xFF, 0xFF, 0xFB, 0xFF });
+                                                               new int[] { 0xFB, 0xFF, 0xFF, 0xFF });
         when(communicationsModule.requestDM58(any(CommunicationsListener.class),
                                               eq(source),
-                                              eq(8205))).thenReturn(new BusResult<>(false, dm58Packet294));
+                                              eq(8205))).thenReturn(new BusResult<>(false, dm58Packet8205));
 
         var dm58Packet4145 = DM58RationalityFaultSpData.create(source,
                                                                245,

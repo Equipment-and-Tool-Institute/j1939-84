@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part12;
 
-import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -196,11 +195,14 @@ public class Part12Step11Controller extends StepController {
 
         switch (slotLength) {
             case 1:
-            case 3:
-                paddingBytes = Arrays.copyOfRange(packet.getSpnDataBytes(), slotLength, spnLength);
+                paddingBytes = new byte[] { packet.getSpnDataBytes()[1], packet.getSpnDataBytes()[2],
+                        packet.getSpnDataBytes()[3] };
                 break;
             case 2:
                 paddingBytes = new byte[] { packet.getSpnDataBytes()[2], packet.getSpnDataBytes()[3] };
+                break;
+            case 3:
+                paddingBytes = new byte[] { packet.getSpnDataBytes()[3] };
                 break;
             case 4:
                 return true;
@@ -230,8 +232,6 @@ public class Part12Step11Controller extends StepController {
                 return rawValue > 0xFB;
             case 2:
                 return rawValue > 0xFBFF;
-            case 3:
-                return rawValue > 0xFBFFFF;
             case 4:
                 return rawValue > 0xFBFFFFFFL;
             default:
