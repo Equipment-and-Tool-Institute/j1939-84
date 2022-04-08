@@ -135,8 +135,8 @@ public class Part12Step11Controller extends StepController {
                                                },
                                                                 () -> {
                                                                     // 6.12.11.3.b. Fail, if DM58 not
-                                                                    // received (after allowed retries)
-                                                                    addFailure("6.12.11.3.b. DM58 not received (after allowed retries) from "
+                                                                    // received
+                                                                    addFailure("6.12.11.3.b. DM58 not received from "
                                                                             +
                                                                             module.getModuleName()
                                                                             + " for SP " + spn);

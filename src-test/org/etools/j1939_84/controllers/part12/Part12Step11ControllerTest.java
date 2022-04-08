@@ -299,13 +299,13 @@ public class Part12Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(PART_NUMBER),
                                         eq(STEP_NUMBER),
                                         eq(FAIL),
-                                        eq("6.12.11.3.b. DM58 not received (after allowed retries) from Engine #1 (0) for SP SPN 4145 - System Cumulative Continuous MI Time"));
+                                        eq("6.12.11.3.b. DM58 not received from Engine #1 (0) for SP SPN 4145 - System Cumulative Continuous MI Time"));
 
         assertEquals("", listener.getMessages());
         assertEquals("6.12.11.4.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from Engine #1 (0)\n",
                      listener.getResults());
         ActionOutcome expectedActionOutcome = new ActionOutcome(FAIL,
-                                                                "6.12.11.3.b. DM58 not received (after allowed retries) from Engine #1 (0) for SP SPN 4145 - System Cumulative Continuous MI Time");
+                                                                "6.12.11.3.b. DM58 not received from Engine #1 (0) for SP SPN 4145 - System Cumulative Continuous MI Time");
         assertEquals(List.of(expectedActionOutcome), listener.getOutcomes());
     }
 
