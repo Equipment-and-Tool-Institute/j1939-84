@@ -26,7 +26,7 @@ import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
- * 6.12.9 DM20: Monitor Performance Ratio
+ * 6.12.12.9 DM20: Monitor Performance Ratio
  */
 public class Part12Step09Controller extends StepController {
     private static final int PART_NUMBER = 12;
@@ -100,11 +100,11 @@ public class Part12Step09Controller extends StepController {
         // 6.12.9.2.b. Fail if any response indicates that the general denominator (SP 3049) is greater by more than 1
         // when compared to the general denominator received in Part 11 test 5.
         packets.stream()
-               .filter(p -> p.getOBDConditionsCount() != getPart11GeneralDenominator(p.getSourceAddress()) + 1)
+               .filter(p -> p.getOBDConditionsCount() > getPart11GeneralDenominator(p.getSourceAddress()) + 1)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
                    addFailure("6.12.9.2.b - " + moduleName
-                           + " response indicates the general denominator has not incremented by one when compared to the general denominator received in Part 11 test 5");
+                           + " response indicates that the general denominator (SP 3049) is greater by more than 1 when compared to the general denominator received in Part 11 test 5");
                });
 
         // 6.12.9.2.c. Fail if NACK received from OBD ECUs that previously provided a DM20 message.
