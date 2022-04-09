@@ -140,7 +140,7 @@ public class Part12Step06ControllerTest extends AbstractControllerTest {
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
                                        eq(3),
                                        eq(SECONDS),
-                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(List.of(dm1_0, dm1_1)));
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList<>(List.of(dm1_0, dm1_1)));
 
         runTest();
 
@@ -160,7 +160,7 @@ public class Part12Step06ControllerTest extends AbstractControllerTest {
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
                                        eq(3),
                                        eq(SECONDS),
-                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(List.of(dm1_0)));
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList<>(List.of(dm1_0)));
 
         runTest();
 
@@ -184,7 +184,7 @@ public class Part12Step06ControllerTest extends AbstractControllerTest {
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
                                        eq(3),
                                        eq(SECONDS),
-                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(List.of(dm1_0)));
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList<>(List.of(dm1_0)));
 
         runTest();
 
@@ -209,7 +209,7 @@ public class Part12Step06ControllerTest extends AbstractControllerTest {
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
                                        eq(3),
                                        eq(SECONDS),
-                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(List.of(dm1_0)));
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList<>(List.of(dm1_0)));
         runTest();
 
         verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),

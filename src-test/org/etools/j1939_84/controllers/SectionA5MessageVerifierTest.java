@@ -1119,7 +1119,7 @@ public class SectionA5MessageVerifierTest {
         var packet = IdleOperationPacket.create(0, 101);
         when(communicationsModule.request(eq(IdleOperationPacket.class),
                                           eq(0x00),
-                                          any(CommunicationsListener.class))).thenReturn(new BusResult(false, packet));
+                                          any(CommunicationsListener.class))).thenReturn(new BusResult<>(false, packet));
 
         assertTrue(instance.checkEngineIdleTime(listener, SECTION, 0));
 
@@ -1137,7 +1137,7 @@ public class SectionA5MessageVerifierTest {
         var packet = IdleOperationPacket.create(0, 0);
         when(communicationsModule.request(eq(IdleOperationPacket.class),
                                           eq(0x00),
-                                          any(CommunicationsListener.class))).thenReturn(new BusResult(false, packet));
+                                          any(CommunicationsListener.class))).thenReturn(new BusResult<>(false, packet));
 
         assertFalse(instance.checkEngineIdleTime(listener, SECTION, 0));
 
@@ -1165,7 +1165,7 @@ public class SectionA5MessageVerifierTest {
 
         var packet = EngineHoursPacket.create(0, 101);
         when(communicationsModule.request(eq(EngineHoursPacket.class), eq(0x00), any(CommunicationsListener.class)))
-                                                                                                                    .thenReturn(new BusResult(false,
+                                                                                                                    .thenReturn(new BusResult<>(false,
                                                                                                                                               packet));
 
         assertTrue(instance.checkEngineRunTime(listener, SECTION, 0));
@@ -1183,7 +1183,7 @@ public class SectionA5MessageVerifierTest {
 
         var packet = EngineHoursPacket.create(0, 0);
         when(communicationsModule.request(eq(EngineHoursPacket.class), eq(0x00), any(CommunicationsListener.class)))
-                                                                                                                    .thenReturn(new BusResult(false,
+                                                                                                                    .thenReturn(new BusResult<>(false,
                                                                                                                                               packet));
 
         assertFalse(instance.checkEngineRunTime(listener, SECTION, 0));

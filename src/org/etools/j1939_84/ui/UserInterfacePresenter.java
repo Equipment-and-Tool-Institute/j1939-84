@@ -525,7 +525,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
             engine = new Engine(bus);
             return bus;
         } else {
-            return rp1210.setAdapter(selectedAdapter, connectionString, address);
+            return RP1210.createBus(selectedAdapter, connectionString, address);
         }
     }
 

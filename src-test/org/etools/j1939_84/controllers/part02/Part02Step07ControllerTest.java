@@ -143,7 +143,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         var packet0 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x00),
-                                          any(CommunicationsListener.class))).thenReturn(new BusResult(false, packet0));
+                                          any(CommunicationsListener.class))).thenReturn(new BusResult<>(false, packet0));
 
         var module1 = new OBDModuleInformation(1);
         module1.set(ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1"), 1);
@@ -151,7 +151,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         var packet1 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x01),
-                                          any(CommunicationsListener.class))).thenReturn(new BusResult(false, packet1));
+                                          any(CommunicationsListener.class))).thenReturn(new BusResult<>(false, packet1));
 
         var packet00 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
         var packet11 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
@@ -182,7 +182,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         var packet0 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x00),
-                                          any(CommunicationsListener.class))).thenReturn(new BusResult(false, packet0));
+                                          any(CommunicationsListener.class))).thenReturn(new BusResult<>(false, packet0));
 
         var module1 = new OBDModuleInformation(1);
         module1.set(ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1"), 1);
@@ -223,7 +223,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         var packet0 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x00),
-                                          any(CommunicationsListener.class))).thenReturn(new BusResult(false, packet0));
+                                          any(CommunicationsListener.class))).thenReturn(new BusResult<>(false, packet0));
 
         var module1 = new OBDModuleInformation(1);
         module1.set(ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1"), 1);
@@ -231,7 +231,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         var packet1 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x01),
-                                          any(CommunicationsListener.class))).thenReturn(new BusResult(false, packet1));
+                                          any(CommunicationsListener.class))).thenReturn(new BusResult<>(false, packet1));
 
         var packet00 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
         var packet11 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
@@ -265,7 +265,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         var packet0 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x00),
-                                          any(CommunicationsListener.class))).thenReturn(new BusResult(false, packet0));
+                                          any(CommunicationsListener.class))).thenReturn(new BusResult<>(false, packet0));
 
         var module1 = new OBDModuleInformation(1);
         module1.set(ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1"), 1);
@@ -273,7 +273,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         var packet1 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(1),
-                                          any(CommunicationsListener.class))).thenReturn(new BusResult(false, packet1));
+                                          any(CommunicationsListener.class))).thenReturn(new BusResult<>(false, packet1));
 
         var packet11 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
@@ -305,7 +305,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         var packet0 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x00),
-                                          any(CommunicationsListener.class))).thenReturn(new BusResult(false, packet0));
+                                          any(CommunicationsListener.class))).thenReturn(new BusResult<>(false, packet0));
 
         var module1 = new OBDModuleInformation(1);
         module1.set(ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1"), 1);
@@ -313,7 +313,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         var packet1 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x01),
-                                          any(CommunicationsListener.class))).thenReturn(new BusResult(false, packet1));
+                                          any(CommunicationsListener.class))).thenReturn(new BusResult<>(false, packet1));
 
         var packet00 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
         var packet11 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
@@ -347,7 +347,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         var packet0 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x00),
-                                          any(CommunicationsListener.class))).thenReturn(new BusResult(false, packet0));// when(communicationsModule.requestComponentIdentification(any(),
+                                          any(CommunicationsListener.class))).thenReturn(new BusResult<>(false, packet0));// when(communicationsModule.requestComponentIdentification(any(),
                                                                                                                         // eq(0))).thenReturn(BusResult.of(packet0));
 
         var module1 = new OBDModuleInformation(1);
@@ -356,7 +356,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         var packet1 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x01),
-                                          any(CommunicationsListener.class))).thenReturn(new BusResult(false, packet1));
+                                          any(CommunicationsListener.class))).thenReturn(new BusResult<>(false, packet1));
 
         var packet00 = ComponentIdentificationPacket.create(0, "make", "model", "serialNumber", "unit");
         var packet11 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
@@ -389,7 +389,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         var packet0 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x00),
-                                          any(CommunicationsListener.class))).thenReturn(new BusResult(false, packet0));
+                                          any(CommunicationsListener.class))).thenReturn(new BusResult<>(false, packet0));
 
         var module1 = new OBDModuleInformation(1);
         module1.set(ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1"), 1);
@@ -397,7 +397,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         var packet1 = ComponentIdentificationPacket.create(1, "make1", "model1", "serialNumber1", "unit1");
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x01),
-                                          any(CommunicationsListener.class))).thenReturn(new BusResult(false, packet1));
+                                          any(CommunicationsListener.class))).thenReturn(new BusResult<>(false, packet1));
 
         var packet00 = ComponentIdentificationPacket.create(0, "make0", "model0", "serialNumber0", "unit0");
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),

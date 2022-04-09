@@ -31,11 +31,6 @@
 	<classpathentry kind="lib" path="lib-test/launch4j/lib/jgoodies-looks.jar"/>
 	<classpathentry kind="lib" path="lib-test/launch4j/lib/xstream.jar"/>
 	<classpathentry kind="lib" path="lib-test/objenesis-2.5.jar"/>
-	<classpathentry kind="lib" path="lib/annotations.jar"/>
-	<classpathentry kind="lib" path="lib/ini4j-0.5.4.jar"/>
-	<classpathentry kind="lib" path="lib/jna-5.5.0.jar"/>
-	<classpathentry kind="lib" path="lib/jna-platform-5.5.0.jar"/>
-	<classpathentry kind="lib" path="lib/gson-2.8.6.jar"/>
 	<classpathentry kind="lib" path="lib-test/byte-buddy-1.10.9.jar"/>
 	<classpathentry kind="lib" path="lib-test/byte-buddy-agent-1.10.9.jar"/>
 	<classpathentry kind="lib" path="lib-test/mockito-core-3.3.3.jar"/>
@@ -63,5 +58,6 @@
 	<classpathentry kind="lib" path="lib-test/jacoco-0.8.5/lib/jacocoagent.jar"/>
 	<classpathentry kind="lib" path="lib-test/jacoco-0.8.5/lib/jacococli.jar"/>
 	<classpathentry kind="lib" path="lib/opencsv-3.8.jar"/>
+	<classpathentry kind="lib" path="lib/j1939tools.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

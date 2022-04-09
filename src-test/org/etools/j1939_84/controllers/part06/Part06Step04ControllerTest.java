@@ -153,7 +153,7 @@ public class Part06Step04ControllerTest extends AbstractControllerTest {
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
                                        eq(3),
                                        eq(SECONDS),
-                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList<>(packetList));
 
         runTest();
 
@@ -205,7 +205,7 @@ public class Part06Step04ControllerTest extends AbstractControllerTest {
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
                                        eq(3),
                                        eq(SECONDS),
-                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList<>(packetList));
 
         runTest();
 
@@ -241,7 +241,7 @@ public class Part06Step04ControllerTest extends AbstractControllerTest {
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
                                        eq(3),
                                        eq(SECONDS),
-                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList<>(packetList));
 
         runTest();
 

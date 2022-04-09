@@ -254,12 +254,12 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x00),
                                           any(CommunicationsListener.class)))
-                                                                             .thenReturn(new BusResult(false,
+                                                                             .thenReturn(new BusResult<>(false,
                                                                                                        packet0));
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x01),
                                           any(CommunicationsListener.class)))
-                                                                             .thenReturn(new BusResult(false,
+                                                                             .thenReturn(new BusResult<>(false,
                                                                                                        packet1));
         runTest();
 
@@ -310,7 +310,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x00),
                                           any(ResultsListener.class)))
-                                                                      .thenReturn(new BusResult(false, packet1));
+                                                                      .thenReturn(new BusResult<>(false, packet1));
 
         runTest();
 
@@ -375,16 +375,16 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x00),
                                           any(CommunicationsListener.class)))
-                                                                             .thenReturn(new BusResult(false,
+                                                                             .thenReturn(new BusResult<>(false,
                                                                                                        packet0x00));
         when(communicationsModule.request(any(), eq(0x01), any(CommunicationsListener.class)))
-                                                                                              .thenReturn(new BusResult(false,
+                                                                                              .thenReturn(new BusResult<>(false,
                                                                                                                         packet0x01));
         when(communicationsModule.request(any(), eq(0x02), any(CommunicationsListener.class)))
-                                                                                              .thenReturn(new BusResult(false,
+                                                                                              .thenReturn(new BusResult<>(false,
                                                                                                                         packet0x02));
         when(communicationsModule.request(any(), eq(0x03), any(CommunicationsListener.class)))
-                                                                                              .thenReturn(new BusResult(false,
+                                                                                              .thenReturn(new BusResult<>(false,
                                                                                                                         packet0x03));
 
         runTest();
@@ -488,7 +488,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0),
                                           any(CommunicationsListener.class)))
-                                                                             .thenReturn(new BusResult(false, packet));
+                                                                             .thenReturn(new BusResult<>(false, packet));
 
         runTest();
 
@@ -547,7 +547,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x00),
                                           any(CommunicationsListener.class)))
-                                                                             .thenReturn(new BusResult(false, packet));
+                                                                             .thenReturn(new BusResult<>(false, packet));
         runTest();
 
         verify(communicationsModule).request(eq(ComponentIdentificationPacket.class),
@@ -593,7 +593,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0),
                                           any(CommunicationsListener.class)))
-                                                                             .thenReturn(new BusResult(false, packet));
+                                                                             .thenReturn(new BusResult<>(false, packet));
 
         runTest();
 
@@ -639,7 +639,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0),
                                           any(CommunicationsListener.class)))
-                                                                             .thenReturn(new BusResult(false, packet));
+                                                                             .thenReturn(new BusResult<>(false, packet));
 
         runTest();
 
@@ -686,7 +686,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x00),
                                           any(CommunicationsListener.class)))
-                                                                             .thenReturn(new BusResult(false, packet));
+                                                                             .thenReturn(new BusResult<>(false, packet));
 
         runTest();
 
@@ -732,7 +732,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0),
                                           any(CommunicationsListener.class)))
-                                                                             .thenReturn(new BusResult(false, packet));
+                                                                             .thenReturn(new BusResult<>(false, packet));
 
         runTest();
 
@@ -777,7 +777,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x00),
                                           any(CommunicationsListener.class)))
-                                                                             .thenReturn(new BusResult(false, packet));
+                                                                             .thenReturn(new BusResult<>(false, packet));
 
         runTest();
 
@@ -870,22 +870,22 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x00),
                                           any(CommunicationsListener.class)))
-                                                                             .thenReturn(new BusResult(false,
+                                                                             .thenReturn(new BusResult<>(false,
                                                                                                        packet0x00));
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x01),
                                           any(CommunicationsListener.class)))
-                                                                             .thenReturn(new BusResult(false,
+                                                                             .thenReturn(new BusResult<>(false,
                                                                                                        packet0x01));
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x02),
                                           any(CommunicationsListener.class)))
-                                                                             .thenReturn(new BusResult(false,
+                                                                             .thenReturn(new BusResult<>(false,
                                                                                                        packet0x02));
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x03),
                                           any(CommunicationsListener.class)))
-                                                                             .thenReturn(new BusResult(false,
+                                                                             .thenReturn(new BusResult<>(false,
                                                                                                        packet0x03));
 
         runTest();
@@ -941,7 +941,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x0),
                                           any(CommunicationsListener.class)))
-                                                                             .thenReturn(new BusResult(false, packet));
+                                                                             .thenReturn(new BusResult<>(false, packet));
 
         runTest();
 
@@ -987,7 +987,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         when(communicationsModule.request(eq(ComponentIdentificationPacket.class),
                                           eq(0x00),
                                           any(CommunicationsListener.class)))
-                                                                             .thenReturn(new BusResult(false, packet));
+                                                                             .thenReturn(new BusResult<>(false, packet));
 
         runTest();
 

@@ -42,7 +42,6 @@ import net.soliddesign.j1939tools.j1939.packets.DM56EngineFamilyPacket;
 import net.soliddesign.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
 import net.soliddesign.j1939tools.j1939.packets.VehicleIdentificationPacket;
 import net.soliddesign.j1939tools.modules.DateTimeModule;
-import net.soliddesign.j1939tools.modules.TestDateTimeModule;
 /**
  * Unit tests for the {@link VehicleInformationModule} class
  *

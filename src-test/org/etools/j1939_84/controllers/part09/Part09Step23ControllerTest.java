@@ -147,7 +147,7 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
                                        eq(3),
                                        eq(SECONDS),
-                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList<>(packetList));
 
         runTest();
 
@@ -174,7 +174,7 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
                                        eq(3),
                                        eq(SECONDS),
-                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList<>(packetList));
 
         runTest();
 
@@ -200,7 +200,7 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
                                        eq(3),
                                        eq(SECONDS),
-                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList<>(packetList));
 
         runTest();
 
@@ -223,7 +223,7 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
                                        eq(3),
                                        eq(SECONDS),
-                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(List.of()));
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList<>(List.of()));
 
         runTest();
 
@@ -252,7 +252,7 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
                                        eq(3),
                                        eq(SECONDS),
-                                       any(CommunicationsListener.class))).thenReturn(new ArrayList(packetList));
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList<>(packetList));
 
         runTest();
 
