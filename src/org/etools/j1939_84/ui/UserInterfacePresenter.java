@@ -313,7 +313,8 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
                 result = true;
                 resultsListener.onProgress(3, 3, "Complete");
-            } catch (IOException e) {
+            } catch (Throwable e) {
+                getLogger().log(Level.WARNING, "Communications error", e);
                 resultsListener.onProgress(3, 3, e.getMessage());
                 getView().displayDialog(e.getMessage(), "Communications Error", JOptionPane.ERROR_MESSAGE, false);
             } finally {

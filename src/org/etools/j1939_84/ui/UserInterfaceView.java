@@ -52,6 +52,7 @@ import org.etools.j1939_84.ui.UserInterfaceContract.Presenter;
 import org.etools.j1939_84.ui.widgets.SmartScroller;
 import org.etools.j1939tools.bus.Adapter;
 import org.etools.j1939tools.j1939.J1939;
+
 /**
  * The View for the User Interface.
  * <p>
@@ -641,7 +642,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
     JTextArea getReportTextArea() {
         if (reportTextArea == null) {
             reportTextArea = new JTextArea(0, 80);
-            reportTextArea.setFont(new Font("Courier", Font.PLAIN, reportTextArea.getFont().getSize()));
+            reportTextArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, reportTextArea.getFont().getSize()));
             reportTextArea.setEditable(false);
             reportTextArea.setLineWrap(false);
             DefaultCaret caret = (DefaultCaret) reportTextArea.getCaret();

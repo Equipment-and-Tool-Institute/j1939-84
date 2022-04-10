@@ -334,11 +334,13 @@ public class Packet {
             }
         }
         if (data.length == 0) {
-            throw new PacketException(String.format("Failed Packet: %s %06X%02X [?] %s",
+            throw new PacketException(String.format("Failed Packet: %s %06X%02X [?]%n%s",
                                                     DateTimeModule.getInstance().getTimeFormatter().format(timestamp),
                                                     priority << 18 | id,
                                                     source,
-                                                    getFragments().toString()));
+                                                    getFragments().stream()
+                                                                  .map(p -> p.toString())
+                                                                  .collect(Collectors.joining(System.lineSeparator()))));
         }
         return data;
     }

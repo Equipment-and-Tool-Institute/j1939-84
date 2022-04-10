@@ -692,7 +692,9 @@ public class J1939 {
                                    .filter(e -> !isBusy(e)
                                                 || !map.containsKey(((ParsedPacket) e.resolve()).getSourceAddress()))
                                    .collect(Collectors.toMap(r1 -> ((ParsedPacket) r1.resolve()).getSourceAddress(),
-                                                             r1 -> r1)));
+                                                             r1 -> r1,
+                                                             // if there are two responses, take the second.  This should only happen if there are rogue tools on the bus.
+                                                             (a,b) -> b)));
             results = map.values();
         }
 
