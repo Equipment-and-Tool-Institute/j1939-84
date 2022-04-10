@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Solid Design
+ * Copyright (c) 2022. Equipment & Tool Institute
  */
 
 package org.etools.j1939tools.j1939.model;
