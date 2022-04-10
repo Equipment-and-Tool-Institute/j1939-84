@@ -18,9 +18,8 @@ import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.1.1 Test Vehicle Data Collection

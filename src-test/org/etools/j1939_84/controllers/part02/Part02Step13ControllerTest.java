@@ -3,15 +3,14 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
-import static net.soliddesign.j1939tools.j1939.packets.DTCLampStatus.create;
-import static net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCode.create;
-import static net.soliddesign.j1939tools.j1939.packets.LampStatus.FAST_FLASH;
-import static net.soliddesign.j1939tools.j1939.packets.LampStatus.OFF;
-import static net.soliddesign.j1939tools.j1939.packets.LampStatus.ON;
-import static net.soliddesign.j1939tools.j1939.packets.LampStatus.OTHER;
-import static net.soliddesign.j1939tools.j1939.packets.LampStatus.SLOW_FLASH;
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode.create;
+import static org.etools.j1939tools.j1939.packets.LampStatus.FAST_FLASH;
+import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939tools.j1939.packets.LampStatus.ON;
+import static org.etools.j1939tools.j1939.packets.LampStatus.OTHER;
+import static org.etools.j1939tools.j1939.packets.LampStatus.SLOW_FLASH;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -32,22 +31,21 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.DM31DtcToLampAssociation;
+import org.etools.j1939tools.j1939.packets.DTCLampStatus;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import net.soliddesign.j1939tools.bus.Packet;
-import net.soliddesign.j1939tools.bus.RequestResult;
-import net.soliddesign.j1939tools.j1939.J1939;
-import net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket;
-import net.soliddesign.j1939tools.j1939.packets.DM31DtcToLampAssociation;
-import net.soliddesign.j1939tools.j1939.packets.DTCLampStatus;
-import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCode;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 ;
 
@@ -173,17 +171,17 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(2));
 
         DiagnosticTroubleCode dtc = create(609, 19, 1, 1);
-        DTCLampStatus dtcLampStatus = create(dtc, OFF, SLOW_FLASH, OTHER, OTHER);
+        DTCLampStatus dtcLampStatus = DTCLampStatus.create(dtc, OFF, SLOW_FLASH, OTHER, OTHER);
         DM31DtcToLampAssociation packet = DM31DtcToLampAssociation.create(0, 0, dtcLampStatus);
         when(communicationsModule.requestDM31(any(), eq(0x00))).thenReturn(RequestResult.of(packet));
 
         DiagnosticTroubleCode dtc1 = create(4334, 77, 0, 23);
-        DTCLampStatus dtcLampStatus1 = create(dtc1, ON, FAST_FLASH, OTHER, OTHER);
+        DTCLampStatus dtcLampStatus1 = DTCLampStatus.create(dtc1, ON, FAST_FLASH, OTHER, OTHER);
         DM31DtcToLampAssociation packet1 = DM31DtcToLampAssociation.create(1, 0, dtcLampStatus1);
         when(communicationsModule.requestDM31(any(), eq(0x01))).thenReturn(RequestResult.of(packet1));
 
         DiagnosticTroubleCode dtc2 = create(62002, 77, 0, 23);
-        DTCLampStatus dtcLampStatus2 = create(dtc2, ON, ON, ON, ON);
+        DTCLampStatus dtcLampStatus2 = DTCLampStatus.create(dtc2, ON, ON, ON, ON);
         DM31DtcToLampAssociation packet2 = DM31DtcToLampAssociation.create(2, 0, dtcLampStatus2);
         when(communicationsModule.requestDM31(any(), eq(0x02))).thenReturn(RequestResult.of(packet2));
 

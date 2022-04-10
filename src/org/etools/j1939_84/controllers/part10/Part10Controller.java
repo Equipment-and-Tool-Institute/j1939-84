@@ -11,10 +11,9 @@ import org.etools.j1939_84.controllers.PartController;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
-
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;;
+import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;;
 
 /**
  * 6.10 Part 10 Prime Diagnostic Executive for General Denominator Demonstration

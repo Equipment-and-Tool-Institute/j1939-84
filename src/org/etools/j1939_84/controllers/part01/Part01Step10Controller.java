@@ -4,8 +4,8 @@
 package org.etools.j1939_84.controllers.part01;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.ACK;
-import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.ACK;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -17,11 +17,10 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-
-import net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket;
-import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.1.10 DM11: Diagnostic Data Clear/Reset for Active DTCs

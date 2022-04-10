@@ -3,8 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static net.soliddesign.j1939tools.j1939.packets.LampStatus.NOT_SUPPORTED;
-import static net.soliddesign.j1939tools.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939tools.j1939.packets.LampStatus.NOT_SUPPORTED;
+import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -15,12 +15,11 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-
-import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
-import net.soliddesign.j1939tools.j1939.packets.LampStatus;
-import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
+import org.etools.j1939tools.j1939.packets.LampStatus;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.1.16 DM2: Previously Active Diagnostic Trouble Codes (DTCs)

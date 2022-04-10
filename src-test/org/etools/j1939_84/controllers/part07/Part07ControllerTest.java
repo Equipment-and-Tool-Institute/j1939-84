@@ -6,7 +6,7 @@ package org.etools.j1939_84.controllers.part07;
 import org.etools.j1939_84.controllers.AbstractPartControllerTest;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.Before;
 
 public class Part07ControllerTest extends AbstractPartControllerTest {

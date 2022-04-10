@@ -4,11 +4,10 @@
 
 package org.etools.j1939_84.modules;
 
-import static net.soliddesign.j1939tools.j1939.J1939.GLOBAL_ADDR;
+import static org.etools.j1939tools.j1939.J1939.GLOBAL_ADDR;
 
 import org.etools.j1939_84.controllers.ResultsListener;
-
-import net.soliddesign.j1939tools.modules.FunctionalModule;
+import org.etools.j1939tools.modules.FunctionalModule;
 
 public class FaultModule extends FunctionalModule {
 

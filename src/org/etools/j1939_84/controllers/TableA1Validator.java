@@ -19,17 +19,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import net.soliddesign.j1939tools.j1939.model.FuelType;
-import net.soliddesign.j1939tools.j1939.model.PgnDefinition;
-import net.soliddesign.j1939tools.j1939.model.Spn;
-import net.soliddesign.j1939tools.j1939.model.SpnDefinition;
 import org.etools.j1939_84.model.OBDModuleInformation;
-
-import net.soliddesign.j1939tools.j1939.J1939DaRepository;
-import net.soliddesign.j1939tools.j1939.Lookup;
-import net.soliddesign.j1939tools.j1939.packets.GenericPacket;
-import net.soliddesign.j1939tools.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.model.Outcome;
+import org.etools.j1939tools.j1939.J1939DaRepository;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.model.FuelType;
+import org.etools.j1939tools.j1939.model.PgnDefinition;
+import org.etools.j1939tools.j1939.model.Spn;
+import org.etools.j1939tools.j1939.model.SpnDefinition;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.SupportedSPN;
 
 public class TableA1Validator {
 

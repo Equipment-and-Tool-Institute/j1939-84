@@ -12,10 +12,9 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.modules.CommunicationsModule;
 import org.mockito.ArgumentCaptor;
-
-import net.soliddesign.j1939tools.j1939.J1939;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)

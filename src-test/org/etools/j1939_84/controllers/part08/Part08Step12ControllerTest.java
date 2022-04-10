@@ -3,24 +3,24 @@
  */
 package org.etools.j1939_84.controllers.part08;
 
-import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.ACK;
-import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
-import static net.soliddesign.j1939tools.j1939.packets.DM22IndividualClearPacket.create;
-import static net.soliddesign.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_ACK;
-import static net.soliddesign.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_NACK;
-import static net.soliddesign.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_REQ;
-import static net.soliddesign.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_ACK;
-import static net.soliddesign.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_NACK;
-import static net.soliddesign.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_REQ;
-import static net.soliddesign.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByteSpecificIndicator.ACCESS_DENIED;
-import static net.soliddesign.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByteSpecificIndicator.DTC_NOT_PA;
-import static net.soliddesign.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByteSpecificIndicator.GENERAL_NACK;
-import static net.soliddesign.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByteSpecificIndicator.NOT_SUPPORTED;
-import static net.soliddesign.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByteSpecificIndicator.UNKNOWN_DTC;
-import static net.soliddesign.j1939tools.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.ACK;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.create;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_ACK;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_NACK;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_REQ;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_ACK;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_NACK;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_REQ;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByteSpecificIndicator.ACCESS_DENIED;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByteSpecificIndicator.DTC_NOT_PA;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByteSpecificIndicator.GENERAL_NACK;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByteSpecificIndicator.NOT_SUPPORTED;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByteSpecificIndicator.UNKNOWN_DTC;
+import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -43,21 +43,20 @@ import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import net.soliddesign.j1939tools.bus.BusResult;
-import net.soliddesign.j1939tools.bus.RequestResult;
-import net.soliddesign.j1939tools.j1939.J1939;
-import net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket;
-import net.soliddesign.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
-import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCode;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 @RunWith(MockitoJUnitRunner.class)
 public class Part08Step12ControllerTest extends AbstractControllerTest {

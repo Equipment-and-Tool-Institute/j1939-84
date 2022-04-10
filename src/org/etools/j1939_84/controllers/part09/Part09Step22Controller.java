@@ -4,7 +4,7 @@
 package org.etools.j1939_84.controllers.part09;
 
 import static java.lang.String.format;
-import static net.soliddesign.j1939tools.j1939.packets.LampStatus.NOT_SUPPORTED;
+import static org.etools.j1939tools.j1939.packets.LampStatus.NOT_SUPPORTED;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;;
+import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;;
 
 /**
  * 6.9.22 DM2: Previously Active Diagnostic Trouble Codes (DTCs)

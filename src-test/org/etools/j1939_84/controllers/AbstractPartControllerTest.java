@@ -29,9 +29,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import net.soliddesign.j1939tools.j1939.J1939;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
+
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.modules.CommunicationsModule;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractPartControllerTest {

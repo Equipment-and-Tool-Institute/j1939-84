@@ -13,12 +13,12 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-import net.soliddesign.j1939tools.j1939.J1939DaRepository;
-import net.soliddesign.j1939tools.j1939.model.Spn;
-import net.soliddesign.j1939tools.j1939.model.SpnDefinition;
-import net.soliddesign.j1939tools.j1939.packets.FreezeFrame;
-import net.soliddesign.j1939tools.j1939.packets.Slot;
-import net.soliddesign.j1939tools.j1939.packets.SupportedSPN;
+import org.etools.j1939tools.j1939.J1939DaRepository;
+import org.etools.j1939tools.j1939.model.Spn;
+import org.etools.j1939tools.j1939.model.SpnDefinition;
+import org.etools.j1939tools.j1939.packets.FreezeFrame;
+import org.etools.j1939tools.j1939.packets.Slot;
+import org.etools.j1939tools.j1939.packets.SupportedSPN;
 
 public class FreezeFrameDataTranslator {
 

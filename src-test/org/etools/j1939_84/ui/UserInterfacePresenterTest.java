@@ -41,13 +41,14 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import net.soliddesign.j1939tools.bus.Adapter;
-import net.soliddesign.j1939tools.bus.Bus;
-import net.soliddesign.j1939tools.bus.BusException;
-import net.soliddesign.j1939tools.bus.RP1210;
-import net.soliddesign.j1939tools.bus.RP1210Bus;
-import net.soliddesign.j1939tools.j1939.J1939;
+
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.Adapter;
+import org.etools.j1939tools.bus.Bus;
+import org.etools.j1939tools.bus.BusException;
+import org.etools.j1939tools.bus.RP1210;
+import org.etools.j1939tools.bus.RP1210Bus;
+import org.etools.j1939tools.j1939.J1939;
 
 /**
  * Unit testing the {@link UserInterfacePresenter}

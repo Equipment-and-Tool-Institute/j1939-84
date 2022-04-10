@@ -50,9 +50,8 @@ import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.resources.Resources;
 import org.etools.j1939_84.ui.UserInterfaceContract.Presenter;
 import org.etools.j1939_84.ui.widgets.SmartScroller;
-
-import net.soliddesign.j1939tools.bus.Adapter;
-import net.soliddesign.j1939tools.j1939.J1939;
+import org.etools.j1939tools.bus.Adapter;
+import org.etools.j1939tools.j1939.J1939;
 /**
  * The View for the User Interface.
  * <p>

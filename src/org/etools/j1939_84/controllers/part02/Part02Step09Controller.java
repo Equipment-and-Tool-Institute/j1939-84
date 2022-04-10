@@ -3,23 +3,23 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static net.soliddesign.j1939tools.j1939.Lookup.getAddressName;
+import static org.etools.j1939tools.j1939.Lookup.getAddressName;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket;
-import net.soliddesign.j1939tools.j1939.packets.DM21DiagnosticReadinessPacket;
-import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.DM21DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.2.9 DM21: Diagnostic readiness 2

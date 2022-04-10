@@ -3,7 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
-import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,18 +19,17 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-
-import net.soliddesign.j1939tools.bus.BusResult;
-import net.soliddesign.j1939tools.j1939.Lookup;
-import net.soliddesign.j1939tools.j1939.packets.DM24SPNSupportPacket;
-import net.soliddesign.j1939tools.j1939.packets.DM25ExpandedFreezeFrame;
-import net.soliddesign.j1939tools.j1939.packets.DM6PendingEmissionDTCPacket;
-import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCode;
-import net.soliddesign.j1939tools.j1939.packets.FreezeFrame;
-import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
-import net.soliddesign.j1939tools.j1939.packets.SupportedSPN;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
+import org.etools.j1939tools.j1939.packets.DM25ExpandedFreezeFrame;
+import org.etools.j1939tools.j1939.packets.DM6PendingEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939tools.j1939.packets.FreezeFrame;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.j1939.packets.SupportedSPN;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.3.13 DM25: Expanded freeze frame

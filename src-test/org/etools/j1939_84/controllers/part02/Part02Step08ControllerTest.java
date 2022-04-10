@@ -3,11 +3,11 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static net.soliddesign.j1939tools.j1939.packets.DM26TripDiagnosticReadinessPacket.PGN;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.etools.j1939tools.j1939.packets.DM26TripDiagnosticReadinessPacket.PGN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -26,19 +26,18 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.DM26TripDiagnosticReadinessPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import net.soliddesign.j1939tools.bus.Packet;
-import net.soliddesign.j1939tools.bus.RequestResult;
-import net.soliddesign.j1939tools.j1939.J1939;
-import net.soliddesign.j1939tools.j1939.packets.DM26TripDiagnosticReadinessPacket;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 @RunWith(MockitoJUnitRunner.class)
 public class Part02Step08ControllerTest extends AbstractControllerTest {

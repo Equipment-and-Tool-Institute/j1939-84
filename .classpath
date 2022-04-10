@@ -58,6 +58,8 @@
 	<classpathentry kind="lib" path="lib-test/jacoco-0.8.5/lib/jacocoagent.jar"/>
 	<classpathentry kind="lib" path="lib-test/jacoco-0.8.5/lib/jacococli.jar"/>
 	<classpathentry kind="lib" path="lib/opencsv-3.8.jar"/>
-	<classpathentry kind="lib" path="lib/j1939tools.jar"/>
+	<classpathentry kind="lib" path="lib/ini4j-0.5.4.jar"/>
+	<classpathentry kind="lib" path="lib/jna-5.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/jna-platform-5.5.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

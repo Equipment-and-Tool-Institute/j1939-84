@@ -23,16 +23,16 @@ import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.J1939DaRepository;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.model.PgnDefinition;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import net.soliddesign.j1939tools.bus.BusResult;
-import net.soliddesign.j1939tools.j1939.J1939;
-import net.soliddesign.j1939tools.j1939.J1939DaRepository;
-import net.soliddesign.j1939tools.j1939.Lookup;
-import net.soliddesign.j1939tools.j1939.model.PgnDefinition;
-import net.soliddesign.j1939tools.j1939.packets.GenericPacket;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * The super class for the controllers that collect information from the vehicle

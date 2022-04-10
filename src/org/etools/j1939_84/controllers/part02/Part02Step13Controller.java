@@ -8,16 +8,16 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import net.soliddesign.j1939tools.j1939.packets.DM31DtcToLampAssociation;
-import net.soliddesign.j1939tools.j1939.packets.DTCLampStatus;
-import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.DM31DtcToLampAssociation;
+import org.etools.j1939tools.j1939.packets.DTCLampStatus;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.2.13 DM31: DTC to Lamp Association

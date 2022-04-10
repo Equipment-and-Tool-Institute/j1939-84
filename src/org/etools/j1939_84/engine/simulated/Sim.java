@@ -14,10 +14,10 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
-import net.soliddesign.j1939tools.J1939tools;
-import net.soliddesign.j1939tools.bus.Bus;
-import net.soliddesign.j1939tools.bus.BusException;
-import net.soliddesign.j1939tools.bus.Packet;
+import org.etools.j1939tools.J1939tools;
+import org.etools.j1939tools.bus.Bus;
+import org.etools.j1939tools.bus.BusException;
+import org.etools.j1939tools.bus.Packet;
 
 /**
  * Used to simulate responses from vehicle modules

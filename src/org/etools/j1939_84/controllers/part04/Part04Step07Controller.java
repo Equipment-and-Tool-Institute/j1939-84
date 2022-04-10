@@ -3,8 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part04;
 
-import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
-import static net.soliddesign.j1939tools.j1939.packets.LampStatus.ON;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939tools.j1939.packets.LampStatus.ON;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -16,13 +16,12 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-
-import net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket;
-import net.soliddesign.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
-import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCode;
-import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 ;
 

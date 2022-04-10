@@ -4,9 +4,6 @@
 package org.etools.j1939_84.controllers;
 
 import static java.lang.String.format;
-import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
-import static net.soliddesign.j1939tools.j1939.packets.LampStatus.ALTERNATE_OFF;
-import static net.soliddesign.j1939tools.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.J1939_84.isDevEnv;
 import static org.etools.j1939_84.J1939_84.isTesting;
@@ -18,6 +15,9 @@ import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939tools.j1939.packets.LampStatus.ALTERNATE_OFF;
+import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,22 +33,21 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-
-import net.soliddesign.j1939tools.bus.BusResult;
-import net.soliddesign.j1939tools.bus.RequestResult;
-import net.soliddesign.j1939tools.j1939.Lookup;
-import net.soliddesign.j1939tools.j1939.model.FuelType;
-import net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket;
-import net.soliddesign.j1939tools.j1939.packets.CompositeSystem;
-import net.soliddesign.j1939tools.j1939.packets.DiagnosticReadinessPacket;
-import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCode;
-import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
-import net.soliddesign.j1939tools.j1939.packets.GenericPacket;
-import net.soliddesign.j1939tools.j1939.packets.LampStatus;
-import net.soliddesign.j1939tools.j1939.packets.MonitoredSystem;
-import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.model.FuelType;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.CompositeSystem;
+import org.etools.j1939tools.j1939.packets.DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.LampStatus;
+import org.etools.j1939tools.j1939.packets.MonitoredSystem;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 public abstract class StepController extends Controller {
 

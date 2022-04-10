@@ -13,15 +13,14 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-
-import net.soliddesign.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
-import net.soliddesign.j1939tools.j1939.packets.DM28PermanentEmissionDTCPacket;
-import net.soliddesign.j1939tools.j1939.packets.DM29DtcCounts;
-import net.soliddesign.j1939tools.j1939.packets.DM6PendingEmissionDTCPacket;
-import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCode;
-import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
+import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DM28PermanentEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DM29DtcCounts;
+import org.etools.j1939tools.j1939.packets.DM6PendingEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.6.8 DM29: Regulated DTC Counts

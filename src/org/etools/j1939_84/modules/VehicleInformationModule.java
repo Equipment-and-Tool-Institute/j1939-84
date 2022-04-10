@@ -3,12 +3,12 @@
  */
 package org.etools.j1939_84.modules;
 
-import static net.soliddesign.j1939tools.J1939tools.NL;
-import static net.soliddesign.j1939tools.j1939.J1939.GLOBAL_ADDR;
 import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
+import static org.etools.j1939tools.J1939tools.NL;
+import static org.etools.j1939tools.j1939.J1939.GLOBAL_ADDR;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -20,18 +20,17 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.KeyState;
-
-import net.soliddesign.j1939tools.CommunicationsListener;
-import net.soliddesign.j1939tools.bus.BusException;
-import net.soliddesign.j1939tools.bus.RequestResult;
-import net.soliddesign.j1939tools.j1939.packets.AddressClaimPacket;
-import net.soliddesign.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
-import net.soliddesign.j1939tools.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
-import net.soliddesign.j1939tools.j1939.packets.DM56EngineFamilyPacket;
-import net.soliddesign.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
-import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
-import net.soliddesign.j1939tools.j1939.packets.VehicleIdentificationPacket;
-import net.soliddesign.j1939tools.modules.FunctionalModule;
+import org.etools.j1939tools.CommunicationsListener;
+import org.etools.j1939tools.bus.BusException;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.packets.AddressClaimPacket;
+import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
+import org.etools.j1939tools.j1939.packets.DM56EngineFamilyPacket;
+import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.j1939.packets.VehicleIdentificationPacket;
+import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
+import org.etools.j1939tools.modules.FunctionalModule;
 
 /**
  * The {@link FunctionalModule} that is used to gather general information about

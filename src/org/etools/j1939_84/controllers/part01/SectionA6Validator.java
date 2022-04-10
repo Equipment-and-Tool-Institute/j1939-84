@@ -14,14 +14,13 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
-
-import net.soliddesign.j1939tools.bus.RequestResult;
-import net.soliddesign.j1939tools.j1939.Lookup;
-import net.soliddesign.j1939tools.j1939.packets.CompositeSystem;
-import net.soliddesign.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
-import net.soliddesign.j1939tools.j1939.packets.MonitoredSystem;
-import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.packets.CompositeSystem;
+import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.MonitoredSystem;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
 
 /**
  * @author Marianne Schaefer (marianne.schaefer@gmail.com)

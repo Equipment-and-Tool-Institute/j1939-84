@@ -3,21 +3,21 @@
  */
 package org.etools.j1939_84.controllers.part05;
 
-import static net.soliddesign.j1939tools.j1939.packets.LampStatus.FAST_FLASH;
-import static net.soliddesign.j1939tools.j1939.packets.LampStatus.ON;
-import static net.soliddesign.j1939tools.j1939.packets.LampStatus.SLOW_FLASH;
+import static org.etools.j1939tools.j1939.packets.LampStatus.FAST_FLASH;
+import static org.etools.j1939tools.j1939.packets.LampStatus.ON;
+import static org.etools.j1939tools.j1939.packets.LampStatus.SLOW_FLASH;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import net.soliddesign.j1939tools.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.DM6PendingEmissionDTCPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.5.2 DM12: Emission-Related Active DTCs

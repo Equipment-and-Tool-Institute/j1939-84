@@ -3,7 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.BUSY;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.BUSY;
 
 import java.util.Collection;
 import java.util.List;
@@ -18,12 +18,11 @@ import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.StringUtils;
-
-import net.soliddesign.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
-import net.soliddesign.j1939tools.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
-import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
+import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.1.7 DM19: Calibration Information

@@ -5,9 +5,8 @@ package org.etools.j1939_84;
 
 import static org.junit.Assert.assertEquals;
 
+import org.etools.j1939tools.utils.NumberFormatter;
 import org.junit.Test;
-
-import net.soliddesign.j1939tools.utils.NumberFormatter;
 
 /**
  * Unit tests for the {@link NumberFormatter} class

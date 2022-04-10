@@ -10,15 +10,14 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import net.soliddesign.j1939tools.bus.RequestResult;
-import net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket;
-import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
 
 /**
  * Unit tests the {@link RequestResult} class

@@ -9,8 +9,8 @@ import static org.etools.j1939_84.model.Outcome.FAIL;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.soliddesign.j1939tools.j1939.J1939;
-import net.soliddesign.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.Lookup;
 
 public class SectionA5Verifier {
     private final DataRepository dataRepository;

@@ -3,15 +3,15 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static net.soliddesign.j1939tools.j1939.model.FuelType.BATT_ELEC;
-import static net.soliddesign.j1939tools.j1939.model.FuelType.BI_DSL;
-import static net.soliddesign.j1939tools.j1939.model.FuelType.BI_GAS;
-import static net.soliddesign.j1939tools.j1939.model.FuelType.HYB_ETH;
-import static net.soliddesign.j1939tools.j1939.model.FuelType.HYB_GAS;
-import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.etools.j1939tools.j1939.model.FuelType.BATT_ELEC;
+import static org.etools.j1939tools.j1939.model.FuelType.BI_DSL;
+import static org.etools.j1939tools.j1939.model.FuelType.BI_GAS;
+import static org.etools.j1939tools.j1939.model.FuelType.HYB_ETH;
+import static org.etools.j1939tools.j1939.model.FuelType.HYB_GAS;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -41,6 +41,14 @@ import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.SupportedSpnModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
+import org.etools.j1939tools.j1939.packets.SupportedSPN;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.etools.testdoc.TestDoc;
 import org.etools.testdoc.TestItem;
 import org.junit.After;
@@ -49,15 +57,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import net.soliddesign.j1939tools.bus.BusResult;
-import net.soliddesign.j1939tools.bus.Packet;
-import net.soliddesign.j1939tools.j1939.J1939;
-import net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket;
-import net.soliddesign.j1939tools.j1939.packets.DM24SPNSupportPacket;
-import net.soliddesign.j1939tools.j1939.packets.SupportedSPN;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
 
 /**
  * The unit test for {@link Part01Step04Controller}

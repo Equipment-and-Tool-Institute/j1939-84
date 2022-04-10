@@ -3,19 +3,20 @@
  */
 package org.etools.j1939_84.model;
 
-import static net.soliddesign.j1939tools.J1939tools.NL;
+import static org.etools.j1939tools.J1939tools.NL;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.model.FuelType;
+import org.etools.j1939tools.j1939.packets.AddressClaimPacket;
+import org.etools.j1939tools.j1939.packets.ComponentIdentificationPacket;
+import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import net.soliddesign.j1939tools.bus.RequestResult;
-import net.soliddesign.j1939tools.j1939.model.FuelType;
-import net.soliddesign.j1939tools.j1939.packets.AddressClaimPacket;
-import net.soliddesign.j1939tools.j1939.packets.ComponentIdentificationPacket;
-import net.soliddesign.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
 
 /**
  * The Vehicle Information which is required in Part 1.

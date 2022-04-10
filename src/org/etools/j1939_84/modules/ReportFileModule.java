@@ -25,9 +25,9 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.VehicleInformation;
+import org.etools.j1939tools.modules.FunctionalModule;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import net.soliddesign.j1939tools.modules.FunctionalModule;
 
 /**
  * The {@link FunctionalModule} that's responsible for the log file

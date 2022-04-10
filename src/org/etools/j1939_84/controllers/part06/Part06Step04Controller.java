@@ -4,7 +4,7 @@
 package org.etools.j1939_84.controllers.part06;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static net.soliddesign.j1939tools.j1939.packets.LampStatus.ON;
+import static org.etools.j1939tools.j1939.packets.LampStatus.ON;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -16,15 +16,14 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-
-import net.soliddesign.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
-import net.soliddesign.j1939tools.j1939.packets.DM1ActiveDTCsPacket;
-import net.soliddesign.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
-import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCode;
-import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
-import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
+import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DM1ActiveDTCsPacket;
+import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.6.4 DM1: Active Diagnostic Trouble Codes (DTCs)

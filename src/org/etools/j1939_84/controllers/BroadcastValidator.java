@@ -4,9 +4,9 @@
 
 package org.etools.j1939_84.controllers;
 
-import static net.soliddesign.j1939tools.j1939.Lookup.getAddressName;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
+import static org.etools.j1939tools.j1939.Lookup.getAddressName;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -21,14 +21,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.etools.j1939_84.model.Outcome;
-
-import net.soliddesign.j1939tools.bus.Packet;
-import net.soliddesign.j1939tools.j1939.J1939DaRepository;
-import net.soliddesign.j1939tools.j1939.model.PgnDefinition;
-import net.soliddesign.j1939tools.j1939.model.Spn;
-import net.soliddesign.j1939tools.j1939.model.SpnDefinition;
-import net.soliddesign.j1939tools.j1939.packets.GenericPacket;
-import net.soliddesign.j1939tools.j1939.packets.SupportedSPN;
+import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.j1939.J1939DaRepository;
+import org.etools.j1939tools.j1939.model.PgnDefinition;
+import org.etools.j1939tools.j1939.model.Spn;
+import org.etools.j1939tools.j1939.model.SpnDefinition;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.SupportedSPN;
 
 public class BroadcastValidator {
 

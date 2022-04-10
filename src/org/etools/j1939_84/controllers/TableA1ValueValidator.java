@@ -3,7 +3,7 @@
  */
 package org.etools.j1939_84.controllers;
 
-import net.soliddesign.j1939tools.j1939.model.FuelType;
+import org.etools.j1939tools.j1939.model.FuelType;
 
 public class TableA1ValueValidator {
 

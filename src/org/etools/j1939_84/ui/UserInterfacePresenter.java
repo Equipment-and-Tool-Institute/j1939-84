@@ -29,15 +29,14 @@ import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-
-import net.soliddesign.j1939tools.bus.Adapter;
-import net.soliddesign.j1939tools.bus.Bus;
-import net.soliddesign.j1939tools.bus.BusException;
-import net.soliddesign.j1939tools.bus.EchoBus;
-import net.soliddesign.j1939tools.bus.Packet;
-import net.soliddesign.j1939tools.bus.RP1210;
-import net.soliddesign.j1939tools.bus.RP1210Bus;
-import net.soliddesign.j1939tools.j1939.J1939;
+import org.etools.j1939tools.bus.Adapter;
+import org.etools.j1939tools.bus.Bus;
+import org.etools.j1939tools.bus.BusException;
+import org.etools.j1939tools.bus.EchoBus;
+import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.bus.RP1210;
+import org.etools.j1939tools.bus.RP1210Bus;
+import org.etools.j1939tools.j1939.J1939;
 
 /**
  * The Class that controls the behavior of the {@link UserInterfaceView}

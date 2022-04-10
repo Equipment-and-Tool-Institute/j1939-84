@@ -3,9 +3,9 @@
  */
 package org.etools.j1939_84.modules;
 
-import static net.soliddesign.j1939tools.J1939tools.NL;
-import static net.soliddesign.j1939tools.j1939.J1939.GLOBAL_ADDR;
 import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
+import static org.etools.j1939tools.J1939tools.NL;
+import static org.etools.j1939tools.j1939.J1939.GLOBAL_ADDR;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -23,6 +23,16 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939tools.bus.Bus;
+import org.etools.j1939tools.bus.BusException;
+import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.AddressClaimPacket;
+import org.etools.j1939tools.j1939.packets.DM56EngineFamilyPacket;
+import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.VehicleIdentificationPacket;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.etools.testdoc.TestDoc;
 import org.etools.testdoc.TestItem;
 import org.junit.After;
@@ -31,17 +41,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import net.soliddesign.j1939tools.bus.Bus;
-import net.soliddesign.j1939tools.bus.BusException;
-import net.soliddesign.j1939tools.bus.Packet;
-import net.soliddesign.j1939tools.bus.RequestResult;
-import net.soliddesign.j1939tools.j1939.J1939;
-import net.soliddesign.j1939tools.j1939.packets.AddressClaimPacket;
-import net.soliddesign.j1939tools.j1939.packets.DM56EngineFamilyPacket;
-import net.soliddesign.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
-import net.soliddesign.j1939tools.j1939.packets.VehicleIdentificationPacket;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
 /**
  * Unit tests for the {@link VehicleInformationModule} class
  *

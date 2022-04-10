@@ -20,22 +20,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.j1939.J1939DaRepository;
+import org.etools.j1939tools.j1939.model.PgnDefinition;
+import org.etools.j1939tools.j1939.model.Spn;
+import org.etools.j1939tools.j1939.model.SpnDefinition;
+import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
+import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.SupportedSPN;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import net.soliddesign.j1939tools.bus.Packet;
-import net.soliddesign.j1939tools.j1939.J1939DaRepository;
-import net.soliddesign.j1939tools.j1939.model.PgnDefinition;
-import net.soliddesign.j1939tools.j1939.model.Spn;
-import net.soliddesign.j1939tools.j1939.model.SpnDefinition;
-import net.soliddesign.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
-import net.soliddesign.j1939tools.j1939.packets.DM24SPNSupportPacket;
-import net.soliddesign.j1939tools.j1939.packets.GenericPacket;
-import net.soliddesign.j1939tools.j1939.packets.SupportedSPN;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TableA1ValidatorTest {

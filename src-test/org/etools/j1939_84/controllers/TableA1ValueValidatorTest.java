@@ -9,12 +9,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.etools.j1939_84.model.VehicleInformation;
+import org.etools.j1939tools.j1939.model.FuelType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import net.soliddesign.j1939tools.j1939.model.FuelType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TableA1ValueValidatorTest {

@@ -3,25 +3,25 @@
  */
 package org.etools.j1939_84.controllers.part12;
 
-import static net.soliddesign.j1939tools.j1939.packets.CompositeSystem.COMPREHENSIVE_COMPONENT;
-import static net.soliddesign.j1939tools.j1939.packets.CompositeSystem.MISFIRE;
+import static org.etools.j1939tools.j1939.packets.CompositeSystem.COMPREHENSIVE_COMPONENT;
+import static org.etools.j1939tools.j1939.packets.CompositeSystem.MISFIRE;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import net.soliddesign.j1939tools.j1939.packets.CompositeSystem;
-import net.soliddesign.j1939tools.j1939.packets.DM26TripDiagnosticReadinessPacket;
-import net.soliddesign.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
-import net.soliddesign.j1939tools.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.CompositeSystem;
+import org.etools.j1939tools.j1939.packets.DM26TripDiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.MonitoredSystem;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.12.2 DM26: Diagnostic Readiness 3

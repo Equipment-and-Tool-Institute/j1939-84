@@ -3,14 +3,14 @@
  */
 package org.etools.j1939_84.controllers.part09;
 
-import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.ACK;
-import static net.soliddesign.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
-import static net.soliddesign.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_ACK;
-import static net.soliddesign.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_NACK;
-import static net.soliddesign.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_REQ;
-import static net.soliddesign.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_ACK;
-import static net.soliddesign.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_NACK;
-import static net.soliddesign.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_REQ;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.ACK;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_ACK;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_NACK;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_REQ;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_ACK;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_NACK;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_REQ;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,14 +23,13 @@ import org.etools.j1939_84.controllers.SectionA5Verifier;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
-
-import net.soliddesign.j1939tools.j1939.Lookup;
-import net.soliddesign.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
-import net.soliddesign.j1939tools.j1939.packets.DiagnosticTroubleCode;
-import net.soliddesign.j1939tools.j1939.packets.ParsedPacket;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;;
+import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;;
 
 /**
  * 6.9.3 DM22: Individual Clear/Reset of Active and Previously Active DTC

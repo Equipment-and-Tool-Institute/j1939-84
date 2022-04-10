@@ -3,7 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part11;
 
-import static net.soliddesign.j1939tools.modules.CommunicationsModule.getCompositeSystems;
+import static org.etools.j1939tools.modules.CommunicationsModule.getCompositeSystems;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -14,10 +14,9 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-
-import net.soliddesign.j1939tools.j1939.packets.MonitoredSystem;
-import net.soliddesign.j1939tools.modules.CommunicationsModule;
-import net.soliddesign.j1939tools.modules.DateTimeModule;
+import org.etools.j1939tools.j1939.packets.MonitoredSystem;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 ;
 
