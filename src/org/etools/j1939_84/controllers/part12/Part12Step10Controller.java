@@ -117,9 +117,6 @@ public class Part12Step10Controller extends StepController {
 
         // 6.12.10.4.c. Check diagnostic information and fail if any ECU partially erases diagnostic information
         // (pass if it erases either all or none).
-        // 6.12.10.4.d. Fail if one OBD ECU or more than one OBD ECU erases diagnostic information and one or more
-        // other ECUs do not erase diagnostic information. See Section A.5 for the methods to check for erasure of
-        // diagnostic information.
         verifier.verifyDataNotPartialErased(getListener(), "6.12.10.4.c", "6.12.10.4.d", true);
     }
 
