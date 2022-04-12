@@ -3,8 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.PGN;
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket.PGN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -14,21 +14,21 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +54,7 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -89,7 +89,7 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
                                               vehicleInformationModule,
                                               dataRepository,
                                               DateTimeModule.getInstance(),
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -98,7 +98,7 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -108,7 +108,7 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  vehicleInformationModule,
                                  mockListener,
-                                 diagnosticMessageModule);
+                                 communicationsModule);
     }
 
     @Test
@@ -207,14 +207,14 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
         obd0x00.set(dm19, 1);
         dataRepository.putObdModule(obd0x00);
 
-        when(vehicleInformationModule.requestDM19(any(), eq(0x00))).thenReturn(BusResult.of(dm19));
+        when(communicationsModule.requestDM19(any(), eq(0x00))).thenReturn(BusResult.of(dm19));
 
         runTest();
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
-        verify(vehicleInformationModule).requestDM19(any(), eq(0));
+        verify(communicationsModule).requestDM19(any(), eq(0));
     }
 
     /*
@@ -389,26 +389,26 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
                                             0x00,
                                             0x00);
         // formatter:on
-        when(vehicleInformationModule.requestDM19(any(), eq(0x00)))
+        when(communicationsModule.requestDM19(any(), eq(0x00)))
                                                                    .thenReturn(BusResult.of(new DM19CalibrationInformationPacket(packet0x00)));
 
-        when(vehicleInformationModule.requestDM19(any(), eq(0x01)))
+        when(communicationsModule.requestDM19(any(), eq(0x01)))
                                                                    .thenReturn(BusResult.of(new DM19CalibrationInformationPacket(packet0x01V2)));
 
-        when(vehicleInformationModule.requestDM19(any(), eq(0x02))).thenReturn(BusResult.empty());
+        when(communicationsModule.requestDM19(any(), eq(0x02))).thenReturn(BusResult.empty());
 
         runTest();
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
+        verify(communicationsModule).requestDM19(any(), eq(0x00));
+        verify(communicationsModule).requestDM19(any(), eq(0x01));
+        verify(communicationsModule).requestDM19(any(), eq(0x02));
+
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.2.5.2.a - Engine #2 (1) reported CAL IDs/CVNs with different values/quantity than those reported in Part 1 data");
-
-        verify(vehicleInformationModule).requestDM19(any(), eq(0x00));
-        verify(vehicleInformationModule).requestDM19(any(), eq(0x01));
-        verify(vehicleInformationModule).requestDM19(any(), eq(0x02));
     }
 }

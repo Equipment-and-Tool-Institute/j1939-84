@@ -3,7 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,25 +11,25 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
-import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
-import org.etools.j1939_84.bus.j1939.packets.FreezeFrame;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
-import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.FreezeFrameDataTranslator;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TableA2ValueValidator;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
+import org.etools.j1939tools.j1939.packets.DM25ExpandedFreezeFrame;
+import org.etools.j1939tools.j1939.packets.DM6PendingEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939tools.j1939.packets.FreezeFrame;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.j1939.packets.SupportedSPN;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.3.13 DM25: Expanded freeze frame
@@ -50,7 +50,7 @@ public class Part03Step13Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              new FreezeFrameDataTranslator(),
              new TableA2ValueValidator(PART_NUMBER, STEP_NUMBER));
     }
@@ -61,7 +61,7 @@ public class Part03Step13Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule,
+                           CommunicationsModule communicationsModule,
                            FreezeFrameDataTranslator translator,
                            TableA2ValueValidator validator) {
         super(executor,
@@ -70,7 +70,7 @@ public class Part03Step13Controller extends StepController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -83,8 +83,8 @@ public class Part03Step13Controller extends StepController {
         // 6.3.13.1.a. DS DM25 (send Request (PGN 59904) for PGN 64951 (SPNs 3300, 1214-1215)) to each OBD ECU.
         var responses = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(address -> getDiagnosticMessageModule().requestDM25(getListener(),
-                                                                                                    address))
+                                           .map(address -> getCommunicationsModule().requestDM25(getListener(),
+                                                                                                 address))
                                            .map(BusResult::requestResult)
                                            .collect(Collectors.toList());
 
@@ -107,7 +107,7 @@ public class Part03Step13Controller extends StepController {
         missingAddresses.removeAll(nackAddresses);
 
         missingAddresses.stream()
-                        .map(address -> getDiagnosticMessageModule().requestDM25(getListener(), address))
+                        .map(address -> getCommunicationsModule().requestDM25(getListener(), address))
                         .map(BusResult::requestResult)
                         .forEach(responses::add);
 

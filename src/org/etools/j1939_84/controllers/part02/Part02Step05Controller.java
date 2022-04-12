@@ -9,18 +9,18 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.2.5 DM19: Calibration information
@@ -39,7 +39,7 @@ public class Part02Step05Controller extends StepController {
              new VehicleInformationModule(),
              dataRepository,
              DateTimeModule.getInstance(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part02Step05Controller(Executor executor,
@@ -48,14 +48,14 @@ public class Part02Step05Controller extends StepController {
                            VehicleInformationModule vehicleInformationModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -70,7 +70,7 @@ public class Part02Step05Controller extends StepController {
         getDataRepository().getObdModuleAddresses()
                            .stream()
                            .filter(a -> !getCalibrationInfo(a).isEmpty())
-                           .map(a -> getVehicleInformationModule().requestDM19(getListener(), a))
+                           .map(a -> getCommunicationsModule().requestDM19(getListener(), a))
                            .map(BusResult::requestResult)
                            .map(RequestResult::getPackets)
                            .flatMap(Collection::stream)

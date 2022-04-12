@@ -1,18 +1,20 @@
 /*
- * Copyright (c) 2019. Equipment & Tool Institute
+ * Copyright (c) 2021. Equipment & Tool Institute
  */
 package org.etools.j1939_84.model;
 
-import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939tools.J1939tools.NL;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
-import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.model.FuelType;
+import org.etools.j1939tools.j1939.packets.AddressClaimPacket;
+import org.etools.j1939tools.j1939.packets.ComponentIdentificationPacket;
+import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -23,6 +25,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *
  */
 public class VehicleInformation implements Cloneable {
+
     private RequestResult<AddressClaimPacket> addressClaim;
 
     private int calIds;

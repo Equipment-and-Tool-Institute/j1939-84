@@ -15,10 +15,11 @@ import java.util.concurrent.Executors;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.FaultModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.2.18 Part 2 to Part 3 transition
@@ -28,6 +29,7 @@ public class Part02Step18Controller extends StepController {
     private static final int PART_NUMBER = 2;
     private static final int STEP_NUMBER = 18;
     private static final int TOTAL_STEPS = 0;
+    private final FaultModule faultModule;
 
     Part02Step18Controller() {
         this(Executors.newSingleThreadScheduledExecutor(),
@@ -36,7 +38,8 @@ public class Part02Step18Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule(),
+             new FaultModule());
     }
 
     Part02Step18Controller(Executor executor,
@@ -45,29 +48,33 @@ public class Part02Step18Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule,
+                           FaultModule faultModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
+
+        this.faultModule = faultModule;
     }
 
     @Override
     protected void run() throws Throwable {
         // 6.2.18.1.a. Turn Engine Off and keep the ignition key in the off position.
         ensureKeyStateIs(KEY_OFF, "6.2.18.1.a");
+        faultModule.setJ1939(getJ1939());
 
         // 6.2.18.1.b. Implant Fault A according to engine manufacturer’s instruction (See section 5 for additional
         // discussion).
         waitForFaultA();
         if (isTesting()) {
-            getVehicleInformationModule().implantFaultA(getListener());
+            faultModule.implantFaultA(getListener());
         }
 
         // 6.2.18.1.c. Turn ignition key to the ON position.

@@ -3,27 +3,27 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.AC_SYSTEM_REFRIGERANT;
-import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.BOOST_PRESSURE_CONTROL_SYS;
-import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.CATALYST;
-import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.COLD_START_AID_SYSTEM;
-import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.COMPREHENSIVE_COMPONENT;
-import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.DIESEL_PARTICULATE_FILTER;
-import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.EGR_VVT_SYSTEM;
-import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.EVAPORATIVE_SYSTEM;
-import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.EXHAUST_GAS_SENSOR;
-import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.EXHAUST_GAS_SENSOR_HEATER;
-import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.FUEL_SYSTEM;
-import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.HEATED_CATALYST;
-import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.MISFIRE;
-import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.NMHC_CONVERTING_CATALYST;
-import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.NOX_CATALYST_ABSORBER;
-import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.SECONDARY_AIR_SYSTEM;
-import static org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus.findStatus;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
-import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSystems;
+import static org.etools.j1939tools.j1939.packets.CompositeSystem.AC_SYSTEM_REFRIGERANT;
+import static org.etools.j1939tools.j1939.packets.CompositeSystem.BOOST_PRESSURE_CONTROL_SYS;
+import static org.etools.j1939tools.j1939.packets.CompositeSystem.CATALYST;
+import static org.etools.j1939tools.j1939.packets.CompositeSystem.COLD_START_AID_SYSTEM;
+import static org.etools.j1939tools.j1939.packets.CompositeSystem.COMPREHENSIVE_COMPONENT;
+import static org.etools.j1939tools.j1939.packets.CompositeSystem.DIESEL_PARTICULATE_FILTER;
+import static org.etools.j1939tools.j1939.packets.CompositeSystem.EGR_VVT_SYSTEM;
+import static org.etools.j1939tools.j1939.packets.CompositeSystem.EVAPORATIVE_SYSTEM;
+import static org.etools.j1939tools.j1939.packets.CompositeSystem.EXHAUST_GAS_SENSOR;
+import static org.etools.j1939tools.j1939.packets.CompositeSystem.EXHAUST_GAS_SENSOR_HEATER;
+import static org.etools.j1939tools.j1939.packets.CompositeSystem.FUEL_SYSTEM;
+import static org.etools.j1939tools.j1939.packets.CompositeSystem.HEATED_CATALYST;
+import static org.etools.j1939tools.j1939.packets.CompositeSystem.MISFIRE;
+import static org.etools.j1939tools.j1939.packets.CompositeSystem.NMHC_CONVERTING_CATALYST;
+import static org.etools.j1939tools.j1939.packets.CompositeSystem.NOX_CATALYST_ABSORBER;
+import static org.etools.j1939tools.j1939.packets.CompositeSystem.SECONDARY_AIR_SYSTEM;
+import static org.etools.j1939tools.j1939.packets.MonitoredSystemStatus.findStatus;
+import static org.etools.j1939tools.modules.CommunicationsModule.getCompositeSystems;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -31,15 +31,15 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
-import org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.VehicleInformation;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.model.FuelType;
+import org.etools.j1939tools.j1939.packets.MonitoredSystem;
+import org.etools.j1939tools.j1939.packets.MonitoredSystemStatus;
+import org.etools.j1939tools.modules.CommunicationsModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +62,7 @@ public class TableA6ValidatorTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     private TableA6Validator instance;
 
@@ -84,7 +84,7 @@ public class TableA6ValidatorTest {
     @After
     public void tearDown() {
         verifyNoMoreInteractions(mockListener,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  vehicleInformationModule);
     }
 

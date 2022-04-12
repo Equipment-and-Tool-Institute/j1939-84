@@ -8,16 +8,16 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
-import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.j1939.packets.SupportedSPN;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.3.12 DM24: SPNs Supported
@@ -35,7 +35,7 @@ public class Part03Step12Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part03Step12Controller(Executor executor,
@@ -44,14 +44,14 @@ public class Part03Step12Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -63,7 +63,7 @@ public class Part03Step12Controller extends StepController {
         // 6.3.12.1.a. DS DM24 (send Request (PGN 59904) for PGN 64950 (SPNs 3297, 4100-4103)) to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM24(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM24(getListener(), a))
                                            .collect(Collectors.toList());
 
         var packets = filterPackets(dsResults);

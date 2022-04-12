@@ -10,10 +10,10 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.8.15 DM26: Diagnostic Readiness 3
@@ -30,7 +30,7 @@ public class Part08Step15Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part08Step15Controller(Executor executor,
@@ -39,14 +39,14 @@ public class Part08Step15Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -57,7 +57,7 @@ public class Part08Step15Controller extends StepController {
         // 6.8.15.1.a. DS DM26 ([send Request (PGN 59904) for PGN 64952 (SPN 3302)]) to each OBD ECU.
         var results = getDataRepository().getObdModuleAddresses()
                                          .stream()
-                                         .map(a -> getDiagnosticMessageModule().requestDM26(getListener(), a))
+                                         .map(a -> getCommunicationsModule().requestDM26(getListener(), a))
                                          .collect(Collectors.toList());
 
         var packets = filterRequestResultPackets(results);

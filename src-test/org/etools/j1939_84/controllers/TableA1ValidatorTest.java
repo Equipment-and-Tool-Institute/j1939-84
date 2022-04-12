@@ -15,19 +15,20 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
-import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
-import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
-import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
-import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
-import org.etools.j1939_84.bus.j1939.packets.model.Spn;
-import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.j1939.J1939DaRepository;
+import org.etools.j1939tools.j1939.model.PgnDefinition;
+import org.etools.j1939tools.j1939.model.Spn;
+import org.etools.j1939tools.j1939.model.SpnDefinition;
+import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
+import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.SupportedSPN;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -310,12 +311,16 @@ public class TableA1ValidatorTest {
     public void testNotAvailableForDM19() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         obdModuleInformation.set(DM24SPNSupportPacket.create(0,
-                                                             SupportedSPN.create(1634, true, true, true, 15),
-                                                             SupportedSPN.create(1635, true, true, true, 15)),
+                                                             SupportedSPN.create(1634, true, true, true, false, 15),
+                                                             SupportedSPN.create(1635, true, true, true, false, 15)),
                                  1);
         dataRepository.putObdModule(obdModuleInformation);
 
-        var calInfo = new DM19CalibrationInformationPacket.CalibrationInformation("CALID", "BADBEEF");
+        var calInfo = new DM19CalibrationInformationPacket.CalibrationInformation("CALID",
+                                                                                  "BADBEEF",
+                                                                                  "CALID".getBytes(
+                                                                                                   StandardCharsets.UTF_8),
+                                                                                  "BADBEEF".getBytes(StandardCharsets.UTF_8));
         var packet = DM19CalibrationInformationPacket.create(0, 0xF9, calInfo);
 
         instance.reportNotAvailableSPNs(packet, listener, "6.1.26");

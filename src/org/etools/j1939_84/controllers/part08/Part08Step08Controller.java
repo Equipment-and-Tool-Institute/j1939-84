@@ -6,18 +6,18 @@ package org.etools.j1939_84.controllers.part08;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DM28PermanentEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.8.8 DM29: Regulated DTC Counts
@@ -34,7 +34,7 @@ public class Part08Step08Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part08Step08Controller(Executor executor,
@@ -43,14 +43,14 @@ public class Part08Step08Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -59,7 +59,7 @@ public class Part08Step08Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.8.8.1.a. Global DM29 [(send Request (PGN 59904) for PGN 40448 (SPNs 4104-4108)]).
-        var packets = getDiagnosticMessageModule().requestDM29(getListener()).getPackets();
+        var packets = getCommunicationsModule().requestDM29(getListener()).getPackets();
 
         packets.forEach(this::save);
 

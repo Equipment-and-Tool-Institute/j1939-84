@@ -4,77 +4,77 @@
 
 package org.etools.j1939_84.controllers;
 
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 
 import java.util.Collection;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
-import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
-import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
-import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
-import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
-import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
-import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
-import org.etools.j1939_84.bus.j1939.packets.EngineHoursTimer;
-import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
-import org.etools.j1939_84.bus.j1939.packets.IdleOperationPacket;
-import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
-import org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus;
-import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
-import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.packets.CompositeSystem;
+import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DM20MonitorPerformanceRatioPacket;
+import org.etools.j1939tools.j1939.packets.DM21DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DM25ExpandedFreezeFrame;
+import org.etools.j1939tools.j1939.packets.DM26TripDiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.DM28PermanentEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DM29DtcCounts;
+import org.etools.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
+import org.etools.j1939tools.j1939.packets.DM31DtcToLampAssociation;
+import org.etools.j1939tools.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
+import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.DM6PendingEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
+import org.etools.j1939tools.j1939.packets.EngineHoursPacket;
+import org.etools.j1939tools.j1939.packets.EngineHoursTimer;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.IdleOperationPacket;
+import org.etools.j1939tools.j1939.packets.MonitoredSystem;
+import org.etools.j1939tools.j1939.packets.MonitoredSystemStatus;
+import org.etools.j1939tools.j1939.packets.ScaledTestResult;
+import org.etools.j1939tools.j1939.packets.SupportedSPN;
+import org.etools.j1939tools.modules.CommunicationsModule;
 
 public class SectionA5MessageVerifier {
 
     private final DataRepository dataRepository;
-    private final DiagnosticMessageModule diagMsgModule;
+    private final CommunicationsModule communicationsModule;
     private final VehicleInformationModule vehInfoModule;
     private final int partNumber;
     private final int stepNumber;
 
     SectionA5MessageVerifier(int partNumber, int stepNumber) {
         this(DataRepository.getInstance(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              new VehicleInformationModule(),
              partNumber,
              stepNumber);
     }
 
     protected SectionA5MessageVerifier(DataRepository dataRepository,
-                                       DiagnosticMessageModule diagMsgModule,
+                                       CommunicationsModule communicationsModule,
                                        VehicleInformationModule vehInfoModule,
                                        int partNumber,
                                        int stepNumber) {
         this.dataRepository = dataRepository;
-        this.diagMsgModule = diagMsgModule;
+        this.communicationsModule = communicationsModule;
         this.vehInfoModule = vehInfoModule;
         this.partNumber = partNumber;
         this.stepNumber = stepNumber;
     }
 
     public void setJ1939(J1939 j1939) {
-        diagMsgModule.setJ1939(j1939);
+        communicationsModule.setJ1939(j1939);
         vehInfoModule.setJ1939(j1939);
     }
 
     boolean checkDM5(ResultsListener listener, String section, int address, boolean verifyIsErased) {
         // 1.e. DM5 shall report zero for number of active and previously active DTCs.
         // 4.a. DM5 shall report test not complete (1) for all supported monitors except comprehensive components.
-        return diagMsgModule.requestDM5(listener, address)
+        return communicationsModule.requestDM5(listener, address)
                             .toPacketStream()
                             .filter(p -> {
                                 boolean isAllTestsIncomplete = p.getMonitoredSystems()
@@ -115,7 +115,7 @@ public class SectionA5MessageVerifier {
 
     boolean checkDM6(ResultsListener listener, String section, int address, boolean verifyIsErased) {
         // 1.a. DM6 pending shall report no DTCs and MIL off and not flashing
-        return diagMsgModule.requestDM6(listener, address)
+        return communicationsModule.requestDM6(listener, address)
                             .toPacketStream()
                             .filter(p -> {
                                 var prev = getLatest(DM6PendingEmissionDTCPacket.class, p.getSourceAddress());
@@ -130,7 +130,7 @@ public class SectionA5MessageVerifier {
 
     boolean checkDM12(ResultsListener listener, String section, int address, boolean verifyIsErased) {
         // 1.b. DM12 active shall report no DTCs and MIL off and not flashing
-        return diagMsgModule.requestDM12(listener, address)
+        return communicationsModule.requestDM12(listener, address)
                             .toPacketStream()
                             .filter(p -> {
                                 var prev = getLatest(DM12MILOnEmissionDTCPacket.class, p.getSourceAddress());
@@ -152,7 +152,7 @@ public class SectionA5MessageVerifier {
             return true;
         }
 
-        return diagMsgModule.requestDM20(listener, address)
+        return communicationsModule.requestDM20(listener, address)
                             .toPacketStream()
                             .filter(p -> {
                                 if (p.getIgnitionCycles() < repoPacket.getIgnitionCycles()) {
@@ -191,7 +191,7 @@ public class SectionA5MessageVerifier {
         // 3.b. DM21 diagnostic readiness 2 shall report 0 for distance with MIL on and minutes run with MIL on.
         // 5.b. DM21 diagnostic readiness 2 shall report 0 for distance since code clear and minutes run since code
         // clear.
-        return diagMsgModule.requestDM21(listener, address)
+        return communicationsModule.requestDM21(listener, address)
                             .toPacketStream()
                             .filter(p -> {
                                 boolean isErased = p.getKmWhileMILIsActivated() == 0
@@ -216,7 +216,7 @@ public class SectionA5MessageVerifier {
 
     boolean checkDM23(ResultsListener listener, String section, int address, boolean verifyIsErased) {
         // 1.c. DM23 previously active shall report no DTCs and MIL off and not flashing
-        return diagMsgModule.requestDM23(listener, address)
+        return communicationsModule.requestDM23(listener, address)
                             .toPacketStream()
                             .filter(p -> {
                                 var prev = getLatest(DM23PreviouslyMILOnEmissionDTCPacket.class, p.getSourceAddress());
@@ -232,7 +232,7 @@ public class SectionA5MessageVerifier {
     boolean checkDM25(ResultsListener listener, String section, int address, boolean verifyIsErased) {
         // 2.a. DM25 expanded freeze frame shall report no data and DTC causing freeze frame
         // with bytes 1-5 = 0 and bytes 6-8 = 255.
-        return diagMsgModule.requestDM25(listener, address)
+        return communicationsModule.requestDM25(listener, address)
                             .toPacketStream()
                             .filter(p -> {
                                 boolean isErased = p.getFreezeFrames().isEmpty();
@@ -251,7 +251,7 @@ public class SectionA5MessageVerifier {
 
     boolean checkDM26(ResultsListener listener, String section, int address, boolean verifyIsErased) {
         // 5.a. DM26 diagnostic readiness 3 shall report 0 for number of warm-ups since code clear.
-        return diagMsgModule.requestDM26(listener, address)
+        return communicationsModule.requestDM26(listener, address)
                             .toPacketStream()
                             .filter(p -> {
                                 boolean isErased = p.getWarmUpsSinceClear() == 0;
@@ -276,7 +276,7 @@ public class SectionA5MessageVerifier {
             return true;
         }
 
-        return diagMsgModule.requestDM28(listener, address)
+        return communicationsModule.requestDM28(listener, address)
                             .toPacketStream()
                             .filter(p -> {
                                 return !p.hasDTCs();
@@ -290,7 +290,7 @@ public class SectionA5MessageVerifier {
 
     boolean checkDM29(ResultsListener listener, String section, int address, boolean verifyIsErased) {
         // 1.d. DM29 shall report zero for number of pending, active, and previously active DTCs
-        return diagMsgModule.requestDM29(listener, address)
+        return communicationsModule.requestDM29(listener, address)
                             .toPacketStream()
                             .filter(p -> {
                                 var prev = getLatest(DM29DtcCounts.class, p.getSourceAddress());
@@ -313,7 +313,7 @@ public class SectionA5MessageVerifier {
 
     boolean checkDM31(ResultsListener listener, String section, int address, boolean verifyIsErased) {
         // 3.a. DM31 lamp status shall report no DTCs causing MIL on (if supported).
-        return diagMsgModule.requestDM31(listener, address)
+        return communicationsModule.requestDM31(listener, address)
                             .toPacketStream()
                             .filter(p -> {
 
@@ -342,7 +342,7 @@ public class SectionA5MessageVerifier {
             return true;
         }
 
-        return diagMsgModule.requestDM33(listener, address)
+        return communicationsModule.requestDM33(listener, address)
                             .toPacketStream()
                             .filter(p -> {
                                 for (EngineHoursTimer repoTimer : repoPacket.getEiAecdEngineHoursTimers()) {
@@ -371,7 +371,11 @@ public class SectionA5MessageVerifier {
                                      .getTestResultSPNs()
                                      .stream()
                                      .map(SupportedSPN::getSpn)
-                                     .map(spn -> diagMsgModule.requestTestResult(listener, address, 247, spn, 31))
+                                     .map(spn -> communicationsModule.requestTestResult(listener,
+                                                                                        address,
+                                                                                        247,
+                                                                                        spn,
+                                                                                        31))
                                      .flatMap(BusResult::toPacketStream)
                                      .map(DM30ScaledTestResultsPacket::getTestResults)
                                      .flatMap(Collection::stream)
@@ -396,16 +400,16 @@ public class SectionA5MessageVerifier {
             return true;
         }
 
-        return vehInfoModule.requestEngineHours(listener, address)
-                            .toPacketStream()
-                            .filter(p -> {
-                                return p.getEngineHours() < packet.getEngineHours();
-                            })
-                            .peek(p -> {
-                                addFailure(listener, section, false, p);
-                            })
-                            .findAny()
-                            .isEmpty();
+        return communicationsModule.request(EngineHoursPacket.class, address, listener)
+                                   .toPacketStream()
+                                   .filter(p -> {
+                                       return p.getEngineHours() < packet.getEngineHours();
+                                   })
+                                   .peek(p -> {
+                                       addFailure(listener, section, false, p);
+                                   })
+                                   .findAny()
+                                   .isEmpty();
     }
 
     boolean checkEngineIdleTime(ResultsListener listener, String section, int address) {
@@ -416,16 +420,16 @@ public class SectionA5MessageVerifier {
             return true;
         }
 
-        return vehInfoModule.requestIdleOperation(listener, address)
-                            .toPacketStream()
-                            .filter(p -> {
-                                return p.getEngineIdleHours() < packet.getEngineIdleHours();
-                            })
-                            .peek(p -> {
-                                addFailure(listener, section, false, p);
-                            })
-                            .findAny()
-                            .isEmpty();
+        return communicationsModule.request(IdleOperationPacket.class, address, listener)
+                                   .toPacketStream()
+                                   .filter(p -> {
+                                       return p.getEngineIdleHours() < packet.getEngineIdleHours();
+                                   })
+                                   .peek(p -> {
+                                       addFailure(listener, section, false, p);
+                                   })
+                                   .findAny()
+                                   .isEmpty();
     }
 
     private <T extends GenericPacket> T getLatest(Class<T> clazz, int address) {

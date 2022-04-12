@@ -14,10 +14,10 @@ import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 public abstract class PartController extends Controller {
 
@@ -30,7 +30,7 @@ public abstract class PartController extends Controller {
                              DataRepository dataRepository,
                              EngineSpeedModule engineSpeedModule,
                              VehicleInformationModule vehicleInformationModule,
-                             DiagnosticMessageModule diagnosticMessageModule,
+                             CommunicationsModule communicationsModule,
                              int partNumber,
                              StepController... stepControllers) {
         super(executor,
@@ -39,7 +39,7 @@ public abstract class PartController extends Controller {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
         this.partNumber = partNumber;
         this.stepControllers.addAll(Arrays.asList(stepControllers));
     }

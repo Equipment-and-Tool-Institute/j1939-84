@@ -8,16 +8,16 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
-import org.etools.j1939_84.bus.j1939.packets.EngineHoursTimer;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
+import org.etools.j1939tools.j1939.packets.EngineHoursTimer;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.2.15 DM33: Emission increasing auxiliary emission control device active time
@@ -35,7 +35,7 @@ public class Part02Step15Controller extends StepController {
              new VehicleInformationModule(),
              dataRepository,
              DateTimeModule.getInstance(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part02Step15Controller(Executor executor,
@@ -44,14 +44,14 @@ public class Part02Step15Controller extends StepController {
                            VehicleInformationModule vehicleInformationModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -78,7 +78,7 @@ public class Part02Step15Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.2.15.1.a. Global DM33 (send Request (PGN 59904) for PGN 41216 (SPNs 4124-4126)).
-        var globalPackets = getDiagnosticMessageModule().requestDM33(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM33(getListener()).getPackets();
 
         // 6.2.15.1.b. Create list of reported EI-AECD timers by ECU.
         globalPackets.forEach(this::save);
@@ -107,8 +107,8 @@ public class Part02Step15Controller extends StepController {
         List<Integer> obdModuleAddresses = getDataRepository().getObdModuleAddresses();
         var dsResponses = obdModuleAddresses
                                             .stream()
-                                            .map(address -> getDiagnosticMessageModule().requestDM33(getListener(),
-                                                                                                     address))
+                                            .map(address -> getCommunicationsModule().requestDM33(getListener(),
+                                                                                                  address))
                                             .collect(Collectors.toList());
 
         // 6.2.15.5.a. Fail if any difference is detected when response data is compared to data received

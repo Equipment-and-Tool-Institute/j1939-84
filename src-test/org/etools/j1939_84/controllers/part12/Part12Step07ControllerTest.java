@@ -13,22 +13,22 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.DM21DiagnosticReadinessPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class Part12Step07ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -82,7 +82,7 @@ public class Part12Step07ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -91,7 +91,7 @@ public class Part12Step07ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -101,7 +101,7 @@ public class Part12Step07ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -133,11 +133,11 @@ public class Part12Step07ControllerTest extends AbstractControllerTest {
         var dm21_1 = DM21DiagnosticReadinessPacket.create(1, 0, 0, 0, 0, 0xFFFF);
         var dm21_3 = DM21DiagnosticReadinessPacket.create(3, 0, 0, 0, 0, 11);
 
-        when(diagnosticMessageModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0, dm21_1, dm21_3));
+        when(communicationsModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0, dm21_1, dm21_3));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM21(any());
+        verify(communicationsModule).requestDM21(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -147,11 +147,11 @@ public class Part12Step07ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoResponse() {
 
-        when(diagnosticMessageModule.requestDM21(any())).thenReturn(RequestResult.of());
+        when(communicationsModule.requestDM21(any())).thenReturn(RequestResult.of());
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM21(any());
+        verify(communicationsModule).requestDM21(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -167,11 +167,11 @@ public class Part12Step07ControllerTest extends AbstractControllerTest {
 
         var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 1, 0, 10);
 
-        when(diagnosticMessageModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0));
+        when(communicationsModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM21(any());
+        verify(communicationsModule).requestDM21(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -187,11 +187,11 @@ public class Part12Step07ControllerTest extends AbstractControllerTest {
 
         var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 9);
 
-        when(diagnosticMessageModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0));
+        when(communicationsModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM21(any());
+        verify(communicationsModule).requestDM21(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -208,11 +208,11 @@ public class Part12Step07ControllerTest extends AbstractControllerTest {
         var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 10);
         var dm21_3 = DM21DiagnosticReadinessPacket.create(3, 0, 0, 0, 0, 12);
 
-        when(diagnosticMessageModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0, dm21_3));
+        when(communicationsModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0, dm21_3));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM21(any());
+        verify(communicationsModule).requestDM21(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -226,11 +226,11 @@ public class Part12Step07ControllerTest extends AbstractControllerTest {
     public void testFailureForNoOBDResponse() {
         var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 10);
 
-        when(diagnosticMessageModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0));
+        when(communicationsModule.requestDM21(any())).thenReturn(RequestResult.of(dm21_0));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM21(any());
+        verify(communicationsModule).requestDM21(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

@@ -8,18 +8,20 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
-import org.etools.j1939_84.bus.j1939.packets.LampStatus;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939tools.j1939.packets.LampStatus;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
+
+;
 
 /**
  * 6.8.4 DM23: Emission Related Previously Active DTCs
@@ -36,7 +38,7 @@ public class Part08Step04Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part08Step04Controller(Executor executor,
@@ -45,14 +47,14 @@ public class Part08Step04Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -61,7 +63,7 @@ public class Part08Step04Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.8.4.1.a Global DM23 [(send Request (PGN 59904) for PGN 64949 (SPNs 1213-1215, 1706, and 3038)]).
-        var packets = getDiagnosticMessageModule().requestDM23(getListener())
+        var packets = getCommunicationsModule().requestDM23(getListener())
                                                   .getPackets()
                                                   .stream()
                                                   .filter(p -> isObdModule(p.getSourceAddress()))

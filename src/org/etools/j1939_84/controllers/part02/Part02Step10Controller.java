@@ -8,16 +8,16 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.packets.ScaledTestResult;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.2.10 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results
@@ -34,7 +34,7 @@ public class Part02Step10Controller extends StepController {
              new BannerModule(),
              dataRepository,
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              DateTimeModule.getInstance());
     }
 
@@ -43,7 +43,7 @@ public class Part02Step10Controller extends StepController {
                            BannerModule bannerModule,
                            DataRepository dataRepository,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule,
+                           CommunicationsModule communicationsModule,
                            DateTimeModule dateTimeModule) {
         super(executor,
               bannerModule,
@@ -51,7 +51,7 @@ public class Part02Step10Controller extends StepController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -59,8 +59,6 @@ public class Part02Step10Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-
-        // getDiagnosticMessageModule().setJ1939(getJ1939());
 
         for (OBDModuleInformation obdModule : getDataRepository().getObdModules()) {
 
@@ -71,12 +69,12 @@ public class Part02Step10Controller extends StepController {
             // response.
             List<ScaledTestResult> newTestResults = obdModule.getTestResultSPNs()
                                                              .stream()
-                                                             .flatMap(spn -> getDiagnosticMessageModule().requestTestResults(getListener(),
-                                                                                                                             sourceAddress,
-                                                                                                                             247,
-                                                                                                                             spn.getSpn(),
-                                                                                                                             31)
-                                                                                                         .stream())
+                                                             .flatMap(spn -> getCommunicationsModule().requestTestResults(getListener(),
+                                                                                                                          sourceAddress,
+                                                                                                                          247,
+                                                                                                                          spn.getSpn(),
+                                                                                                                          31)
+                                                                                                      .stream())
                                                              .flatMap(p -> p.getTestResults().stream())
                                                              .collect(Collectors.toList());
 

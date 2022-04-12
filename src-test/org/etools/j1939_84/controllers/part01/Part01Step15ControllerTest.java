@@ -3,36 +3,40 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ALTERNATE_OFF;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.FAST_FLASH;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.SLOW_FLASH;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.etools.j1939tools.j1939.packets.LampStatus.ALTERNATE_OFF;
+import static org.etools.j1939tools.j1939.packets.LampStatus.FAST_FLASH;
+import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939tools.j1939.packets.LampStatus.ON;
+import static org.etools.j1939tools.j1939.packets.LampStatus.SLOW_FLASH;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.CommunicationsListener;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.DM1ActiveDTCsPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.testdoc.TestDoc;
 import org.etools.testdoc.TestItem;
 import org.junit.After;
@@ -59,7 +63,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -94,7 +98,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               dataRepository,
                                               new TestDateTimeModule());
 
@@ -105,7 +109,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -114,46 +118,126 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
+    /**
+     * Test method for {@link Part01Step11Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Message Details</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x03<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">no DM1 response</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">Active DTC SPs:
+     * N/A<br>
+     * MIL Status: N/A</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     @TestDoc(value = {
             @TestItem(verifies = "6.1.15.2.e", description = "Fail if no OBD ECU provides DM1") })
     public void testEmptyPacketFailure() {
 
-        dataRepository.putObdModule(new OBDModuleInformation(1));
+        dataRepository.putObdModule(new OBDModuleInformation(0x01));
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of());
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(3),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(List.of());
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).readDM1(any());
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(3),
+                                          eq(SECONDS),
+                                          any(CommunicationsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.15.2.e - No OBD ECU provided a DM1");
 
         assertEquals("", listener.getResults());
     }
 
+    /**
+     * Test method for {@link Part01Step11Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Message Details</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x01<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">good DM1 response</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">Active DTC SPs:
+     * N/A<br>
+     * MIL Status: alt off</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     @TestDoc(value = {
-            @TestItem(verifies = "6.1.15.3.a", description = "A.8 - Alternate coding for off (0b00, 0b00) has been accepted") })
+            @TestItem(verifies = "6.1.15.3.a", description = "Warn if any ECU reports the non-preferred MIL off format. See Section A.8 for description of (0b00b, 0b00b).") })
     public void testObdAlternateOffWarning() {
-        DM1ActiveDTCsPacket packet1 = DM1ActiveDTCsPacket.create(0x01,
+        var packet1 = DM1ActiveDTCsPacket.create(0x01,
                                                                  ALTERNATE_OFF,
                                                                  OFF,
                                                                  OFF,
                                                                  OFF);
-        dataRepository.putObdModule(new OBDModuleInformation(1));
+        dataRepository.putObdModule(new OBDModuleInformation(0x01));
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet1));
+        List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
+        packetList.add(packet1);
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(3),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList<>(packetList));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).readDM1(any());
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(3),
+                                          eq(SECONDS),
+                                          any(CommunicationsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -163,6 +247,39 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
     }
 
+    /**
+     * Test method for {@link Part01Step11Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Message Details</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x01<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">bad DM1 response</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">Active DTC SPs: 1569,
+     * 609, 4334<br>
+     * MIL Status: off</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     @TestDoc(value = {
             @TestItem(verifies = "6.1.15.2.a", description = "Fail if any OBD ECU reports an active DTC") })
@@ -179,14 +296,22 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                                                  dtc1,
                                                                  dtc2,
                                                                  dtc3);
-        dataRepository.putObdModule(new OBDModuleInformation(1));
+        dataRepository.putObdModule(new OBDModuleInformation(0x01));
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet1));
+        List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
+        packetList.add(packet1);
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(3),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList<>(packetList));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).readDM1(any());
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(3),
+                                          eq(SECONDS),
+                                          any(CommunicationsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -196,6 +321,49 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
     }
 
+    /**
+     * Test method for {@link Part01Step11Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Message Details</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;border-bottom:1px solid #ddd;padding: 3px;word-wrap:break-word">0x03<br>
+     * OBD</td>
+     * <td style="text-align:center;border-bottom:1px solid #ddd;border-left:1px solid #ddd;padding:
+     * 3px;word-wrap:break-word">bad DM1 response</td>
+     * <td style="text-align:center;border-bottom:1px solid #ddd;border-left:1px solid #ddd;padding:
+     * 3px;word-wrap:break-word">Active DTC SPs: 1569,
+     * 609, 4334<br>
+     * MIL Status: off</td>
+     * </tr>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x17<br>
+     * non-OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">bad DM1 response</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">Active DTC SPs: 1569,
+     * 609, 4334<br>
+     * MIL Status: on</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     @TestDoc(value = {
             @TestItem(verifies = "6.1.15.2.c", description = "Fail if any non-OBD ECU does not report MIL off or not supported MIL status (per SAE J1939-73 Table 5)") })
@@ -203,6 +371,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(1569, 31, 0, 0);
         var dtc2 = DiagnosticTroubleCode.create(609, 19, 0, 0);
         var dtc3 = DiagnosticTroubleCode.create(4334, 4, 0, 0);
+        List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
         DM1ActiveDTCsPacket packet2 = DM1ActiveDTCsPacket.create(0x17,
                                                                  ON,
                                                                  ALTERNATE_OFF,
@@ -211,21 +380,30 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                                                  dtc1,
                                                                  dtc2,
                                                                  dtc3);
+        packetList.add(packet2);
 
         var packet3 = DM1ActiveDTCsPacket.create(0x03,
                                                  OFF,
                                                  OFF,
                                                  OFF,
                                                  OFF);
-        // make the module and OBD
-        dataRepository.putObdModule(new OBDModuleInformation(3));
+        packetList.add(packet3);
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet2, packet3));
+        // make the module and OBD
+        dataRepository.putObdModule(new OBDModuleInformation(0x03));
+
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(3),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList<>(packetList));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).readDM1(any());
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(3),
+                                          eq(SECONDS),
+                                          any(CommunicationsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -235,6 +413,48 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
     }
 
+    /**
+     * Test method for {@link Part01Step11Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Message Details</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;border-bottom:1px solid #ddd;padding: 3px;word-wrap:break-word">0x03<br>
+     * OBD</td>
+     * <td style="text-align:center;border-bottom:1px solid #ddd;border-left:1px solid #ddd;padding:
+     * 3px;word-wrap:break-word">bad DM1 response</td>
+     * <td style="text-align:center;border-bottom:1px solid #ddd;border-left:1px solid #ddd;padding:
+     * 3px;word-wrap:break-word">Active DTC SPs: N/A<br>
+     * MIL Status: off</td>
+     * </tr>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x17<br>
+     * non-OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">bad DM1 response</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">Active DTC SPs: 1569,
+     * 609, 4334<br>
+     * MIL Status: off</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     @TestDoc(value = {
             @TestItem(verifies = "6.1.15.3.b", description = "Warn if any non-OBD ECU reports SP conversion method (SP 1706) equal to 1") })
@@ -242,6 +462,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(1569, 31, 0, 0);
         var dtc2 = DiagnosticTroubleCode.create(609, 19, 0, 0);
         var dtc3 = DiagnosticTroubleCode.create(4334, 4, 1, 0);
+        List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
         DM1ActiveDTCsPacket packet2 = DM1ActiveDTCsPacket.create(0x17,
                                                                  OFF,
                                                                  OFF,
@@ -250,21 +471,30 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                                                  dtc1,
                                                                  dtc2,
                                                                  dtc3);
+        packetList.add(packet2);
 
-        var packet3 = DM1ActiveDTCsPacket.create(0x03,
+        DM1ActiveDTCsPacket packet3 = DM1ActiveDTCsPacket.create(0x03,
                                                  OFF,
                                                  OFF,
                                                  OFF,
                                                  OFF);
-        // make the module and OBD
-        dataRepository.putObdModule(new OBDModuleInformation(3));
+        packetList.add(packet3);
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet2, packet3));
+        // make the module and OBD
+        dataRepository.putObdModule(new OBDModuleInformation(0x03));
+
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(3),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList<>(packetList));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).readDM1(any());
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(3),
+                                          eq(SECONDS),
+                                          any(CommunicationsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -274,27 +504,69 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
     }
 
+    /**
+     * Test method for {@link Part01Step11Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Message Details</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x03<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">bad DM1 response</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">Active DTC SPs:
+     * 123<br>
+     * MIL Status: off</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     @TestDoc(value = {
             @TestItem(verifies = "6.1.15.2.d", description = "Fail if any OBD ECU reports SP conversion method (SP 1706) equal to binary 1") })
-    public void testObdSpConversionFailures() {
+    public void testObdSpConversionFailure() {
         // a CM value of 1 will cause the conversion method failure
         var dtc = DiagnosticTroubleCode.create(123, 12, 1, 5);
+        List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
+
         var packet3 = DM1ActiveDTCsPacket.create(0x03,
                                                  OFF,
                                                  OFF,
                                                  OFF,
                                                  OFF,
                                                  dtc);
+        packetList.add(packet3);
         // make the module and OBD
-        dataRepository.putObdModule(new OBDModuleInformation(3));
+        dataRepository.putObdModule(new OBDModuleInformation(0x03));
         // return the OBD module's packet when requested
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet3));
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(3),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList<>(packetList));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).readDM1(any());
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(3),
+                                          eq(SECONDS),
+                                          any(CommunicationsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -309,62 +581,158 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
     }
 
+    /**
+     * Test method for
+     * {@link Part01Step15Controller#getDisplayName()}.
+     */
     @Test
     public void testGetDisplayName() {
         String name = "Part " + PART_NUMBER + " Step " + STEP_NUMBER;
         assertEquals("Display Name", name, instance.getDisplayName());
     }
 
+    /**
+     * Test method for
+     * {@link Part01Step15Controller#getStepNumber()}
+     */
     @Test
     public void testGetStepNumber() {
         assertEquals(STEP_NUMBER, instance.getStepNumber());
     }
 
+    /**
+     * Test method for
+     * {@link Part01Step15Controller#getTotalSteps()}
+     */
     @Test
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
+    /**
+     * Test method for {@link Part01Step11Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Message Details</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x17<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">bad DM1 response</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">Active DTC SPs:
+     * N/A<br>
+     * MIL Status: off</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     @TestDoc(value = {
             @TestItem(verifies = "6.1.15.1.a", description = "Gather broadcast DM1 data from all ECUs [PG 65226 (SPs 1213-1215, 1706, and 3038)]") })
     public void testGatherBroadcastDm1() {
+        List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
+
         DM1ActiveDTCsPacket packet2 = DM1ActiveDTCsPacket.create(0x17,
                                                                  OFF,
                                                                  OFF,
                                                                  OFF,
                                                                  OFF);
+        packetList.add(packet2);
 
         dataRepository.putObdModule(new OBDModuleInformation(0x17));
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet2));
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(3),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList<>(packetList));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).readDM1(any());
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(3),
+                                          eq(SECONDS),
+                                          any(CommunicationsListener.class));
 
         assertEquals("", listener.getResults());
     }
 
+    /**
+     * Test method for {@link Part01Step11Controller#run()}.
+     * Test one module responding:<br>
+     * <br>
+     * <p>
+     * <b style="color:red">Module Responses:</b>
+     * <table style="border-collapse: collapse;border-spacing: 0px;border:1px solid #ddd;">
+     * <col width="25%";/>
+     * <col width="45%";/>
+     * <col width="30%";/>
+     *
+     * <thead>
+     * <th colspan="1" style="text-align:center;border-bottom:2px solid #ddd;padding: 4px;word-wrap:break-word">Module
+     * Details</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Global
+     * Response</th>
+     * <th colspan="1" style="text-align:center;border-left:1px solid #ddd;border-bottom:2px solid #ddd;padding:
+     * 4px;word-wrap=break-word">Message Details</th>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td style="text-align:center;padding: 3px;word-wrap:break-word">0x01<br>
+     * OBD</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">bad DM1 response</td>
+     * <td style="text-align:center;border-left:1px solid #ddd;padding: 3px;word-wrap:break-word">Active DTC SPs:
+     * N/A<br>
+     * MIL Status: on</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </P>
+     */
     @Test
     @TestDoc(value = {
             @TestItem(verifies = "6.1.15.2.b", description = "Fail if any OBD ECU does not report MIL off - see Section A.8 for allowed values") })
     public void testObdMilOnFailure() {
-        var packet1 = DM1ActiveDTCsPacket.create(0x01,
+        List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
+
+        DM1ActiveDTCsPacket packet1 = DM1ActiveDTCsPacket.create(0x01,
                                                  ON,
                                                  OFF,
                                                  OFF,
                                                  OFF);
+        packetList.add(packet1);
         // make it an OBD module
-        dataRepository.putObdModule(new OBDModuleInformation(1));
+        dataRepository.putObdModule(new OBDModuleInformation(0x01));
         // return the packet with the active dtc and a MIL on for the OBD module
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet1));
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(3),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class))).thenReturn(new ArrayList<>(packetList));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).readDM1(any());
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(3),
+                                          eq(SECONDS),
+                                          any(ResultsListener.class));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,

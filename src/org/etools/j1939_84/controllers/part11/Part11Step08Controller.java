@@ -3,7 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part11;
 
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,18 +13,18 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
-import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.packets.DM20MonitorPerformanceRatioPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.j1939.packets.PerformanceRatio;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.11.8 DM20: Monitor Performance Ratio
@@ -58,7 +58,7 @@ public class Part11Step08Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part11Step08Controller(Executor executor,
@@ -67,14 +67,14 @@ public class Part11Step08Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -90,14 +90,14 @@ public class Part11Step08Controller extends StepController {
                                                      .collect(Collectors.toList());
 
         var dsResults = addresses.stream()
-                                 .map(a -> getDiagnosticMessageModule().requestDM20(getListener(), a))
+                                 .map(a -> getCommunicationsModule().requestDM20(getListener(), a))
                                  .collect(Collectors.toList());
 
         // 6.11.8.1.b. If no response [(transport protocol RTS or NACK(Busy) in 220 ms]), then retry DS DM20 request to
         // the OBD ECU. ([Do not attempt retry for NACKs that indicate not supported]).
         List<Integer> missingAddresses = determineNoResponseAddresses(dsResults, addresses);
         missingAddresses.stream()
-                        .map(address -> getDiagnosticMessageModule().requestDM20(getListener(), address))
+                        .map(address -> getCommunicationsModule().requestDM20(getListener(), address))
                         .forEach(dsResults::add);
 
         // 6.11.8.2.a. Fail if retry was required to obtain DM20 response.
@@ -109,9 +109,11 @@ public class Part11Step08Controller extends StepController {
 
         var packets = filterPackets(dsResults);
 
-        // 6.11.8.2.b. Fail if any response indicates that the general denominator (SPN 3049) has not incremented
-        // by one from value earlier in part 9.
         packets.stream()
+               // 6.11.8.1.c. - Record responses for use in Part 12 test 9
+               .peek(this::save)
+               // 6.11.8.2.b. Fail if any response indicates that the general denominator (SPN 3049) has not incremented
+               // by one from value earlier in part 9.
                .filter(p -> p.getOBDConditionsCount() != getPart9GeneralDenominator(p.getSourceAddress()) + 1)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {

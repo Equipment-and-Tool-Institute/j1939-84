@@ -6,15 +6,17 @@ package org.etools.j1939_84.controllers.part09;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
+
+;
 
 /**
  * 6.9.7 DM33: Emission Increasing Auxiliary Emission Control Device Active Time
@@ -31,7 +33,7 @@ public class Part09Step07Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part09Step07Controller(Executor executor,
@@ -40,14 +42,14 @@ public class Part09Step07Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -56,7 +58,7 @@ public class Part09Step07Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.9.7.1.a Global DM33 [(send Request (PGN 59904) for PGN 41216 (SPNs 4124-4126)]).
-        var packets = getDiagnosticMessageModule().requestDM33(getListener()).getPackets();
+        var packets = getCommunicationsModule().requestDM33(getListener()).getPackets();
 
         packets.forEach(this::save);
 

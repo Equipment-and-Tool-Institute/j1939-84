@@ -4,6 +4,7 @@
 package org.etools.j1939_84.ui;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -12,16 +13,20 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.List;
 
-import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.FuelType;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.VinDecoder;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.model.FuelType;
+import org.etools.j1939tools.j1939.packets.AddressClaimPacket;
+import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
+import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +41,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class VehicleInformationPresenterTest {
+
+    @Mock
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private DateTimeModule dateTimeModule;
@@ -60,7 +68,13 @@ public class VehicleInformationPresenterTest {
     @Before
     public void setUp() {
         DateTimeModule.setInstance(dateTimeModule);
-        instance = new VehicleInformationPresenter(view, listener, j1939, vehicleInformationModule, vinDecoder);
+        communicationsModule.setJ1939(j1939);
+        instance = new VehicleInformationPresenter(view,
+                                                   listener,
+                                                   j1939,
+                                                   vehicleInformationModule,
+                                                   vinDecoder,
+                                                   communicationsModule);
         verify(vehicleInformationModule).setJ1939(j1939);
     }
 
@@ -71,71 +85,96 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testInitialize() throws IOException {
         ResultsListener resultsListener = new TestResultsListener();
+        CalibrationInformation calibrationInformation = new CalibrationInformation("CharacterSixteen",
+                                                                                   "1234");
+        DM19CalibrationInformationPacket packet = DM19CalibrationInformationPacket.create(0x00,
+                                                                                          0xF9,
+                                                                                          calibrationInformation);
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of(packet));
         when(vehicleInformationModule.getVin()).thenReturn("vin");
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
         when(vinDecoder.isModelYearValid(2)).thenReturn(true);
-        when(vehicleInformationModule.reportAddressClaim(resultsListener)).thenReturn(RequestResult.empty());
+        AddressClaimPacket addressClaimPacket = mock(AddressClaimPacket.class);
+        when(vehicleInformationModule.reportAddressClaim(resultsListener)).thenReturn(new RequestResult<>(false,
+                                                                                                          addressClaimPacket));
         when(vehicleInformationModule.getEngineModelYear()).thenReturn(4);
         when(vehicleInformationModule.getEngineFamilyName()).thenReturn("family");
-        when(vehicleInformationModule.getOBDModules(any())).thenReturn(List.of());
+        when(vehicleInformationModule.getOBDModules(any(ResultsListener.class))).thenReturn(List.of());
         when(listener.getResultsListener()).thenReturn(resultsListener);
 
         instance.readVehicle();
 
+        verify(communicationsModule).requestDM19(any(ResultsListener.class));
+
         verify(listener).getResultsListener();
+
         verify(vehicleInformationModule).getVin();
+        verify(vehicleInformationModule).getEngineFamilyName();
+        verify(vehicleInformationModule).getEngineModelYear();
+        verify(vehicleInformationModule).getOBDModules(any(ResultsListener.class));
+        verify(vehicleInformationModule).reportAddressClaim(any(ResultsListener.class));
+
         verify(vinDecoder).getModelYear("vin");
         verify(vinDecoder).isModelYearValid(2);
+
         verify(view).setFuelType(FuelType.DSL);
         verify(view).setNumberOfTripsForFaultBImplant(1);
         verify(view).setEmissionUnits(0);
         verify(view).setVin("vin");
         verify(view).setVehicleModelYear(2);
-        verify(view).setCalIds(0);
-        verify(vehicleInformationModule).getEngineModelYear();
+        verify(view).setCalIds(1);
         verify(view).setEngineModelYear(4);
-        verify(vehicleInformationModule).reportAddressClaim(any());
-        verify(vehicleInformationModule).requestDM19(any());
-        verify(vehicleInformationModule).getEngineFamilyName();
         verify(view).setCertificationIntent("family");
-        verify(vehicleInformationModule).getOBDModules(any());
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testInitializeWithError() throws IOException {
         ResultsListener resultsListener = new TestResultsListener();
-        when(vehicleInformationModule.getVin()).thenThrow(new IOException());
-        when(vinDecoder.getModelYear(null)).thenReturn(-1);
-        when(vinDecoder.isModelYearValid(-1)).thenReturn(false);
+        CalibrationInformation calibrationInformation = new CalibrationInformation("SixteenCharacter", "3491");
+        DM19CalibrationInformationPacket packet = DM19CalibrationInformationPacket.create(0x00,
+                                                                                          0xF9,
+                                                                                          calibrationInformation);
+
         when(dateTimeModule.getYear()).thenReturn(500);
-        when(vehicleInformationModule.reportAddressClaim(resultsListener)).thenReturn(RequestResult.empty());
+
+        when(listener.getResultsListener()).thenReturn(resultsListener);
+
+        when(vehicleInformationModule.getVin()).thenThrow(new IOException());
+        AddressClaimPacket addressClaimPacket = mock(AddressClaimPacket.class);
+
+        when(vehicleInformationModule.reportAddressClaim(any(ResultsListener.class))).thenReturn(RequestResult.empty(false));
         when(vehicleInformationModule.getEngineModelYear()).thenThrow(new IOException());
         when(vehicleInformationModule.getEngineFamilyName()).thenThrow(new IOException());
-        when(vehicleInformationModule.getOBDModules(any())).thenReturn(List.of());
-        when(listener.getResultsListener()).thenReturn(resultsListener);
+        when(vehicleInformationModule.getOBDModules(any(ResultsListener.class))).thenReturn(List.of());
+
+        when(vinDecoder.getModelYear(null)).thenReturn(-1);
+        when(vinDecoder.isModelYearValid(-1)).thenReturn(false);
 
         instance.readVehicle();
 
+        verify(communicationsModule).requestDM19(any(ResultsListener.class));
+
+        verify(dateTimeModule).getYear();
+
         verify(listener).getResultsListener();
+
         verify(vehicleInformationModule).getVin();
+        verify(vehicleInformationModule).reportAddressClaim(any(ResultsListener.class));
+        verify(vehicleInformationModule).getEngineModelYear();
+        verify(vehicleInformationModule).getEngineFamilyName();
+        verify(vehicleInformationModule).getOBDModules(any(ResultsListener.class));
+
         verify(vinDecoder).getModelYear(null);
         verify(vinDecoder).isModelYearValid(-1);
+
         verify(view).setFuelType(FuelType.DSL);
         verify(view).setNumberOfTripsForFaultBImplant(1);
         verify(view).setEmissionUnits(0);
-        verify(view).setCalIds(0);
-        verify(dateTimeModule).getYear();
         verify(view).setVehicleModelYear(500);
         verify(view).setEngineModelYear(500);
-        verify(vehicleInformationModule).reportAddressClaim(any());
-        verify(vehicleInformationModule).requestDM19(any());
-        verify(vehicleInformationModule).getEngineModelYear();
-        verify(vehicleInformationModule).getEngineFamilyName();
-        verify(vehicleInformationModule).getOBDModules(any());
+
     }
 
     @Test
@@ -151,7 +190,6 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testValidateInvalidCertification() {
         when(vinDecoder.isVinValid("vin")).thenReturn(true);
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
@@ -180,7 +218,6 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testValidateInvalidEmissionsCount() {
         when(vinDecoder.isVinValid("vin")).thenReturn(true);
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
@@ -209,7 +246,6 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testValidateInvalidEngineModelYear() {
         when(vinDecoder.isVinValid("vin")).thenReturn(true);
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
@@ -238,7 +274,6 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testValidateInvalidFuelType() {
         when(vinDecoder.isVinValid("vin")).thenReturn(true);
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
@@ -267,7 +302,6 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testValidateInvalidVehicleModelYear() {
         when(vinDecoder.isVinValid("vin")).thenReturn(true);
         when(vinDecoder.getModelYear("vin")).thenReturn(3);
@@ -296,7 +330,6 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testValidateInvalidVin() {
         when(vinDecoder.isVinValid("vin")).thenReturn(false);
         when(vinDecoder.getModelYear("vin")).thenReturn(2);

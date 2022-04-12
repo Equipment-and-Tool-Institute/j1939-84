@@ -4,13 +4,13 @@
 
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
-import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.PGN;
-import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.create;
-import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.AreaStatus.INSIDE;
-import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.AreaStatus.NOT_AVAILABLE;
-import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.AreaStatus.OUTSIDE;
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939tools.j1939.packets.DM34NTEStatus.PGN;
+import static org.etools.j1939tools.j1939.packets.DM34NTEStatus.create;
+import static org.etools.j1939tools.j1939.packets.DM34NTEStatus.AreaStatus.INSIDE;
+import static org.etools.j1939tools.j1939.packets.DM34NTEStatus.AreaStatus.NOT_AVAILABLE;
+import static org.etools.j1939tools.j1939.packets.DM34NTEStatus.AreaStatus.OUTSIDE;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -21,24 +21,24 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.model.FuelType;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.DM34NTEStatus;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +57,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -93,7 +93,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
                                               vehicleInformationModule,
                                               dataRepository,
                                               DateTimeModule.getInstance(),
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -102,7 +102,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -111,7 +111,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -138,8 +138,8 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoResponsesSIEngine() {
 
-        when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false));
-        when(diagnosticMessageModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false));
+        when(communicationsModule.requestDM34(any())).thenReturn(new RequestResult<>(false));
+        when(communicationsModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setFuelType(FuelType.GAS);
@@ -151,8 +151,8 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM34(any());
-        verify(diagnosticMessageModule).requestDM34(any(), eq(0));
+        verify(communicationsModule).requestDM34(any());
+        verify(communicationsModule).requestDM34(any(), eq(0));
 
         verify(mockListener).addOutcome(PART,
                                         STEP,
@@ -168,7 +168,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoResponsesCIEngine() {
 
-        when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, List.of()));
+        when(communicationsModule.requestDM34(any())).thenReturn(new RequestResult<>(false, List.of()));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setFuelType(FuelType.DSL);
@@ -178,7 +178,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM34(any());
+        verify(communicationsModule).requestDM34(any());
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -198,9 +198,9 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
         moduleInfo.set(packet, 1);
         dataRepository.putObdModule(moduleInfo);
 
-        when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, packet));
+        when(communicationsModule.requestDM34(any())).thenReturn(new RequestResult<>(false, packet));
 
-        when(diagnosticMessageModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, packet));
+        when(communicationsModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, packet));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setFuelType(FuelType.DSL);
@@ -208,8 +208,8 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM34(any(), eq(0x00));
-        verify(diagnosticMessageModule).requestDM34(any());
+        verify(communicationsModule).requestDM34(any(), eq(0x00));
+        verify(communicationsModule).requestDM34(any());
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -245,9 +245,9 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
         var globalPacket = create(0, 0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
         var dsPacket = create(0, 0, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, NOT_AVAILABLE);
 
-        when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
+        when(communicationsModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
 
-        when(diagnosticMessageModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
+        when(communicationsModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setFuelType(FuelType.DSL);
@@ -258,8 +258,8 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM34(any());
-        verify(diagnosticMessageModule).requestDM34(any(), eq(0));
+        verify(communicationsModule).requestDM34(any());
+        verify(communicationsModule).requestDM34(any(), eq(0));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -274,8 +274,8 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
         var globalPacket = create(0, 0, INSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
         var dsPacket = AcknowledgmentPacket.create(0, NACK, 0, 0xF9, DM34NTEStatus.PGN);
 
-        when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
-        when(diagnosticMessageModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
+        when(communicationsModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
+        when(communicationsModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setFuelType(FuelType.DSL);
@@ -286,8 +286,8 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM34(any());
-        verify(diagnosticMessageModule).requestDM34(any(), eq(0));
+        verify(communicationsModule).requestDM34(any());
+        verify(communicationsModule).requestDM34(any(), eq(0));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -303,8 +303,8 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
         var globalPacket = create(0, 0, OUTSIDE, INSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
         var dsPacket = AcknowledgmentPacket.create(0, NACK, 0, 0xF9, DM34NTEStatus.PGN);
 
-        when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
-        when(diagnosticMessageModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
+        when(communicationsModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
+        when(communicationsModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setFuelType(FuelType.DSL);
@@ -315,8 +315,8 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM34(any());
-        verify(diagnosticMessageModule).requestDM34(any(), eq(0));
+        verify(communicationsModule).requestDM34(any());
+        verify(communicationsModule).requestDM34(any(), eq(0));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -332,8 +332,8 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
         var globalPacket = create(0, 0, OUTSIDE, OUTSIDE, OUTSIDE, INSIDE, OUTSIDE, OUTSIDE);
         var dsPacket = AcknowledgmentPacket.create(0, NACK, 0, 0xF9, DM34NTEStatus.PGN);
 
-        when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
-        when(diagnosticMessageModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
+        when(communicationsModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
+        when(communicationsModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setFuelType(FuelType.DSL);
@@ -344,8 +344,8 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM34(any());
-        verify(diagnosticMessageModule).requestDM34(any(), eq(0));
+        verify(communicationsModule).requestDM34(any());
+        verify(communicationsModule).requestDM34(any(), eq(0));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -363,8 +363,8 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
         var dsPacket = AcknowledgmentPacket.create(0, NACK, 0, 0xF9, DM34NTEStatus.PGN);
         System.out.println(globalPacket.getPacket());
         System.out.println(packet.getPacket());
-        when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, packet));
-        when(diagnosticMessageModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
+        when(communicationsModule.requestDM34(any())).thenReturn(new RequestResult<>(false, packet));
+        when(communicationsModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setFuelType(FuelType.DSL);
@@ -375,8 +375,8 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM34(any());
-        verify(diagnosticMessageModule).requestDM34(any(), eq(0));
+        verify(communicationsModule).requestDM34(any());
+        verify(communicationsModule).requestDM34(any(), eq(0));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -390,8 +390,8 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
         var dsPacket = AcknowledgmentPacket.create(0, NACK, 0, 0xF9, DM34NTEStatus.PGN);
         System.out.println(globalPacket.getPacket());
         System.out.println(packet.getPacket());
-        when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, packet));
-        when(diagnosticMessageModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
+        when(communicationsModule.requestDM34(any())).thenReturn(new RequestResult<>(false, packet));
+        when(communicationsModule.requestDM34(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setFuelType(FuelType.DSL);
@@ -402,8 +402,8 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM34(any());
-        verify(diagnosticMessageModule).requestDM34(any(), eq(0));
+        verify(communicationsModule).requestDM34(any());
+        verify(communicationsModule).requestDM34(any(), eq(0));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

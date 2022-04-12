@@ -4,10 +4,10 @@
 package org.etools.j1939_84.controllers.part02;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket.PGN;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.etools.j1939tools.j1939.packets.DM26TripDiagnosticReadinessPacket.PGN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -17,21 +17,21 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.DM26TripDiagnosticReadinessPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +50,7 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -86,7 +86,7 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               dataRepository,
                                               DateTimeModule.getInstance());
 
@@ -97,7 +97,7 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -106,7 +106,7 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -127,11 +127,11 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testNoResponsesNoModules() {
-        when(diagnosticMessageModule.requestDM26(any())).thenReturn(new RequestResult<>(false));
+        when(communicationsModule.requestDM26(any())).thenReturn(new RequestResult<>(false));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM26(any());
+        verify(communicationsModule).requestDM26(any());
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -140,13 +140,13 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoResponses() {
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
-        when(diagnosticMessageModule.requestDM26(any(), eq(0x01))).thenReturn(new RequestResult<>(true));
-        when(diagnosticMessageModule.requestDM26(any())).thenReturn(new RequestResult<>(true));
+        when(communicationsModule.requestDM26(any(), eq(0x01))).thenReturn(new RequestResult<>(true));
+        when(communicationsModule.requestDM26(any())).thenReturn(new RequestResult<>(true));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM26(any());
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0x01));
+        verify(communicationsModule).requestDM26(any());
+        verify(communicationsModule).requestDM26(any(), eq(0x01));
 
         verify(mockListener).addOutcome(PART,
                                         STEP,
@@ -189,7 +189,7 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
                                                                                                          0xEE,
                                                                                                          0xFF,
                                                                                                          0x00));
-        when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(new RequestResult<>(false, packet00));
+        when(communicationsModule.requestDM26(any(), eq(0))).thenReturn(new RequestResult<>(false, packet00));
 
         // Module 1 has the same both times and will not report an error
         DM26TripDiagnosticReadinessPacket packet1 = new DM26TripDiagnosticReadinessPacket(
@@ -206,7 +206,7 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
         obdModule1.set(packet1, 1);
         dataRepository.putObdModule(obdModule1);
-        when(diagnosticMessageModule.requestDM26(any(), eq(1))).thenReturn(new RequestResult<>(false, packet1));
+        when(communicationsModule.requestDM26(any(), eq(1))).thenReturn(new RequestResult<>(false, packet1));
 
         // Module 2 will not respond from the first time, but will respond this time
         dataRepository.putObdModule(new OBDModuleInformation(2));
@@ -221,13 +221,13 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
                                                                                                         0xFF,
                                                                                                         0xFF,
                                                                                                         0xFF));
-        when(diagnosticMessageModule.requestDM26(any(), eq(2))).thenReturn(new RequestResult<>(false, packet2));
+        when(communicationsModule.requestDM26(any(), eq(2))).thenReturn(new RequestResult<>(false, packet2));
 
         // Module 3 will not respond
         dataRepository.putObdModule(new OBDModuleInformation(3));
-        when(diagnosticMessageModule.requestDM26(any(), eq(3))).thenReturn(new RequestResult<>(true));
+        when(communicationsModule.requestDM26(any(), eq(3))).thenReturn(new RequestResult<>(true));
 
-        when(diagnosticMessageModule.requestDM26(any()))
+        when(communicationsModule.requestDM26(any()))
                                                         .thenReturn(new RequestResult<>(false,
                                                                                         packet0,
                                                                                         packet1,
@@ -235,11 +235,11 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM26(any());
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0x00));
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0x01));
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0x02));
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0x03));
+        verify(communicationsModule).requestDM26(any());
+        verify(communicationsModule).requestDM26(any(), eq(0x00));
+        verify(communicationsModule).requestDM26(any(), eq(0x01));
+        verify(communicationsModule).requestDM26(any(), eq(0x02));
+        verify(communicationsModule).requestDM26(any(), eq(0x03));
 
         String expectedResults = "" + NL;
         expectedResults += "Vehicle Composite of DM26:" + NL;
@@ -385,13 +385,13 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         obdModule1.set(packet1, 1);
         dataRepository.putObdModule(obdModule1);
 
-        when(diagnosticMessageModule.requestDM26(any())).thenReturn(new RequestResult<>(false, packet1));
-        when(diagnosticMessageModule.requestDM26(any(), eq(0x01))).thenReturn(new RequestResult<>(false, packet1));
+        when(communicationsModule.requestDM26(any())).thenReturn(new RequestResult<>(false, packet1));
+        when(communicationsModule.requestDM26(any(), eq(0x01))).thenReturn(new RequestResult<>(false, packet1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM26(any());
-        verify(diagnosticMessageModule).requestDM26(any(), eq(0x01));
+        verify(communicationsModule).requestDM26(any());
+        verify(communicationsModule).requestDM26(any(), eq(0x01));
 
         String expectedResults = NL;
         expectedResults += "Vehicle Composite of DM26:" + NL;

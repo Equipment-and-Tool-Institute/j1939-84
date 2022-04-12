@@ -4,13 +4,13 @@
 package org.etools.j1939_84.controllers.part03;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939tools.j1939.packets.LampStatus.ON;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -22,25 +22,25 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.DM6PendingEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +57,7 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -97,7 +97,7 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -106,7 +106,7 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -144,13 +144,13 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
         var nack = AcknowledgmentPacket.create(0, AcknowledgmentPacket.Response.NACK);
-        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, nack));
+        when(communicationsModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, nack));
 
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dm6_1 = DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1);
-        when(diagnosticMessageModule.requestDM6(any(), eq(1))).thenReturn(new RequestResult<>(false, dm6_1));
+        when(communicationsModule.requestDM6(any(), eq(1))).thenReturn(new RequestResult<>(false, dm6_1));
 
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6_1));
+        when(communicationsModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6_1));
 
         runTest();
 
@@ -161,16 +161,16 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         expectedResults += "Attempt 1" + NL;
         assertEquals(expectedResults, listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM6(any());
-        verify(diagnosticMessageModule).requestDM6(any(), eq(1));
-        verify(diagnosticMessageModule).requestDM6(any(), eq(0));
+        verify(communicationsModule).requestDM6(any());
+        verify(communicationsModule).requestDM6(any(), eq(1));
+        verify(communicationsModule).requestDM6(any(), eq(0));
 
         assertEquals(0, dateTimeModule.getTimeAsLong());
     }
 
     @Test
     public void testNoResponses() throws InterruptedException {
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(RequestResult.empty());
+        when(communicationsModule.requestDM6(any())).thenReturn(RequestResult.empty());
 
         runTest();
 
@@ -181,7 +181,7 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         expectedResults += "Attempt 1" + NL;
         assertEquals(expectedResults, listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM6(any());
+        verify(communicationsModule).requestDM6(any());
 
         assertEquals(0, dateTimeModule.getTimeAsLong());
 
@@ -193,7 +193,7 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
         var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6));
+        when(communicationsModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6));
 
         String promptMsg = "No ECU has reported a Pending Emission DTC." + NL + NL + "Do you wish to continue?";
         String promptTitle = "No Pending Emission DTCs Found";
@@ -220,7 +220,7 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         assertEquals(expectedResults.toString(), listener.getResults());
 
         verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
-        verify(diagnosticMessageModule, times(300)).requestDM6(any());
+        verify(communicationsModule, times(300)).requestDM6(any());
         verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
         verify(mockListener, times(2)).addOutcome(PART_NUMBER,
                                                   STEP_NUMBER,
@@ -237,8 +237,8 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dtc2 = DiagnosticTroubleCode.create(456, 3, 0, 1);
         var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2);
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6));
-        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6));
+        when(communicationsModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6));
+        when(communicationsModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6));
 
         runTest();
 
@@ -249,8 +249,8 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         expectedResults += "Attempt 1" + NL;
         assertEquals(expectedResults, listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM6(any());
-        verify(diagnosticMessageModule).requestDM6(any(), eq(0));
+        verify(communicationsModule).requestDM6(any());
+        verify(communicationsModule).requestDM6(any(), eq(0));
 
         assertEquals(0, dateTimeModule.getTimeAsLong());
 
@@ -267,8 +267,8 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dm6_0 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
         var dm6_1 = DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1);
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6_0, dm6_1));
-        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6_0));
+        when(communicationsModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6_0, dm6_1));
+        when(communicationsModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6_0));
 
         runTest();
 
@@ -279,8 +279,8 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         expectedResults += "Attempt 1" + NL;
         assertEquals(expectedResults, listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM6(any());
-        verify(diagnosticMessageModule).requestDM6(any(), eq(0));
+        verify(communicationsModule).requestDM6(any());
+        verify(communicationsModule).requestDM6(any(), eq(0));
 
         assertEquals(0, dateTimeModule.getTimeAsLong());
 
@@ -296,13 +296,13 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
         var dm6_0 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6_0));
+        when(communicationsModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6_0));
 
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dm6_1 = DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1);
-        when(diagnosticMessageModule.requestDM6(any(), eq(1))).thenReturn(new RequestResult<>(false, dm6_1));
+        when(communicationsModule.requestDM6(any(), eq(1))).thenReturn(new RequestResult<>(false, dm6_1));
 
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6_0, dm6_1));
+        when(communicationsModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6_0, dm6_1));
 
         runTest();
 
@@ -313,9 +313,9 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         expectedResults += "Attempt 1" + NL;
         assertEquals(expectedResults, listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM6(any());
-        verify(diagnosticMessageModule).requestDM6(any(), eq(1));
-        verify(diagnosticMessageModule).requestDM6(any(), eq(0));
+        verify(communicationsModule).requestDM6(any());
+        verify(communicationsModule).requestDM6(any(), eq(1));
+        verify(communicationsModule).requestDM6(any(), eq(0));
 
         assertEquals(0, dateTimeModule.getTimeAsLong());
     }
@@ -325,8 +325,8 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dm6 = DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6));
-        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6));
+        when(communicationsModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6));
+        when(communicationsModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6));
 
         runTest();
 
@@ -337,8 +337,8 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         expectedResults += "Attempt 1" + NL;
         assertEquals(expectedResults, listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM6(any());
-        verify(diagnosticMessageModule).requestDM6(any(), eq(0));
+        verify(communicationsModule).requestDM6(any());
+        verify(communicationsModule).requestDM6(any(), eq(0));
 
         assertEquals(0, dateTimeModule.getTimeAsLong());
 
@@ -354,8 +354,8 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dm6_1 = DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);
         var dm6_2 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6_1));
-        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6_2));
+        when(communicationsModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6_1));
+        when(communicationsModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6_2));
 
         runTest();
 
@@ -366,8 +366,8 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         expectedResults += "Attempt 1" + NL;
         assertEquals(expectedResults, listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM6(any());
-        verify(diagnosticMessageModule).requestDM6(any(), eq(0));
+        verify(communicationsModule).requestDM6(any());
+        verify(communicationsModule).requestDM6(any(), eq(0));
 
         assertEquals(0, dateTimeModule.getTimeAsLong());
 
@@ -383,9 +383,9 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
-        when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6));
-        when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6));
-        when(diagnosticMessageModule.requestDM6(any(), eq(1))).thenReturn(new RequestResult<>(false));
+        when(communicationsModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6));
+        when(communicationsModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6));
+        when(communicationsModule.requestDM6(any(), eq(1))).thenReturn(new RequestResult<>(false));
 
         runTest();
 
@@ -396,9 +396,9 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         expectedResults += "Attempt 1" + NL;
         assertEquals(expectedResults, listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM6(any());
-        verify(diagnosticMessageModule).requestDM6(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM6(any(), eq(1));
+        verify(communicationsModule).requestDM6(any());
+        verify(communicationsModule).requestDM6(any(), eq(0));
+        verify(communicationsModule).requestDM6(any(), eq(1));
 
         assertEquals(0, dateTimeModule.getTimeAsLong());
 

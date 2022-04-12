@@ -7,9 +7,6 @@ import static java.lang.String.format;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.J1939_84.isDevEnv;
 import static org.etools.j1939_84.J1939_84.isTesting;
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ALTERNATE_OFF;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939_84.controllers.Controller.Ending.STOPPED;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
@@ -18,6 +15,9 @@ import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939tools.j1939.packets.LampStatus.ALTERNATE_OFF;
+import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,27 +27,27 @@ import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticReadinessPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
-import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
-import org.etools.j1939_84.bus.j1939.packets.LampStatus;
-import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.KeyState;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.model.FuelType;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.CompositeSystem;
+import org.etools.j1939tools.j1939.packets.DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.LampStatus;
+import org.etools.j1939tools.j1939.packets.MonitoredSystem;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 public abstract class StepController extends Controller {
 
@@ -61,7 +61,7 @@ public abstract class StepController extends Controller {
                              DataRepository dataRepository,
                              EngineSpeedModule engineSpeedModule,
                              VehicleInformationModule vehicleInformationModule,
-                             DiagnosticMessageModule diagnosticMessageModule,
+                             CommunicationsModule communicationsModule,
                              int partNumber,
                              int stepNumber,
                              int totalSteps) {
@@ -71,7 +71,7 @@ public abstract class StepController extends Controller {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
         this.partNumber = partNumber;
         this.stepNumber = stepNumber;
         this.totalSteps = totalSteps;

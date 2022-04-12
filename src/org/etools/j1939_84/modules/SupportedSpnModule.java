@@ -8,8 +8,8 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.etools.j1939_84.controllers.ResultsListener;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.SpnGroup;
+import org.etools.j1939tools.j1939.model.FuelType;
 
 /**
  * Module used to validate Supported SPNs

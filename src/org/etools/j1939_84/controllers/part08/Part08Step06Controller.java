@@ -7,17 +7,17 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.DM1ActiveDTCsPacket;
+import org.etools.j1939tools.j1939.packets.DM2PreviouslyActiveDTC;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.8.6 DM5: Diagnostic Readiness 1
@@ -35,7 +35,7 @@ public class Part08Step06Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part08Step06Controller(Executor executor,
@@ -44,14 +44,14 @@ public class Part08Step06Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -60,11 +60,11 @@ public class Part08Step06Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.8.6.1.a Global DM5 [(send Request (PGN 59904) for PGN 65230 (SPNs 1218-1223)]).
-        var obdPackets = getDiagnosticMessageModule().requestDM5(getListener())
-                                                     .getPackets()
-                                                     .stream()
-                                                     .filter(p -> isObdModule(p.getSourceAddress()))
-                                                     .collect(Collectors.toList());
+        var obdPackets = getCommunicationsModule().requestDM5(getListener())
+                                                  .getPackets()
+                                                  .stream()
+                                                  .filter(p -> isObdModule(p.getSourceAddress()))
+                                                  .collect(Collectors.toList());
 
         // 6.8.6.2.a Fail if any OBD ECU reports different number of DTCs than corresponding DM1 response earlier
         // this part.
@@ -90,7 +90,7 @@ public class Part08Step06Controller extends StepController {
         // 6.8.6.3.a DS DM5 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM5(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM5(getListener(), a))
                                            .collect(Collectors.toList());
 
         // 6.8.6.4.a Fail if any difference in data compared to global response.

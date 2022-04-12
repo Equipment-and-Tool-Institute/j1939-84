@@ -11,16 +11,16 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.packets.DM6PendingEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.3.2 DM6: Emission related pending DTCs
@@ -38,7 +38,7 @@ public class Part03Step02Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part03Step02Controller(Executor executor,
@@ -47,14 +47,14 @@ public class Part03Step02Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -74,7 +74,7 @@ public class Part03Step02Controller extends StepController {
             updateProgress("Step 6.3.2.1.a - Requesting DM6 Attempt " + attempts);
 
             getListener().onResult(NL + "Attempt " + attempts);
-            globalPackets = getDiagnosticMessageModule().requestDM6(getListener()).getPackets();
+            globalPackets = getCommunicationsModule().requestDM6(getListener()).getPackets();
 
             // 6.3.2.2.a. Fail if no OBD ECU supports DM6.
             boolean hasNoObdPackets = globalPackets.stream()
@@ -129,7 +129,7 @@ public class Part03Step02Controller extends StepController {
 
         // 6.3.2.4 DS DM6 to each OBD ECU.
         var dsResults = obdModuleAddresses.stream()
-                                          .map(a -> getDiagnosticMessageModule().requestDM6(getListener(), a))
+                                          .map(a -> getCommunicationsModule().requestDM6(getListener(), a))
                                           .collect(Collectors.toList());
 
         // 6.3.2.5.a Fail if any difference compared to data received with global request.

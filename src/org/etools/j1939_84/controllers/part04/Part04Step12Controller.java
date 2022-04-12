@@ -10,17 +10,17 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.SpnFmi;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.model.SpnFmi;
+import org.etools.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.4.12 DM7/DM30: Command Non-Continuously Monitored Test/Scaled Test Results
@@ -37,7 +37,7 @@ public class Part04Step12Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part04Step12Controller(Executor executor,
@@ -46,14 +46,14 @@ public class Part04Step12Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -69,22 +69,22 @@ public class Part04Step12Controller extends StepController {
 
                 // 6.4.12.1.a. DS DM7 to each OBD ECU that provided test results in part 1 using TID 246, SPN 5846, and
                 // FMI 31.
-                var resultPackets = getDiagnosticMessageModule().requestTestResults(getListener(),
-                                                                                    moduleAddress,
-                                                                                    246,
-                                                                                    5846,
-                                                                                    31);
+                var resultPackets = getCommunicationsModule().requestTestResults(getListener(),
+                                                                                 moduleAddress,
+                                                                                 246,
+                                                                                 5846,
+                                                                                 31);
 
                 List<DM30ScaledTestResultsPacket> packets = new ArrayList<>(resultPackets);
                 if (packets.isEmpty()) {
                     // 6.4.12.1.a.i. If TID 246 method not supported, use DS DM7 with TID 247 + each DM24 SPN+ FMI 31
                     var testResultSPNs = obdModuleInformation.getTestResultSPNs();
                     testResultSPNs.stream()
-                                  .map(spn -> getDiagnosticMessageModule().requestTestResults(getListener(),
-                                                                                              moduleAddress,
-                                                                                              247,
-                                                                                              spn.getSpn(),
-                                                                                              31))
+                                  .map(spn -> getCommunicationsModule().requestTestResults(getListener(),
+                                                                                           moduleAddress,
+                                                                                           247,
+                                                                                           spn.getSpn(),
+                                                                                           31))
                                   .flatMap(Collection::stream)
                                   .forEach(packets::add);
                 }

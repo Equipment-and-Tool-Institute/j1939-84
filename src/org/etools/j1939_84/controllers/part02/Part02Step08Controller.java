@@ -3,8 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
-import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSystems;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939tools.modules.CommunicationsModule.getCompositeSystems;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -14,18 +14,20 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
-import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
-import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
-import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.packets.CompositeMonitoredSystem;
+import org.etools.j1939tools.j1939.packets.CompositeSystem;
+import org.etools.j1939tools.j1939.packets.DM26TripDiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.MonitoredSystem;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
+
+;
 
 /**
  * 6.2.8 DM26: Diagnostic readiness 3
@@ -41,7 +43,7 @@ public class Part02Step08Controller extends StepController {
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              dataRepository,
              DateTimeModule.getInstance());
     }
@@ -50,7 +52,7 @@ public class Part02Step08Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule,
+                           CommunicationsModule communicationsModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
@@ -59,7 +61,7 @@ public class Part02Step08Controller extends StepController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -75,7 +77,7 @@ public class Part02Step08Controller extends StepController {
             int address = obdModuleInformation.getSourceAddress();
             String moduleName = Lookup.getAddressName(address);
 
-            var result = getDiagnosticMessageModule().requestDM26(getListener(), address);
+            var result = getCommunicationsModule().requestDM26(getListener(), address);
 
             var resultPackets = result.getPackets();
             if (resultPackets != null) {
@@ -125,7 +127,7 @@ public class Part02Step08Controller extends StepController {
         reportDuplicateCompositeSystems(dsPackets, "6.2.8.3.a");
 
         // 6.2.8.4.a Global DM26.
-        var globalPackets = getDiagnosticMessageModule().requestDM26(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM26(getListener()).getPackets();
 
         // 6.2.8.4.b Record time since engine start (SPN 3301) from each ECU and timestamp of when message was received.
         // This is accomplished by keeping around the packets received.

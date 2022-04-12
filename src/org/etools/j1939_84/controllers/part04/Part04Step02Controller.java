@@ -4,10 +4,10 @@
 package org.etools.j1939_84.controllers.part04;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
+import static org.etools.j1939tools.j1939.packets.LampStatus.ON;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -15,19 +15,19 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DM6PendingEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.4.2 DM12: Emissions Related Active DTCs
@@ -44,7 +44,7 @@ public class Part04Step02Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part04Step02Controller(Executor executor,
@@ -53,14 +53,14 @@ public class Part04Step02Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -82,7 +82,7 @@ public class Part04Step02Controller extends StepController {
             updateProgress("Step 6.4.2.1.a - Requesting DM12 Attempt " + attempts);
 
             getListener().onResult(NL + "Attempt " + attempts);
-            globalPackets = getDiagnosticMessageModule().requestDM12(getListener()).getPackets();
+            globalPackets = getCommunicationsModule().requestDM12(getListener()).getPackets();
 
             foundDTC.set(globalPackets.stream().anyMatch(p -> !p.getDtcs().isEmpty()));
 
@@ -150,7 +150,7 @@ public class Part04Step02Controller extends StepController {
         // 6.4.2.4.a. DS DM12 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM12(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM12(getListener(), a))
                                            .map(BusResult::requestResult)
                                            .collect(Collectors.toList());
 

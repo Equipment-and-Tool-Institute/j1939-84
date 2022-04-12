@@ -3,21 +3,21 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
-import org.etools.j1939_84.bus.j1939.packets.DTCLampStatus;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.DM31DtcToLampAssociation;
+import org.etools.j1939tools.j1939.packets.DTCLampStatus;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.1.23 DM31: DTC to Lamp Association
@@ -33,7 +33,7 @@ public class Part01Step23Controller extends StepController {
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              DateTimeModule.getInstance(),
              DataRepository.getInstance());
     }
@@ -42,7 +42,7 @@ public class Part01Step23Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule,
+                           CommunicationsModule communicationsModule,
                            DateTimeModule dateTimeModule,
                            DataRepository dataRepository) {
         super(executor,
@@ -51,7 +51,7 @@ public class Part01Step23Controller extends StepController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -61,7 +61,7 @@ public class Part01Step23Controller extends StepController {
     protected void run() throws Throwable {
         // 6.1.23.1.a. Global DM31 (send Request (PGN 59904) for PGN 41728 (SPNs 1214-1215, 4113, 4117)).
         // 6.1.23.2.a. Fail if any received ECU response does not report MIL off.
-        getDiagnosticMessageModule().requestDM31(getListener())
+        getCommunicationsModule().requestDM31(getListener())
                                     .getPackets()
                                     .stream()
                                     .filter(Part01Step23Controller::isMilNotOff)

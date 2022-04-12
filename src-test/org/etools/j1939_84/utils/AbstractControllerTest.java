@@ -7,13 +7,13 @@ import static org.mockito.Mockito.verify;
 
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.modules.CommunicationsModule;
 import org.mockito.ArgumentCaptor;
 
 /**
@@ -34,11 +34,11 @@ public abstract class AbstractControllerTest {
 
     private VehicleInformationModule vehicleInformationModule;
 
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     /**
      * This method will execute a test and capture the results for testing
-     * verification. This method also performs the verification of the j1939
+     * verification. This method also performs the verification of the j1939tools
      * mock used in this method.
      */
     protected void runTest() {
@@ -51,8 +51,8 @@ public abstract class AbstractControllerTest {
         // this class, we need to verify them here.
         verify(engineSpeedModule).setJ1939(j1939);
         verify(vehicleInformationModule).setJ1939(j1939);
-        if (diagnosticMessageModule != null) {
-            verify(diagnosticMessageModule).setJ1939(j1939);
+        if (communicationsModule != null) {
+            verify(communicationsModule).setJ1939(j1939);
         }
     }
 
@@ -63,7 +63,7 @@ public abstract class AbstractControllerTest {
                          ReportFileModule reportFileModule,
                          EngineSpeedModule engineSpeedModule,
                          VehicleInformationModule vehicleInformationModule,
-                         DiagnosticMessageModule diagnosticMessageModule) {
+                         CommunicationsModule communicationsModule) {
         this.instance = instance;
         this.listener = listener;
         this.engineSpeedModule = engineSpeedModule;
@@ -71,7 +71,7 @@ public abstract class AbstractControllerTest {
         this.reportFileModule = reportFileModule;
         this.executor = executor;
         this.vehicleInformationModule = vehicleInformationModule;
-        this.diagnosticMessageModule = diagnosticMessageModule;
+        this.communicationsModule = communicationsModule;
     }
 
 }

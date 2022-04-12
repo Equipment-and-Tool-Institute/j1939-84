@@ -3,26 +3,27 @@
  */
 package org.etools.j1939_84.controllers.part06;
 
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.etools.j1939tools.j1939.packets.LampStatus.ON;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DM1ActiveDTCsPacket;
+import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.6.4 DM1: Active Diagnostic Trouble Codes (DTCs)
@@ -39,7 +40,7 @@ public class Part06Step04Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part06Step04Controller(Executor executor,
@@ -48,14 +49,14 @@ public class Part06Step04Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -64,8 +65,9 @@ public class Part06Step04Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.6.4.1.a Receive broadcast DM1 [(PGN 65226 (SPNs 1213-1215, 3038, 1706)]).
-        List<DM1ActiveDTCsPacket> packets = getDiagnosticMessageModule().readDM1(getListener())
-                                                                        .stream()
+        List<DM1ActiveDTCsPacket> packets = read(DM1ActiveDTCsPacket.class, 3, SECONDS)
+                                                                                       .stream()
+                                                                                       .map(p -> new DM1ActiveDTCsPacket(p.getPacket()))
                                                                         .filter(p -> isObdModule(p.getSourceAddress()))
                                                                         .collect(Collectors.toList());
 

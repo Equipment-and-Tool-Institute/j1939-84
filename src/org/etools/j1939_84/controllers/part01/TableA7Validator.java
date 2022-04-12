@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.ExpectedTestResult;
+import org.etools.j1939tools.j1939.packets.ScaledTestResult;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)

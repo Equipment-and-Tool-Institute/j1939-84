@@ -8,15 +8,15 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
-import org.etools.j1939_84.bus.j1939.packets.EngineHoursTimer;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
+import org.etools.j1939tools.j1939.packets.EngineHoursTimer;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;;
 
 /**
  * 6.9.24 DM33: Emission Increasing Auxiliary Emission Control Device Active Time
@@ -33,7 +33,7 @@ public class Part09Step24Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part09Step24Controller(Executor executor,
@@ -42,14 +42,14 @@ public class Part09Step24Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -60,7 +60,7 @@ public class Part09Step24Controller extends StepController {
         // 6.9.24.1.a. DS DM33 [(send Request (PGN 59904) for PGN 41216 (SPNs 4124-4126))] to each OBD ECU.
         var dsResponses = getDataRepository().getObdModuleAddresses()
                                              .stream()
-                                             .map(a -> getDiagnosticMessageModule().requestDM33(getListener(), a))
+                                             .map(a -> getCommunicationsModule().requestDM33(getListener(), a))
                                              .collect(Collectors.toList());
 
         var dsPackets = filterRequestResultPackets(dsResponses);

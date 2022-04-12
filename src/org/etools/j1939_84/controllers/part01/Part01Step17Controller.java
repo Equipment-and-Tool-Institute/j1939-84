@@ -7,15 +7,15 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.LampStatus;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.LampStatus;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.1.17 DM6: Emission related pending DTCs
@@ -31,7 +31,7 @@ public class Part01Step17Controller extends StepController {
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              dataRepository,
              DateTimeModule.getInstance());
     }
@@ -40,7 +40,7 @@ public class Part01Step17Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule,
+                           CommunicationsModule communicationsModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
@@ -49,7 +49,7 @@ public class Part01Step17Controller extends StepController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -59,7 +59,7 @@ public class Part01Step17Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.1.17.1.a. Global DM6 (send Request (PGN 59904) for PGN 65227 (SPNs 1213-1215, 3038, 1706)).
-        var globalPackets = getDiagnosticMessageModule().requestDM6(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM6(getListener()).getPackets();
 
         // 6.1.17.2.c. Fail if no OBD ECU provides DM6.
         if (globalPackets.isEmpty()) {
@@ -85,7 +85,7 @@ public class Part01Step17Controller extends StepController {
         // 6.1.17.3.a. DS DM6 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM6(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM6(getListener(), a))
                                            .collect(Collectors.toList());
 
         // 6.1.17.4.a. Fail if any difference compared to data received during global request.

@@ -3,21 +3,21 @@
  */
 package org.etools.j1939_84.controllers.part08;
 
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.SectionA5Verifier;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.8.13 DM3: Diagnostic Data Clear/Reset for Previously Active DTCs
@@ -36,7 +36,7 @@ public class Part08Step13Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              new SectionA5Verifier(PART_NUMBER, STEP_NUMBER));
     }
 
@@ -46,7 +46,7 @@ public class Part08Step13Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule,
+                           CommunicationsModule communicationsModule,
                            SectionA5Verifier verifier) {
         super(executor,
               bannerModule,
@@ -54,7 +54,7 @@ public class Part08Step13Controller extends StepController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -69,10 +69,10 @@ public class Part08Step13Controller extends StepController {
         for (OBDModuleInformation obdInfo : getDataRepository().getObdModules()) {
 
             // 6.8.13.2.a. Fail if any ECU does not NACK
-            boolean nacked = getDiagnosticMessageModule().requestDM3(getListener(), obdInfo.getSourceAddress())
-                                                         .stream()
-                                                         .map(AcknowledgmentPacket::getResponse)
-                                                         .anyMatch(r -> r == NACK);
+            boolean nacked = getCommunicationsModule().requestDM3(getListener(), obdInfo.getSourceAddress())
+                                                      .stream()
+                                                      .map(AcknowledgmentPacket::getResponse)
+                                                      .anyMatch(r -> r == NACK);
             if (!nacked) {
                 addFailure("6.8.13.2.a - " + obdInfo.getModuleName() + " did not NACK");
             }
@@ -85,7 +85,7 @@ public class Part08Step13Controller extends StepController {
         verifier.verifyDataNotErased(getListener(), "6.8.13.2.a");
 
         // 6.8.13.3.a. Global DM3.
-        getDiagnosticMessageModule().requestDM3(getListener());
+        getCommunicationsModule().requestDM3(getListener());
 
         // 6.8.13.3.b. Wait 5 seconds before checking for erased information.
         pause("Step 6.8.13.3.b - Waiting %1$d seconds before checking for erased information", 5);

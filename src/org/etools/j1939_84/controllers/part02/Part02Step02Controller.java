@@ -3,8 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
-import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSystems;
+import static org.etools.j1939tools.j1939.Lookup.getAddressName;
+import static org.etools.j1939tools.modules.CommunicationsModule.getCompositeSystems;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,20 +12,20 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
-import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
-import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.part01.SectionA6Validator;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.packets.CompositeMonitoredSystem;
+import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.MonitoredSystem;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.2.2 DM5: Diagnostic Readiness 1
@@ -42,7 +42,7 @@ public class Part02Step02Controller extends StepController {
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              DateTimeModule.getInstance(),
              new SectionA6Validator(dataRepository, PART_NUMBER, STEP_NUMBER),
              dataRepository);
@@ -52,7 +52,7 @@ public class Part02Step02Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule,
+                           CommunicationsModule communicationsModule,
                            DateTimeModule dateTimeModule,
                            SectionA6Validator sectionA6Validator,
                            DataRepository dataRepository) {
@@ -62,7 +62,7 @@ public class Part02Step02Controller extends StepController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -72,7 +72,7 @@ public class Part02Step02Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.2.2.1.a. Global DM5 (send Request (PGN 59904) for PGN 65230 (SPNs 1218-1223)).
-        RequestResult<DM5DiagnosticReadinessPacket> globalDM5Result = getDiagnosticMessageModule().requestDM5(
+        RequestResult<DM5DiagnosticReadinessPacket> globalDM5Result = getCommunicationsModule().requestDM5(
                                                                                                               getListener());
         List<DM5DiagnosticReadinessPacket> globalDM5Packets = globalDM5Result.getPackets();
         List<DM5DiagnosticReadinessPacket> obdGlobalPackets = globalDM5Packets
@@ -118,7 +118,7 @@ public class Part02Step02Controller extends StepController {
         List<DM5DiagnosticReadinessPacket> destinationSpecificPackets = new ArrayList<>();
         getDataRepository().getObdModuleAddresses()
                            .forEach(address -> {
-                               BusResult<DM5DiagnosticReadinessPacket> busResult = getDiagnosticMessageModule()
+                               BusResult<DM5DiagnosticReadinessPacket> busResult = getCommunicationsModule()
                                                                                                                .requestDM5(getListener(),
                                                                                                                            address);
                                busResult.getPacket()

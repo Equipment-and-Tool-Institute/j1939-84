@@ -8,17 +8,17 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
-import org.etools.j1939_84.bus.j1939.packets.LampStatus;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
+import org.etools.j1939tools.j1939.packets.LampStatus;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.4.9 DM27: All Pending DTCs
@@ -35,7 +35,7 @@ public class Part04Step09Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part04Step09Controller(Executor executor,
@@ -44,14 +44,14 @@ public class Part04Step09Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -60,7 +60,7 @@ public class Part04Step09Controller extends StepController {
     @Override
     protected void run() throws Throwable {
 
-        var globalPackets = getDiagnosticMessageModule().requestDM27(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM27(getListener()).getPackets();
 
         // 6.4.9.2.a (if supported) Fail if any ECU reports a pending DTC.
         globalPackets.stream()
@@ -86,7 +86,7 @@ public class Part04Step09Controller extends StepController {
         // 6.4.9.3.a DS DM27 to each OBD ECU.
         var dsResults = obdModuleAddresses
                                           .stream()
-                                          .map(a -> getDiagnosticMessageModule().requestDM27(getListener(), a))
+                                          .map(a -> getCommunicationsModule().requestDM27(getListener(), a))
                                           .collect(Collectors.toList());
 
         // 6.4.9.4.a (if supported) Fail if any difference compared to data received from global request.

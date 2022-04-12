@@ -6,7 +6,7 @@ package org.etools.j1939_84.controllers.part02;
 import org.etools.j1939_84.controllers.AbstractPartControllerTest;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.Before;
 
 public class Part02ControllerTest extends AbstractPartControllerTest {
@@ -24,7 +24,7 @@ public class Part02ControllerTest extends AbstractPartControllerTest {
                                         DataRepository.newInstance(),
                                         engineSpeedModule,
                                         vehicleInformationModule,
-                                        diagnosticMessageModule,
+                                        communicationsModule,
                                         step01Controller,
                                         step02Controller,
                                         step03Controller,

@@ -10,13 +10,13 @@ import static org.etools.j1939_84.model.Outcome.WARN;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
-import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
-import org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.Outcome;
+import org.etools.j1939tools.j1939.model.FuelType;
+import org.etools.j1939tools.j1939.packets.CompositeMonitoredSystem;
+import org.etools.j1939tools.j1939.packets.MonitoredSystem;
+import org.etools.j1939tools.j1939.packets.MonitoredSystemStatus;
 
 /**
  * The validator for Table A.6.1 Composite vehicle readiness - Diesel Engines &

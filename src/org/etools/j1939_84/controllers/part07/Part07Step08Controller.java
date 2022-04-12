@@ -3,20 +3,22 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
+
+;
 
 /**
  * 6.7.8 DM27: All Pending DTCs
@@ -33,7 +35,7 @@ public class Part07Step08Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part07Step08Controller(Executor executor,
@@ -42,14 +44,14 @@ public class Part07Step08Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -58,7 +60,7 @@ public class Part07Step08Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.7.8.1.a Global DM27 [(send Request (PGN 59904) for PGN 64898 (SPNs 1213-1215, 1706, and 3038)]).
-        var globalPackets = getDiagnosticMessageModule().requestDM27(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM27(getListener()).getPackets();
 
         globalPackets.forEach(this::save);
 
@@ -79,7 +81,7 @@ public class Part07Step08Controller extends StepController {
         // 6.7.8.3.a DS DM27 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM27(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM27(getListener(), a))
                                            .collect(Collectors.toList());
 
         // 6.7.8.4.a (if supported) Fail if any difference compared to data received for global request.

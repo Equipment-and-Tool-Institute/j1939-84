@@ -6,8 +6,8 @@ package org.etools.j1939_84.controllers.part01;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.model.ExpectedTestResult;
+import org.etools.j1939tools.j1939.packets.ScaledTestResult;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)

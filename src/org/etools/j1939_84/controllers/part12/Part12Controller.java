@@ -10,10 +10,10 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.PartController;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.12 Part 12 Verify Deletion of Fault B from DM28
@@ -27,7 +27,7 @@ public class Part12Controller extends PartController {
              dataRepository,
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              new Part12Step01Controller(),
              new Part12Step02Controller(),
              new Part12Step03Controller(),
@@ -37,7 +37,8 @@ public class Part12Controller extends PartController {
              new Part12Step07Controller(),
              new Part12Step08Controller(),
              new Part12Step09Controller(),
-             new Part12Step10Controller());
+             new Part12Step10Controller(),
+             new Part12Step11Controller());
     }
 
     /**
@@ -49,7 +50,7 @@ public class Part12Controller extends PartController {
                             DataRepository dataRepository,
                             EngineSpeedModule engineSpeedModule,
                             VehicleInformationModule vehicleInformationModule,
-                            DiagnosticMessageModule diagnosticMessageModule,
+                            CommunicationsModule communicationsModule,
                             StepController... stepControllers) {
         super(executor,
               bannerModule,
@@ -57,7 +58,7 @@ public class Part12Controller extends PartController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               12,
               stepControllers);
     }

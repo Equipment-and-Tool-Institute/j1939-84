@@ -8,16 +8,16 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
-import org.etools.j1939_84.bus.j1939.packets.DTCLampStatus;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.DM31DtcToLampAssociation;
+import org.etools.j1939tools.j1939.packets.DTCLampStatus;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.2.13 DM31: DTC to Lamp Association
@@ -35,7 +35,7 @@ public class Part02Step13Controller extends StepController {
              new VehicleInformationModule(),
              dataRepository,
              DateTimeModule.getInstance(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part02Step13Controller(Executor executor,
@@ -44,14 +44,14 @@ public class Part02Step13Controller extends StepController {
                            VehicleInformationModule vehicleInformationModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -62,7 +62,7 @@ public class Part02Step13Controller extends StepController {
         // 6.2.13.1.a. DS DM31 (send Request (PGN 59904) for PGN 41728 (SPNs 1214-1215, 4113, 4117)) to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM31(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM31(getListener(), a))
                                            .collect(Collectors.toList());
 
         List<DM31DtcToLampAssociation> dsPackets = filterRequestResultPackets(dsResults);

@@ -4,11 +4,11 @@
 package org.etools.j1939_84.modules;
 
 import static java.time.temporal.ChronoUnit.MILLIS;
-import static org.etools.j1939_84.bus.j1939.J1939.ENGINE_ADDR;
 import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.etools.j1939_84.model.KeyState.UNKNOWN;
+import static org.etools.j1939tools.j1939.J1939.ENGINE_ADDR;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.ExecutorService;
@@ -18,11 +18,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import org.etools.j1939_84.bus.Either;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket;
-import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.model.KeyState;
+import org.etools.j1939tools.bus.Either;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.EngineSpeedPacket;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.modules.FunctionalModule;
 
 /**
  * {@link FunctionalModule} used to determine if the Engine is communicating
@@ -147,11 +148,11 @@ public class EngineSpeedModule extends FunctionalModule {
     }
 
     private void processIdleSpeedPacket(GenericPacket packet) {
-        packet.getSpnValue(188).forEach(idleEngineSpeed::set);
+        packet.getSpnValue(188).ifPresent(idleEngineSpeed::set);
     }
 
     private void processPedalPositionPacket(GenericPacket packet) {
-        Stream.concat(packet.getSpnValue(29), packet.getSpnValue(91))
+        Stream.concat(packet.getSpnValue(29).stream(), packet.getSpnValue(91).stream())
               .mapToDouble(v -> v)
               .max()
               .stream()
@@ -161,7 +162,7 @@ public class EngineSpeedModule extends FunctionalModule {
     private void processEngineSpeedPacket(GenericPacket packet) {
         long millisBetweenPackets = calculateMillisBetweenPackets(packet);
 
-        packet.getSpnValue(190).forEach(engineSpeed -> {
+        packet.getSpnValue(190).ifPresent(engineSpeed -> {
             currentEngineSpeed.set(engineSpeed);
             averagedEngineSpeed.set(engineSpeed / WMA_FACTOR
                     + averagedEngineSpeed.get() * (WMA_FACTOR - 1) / WMA_FACTOR);

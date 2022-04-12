@@ -7,16 +7,16 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
-import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
+import org.etools.j1939tools.j1939.packets.ScaledTestResult;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.4.14 DM7/DM30: Command Non-Continuously Monitored Test/Scaled Test Results
@@ -33,7 +33,7 @@ public class Part04Step14Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part04Step14Controller(Executor executor,
@@ -42,14 +42,14 @@ public class Part04Step14Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -68,7 +68,7 @@ public class Part04Step14Controller extends StepController {
                 int fmi = str.getFmi();
 
                 // 6.4.14.2.a. Fail if any [Scaled Test Result is] now reporting initialized values.
-                getDiagnosticMessageModule().requestTestResults(getListener(), moduleAddress, 250, spn, fmi)
+                getCommunicationsModule().requestTestResults(getListener(), moduleAddress, 250, spn, fmi)
                                             .stream()
                                             .map(DM30ScaledTestResultsPacket::getTestResults)
                                             .flatMap(Collection::stream)

@@ -3,23 +3,23 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ALTERNATE_OFF;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.NOT_SUPPORTED;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939tools.j1939.packets.LampStatus.ALTERNATE_OFF;
+import static org.etools.j1939tools.j1939.packets.LampStatus.NOT_SUPPORTED;
+import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.3.9 DM12: Emissions related active DTCs
@@ -37,7 +37,7 @@ public class Part03Step09Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part03Step09Controller(Executor executor,
@@ -46,14 +46,14 @@ public class Part03Step09Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -62,7 +62,7 @@ public class Part03Step09Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.3.9.1.a Global DM12 (send Request (PGN 59904) for PGN 65236 (SPNs 1213-1215, 1706, and 3038)).
-        var globalPackets = getDiagnosticMessageModule().requestDM12(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM12(getListener()).getPackets();
 
         // 6.3.9.2.a Fail if any ECU reports an active DTC.
         globalPackets.stream()
@@ -99,8 +99,8 @@ public class Part03Step09Controller extends StepController {
         // 6.3.9.3.a DS DM12 to each OBD ECU.
         var dsResults = obdModuleAddresses
                                           .stream()
-                                          .map(address -> getDiagnosticMessageModule().requestDM12(getListener(),
-                                                                                                   address))
+                                          .map(address -> getCommunicationsModule().requestDM12(getListener(),
+                                                                                                address))
                                           .collect(Collectors.toList());
 
         // 6.3.9.4.a Fail if any difference compared to data received from global request.

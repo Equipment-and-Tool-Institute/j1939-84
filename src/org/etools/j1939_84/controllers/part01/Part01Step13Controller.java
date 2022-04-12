@@ -3,7 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSystems;
+import static org.etools.j1939tools.modules.CommunicationsModule.getCompositeSystems;
 
 import java.util.Collection;
 import java.util.List;
@@ -11,19 +11,19 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticReadinessPacket;
-import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
-import org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.MonitoredSystem;
+import org.etools.j1939tools.j1939.packets.MonitoredSystemStatus;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.1.13 DM5: Diagnostic Readiness 1: Monitor Readiness
@@ -41,7 +41,7 @@ public class Part01Step13Controller extends StepController {
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              dataRepository,
              new SectionA6Validator(dataRepository, PART_NUMBER, STEP_NUMBER),
              DateTimeModule.getInstance());
@@ -51,7 +51,7 @@ public class Part01Step13Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule,
+                           CommunicationsModule communicationsModule,
                            DataRepository dataRepository,
                            SectionA6Validator sectionA6Validator,
                            DateTimeModule dateTimeModule) {
@@ -61,7 +61,7 @@ public class Part01Step13Controller extends StepController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -72,7 +72,7 @@ public class Part01Step13Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.1.13.1.a. Global DM5 (send Request (PGN 59904) for PGN 65230 (SPNs 1218-1223)).
-        RequestResult<DM5DiagnosticReadinessPacket> response = getDiagnosticMessageModule().requestDM5(getListener());
+        RequestResult<DM5DiagnosticReadinessPacket> response = getCommunicationsModule().requestDM5(getListener());
         List<DM5DiagnosticReadinessPacket> obdGlobalPackets = response.getPackets()
                                                                       .stream()
                                                                       .filter(DM5DiagnosticReadinessPacket::isObd)
@@ -130,7 +130,7 @@ public class Part01Step13Controller extends StepController {
         // 6.1.13.3.a. DS DM5 to each OBD ECU.
         var dsPackets = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getDiagnosticMessageModule().requestDM5(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM5(getListener(), a))
                                            .collect(Collectors.toList());
 
         // 6.1.13.4.a. Fail if any difference compared to data received during global request.

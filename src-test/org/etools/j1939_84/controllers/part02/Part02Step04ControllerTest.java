@@ -3,8 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket.PGN;
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939tools.j1939.packets.DM20MonitorPerformanceRatioPacket.PGN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -16,29 +16,31 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
-import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.DM20MonitorPerformanceRatioPacket;
+import org.etools.j1939tools.j1939.packets.PerformanceRatio;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+;
 
 @RunWith(MockitoJUnitRunner.class)
 public class Part02Step04ControllerTest extends AbstractControllerTest {
@@ -51,7 +53,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -85,7 +87,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               dataRepository,
                                               DateTimeModule.getInstance());
 
@@ -96,7 +98,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -105,9 +107,9 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener,
-                                 diagnosticMessageModule);
+                                 communicationsModule);
     }
 
     @Test
@@ -129,8 +131,8 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         };
         var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data));
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(packet));
-        when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM20(any(), eq(0x00)))
                                                                   .thenReturn(BusResult.of(packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
@@ -140,8 +142,8 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
-        verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
+        verify(communicationsModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -170,10 +172,10 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         };
         var packet1 = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data1));
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(packet1));
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(packet1));
 
         var packet2 = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, 0, 0, 0, 0, 0, 0, 0, 0, 0));
-        when(diagnosticMessageModule.requestDM20(any(), eq(0x00))).thenReturn(BusResult.of(packet2));
+        when(communicationsModule.requestDM20(any(), eq(0x00))).thenReturn(BusResult.of(packet2));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
         PerformanceRatio[] ratios = packet1.getRatios().toArray(new PerformanceRatio[0]);
@@ -182,9 +184,9 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM20(any());
-        verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -213,8 +215,8 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         };
         var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data));
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(packet));
-        when(diagnosticMessageModule.requestDM20(any(), eq(0x00))).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM20(any(), eq(0x00))).thenReturn(BusResult.of(packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
         PerformanceRatio[] ratios = packet.getRatios().toArray(new PerformanceRatio[0]);
@@ -223,8 +225,8 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
-        verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
+        verify(communicationsModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -253,11 +255,11 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         };
         var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data1));
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(packet));
-        when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM20(any(), eq(0x00)))
                                                                   .thenReturn(BusResult.of(packet));
 
-        when(diagnosticMessageModule.requestDM20(any(), eq(0x17))).thenReturn(BusResult.empty());
+        when(communicationsModule.requestDM20(any(), eq(0x17))).thenReturn(BusResult.empty());
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
         PerformanceRatio[] ratios = packet.getRatios().toArray(new PerformanceRatio[0]);
@@ -269,9 +271,9 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
-        verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
-        verify(diagnosticMessageModule).requestDM20(any(), eq(0x17));
+        verify(communicationsModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any(), eq(0x00));
+        verify(communicationsModule).requestDM20(any(), eq(0x17));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -301,8 +303,8 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         };
         var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data));
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(packet));
-        when(diagnosticMessageModule.requestDM20(any(), eq(0x00))).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(packet));
+        when(communicationsModule.requestDM20(any(), eq(0x00))).thenReturn(BusResult.of(packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
         var ratio = new PerformanceRatio(0x222222, 0xAAAA, 0xBBBB, 0x00);
@@ -311,8 +313,8 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
-        verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
+        verify(communicationsModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -373,7 +375,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
             };
             var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data));
             packetList.add(packet);
-            when(diagnosticMessageModule.requestDM20(any(), eq(0x00))).thenReturn(BusResult.of(packet));
+            when(communicationsModule.requestDM20(any(), eq(0x00))).thenReturn(BusResult.of(packet));
 
             OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
             PerformanceRatio[] ratios = packet.getRatios().toArray(new PerformanceRatio[0]);
@@ -406,7 +408,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
             };
             var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x17, data));
             packetList.add(packet);
-            when(diagnosticMessageModule.requestDM20(any(), eq(0x17))).thenReturn(BusResult.of(packet));
+            when(communicationsModule.requestDM20(any(), eq(0x17))).thenReturn(BusResult.of(packet));
 
             OBDModuleInformation obdInfo = new OBDModuleInformation(0x17);
             PerformanceRatio[] ratios = packet.getRatios().toArray(new PerformanceRatio[0]);
@@ -414,13 +416,13 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
             dataRepository.putObdModule(obdInfo);
         }
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false, packetList, List.of()));
+        when(communicationsModule.requestDM20(any())).thenReturn(new RequestResult<>(false, packetList, List.of()));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
-        verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
-        verify(diagnosticMessageModule).requestDM20(any(), eq(0x17));
+        verify(communicationsModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any(), eq(0x00));
+        verify(communicationsModule).requestDM20(any(), eq(0x17));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -428,11 +430,11 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testNoPackets() {
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.empty());
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.empty());
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any());
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

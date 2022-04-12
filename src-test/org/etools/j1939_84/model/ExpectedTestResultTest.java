@@ -7,7 +7,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
+import org.etools.j1939tools.j1939.packets.ScaledTestResult;
 import org.junit.Test;
 
 /**

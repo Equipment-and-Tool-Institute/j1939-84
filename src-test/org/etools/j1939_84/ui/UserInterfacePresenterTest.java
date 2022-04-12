@@ -27,16 +27,9 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import org.etools.j1939_84.TestExecutor;
-import org.etools.j1939_84.bus.Adapter;
-import org.etools.j1939_84.bus.Bus;
-import org.etools.j1939_84.bus.BusException;
-import org.etools.j1939_84.bus.RP1210;
-import org.etools.j1939_84.bus.RP1210Bus;
-import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.OverallController;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.modules.ReportFileModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +42,14 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.Adapter;
+import org.etools.j1939tools.bus.Bus;
+import org.etools.j1939tools.bus.BusException;
+import org.etools.j1939tools.bus.RP1210;
+import org.etools.j1939tools.bus.RP1210Bus;
+import org.etools.j1939tools.j1939.J1939;
+
 /**
  * Unit testing the {@link UserInterfacePresenter}
  *
@@ -58,7 +59,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @RunWith(MockitoJUnitRunner.class)
 public class UserInterfacePresenterTest {
 
-    private static final String path = "file\\location\\name.j1939-84";
+    private static final String path = "file\\location\\name.j1939tools-84";
     private final Adapter adapter1 = new Adapter("Adapter1", "SD", (short) 1);
     private final Adapter adapter2 = new Adapter("Adapter2", "SD", (short) 2);
     @Mock
@@ -78,11 +79,13 @@ public class UserInterfacePresenterTest {
     private Thread shutdownHook;
     @Mock
     private UserInterfaceContract.View view;
+    @Mock
+    J1939 j1939;
 
     private static File mockFile(boolean newFile) throws IOException {
         File file = mock(File.class);
         when(file.exists()).thenReturn(false);
-        when(file.getName()).thenReturn("name.j1939-84");
+        when(file.getName()).thenReturn("name.j1939tools-84");
         when(file.getAbsolutePath()).thenReturn(path);
         when(file.createNewFile()).thenReturn(newFile);
         return file;
@@ -95,7 +98,7 @@ public class UserInterfacePresenterTest {
         adapters.add(adapter1);
         adapters.add(adapter2);
         when(rp1210.getAdapters()).thenReturn(adapters);
-        when(rp1210.setAdapter(any(), eq("J1939:Baud=Auto"), eq(0xF9))).thenReturn(rp1210Bus);
+        // when(rp1210.setAdapter(any(), eq("J1939:Baud=Auto"), eq(0xF9))).thenReturn(rp1210Bus);
 
         instance = new UserInterfacePresenter(view,
                                               vehicleInformationModule,
@@ -103,7 +106,8 @@ public class UserInterfacePresenterTest {
                                               reportFileModule,
                                               runtime,
                                               executor,
-                                              overallController);
+                                              overallController,
+                                              j1939);
         ArgumentCaptor<Thread> captor = ArgumentCaptor.forClass(Thread.class);
         verify(runtime).addShutdownHook(captor.capture());
         shutdownHook = captor.getValue();
@@ -116,7 +120,8 @@ public class UserInterfacePresenterTest {
                                  rp1210Bus,
                                  runtime,
                                  vehicleInformationModule,
-                                 view);
+                                 view,
+                                 j1939);
     }
 
     @Test
@@ -127,7 +132,7 @@ public class UserInterfacePresenterTest {
         instance.disconnect();
 
         verify(vehicleInformationModule).reset();
-        verify(vehicleInformationModule).setJ1939(any(J1939.class));
+        // verify(vehicleInformationModule).setJ1939(any(J1939.class));
 
         InOrder inOrder = inOrder(view);
         inOrder.verify(view).setVin("");
@@ -135,16 +140,16 @@ public class UserInterfacePresenterTest {
         inOrder.verify(view).setStartButtonEnabled(false);
         inOrder.verify(view).setStopButtonEnabled(false);
         inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
-        inOrder.verify(view).setAdapterComboBoxEnabled(false);
-        inOrder.verify(view).setSelectFileButtonEnabled(false);
-        inOrder.verify(view).setProgressBarText("Connecting to Adapter");
+        // inOrder.verify(view).setAdapterComboBoxEnabled(false);
+        // inOrder.verify(view).setSelectFileButtonEnabled(false);
+        // inOrder.verify(view).setProgressBarText("Connecting to Adapter");
         inOrder.verify(view).setAdapterComboBoxEnabled(true);
         inOrder.verify(view).setSelectFileButtonEnabled(true);
         inOrder.verify(view).setProgressBarText("Select Report File");
 
-        verify(rp1210Bus).stop();
-        verify(rp1210).getAdapters();
-        verify(rp1210).setAdapter(adapter1, "J1939:Baud=Auto", 0xF9);
+        // verify(rp1210Bus).stop();
+        // verify(rp1210).getAdapters();
+        // verify(rp1210).setAdapter(adapter1, "J1939:Baud=Auto", 0xF9);
     }
 
     @Test
@@ -152,7 +157,7 @@ public class UserInterfacePresenterTest {
         instance.onAdapterComboBoxItemSelected(adapter1, "J1939:Baud=Auto");
         executor.run();
 
-        Mockito.doThrow(new BusException("Testing")).when(rp1210Bus).stop();
+        // Mockito.doThrow(new BusException("Testing")).when(rp1210Bus).stop();
 
         instance.disconnect();
 
@@ -164,11 +169,9 @@ public class UserInterfacePresenterTest {
         inOrder.verify(view).setStartButtonEnabled(false);
         inOrder.verify(view).setStopButtonEnabled(false);
         inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
+        inOrder.verify(view).setAdapterComboBoxEnabled(true);
+        inOrder.verify(view).setSelectFileButtonEnabled(true);
         inOrder.verify(view).setProgressBarText("Select Report File");
-
-//        verify(rp1210Bus).stop();
-//        verify(rp1210).getAdapters();
-//        verify(rp1210).setAdapter(adapter1, "J1939:Baud=Auto", 0xF9);
     }
 
     @Test
@@ -209,7 +212,7 @@ public class UserInterfacePresenterTest {
 
     @Test
     public void testOnAdapterComboBoxItemSelectedWithFile() throws Exception {
-        File file = File.createTempFile("test", ".j1939-84");
+        File file = File.createTempFile("test", ".j1939tools-84");
         instance.setReportFile(file);
 
         instance.onAdapterComboBoxItemSelected(adapter1, "J1939:Baud=Auto");
@@ -221,21 +224,21 @@ public class UserInterfacePresenterTest {
         inOrder.verify(view).setStartButtonEnabled(false);
         inOrder.verify(view).setStopButtonEnabled(false);
         inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
-        inOrder.verify(view).setAdapterComboBoxEnabled(false);
-        inOrder.verify(view).setSelectFileButtonEnabled(false);
-        inOrder.verify(view).setProgressBarText("Connecting to Adapter");
+        // inOrder.verify(view).setAdapterComboBoxEnabled(false);
+        // inOrder.verify(view).setSelectFileButtonEnabled(false);
+        // inOrder.verify(view).setProgressBarText("Connecting to Adapter");
         inOrder.verify(view).setAdapterComboBoxEnabled(true);
         inOrder.verify(view).setSelectFileButtonEnabled(true);
         inOrder.verify(view).setProgressBarText("Push Read Vehicle Info Button");
         inOrder.verify(view).setReadVehicleInfoButtonEnabled(true);
 
         verify(vehicleInformationModule).reset();
-        verify(vehicleInformationModule).setJ1939(any(J1939.class));
+        // verify(vehicleInformationModule).setJ1939(any(J1939.class));
 
         verify(reportFileModule).setReportFile(eq(file));
 
-        verify(rp1210).getAdapters();
-        verify(rp1210).setAdapter(adapter1, "J1939:Baud=Auto", 0xF9);
+        // verify(rp1210).getAdapters();
+        // verify(rp1210).setAdapter(adapter1, "J1939:Baud=Auto", 0xF9);
     }
 
     @Test
@@ -253,19 +256,19 @@ public class UserInterfacePresenterTest {
         inOrder.verify(view).setStartButtonEnabled(false);
         inOrder.verify(view).setStopButtonEnabled(false);
         inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
-        inOrder.verify(view).setAdapterComboBoxEnabled(false);
-        inOrder.verify(view).setSelectFileButtonEnabled(false);
-        inOrder.verify(view).setProgressBarText("Connecting to Adapter");
+        // inOrder.verify(view).setAdapterComboBoxEnabled(false);
+        // inOrder.verify(view).setSelectFileButtonEnabled(false);
+        // inOrder.verify(view).setProgressBarText("Connecting to Adapter");
         inOrder.verify(view).setAdapterComboBoxEnabled(true);
         inOrder.verify(view).setSelectFileButtonEnabled(true);
         inOrder.verify(view).setProgressBarText("Select Report File");
 
         verify(vehicleInformationModule).reset();
-        verify(vehicleInformationModule).setJ1939(any(J1939.class));
+        // verify(vehicleInformationModule).setJ1939(any(J1939.class));
         verify(reportFileModule).setReportFile(eq(null));
 
-        verify(rp1210).getAdapters();
-        verify(rp1210).setAdapter(adapter1, "J1939:Baud=Auto", 0xF9);
+        // verify(rp1210).getAdapters();
+        // verify(rp1210).setAdapter(adapter1, "J1939:Baud=Auto", 0xF9);
     }
 
     @Test
@@ -386,7 +389,7 @@ public class UserInterfacePresenterTest {
 
         File reportFile = instance.getReportFile();
         assertNotNull(reportFile);
-        assertTrue(reportFile.getAbsolutePath().endsWith(tempFile.getName() + ".j1939-84"));
+        assertTrue(reportFile.getAbsolutePath().endsWith(tempFile.getName() + ".j1939tools-84"));
 
         verify(reportFileModule).setReportFile(eq(reportFile));
 
@@ -415,7 +418,7 @@ public class UserInterfacePresenterTest {
         instance.onAdapterComboBoxItemSelected(adapter1, "J1939:Baud=Auto");
         executor.run();
 
-        verify(rp1210).setAdapter(adapter1, "J1939:Baud=Auto", 0xF9);
+        // verify(rp1210).setAdapter(adapter1, "J1939:Baud=Auto", 0xF9);
         verify(vehicleInformationModule).reset();
 
         InOrder inOrder1 = inOrder(view);
@@ -424,11 +427,14 @@ public class UserInterfacePresenterTest {
         inOrder1.verify(view).setStartButtonEnabled(false);
         inOrder1.verify(view).setStopButtonEnabled(false);
         inOrder1.verify(view).setReadVehicleInfoButtonEnabled(false);
-        inOrder1.verify(view).setAdapterComboBoxEnabled(false);
-        inOrder1.verify(view).setSelectFileButtonEnabled(false);
-        inOrder1.verify(view).setProgressBarText("Connecting to Adapter");
         inOrder1.verify(view).setAdapterComboBoxEnabled(true);
         inOrder1.verify(view).setSelectFileButtonEnabled(true);
+        // inOrder1.verify(view).setReadVehicleInfoButtonEnabled(false);
+        // inOrder1.verify(view).setAdapterComboBoxEnabled(false);
+        // inOrder1.verify(view).setSelectFileButtonEnabled(false);
+        // inOrder1.verify(view).setProgressBarText("Connecting to Adapter");
+        // inOrder1.verify(view).setAdapterComboBoxEnabled(true);
+        // inOrder1.verify(view).setSelectFileButtonEnabled(true);
         inOrder1.verify(view).setProgressBarText("Select Report File");
 
         File file = mockFile(true);

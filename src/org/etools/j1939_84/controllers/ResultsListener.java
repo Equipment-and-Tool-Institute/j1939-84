@@ -10,6 +10,7 @@ import javax.swing.JOptionPane;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
+import org.etools.j1939tools.CommunicationsListener;
 
 /**
  * The Interface for an listener that is notified when a {@link Controller} has
@@ -17,7 +18,7 @@ import org.etools.j1939_84.model.VehicleInformationListener;
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
-public interface ResultsListener {
+public interface ResultsListener extends CommunicationsListener {
     ResultsListener NOOP = new ResultsListener() {
     };
 
@@ -77,6 +78,9 @@ public interface ResultsListener {
      *                    the results
      */
     default void onResult(List<String> results) {
+        results.stream().forEach(result -> {
+            onResult(result);
+        });
     }
 
     /**
@@ -85,6 +89,7 @@ public interface ResultsListener {
      * @param result
      *                   the result
      */
+    @Override
     default void onResult(String result) {
     }
 
