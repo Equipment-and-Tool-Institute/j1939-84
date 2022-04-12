@@ -3,7 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,19 +12,19 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
-import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
-import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
+import org.etools.j1939tools.j1939.packets.ScaledTestResult;
+import org.etools.j1939tools.j1939.packets.SupportedSPN;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.7.15 DM7/DM30: Command Non-Continuously Monitored Test/Scaled Test Results
@@ -41,7 +41,7 @@ public class Part07Step15Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part07Step15Controller(Executor executor,
@@ -50,14 +50,14 @@ public class Part07Step15Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -101,7 +101,7 @@ public class Part07Step15Controller extends StepController {
     }
 
     private BusResult<DM30ScaledTestResultsPacket> getAllTestResults(int address) {
-        return getDiagnosticMessageModule().requestTestResult(getListener(), address, 246, 5846, 31);
+        return getCommunicationsModule().requestTestResult(getListener(), address, 246, 5846, 31);
     }
 
     private static boolean testResultsSame(Collection<ScaledTestResult> testResults1,
@@ -151,7 +151,7 @@ public class Part07Step15Controller extends StepController {
     }
 
     private BusResult<DM30ScaledTestResultsPacket> getTestResults(int address, int spn) {
-        return getDiagnosticMessageModule().requestTestResult(getListener(), address, 247, spn, 31);
+        return getCommunicationsModule().requestTestResult(getListener(), address, 247, spn, 31);
     }
 
     private static boolean isNACKed(BusResult<DM30ScaledTestResultsPacket> singleTestResponse) {

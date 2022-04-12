@@ -4,8 +4,8 @@
 package org.etools.j1939_84.controllers.part03;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -15,24 +15,24 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
-import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
+import org.etools.j1939tools.j1939.packets.SupportedSPN;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -88,7 +88,7 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -97,7 +97,7 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -109,7 +109,7 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  vehicleInformationModule,
                                  mockListener,
-                                 diagnosticMessageModule);
+                                 communicationsModule);
     }
 
     @Test
@@ -134,7 +134,7 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testNoFailures() {
-        var spn = SupportedSPN.create(123, false, false, false, 0);
+        var spn = SupportedSPN.create(123, false, false, false, false, 0);
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         moduleInfo.set(DM24SPNSupportPacket.create(0, spn), 1);
@@ -143,15 +143,15 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
         var dm24 = DM24SPNSupportPacket.create(0, spn);
-        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, dm24));
+        when(communicationsModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, dm24));
 
         var nack = AcknowledgmentPacket.create(1, NACK);
-        when(diagnosticMessageModule.requestDM24(any(), eq(1))).thenReturn(new BusResult<>(false, nack));
+        when(communicationsModule.requestDM24(any(), eq(1))).thenReturn(new BusResult<>(false, nack));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM24(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM24(any(), eq(1));
+        verify(communicationsModule).requestDM24(any(), eq(0));
+        verify(communicationsModule).requestDM24(any(), eq(1));
 
         assertEquals("", listener.getResults());
 
@@ -159,19 +159,19 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForDifferenceSpnContent() {
-        var spn1 = SupportedSPN.create(123, false, false, false, 0);
-        var spn2 = SupportedSPN.create(123, true, true, true, 1);
+        var spn1 = SupportedSPN.create(123, false, false, false, false, 0);
+        var spn2 = SupportedSPN.create(123, true, true, true, false, 1);
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         moduleInfo.set(DM24SPNSupportPacket.create(0, spn1), 1);
         dataRepository.putObdModule(moduleInfo);
 
         var dm24 = DM24SPNSupportPacket.create(0, spn2);
-        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, dm24));
+        when(communicationsModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, dm24));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM24(any(), eq(0));
+        verify(communicationsModule).requestDM24(any(), eq(0));
 
         String expected = "";
         expected += "SPs Supported in Expanded Freeze Frame from Engine #1 (0): [" + NL;
@@ -189,19 +189,19 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForDifferentSPNs() {
-        var spn1 = SupportedSPN.create(123, false, false, false, 0);
-        var spn2 = SupportedSPN.create(456, false, false, false, 0);
+        var spn1 = SupportedSPN.create(123, false, false, false, false, 0);
+        var spn2 = SupportedSPN.create(456, false, false, false, false, 0);
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         moduleInfo.set(DM24SPNSupportPacket.create(0, spn1), 1);
         dataRepository.putObdModule(moduleInfo);
 
         var dm24 = DM24SPNSupportPacket.create(0, spn2);
-        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, dm24));
+        when(communicationsModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, dm24));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM24(any(), eq(0));
+        verify(communicationsModule).requestDM24(any(), eq(0));
 
         assertEquals("", listener.getResults());
 
@@ -216,11 +216,11 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         dataRepository.putObdModule(moduleInfo);
 
-        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false));
+        when(communicationsModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM24(any(), eq(0));
+        verify(communicationsModule).requestDM24(any(), eq(0));
 
         assertEquals("", listener.getResults());
 

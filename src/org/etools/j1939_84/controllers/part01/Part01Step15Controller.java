@@ -3,24 +3,26 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.NOT_SUPPORTED;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.etools.j1939tools.j1939.packets.LampStatus.NOT_SUPPORTED;
+import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
-import org.etools.j1939_84.bus.j1939.packets.LampStatus;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.DM1ActiveDTCsPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
+import org.etools.j1939tools.j1939.packets.LampStatus;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.1.15 DM1: Active diagnostic trouble codes (DTCs)
@@ -36,7 +38,7 @@ public class Part01Step15Controller extends StepController {
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              dataRepository,
              DateTimeModule.getInstance());
     }
@@ -45,7 +47,7 @@ public class Part01Step15Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule,
+                           CommunicationsModule communicationsModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
@@ -54,7 +56,7 @@ public class Part01Step15Controller extends StepController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -64,7 +66,12 @@ public class Part01Step15Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.1.15.1.a. Gather broadcast DM1 data from all ECUs (PG 65226)
-        List<DM1ActiveDTCsPacket> packets = getDiagnosticMessageModule().readDM1(getListener());
+        List<DM1ActiveDTCsPacket> packets = read(DM1ActiveDTCsPacket.class,
+                                                 3,
+                                                 SECONDS).stream()
+                                                         .map(p -> new DM1ActiveDTCsPacket(p.getPacket()))
+                                                         .collect(
+                                                                  Collectors.toList());
 
         // 6.1.15.2.a. Fail if any OBD ECU reports an active DTC.
         packets.stream()

@@ -3,11 +3,11 @@
  */
 package org.etools.j1939_84.controllers.part05;
 
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.FAST_FLASH;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.SLOW_FLASH;
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939tools.j1939.packets.LampStatus.FAST_FLASH;
+import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939tools.j1939.packets.LampStatus.ON;
+import static org.etools.j1939tools.j1939.packets.LampStatus.SLOW_FLASH;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -16,24 +16,24 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DM6PendingEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +50,7 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -87,7 +87,7 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -96,7 +96,7 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -106,7 +106,7 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -144,11 +144,11 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
         obdModule1.set(DM6PendingEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc_1), 3);
         dataRepository.putObdModule(obdModule1);
 
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12, dm12_1));
+        when(communicationsModule.requestDM12(any())).thenReturn(RequestResult.of(dm12, dm12_1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM12(any());
+        verify(communicationsModule).requestDM12(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -160,7 +160,7 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
         var dtc_1 = DiagnosticTroubleCode.create(609, 19, 1, 1);
         var dtc_2 = DiagnosticTroubleCode.create(4334, 4, 0, 0);
         var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, SLOW_FLASH, OFF, OFF, OFF, dtc_1, dtc_2);
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12, dm12_1));
+        when(communicationsModule.requestDM12(any())).thenReturn(RequestResult.of(dm12, dm12_1));
 
         var obdModule0 = new OBDModuleInformation(0);
         obdModule0.set(DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF), 3);
@@ -172,7 +172,7 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM12(any());
+        verify(communicationsModule).requestDM12(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -204,11 +204,11 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
         obdModule1.set(DM6PendingEmissionDTCPacket.create(1, SLOW_FLASH, OFF, OFF, OFF), 4);
         dataRepository.putObdModule(obdModule1);
 
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12, dm12_1));
+        when(communicationsModule.requestDM12(any())).thenReturn(RequestResult.of(dm12, dm12_1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM12(any());
+        verify(communicationsModule).requestDM12(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -238,11 +238,11 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
         obdModule1.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc_1, dtc_2), 3);
         dataRepository.putObdModule(obdModule1);
 
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12, dm12_1));
+        when(communicationsModule.requestDM12(any())).thenReturn(RequestResult.of(dm12, dm12_1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM12(any());
+        verify(communicationsModule).requestDM12(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,

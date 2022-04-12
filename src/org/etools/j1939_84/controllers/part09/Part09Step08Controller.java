@@ -6,18 +6,19 @@ package org.etools.j1939_84.controllers.part09;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.SectionA5Verifier;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.DM11ClearActiveDTCsPacket;
+import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.9.8 DM11: Diagnostic Data Clear/Reset for Active DTCs
@@ -36,7 +37,7 @@ public class Part09Step08Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              new SectionA5Verifier(PART_NUMBER, STEP_NUMBER));
     }
 
@@ -46,7 +47,7 @@ public class Part09Step08Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule,
+                           CommunicationsModule communicationsModule,
                            SectionA5Verifier verifier) {
         super(executor,
               bannerModule,
@@ -54,7 +55,7 @@ public class Part09Step08Controller extends StepController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -72,7 +73,7 @@ public class Part09Step08Controller extends StepController {
                            .map(OBDModuleInformation::getSourceAddress)
                            .filter(a -> getDTCs(DM12MILOnEmissionDTCPacket.class, a, 9).isEmpty())
                            .forEach(a -> {
-                               getDiagnosticMessageModule().requestDM11(getListener(), a);
+                               getCommunicationsModule().requestDM11(getListener(), a);
                            });
 
         // 6.9.8.1.b Wait 5 seconds before checking for erased data.
@@ -89,7 +90,7 @@ public class Part09Step08Controller extends StepController {
                            .map(OBDModuleInformation::getSourceAddress)
                            .filter(a -> !getDTCs(DM12MILOnEmissionDTCPacket.class, a, 9).isEmpty())
                            .forEach(a -> {
-                               getDiagnosticMessageModule().requestDM11(getListener(), a);
+                               getCommunicationsModule().requestDM11(getListener(), a);
                            });
 
         // 6.9.8.3.b Wait 5 seconds before checking for erased data.
@@ -101,13 +102,14 @@ public class Part09Step08Controller extends StepController {
         verifier.verifyDataNotPartialErased(getListener(), "6.9.8.4.a", "6.9.8.4.b", false);
 
         // 6.9.8.5.a Global DM11 ([send Request (PGN 59904) for PGN 65235]).
-        var packets = getDiagnosticMessageModule().requestDM11(getListener());
+        var packets = getCommunicationsModule().requestDM11(getListener());
 
         // 6.9.8.5.b Wait 5 seconds before checking for erased data.
         pause("Step 6.9.8.5.b - Waiting %1$d seconds before checking for erased data", 5);
 
         // 6.9.8.6.a Fail if any OBD ECU provides a NACK to the global DM11 request.
         packets.stream()
+               .map(p -> new DM11ClearActiveDTCsPacket(p.getPacket()))
                .filter(p -> isObdModule(p.getSourceAddress()))
                .filter(p -> p.getResponse() == AcknowledgmentPacket.Response.NACK)
                .map(ParsedPacket::getModuleName)
@@ -117,6 +119,7 @@ public class Part09Step08Controller extends StepController {
 
         // 6.9.8.6.b Warn if any OBD ECU provides an ACK to the global DM11 request.
         packets.stream()
+               .map(p -> new DM11ClearActiveDTCsPacket(p.getPacket()))
                .filter(p -> isObdModule(p.getSourceAddress()))
                .filter(p -> p.getResponse() == AcknowledgmentPacket.Response.ACK)
                .map(ParsedPacket::getModuleName)

@@ -7,14 +7,14 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.DM56EngineFamilyPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.1.6 DM56: Model year and certification engine family
@@ -32,7 +32,7 @@ public class Part01Step06Controller extends StepController {
              new VehicleInformationModule(),
              dataRepository,
              DateTimeModule.getInstance(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part01Step06Controller(Executor executor,
@@ -41,14 +41,14 @@ public class Part01Step06Controller extends StepController {
                            VehicleInformationModule vehicleInformationModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -58,15 +58,20 @@ public class Part01Step06Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.1.6.1.a. Global DM56 (send Request (PGN 59904) for PGN 64711 (SPNs 5844 and 5845)).
-        List<DM56EngineFamilyPacket> packets = getDiagnosticMessageModule().requestDM56(getListener());
+        List<DM56EngineFamilyPacket> packets = getCommunicationsModule().requestDM56(getListener());
+        int engineModelYear = getDataRepository().getVehicleInformation().getEngineModelYear();
+
         if (packets.isEmpty()) {
-            getListener().onResult("6.1.6.1.a - DM56 is not supported");
+            if (engineModelYear > 2024) {
+                addFailure("6.1.6.2.f - MY2024+ Engine does not support DM56");
+            } else {
+                getListener().onResult("6.1.6.1.a - DM56 is not supported");
+            }
             return;
         }
 
         packets.forEach(this::save);
 
-        int engineModelYear = getDataRepository().getVehicleInformation().getEngineModelYear();
         for (DM56EngineFamilyPacket packet : packets) {
             if (packet.getEngineModelYear() != engineModelYear) {
                 addFailure("6.1.6.2.a - Engine model year does not match user input");

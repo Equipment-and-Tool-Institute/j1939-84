@@ -5,7 +5,7 @@ package org.etools.j1939_84.model;
 
 import java.util.Objects;
 
-import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
+import org.etools.j1939tools.j1939.packets.ScaledTestResult;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)

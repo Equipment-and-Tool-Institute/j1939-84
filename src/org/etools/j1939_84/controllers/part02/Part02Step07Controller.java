@@ -3,24 +3,24 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
+import static org.etools.j1939tools.j1939.Lookup.getAddressName;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.j1939.packets.ComponentIdentificationPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.2.7 Component ID: Make, Model, Serial Number Support
@@ -38,7 +38,7 @@ public class Part02Step07Controller extends StepController {
              dataRepository,
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part02Step07Controller(Executor executor,
@@ -47,14 +47,14 @@ public class Part02Step07Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -139,7 +139,17 @@ public class Part02Step07Controller extends StepController {
     }
 
     private List<ComponentIdentificationPacket> requestComponentIds() {
-        return getVehicleInformationModule().requestComponentIdentification(getListener()).getPackets();
+        return request(ComponentIdentificationPacket.class)
+                                                           .stream()
+                                                           .map(p -> new ComponentIdentificationPacket(p.getPacket()))
+                                                           .collect(Collectors.toList());
+    }
+
+    private List<ComponentIdentificationPacket> requestComponentIds(int address) {
+        return requestComponentId(address)
+                                          .toPacketStream()
+                                          .map(p -> new ComponentIdentificationPacket(p.getPacket()))
+                                          .collect(Collectors.toList());
     }
 
     private ComponentIdentificationPacket getPart1Packet(int address) {
@@ -147,6 +157,6 @@ public class Part02Step07Controller extends StepController {
     }
 
     private BusResult<ComponentIdentificationPacket> requestComponentId(int address) {
-        return getVehicleInformationModule().requestComponentIdentification(getListener(), address);
+        return (BusResult<ComponentIdentificationPacket>) request(ComponentIdentificationPacket.class, address);
     }
 }

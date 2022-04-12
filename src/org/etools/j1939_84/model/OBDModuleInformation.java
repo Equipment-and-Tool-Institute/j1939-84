@@ -12,12 +12,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
-import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
-import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
-import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
+import org.etools.j1939tools.j1939.packets.DM27AllPendingDTCsPacket;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.ScaledTestResult;
+import org.etools.j1939tools.j1939.packets.SupportedSPN;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
@@ -34,6 +34,7 @@ public class OBDModuleInformation implements Cloneable {
                                                                       1213,
                                                                       1220,
                                                                       12675,
+                                                                      12691,
                                                                       12730,
                                                                       12783,
                                                                       12797));
@@ -89,6 +90,13 @@ public class OBDModuleInformation implements Cloneable {
     public void setSupportedSPNs(List<SupportedSPN> supportedSPNs) {
         this.supportedSPNs.clear();
         this.supportedSPNs.addAll(supportedSPNs);
+    }
+
+    public boolean supportsSpn(int spn) {
+        return getSupportedSPNs()
+                                 .stream()
+                                 .map(SupportedSPN::getSpn)
+                                 .anyMatch(s -> s == spn);
     }
 
     public List<SupportedSPN> getSupportedSPNs() {

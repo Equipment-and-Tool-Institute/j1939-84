@@ -10,10 +10,10 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.PartController;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.6 Complete Fault A Three Cycle Countdown
@@ -27,7 +27,7 @@ public class Part06Controller extends PartController {
              dataRepository,
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              new Part06Step01Controller(),
              new Part06Step02Controller(),
              new Part06Step03Controller(),
@@ -50,7 +50,7 @@ public class Part06Controller extends PartController {
                             DataRepository dataRepository,
                             EngineSpeedModule engineSpeedModule,
                             VehicleInformationModule vehicleInformationModule,
-                            DiagnosticMessageModule diagnosticMessageModule,
+                            CommunicationsModule communicationsModule,
                             StepController... stepControllers) {
         super(executor,
               bannerModule,
@@ -58,7 +58,7 @@ public class Part06Controller extends PartController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               6,
               stepControllers);
     }

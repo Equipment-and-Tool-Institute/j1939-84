@@ -77,4 +77,5 @@ public class PartResultRepository implements ResultsListener {
             J1939_84.getLogger().log(Level.INFO, actionOutcome.toString());
         }
     }
+
 }

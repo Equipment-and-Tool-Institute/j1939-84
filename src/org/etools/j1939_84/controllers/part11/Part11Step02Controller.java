@@ -6,14 +6,16 @@ package org.etools.j1939_84.controllers.part11;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.DM26TripDiagnosticReadinessPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
+
+;
 
 /**
  * 6.11.2 DM26: Diagnostic Readiness 3
@@ -30,7 +32,7 @@ public class Part11Step02Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part11Step02Controller(Executor executor,
@@ -39,14 +41,14 @@ public class Part11Step02Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -55,7 +57,7 @@ public class Part11Step02Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.11.2.1.a. Global DM26 ([send Request (PGN 59904) for PGN 64952 (SPN 3301)]).
-        var packets = getDiagnosticMessageModule().requestDM26(getListener()).getPackets();
+        var packets = getCommunicationsModule().requestDM26(getListener()).getPackets();
 
         // 6.11.2.1.a.i. Record time since engine start.
         packets.forEach(this::save);

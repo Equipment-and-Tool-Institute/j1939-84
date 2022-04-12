@@ -13,23 +13,23 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
-import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
-import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
+import org.etools.j1939tools.j1939.packets.ScaledTestResult;
+import org.etools.j1939tools.j1939.packets.SupportedSPN;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class Part08Step11ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -83,7 +83,7 @@ public class Part08Step11ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -92,7 +92,7 @@ public class Part08Step11ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -102,7 +102,7 @@ public class Part08Step11ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -131,10 +131,10 @@ public class Part08Step11ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
 
         int spn1 = 123;
-        var supportedSPN1 = SupportedSPN.create(spn1, true, true, true, 1);
+        var supportedSPN1 = SupportedSPN.create(spn1, true, true, true, false, 1);
 
         int spn2 = 456;
-        var supportedSPN2 = SupportedSPN.create(spn2, true, true, true, 1);
+        var supportedSPN2 = SupportedSPN.create(spn2, true, true, true, false, 1);
 
         obdModuleInformation.setSupportedSPNs(List.of(supportedSPN1, supportedSPN2));
 
@@ -146,22 +146,22 @@ public class Part08Step11ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm30_1 = DM30ScaledTestResultsPacket.create(0, 0, str1);
-        when(diagnosticMessageModule.requestTestResults(any(),
-                                                        eq(0),
-                                                        eq(247),
-                                                        eq(spn1),
-                                                        eq(31))).thenReturn(List.of(dm30_1));
+        when(communicationsModule.requestTestResults(any(),
+                                                     eq(0),
+                                                     eq(247),
+                                                     eq(spn1),
+                                                     eq(31))).thenReturn(List.of(dm30_1));
 
         var dm30_2 = DM30ScaledTestResultsPacket.create(0, 0, str2);
-        when(diagnosticMessageModule.requestTestResults(any(),
-                                                        eq(0),
-                                                        eq(247),
-                                                        eq(spn2),
-                                                        eq(31))).thenReturn(List.of(dm30_2));
+        when(communicationsModule.requestTestResults(any(),
+                                                     eq(0),
+                                                     eq(247),
+                                                     eq(spn2),
+                                                     eq(31))).thenReturn(List.of(dm30_2));
         runTest();
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(spn1), eq(31));
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(spn2), eq(31));
+        verify(communicationsModule).requestTestResults(any(), eq(0), eq(247), eq(spn1), eq(31));
+        verify(communicationsModule).requestTestResults(any(), eq(0), eq(247), eq(spn2), eq(31));
 
         var nonInitializedTests = dataRepository.getObdModule(0).getNonInitializedTests();
         assertEquals(1, nonInitializedTests.size());

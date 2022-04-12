@@ -3,23 +3,23 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
+import static org.etools.j1939tools.j1939.Lookup.getAddressName;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.DM21DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.2.9 DM21: Diagnostic readiness 2
@@ -37,7 +37,7 @@ public class Part02Step09Controller extends StepController {
              new VehicleInformationModule(),
              dataRepository,
              DateTimeModule.getInstance(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     Part02Step09Controller(Executor executor,
@@ -46,14 +46,14 @@ public class Part02Step09Controller extends StepController {
                            VehicleInformationModule vehicleInformationModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule,
-                           DiagnosticMessageModule diagnosticMessageModule) {
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -62,7 +62,7 @@ public class Part02Step09Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.2.9.1 a. Global DM21 (send Request (PGN 59904) for PGN 49408 (SPNs 3069, 3294-3296)).
-        var globalPackets = getDiagnosticMessageModule().requestDM21(getListener()).getPackets();
+        var globalPackets = getCommunicationsModule().requestDM21(getListener()).getPackets();
 
         // 6.2.9.2 a. Fail if any ECU reports > 0 distance SCC (SPN 3294).
         globalPackets.stream()
@@ -134,7 +134,7 @@ public class Part02Step09Controller extends StepController {
         List<AcknowledgmentPacket> dsAcks = new ArrayList<>();
 
         obdModuleAddresses.forEach(address -> {
-            var result = getDiagnosticMessageModule().requestDM21(getListener(), address);
+            var result = getCommunicationsModule().requestDM21(getListener(), address);
             dsPackets.addAll(result.requestResult().getPackets());
             dsAcks.addAll(result.requestResult().getAcks());
         });

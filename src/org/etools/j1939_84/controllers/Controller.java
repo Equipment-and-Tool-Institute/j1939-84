@@ -5,25 +5,32 @@ package org.etools.j1939_84.controllers;
 
 import static org.etools.j1939_84.model.Outcome.ABORT;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.etools.j1939_84.J1939_84;
-import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.J1939DaRepository;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.model.PgnDefinition;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -35,7 +42,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 public abstract class Controller {
 
-    private static final List<Ending> INTERUPPTABLE_ENDINGS = List.of(Ending.STOPPED,
+    private static final List<Ending> INTERRUPTIBLE_ENDINGS = List.of(Ending.STOPPED,
                                                                       Ending.ABORTED,
                                                                       Ending.FAILED,
                                                                       Ending.COMPLETED);
@@ -48,7 +55,7 @@ public abstract class Controller {
     private final PartResultRepository partResultRepository;
     private final VehicleInformationModule vehicleInformationModule;
     private final DateTimeModule dateTimeModule;
-    private final DiagnosticMessageModule diagnosticMessageModule;
+    private final CommunicationsModule communicationsModule;
     private final DataRepository dataRepository;
     private CompositeResultsListener compositeListener;
     private J1939 j1939;
@@ -59,7 +66,7 @@ public abstract class Controller {
                          DataRepository dataRepository,
                          EngineSpeedModule engineSpeedModule,
                          VehicleInformationModule vehicleInformationModule,
-                         DiagnosticMessageModule diagnosticMessageModule) {
+                         CommunicationsModule communicationsModule) {
         this(executor,
              bannerModule,
              dateTimeModule,
@@ -67,7 +74,7 @@ public abstract class Controller {
              PartResultRepository.getInstance(),
              engineSpeedModule,
              vehicleInformationModule,
-             diagnosticMessageModule);
+             communicationsModule);
     }
 
     protected Controller(Executor executor,
@@ -77,13 +84,13 @@ public abstract class Controller {
                          PartResultRepository partResultRepository,
                          EngineSpeedModule engineSpeedModule,
                          VehicleInformationModule vehicleInformationModule,
-                         DiagnosticMessageModule diagnosticMessageModule) {
+                         CommunicationsModule communicationsModule) {
         this.executor = executor;
         this.engineSpeedModule = engineSpeedModule;
         this.bannerModule = bannerModule;
         this.vehicleInformationModule = vehicleInformationModule;
         this.dateTimeModule = dateTimeModule;
-        this.diagnosticMessageModule = diagnosticMessageModule;
+        this.communicationsModule = communicationsModule;
         this.partResultRepository = partResultRepository;
         this.dataRepository = dataRepository;
     }
@@ -96,9 +103,48 @@ public abstract class Controller {
      *                                  if the ending has been set
      */
     public static void checkEnding() throws InterruptedException {
-        if (getEnding() != null && INTERUPPTABLE_ENDINGS.contains(getEnding())) {
+        if (getEnding() != null && INTERRUPTIBLE_ENDINGS.contains(getEnding())) {
             throw new InterruptedException(getEnding().toString());
         }
+    }
+
+    protected List<? extends GenericPacket> read(int pg, int timeout, TimeUnit timeUnit) {
+        return getCommunicationsModule().read(pg, timeout, timeUnit, getListener());
+    }
+
+    protected <T extends GenericPacket> List<T> read(Class<T> clazz, int timeout, TimeUnit timeUnit) {
+        return getCommunicationsModule().read(clazz, timeout, timeUnit, getListener());
+    }
+
+    protected List<? extends GenericPacket> request(int pg) {
+        return getCommunicationsModule().request(pg, getListener());
+    }
+
+    protected <T extends GenericPacket> List<T> request(Class<T> clazz) {
+        return getCommunicationsModule().request(clazz, getListener());
+    }
+
+    protected <T extends GenericPacket> BusResult<T> request(Class<T> clazz, int address) {
+        return getCommunicationsModule().request(clazz, address, getListener());
+    }
+
+    protected List<GenericPacket> requestPackets(int address, int... pgns) throws InterruptedException {
+        String moduleName = Lookup.getAddressName(address);
+        List<GenericPacket> packets = new ArrayList<>();
+
+        for (int pgn : pgns) {
+            PgnDefinition pgnDef = getPgnDef(pgn);
+
+            incrementProgress("Requesting " + pgnDef.getLabel() + " (" + pgnDef.getAcronym() + ") from " + moduleName);
+            var response = getCommunicationsModule().request(pgn, address, getListener());
+
+            packets.addAll(response);
+        }
+        return packets;
+    }
+
+    private static PgnDefinition getPgnDef(int pg) {
+        return J1939DaRepository.getInstance().findPgnDefinition(pg);
     }
 
     /**
@@ -233,7 +279,7 @@ public abstract class Controller {
         this.j1939 = j1939;
         getVehicleInformationModule().setJ1939(this.j1939);
         getEngineSpeedModule().setJ1939(this.j1939);
-        getDiagnosticMessageModule().setJ1939(this.j1939);
+        getCommunicationsModule().setJ1939(this.j1939);
     }
 
     /**
@@ -307,8 +353,8 @@ public abstract class Controller {
         return vehicleInformationModule;
     }
 
-    protected DiagnosticMessageModule getDiagnosticMessageModule() {
-        return diagnosticMessageModule;
+    protected CommunicationsModule getCommunicationsModule() {
+        return communicationsModule;
     }
 
     protected DataRepository getDataRepository() {

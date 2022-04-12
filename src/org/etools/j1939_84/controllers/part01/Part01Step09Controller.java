@@ -6,23 +6,21 @@ package org.etools.j1939_84.controllers.part01;
 import static org.etools.j1939_84.utils.StringUtils.containsNonPrintableAsciiCharacter;
 import static org.etools.j1939_84.utils.StringUtils.containsOnlyNumericAsciiCharacters;
 
-import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.packets.ComponentIdentificationPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.1.9 Component ID: Make, Model, Serial Number Support
@@ -40,7 +38,7 @@ public class Part01Step09Controller extends StepController {
              new VehicleInformationModule(),
              dataRepository,
              DateTimeModule.getInstance(),
-             new DiagnosticMessageModule());
+             new CommunicationsModule());
     }
 
     protected Part01Step09Controller(Executor executor,
@@ -49,14 +47,14 @@ public class Part01Step09Controller extends StepController {
                                      VehicleInformationModule vehicleInformationModule,
                                      DataRepository dataRepository,
                                      DateTimeModule dateTimeModule,
-                                     DiagnosticMessageModule diagnosticMessageModule) {
+                                     CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -70,11 +68,9 @@ public class Part01Step09Controller extends StepController {
         // 6.1.9.1.b Display each positive return in the log.
         var dsPackets = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getVehicleInformationModule().requestComponentIdentification(getListener(),
-                                                                                                                  a))
+                                           .map(a -> request(ComponentIdentificationPacket.class, a))
                                            .map(BusResult::requestResult)
-                                           .map(RequestResult::getPackets)
-                                           .flatMap(Collection::stream)
+                                           .flatMap(r -> r.getPackets().stream())
                                            .collect(Collectors.toList());
 
         if (dsPackets.isEmpty()) {
@@ -87,6 +83,7 @@ public class Part01Step09Controller extends StepController {
         getListener().onResult("Function 0 ECU is " + function0Name);
 
         ComponentIdentificationPacket function0Packet = dsPackets.stream()
+                                                                 .map(p -> new ComponentIdentificationPacket(p.getPacket()))
                                                                  .filter(p -> p.getSourceAddress() == function0SourceAddress)
                                                                  .findFirst()
                                                                  .orElse(null);
@@ -119,6 +116,7 @@ public class Part01Step09Controller extends StepController {
 
         // 6.1.9.2.d. Fail if the make (SP 586) from any OBD ECU contains any unprintable ASCII characters.
         dsPackets.stream()
+                 .map(p -> new ComponentIdentificationPacket(p.getPacket()))
                  .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                  .filter(p -> containsNonPrintableAsciiCharacter(p.getMake()))
                  .map(ParsedPacket::getModuleName)
@@ -129,6 +127,7 @@ public class Part01Step09Controller extends StepController {
 
         // 6.1.9.2.d. Fail if the model (SP 587) from any OBD ECU contains any unprintable ASCII characters.
         dsPackets.stream()
+                 .map(p -> new ComponentIdentificationPacket(p.getPacket()))
                  .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                  .filter(p -> containsNonPrintableAsciiCharacter(p.getModel()))
                  .map(ParsedPacket::getModuleName)
@@ -139,6 +138,7 @@ public class Part01Step09Controller extends StepController {
 
         // 6.1.9.2.d. Fail if the serial number (SP 588) from any OBD ECU contains any unprintable ASCII characters.
         dsPackets.stream()
+                 .map(p -> new ComponentIdentificationPacket(p.getPacket()))
                  .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                  .filter(p -> containsNonPrintableAsciiCharacter(p.getSerialNumber()))
                  .map(ParsedPacket::getModuleName)
@@ -149,6 +149,7 @@ public class Part01Step09Controller extends StepController {
 
         // 6.1.9.3.b. For OBD ECUs, Warn if the make field (SP 586) is longer than five ASCII characters.
         dsPackets.stream()
+                 .map(p -> new ComponentIdentificationPacket(p.getPacket()))
                  .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                  .filter(p -> {
                      String make = p.getMake();
@@ -162,6 +163,7 @@ public class Part01Step09Controller extends StepController {
 
         // 6.1.9.3.c. For OBD ECUs, Warn if the make field (SP 586) is less than two ASCII characters.
         dsPackets.stream()
+                 .map(p -> new ComponentIdentificationPacket(p.getPacket()))
                  .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                  .filter(p -> {
                      String make = p.getMake();
@@ -175,6 +177,7 @@ public class Part01Step09Controller extends StepController {
 
         // 6.1.9.3.d. For OBD ECUs, Warn if the model field (SP 587) is less than one character long.
         dsPackets.stream()
+                 .map(p -> new ComponentIdentificationPacket(p.getPacket()))
                  .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                  .filter(p -> {
                      String model = p.getModel();
@@ -188,12 +191,13 @@ public class Part01Step09Controller extends StepController {
 
         // 6.1.9.4.a. Global Component ID request (PG 59904) for PG 65259 (SPs 586, 587, and 588).
         // 6.1.9.4.b. Display each positive return in the log.
-        var globalPackets = getVehicleInformationModule()
-                                                         .requestComponentIdentification(getListener())
-                                                         .getPackets();
+        var globalPackets = request(ComponentIdentificationPacket.class)
+                                                                        .stream()
+                                                                        .collect(Collectors.toList());
 
         // 6.1.9.5 Fail Criteria2 for function 0:
         var globalFunction0Packet = globalPackets.stream()
+                                                 .map(p -> new ComponentIdentificationPacket(p.getPacket()))
                                                  .filter(packet -> packet.getSourceAddress() == function0SourceAddress)
                                                  .findFirst()
                                                  .orElse(null);

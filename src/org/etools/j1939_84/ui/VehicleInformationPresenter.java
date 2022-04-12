@@ -5,7 +5,6 @@ package org.etools.j1939_84.ui;
 
 import static java.util.logging.Level.INFO;
 import static org.etools.j1939_84.J1939_84.getLogger;
-import static org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket.create;
 import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 
 import java.lang.reflect.Proxy;
@@ -16,17 +15,18 @@ import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
 
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
-import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
-import org.etools.j1939_84.model.FuelType;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.VinDecoder;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.model.FuelType;
+import org.etools.j1939tools.j1939.packets.AddressClaimPacket;
+import org.etools.j1939tools.j1939.packets.ComponentIdentificationPacket;
+import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * The Presenter which controls the logic in the
@@ -63,6 +63,11 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      */
     private String certificationIntent;
     /**
+     * The communications module for talking to bus
+     */
+    private final CommunicationsModule communicationsModule;
+
+    /**
      * The value the user has entered for the number of emissions units on the
      * vehicle
      */
@@ -70,7 +75,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     /**
      * The component Id for the emissions units on the vehicle
      */
-    private List<ComponentIdentificationPacket> emissionUnitsFound = Collections.emptyList();
+    private final List<ComponentIdentificationPacket> emissionUnitsFound = Collections.emptyList();
     /**
      * The value the user has entered for the engine model year
      */
@@ -112,7 +117,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     public VehicleInformationPresenter(VehicleInformationContract.View view,
                                        VehicleInformationListener listener,
                                        J1939 j1939) {
-        this(view, listener, j1939, new VehicleInformationModule(), new VinDecoder());
+        this(view, listener, j1939, new VehicleInformationModule(), new VinDecoder(), new CommunicationsModule());
     }
 
     /**
@@ -122,12 +127,15 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
                                        VehicleInformationListener listener,
                                        J1939 j1939,
                                        VehicleInformationModule vehicleInformationModule,
-                                       VinDecoder vinDecoder) {
+                                       VinDecoder vinDecoder,
+                                       CommunicationsModule communicationsModule) {
         this.view = swingProxy(view, VehicleInformationContract.View.class);
         this.listener = listener;
         this.vehicleInformationModule = vehicleInformationModule;
         this.vehicleInformationModule.setJ1939(j1939);
         this.vinDecoder = vinDecoder;
+        this.communicationsModule = communicationsModule;
+        this.communicationsModule.setJ1939(j1939);
     }
 
     public static <T> T swingProxy(T o, Class<T> cls) {
@@ -190,29 +198,21 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
             List<Integer> obdModules = vehicleInformationModule.getOBDModules(NOOP);
             view.setEmissionUnits(obdModules.size());
 
-            emissionUnitsFound = obdModules
-                                           .stream()
-                                           .map(address -> vehicleInformationModule.requestComponentIdentification(NOOP,
-                                                                                                                   address)
-                                                                                   .getPacket()
-                                                                                   .map(e -> e.resolve(p -> p,
-                                                                                                       ack -> create(address,
-                                                                                                                     "ERROR",
-                                                                                                                     "ERROR",
-                                                                                                                     "ERROR",
-                                                                                                                     "ERROR")))
-                                                                                   .orElse(create(address,
-                                                                                                  "MISSING",
-                                                                                                  "MISSING",
-                                                                                                  "MISSING",
-                                                                                                  "MISSING")))
-                                           .collect(Collectors.toList());
+            obdModules.stream().peek(address -> {
+                emissionUnitsFound.addAll(communicationsModule.request(ComponentIdentificationPacket.class,
+                                                                       address,
+                                                                       NOOP)
+                                                              .toPacketStream()
+                                                              .map(p -> new ComponentIdentificationPacket(p.getPacket()))
+                                                              .collect(Collectors.toList()));
+            });
+
         } catch (Exception e) {
             getLogger().log(INFO, "Error reading OBD ECUs", e);
         }
 
         try {
-            calIdsFound = vehicleInformationModule.requestDM19(NOOP);
+            calIdsFound = communicationsModule.requestDM19(NOOP).toPacketStream().collect(Collectors.toList());
             view.setCalIds((int) calIdsFound.stream().mapToLong(p -> p.getCalibrationInformation().size()).sum());
         } catch (Exception e) {
             getLogger().log(INFO, "Error reading calibration IDs", e);

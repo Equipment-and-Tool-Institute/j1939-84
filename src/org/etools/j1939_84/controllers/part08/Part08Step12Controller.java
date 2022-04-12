@@ -3,14 +3,14 @@
  */
 package org.etools.j1939_84.controllers.part08;
 
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.ACK;
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
-import static org.etools.j1939_84.bus.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_ACK;
-import static org.etools.j1939_84.bus.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_NACK;
-import static org.etools.j1939_84.bus.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_REQ;
-import static org.etools.j1939_84.bus.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_ACK;
-import static org.etools.j1939_84.bus.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_NACK;
-import static org.etools.j1939_84.bus.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_REQ;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.ACK;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_ACK;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_NACK;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_ACT_REQ;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_ACK;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_NACK;
+import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte.CLR_PA_REQ;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,18 +18,18 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.SectionA5Verifier;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.8.12 DM22: Individual Clear/Reset of Active and Previously Active DTC
@@ -48,7 +48,7 @@ public class Part08Step12Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              new SectionA5Verifier(PART_NUMBER, STEP_NUMBER));
     }
 
@@ -58,7 +58,7 @@ public class Part08Step12Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule,
+                           CommunicationsModule communicationsModule,
                            SectionA5Verifier verifier) {
         super(executor,
               bannerModule,
@@ -66,7 +66,7 @@ public class Part08Step12Controller extends StepController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -85,11 +85,11 @@ public class Part08Step12Controller extends StepController {
                                                      .collect(Collectors.toList());
 
         var dsResults = addresses.stream()
-                                 .map(a -> getDiagnosticMessageModule().requestDM22(getListener(),
-                                                                                    a,
-                                                                                    CLR_ACT_REQ,
-                                                                                    0x7FFFF,
-                                                                                    31))
+                                 .map(a -> getCommunicationsModule().requestDM22(getListener(),
+                                                                                 a,
+                                                                                 CLR_ACT_REQ,
+                                                                                 0x7FFFF,
+                                                                                 31))
                                  .collect(Collectors.toList());
 
         var packets = filterPackets(dsResults);
@@ -169,11 +169,11 @@ public class Part08Step12Controller extends StepController {
         dsResults = new ArrayList<>();
         for (int address : addresses) {
             for (DiagnosticTroubleCode dtc : getDTCs(address)) {
-                dsResults.add(getDiagnosticMessageModule().requestDM22(getListener(),
-                                                                       address,
-                                                                       CLR_PA_REQ,
-                                                                       dtc.getSuspectParameterNumber(),
-                                                                       dtc.getFailureModeIndicator()));
+                dsResults.add(getCommunicationsModule().requestDM22(getListener(),
+                                                                    address,
+                                                                    CLR_PA_REQ,
+                                                                    dtc.getSuspectParameterNumber(),
+                                                                    dtc.getFailureModeIndicator()));
             }
         }
 
@@ -236,7 +236,7 @@ public class Part08Step12Controller extends StepController {
 
         // 6.8.12.7.a. Global DM22 using DM12 MIL On DTC SPN and FMI with control byte = 1, Request to Clear/Reset
         // Previously Active DTC.
-        var globalResults = getDiagnosticMessageModule().requestDM22(getListener(), CLR_PA_REQ, 0x7FFFF, 31);
+        var globalResults = getCommunicationsModule().requestDM22(getListener(), CLR_PA_REQ, 0x7FFFF, 31);
         packets = globalResults.getPackets();
         acks = globalResults.getAcks();
 
@@ -284,7 +284,7 @@ public class Part08Step12Controller extends StepController {
 
         // 6.8.12.9.a. Global DM22 using DM12 MIL On DTC SPN and FMI with control byte = 17, Request to Clear/Reset
         // Active DTC.
-        globalResults = getDiagnosticMessageModule().requestDM22(getListener(), CLR_ACT_REQ, 0x7FFFF, 31);
+        globalResults = getCommunicationsModule().requestDM22(getListener(), CLR_ACT_REQ, 0x7FFFF, 31);
         packets = globalResults.getPackets();
         acks = globalResults.getAcks();
 

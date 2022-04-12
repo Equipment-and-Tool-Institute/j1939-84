@@ -1,15 +1,14 @@
 /*
- * Copyright 2019 Equipment & Tool Institute
+ * Copyright (c) 2021. Equipment & Tool Institute
  */
 package org.etools.j1939_84.modules;
 
-import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
-import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
 import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
+import static org.etools.j1939tools.J1939tools.NL;
+import static org.etools.j1939tools.j1939.J1939.GLOBAL_ADDR;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -19,21 +18,19 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.BusException;
-import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
-import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
-import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
-import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
-import org.etools.j1939_84.bus.j1939.packets.IdleOperationPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
-import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.KeyState;
-import org.etools.j1939_84.model.RequestResult;
+import org.etools.j1939tools.CommunicationsListener;
+import org.etools.j1939tools.bus.BusException;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.packets.AddressClaimPacket;
+import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
+import org.etools.j1939tools.j1939.packets.DM56EngineFamilyPacket;
+import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.j1939.packets.VehicleIdentificationPacket;
+import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
+import org.etools.j1939tools.modules.FunctionalModule;
 
 /**
  * The {@link FunctionalModule} that is used to gather general information about
@@ -186,7 +183,7 @@ public class VehicleInformationModule extends FunctionalModule {
      * Sends the Request for Address Claim and reports the results
      *
      * @param listener
-     *                     the {@link ResultsListener} that will be given the report
+     *                     the {@link CommunicationsListener that will be given the report
      */
     public RequestResult<AddressClaimPacket> reportAddressClaim(ResultsListener listener) {
         RequestResult<AddressClaimPacket> responses = getJ1939().requestGlobal("Global Request for Address Claim",
@@ -199,55 +196,11 @@ public class VehicleInformationModule extends FunctionalModule {
         return responses;
     }
 
-    public List<DM19CalibrationInformationPacket> requestDM19(ResultsListener listener) {
-        return requestDMPackets("DM19", DM19CalibrationInformationPacket.class, GLOBAL_ADDR, listener).getPackets();
-    }
-
-    public BusResult<DM19CalibrationInformationPacket> requestDM19(ResultsListener listener, int address) {
-        return requestDMPackets("DM19", DM19CalibrationInformationPacket.class, address, listener).busResult();
-    }
-
-    /**
-     * Requests globally the Component Identification from all vehicle modules
-     * and generates a {@link String} that's suitable for inclusion in the
-     * report
-     *
-     * @param  listener
-     *                      the {@link ResultsListener} that will be given the report
-     * @return          {@link List} of {@link ComponentIdentificationPacket}
-     */
-    public RequestResult<ComponentIdentificationPacket> requestComponentIdentification(ResultsListener listener) {
-        listener.onResult("");
-        return getJ1939().requestGlobal("Global Component Identification Request",
-                                        ComponentIdentificationPacket.class,
-                                        listener);
-    }
-
-    /**
-     * Requests the Component Identification from all specified address and
-     * generates a {@link String} that's suitable for inclusion in the report
-     *
-     * @param  listener
-     *                      the {@link ResultsListener} that will be given the report
-     * @param  address
-     *                      the address of vehicle module to which the message will be
-     *                      addressed
-     * @return          {@link List} of {@link ComponentIdentificationPacket}
-     */
-    public BusResult<ComponentIdentificationPacket> requestComponentIdentification(ResultsListener listener,
-                                                                                   int address) {
-        return getJ1939().requestDS("Destination Specific Component Identification Request to "
-                + getAddressName(address),
-                                    ComponentIdentificationPacket.class,
-                                    address,
-                                    listener);
-    }
-
     /**
      * Queries the bus and reports the speed of the vehicle bus
      *
      * @param listener
-     *                     the {@link ResultsListener} that will be given the report
+     *                     the {@link CommunicationsListener} that will be given the report
      */
     public void reportConnectionSpeed(ResultsListener listener) {
         String result = getTime() + " Baud Rate: ";
@@ -261,39 +214,13 @@ public class VehicleInformationModule extends FunctionalModule {
     }
 
     /**
-     * Requests the Vehicle Identification from all vehicle modules and
-     * generates adds the information gathered to the report returning the
-     * Packets returned by the query.
-     *
-     * @param  listener
-     *                      the {@link ResultsListener} that will be given the report
-     * @return          List of {@link VehicleIdentificationPacket}
-     */
-    public List<VehicleIdentificationPacket> reportVin(ResultsListener listener) {
-        return getJ1939().requestGlobal("Global VIN Request", VehicleIdentificationPacket.class, listener).getPackets();
-    }
-
-    public BusResult<EngineHoursPacket> requestEngineHours(ResultsListener listener, int address) {
-        return getJ1939().requestDS("Destination Specific Engine Hours Request to " + getAddressName(address),
-                                    EngineHoursPacket.class,
-                                    address,
-                                    listener);
-    }
-
-    public BusResult<IdleOperationPacket> requestIdleOperation(ResultsListener listener, int address) {
-        return getJ1939().requestDS("Destination Specific Idle Operation Request to " + getAddressName(address),
-                                    IdleOperationPacket.class,
-                                    address,
-                                    listener);
-    }
-
-    /**
      * Sends the DM5 to determine which modules support HD-OBD. It returns a
      * {@link List} of source addresses of the modules that do support HD-OBD.
      *
-     * @return List of source addresses
+     * @return          List of source addresses
+     * @param  listener
      */
-    public List<Integer> getOBDModules(ResultsListener listener) {
+    public List<Integer> getOBDModules(CommunicationsListener listener) {
         return requestDMPackets("DM5",
                                 DM5DiagnosticReadinessPacket.class,
                                 GLOBAL_ADDR,
@@ -306,6 +233,7 @@ public class VehicleInformationModule extends FunctionalModule {
                                          .collect(Collectors.toList());
     }
 
+    // TODO move back
     public void changeKeyState(ResultsListener listener, KeyState keyState) {
         int pgn;
         if (keyState == KEY_ON_ENGINE_RUNNING) {
@@ -319,22 +247,6 @@ public class VehicleInformationModule extends FunctionalModule {
         }
 
         getJ1939().requestGlobal("Requesting " + keyState + " - REPORT IF SEEN IN THE FIELD",
-                                 pgn,
-                                 getJ1939().createRequestPacket(pgn, GLOBAL_ADDR),
-                                 listener);
-    }
-
-    public void implantFaultA(ResultsListener listener) {
-        int pgn = 0x1FFFA;
-        getJ1939().requestGlobal("Requesting Fault A to be implanted - REPORT IF SEEN IN THE FIELD",
-                                 pgn,
-                                 getJ1939().createRequestPacket(pgn, GLOBAL_ADDR),
-                                 listener);
-    }
-
-    public void implantFaultB(ResultsListener listener) {
-        int pgn = 0x1FFFB;
-        getJ1939().requestGlobal("Requesting Fault B to be implanted - REPORT IF SEEN IN THE FIELD",
                                  pgn,
                                  getJ1939().createRequestPacket(pgn, GLOBAL_ADDR),
                                  listener);

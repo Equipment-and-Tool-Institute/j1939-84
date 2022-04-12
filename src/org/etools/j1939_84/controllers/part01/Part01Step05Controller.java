@@ -3,18 +3,19 @@ package org.etools.j1939_84.controllers.part01;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
-import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.VinDecoder;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.j1939.packets.VehicleIdentificationPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.1.5 PGN 65260 VIN Verification
@@ -34,7 +35,8 @@ public class Part01Step05Controller extends StepController {
              new VehicleInformationModule(),
              new VinDecoder(),
              dataRepository,
-             DateTimeModule.getInstance());
+             DateTimeModule.getInstance(),
+             new CommunicationsModule());
     }
 
     Part01Step05Controller(Executor executor,
@@ -43,14 +45,15 @@ public class Part01Step05Controller extends StepController {
                            VehicleInformationModule vehicleInformationModule,
                            VinDecoder vinDecoder,
                            DataRepository dataRepository,
-                           DateTimeModule dateTimeModule) {
+                           DateTimeModule dateTimeModule,
+                           CommunicationsModule communicationsModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(),
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -60,7 +63,10 @@ public class Part01Step05Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.1.5.1.a. Global Request (PGN 59904) for PGN 65260 Vehicle ID (SPN 237) VIN.
-        List<VehicleIdentificationPacket> packets = getVehicleInformationModule().reportVin(getListener());
+        List<VehicleIdentificationPacket> packets = request(VehicleIdentificationPacket.class)
+                                                                                              .stream()
+                                                                                              .map(p -> new VehicleIdentificationPacket(p.getPacket()))
+                                                                                              .collect(Collectors.toList());
 
         // 6.1.5.2.a. Fail if no VIN is provided by any ECU.
         if (packets.isEmpty()) {

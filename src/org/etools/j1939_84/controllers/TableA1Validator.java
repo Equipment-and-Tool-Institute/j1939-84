@@ -19,16 +19,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
-import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
-import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
-import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
-import org.etools.j1939_84.bus.j1939.packets.model.Spn;
-import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.Outcome;
+import org.etools.j1939tools.j1939.J1939DaRepository;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.model.FuelType;
+import org.etools.j1939tools.j1939.model.PgnDefinition;
+import org.etools.j1939tools.j1939.model.Spn;
+import org.etools.j1939tools.j1939.model.SpnDefinition;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.SupportedSPN;
 
 public class TableA1Validator {
 
@@ -240,7 +240,7 @@ public class TableA1Validator {
                     if (address == null) {
                         uniques.put(spnId, packet.getSourceAddress());
                     } else if (address != packet.getSourceAddress()) {
-                        Outcome outcome = Lookup.getOutcomeForDuplicateSpn(spnId);
+                        Outcome outcome = PartLookup.getOutcomeForDuplicateSpn(spnId);
                         if (outcome != PASS && !duplicateSPNs.containsKey(spnId)) {
                             duplicateSPNs.put(spnId, outcome);
                         }
@@ -303,33 +303,35 @@ public class TableA1Validator {
 
         Collection<Integer> moduleSPNs = getModuleSupportedSPNs(moduleAddress);
 
-        packet.getSpns()
-              .stream()
-              .sorted(Comparator.comparingInt(Spn::getId))
-              .forEach(spn -> {
-                  int spnId = spn.getId();
-                  Double value = spn.getValue();
-                  if ((spn.isError() && moduleSPNs.contains(spnId))
-                          || valueValidator.isImplausible(spnId, value, isEngineRunning)) {
-                      Set<Integer> invalid = invalidSPNs.getOrDefault(moduleAddress, new HashSet<>());
-                      if (!invalid.contains(spnId)) {
-                          reportPacketIfNotReported(packet, listener, true);
-                          String moduleName = Lookup.getAddressName(moduleAddress);
+        List<Spn> toSort = new ArrayList<>();
+        for (Spn spn : packet.getSpns()) {
+            toSort.add(spn);
+        }
+        toSort.sort(Comparator.comparingInt(Spn::getId));
+        for (Spn spn : toSort) {
+            int spnId = spn.getId();
+            Double value = spn.getValue();
+            if ((spn.isError() && moduleSPNs.contains(spnId))
+                    || valueValidator.isImplausible(spnId, value, isEngineRunning)) {
+                Set<Integer> invalid = invalidSPNs.getOrDefault(moduleAddress, new HashSet<>());
+                if (!invalid.contains(spnId)) {
+                    reportPacketIfNotReported(packet, listener, true);
+                    String moduleName = Lookup.getAddressName(moduleAddress);
 
-                          String message;
-                          if (spn.isError()) {
-                              message = "N.8 " + moduleName + " reported value for SPN " + spnId
-                                      + " (ERROR) is implausible";
-                          } else {
-                              message = "N.8 " + moduleName + " reported value for SPN " + spnId + " (" + value
-                                      + ") is implausible";
-                          }
-                          addOutcome(listener, section, WARN, message);
-                          invalid.add(spnId);
-                          invalidSPNs.put(moduleAddress, invalid);
-                      }
-                  }
-              });
+                    String message;
+                    if (spn.isError()) {
+                        message = "N.8 " + moduleName + " reported value for SPN " + spnId
+                                + " (ERROR) is implausible";
+                    } else {
+                        message = "N.8 " + moduleName + " reported value for SPN " + spnId + " (" + value
+                                + ") is implausible";
+                    }
+                    addOutcome(listener, section, WARN, message);
+                    invalid.add(spnId);
+                    invalidSPNs.put(moduleAddress, invalid);
+                }
+            }
+        }
     }
 
     /**
@@ -353,7 +355,7 @@ public class TableA1Validator {
               .distinct()
               .sorted()
               .forEach(id -> {
-                  Outcome outcome = Lookup.getOutcomeForNonObdModuleProvidingSpn(id);
+                  Outcome outcome = PartLookup.getOutcomeForNonObdModuleProvidingSpn(id);
                   if (outcome != PASS) {
                       Set<Integer> reported = nonObdProvidedSPNs.getOrDefault(sourceAddress, new HashSet<>());
                       if (!reported.contains(id)) {
@@ -396,7 +398,7 @@ public class TableA1Validator {
                       String moduleName = Lookup.getAddressName(moduleAddress);
                       addOutcome(listener,
                                  section,
-                                 Outcome.FAIL,
+                                 FAIL,
                                  "SPN " + spn + " was received as NOT AVAILABLE from " + moduleName);
                       listener.onResult("");
                       naSPNs.add(spn);

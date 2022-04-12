@@ -4,12 +4,12 @@
 package org.etools.j1939_84.controllers.part08;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939tools.j1939.packets.LampStatus.ON;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -22,26 +22,26 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,7 +58,7 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -97,7 +97,7 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -106,7 +106,7 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -116,7 +116,7 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -146,13 +146,13 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
         var nack = AcknowledgmentPacket.create(0, AcknowledgmentPacket.Response.NACK);
-        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, nack));
+        when(communicationsModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, nack));
 
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc1);
-        when(diagnosticMessageModule.requestDM12(any(), eq(1))).thenReturn(new BusResult<>(false, dm12_1));
+        when(communicationsModule.requestDM12(any(), eq(1))).thenReturn(new BusResult<>(false, dm12_1));
 
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12_1));
+        when(communicationsModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12_1));
 
         runTest();
 
@@ -163,9 +163,9 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         expectedResults += "Attempt 1" + NL;
         assertEquals(expectedResults, listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM12(any());
-        verify(diagnosticMessageModule).requestDM12(any(), eq(1));
-        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+        verify(communicationsModule).requestDM12(any());
+        verify(communicationsModule).requestDM12(any(), eq(1));
+        verify(communicationsModule).requestDM12(any(), eq(0));
 
         assertEquals(0, dateTimeModule.getTimeAsLong());
 
@@ -175,7 +175,7 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoResponses() {
 
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(true));
+        when(communicationsModule.requestDM12(any())).thenReturn(new RequestResult<>(true));
 
         String promptMsg = "No ECU has reported an active DTC." + NL + "Do you wish to continue?";
         String promptTitle = "No Active DTCs Found";
@@ -204,7 +204,7 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         assertEquals(expectedResults.toString(), listener.getResults());
 
         verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
-        verify(diagnosticMessageModule, times(300)).requestDM12(any());
+        verify(communicationsModule, times(300)).requestDM12(any());
         verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -223,7 +223,7 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
         var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12));
+        when(communicationsModule.requestDM12(any())).thenReturn(RequestResult.of(dm12));
 
         String promptMsg = "No ECU has reported an active DTC." + NL + "Do you wish to continue?";
         String promptTitle = "No Active DTCs Found";
@@ -234,7 +234,7 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
             return null;
         }).when(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
 
-        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12));
+        when(communicationsModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12));
 
         runTest();
 
@@ -254,8 +254,8 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         assertEquals(expectedResults.toString(), listener.getResults());
 
         verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
-        verify(diagnosticMessageModule, times(300)).requestDM12(any());
-        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+        verify(communicationsModule, times(300)).requestDM12(any());
+        verify(communicationsModule).requestDM12(any(), eq(0));
         verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -276,8 +276,8 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dtc2 = DiagnosticTroubleCode.create(456, 3, 0, 1);
         var dm12 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2);
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12));
-        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12));
+        when(communicationsModule.requestDM12(any())).thenReturn(RequestResult.of(dm12));
+        when(communicationsModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12));
 
         runTest();
 
@@ -288,8 +288,8 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         expectedResults += "Attempt 1" + NL;
         assertEquals(expectedResults, listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM12(any());
-        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+        verify(communicationsModule).requestDM12(any());
+        verify(communicationsModule).requestDM12(any(), eq(0));
 
         assertEquals(0, dateTimeModule.getTimeAsLong());
 
@@ -306,8 +306,8 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dm12_0 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);
         var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc1);
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12_0, dm12_1));
-        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12_0));
+        when(communicationsModule.requestDM12(any())).thenReturn(RequestResult.of(dm12_0, dm12_1));
+        when(communicationsModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12_0));
 
         runTest();
 
@@ -318,8 +318,8 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         expectedResults += "Attempt 1" + NL;
         assertEquals(expectedResults, listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM12(any());
-        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+        verify(communicationsModule).requestDM12(any());
+        verify(communicationsModule).requestDM12(any(), eq(0));
 
         assertEquals(0, dateTimeModule.getTimeAsLong());
 
@@ -335,13 +335,13 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
         var dm12_0 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, dm12_0));
+        when(communicationsModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, dm12_0));
 
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc1);
-        when(diagnosticMessageModule.requestDM12(any(), eq(1))).thenReturn(new BusResult<>(false, dm12_1));
+        when(communicationsModule.requestDM12(any(), eq(1))).thenReturn(new BusResult<>(false, dm12_1));
 
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12_0, dm12_1));
+        when(communicationsModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12_0, dm12_1));
 
         runTest();
 
@@ -352,9 +352,9 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         expectedResults += "Attempt 1" + NL;
         assertEquals(expectedResults, listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM12(any());
-        verify(diagnosticMessageModule).requestDM12(any(), eq(1));
-        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+        verify(communicationsModule).requestDM12(any());
+        verify(communicationsModule).requestDM12(any(), eq(1));
+        verify(communicationsModule).requestDM12(any(), eq(0));
 
         assertEquals(0, dateTimeModule.getTimeAsLong());
 
@@ -367,8 +367,8 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
 
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12));
-        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12));
+        when(communicationsModule.requestDM12(any())).thenReturn(RequestResult.of(dm12));
+        when(communicationsModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12));
 
         runTest();
 
@@ -379,8 +379,8 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         expectedResults += "Attempt 1" + NL;
         assertEquals(expectedResults, listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM12(any());
-        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+        verify(communicationsModule).requestDM12(any());
+        verify(communicationsModule).requestDM12(any(), eq(0));
 
         assertEquals(0, dateTimeModule.getTimeAsLong());
 
@@ -402,10 +402,10 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
 
         var dm12_1 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12_1));
+        when(communicationsModule.requestDM12(any())).thenReturn(RequestResult.of(dm12_1));
 
         var dm12_2 = DM12MILOnEmissionDTCPacket.create(0, ON, ON, OFF, OFF, dtc1);
-        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12_2));
+        when(communicationsModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12_2));
 
         runTest();
 
@@ -416,8 +416,8 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         expectedResults += "Attempt 1" + NL;
         assertEquals(expectedResults, listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM12(any());
-        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+        verify(communicationsModule).requestDM12(any());
+        verify(communicationsModule).requestDM12(any(), eq(0));
 
         assertEquals(0, dateTimeModule.getTimeAsLong());
 
@@ -432,11 +432,11 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dm12 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(RequestResult.of(dm12));
-        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12));
+        when(communicationsModule.requestDM12(any())).thenReturn(RequestResult.of(dm12));
+        when(communicationsModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
-        when(diagnosticMessageModule.requestDM12(any(), eq(1))).thenReturn(new BusResult<>(true));
+        when(communicationsModule.requestDM12(any(), eq(1))).thenReturn(new BusResult<>(true));
 
         runTest();
 
@@ -447,9 +447,9 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         expectedResults += "Attempt 1" + NL;
         assertEquals(expectedResults, listener.getResults());
 
-        verify(diagnosticMessageModule).requestDM12(any());
-        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM12(any(), eq(1));
+        verify(communicationsModule).requestDM12(any());
+        verify(communicationsModule).requestDM12(any(), eq(0));
+        verify(communicationsModule).requestDM12(any(), eq(1));
 
         assertEquals(0, dateTimeModule.getTimeAsLong());
 

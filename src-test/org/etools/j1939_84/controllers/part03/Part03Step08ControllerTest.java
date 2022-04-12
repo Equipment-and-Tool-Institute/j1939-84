@@ -12,21 +12,21 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class Part03Step08ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -82,7 +82,7 @@ public class Part03Step08ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -91,7 +91,7 @@ public class Part03Step08ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -103,7 +103,7 @@ public class Part03Step08ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  vehicleInformationModule,
                                  mockListener,
-                                 diagnosticMessageModule);
+                                 communicationsModule);
     }
 
     @Test
@@ -128,11 +128,11 @@ public class Part03Step08ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testNoPackets() {
-        when(diagnosticMessageModule.requestDM5(any())).thenReturn(new RequestResult<>(false));
+        when(communicationsModule.requestDM5(any())).thenReturn(new RequestResult<>(false));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM5(any());
+        verify(communicationsModule).requestDM5(any());
 
         assertEquals("", listener.getResults());
     }
@@ -140,11 +140,11 @@ public class Part03Step08ControllerTest extends AbstractControllerTest {
     @Test
     public void testNAisFiltered() {
         var dm5 = DM5DiagnosticReadinessPacket.create(0, 0xFF, 0xFF, 0x23);
-        when(diagnosticMessageModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
+        when(communicationsModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM5(any());
+        verify(communicationsModule).requestDM5(any());
 
         assertEquals("", listener.getResults());
     }
@@ -152,11 +152,11 @@ public class Part03Step08ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForActiveCount() {
         var dm5 = DM5DiagnosticReadinessPacket.create(0, 1, 0xFF, 0x23);
-        when(diagnosticMessageModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
+        when(communicationsModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM5(any());
+        verify(communicationsModule).requestDM5(any());
 
         assertEquals("", listener.getResults());
 
@@ -169,11 +169,11 @@ public class Part03Step08ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForPreviouslyActiveCount() {
         var dm5 = DM5DiagnosticReadinessPacket.create(0, 0, 1, 0x23);
-        when(diagnosticMessageModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
+        when(communicationsModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM5(any());
+        verify(communicationsModule).requestDM5(any());
 
         assertEquals("", listener.getResults());
 
@@ -186,11 +186,11 @@ public class Part03Step08ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoFailure() {
         var dm5 = DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x23);
-        when(diagnosticMessageModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
+        when(communicationsModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM5(any());
+        verify(communicationsModule).requestDM5(any());
 
         assertEquals("", listener.getResults());
     }
@@ -198,11 +198,11 @@ public class Part03Step08ControllerTest extends AbstractControllerTest {
     @Test
     public void testOBDModulesAreFiltered() {
         var dm5 = DM5DiagnosticReadinessPacket.create(0, 1, 1, 0);
-        when(diagnosticMessageModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
+        when(communicationsModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM5(any());
+        verify(communicationsModule).requestDM5(any());
 
         assertEquals("", listener.getResults());
     }

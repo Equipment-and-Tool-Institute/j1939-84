@@ -17,15 +17,15 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.Either;
-import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.controllers.BusService;
 import org.etools.j1939_84.controllers.ResultsListener;
-import org.etools.j1939_84.model.RequestResult;
+import org.etools.j1939tools.bus.Either;
+import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.J1939DaRepository;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -68,7 +68,7 @@ public class BusServiceTest {
     }
 
     @Test
-    @Ignore("I don't know why it's not verifying the j1939 read call")
+    @Ignore("I don't know why it's not verifying the j1939tools read call")
     public void readBus() {
         List<Either<GenericPacket, AcknowledgmentPacket>> packets = new ArrayList<>();
         packets.add(Either.nullable(packet(11111), null));
@@ -97,7 +97,7 @@ public class BusServiceTest {
     }
 
     @Test
-    @Ignore("I don't know why it's not verifying the j1939 read call")
+    @Ignore("I don't know why it's not verifying the j1939tools read call")
     public void globalRequest() {
         Packet request = mock(Packet.class);
         when(j1939.createRequestPacket(11111, J1939.GLOBAL_ADDR)).thenReturn(request);

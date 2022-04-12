@@ -17,23 +17,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import org.etools.j1939_84.bus.Either;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
-import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ReplayListener;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TableA1Validator;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.Either;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.DM20MonitorPerformanceRatioPacket;
+import org.etools.j1939tools.j1939.packets.DM28PermanentEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.j1939.packets.PerformanceRatio;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;;
 
 /**
  * 6.11.7 DM20/DM28/Broadcast data: Waiting until General Denominator Is Met
@@ -60,7 +60,7 @@ public class Part11Step07Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              new TableA1Validator(DataRepository.getInstance(), PART_NUMBER, STEP_NUMBER));
     }
 
@@ -70,7 +70,7 @@ public class Part11Step07Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule,
+                           CommunicationsModule communicationsModule,
                            TableA1Validator validator) {
         super(executor,
               bannerModule,
@@ -78,7 +78,7 @@ public class Part11Step07Controller extends StepController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -229,11 +229,11 @@ public class Part11Step07Controller extends StepController {
     }
 
     private Stream<DM20MonitorPerformanceRatioPacket> requestDM20(boolean logPackets, int address) {
-        return getDiagnosticMessageModule().requestDM20(getListener(logPackets), address).toPacketStream();
+        return getCommunicationsModule().requestDM20(getListener(logPackets), address).toPacketStream();
     }
 
     private Stream<DM28PermanentEmissionDTCPacket> requestDM28(boolean logPackets, int address) {
-        return getDiagnosticMessageModule().requestDM28(getListener(logPackets), address).toPacketStream();
+        return getCommunicationsModule().requestDM28(getListener(logPackets), address).toPacketStream();
     }
 
     private boolean denominatorsIncreased(DM20MonitorPerformanceRatioPacket currentPacket) {

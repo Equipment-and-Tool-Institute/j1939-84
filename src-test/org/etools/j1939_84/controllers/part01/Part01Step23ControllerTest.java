@@ -14,20 +14,20 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.DM31DtcToLampAssociation;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +50,7 @@ public class Part01Step23ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -84,7 +84,7 @@ public class Part01Step23ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               DateTimeModule.getInstance(),
                                               DataRepository.newInstance());
 
@@ -95,7 +95,7 @@ public class Part01Step23ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -104,7 +104,7 @@ public class Part01Step23ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -126,15 +126,15 @@ public class Part01Step23ControllerTest extends AbstractControllerTest {
         DM31DtcToLampAssociation packet = new DM31DtcToLampAssociation(
                                                                        Packet.create(PGN, 0x00, data));
 
-        when(diagnosticMessageModule.requestDM31(any()))
-                                                        .thenReturn(new RequestResult<>(false,
-                                                                                        Collections.singletonList(packet),
-                                                                                        Collections.emptyList()));
+        when(communicationsModule.requestDM31(any()))
+                                                     .thenReturn(new RequestResult<>(false,
+                                                                                     Collections.singletonList(packet),
+                                                                                     Collections.emptyList()));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM31(any());
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM31(any());
 
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
@@ -200,15 +200,15 @@ public class Part01Step23ControllerTest extends AbstractControllerTest {
         DM31DtcToLampAssociation packet = new DM31DtcToLampAssociation(
                                                                        Packet.create(PGN, 0x00, data));
 
-        when(diagnosticMessageModule.requestDM31(any()))
-                                                        .thenReturn(new RequestResult<>(false,
-                                                                                        Collections.singletonList(packet),
-                                                                                        Collections.emptyList()));
+        when(communicationsModule.requestDM31(any()))
+                                                     .thenReturn(new RequestResult<>(false,
+                                                                                     Collections.singletonList(packet),
+                                                                                     Collections.emptyList()));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM31(any());
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM31(any());
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

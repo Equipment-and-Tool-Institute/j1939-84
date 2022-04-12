@@ -8,6 +8,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.etools.j1939_84.BuildNumber;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.Before;
 import org.junit.Test;
 

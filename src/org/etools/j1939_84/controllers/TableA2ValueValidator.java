@@ -4,12 +4,13 @@
 
 package org.etools.j1939_84.controllers;
 
+
 import static org.etools.j1939_84.model.Outcome.WARN;
 
 import java.util.List;
 
-import org.etools.j1939_84.bus.j1939.packets.FreezeFrame;
-import org.etools.j1939_84.bus.j1939.packets.model.Spn;
+import org.etools.j1939tools.j1939.model.Spn;
+import org.etools.j1939tools.j1939.packets.FreezeFrame;
 
 public class TableA2ValueValidator {
 

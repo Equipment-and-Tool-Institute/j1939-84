@@ -13,21 +13,21 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
-import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
+import org.etools.j1939tools.j1939.packets.SupportedSPN;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.etools.testdoc.TestDoc;
 import org.etools.testdoc.TestItem;
 import org.junit.After;
@@ -72,7 +72,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
     private ResultsListener mockListener;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private ReportFileModule reportFileModule;
@@ -92,7 +92,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               dataRepository,
                                               DateTimeModule.getInstance());
 
@@ -103,7 +103,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -112,9 +112,9 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener,
-                                 diagnosticMessageModule);
+                                 communicationsModule);
     }
 
     @Test
@@ -133,19 +133,19 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
     }, description = "Using a response that indicates that 6.2.3.2.b failed, verify that the failures are in the report.")
     public void testFailures() {
 
-        SupportedSPN spn1 = SupportedSPN.create(123, true, true, true, 1);
+        SupportedSPN spn1 = SupportedSPN.create(123, true, true, true, false, 1);
 
         OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
         obdInfo0.set(DM24SPNSupportPacket.create(0, spn1), 1);
         dataRepository.putObdModule(obdInfo0);
 
-        SupportedSPN spn2 = SupportedSPN.create(456, true, true, true, 1);
+        SupportedSPN spn2 = SupportedSPN.create(456, true, true, true, false, 1);
         DM24SPNSupportPacket packet0 = DM24SPNSupportPacket.create(0, spn2);
-        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
+        when(communicationsModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM24(any(), eq(0));
+        verify(communicationsModule).requestDM24(any(), eq(0));
 
         assertEquals("", listener.getResults());
 
@@ -175,18 +175,18 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
     @Test
     @TestDoc(value = @TestItem(verifies = "6.2.3.2.b"), description = "Verify that step completes without errors when none of the fail criteria are met.")
     public void testNoFailures() {
-        SupportedSPN spn1 = SupportedSPN.create(123, true, true, true, 1);
-        SupportedSPN spn2 = SupportedSPN.create(456, true, true, true, 1);
+        SupportedSPN spn1 = SupportedSPN.create(123, true, true, true, false, 1);
+        SupportedSPN spn2 = SupportedSPN.create(456, true, true, true, false, 1);
         OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
         obdInfo0.set(DM24SPNSupportPacket.create(0, spn1, spn2), 1);
         dataRepository.putObdModule(obdInfo0);
 
         DM24SPNSupportPacket packet0 = DM24SPNSupportPacket.create(0, spn1, spn2);
-        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
+        when(communicationsModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM24(any(), eq(0));
+        verify(communicationsModule).requestDM24(any(), eq(0));
 
         assertEquals("", listener.getResults());
     }

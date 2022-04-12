@@ -3,7 +3,7 @@
  */
 package org.etools.j1939_84.model;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
+import org.etools.j1939_84.controllers.PartLookup;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
@@ -12,7 +12,7 @@ import org.etools.j1939_84.bus.j1939.Lookup;
 public class PartResultFactory {
 
     private static String name(int partNumber) {
-        return Lookup.getPartName(partNumber);
+        return PartLookup.getPartName(partNumber);
     }
 
     public PartResult create(int partNumber) {

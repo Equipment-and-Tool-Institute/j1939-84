@@ -4,10 +4,10 @@
 package org.etools.j1939_84.controllers.part11;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.YES;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -23,13 +23,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
-import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
-import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -38,13 +31,20 @@ import org.etools.j1939_84.controllers.TableA1Validator;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.DM20MonitorPerformanceRatioPacket;
+import org.etools.j1939tools.j1939.packets.DM28PermanentEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.PerformanceRatio;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,7 +65,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -108,7 +108,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               validator);
 
         setup(instance,
@@ -118,7 +118,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -128,7 +128,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener,
                                  validator);
     }
@@ -166,11 +166,11 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
 
         var ratio2 = new PerformanceRatio(12, 1, 10, 0);
         var dm20 = DM20MonitorPerformanceRatioPacket.create(0, 1, 0, ratio2);
-        when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(BusResult.of(dm20));
+        when(communicationsModule.requestDM20(any(), eq(0))).thenReturn(BusResult.of(dm20));
 
         var dtc2 = DiagnosticTroubleCode.create(123, 1, 0, 1);
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc2);
-        when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
+        when(communicationsModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
 
         dataRepository.setPart11StartTime(dateTimeModule.getTimeAsLong());
 
@@ -219,8 +219,8 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).secondsAtIdle();
         verify(engineSpeedModule, atLeastOnce()).isEngineAtIdle();
 
-        verify(diagnosticMessageModule, atLeastOnce()).requestDM20(any(), eq(0));
-        verify(diagnosticMessageModule, atLeastOnce()).requestDM28(any(), eq(0));
+        verify(communicationsModule, atLeastOnce()).requestDM20(any(), eq(0));
+        verify(communicationsModule, atLeastOnce()).requestDM28(any(), eq(0));
 
         verify(mockListener, times(2)).onUrgentMessage(any(), any(), eq(WARNING), any());
 
@@ -262,7 +262,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
 
         var ratio2 = new PerformanceRatio(12, 1, 11, 0);
         var dm20 = DM20MonitorPerformanceRatioPacket.create(0, 1, 0, ratio2);
-        when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(BusResult.of(dm20));
+        when(communicationsModule.requestDM20(any(), eq(0))).thenReturn(BusResult.of(dm20));
 
         dataRepository.setPart11StartTime(dateTimeModule.getTimeAsLong());
 
@@ -283,7 +283,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
 
         verify(engineSpeedModule, atLeastOnce()).secondsAtSpeed();
 
-        verify(diagnosticMessageModule, times(2)).requestDM20(any(), eq(0));
+        verify(communicationsModule, times(2)).requestDM20(any(), eq(0));
 
         verify(mockListener, times(2)).onUrgentMessage(any(), any(), eq(WARNING), any());
 
@@ -302,7 +302,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
+        when(communicationsModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
 
         dataRepository.setPart11StartTime(dateTimeModule.getTimeAsLong());
 
@@ -323,7 +323,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
 
         verify(engineSpeedModule, atLeastOnce()).secondsAtSpeed();
 
-        verify(diagnosticMessageModule, times(2)).requestDM28(any(), eq(0));
+        verify(communicationsModule, times(2)).requestDM28(any(), eq(0));
 
         verify(mockListener, times(2)).onUrgentMessage(any(), any(), eq(WARNING), any());
 

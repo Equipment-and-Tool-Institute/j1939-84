@@ -4,7 +4,7 @@
 package org.etools.j1939_84.controllers.part11;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket.PGN;
+import static org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket.PGN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.any;
@@ -15,29 +15,31 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+;
 
 @RunWith(MockitoJUnitRunner.class)
 public class Part11Step10ControllerTest extends AbstractControllerTest {
@@ -48,7 +50,7 @@ public class Part11Step10ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -85,7 +87,7 @@ public class Part11Step10ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -94,7 +96,7 @@ public class Part11Step10ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -104,7 +106,7 @@ public class Part11Step10ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -165,15 +167,15 @@ public class Part11Step10ControllerTest extends AbstractControllerTest {
                                                                       0x00,
                                                                       0x00));
 
-        when(diagnosticMessageModule.requestDM5(any(), eq(0x00))).thenReturn(BusResult.of(packet0));
-        when(diagnosticMessageModule.requestDM5(any(), eq(0x17))).thenReturn(BusResult.of(packet17));
-        when(diagnosticMessageModule.requestDM5(any(), eq(0x23))).thenReturn(BusResult.of(packet23));
+        when(communicationsModule.requestDM5(any(), eq(0x00))).thenReturn(BusResult.of(packet0));
+        when(communicationsModule.requestDM5(any(), eq(0x17))).thenReturn(BusResult.of(packet17));
+        when(communicationsModule.requestDM5(any(), eq(0x23))).thenReturn(BusResult.of(packet23));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM5(any(), eq(0x00));
-        verify(diagnosticMessageModule).requestDM5(any(), eq(0x17));
-        verify(diagnosticMessageModule).requestDM5(any(), eq(0x23));
+        verify(communicationsModule).requestDM5(any(), eq(0x00));
+        verify(communicationsModule).requestDM5(any(), eq(0x17));
+        verify(communicationsModule).requestDM5(any(), eq(0x23));
 
         assertSame(packet0, dataRepository.getObdModule(0).getLatest(DM5DiagnosticReadinessPacket.class));
 

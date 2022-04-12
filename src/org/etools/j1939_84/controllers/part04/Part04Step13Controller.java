@@ -3,26 +3,26 @@
  */
 package org.etools.j1939_84.controllers.part04;
 
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.BUSY;
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.DENIED;
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.BUSY;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.DENIED;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 
 import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.SectionA5Verifier;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.4.13 DM3: Diagnostic Data Clear/Reset for Previously Active DTCs
@@ -41,7 +41,7 @@ public class Part04Step13Controller extends StepController {
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              new SectionA5Verifier(PART_NUMBER, STEP_NUMBER));
     }
 
@@ -51,7 +51,7 @@ public class Part04Step13Controller extends StepController {
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule diagnosticMessageModule,
+                           CommunicationsModule communicationsModule,
                            SectionA5Verifier verifier) {
         super(executor,
               bannerModule,
@@ -59,7 +59,7 @@ public class Part04Step13Controller extends StepController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -74,7 +74,7 @@ public class Part04Step13Controller extends StepController {
         var dsPackets = getDataRepository().getObdModules()
                                            .stream()
                                            .map(OBDModuleInformation::getSourceAddress)
-                                           .map(a -> getDiagnosticMessageModule().requestDM3(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM3(getListener(), a))
                                            .flatMap(Collection::stream)
                                            .collect(Collectors.toList());
 
@@ -108,7 +108,7 @@ public class Part04Step13Controller extends StepController {
                  });
 
         // 6.4.13.3.a. Global DM3
-        getDiagnosticMessageModule().requestDM3(getListener());
+        getCommunicationsModule().requestDM3(getListener());
 
         // 6.4.13.3.b. Wait 5 seconds before checking for erased information.
         pause("Step 6.4.13.3.b - Waiting %1$d seconds before checking for erased information", 5L);

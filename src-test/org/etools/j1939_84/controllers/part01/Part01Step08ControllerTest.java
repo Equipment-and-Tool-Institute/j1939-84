@@ -6,33 +6,32 @@ package org.etools.j1939_84.controllers.part01;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
-import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.model.FuelType;
+import org.etools.j1939tools.j1939.packets.DM20MonitorPerformanceRatioPacket;
+import org.etools.j1939tools.j1939.packets.PerformanceRatio;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
+import org.etools.testdoc.TestDoc;
+import org.etools.testdoc.TestItem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +51,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
     @Mock
     private EngineSpeedModule engineSpeedModule;
     @Mock
@@ -68,18 +67,16 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    private static DM20MonitorPerformanceRatioPacket createDM20(List<Integer> ratios) {
-        DM20MonitorPerformanceRatioPacket packet = mock(DM20MonitorPerformanceRatioPacket.class);
+    private static DM20MonitorPerformanceRatioPacket createDM20(int address, List<Integer> ratios) {
 
-        when(packet.getSourceAddress()).thenReturn(0);
+        PerformanceRatio[] performanceRatios = ratios.stream()
+                                                     .map(sp -> new PerformanceRatio(sp, 3, 4, address))
+                                                     .toArray(PerformanceRatio[]::new);
 
-        if (ratios != null) {
-            List<PerformanceRatio> perfRatios = ratios.stream()
-                                                      .map(spn -> new PerformanceRatio(spn, 0, 0, 0))
-                                                      .collect(Collectors.toList());
-            when(packet.getRatios()).thenReturn(perfRatios);
-        }
-
+        DM20MonitorPerformanceRatioPacket packet = DM20MonitorPerformanceRatioPacket.create(address,
+                                                                                            1,
+                                                                                            10,
+                                                                                            performanceRatios);
         return packet;
     }
 
@@ -94,7 +91,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule,
+                                              communicationsModule,
                                               dataRepository,
                                               DateTimeModule.getInstance());
 
@@ -105,7 +102,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
 
     }
 
@@ -116,26 +113,21 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
+    /**
+     * Test one module of an electric vehicle responds
+     */
     @Test
+    @TestDoc(value = @TestItem(verifies = "6.1.8.2.a", description = "Fail if minimum expected SPs are not supported (in the aggregate response for the vehicle) per Section A.4"))
     public void ignitionTypeNotSupported() {
-        List<Integer> SPNs = new ArrayList<>();
-        int[] SPN3 = { 3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057 };
-        SPNs.add(SPN3[1]);
-        SPNs.add(SPN3[2]);
-        SPNs.add(SPN3[3]);
-        SPNs.add(SPN3[4]);
-        SPNs.add(SPN3[5]);
-        SPNs.add(SPN3[6]);
-        SPNs.add(SPN3[7]);
-        SPNs.add(SPN3[8]);
+        List<Integer> SPs = List.of(3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057);
 
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPs);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
@@ -145,19 +137,24 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
     }
 
+    /**
+     * Test one module responds with minimum SP for a
+     * compression ignition engine
+     */
     @Test
-    public void minimumExpectedSPNsCompressionIgnition() {
+    @TestDoc(value = @TestItem(verifies = "6.1.8.2.a", description = "Minimum expected SPs are not supported. Not Supported SPs: 5318, 5322 None of these SPs are supported: 4364, 4792, 5308"))
+    public void minimumExpectedSPsCompressionIgnition() {
 
-        List<Integer> SPNs = List.of(3058, 3064, 5321, 3055);
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
+        List<Integer> SPs = List.of(3058, 3064, 5321, 3055);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPs);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
@@ -167,24 +164,29 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,
                                         FAIL,
-                                        "6.1.8.2.a - Minimum expected SPNs are not supported. Not Supported SPNs: 5318, 5322 None of these SPNs are supported: 4364, 4792, 5308");
+                                        "6.1.8.2.a - Minimum expected SPs are not supported. Not Supported SPs: 5318, 5322 None of these SPs are supported: 4364, 4792, 5308");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
     }
 
+    /**
+     * Test one module responds with minimum SP for a
+     * spark ignition engine
+     */
     @Test
-    public void minimumExpectedSPNsSparkIgnition() {
+    @TestDoc(value = @TestItem(verifies = "6.1.8.2.a", description = "Minimum expected SPs are not supported. Not Supported SPs: 3054"))
+    public void minimumExpectedSPsSparkIgnition() {
 
-        List<Integer> SPNs = List.of(3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057);
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
+        List<Integer> SPs = List.of(3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPs);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
@@ -194,25 +196,30 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM20(any());
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,
                                         FAIL,
-                                        "6.1.8.2.a - Minimum expected SPNs are not supported. Not Supported SPNs: 3054");
+                                        "6.1.8.2.a - Minimum expected SPs are not supported. Not Supported SPs: 3054");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
     }
 
+    /**
+     * Test one random message thrown on the bus with minimum SP for a
+     * compression ignition engine
+     */
     @Test
+    @TestDoc(value = @TestItem(verifies = "6.1.8.2.a", description = "Verification of proper response for stray bus messages of DM20s"))
     public void obdModuleNull() {
-        List<Integer> SPNs = List.of(5322, 5318, 3058, 3064, 5321, 3055, 4792);
+        List<Integer> SPs = List.of(5322, 5318, 3058, 3064, 5321, 3055, 4792);
 
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPs);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.DSL);
@@ -220,20 +227,25 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
     }
 
+    /**
+     * Test one random message thrown on the bus with minimum SPs for a
+     * compression ignition engine
+     */
     @Test
+    @TestDoc(value = @TestItem(verifies = "6.1.8.2.a", description = "A.4 - Compression Ignition Engine Minimum SPs Verified: 5322, 5318, 3058, 3064, 5321, 3055, 4364"))
     public void testCompressionIgnition() {
 
-        List<Integer> SPNs = List.of(5322, 5318, 3058, 3064, 5321, 3055, 4364);
+        List<Integer> SPs = List.of(5322, 5318, 3058, 3064, 5321, 3055, 4364);
 
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPs);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
@@ -243,15 +255,20 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
     }
 
+    /**
+     * Test empty packet returned for global or destination specific
+     * DM20 request - compression engine
+     */
     @Test
+    @TestDoc(value = @TestItem(verifies = "6.1.8.2.a", description = "A.4 - Compression Ignition Engine Minimum SPs Verified: none - empty packet returned"))
     public void testEmptyPacketsCompressionIgnition() {
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.empty());
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.empty());
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.DSL);
@@ -259,20 +276,25 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,
                                         FAIL,
-                                        "6.1.8.2.a - Minimum expected SPNs are not supported. Not Supported SPNs: 3055, 3058, 3064, 5318, 5321, 5322 None of these SPNs are supported: 4364, 4792, 5308");
+                                        "6.1.8.2.a - Minimum expected SPs are not supported. Not Supported SPs: 3055, 3058, 3064, 5318, 5321, 5322 None of these SPs are supported: 4364, 4792, 5308");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
     }
 
+    /**
+     * Test empty packet returned for global or destination specific
+     * DM20 request - compression engine
+     */
     @Test
+    @TestDoc(value = @TestItem(verifies = "6.1.8.2.a", description = "A.4 - Spark Ignition Engine Minimum SPs Verified: none - empty packet returned"))
     public void testEmptyPacketsSparkIgnition() {
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.empty());
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.empty());
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.BI_CNG);
@@ -280,12 +302,12 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,
                                         FAIL,
-                                        "6.1.8.2.a - Minimum expected SPNs are not supported. Not Supported SPNs: 3050, 3051, 3053, 3054, 3055, 3056, 3057, 3058, 3306");
+                                        "6.1.8.2.a - Minimum expected SPs are not supported. Not Supported SPs: 3050, 3051, 3053, 3054, 3055, 3056, 3057, 3058, 3306");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -301,12 +323,17 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
+    /**
+     * Test packet SP mismatch returned for global or destination specific
+     * DM20 request - compression engine
+     */
     @Test
-    public void testNoSpnNPacketsMatch() {
-        List<Integer> spns = List.of(5322, 5318, 3058, 3064, 5321, 3055);
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(spns);
+    @TestDoc(value = @TestItem(verifies = "6.1.8.2.a", description = "A.4 - Compression Ignition Engine Minimum SPs Verified: SP mismatch"))
+    public void testNoSpPacketsMatch() {
+        List<Integer> sps = List.of(5322, 5318, 3058, 3064, 5321, 3055);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, sps);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.BI_DSL);
@@ -314,27 +341,32 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,
                                         FAIL,
-                                        "6.1.8.2.a - Minimum expected SPNs are not supported. None of these SPNs are supported: 4364, 4792, 5308");
+                                        "6.1.8.2.a - Minimum expected SPs are not supported. None of these SPs are supported: 4364, 4792, 5308");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
     }
 
+    /**
+     * Test packet with expected SPs returned for global or destination specific
+     * DM20 request - spark engine
+     */
     @Test
+    @TestDoc(value = @TestItem(verifies = "6.1.8.2.a", description = "A.4 - Spark Ignition Engine Minimum SPs Verified: Expected SPs"))
     public void testSparkIgnition() {
 
-        List<Integer> SPNs = List.of(3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057);
+        List<Integer> SPs = List.of(3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057);
 
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0x00, SPs);
 
-        when(diagnosticMessageModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
 
-        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(0x00));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.BI_CNG);
@@ -342,7 +374,80 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM20(any());
+        verify(communicationsModule).requestDM20(any(ResultsListener.class));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+    }
+
+    /**
+     * Test packet with expected SPs returned for global or destination specific
+     * DM20 request - spark engine
+     */
+    @Test
+    @TestDoc(value = @TestItem(verifies = "6.1.8.2.a", description = "When a numerator and denominator are provided as FFFFh and FFFFh, the monitor identified in the label SP shall be considered to be unsupported"))
+    public void testAllNumeratorAndDenominatorAllFs() {
+
+        DM20MonitorPerformanceRatioPacket dm20 = DM20MonitorPerformanceRatioPacket.create(0x00,
+                                                                                          12,
+                                                                                          1,
+                                                                                          new PerformanceRatio(3050,
+                                                                                                               0xFFFF,
+                                                                                                               0XFFFF,
+                                                                                                               0x00), // this
+                                                                                                                      // one
+                                                                                                                      // is
+                                                                                                                      // considered
+                                                                                                                      // unsupported
+                                                                                          new PerformanceRatio(3051,
+                                                                                                               0,
+                                                                                                               1,
+                                                                                                               0x00),
+                                                                                          new PerformanceRatio(3053,
+                                                                                                               0,
+                                                                                                               1,
+                                                                                                               0x00),
+                                                                                          new PerformanceRatio(3054,
+                                                                                                               0,
+                                                                                                               1,
+                                                                                                               0x00),
+                                                                                          new PerformanceRatio(3055,
+                                                                                                               0,
+                                                                                                               1,
+                                                                                                               0x00),
+                                                                                          new PerformanceRatio(3056,
+                                                                                                               0,
+                                                                                                               1,
+                                                                                                               0x00),
+                                                                                          new PerformanceRatio(3057,
+                                                                                                               0,
+                                                                                                               1,
+                                                                                                               0x00),
+                                                                                          new PerformanceRatio(3058,
+                                                                                                               0,
+                                                                                                               1,
+                                                                                                               0x00),
+                                                                                          new PerformanceRatio(3306,
+                                                                                                               0,
+                                                                                                               1,
+                                                                                                               0x00));
+
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
+
+        dataRepository.putObdModule(new OBDModuleInformation(0x00));
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(FuelType.BI_CNG);
+        dataRepository.setVehicleInformation(vehicleInformation);
+
+        runTest();
+
+        verify(communicationsModule).requestDM20(any());
+
+        verify(mockListener).addOutcome(1,
+                                        8,
+                                        FAIL,
+                                        "6.1.8.2.a - Minimum expected SPs are not supported. Not Supported SPs: 3050");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

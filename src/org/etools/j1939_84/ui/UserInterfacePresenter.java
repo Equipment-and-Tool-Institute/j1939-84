@@ -20,20 +20,23 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 import org.etools.j1939_84.J1939_84;
-import org.etools.j1939_84.bus.Adapter;
-import org.etools.j1939_84.bus.Bus;
-import org.etools.j1939_84.bus.BusException;
-import org.etools.j1939_84.bus.RP1210;
-import org.etools.j1939_84.bus.RP1210Bus;
-import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.OverallController;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.engine.simulated.Engine;
 import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.Adapter;
+import org.etools.j1939tools.bus.Bus;
+import org.etools.j1939tools.bus.BusException;
+import org.etools.j1939tools.bus.EchoBus;
+import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.bus.RP1210;
+import org.etools.j1939tools.bus.RP1210Bus;
+import org.etools.j1939tools.j1939.J1939;
 
 /**
  * The Class that controls the behavior of the {@link UserInterfaceView}
@@ -46,7 +49,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
     /**
      * The default extension for report files created by this application
      */
-    static final String FILE_SUFFIX = "j1939-84";
+    static final String FILE_SUFFIX = "j1939tools-84";
 
     private final Executor executor;
 
@@ -75,6 +78,13 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
     private String selectedConnectionString;
 
     /**
+     * The device Id used to indicate the adapter is not a physical one
+     */
+    public static final short FAKE_DEV_ID = (short) -1;
+
+    private AutoCloseable engine;
+
+    /**
      * Default Constructor
      *
      * @param view
@@ -87,7 +97,8 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
              new ReportFileModule(),
              Runtime.getRuntime(),
              Executors.newSingleThreadExecutor(),
-             new OverallController());
+             new OverallController(),
+             new J1939());
     }
 
     /**
@@ -116,13 +127,16 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
                                   ReportFileModule reportFileModule,
                                   Runtime runtime,
                                   Executor executor,
-                                  OverallController overallController) {
+                                  OverallController overallController,
+                                  J1939 j1939) {
         this.view = view;
         this.vehicleInformationModule = vehicleInformationModule;
         this.rp1210 = rp1210;
         this.reportFileModule = reportFileModule;
         this.executor = executor;
         this.overallController = overallController;
+        this.j1939 = j1939;
+        // vehicleInformationModule.setJ1939(this.j1939);
         runtime.addShutdownHook(new Thread(reportFileModule::onProgramExit, "Shutdown Hook Thread"));
     }
 
@@ -203,8 +217,8 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
     public void onAdapterComboBoxItemSelected(Adapter adapter, String connectionString) {
         // Connecting to the adapter can take "a while"
         executor.execute(() -> {
-            this.selectedAdapter = adapter;
-            this.selectedConnectionString = connectionString;
+            selectedAdapter = adapter;
+            selectedConnectionString = connectionString;
             resetView();
             checkSetupComplete();
         });
@@ -280,7 +294,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
             getView().setAdapterComboBoxEnabled(false);
             getView().setSelectFileButtonEnabled(false);
             boolean result = false;
-            setSelectedAdapter(selectedAdapter, selectedConnectionString);
+            setSelectedAdapter(selectedAdapter, selectedConnectionString, 0xF9);
             ResultsListener resultsListener = getResultsListener();
             try {
                 if (bus.imposterDetected()) {
@@ -299,7 +313,8 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
                 result = true;
                 resultsListener.onProgress(3, 3, "Complete");
-            } catch (IOException e) {
+            } catch (Throwable e) {
+                getLogger().log(Level.WARNING, "Communications error", e);
                 resultsListener.onProgress(3, 3, e.getMessage());
                 getView().displayDialog(e.getMessage(), "Communications Error", JOptionPane.ERROR_MESSAGE, false);
             } finally {
@@ -456,12 +471,15 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      *
      * @param selectedAdapter
      *                            the selectedAdapter to set
+     * @param address
      */
-    private void setSelectedAdapter(Adapter selectedAdapter, String connectionString) {
+    private void setSelectedAdapter(Adapter selectedAdapter, String connectionString, int address) {
         try {
+            // close old bus before opening new bus
+            setBus(null);
             Bus bus;
             if (selectedAdapter != null) {
-                bus = rp1210.setAdapter(selectedAdapter, connectionString, 0xF9);
+                bus = getBus(selectedAdapter, connectionString, address);
             } else {
                 bus = null;
             }
@@ -475,6 +493,39 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
                                     "Communication Failure",
                                     JOptionPane.ERROR_MESSAGE,
                                     false);
+        }
+    }
+
+    /**
+     * Helper method that sets the {@link Adapter} that will be used for communication
+     * with the vehicle. A {@link Bus} is returned which will be used to send and read
+     * {@link Packet}s
+     *
+     * @param  selectedAdapter
+     *                              the {@link Adapter} to use for communications
+     * @param  connectionString
+     *                              the source address of the tool
+     * @return                  An {@link Bus}
+     * @throws BusException
+     *                              if there is a problem setting the adapter
+     */
+    private Bus getBus(Adapter selectedAdapter, String connectionString, int address) throws BusException {
+
+        if (engine != null) {
+            try {
+                engine.close();
+            } catch (Exception e) {
+                throw new IllegalStateException("Unexpected error closing simulated engine.", e);
+            }
+            engine = null;
+        }
+
+        if (selectedAdapter.getDeviceId() == FAKE_DEV_ID) {
+            EchoBus bus = new EchoBus(address);
+            engine = new Engine(bus);
+            return bus;
+        } else {
+            return RP1210.createBus(selectedAdapter, connectionString, address);
         }
     }
 
@@ -493,11 +544,19 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
     }
 
     void setBus(Bus bus) throws BusException {
-        this.bus = bus;
-
-        j1939 = new J1939(bus);
-
-        vehicleInformationModule.setJ1939(getJ1939());
+        // clear old values
+        if (this.bus != null) {
+            this.bus.close();
+            this.bus = null;
+            this.j1939 = null;
+            vehicleInformationModule.setJ1939(null);
+        }
+        // set new values
+        if (bus != null) {
+            this.bus = bus;
+            this.j1939 = new J1939(bus);
+            vehicleInformationModule.setJ1939(getJ1939());
+        }
     }
 
     /**

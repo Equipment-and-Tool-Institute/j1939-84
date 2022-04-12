@@ -14,25 +14,25 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
-import org.etools.j1939_84.bus.j1939.packets.EngineHoursTimer;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.model.FuelType;
+import org.etools.j1939tools.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
+import org.etools.j1939tools.j1939.packets.EngineHoursTimer;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class Part09Step07ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
+    private CommunicationsModule communicationsModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -86,7 +86,7 @@ public class Part09Step07ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              communicationsModule);
 
         setup(instance,
               listener,
@@ -95,7 +95,7 @@ public class Part09Step07ControllerTest extends AbstractControllerTest {
               reportFileModule,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule);
+              communicationsModule);
     }
 
     @After
@@ -105,7 +105,7 @@ public class Part09Step07ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  engineSpeedModule,
                                  vehicleInformationModule,
-                                 diagnosticMessageModule,
+                                 communicationsModule,
                                  mockListener);
     }
 
@@ -142,11 +142,11 @@ public class Part09Step07ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation0);
         var dm33_0 = DM33EmissionIncreasingAECDActiveTime.create(0, 0, EngineHoursTimer.create(0, 1, 1));
 
-        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.of(dm33_0));
+        when(communicationsModule.requestDM33(any())).thenReturn(RequestResult.of(dm33_0));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM33(any());
+        verify(communicationsModule).requestDM33(any());
 
         assertSame(dm33_0, dataRepository.getObdModule(0).getLatest(DM33EmissionIncreasingAECDActiveTime.class));
 
@@ -162,11 +162,11 @@ public class Part09Step07ControllerTest extends AbstractControllerTest {
         vehicleInformation.setFuelType(FuelType.DSL);
         dataRepository.setVehicleInformation(vehicleInformation);
 
-        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.empty());
+        when(communicationsModule.requestDM33(any())).thenReturn(RequestResult.empty());
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM33(any());
+        verify(communicationsModule).requestDM33(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -190,11 +190,11 @@ public class Part09Step07ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
         var dm33_1 = DM33EmissionIncreasingAECDActiveTime.create(1, 0, EngineHoursTimer.create(0, 1, 1));
 
-        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.of(dm33_0, dm33_1));
+        when(communicationsModule.requestDM33(any())).thenReturn(RequestResult.of(dm33_0, dm33_1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM33(any());
+        verify(communicationsModule).requestDM33(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -225,11 +225,11 @@ public class Part09Step07ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
         var dm33_1 = DM33EmissionIncreasingAECDActiveTime.create(1, 0, EngineHoursTimer.create(0, 1, 1));
 
-        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.of(dm33_0, dm33_1));
+        when(communicationsModule.requestDM33(any())).thenReturn(RequestResult.of(dm33_0, dm33_1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM33(any());
+        verify(communicationsModule).requestDM33(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -260,11 +260,11 @@ public class Part09Step07ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
         var dm33_1 = DM33EmissionIncreasingAECDActiveTime.create(1, 0, EngineHoursTimer.create(0, 1, 1));
 
-        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.of(dm33_0, dm33_1));
+        when(communicationsModule.requestDM33(any())).thenReturn(RequestResult.of(dm33_0, dm33_1));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestDM33(any());
+        verify(communicationsModule).requestDM33(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

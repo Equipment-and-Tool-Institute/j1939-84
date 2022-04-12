@@ -3,23 +3,24 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.ACK;
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.ACK;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.modules.CommunicationsModule;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.1.10 DM11: Diagnostic Data Clear/Reset for Active DTCs
@@ -35,7 +36,7 @@ public class Part01Step10Controller extends StepController {
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(),
+             new CommunicationsModule(),
              DateTimeModule.getInstance(),
              dataRepository);
     }
@@ -44,7 +45,7 @@ public class Part01Step10Controller extends StepController {
                                      EngineSpeedModule engineSpeedModule,
                                      BannerModule bannerModule,
                                      VehicleInformationModule vehicleInformationModule,
-                                     DiagnosticMessageModule diagnosticMessageModule,
+                                     CommunicationsModule communicationsModule,
                                      DateTimeModule dateTimeModule,
                                      DataRepository dataRepository) {
         super(executor,
@@ -53,7 +54,7 @@ public class Part01Step10Controller extends StepController {
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule,
+              communicationsModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -64,13 +65,12 @@ public class Part01Step10Controller extends StepController {
 
         // 6.1.10.1.a. Global DM11 (send Request (PGN 59904) for PGN 65235).
         // 6.1.10.1.b. Record all ACK/NACK/BUSY/Access Denied responses (for PGN 65235) in the log.
-        List<AcknowledgmentPacket> packets = getDiagnosticMessageModule().requestDM11(getListener())
+        // 6.1.10.1.c. Allow 5 s to elapse before proceeding with test step 6.1.10.2.
+        long timeOut = 5;
+        List<AcknowledgmentPacket> packets = getCommunicationsModule().requestDM11(getListener(), timeOut, SECONDS)
                                                                          .stream()
                                                                          .filter(p -> isObdModule(p.getSourceAddress()))
                                                                          .collect(Collectors.toList());
-
-        // 6.1.10.1.c. Allow 5 s to elapse before proceeding with test step 6.1.10.2.
-        pause("Step 6.1.10.1.c - Waiting for %1$d seconds", 5L);
 
         // 6.1.10.2.a. Fail if NACK received from any HD OBD ECU
         packets.stream()
