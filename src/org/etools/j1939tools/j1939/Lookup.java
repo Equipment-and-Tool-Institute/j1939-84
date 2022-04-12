@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import org.etools.j1939tools.resources.Resources;
+import org.etools.j1939tools.resources.J1939ToolsResources;
 
 import com.opencsv.CSVReader;
 
@@ -121,7 +121,7 @@ public class Lookup {
         Map<Integer, String> map = new HashMap<>();
         String[] values;
 
-        InputStream is = Resources.class.getResourceAsStream(fileName);
+        InputStream is = J1939ToolsResources.class.getResourceAsStream(fileName);
         InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
         try (CSVReader reader = new CSVReader(isReader)) {
             while ((values = reader.readNext()) != null) {
