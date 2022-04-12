@@ -28,7 +28,7 @@ import org.etools.j1939tools.j1939.model.PgnDefinition;
 import org.etools.j1939tools.j1939.model.SpnDefinition;
 import org.etools.j1939tools.j1939.packets.BitSlot;
 import org.etools.j1939tools.j1939.packets.Slot;
-import org.etools.j1939tools.resources.Resources;
+import org.etools.j1939tools.resources.J1939ToolsResources;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
@@ -113,8 +113,8 @@ public class J1939DaRepository {
             // parse the selected columns from J1939DA. The source data is
             // unaltered, so some processing is required to convert byte.bit
             // specifications into ints.
-            InputStream is = new SequenceInputStream(Resources.class.getResourceAsStream("j1939da-extract.csv"),
-                                                     Resources.class.getResourceAsStream("j1939da-addendum.csv"));
+            InputStream is = new SequenceInputStream(J1939ToolsResources.class.getResourceAsStream("j1939da-extract.csv"),
+                                                     J1939ToolsResources.class.getResourceAsStream("j1939da-addendum.csv"));
             InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
             try (CSVReader reader = new CSVReaderBuilder(isReader).withSkipLines(2).build()) {
                 // collect [pgn,spn]
@@ -249,8 +249,8 @@ public class J1939DaRepository {
         Map<Integer, Slot> slots = new HashMap<>();
         String[] values;
 
-        InputStream is = new SequenceInputStream(Resources.class.getResourceAsStream("j1939da-slots.csv"),
-                                                 Resources.class.getResourceAsStream("j1939da-slots-addendum.csv"));
+        InputStream is = new SequenceInputStream(J1939ToolsResources.class.getResourceAsStream("j1939da-slots.csv"),
+                                                 J1939ToolsResources.class.getResourceAsStream("j1939da-slots-addendum.csv"));
         InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.UTF_8);
         try (CSVReader reader = new CSVReaderBuilder(isReader)
                                                               .withSkipLines(2)
@@ -282,7 +282,7 @@ public class J1939DaRepository {
         Map<Integer, BitSlot> bitSlotMap = new HashMap<>();
         String fileName = "bit-slots.csv";
 
-        InputStream is = Resources.class.getResourceAsStream(fileName);
+        InputStream is = J1939ToolsResources.class.getResourceAsStream(fileName);
 
         InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
         try (CSVReader reader = new CSVReader(isReader)) {

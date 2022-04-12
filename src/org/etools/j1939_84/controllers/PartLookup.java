@@ -15,7 +15,7 @@ import java.util.logging.Level;
 
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.model.Outcome;
-import org.etools.j1939_84.resources.Resources;
+import org.etools.j1939_84.resources.J193984Resources;
 
 import com.opencsv.CSVReader;
 
@@ -99,7 +99,7 @@ public class PartLookup {
         Map<Integer, String> map = new HashMap<>();
         String[] values;
 
-        InputStream is = Resources.class.getResourceAsStream(fileName);
+        InputStream is = J193984Resources.class.getResourceAsStream(fileName);
         InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
         try (CSVReader reader = new CSVReader(isReader)) {
             while ((values = reader.readNext()) != null) {

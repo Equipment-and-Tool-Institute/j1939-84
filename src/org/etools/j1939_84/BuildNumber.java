@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Level;
 
-import org.etools.j1939tools.resources.Resources;
+import org.etools.j1939_84.resources.J193984Resources;
 
 /**
  * Read the properties file to return a build number for the application
@@ -27,7 +27,7 @@ public class BuildNumber {
      * "version.properties" file
      */
     public BuildNumber() {
-        inputStream = Resources.class.getResourceAsStream("version.properties");
+        inputStream = J193984Resources.class.getResourceAsStream("version.properties");
     }
 
     /**

@@ -47,7 +47,7 @@ import org.etools.j1939_84.BuildNumber;
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.model.VehicleInformationListener;
-import org.etools.j1939_84.resources.Resources;
+import org.etools.j1939_84.resources.J193984Resources;
 import org.etools.j1939_84.ui.UserInterfaceContract.Presenter;
 import org.etools.j1939_84.ui.widgets.SmartScroller;
 import org.etools.j1939tools.bus.Adapter;
@@ -471,7 +471,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             int hundred = (int) (100 * Toolkit.getDefaultToolkit().getScreenResolution() / 72.0);
             frame.setBounds(hundred, hundred, 5 * hundred, 5 * hundred);
             frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-            frame.setIconImages(Resources.getLogoImages());
+            frame.setIconImages(J193984Resources.getLogoImages());
         }
         return frame;
     }
