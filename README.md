@@ -10,6 +10,3 @@ Air Resources Board (ARB).
 ## Reporting an issue
 
 If you discover an problem with the tool or have a suggestion for improvement, please consider submitting a issue.
-
-You can log in to Github and create a new issue, or you can submit an issue anonymously
-here: https://gitreports.com/issue/battjt/j1939-84  
