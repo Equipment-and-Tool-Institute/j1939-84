@@ -9,6 +9,7 @@ import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -236,7 +237,7 @@ public class Part11Step08ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(communicationsModule).requestDM20(any(), eq(2));
+        verify(communicationsModule, times(2)).requestDM20(any(), eq(2));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -244,10 +245,6 @@ public class Part11Step08ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.11.8.2.a - Retry was required to obtain DM20 response from Turbocharger (2)");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.11.8.2.c - OBD ECU Turbocharger (2) did not provide a NACK for the DS query");
     }
 
     @Test
@@ -282,35 +279,6 @@ public class Part11Step08ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         WARN,
                                         "6.11.8.3.a - Engine #1 (0) response indicates denominator for monitor SPN 3058 Engine EGR System Monitor has not incremented by one");
-    }
-
-    @Test
-    public void testFailureForRetryNoNACK() {
-        VehicleInformation vehicleInformation = new VehicleInformation();
-        vehicleInformation.setFuelType(FuelType.DSL);
-        dataRepository.setVehicleInformation(vehicleInformation);
-
-        OBDModuleInformation obdModuleInformation2 = new OBDModuleInformation(2);
-        obdModuleInformation2.set(DM20MonitorPerformanceRatioPacket.create(2, 3, 3), 11);
-        dataRepository.putObdModule(obdModuleInformation2);
-
-        when(communicationsModule.requestDM20(any(), eq(2))).thenReturn(BusResult.empty());
-
-        runTest();
-
-        verify(communicationsModule).requestDM20(any(), eq(2));
-
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.11.8.2.a - Retry was required to obtain DM20 response from Turbocharger (2)");
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.11.8.2.c - OBD ECU Turbocharger (2) did not provide a NACK for the DS query");
     }
 
     @Test
