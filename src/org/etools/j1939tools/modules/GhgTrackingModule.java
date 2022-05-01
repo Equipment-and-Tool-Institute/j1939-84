@@ -22,6 +22,12 @@ public class GhgTrackingModule {
         this.ghgActiveTechnologyArrayModule = ghgActiveTechnologyArrayModule;
     }
 
+    public String formatXevTable(List<GenericPacket> packets) {
+        String result = "";
+        result += ghgTrackingArrayModule.formatXevTable(packets);
+        return result;
+    }
+
     public String format(List<GenericPacket> packets) {
         String result = "";
         result += ghgTrackingArrayModule.format(packets);

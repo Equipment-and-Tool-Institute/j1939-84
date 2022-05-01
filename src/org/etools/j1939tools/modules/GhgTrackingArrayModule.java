@@ -31,6 +31,65 @@ public class GhgTrackingArrayModule {
         return result;
     }
 
+    public String formatXevTable(List<GenericPacket> packets) {
+
+        String moduleName = packets.get(0).getModuleName();
+
+        String result = "";
+        result += timeStamp() + " GHG Tracking Arrays from " + moduleName + NL;
+        result += printXevTrackingArray(packets);
+
+        return result;
+    }
+
+    private String printXevTrackingArray(List<GenericPacket> packets) {
+        int headerRows = 2;
+        int[] columnWidths = { 25, 12, 12, 12 };
+        boolean[] leftPad = { true, false, false, false };
+        String[][] table = {
+                { "|--------------------------------+", "-------------+", "-------------+", "-------------|" },
+                { "|                                |", "    Active   |", "    Stored   |", "             |" },
+                { "|                                |", "   100 Hour  |", "   100 Hour  |", "   Lifetime  |" },
+                { "|--------------------------------+", "-------------+", "-------------+", "-------------|" },
+                { "| Chg Depleting engine off,  km  |", "SPN_12767", "SPN_12775", "SPN_12783" },
+                { "| Chg Depleting engine off,  km  |", "SPN_12768", "SPN_12776", "SPN_12784" },
+                { "| Drv-Sel Inc Operation,     km  |", "SPN_12769", "SPN_12777", "SPN_12785" },
+                { "| Fuel Consume: Chg Dep Op,  l   |", "SPN_12770", "SPN_12778", "SPN_12786" },
+                { "| Fuel Consume: Drv-Sel In,  l   |", "SPN_12771", "SPN_12779", "SPN_12787" },
+                { "| Grid: Chg Dep Op eng-off,  kWh |", "SPN_12772", "SPN_12780", "SPN_12788" },
+                { "| Grid: Chg Dep Op eng-on,   kWh |", "SPN_12773", "SPN_12781", "SPN_12789" },
+                { "| Grid: Energy into battery, kWh |", "SPN_12774", "SPN_12782", "SPN_12790" },
+                { "|--------------------------------+", "-------------+", "-------------+", "-------------|" },
+        };
+
+        StringBuilder sb = new StringBuilder();
+        for (int rowIndex = 0; rowIndex < table.length; rowIndex++) {
+            String[] row = table[rowIndex];
+            for (int colIndex = 0; colIndex < row.length; colIndex++) {
+                String cell = row[colIndex];
+                int columnWidth = columnWidths[colIndex];
+                if (cell.contains("SPN_")) {
+                    int spnId = parseSpnId(cell);
+                    String value = getSpnValue(packets, spnId);
+                    sb.append(StringUtils.padLeft(value, columnWidth)).append(" |");
+                } else {
+                    if (rowIndex < headerRows) {
+                        sb.append(StringUtils.center(cell, columnWidth));
+                    } else {
+                        if (leftPad[colIndex]) {
+                            sb.append(StringUtils.padRight(cell, columnWidth));
+                        } else {
+                            sb.append(StringUtils.padLeft(cell, columnWidth));
+                        }
+                    }
+                }
+            }
+            sb.append(NL);
+        }
+
+        return sb.toString();
+    }
+
     private String printTrackingArray(List<GenericPacket> packets) {
 
         int headerRows = 2;

@@ -34,6 +34,7 @@ import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939tools.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939tools.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket;
+import org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte;
 import org.etools.j1939tools.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939tools.j1939.packets.DM25ExpandedFreezeFrame;
@@ -55,7 +56,6 @@ import org.etools.j1939tools.j1939.packets.DiagnosticReadinessPacket;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.MonitoredSystem;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
-import org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte;
 
 public class CommunicationsModule extends FunctionalModule {
 
@@ -423,9 +423,12 @@ public class CommunicationsModule extends FunctionalModule {
      *                     the {@link CommunicationsListener} that will be given the report
      */
     public List<? extends GenericPacket> request(int pg, int address, CommunicationsListener listener) {
-        Packet requestPacket = getJ1939().createRequestPacket(pg, address);
+        Packet requestPacket = Packet.create(0xEA00 | address, 0xA5, true, pg, pg >> 8, pg >> 16);
+        String pgDef = getPgDefinition(pg).getLabel();
+        System.out.println("j1939 is null " + (getJ1939() == null));
+        System.out.println("listerner is null " + (listener == null));
 
-        return getJ1939().requestDS(getPgDefinition(pg).getAcronym(), pg, requestPacket, listener)
+        return getJ1939().requestDS(pgDef, pg, requestPacket, listener)
                          .toPacketStream()
                          .collect(Collectors.toList());
     }
