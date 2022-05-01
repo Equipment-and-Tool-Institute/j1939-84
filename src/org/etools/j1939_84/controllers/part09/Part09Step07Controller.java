@@ -16,8 +16,6 @@ import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
-;
-
 /**
  * 6.9.7 DM33: Emission Increasing Auxiliary Emission Control Device Active Time
  */
@@ -64,7 +62,7 @@ public class Part09Step07Controller extends StepController {
 
         // 6.9.7.2.a Fail if any ECU reports a different number of EI-AECD timers than was reported in part 2.
         // [Engines using SI technology need not respond until the 2024 engine model year]
-        if (!isSparkIgnition() || getEngineModelYear() >= 2024) {
+        if (isNotSparkIgnition() || getEngineModelYear() >= 2024) {
             packets.stream()
                    .filter(p -> isObdModule(p.getSourceAddress()))
                    .filter(p -> p.getEiAecdEngineHoursTimers().size() != getPrevDM33TimerCount(p.getSourceAddress()))
@@ -83,14 +81,6 @@ public class Part09Step07Controller extends StepController {
     private int getPrevDM33TimerCount(int address) {
         var dm31 = get(DM33EmissionIncreasingAECDActiveTime.class, address, 2);
         return dm31 == null ? -1 : dm31.getEiAecdEngineHoursTimers().size();
-    }
-
-    private boolean isSparkIgnition() {
-        return getFuelType().isSparkIgnition();
-    }
-
-    private int getEngineModelYear() {
-        return getDataRepository().getVehicleInformation().getEngineModelYear();
     }
 
 }

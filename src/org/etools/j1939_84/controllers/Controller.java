@@ -5,7 +5,6 @@ package org.etools.j1939_84.controllers;
 
 import static org.etools.j1939_84.model.Outcome.ABORT;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -25,9 +24,6 @@ import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.j1939.J1939;
-import org.etools.j1939tools.j1939.J1939DaRepository;
-import org.etools.j1939tools.j1939.Lookup;
-import org.etools.j1939tools.j1939.model.PgnDefinition;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
@@ -126,25 +122,6 @@ public abstract class Controller {
 
     protected <T extends GenericPacket> BusResult<T> request(Class<T> clazz, int address) {
         return getCommunicationsModule().request(clazz, address, getListener());
-    }
-
-    protected List<GenericPacket> requestPackets(int address, int... pgns) throws InterruptedException {
-        String moduleName = Lookup.getAddressName(address);
-        List<GenericPacket> packets = new ArrayList<>();
-
-        for (int pgn : pgns) {
-            PgnDefinition pgnDef = getPgnDef(pgn);
-
-            incrementProgress("Requesting " + pgnDef.getLabel() + " (" + pgnDef.getAcronym() + ") from " + moduleName);
-            var response = getCommunicationsModule().request(pgn, address, getListener());
-
-            packets.addAll(response);
-        }
-        return packets;
-    }
-
-    private static PgnDefinition getPgnDef(int pg) {
-        return J1939DaRepository.getInstance().findPgnDefinition(pg);
     }
 
     /**

@@ -16,7 +16,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
 import org.etools.j1939tools.j1939.packets.EngineHoursTimer;
 import org.etools.j1939tools.modules.CommunicationsModule;
-import org.etools.j1939tools.modules.DateTimeModule;;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.9.24 DM33: Emission Increasing Auxiliary Emission Control Device Active Time
@@ -101,7 +101,7 @@ public class Part09Step24Controller extends StepController {
 
         // 6.9.24.2.c. Fail if NACK not received from OBD ECUs that did not provide a DM33 message.
         // [Engines using SI technology need not respond until the 2024 engine model year]
-        if (!isSparkIgnition() || getEngineModelYear() >= 2024) {
+        if (isNotSparkIgnition() || getEngineModelYear() >= 2024) {
             checkForNACKsDS(dsPackets, filterRequestResultAcks(dsResponses), "6.9.24.2.c.");
         }
     }
@@ -120,11 +120,4 @@ public class Part09Step24Controller extends StepController {
         return get(DM33EmissionIncreasingAECDActiveTime.class, address, partNumber);
     }
 
-    private boolean isSparkIgnition() {
-        return getFuelType().isSparkIgnition();
-    }
-
-    private int getEngineModelYear() {
-        return getDataRepository().getVehicleInformation().getEngineModelYear();
-    }
 }
