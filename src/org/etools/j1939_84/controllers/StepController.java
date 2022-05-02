@@ -35,8 +35,10 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939DaRepository;
 import org.etools.j1939tools.j1939.Lookup;
 import org.etools.j1939tools.j1939.model.FuelType;
+import org.etools.j1939tools.j1939.model.PgnDefinition;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.CompositeSystem;
 import org.etools.j1939tools.j1939.packets.DiagnosticReadinessPacket;
@@ -133,6 +135,34 @@ public abstract class StepController extends Controller {
         return obdModuleInformation == null ? null : obdModuleInformation.get(packetClass, partNumber);
     }
 
+    protected List<GenericPacket>
+              requestPackets(int address, int... pgns) {
+        try {
+            String moduleName = Lookup.getAddressName(address);
+            List<GenericPacket> packets = new ArrayList<>();
+
+            for (int pgn : pgns) {
+                PgnDefinition pgnDef = getPgnDef(pgn);
+
+                incrementProgress("Requesting " + pgnDef.getLabel() + " (" + pgnDef.getAcronym() + ") from "
+                        + moduleName);
+                var response = getCommunicationsModule().request(pgn, address, getListener());
+                packets.addAll(response);
+            }
+            return packets;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    protected <T extends GenericPacket> GenericPacket haveResponseWithPg(List<T> packets, int pg) {
+        return packets.stream().filter(packet -> packet.getPacket().getPgn() == pg).findAny().orElse(null);
+    }
+
+    private static PgnDefinition getPgnDef(int pg) {
+        return J1939DaRepository.getInstance().findPgnDefinition(pg);
+    }
     protected void ensureKeyStateIs(KeyState requestedKeyState, String section) throws InterruptedException {
         getListener().onResult("Initial Engine Speed = " + getEngineSpeedAsString());
 
@@ -370,5 +400,13 @@ public abstract class StepController extends Controller {
             addWarning("A.8 - Alternate coding for off (0b00, 0b00) has been accepted");
         }
         return lampStatus != OFF && lampStatus != ALTERNATE_OFF;
+    }
+
+    protected boolean isSparkIgnition() {
+        return getFuelType().isSparkIgnition();
+    }
+
+    protected int getEngineModelYear() {
+        return getDataRepository().getVehicleInformation().getEngineModelYear();
     }
 }

@@ -16,7 +16,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
 import org.etools.j1939tools.j1939.packets.EngineHoursTimer;
 import org.etools.j1939tools.modules.CommunicationsModule;
-import org.etools.j1939tools.modules.DateTimeModule;;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.9.24 DM33: Emission Increasing Auxiliary Emission Control Device Active Time
@@ -120,11 +120,4 @@ public class Part09Step24Controller extends StepController {
         return get(DM33EmissionIncreasingAECDActiveTime.class, address, partNumber);
     }
 
-    private boolean isSparkIgnition() {
-        return getFuelType().isSparkIgnition();
-    }
-
-    private int getEngineModelYear() {
-        return getDataRepository().getVehicleInformation().getEngineModelYear();
-    }
 }
