@@ -62,7 +62,7 @@ public class Part09Step07Controller extends StepController {
 
         // 6.9.7.2.a Fail if any ECU reports a different number of EI-AECD timers than was reported in part 2.
         // [Engines using SI technology need not respond until the 2024 engine model year]
-        if (isNotSparkIgnition() || getEngineModelYear() >= 2024) {
+        if (!isSparkIgnition() || getEngineModelYear() >= 2024) {
             packets.stream()
                    .filter(p -> isObdModule(p.getSourceAddress()))
                    .filter(p -> p.getEiAecdEngineHoursTimers().size() != getPrevDM33TimerCount(p.getSourceAddress()))

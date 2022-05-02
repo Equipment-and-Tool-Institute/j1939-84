@@ -402,8 +402,8 @@ public abstract class StepController extends Controller {
         return lampStatus != OFF && lampStatus != ALTERNATE_OFF;
     }
 
-    protected boolean isNotSparkIgnition() {
-        return !getFuelType().isSparkIgnition();
+    protected boolean isSparkIgnition() {
+        return getFuelType().isSparkIgnition();
     }
 
     protected int getEngineModelYear() {
