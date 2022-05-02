@@ -69,7 +69,7 @@ public class Part02Step16Controller extends StepController {
         var globalPackets = getCommunicationsModule().requestDM34(getListener()).getPackets();
 
         // 6.2.16.2.a. Fail if no ECU responds, unless the user selected SI technology.
-        if (globalPackets.isEmpty() && isNotSparkIgnition()) {
+        if (globalPackets.isEmpty() && !isSparkIgnition()) {
             addFailure("6.2.16.2.a - No ECU responded to the global request");
         }
 
