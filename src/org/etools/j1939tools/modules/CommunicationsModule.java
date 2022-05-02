@@ -423,12 +423,9 @@ public class CommunicationsModule extends FunctionalModule {
      *                     the {@link CommunicationsListener} that will be given the report
      */
     public List<? extends GenericPacket> request(int pg, int address, CommunicationsListener listener) {
-        Packet requestPacket = Packet.create(0xEA00 | address, 0xA5, true, pg, pg >> 8, pg >> 16);
-        String pgDef = getPgDefinition(pg).getLabel();
-        System.out.println("j1939 is null " + (getJ1939() == null));
-        System.out.println("listerner is null " + (listener == null));
+        Packet requestPacket = getJ1939().createRequestPacket(pg, address);
 
-        return getJ1939().requestDS(pgDef, pg, requestPacket, listener)
+        return getJ1939().requestDS(getPgDefinition(pg).getAcronym(), pg, requestPacket, listener)
                          .toPacketStream()
                          .collect(Collectors.toList());
     }
