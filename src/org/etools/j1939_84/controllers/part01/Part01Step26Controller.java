@@ -553,7 +553,9 @@ public class Part01Step26Controller extends StepController {
 
         if (!ghgPackets.isEmpty()) {
             // 6.1.26.21.c. List data received in a table using bin numbers for rows.
-            getListener().onResult(ghgTrackingModule.format(ghgPackets));
+            getListener().onResult(ghgTrackingModule.formatXevTable(Stream.concat(ghgTrackingPackets.stream(),
+                                                                                  ghgPackets.stream())
+                                                                          .collect(Collectors.toList())));
         }
         for (int pg : nOxLifeTimeSps) {
             GenericPacket packetForPg = haveResponseWithPg(ghgPackets, pg);
@@ -592,6 +594,51 @@ public class Part01Step26Controller extends StepController {
     }
 
     private void testSp12730(OBDModuleInformation module) {
+        // 6.1.26.11 Actions6 for all MY2022+ Engines
+        // 6.1.26.11.a - DS request messages to ECU that indicated support in DM24 for upon request SP 12730 (GHG
+        // Tracking Lifetime Engine Run
+        // Time) for PG 64252 GHG Tracking Lifetime Array Data.
+        int[] ghgTrackingLifetime100HrPgs = { 64252 };
+        var ghgTrackingLifetimePackets = requestPackets(module.getSourceAddress(),
+                                                        ghgTrackingLifetime100HrPgs)
+                                                                                    .stream()
+                                                                                    // 6.1.26.11.b - Record each value
+                                                                                    // for use in Part 2.
+                                                                                    .peek(this::save)
+                                                                                    .collect(Collectors.toList());
+
+        for (int pg : ghgTrackingLifetime100HrPgs) {
+            GenericPacket packetForPg = haveResponseWithPg(ghgTrackingLifetimePackets, pg);
+            if (packetForPg == null) {
+                // 6.1.26.12.a. Fail PG query where no response was received
+                addFailure("6.1.26.12.a - No response was received from "
+                        + module.getModuleName() + "for PG "
+                        + pg);
+            } else {
+                packetForPg.getSpns().stream().filter(spn -> {
+                    return spn.getRawValue() > 0xFAFFL;
+                }).forEach(spn -> {
+                    addFailure("6.1.26.14.c - Bin value received is greater than 0xFAFFFFFF(h)"
+                            + module.getModuleName() + " returned "
+                            + Arrays.toString(spn.getData()));
+                });
+                // .getSpns()
+                // .forEach(spn -> {
+                // // 6.1.26.12.b - Fail each PG query where any value received is greater than FAFFh.
+                // if (spn.getSlot().asValue(spn.getBytes()) > 0xFAFFFFFFL) {
+                // addFailure("6.1.26.14.c - Bin value received is greater than 0xFAFFFFFF(h)"
+                // + module.getModuleName() + " returned "
+                // + Arrays.toString(spn.getData()));
+                // }
+                // // if (spn.getRawValue() >= 0xFAFFL) {
+                // // addFailure("6.1.26.14.c - Bin value received is greater than 0xFAFF(h)"
+                // // + module.getModuleName() + " returned "
+                // // + Arrays.toString(spn.getBytes()));
+                // // }
+                // });
+            }
+        }
+
         // 6.1.26.13 Actions7 for MY2022+ Engines
         // a. DS request message to ECU that indicated support in DM24 for upon request
         // SP 12730 (GHG Tracking Lifetime Engine Run Time) for each 100hr GHG tracking
@@ -614,7 +661,9 @@ public class Part01Step26Controller extends StepController {
         if (!ghgTrackingPackets.isEmpty()) {
             // 6.1.26.13.c. List data received in a table using lifetime, stored 100 hr,
             // active 100hr for columns, and categories for rows.
-            getListener().onResult(ghgTrackingModule.format(ghgTrackingPackets));
+            getListener().onResult(ghgTrackingModule.formatTrackingTable(Stream.concat(ghgTrackingLifetimePackets.stream(),
+                                                                                       ghgTrackingPackets.stream())
+                                                                               .collect(Collectors.toList())));
         }
         // Fail criteria7 for MY2022+ Engines
         // c. Fail each PG query where any value received is greater than FAFFh.
@@ -623,10 +672,6 @@ public class Part01Step26Controller extends StepController {
         for (int pg : ghgTrackingActive100HrPgs) {
             GenericPacket packetForPg = haveResponseWithPg(ghgTrackingPackets, pg);
             if (packetForPg == null) {
-                // 6.1.26.14.a&b. Warn PG query where no response was received.
-                addWarning("6.1.26.14.a&b - No response was received from "
-                        + module.getModuleName() + "for PG "
-                        + pg);
                 // 6.1.26.14.a. For all MY2024+ engines, Fail each PG query where no response was received.
                 if (getEngineModelYear() >= 2024) {
                     addFailure("6.1.26.10.a - No response was received from "
@@ -680,15 +725,20 @@ public class Part01Step26Controller extends StepController {
                         + module.getModuleName() + "for PG "
                         + pg);
             } else {
-                packetForPg.getSpns()
-                           .forEach(spn -> {
-                               // 6.1.26.16 Fail criteria8 for MY2022+ Engines
-                               // b. Fail any accumulator value received that is greater
-                               // than FAFFFFFFh.
-                               // c. Fail PG query where any index value received is
-                               // greater than FAh.
+                if (getEngineModelYear() > 2022) {
+                    packetForPg.getSpns()
+                               .forEach(spn -> {
+                                   // 6.1.26.16 Fail criteria8 for MY2022+ Engines
+                                   // b. Fail any accumulator value received that is greater
+                                   // than FAFFFFFFh.
+                                   // c. Fail PG query where any index value received is
+                                   // greater than FAh.
+                                   if (spn.getSlot().getId() > 0xFAL) {
+                                       addFailure("6.1.26.16.c - PG query index received was " + "");
+                                   }
 
-                           });
+                               });
+                }
             }
         }
 
@@ -714,7 +764,9 @@ public class Part01Step26Controller extends StepController {
         if (!ghg100HrPackets.isEmpty()) {
             // 6.1.26.17.c. List data received in a table using lifetime, stored 100 hr,
             // active 100hr for columns, and categories for rows.
-            getListener().onResult(ghgTrackingModule.format(ghg100HrPackets));
+            getListener().onResult(ghgTrackingModule.formatTechTable(Stream.concat(ghgPackets.stream(),
+                                                                                   ghg100HrPackets.stream())
+                                                                           .collect(Collectors.toList())));
         }
 
         for (int pg : ghgTracking100HrPgs) {
@@ -844,4 +896,5 @@ public class Part01Step26Controller extends StepController {
             }
         }
     }
+
 }

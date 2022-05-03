@@ -3,9 +3,9 @@ package org.etools.j1939tools.modules;
 import static org.etools.j1939tools.J1939tools.NL;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.etools.j1939tools.j1939.model.ActiveTechnology;
 import org.etools.j1939tools.j1939.model.Spn;
@@ -37,11 +37,14 @@ public class GhgActiveTechnologyArrayModule {
     }
 
     private String printTechnologyArray(List<GenericPacket> packets) {
-        var packetPgs = packets.stream().map(GenericPacket::getSpns).collect(Collectors.toList());
-        if (packetPgs.contains(64256) || packetPgs.contains(64256) || packetPgs.contains(64256)) {
+        var pgns = new ArrayList<>();
+        for (GenericPacket packet : packets) {
+            pgns.add(packet.getPgnDefinition().getId());
+        }
+        if (pgns.contains(64256) || pgns.contains(64255) || pgns.contains(64257)) {
             return printTechnologyArray(packets, 64256, 64255, 64257);
         }
-        if (packetPgs.contains(64253) || packetPgs.contains(64254)) {
+        if (pgns.contains(64253) || pgns.contains(64254)) {
             return printTechnologyArray(packets, 64254, 64253, 0);
         }
         return "";

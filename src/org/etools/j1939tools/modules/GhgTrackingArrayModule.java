@@ -59,6 +59,9 @@ public class GhgTrackingArrayModule {
                 { "| Grid: Chg Dep Op eng-off,  kWh |", "SPN_12772", "SPN_12780", "SPN_12788" },
                 { "| Grid: Chg Dep Op eng-on,   kWh |", "SPN_12773", "SPN_12781", "SPN_12789" },
                 { "| Grid: Energy into battery, kWh |", "SPN_12774", "SPN_12782", "SPN_12790" },
+                { "| Prod: Prop system active,  s   |", "SPN_12791", "SPN_12794", "SPN_12797" },
+                { "| Prod: Prop idle active,    s   |", "SPN_12792", "SPN_12795", "SPN_12798" },
+                { "| Prod: Prop urban active,   s   |", "SPN_12793", "SPN_12796", "SPN_12799" },
                 { "|--------------------------------+", "-------------+", "-------------+", "-------------|" },
         };
 

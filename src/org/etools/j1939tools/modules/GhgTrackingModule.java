@@ -36,4 +36,15 @@ public class GhgTrackingModule {
         return result;
     }
 
+    public String formatTrackingTable(List<GenericPacket> packets) {
+        String result = "";
+        result += ghgTrackingArrayModule.format(packets);
+        return result;
+    }
+
+    public String formatTechTable(List<GenericPacket> packets) {
+        String result = "";
+        result += ghgActiveTechnologyArrayModule.format(packets);
+        return result;
+    }
 }
