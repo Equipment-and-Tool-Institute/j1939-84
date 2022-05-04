@@ -482,23 +482,13 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         when(busService.dsRequest(eq(64259), eq(1), any())).thenReturn(Stream.of(packet64259));
 
         GenericPacket packet64260 = packet(64260, false, 0);
-        // dsPackets.add(packet64260);
-        // when(j1939.read(eq(600), eq(TimeUnit.MILLISECONDS))).thenAnswer(answer -> Stream.of(packet64258.getPacket(),
-        // packet64260.getPacket()));
-        // when(busService.globalRequest(eq(64260), any())).thenReturn(Stream.of(packet64260));
-        //
-        // GenericPacket packet64261 = packet(64261, false);
-        // dsPackets.add(packet64261);
-        // when(busService.globalRequest(eq(64261), any())).thenReturn(Stream.of(packet64261));
         var requestPacket64260_0 = j1939.createRequestPacket(64260, 0);
         var requestPacket64260_1 = j1939.createRequestPacket(64260, 1);
 
         Bus busMock = mock(Bus.class);
         when(busMock.send(eq(requestPacket64260_0))).thenAnswer(answer -> busMock.send(packet64260.getPacket()));
-        // when(j1939.getBus()).thenReturn(busMock);
-        // when(busMock.send(eq(requestPacket64260_1))).thenAnswer(answer -> packet64260);
-
         when(busMock.imposterDetected()).thenReturn(false);
+
         runTest();
 
         verify(busService).setup(eq(j1939), any());
@@ -1408,6 +1398,21 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packets.add(packet1);
 
         List<GenericPacket> responses = new ArrayList<>();
+
+        Packet requestPacket64252 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64252, 64252 >> 8, 64252 >> 16);
+        doReturn(requestPacket64252).when(j1939).createRequestPacket(64252, 0x00);
+        GenericPacket response64252 = new GenericPacket(Packet.create(0xFAFC, 0x00,
+        // @formatter:off
+                                                                      0xA0, 0x8C, 0xA8, 0x52, 0xC2, 0x0E, 0xA8, 0x0E,
+                                                                      0xCD, 0x49, 0x54, 0xAD, 0x03, 0x00, 0xBC, 0x34,
+                                                                      0x84, 0x03, 0x10, 0x00, 0x28, 0x23, 0x9C, 0x00,
+                                                                      0x07, 0x00, 0x08, 0x07));
+        // @formatter:on
+        responses.add(response64252);
+        when(communicationsModule.request(eq(64252),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64252));
+
         Packet requestPacket64253 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64253, 64253 >> 8, 64253 >> 16);
         doReturn(requestPacket64253).when(j1939).createRequestPacket(64253, 0x00);
         GenericPacket response64253 = new GenericPacket(Packet.create(0xFAFD, 0x00,
@@ -1510,26 +1515,25 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         expected += "|                         |    Active   |    Stored   |             |" + NL;
         expected += "|                         |   100 Hour  |   100 Hour  |   Lifetime  |" + NL;
         expected += "|-------------------------+-------------+-------------+-------------|" + NL;
-        expected += "| Engine Run Time, s      |       4,500 |       2,077 |             |" + NL;
-        expected += "| Vehicle Dist., km       |       7,053 |         139 |             |" + NL;
-        expected += "| Vehicle Fuel, l         |       1,417 |      18,988 |             |" + NL;
-        expected += "| Engine Fuel, l          |       1,407 |         817 |             |" + NL;
-        expected += "| Eng.Out.Energy, kW-hr   |      14,170 |      54,906 |             |" + NL;
-        expected += "| PKE Numerator           |     180,735 | 811,401,221 |             |" + NL;
-        expected += "| Urban Speed Run Time, s |       1,688 |           5 |             |" + NL;
-        expected += "| Idle Run Time, s        |         112 |       5,041 |             |" + NL;
-        expected += "| Engine Idle Fuel, l     |           6 |          37 |             |" + NL;
-        expected += "| PTO Run Time, s         |       1,125 |       9,144 |             |" + NL;
-        expected += "| PTO Fuel Consumption, l |          59 |       1,532 |             |" + NL;
-        expected += "| AES Shutdown Count      |           5 |      59,293 |             |" + NL;
-        expected += "| Stop-Start Run Time, s  |         225 |           2 |             |" + NL;
+        expected += "| Engine Run Time, s      |       4,500 |       2,077 |  23,112,963 |" + NL;
+        expected += "| Vehicle Dist., km       |       7,053 |         139 |   1,229,474 |" + NL;
+        expected += "| Vehicle Fuel, l         |       1,417 |      18,988 | 145,399,114 |" + NL;
+        expected += "| Engine Fuel, l          |       1,407 |         817 |  44,236,800 |" + NL;
+        expected += "| Eng.Out.Energy, kW-hr   |      14,170 |      54,906 |   1,049,476 |" + NL;
+        expected += "| PKE Numerator           |     180,735 | 811,401,221 |  51,163,080 |" + NL;
+        expected += "| Urban Speed Run Time, s |       1,688 |           5 |   1,966,080 |" + NL;
+        expected += "| Idle Run Time, s        |         112 |       5,041 |           0 |" + NL;
+        expected += "| Engine Idle Fuel, l     |           6 |          37 |           0 |" + NL;
+        expected += "| PTO Run Time, s         |       1,125 |       9,144 |           0 |" + NL;
+        expected += "| PTO Fuel Consumption, l |          59 |       1,532 |           0 |" + NL;
+        expected += "| AES Shutdown Count      |           5 |      59,293 |           0 |" + NL;
+        expected += "| Stop-Start Run Time, s  |         225 |           2 |           0 |" + NL;
         expected += "|-------------------------+-------------+-------------+-------------|" + NL;
         expected += NL;
-        expected += "10:15:30.0000 GHG Active Technology Arrays from Engine #1 (0)" + NL + NL;
 
         assertEquals(expected, listener.getResults());
 
-        String expectedMsg = "";
+        String expectedMsg = "Requesting GHG Tracking Lifetime Array Data (GHGTL) from Engine #1 (0)" + NL;
         expectedMsg += "Requesting GHG Tracking Stored 100 Hour Array Data (GHGTS) from Engine #1 (0)"
                 + NL;
         expectedMsg += "Requesting GHG Tracking Active 100 Hour Array Data (GHGTA) from Engine #1 (0)";
@@ -1926,9 +1930,53 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
 
+        Packet requestPacket64252 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64252, 64252 >> 8, 64252 >> 16);
+        doReturn(requestPacket64252).when(j1939).createRequestPacket(64252, 0x00);
+        List<GenericPacket> responses = new ArrayList<>();
+        GenericPacket response64252 = new GenericPacket(Packet.create(0xFAFC, 0x00,
+        // @formatter:off
+                                                                      0xA0, 0x8C, 0xA8, 0x52, 0xC2, 0x0E, 0xA8, 0x0E,
+                                                                      0xCD, 0x49, 0x54, 0xAD, 0x03, 0x00, 0xBC, 0x34,
+                                                                      0x84, 0x03, 0x10, 0x00, 0x28, 0x23, 0x9C, 0x00,
+                                                                      0x07, 0x00, 0x08, 0x07));
+        // @formatter:on
+        responses.add(response64252);
+        when(communicationsModule.request(eq(64252),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64252));
+
+        Packet requestPacket64253 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64253, 64253 >> 8, 64253 >> 16);
+        doReturn(requestPacket64253).when(j1939).createRequestPacket(64253, 0x00);
+        GenericPacket response64253 = new GenericPacket(Packet.create(0xFAFD, 0x00,
+        // @formatter:off
+                                                                      0xB0, 0x30, 0x2C, 0x02, 0x58, 0x94, 0x62, 0x06,
+                                                                      0x7A, 0xD6, 0x05, 0x00, 0x5D, 0x30, 0x1D, 0x00,
+                                                                      0x27, 0x76, 0x4A, 0x00, 0x4F, 0xD6, 0xF8, 0x0B,
+                                                                      0x9D, 0xE7, 0x0D, 0x00, 0x2E, 0x06, 0x00, 0x00,
+                                                                      0x4A, 0x18, 0x61, 0x01, 0xCC, 0x3D, 0x00, 0x00,
+                                                                      0xD9, 0x02, 0x00, 0x00, 0x3B, 0xCF, 0x1B, 0x00));
+        // @formatter:on
+        responses.add(response64253);
+        when(communicationsModule.request(eq(64253),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64253));
+
+        Packet requestPacket64254 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64254, 64254 >> 8, 64254 >> 16);
+        doReturn(requestPacket64254).when(j1939).createRequestPacket(64254, 0x00);
+        GenericPacket response64254 = new GenericPacket(Packet.create(0xFAFE, 0x00,
+        // @formatter:off
+                                                                      0x78, 0x69, 0x34, 0x6E, 0x12, 0x0B, 0xFE, 0x0A,
+                                                                      0x5A, 0x37, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
+                                                                      0xA3, 0x02, 0x0C, 0x00, 0x5E, 0x1A, 0x76, 0x00,
+                                                                      0x05, 0x00, 0x46, 0x05));
+        // @formatter:on
+        responses.add(response64254);
+        when(communicationsModule.request(eq(64254),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64254));
+
         Packet requestPacket64257 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64257, 64257 >> 8, 64257 >> 16);
         doReturn(requestPacket64257).when(j1939).createRequestPacket(64257, 0x00);
-        List<GenericPacket> responses = new ArrayList<>();
         GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
@@ -2031,51 +2079,33 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                           eq(false));
         verify(tableA1Validator, atLeastOnce()).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
 
-        String expected = "10:15:30.0000 GHG Active Technology Arrays from Engine #1 (0)" + NL;
-        expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|"
-                + NL;
-        expected += "|                                     |    Active   |    Active   |    Stored   |    Stored   |             |             |"
-                + NL;
-        expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |"
-                + NL;
-        expected += "| Description                         |    Time, s  |   Dist, km  |    Time, s  |   Dist, km  |    Time, s  |   Dist, km  |"
-                + NL;
-        expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|"
-                + NL;
-        expected += "| SAE/ISO Reserved                    |         N/A |         N/A |         N/A |         N/A |  48,521,732 |           0 |"
-                + NL;
-        expected += "| Cylinder Deactivation               |           6 |           7 |          18 |          22 |         N/A |         N/A |"
-                + NL;
-        expected += "| Intelligent Control                 |         171 |         214 |         342 |         428 |         N/A |         N/A |"
-                + NL;
-        expected += "| Predictive Cruise Control           |          72 |          90 |       2,148 |         269 |      17,888 |           0 |"
-                + NL;
-        expected += "| Unknown 49                          |         N/A |         N/A |         N/A |         N/A |       2,185 |           0 |"
-                + NL;
-        expected += "| Unknown C0                          |         N/A |         N/A |         N/A |         N/A |   1,118,506 |           0 |"
-                + NL;
-        expected += "| Unknown CE                          |         N/A |         N/A |         N/A |         N/A |     559,250 |           0 |"
-                + NL;
-        expected += "| Unknown E0                          |         N/A |         N/A |         N/A |         N/A |           2 |           0 |"
-                + NL;
-        expected += "| Mfg Defined Active Technology 6     |          36 |          46 |         110 |         137 |         767 |           0 |"
-                + NL;
-        expected += "| Mfg Defined Active Technology 4     |          12 |          15 |          37 |       2,205 |         N/A |         N/A |"
-                + NL;
-        expected += "| Mfg Defined Active Technology 2     |          53 |          66 |         106 |         132 |         N/A |         N/A |"
-                + NL;
-        expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|"
-                + NL;
+        String expected = "10:15:30.0000 GHG Tracking Arrays from Engine #1 (0)" + NL;
+        expected += "|-------------------------+-------------+-------------+-------------|" + NL;
+        expected += "|                         |    Active   |    Stored   |             |" + NL;
+        expected += "|                         |   100 Hour  |   100 Hour  |   Lifetime  |" + NL;
+        expected += "|-------------------------+-------------+-------------+-------------|" + NL;
+        expected += "| Engine Run Time, s      |       4,500 |       2,077 |  23,112,963 |" + NL;
+        expected += "| Vehicle Dist., km       |       7,053 |         139 |   1,229,474 |" + NL;
+        expected += "| Vehicle Fuel, l         |       1,417 |      18,988 | 145,399,114 |" + NL;
+        expected += "| Engine Fuel, l          |       1,407 |         817 |  44,236,800 |" + NL;
+        expected += "| Eng.Out.Energy, kW-hr   |      14,170 |      54,906 |   1,049,476 |" + NL;
+        expected += "| PKE Numerator           |     180,735 | 811,401,221 |  51,163,080 |" + NL;
+        expected += "| Urban Speed Run Time, s |       1,688 |           5 |   1,966,080 |" + NL;
+        expected += "| Idle Run Time, s        |         112 |       5,041 |           0 |" + NL;
+        expected += "| Engine Idle Fuel, l     |           6 |          37 |           0 |" + NL;
+        expected += "| PTO Run Time, s         |       1,125 |       9,144 |           0 |" + NL;
+        expected += "| PTO Fuel Consumption, l |          59 |       1,532 |           0 |" + NL;
+        expected += "| AES Shutdown Count      |           5 |      59,293 |           0 |" + NL;
+        expected += "| Stop-Start Run Time, s  |         225 |           2 |           0 |" + NL;
+        expected += "|-------------------------+-------------+-------------+-------------|" + NL;
         expected += NL;
 
         assertEquals(expected, listener.getResults());
 
         String expectedMsg = "";
-        expectedMsg += "Requesting Green House Gas Lifetime Active Technology Tracking (GHGTTL) from Engine #1 (0)"
-                + NL;
-        expectedMsg += "Requesting Green House Gas Stored 100 Hour Active Technology Tracking (GHGTTS) from Engine #1 (0)"
-                + NL;
-        expectedMsg += "Requesting Green House Gas Active 100 Hour Active Technology Tracking (GHGTTA) from Engine #1 (0)";
+        expectedMsg += "Requesting GHG Tracking Lifetime Array Data (GHGTL) from Engine #1 (0)" + NL;
+        expectedMsg += "Requesting GHG Tracking Stored 100 Hour Array Data (GHGTS) from Engine #1 (0)" + NL;
+        expectedMsg += "Requesting GHG Tracking Active 100 Hour Array Data (GHGTA) from Engine #1 (0)";
         assertEquals(expectedMsg, listener.getMessages());
     }
 
@@ -2579,7 +2609,6 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         expectedMsg += "Requesting NOx Tracking Stored 100 Hour Engine Out NOx Mass Bins (NTENS) from Engine #1 (0)"
                 + NL;
         expectedMsg += "Requesting NOx Tracking Stored 100 Hour System Out NOx Mass Bins (NTSNS) from Engine #1 (0)";
-
         assertEquals(expectedMsg, listener.getMessages());
     }
 
@@ -2608,6 +2637,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         when(broadcastValidator.getMaximumBroadcastPeriod()).thenReturn(3);
 
         List<GenericPacket> packets = new ArrayList<>();
+
+        // { 64262, 64263, 64264, 64265, 64266, 64267 }
 
         GenericPacket packet3 = packet(supportedSpn, false, 0);
         packets.add(packet3);
@@ -3027,76 +3058,131 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                           eq(false));
         verify(tableA1Validator, atLeastOnce()).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
 
-        String expected = "";
-        // expected += "10:15:30.0000 GHG Tracking Arrays from Engine #1 (0)" + NL;
-        // expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
-        // expected += "| | Active | Stored | |" + NL;
-        // expected += "| | 100 Hour | 100 Hour | Lifetime |" + NL;
-        // expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
-        // expected += "| Chg Depleting engine off, km | 1,680 | 2,240 | 29,120 |" + NL;
-        // expected += "| Chg Depleting engine off, km | 1,344 | 1,792 | 23,296 |" + NL;
-        // expected += "| Drv-Sel Inc Operation, km | 336 | 448 | 5,824 |" + NL;
-        // expected += "| Fuel Consume: Chg Dep Op, l | 512 | 683 | 2,223 |" + NL;
-        // expected += "| Fuel Consume: Drv-Sel In, l | 128 | 171 | 52,910 |" + NL;
-        // expected += "| Grid: Chg Dep Op eng-off, kWh | 6,105 | 8,140 | 16,926 |" + NL;
-        // expected += "| Grid: Chg Dep Op eng-on, kWh | 977 | 1,302 | 122,746 |" + NL;
-        // expected += "| Grid: Energy into battery, kWh | 7,082 | 9,442 | 0 |" + NL;
-        // expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
-        // expected += NL;
-
+//@formatter:off
+        String expected = "10:15:30.0000 NOx Binning Lifetime Array from Engine #1 (0)" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += "|                           |  Tail Pipe   |  Eng. Out.   |              |              |   Engine     |   Vehicle    |" + NL;
+        expected += "|                           | NOx Mass, g  | NOx Mass, g  |  EOE, kWh    |   Fuel, l    | Hours, min   |  Dist, km    |" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += "| Bin  1 (Total)            |  218,104,992 |  218,104,960 |  218,104,928 |   10,905,242 |    3,635,081 |    1,090,524 |" + NL;
+        expected += "| Bin  2 (Idle)             |  218,104,993 |  218,104,961 |  218,104,929 |   10,905,242 |    3,635,081 |    1,090,524 |" + NL;
+        expected += "| Bin  3 (<25%, <16kph)     |  218,104,995 |  218,104,963 |  218,104,931 |   10,905,242 |    3,635,081 |    1,090,524 |" + NL;
+        expected += "| Bin  4 (<25%, 16-40kph)   |  218,104,997 |  218,104,965 |  218,104,933 |   10,905,242 |    3,635,081 |    1,090,525 |" + NL;
+        expected += "| Bin  5 (<25%, 40-64kph)   |  218,104,999 |  218,104,967 |  218,104,935 |   10,905,242 |    3,635,081 |    1,090,525 |" + NL;
+        expected += "| Bin  6 (<25%, >64kph)     |  218,105,001 |  218,104,969 |  218,104,937 |   10,905,242 |    3,635,081 |    1,090,525 |" + NL;
+        expected += "| Bin  7 (25-50%, <16kph)   |  218,105,003 |  218,104,971 |  218,104,939 |   10,905,242 |    3,635,081 |    1,090,525 |" + NL;
+        expected += "| Bin  8 (25-50%, 16-40kph) |  218,105,005 |  218,104,973 |  218,104,941 |   10,905,242 |    3,635,081 |    1,090,525 |" + NL;
+        expected += "| Bin  9 (25-50%, 40-64kph) |  218,105,007 |  218,104,975 |  218,104,943 |   10,905,242 |    3,635,081 |    1,090,525 |" + NL;
+        expected += "| Bin 10 (25-50%, >64kph)   |  218,105,009 |  218,104,977 |  218,104,945 |   10,905,242 |    3,635,081 |    1,090,525 |" + NL;
+        expected += "| Bin 11 (>50%, <16kph)     |  218,105,011 |  218,104,979 |  218,104,947 |   10,905,243 |    3,635,081 |    1,090,525 |" + NL;
+        expected += "| Bin 12 (>50%, 16-40kph)   |  218,105,013 |  218,104,981 |  218,104,949 |   10,905,243 |    3,635,081 |    1,090,525 |" + NL;
+        expected += "| Bin 13 (>50%, 40-64kph)   |  218,105,015 |  218,104,983 |  218,104,951 |   10,905,243 |    3,635,081 |    1,090,525 |" + NL;
+        expected += "| Bin 14 (>50%, >64kph)     |  218,105,017 |  218,104,985 |  218,104,953 |   10,905,243 |    3,635,081 |    1,090,525 |" + NL;
+        expected += "| Bin 15 (NTE)              |  218,105,019 |  218,104,987 |  218,104,955 |   10,905,243 |    3,635,082 |    1,090,525 |" + NL;
+        expected += "| Bin 16 (Regen)            |  218,105,021 |  218,104,989 |  218,104,957 |   10,905,243 |    3,635,082 |    1,090,525 |" + NL;
+        expected += "| Bin 17 (MIL On)           |  218,105,023 |  218,104,991 |  218,104,959 |   10,905,243 |    3,635,082 |    1,090,525 |" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += NL;
+        expected += "10:15:30.0000 NOx Binning Engine Activity Lifetime Array from Engine #1 (0)" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += "|                           |              |              |   Engine     |   Vehicle    |" + NL;
+        expected += "|                           |  EOE, kWh    |   Fuel, l    | Hours, min   |  Dist, km    |" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += "| Bin  1 (Total)            |  268,469,408 |   13,423,466 |    4,474,489 |    1,342,347 |" + NL;
+        expected += "| Bin  2 (Idle)             |  268,469,409 |   13,423,466 |    4,474,489 |    1,342,347 |" + NL;
+        expected += "| Bin  3 (<25%, <16kph)     |  268,469,411 |   13,423,466 |    4,474,489 |    1,342,347 |" + NL;
+        expected += "| Bin  4 (<25%, 16-40kph)   |  268,469,413 |   13,423,466 |    4,474,489 |    1,342,347 |" + NL;
+        expected += "| Bin  5 (<25%, 40-64kph)   |  268,469,415 |   13,423,466 |    4,474,489 |    1,342,347 |" + NL;
+        expected += "| Bin  6 (<25%, >64kph)     |  268,469,417 |   13,423,466 |    4,474,489 |    1,342,347 |" + NL;
+        expected += "| Bin  7 (25-50%, <16kph)   |  268,469,419 |   13,423,466 |    4,474,489 |    1,342,347 |" + NL;
+        expected += "| Bin  8 (25-50%, 16-40kph) |  268,469,421 |   13,423,466 |    4,474,489 |    1,342,347 |" + NL;
+        expected += "| Bin  9 (25-50%, 40-64kph) |  268,469,423 |   13,423,466 |    4,474,489 |    1,342,347 |" + NL;
+        expected += "| Bin 10 (25-50%, >64kph)   |  268,469,425 |   13,423,466 |    4,474,489 |    1,342,347 |" + NL;
+        expected += "| Bin 11 (>50%, <16kph)     |  268,469,427 |   13,423,467 |    4,474,489 |    1,342,347 |" + NL;
+        expected += "| Bin 12 (>50%, 16-40kph)   |  268,469,429 |   13,423,467 |    4,474,489 |    1,342,347 |" + NL;
+        expected += "| Bin 13 (>50%, 40-64kph)   |  268,469,431 |   13,423,467 |    4,474,489 |    1,342,347 |" + NL;
+        expected += "| Bin 14 (>50%, >64kph)     |  268,469,433 |   13,423,467 |    4,474,489 |    1,342,347 |" + NL;
+        expected += "| Bin 15 (NTE)              |  268,469,435 |   13,423,467 |    4,474,490 |    1,342,347 |" + NL;
+        expected += "| Bin 16 (Regen)            |  268,469,437 |   13,423,467 |    4,474,490 |    1,342,347 |" + NL;
+        expected += "| Bin 17 (MIL On)           |  268,469,439 |   13,423,467 |    4,483,228 |    1,342,347 |" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += NL;
+        expected += NL;
+        expected += "10:15:30.0000 NOx Binning Active 100-Hour Array from Engine #1 (0)" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += "|                           |  Tail Pipe   |  Eng. Out.   |              |              |   Engine     |   Vehicle    |" + NL;
+        expected += "|                           | NOx Mass, g  | NOx Mass, g  |  EOE, kWh    |   Fuel, l    | Hours, min   |  Dist, km    |" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += "| Bin  1 (Total)            |            0 |            1 |        1,120 |          512 |          176 |          272 |" + NL;
+        expected += "| Bin  2 (Idle)             |            0 |            1 |        1,121 |          512 |          176 |          272 |" + NL;
+        expected += "| Bin  3 (<25%, <16kph)     |            0 |            1 |        1,123 |          514 |          176 |          273 |" + NL;
+        expected += "| Bin  4 (<25%, 16-40kph)   |            0 |            1 |        1,125 |          514 |          177 |          273 |" + NL;
+        expected += "| Bin  5 (<25%, 40-64kph)   |            0 |            1 |        1,127 |          516 |          177 |          274 |" + NL;
+        expected += "| Bin  6 (<25%, >64kph)     |            0 |            1 |        1,129 |          516 |          178 |          274 |" + NL;
+        expected += "| Bin  7 (25-50%, <16kph)   |            0 |            1 |        1,131 |          518 |          178 |          275 |" + NL;
+        expected += "| Bin  8 (25-50%, 16-40kph) |            0 |            1 |        1,133 |          518 |          178 |          275 |" + NL;
+        expected += "| Bin  9 (25-50%, 40-64kph) |            0 |            1 |        1,135 |          520 |          178 |          276 |" + NL;
+        expected += "| Bin 10 (25-50%, >64kph)   |            0 |            1 |        1,137 |          520 |          179 |          276 |" + NL;
+        expected += "| Bin 11 (>50%, <16kph)     |            0 |            1 |        1,139 |          522 |          179 |          277 |" + NL;
+        expected += "| Bin 12 (>50%, 16-40kph)   |            0 |            1 |        1,141 |          522 |          180 |          277 |" + NL;
+        expected += "| Bin 13 (>50%, 40-64kph)   |            0 |            1 |        1,143 |          524 |          180 |          278 |" + NL;
+        expected += "| Bin 14 (>50%, >64kph)     |            0 |            1 |        1,145 |          524 |          180 |          278 |" + NL;
+        expected += "| Bin 15 (NTE)              |            0 |            1 |        1,147 |          526 |          180 |          279 |" + NL;
+        expected += "| Bin 16 (Regen)            |            0 |            1 |        1,149 |          526 |          181 |          279 |" + NL;
+        expected += "| Bin 17 (MIL On)           |            0 |            1 |        1,151 |          528 |          181 |          280 |" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += NL;
+        expected += "10:15:30.0000 NOx Binning Stored 100-Hour Array from Engine #1 (0)" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += "|                           |  Tail Pipe   |  Eng. Out.   |              |              |   Engine     |   Vehicle    |" + NL;
+        expected += "|                           | NOx Mass, g  | NOx Mass, g  |  EOE, kWh    |   Fuel, l    | Hours, min   |  Dist, km    |" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += "| Bin  1 (Total)            |            7 |           17 |       33,888 |       16,896 |        5,637 |        8,464 |" + NL;
+        expected += "| Bin  2 (Idle)             |            7 |           17 |       33,889 |       16,896 |        5,638 |        8,464 |" + NL;
+        expected += "| Bin  3 (<25%, <16kph)     |            7 |           17 |       33,891 |       16,898 |        5,638 |        8,465 |" + NL;
+        expected += "| Bin  4 (<25%, 16-40kph)   |            7 |           17 |       33,893 |       16,898 |        5,638 |        8,465 |" + NL;
+        expected += "| Bin  5 (<25%, 40-64kph)   |            7 |           17 |       33,895 |       16,900 |        5,638 |        8,466 |" + NL;
+        expected += "| Bin  6 (<25%, >64kph)     |            7 |           17 |       33,897 |       16,900 |        5,639 |        8,466 |" + NL;
+        expected += "| Bin  7 (25-50%, <16kph)   |            7 |           17 |       33,899 |       16,902 |        5,639 |        8,467 |" + NL;
+        expected += "| Bin  8 (25-50%, 16-40kph) |            7 |           17 |       33,901 |       16,902 |        5,640 |        8,467 |" + NL;
+        expected += "| Bin  9 (25-50%, 40-64kph) |            7 |           17 |       33,903 |       16,904 |        5,640 |        8,468 |" + NL;
+        expected += "| Bin 10 (25-50%, >64kph)   |            7 |           17 |       33,905 |       16,904 |        5,640 |        8,468 |" + NL;
+        expected += "| Bin 11 (>50%, <16kph)     |            7 |           17 |       33,907 |       16,906 |        5,640 |        8,469 |" + NL;
+        expected += "| Bin 12 (>50%, 16-40kph)   |            7 |           17 |       33,909 |       16,906 |        5,641 |        8,469 |" + NL;
+        expected += "| Bin 13 (>50%, 40-64kph)   |            7 |           17 |       33,911 |       16,908 |        5,641 |        8,470 |" + NL;
+        expected += "| Bin 14 (>50%, >64kph)     |            7 |           17 |       33,913 |       16,908 |        5,642 |        8,470 |" + NL;
+        expected += "| Bin 15 (NTE)              |            7 |           17 |       33,915 |       16,910 |        5,642 |        8,471 |" + NL;
+        expected += "| Bin 16 (Regen)            |            7 |           17 |       33,917 |       16,910 |        5,642 |        8,471 |" + NL;
+        expected += "| Bin 17 (MIL On)           |            7 |           17 |       33,919 |       16,912 |          352 |        8,472 |" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
+       expected += NL;
+        expected += NL;
         assertEquals(expected, listener.getResults());
 
         String expectedMsg = "";
-        // expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime Fuel Consumption Bins (NTFCV) from Engine #1 (0)"
-        // + NL;
-        // expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime Engine Run Time Bins (NTEHV) from Engine #1 (0)"
-        // + NL;
-        // expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime Vehicle Distance Bins (NTVMV) from Engine #1 (0)"
-        // + NL;
-        // expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime Engine Output Energy Bins (NTEEV) from Engine #1
-        // (0)"
-        // + NL;
-        // expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime Engine Out NOx Mass Bins (NTENV) from Engine #1
-        // (0)"
-        // + NL;
-        // expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime System Out NOx Mass Bins (NTSNV) from Engine #1
-        // (0)"
-        // + NL;
-        // expectedMsg += "Requesting NOx Tracking Engine Activity Lifetime Fuel Consumption Bins (NTFCEA) from Engine
-        // #1 (0)"
-        // + NL;
-        // expectedMsg += "Requesting NOx Tracking Engine Activity Lifetime Engine Run Time Bins (NTEHEA) from Engine #1
-        // (0)"
-        // + NL;
-        // expectedMsg += "Requesting NOx Tracking Engine Activity Lifetime Vehicle Distance Bins (NTVMEA) from Engine
-        // #1 (0)"
-        // + NL;
-        // expectedMsg += "Requesting NOx Tracking Engine Activity Lifetime Engine Output Energy Bins (NTEEEA) from
-        // Engine #1 (0)"
-        // + NL;
-        // expectedMsg += "Requesting NOx Tracking Active 100 Hour Fuel Consumption Bins (NTFCA) from Engine #1 (0)" +
-        // NL;
-        // expectedMsg += "Requesting NOx Tracking Active 100 Hour Engine Run Time Bins (NTEHA) from Engine #1 (0)" +
-        // NL;
-        // expectedMsg += "Requesting NOx Tracking Active 100 Hour Vehicle Distance Bins (NTVMA) from Engine #1 (0)" +
-        // NL;
-        // expectedMsg += "Requesting NOx Tracking Active 100 Hour Engine Output Energy Bins (NTEEA) from Engine #1 (0)"
-        // + NL;
-        // expectedMsg += "Requesting NOx Tracking Active 100 Hour Engine Out NOx Mass Bins (NTENA) from Engine #1 (0)"
-        // + NL;
-        // expectedMsg += "Requesting NOx Tracking Active 100 Hour System Out NOx Mass Bins (NTSNA) from Engine #1 (0)"
-        // + NL;
-        // expectedMsg += "Requesting NOx Tracking Stored 100 Hour Fuel Consumption Bins (NTFCS) from Engine #1 (0)" +
-        // NL;
-        // expectedMsg += "Requesting NOx Tracking Stored 100 Hour Engine Run Time Bins (NTEHS) from Engine #1 (0)" +
-        // NL;
-        // expectedMsg += "Requesting NOx Tracking Stored 100 Hour Vehicle Distance Bins (NTVMS) from Engine #1 (0)" +
-        // NL;
-        // expectedMsg += "Requesting NOx Tracking Stored 100 Hour Engine Output Energy Bins (NTEES) from Engine #1 (0)"
-        // + NL;
-        // expectedMsg += "Requesting NOx Tracking Stored 100 Hour Engine Out NOx Mass Bins (NTENS) from Engine #1 (0)"
-        // + NL;
-        // expectedMsg += "Requesting NOx Tracking Stored 100 Hour System Out NOx Mass Bins (NTSNS) from Engine #1 (0)";
+         expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime Fuel Consumption Bins (NTFCV) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime Engine Run Time Bins (NTEHV) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime Vehicle Distance Bins (NTVMV) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime Engine Output Energy Bins (NTEEV) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime Engine Out NOx Mass Bins (NTENV) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime System Out NOx Mass Bins (NTSNV) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Engine Activity Lifetime Fuel Consumption Bins (NTFCEA) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Engine Activity Lifetime Engine Run Time Bins (NTEHEA) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Engine Activity Lifetime Vehicle Distance Bins (NTVMEA) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Engine Activity Lifetime Engine Output Energy Bins (NTEEEA) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Active 100 Hour Fuel Consumption Bins (NTFCA) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Active 100 Hour Engine Run Time Bins (NTEHA) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Active 100 Hour Vehicle Distance Bins (NTVMA) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Active 100 Hour Engine Output Energy Bins (NTEEA) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Active 100 Hour Engine Out NOx Mass Bins (NTENA) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Active 100 Hour System Out NOx Mass Bins (NTSNA) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Stored 100 Hour Fuel Consumption Bins (NTFCS) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Stored 100 Hour Engine Run Time Bins (NTEHS) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Stored 100 Hour Vehicle Distance Bins (NTVMS) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Stored 100 Hour Engine Output Energy Bins (NTEES) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Stored 100 Hour Engine Out NOx Mass Bins (NTENS) from Engine #1 (0)" + NL;
+         expectedMsg += "Requesting NOx Tracking Stored 100 Hour System Out NOx Mass Bins (NTSNS) from Engine #1 (0)";
+//                @formatter:on
 
         assertEquals(expectedMsg, listener.getMessages());
     }

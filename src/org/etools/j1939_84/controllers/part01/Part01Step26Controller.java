@@ -616,7 +616,7 @@ public class Part01Step26Controller extends StepController {
                         + pg);
             } else {
                 packetForPg.getSpns().stream().filter(spn -> {
-                    return spn.getRawValue() > 0xFAFFL;
+                    return spn.getRawValue() > 0xFAFFFFFFL;
                 }).forEach(spn -> {
                     addFailure("6.1.26.14.c - Bin value received is greater than 0xFAFFFFFF(h)"
                             + module.getModuleName() + " returned "
@@ -686,12 +686,12 @@ public class Part01Step26Controller extends StepController {
                 }
             } else {
 
-                // 6.1.26.14.d. Fail each active 100 hr array value that is greater than zero.
+                // 6.1.26.14.d - Fail each active 100 hr array value that is greater than zero.
                 packetForPg.getSpns()
                            .forEach(spn -> {
-                               // 6.1.26.14.c. Fail each PG query where any value received is greater than FAFFh.
-                               if (spn.getRawValue() >= 0xFAFFL) {
-                                   addFailure("6.1.26.14.c - Bin value received is greater than 0xFAFF(h)"
+                               if (spn.getSlot().toValue(spn.getBytes()) < 0) {
+                                   // 6.1.26.14.d - Fail each active 100 hr array value that is greater than zero
+                                   addFailure("6.1.26.14.d - Active 100 hr array value received is greater than zero"
                                            + module.getModuleName() + " returned "
                                            + Arrays.toString(spn.getBytes()));
                                }
