@@ -373,7 +373,7 @@ public class Part01Step26Controller extends StepController {
                                            testSp12797(module);
                                        }
                                        if (module.supportsSpn(12783)) {
-                                           // 6.1.26.23, 6.1.17.24, 6.1.26.25
+                                           // 6.1.26.23, 6.1.17.24, 6.1.26.24 & 6.1.26.25
                                            testSp12783(module);
                                        }
                                    });
@@ -560,10 +560,8 @@ public class Part01Step26Controller extends StepController {
         for (int pg : nOxLifeTimeSps) {
             GenericPacket packetForPg = haveResponseWithPg(ghgPackets, pg);
             if (packetForPg == null) {
-                // 6.1.26.22 Fail criteria11 for MY2022+ HEV and BEV drives
-                // a. For MY2024+ HEV and BEV drives, Fail each PG query where no
-                // response was
-                // received.
+                // 6.1.26.22.a. For MY2024+ HEV and BEV drives, Fail each PG query where no
+                // response was received.
                 if (getEngineModelYear() >= 2024) {
                     addFailure("6.1.26.22.a - No response was received from "
                             + module.getModuleName() + "for PG "
@@ -616,26 +614,14 @@ public class Part01Step26Controller extends StepController {
                         + pg);
             } else {
                 packetForPg.getSpns().stream().filter(spn -> {
+                    // FIXME: requirements need updated
                     return spn.getRawValue() > 0xFAFFFFFFL;
                 }).forEach(spn -> {
-                    addFailure("6.1.26.14.c - Bin value received is greater than 0xFAFFFFFF(h)"
+                    // 6.1.26.12.b. Fail PG query where any bin value received is greater than FAFFh.
+                    addFailure("6.1.26.12.b - Bin value received is greater than 0xFAFF(h)"
                             + module.getModuleName() + " returned "
-                            + Arrays.toString(spn.getData()));
+                            + Arrays.toString(spn.getBytes()));
                 });
-                // .getSpns()
-                // .forEach(spn -> {
-                // // 6.1.26.12.b - Fail each PG query where any value received is greater than FAFFh.
-                // if (spn.getSlot().asValue(spn.getBytes()) > 0xFAFFFFFFL) {
-                // addFailure("6.1.26.14.c - Bin value received is greater than 0xFAFFFFFF(h)"
-                // + module.getModuleName() + " returned "
-                // + Arrays.toString(spn.getData()));
-                // }
-                // // if (spn.getRawValue() >= 0xFAFFL) {
-                // // addFailure("6.1.26.14.c - Bin value received is greater than 0xFAFF(h)"
-                // // + module.getModuleName() + " returned "
-                // // + Arrays.toString(spn.getBytes()));
-                // // }
-                // });
             }
         }
 
@@ -665,9 +651,6 @@ public class Part01Step26Controller extends StepController {
                                                                                        ghgTrackingPackets.stream())
                                                                                .collect(Collectors.toList())));
         }
-        // Fail criteria7 for MY2022+ Engines
-        // c. Fail each PG query where any value received is greater than FAFFh.
-        // d. Fail each active 100 hr array value that is greater than zero.
 
         for (int pg : ghgTrackingActive100HrPgs) {
             GenericPacket packetForPg = haveResponseWithPg(ghgTrackingPackets, pg);
@@ -685,18 +668,20 @@ public class Part01Step26Controller extends StepController {
                             + pg);
                 }
             } else {
-
-                // 6.1.26.14.d - Fail each active 100 hr array value that is greater than zero.
                 packetForPg.getSpns()
                            .forEach(spn -> {
-                               if (spn.getSlot().toValue(spn.getBytes()) < 0) {
+                               if (spn.getRawValue() > 0xFAFFL) {
+                                   // 6.1.26.14.c. Fail each PG query where any value received is greater than FAFFh.
+                                   addFailure("6.1.26.14.c - Bin value received is greater than 0xFAFF"
+                                           + module.getModuleName() + " returned "
+                                           + Arrays.toString(spn.getBytes()));
+                               }
+                               if (spn.getSlot().toValue(spn.getBytes()) > 0) {
                                    // 6.1.26.14.d - Fail each active 100 hr array value that is greater than zero
                                    addFailure("6.1.26.14.d - Active 100 hr array value received is greater than zero"
                                            + module.getModuleName() + " returned "
                                            + Arrays.toString(spn.getBytes()));
                                }
-                               // 6.1.26.14.d. Fail each active 100 hr array value that is greater than zero.
-
                            });
             }
         }
@@ -725,20 +710,23 @@ public class Part01Step26Controller extends StepController {
                         + module.getModuleName() + "for PG "
                         + pg);
             } else {
-                if (getEngineModelYear() > 2022) {
                     packetForPg.getSpns()
                                .forEach(spn -> {
-                                   // 6.1.26.16 Fail criteria8 for MY2022+ Engines
-                                   // b. Fail any accumulator value received that is greater
+                                   // 6.1.26.16.b. Fail any accumulator value received that is greater
                                    // than FAFFFFFFh.
-                                   // c. Fail PG query where any index value received is
+                                   if (spn.getRawValue() > 0xFAFFFFFFL) {
+                                       addFailure("6.1.26.16.b - Bin value received is greater than 0xFAFFFFFF"
+                                               + module.getModuleName() + " returned "
+                                               + Arrays.toString(spn.getBytes()));
+                                   }
+                                   // 6.1.26.16.c. Fail PG query where any index value received is
                                    // greater than FAh.
-                                   if (spn.getSlot().getId() > 0xFAL) {
-                                       addFailure("6.1.26.16.c - PG query index received was " + "");
+                                   if (spn.getId() == 12691 && spn.getValue() > 0xFAL) {
+                                       addFailure("6.1.26.16.c - " + spn.getId() + " PG query index received was "
+                                               + spn.getValue());
                                    }
 
                                });
-                }
             }
         }
 
@@ -768,33 +756,60 @@ public class Part01Step26Controller extends StepController {
                                                                                    ghg100HrPackets.stream())
                                                                            .collect(Collectors.toList())));
         }
+        List<String> expectedLabels = new ArrayList<>();
+        for (GenericPacket packet : ghgPackets) {
+            for (Spn sp : packet.getSpns()) {
+                expectedLabels.add(sp.getLabel().substring(sp.getLabel().indexOf("Active")));
+            }
+        }
 
         for (int pg : ghgTracking100HrPgs) {
             GenericPacket packetForPg = haveResponseWithPg(ghg100HrPackets, pg);
             if (packetForPg == null) {
-                // 6.1.26.18.a. Warn PG query where no response was received.
-                addWarning("6.1.26.18.a - No response was received from "
-                        + module.getModuleName() + "for PG "
-                        + pg);
+                if (getEngineModelYear() >= 2024) {
+                    // 6.1.26.18.a. For all MY2024+ engines, Warn each PG query where no response was received.
+                    addWarning("6.1.26.18.a - No response was received from "
+                            + module.getModuleName() + " for PG "
+                            + pg);
+                }
+                if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
+                    // 6.1.26.18.b. For MY2022-23 engines, Warn each PG query, where no response was received
+                    addWarning("6.1.26.18.b - No response was received from "
+                            + module.getModuleName() + " for PG "
+                            + pg);
+                }
             } else {
                 packetForPg.getSpns()
                            .forEach(spn -> {
-                               // 6.1.26.18.c. Fail each PG query where any bin value
-                               // received is greater than FAFFh.
+                               // 6.1.26.18.c. Fail PG query where any bin value received is greater than FAFFh.
                                if (spn.getRawValue() >= 0xFAFFL) {
                                    addFailure("6.1.26.18.c - Bin value received is greater than 0xFAFF(h)"
                                            + module.getModuleName() + " returned "
                                            + spn.getBytes());
                                }
                                // 6.1.26.18.d. Fail PG query where any index value received is greater than FAh.
-                               // 6.1.26.18.e. Fail each response where the number of labels received are not
-                               // the same as the number of labels received for the lifetime technology
-                               // response.
+                               if (spn.getId() == 12691 && spn.getValue() > 0xFAL) {
+                                   addFailure("6.1.26.16.c - PG query index received was " + "");
+                               }
+                               if (spn.getValue() > 0) {
+                                   // 6.1.26.18.g. Fail each active 100 hr array value that is greater than zero
+                                   addFailure("6.1.26.18.g - Active 100 hr array value received was greater than zero.  "
+                                           + module.getModuleName() + " returned a value of " + spn.getValue());
+                               }
                                // 6.1.26.18.f. Fail each response where the set of labels received is not a
                                // subset of the set of labels received for the lifetime active technology
                                // response.
-                               // 6.1.26.18.g. Fail each active 100 hr array value that is greater than zero
+                               if (!expectedLabels.contains(spn.getLabel()
+                                                               .substring(spn.getLabel().indexOf("Hour Active") + 5))) {
+                                   addFailure("6.1.26.18.f - " + spn.getLabel());
+                               }
                            });
+                // 6.1.26.18.e. Fail each response where the number of labels received are not
+                // the same as the number of labels received for the lifetime technology
+                // response.
+                if (packetForPg.getSpns().size() != ghgPackets.get(0).getSpns().size()) {
+                    addFailure("6.1.26.18.e - Number of response labels mismatch");
+                }
             }
         }
     }
@@ -879,19 +894,18 @@ public class Part01Step26Controller extends StepController {
                         // 6.1.26.10.c. Fail each PG query where any bin value received is greater than FAFFh. (Use
                         // FAFFFFFFh for NOx values)
                         addFailure("6.1.26.10.c - Bin value received is greater than 0xFAFFFFFF(h)"
-                                + module.getModuleName() + " returned " + spn.getBytes());
+                                + module.getModuleName() + " returned " + Arrays.toString(spn.getBytes()) + " for "
+                                + spn);
 
                     }
-                    // FIXME
                     // 6.1.26.10.d. Fail each active 100 hr array value that is greater than zero. (where supported)
-                    boolean something = false;
-                    if (spn.getValue() < 0) {
+                    if (spn.getValue() > 0) {
                         // 6.1.26.10.d. Fail each active 100 hr array value that is greater than zero. (where supported)
                         addFailure("6.1.26.10.d - Active 100 hr array value received is greater than zero (where supported)"
-                                + module.getModuleName() + " returned " + spn.getBytes());
+                                + module.getModuleName() + " returned " + Arrays.toString(spn.getBytes()) + " for "
+                                + spn);
 
                     }
-
                 });
             }
         }

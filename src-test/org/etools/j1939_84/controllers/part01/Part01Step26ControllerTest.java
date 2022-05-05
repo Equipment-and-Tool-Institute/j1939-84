@@ -39,6 +39,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TableA1Validator;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -486,8 +487,9 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         var requestPacket64260_1 = j1939.createRequestPacket(64260, 1);
 
         Bus busMock = mock(Bus.class);
-        when(busMock.send(eq(requestPacket64260_0))).thenAnswer(answer -> busMock.send(packet64260.getPacket()));
+        when(j1939.getBus()).thenReturn(busMock);
         when(busMock.imposterDetected()).thenReturn(false);
+        when(busMock.send(eq(requestPacket64260_0))).thenAnswer(answer -> busMock.send(packet64260.getPacket()));
 
         runTest();
 
@@ -904,6 +906,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                       .map(GenericPacket::new)
                       .collect(Collectors.toList());
     }
+
     @Test
     public void testRunWithFailuresUnExpectedToolSaMsg() {
         VehicleInformation vehicleInformation = new VehicleInformation();
@@ -970,12 +973,12 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                          eq(26));
         packets.forEach(packet -> {
             verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(packet.getSourceAddress()),
-                                                         any(),
+                                                                        any(),
                                                                         eq(supportedSpns.subList(1,
                                                                                                  supportedSpns.size())),
                                                                         eq(List.of(11111, 22222, 33333)),
-                                                         any(ResultsListener.class),
-                                                         eq(1),
+                                                                        any(ResultsListener.class),
+                                                                        eq(1),
                                                                         eq(26),
                                                                         eq("6.1.26.2.a"));
         });
@@ -989,18 +992,19 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                         26,
                                         WARN,
                                         "6.1.26 - Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible");
-        verify(mockListener).onUrgentMessage(eq("6.1.26 - Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible"),
+        verify(mockListener).onUrgentMessage(eq(
+                                                "6.1.26 - Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible"),
                                              eq("Second device using SA 0xF9"),
                                              eq(ERROR),
                                              any());
         verify(tableA1Validator).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
-                                                                any(ResultsListener.class),
-                                                                any());
+                                                                       any(ResultsListener.class),
+                                                                       any());
         verify(tableA1Validator, atLeastOnce()).reportImplausibleSPNValues(any(),
-                                                            any(ResultsListener.class),
-                                                            eq(false),
-                                                            any());
+                                                                           any(ResultsListener.class),
+                                                                           eq(false),
+                                                                           any());
         verify(tableA1Validator, atLeastOnce()).reportNonObdModuleProvidedSPNs(any(),
                                                                                any(ResultsListener.class),
                                                                                any());
@@ -1707,6 +1711,542 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testRunObdPgnSupports12691FailureTwentrysixEighteenG() throws BusException {
+        final int supportedSpn = 12691;
+        List<Integer> supportedSpns = Arrays.asList(supportedSpn);
+
+        var vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2025);
+        vehInfo.setFuelType(FuelType.DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+
+        OBDModuleInformation obdModule0 = new OBDModuleInformation(0x00);
+        SupportedSPN supportedSPN = SupportedSPN.create(supportedSpn,
+                                                        false,
+                                                        true,
+                                                        false,
+                                                        false,
+                                                        1);
+        obdModule0.set(DM24SPNSupportPacket.create(0x00,
+                                                   supportedSPN),
+                       1);
+        dataRepository.putObdModule(obdModule0);
+
+        when(broadcastValidator.getMaximumBroadcastPeriod()).thenReturn(3);
+
+        List<GenericPacket> packets = new ArrayList<>();
+
+        GenericPacket packet3 = packet(supportedSpn, false, 0);
+        packets.add(packet3);
+        GenericPacket packet8 = packet(888, true, 0);
+        packets.add(packet8);
+        when(busService.readBus(eq(12), eq("6.1.26.1.c"))).thenReturn(packets.stream());
+
+        GenericPacket packet1 = packet(supportedSpn, false, 0);
+        packets.add(packet1);
+
+        Packet requestPacket64257 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64257, 64257 >> 8, 64257 >> 16);
+        doReturn(requestPacket64257).when(j1939).createRequestPacket(64257, 0x00);
+
+        List<GenericPacket> responses = new ArrayList<>();
+        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+                                                                      0x00,
+                                                                      // @formatter:off
+                                                                      0x06, 0x7D, 0x60, 0x10, 0x00, 0xC0, 0xBC, 0x05, 0x00,
+                                                                      0x04, 0xCE, 0x31, 0x02, 0x00, 0x02, 0x49, 0x1D, 0x00,
+                                                                      0x02, 0x00, 0xE0, 0x79, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0xF9, 0x86, 0xAD, 0x00, 0x00, 0xA8, 0xD2, 0x02, 0x00,
+                                                                      0xF7, 0x4B, 0xC3, 0x00, 0x00, 0x90, 0xFB, 0x00, 0x00,
+                                                                      0xF5, 0xD0, 0xB3, 0x00, 0x00, 0x38, 0xED, 0x02, 0x00));
+        // @formatter:on
+        responses.add(response64257);
+        when(communicationsModule.request(eq(64257),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64257));
+
+        Packet requestPacket64255 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64255, 64255 >> 8, 64255 >> 16);
+        doReturn(requestPacket64255).when(j1939).createRequestPacket(64255, 0x00);
+        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+                                                                      0x00,
+                                                                      // @formatter:off
+                                                                      0x00, 0x5B, 0x32, 0x34, 0x04,
+                                                                      0x04, 0x06, 0x08, 0xB0, 0x06,
+                                                                      0x02, 0x6B, 0x00, 0x58, 0x00,
+                                                                      0xF9, 0x7A, 0x02, 0x10, 0x02,
+                                                                      0xF7, 0xDC, 0x00, 0x74, 0x22,
+                                                                      0xF5, 0x91, 0x02, 0x24, 0x02));
+        // @formatter:on
+        responses.add(response64255);
+        when(communicationsModule.request(eq(64255),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64255));
+
+        Packet requestPacket64256 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64256, 64256 >> 8, 64256 >> 16);
+        doReturn(requestPacket64256).when(j1939).createRequestPacket(64256, 0x00);
+        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+                                                                      0x00,
+                                                                      // @formatter:off
+                                                                      0x00, 0xAD, 0x01, 0x68, 0x01,
+                                                                      0x04, 0x03, 0x04, 0x58, 0x03,
+                                                                      0x02, 0x23, 0x00, 0x1C, 0x00,
+                                                                      0xF9, 0x3D, 0x01, 0x08, 0x01,
+                                                                      0xF7, 0x49, 0x00, 0x3C, 0x00,
+                                                                      0xF5, 0xDB, 0x00, 0xB8, 0x00));
+        // @formatter:on
+        responses.add(response64256);
+        when(communicationsModule.request(eq(64256),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64256));
+
+        Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = new HashMap<>();
+        packetMap.put(11111, Map.of(0, List.of(packet1)));
+        packetMap.put(33333, Map.of(0, List.of(packet3)));
+        when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
+
+        Bus busMock = mock(Bus.class);
+        when(j1939.getBus()).thenReturn(busMock);
+        when(busMock.imposterDetected()).thenReturn(false);
+
+        runTest();
+
+        verify(broadcastValidator).getMaximumBroadcastPeriod();
+        verify(broadcastValidator).buildPGNPacketsMap(packets);
+        verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
+                                                         any(),
+                                                         any(ResultsListener.class),
+                                                         eq(1),
+                                                         eq(26));
+        packets.forEach(packet -> {
+            verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(packet.getSourceAddress()),
+                                                                        any(),
+                                                                        eq(Collections.emptyList()),
+                                                                        eq(Collections.emptyList()),
+                                                                        any(ResultsListener.class),
+                                                                        eq(1),
+                                                                        eq(26),
+                                                                        eq("6.1.26.2.a"));
+        });
+        verify(busService).setup(eq(j1939), any(ResultsListener.class));
+        verify(busService).readBus(12, "6.1.26.1.c");
+        verify(busService).collectNonOnRequestPGNs(eq(List.of()));
+        verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
+        verify(busService).getPGNsForDSRequest(any(), any());
+
+        verify(mockListener).addOutcome(eq(instance.getPartNumber()),
+                                        eq(instance.getStepNumber()),
+                                        eq(Outcome.FAIL),
+                                        eq("6.1.26.18.g - Active 100 hr array value received was greater than zero.  Engine #1 (0) returned a value of 128910.0"));
+        verify(mockListener).addOutcome(eq(instance.getPartNumber()),
+                                        eq(instance.getStepNumber()),
+                                        eq(Outcome.FAIL),
+                                        eq("6.1.26.18.g - Active 100 hr array value received was greater than zero.  Engine #1 (0) returned a value of 3340.5"));
+        verify(mockListener).addOutcome(eq(instance.getPartNumber()),
+                                        eq(instance.getStepNumber()),
+                                        eq(Outcome.FAIL),
+                                        eq("6.1.26.18.g - Active 100 hr array value received was greater than zero.  Engine #1 (0) returned a value of 4290.0"));
+        verify(mockListener).addOutcome(eq(instance.getPartNumber()),
+                                        eq(instance.getStepNumber()),
+                                        eq(Outcome.FAIL),
+                                        eq("6.1.26.18.g - Active 100 hr array value received was greater than zero.  Engine #1 (0) returned a value of 6656.25"));
+
+        verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
+        verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
+                                                                       any(ResultsListener.class),
+                                                                       any());
+        verify(tableA1Validator, atLeastOnce()).reportImplausibleSPNValues(any(),
+                                                                           any(ResultsListener.class),
+                                                                           eq(false),
+                                                                           any());
+        verify(tableA1Validator, atLeastOnce()).reportNonObdModuleProvidedSPNs(any(),
+                                                                               any(ResultsListener.class),
+                                                                               any());
+        verify(tableA1Validator, atLeastOnce()).reportProvidedButNotSupportedSPNs(any(),
+                                                                                  any(ResultsListener.class),
+                                                                                  any());
+        verify(tableA1Validator, atLeastOnce()).reportPacketIfNotReported(any(),
+                                                                          any(ResultsListener.class),
+                                                                          eq(false));
+        verify(tableA1Validator, atLeastOnce()).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
+
+        // @formatter:off
+        String expected = "10:15:30.0000 GHG Active Technology Arrays from Engine #1 (0)" + NL;
+        expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|"
+                + NL;
+        expected += "|                                     |    Active   |    Active   |    Stored   |    Stored   |             |             |"
+                + NL;
+        expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |"
+                + NL;
+        expected += "| Description                         |    Time, s  |   Dist, km  |    Time, s  |   Dist, km  |    Time, s  |   Dist, km  |"
+                + NL;
+        expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
+        expected += "| SAE/ISO Reserved                    |          72 |          90 |       2,148 |         269 |  48,521,732 |           0 |" + NL;
+        expected += "| Cylinder Deactivation               |           6 |           7 |          18 |          22 |         N/A |         N/A |" + NL;
+        expected += "| Intelligent Control                 |         171 |         214 |         342 |         428 |         N/A |         N/A |" + NL;
+        expected += "| Predictive Cruise Control           |         N/A |         N/A |         N/A |         N/A |      17,888 |           0 |" + NL;
+        expected += "| Unknown 49                          |         N/A |         N/A |         N/A |         N/A |       2,185 |           0 |" + NL;
+        expected += "| Unknown C0                          |         N/A |         N/A |         N/A |         N/A |   1,118,506 |           0 |" + NL;
+        expected += "| Unknown CE                          |         N/A |         N/A |         N/A |         N/A |     559,250 |           0 |" + NL;
+        expected += "| Unknown E0                          |         N/A |         N/A |         N/A |         N/A |           2 |           0 |" + NL;
+        expected += "| Mfg Defined Active Technology 6     |          36 |          46 |         110 |         137 |         767 |           0 |" + NL;
+        expected += "| Mfg Defined Active Technology 4     |          12 |          15 |          37 |       2,205 |         N/A |         N/A |" + NL;
+        expected += "| Mfg Defined Active Technology 2     |          53 |          66 |         106 |         132 |         N/A |         N/A |" + NL;
+        expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
+        expected += NL;
+        // @formatter:on
+
+        assertEquals(expected, listener.getResults());
+
+        String expectedMsg = "";
+        expectedMsg += "Requesting Green House Gas Lifetime Active Technology Tracking (GHGTTL) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting Green House Gas Stored 100 Hour Active Technology Tracking (GHGTTS) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting Green House Gas Active 100 Hour Active Technology Tracking (GHGTTA) from Engine #1 (0)";
+        assertEquals(expectedMsg, listener.getMessages());
+    }
+
+    @Test
+    public void testRunObdPgnSupports12691WarningTwentrysixEighteenA() throws BusException {
+        final int supportedSpn = 12691;
+        List<Integer> supportedSpns = Arrays.asList(supportedSpn);
+
+        var vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2025);
+        vehInfo.setFuelType(FuelType.DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+
+        OBDModuleInformation obdModule0 = new OBDModuleInformation(0x00);
+        SupportedSPN supportedSPN = SupportedSPN.create(supportedSpn,
+                                                        false,
+                                                        true,
+                                                        false,
+                                                        false,
+                                                        1);
+        obdModule0.set(DM24SPNSupportPacket.create(0x00,
+                                                   supportedSPN),
+                       1);
+        dataRepository.putObdModule(obdModule0);
+
+        when(broadcastValidator.getMaximumBroadcastPeriod()).thenReturn(3);
+
+        List<GenericPacket> packets = new ArrayList<>();
+
+        GenericPacket packet3 = packet(supportedSpn, false, 0);
+        packets.add(packet3);
+        GenericPacket packet8 = packet(888, true, 0);
+        packets.add(packet8);
+        when(busService.readBus(eq(12), eq("6.1.26.1.c"))).thenReturn(packets.stream());
+
+        GenericPacket packet1 = packet(supportedSpn, false, 0);
+        packets.add(packet1);
+
+        Packet requestPacket64257 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64257, 64257 >> 8, 64257 >> 16);
+        doReturn(requestPacket64257).when(j1939).createRequestPacket(64257, 0x00);
+
+        List<GenericPacket> responses = new ArrayList<>();
+        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+                                                                      0x00,
+                                                                      // @formatter:off
+                                                                      0x06, 0x7D, 0x60, 0x10, 0x00, 0xC0, 0xBC, 0x05, 0x00,
+                                                                      0x04, 0xCE, 0x31, 0x02, 0x00, 0x02, 0x49, 0x1D, 0x00,
+                                                                      0x02, 0x00, 0xE0, 0x79, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0xF9, 0x86, 0xAD, 0x00, 0x00, 0xA8, 0xD2, 0x02, 0x00,
+                                                                      0xF7, 0x4B, 0xC3, 0x00, 0x00, 0x90, 0xFB, 0x00, 0x00,
+                                                                      0xF5, 0xD0, 0xB3, 0x00, 0x00, 0x38, 0xED, 0x02, 0x00));
+        // @formatter:on
+        responses.add(response64257);
+        when(communicationsModule.request(eq(64257),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64257));
+
+        Packet requestPacket64255 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64255, 64255 >> 8, 64255 >> 16);
+        doReturn(requestPacket64255).when(j1939).createRequestPacket(64255, 0x00);
+        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+                                                                      0x00,
+                                                                      // @formatter:off
+                                                                      0x00, 0x5B, 0x32, 0x34, 0x04,
+                                                                      0x04, 0x06, 0x08, 0xB0, 0x06,
+                                                                      0x02, 0x6B, 0x00, 0x58, 0x00,
+                                                                      0xF9, 0x7A, 0x02, 0x10, 0x02,
+                                                                      0xF7, 0xDC, 0x00, 0x74, 0x22,
+                                                                      0xF5, 0x91, 0x02, 0x24, 0x02));
+        // @formatter:on
+        responses.add(response64255);
+        when(communicationsModule.request(eq(64255),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of());
+
+        Packet requestPacket64256 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64256, 64256 >> 8, 64256 >> 16);
+        doReturn(requestPacket64256).when(j1939).createRequestPacket(64256, 0x00);
+        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+                                                                      0x00,
+                                                                      // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00));
+        // @formatter:on
+        responses.add(response64256);
+        when(communicationsModule.request(eq(64256),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64256));
+
+        Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = new HashMap<>();
+        packetMap.put(11111, Map.of(0, List.of(packet1)));
+        packetMap.put(33333, Map.of(0, List.of(packet3)));
+        when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
+
+        Bus busMock = mock(Bus.class);
+        when(j1939.getBus()).thenReturn(busMock);
+        when(busMock.imposterDetected()).thenReturn(false);
+
+        runTest();
+
+        verify(broadcastValidator).getMaximumBroadcastPeriod();
+        verify(broadcastValidator).buildPGNPacketsMap(packets);
+        verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
+                                                         any(),
+                                                         any(ResultsListener.class),
+                                                         eq(1),
+                                                         eq(26));
+        packets.forEach(packet -> {
+            verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(packet.getSourceAddress()),
+                                                                        any(),
+                                                                        eq(Collections.emptyList()),
+                                                                        eq(Collections.emptyList()),
+                                                                        any(ResultsListener.class),
+                                                                        eq(1),
+                                                                        eq(26),
+                                                                        eq("6.1.26.2.a"));
+        });
+        verify(busService).setup(eq(j1939), any(ResultsListener.class));
+        verify(busService).readBus(12, "6.1.26.1.c");
+        verify(busService).collectNonOnRequestPGNs(eq(List.of()));
+        verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
+        verify(busService).getPGNsForDSRequest(any(), any());
+
+        verify(mockListener).addOutcome(eq(instance.getPartNumber()),
+                                        eq(instance.getStepNumber()),
+                                        eq(WARN),
+                                        eq("6.1.26.18.a - No response was received from Engine #1 (0) for PG 64255"));
+
+        verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
+        verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
+                                                                       any(ResultsListener.class),
+                                                                       any());
+        verify(tableA1Validator, atLeastOnce()).reportImplausibleSPNValues(any(),
+                                                                           any(ResultsListener.class),
+                                                                           eq(false),
+                                                                           any());
+        verify(tableA1Validator, atLeastOnce()).reportNonObdModuleProvidedSPNs(any(),
+                                                                               any(ResultsListener.class),
+                                                                               any());
+        verify(tableA1Validator, atLeastOnce()).reportProvidedButNotSupportedSPNs(any(),
+                                                                                  any(ResultsListener.class),
+                                                                                  any());
+        verify(tableA1Validator, atLeastOnce()).reportPacketIfNotReported(any(),
+                                                                          any(ResultsListener.class),
+                                                                          eq(false));
+        verify(tableA1Validator, atLeastOnce()).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
+
+        // @formatter:off
+        String expected = "10:15:30.0000 GHG Active Technology Arrays from Engine #1 (0)" + NL;
+        expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
+        expected += "|                                     |    Active   |    Active   |    Stored   |    Stored   |             |             |" + NL;
+        expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
+        expected += "| Description                         |    Time, s  |   Dist, km  |    Time, s  |   Dist, km  |    Time, s  |   Dist, km  |" + NL;
+        expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
+        expected += "| SAE/ISO Reserved                    |           0 |           0 |         N/A |         N/A |  48,521,732 |           0 |" + NL;
+        expected += "| Predictive Cruise Control           |         N/A |         N/A |         N/A |         N/A |      17,888 |           0 |" + NL;
+        expected += "| Unknown 49                          |         N/A |         N/A |         N/A |         N/A |       2,185 |           0 |" + NL;
+        expected += "| Unknown C0                          |         N/A |         N/A |         N/A |         N/A |   1,118,506 |           0 |" + NL;
+        expected += "| Unknown CE                          |         N/A |         N/A |         N/A |         N/A |     559,250 |           0 |" + NL;
+        expected += "| Unknown E0                          |         N/A |         N/A |         N/A |         N/A |           2 |           0 |" + NL;
+        expected += "| Mfg Defined Active Technology 6     |         N/A |         N/A |         N/A |         N/A |         767 |           0 |" + NL;
+        expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
+        expected += NL;
+        // @formatter:on
+
+        assertEquals(expected, listener.getResults());
+
+        String expectedMsg = "";
+        expectedMsg += "Requesting Green House Gas Lifetime Active Technology Tracking (GHGTTL) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting Green House Gas Stored 100 Hour Active Technology Tracking (GHGTTS) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting Green House Gas Active 100 Hour Active Technology Tracking (GHGTTA) from Engine #1 (0)";
+        assertEquals(expectedMsg, listener.getMessages());
+    }
+
+    @Test
+    public void testRunObdPgnSupports12797Two() throws BusException {
+        final int supportedSpn = 12797;
+        List<Integer> supportedSpns = Arrays.asList(supportedSpn);
+        List<SupportedSPN> supportedSPNList = spns(supportedSpn);
+
+        var vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2025);
+        vehInfo.setFuelType(FuelType.DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+
+        OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
+        SupportedSPN supportedSPN = SupportedSPN.create(supportedSpn,
+                                                        false,
+                                                        true,
+                                                        false,
+                                                        false,
+                                                        1);
+        obdModule0.set(DM24SPNSupportPacket.create(0,
+                                                   supportedSPN),
+                       1);
+        dataRepository.putObdModule(obdModule0);
+
+        when(broadcastValidator.getMaximumBroadcastPeriod()).thenReturn(3);
+
+        List<GenericPacket> packets = new ArrayList<>();
+
+        GenericPacket packet3 = packet(supportedSpn, false, 0);
+        packets.add(packet3);
+        GenericPacket packet8 = packet(888, true, 0);
+        packets.add(packet8);
+        when(busService.readBus(eq(12), eq("6.1.26.1.c"))).thenReturn(packets.stream());
+
+        GenericPacket packet1 = packet(supportedSpn, false, 0);
+        packets.add(packet1);
+
+        List<GenericPacket> responses = new ArrayList<>();
+        GenericPacket response64241 = new GenericPacket(Packet.create(0xFAF1,
+                                                                      0x00,
+                                                                      // @formatter:off
+                                                                      0xF0, 0x6A, 0x67, 0x01, 0xD8, 0x79, 0x43, 0x01,
+                                                                      0x1C, 0x9F, 0xE9, 0x00));
+        // @formatter:on
+        responses.add(response64241);
+        when(communicationsModule.request(eq(64241),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64241));
+
+        GenericPacket response64242 = new GenericPacket(Packet.create(0xFAF2,
+                                                                      0x00,
+                                                                      0xA0,
+                                                                      0x8C,
+                                                                      0x10,
+                                                                      0x0E,
+                                                                      0x68,
+                                                                      0x5B,
+                                                                      0xFF,
+                                                                      0xFF));
+        // @formatter:on
+        responses.add(response64242);
+        when(communicationsModule.request(eq(64242),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64242));
+
+        GenericPacket response64243 = new GenericPacket(Packet.create(0xFAF3,
+                                                                      0x00,
+                                                                      0x78,
+                                                                      0x69,
+                                                                      0x8C,
+                                                                      0x0A,
+                                                                      0x8E,
+                                                                      0x44,
+                                                                      0xFF,
+                                                                      0xFF));
+        // @formatter:on
+        responses.add(response64243);
+        when(communicationsModule.request(eq(64243),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64243));
+
+        Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = new HashMap<>();
+        packetMap.put(11111, Map.of(0, List.of(packet1)));
+        packetMap.put(33333, Map.of(0, List.of(packet3)));
+        when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
+
+        // when(busService.collectNonOnRequestPGNs(supportedSpns))
+        // .thenReturn(List.of(11111, 22222, 33333));
+
+        Bus busMock = mock(Bus.class);
+        when(j1939.getBus()).thenReturn(busMock);
+        when(busMock.imposterDetected()).thenReturn(false);
+
+        runTest();
+
+        verify(broadcastValidator).getMaximumBroadcastPeriod();
+        verify(broadcastValidator).buildPGNPacketsMap(packets);
+        verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
+                                                         any(),
+                                                         any(ResultsListener.class),
+                                                         eq(1),
+                                                         eq(26));
+        packets.forEach(packet -> {
+            verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(packet.getSourceAddress()),
+                                                                        any(),
+                                                                        eq(Collections.emptyList()),
+                                                                        eq(Collections.emptyList()),
+                                                                        any(ResultsListener.class),
+                                                                        eq(1),
+                                                                        eq(26),
+                                                                        eq("6.1.26.2.a"));
+        });
+        verify(busService).setup(eq(j1939), any(ResultsListener.class));
+        verify(busService).readBus(12, "6.1.26.1.c");
+        verify(busService).collectNonOnRequestPGNs(supportedSpns.subList(1, supportedSpns.size()));
+        verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns.subList(1, supportedSpns.size())));
+        verify(busService).getPGNsForDSRequest(any(), any());
+
+        verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
+        verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
+                                                                       any(ResultsListener.class),
+                                                                       any());
+        verify(tableA1Validator, atLeastOnce()).reportImplausibleSPNValues(any(),
+                                                                           any(ResultsListener.class),
+                                                                           eq(false),
+                                                                           any());
+        verify(tableA1Validator, atLeastOnce()).reportNonObdModuleProvidedSPNs(any(),
+                                                                               any(ResultsListener.class),
+                                                                               any());
+        verify(tableA1Validator, atLeastOnce()).reportProvidedButNotSupportedSPNs(any(),
+                                                                                  any(ResultsListener.class),
+                                                                                  any());
+        verify(tableA1Validator, atLeastOnce()).reportPacketIfNotReported(any(),
+                                                                          any(ResultsListener.class),
+                                                                          eq(false));
+        verify(tableA1Validator, atLeastOnce()).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
+
+        String expected = "10:15:30.0000 GHG Tracking Arrays from Engine #1 (0)" + NL;
+        expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
+        expected += "|                                |    Active   |    Stored   |             |" + NL;
+        expected += "|                                |   100 Hour  |   100 Hour  |   Lifetime  |" + NL;
+        expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
+        expected += "| Chg Depleting engine off,  km  |             |             |             |" + NL;
+        expected += "| Chg Depleting engine off,  km  |             |             |             |" + NL;
+        expected += "| Drv-Sel Inc Operation,     km  |             |             |             |" + NL;
+        expected += "| Fuel Consume: Chg Dep Op,  l   |             |             |             |" + NL;
+        expected += "| Fuel Consume: Drv-Sel In,  l   |             |             |             |" + NL;
+        expected += "| Grid: Chg Dep Op eng-off,  kWh |             |             |             |" + NL;
+        expected += "| Grid: Chg Dep Op eng-on,   kWh |             |             |             |" + NL;
+        expected += "| Grid: Energy into battery, kWh |             |             |             |" + NL;
+        expected += "| Prod: Prop system active,  s   |       4,500 |       6,000 |     392,580 |" + NL;
+        expected += "| Prod: Prop idle active,    s   |         450 |         600 |     353,322 |" + NL;
+        expected += "| Prod: Prop urban active,   s   |       2,925 |       3,900 |     255,177 |" + NL;
+        expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
+        expected += NL;
+
+        assertEquals(expected, listener.getResults());
+
+        String expectedMsg = "";
+        expectedMsg += "Requesting PSA Times Lifetime Hours (PSATL) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting PSA Times Stored 100 Hours (PSATS) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting PSA Times Active 100 Hours (PSATA) from Engine #1 (0)";
+        assertEquals(expectedMsg, listener.getMessages());
+    }
+
+    @Test
     public void testRunObdPgnSupports12691() throws BusException {
         final int supportedSpn = 12691;
         List<Integer> supportedSpns = Arrays.asList(supportedSpn);
@@ -1765,12 +2305,12 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
-                                                                      0x06, 0x5B, 0x32, 0x34, 0x04,
-                                                                      0x04, 0x06, 0x08, 0xB0, 0x06,
-                                                                      0x02, 0x6B, 0x00, 0x58, 0x00,
-                                                                      0xF9, 0x7A, 0x02, 0x10, 0x02,
-                                                                      0xF7, 0xDC, 0x00, 0x74, 0x22,
-                                                                      0xF5, 0x91, 0x02, 0x24, 0x02));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64255);
         when(communicationsModule.request(eq(64255),
@@ -1782,12 +2322,12 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
-                                                                      0x06, 0xAD, 0x01, 0x68, 0x01,
-                                                                      0x04, 0x03, 0x04, 0x58, 0x03,
-                                                                      0x02, 0x23, 0x00, 0x1C, 0x00,
-                                                                      0xF9, 0x3D, 0x01, 0x08, 0x01,
-                                                                      0xF7, 0x49, 0x00, 0x3C, 0x00,
-                                                                      0xF5, 0xDB, 0x00, 0xB8, 0x00));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64256);
         when(communicationsModule.request(eq(64256),
@@ -1858,13 +2398,9 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                 + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|"
                 + NL;
-        expected += "| SAE/ISO Reserved                    |         N/A |         N/A |         N/A |         N/A |  48,521,732 |           0 |"
+        expected += "| SAE/ISO Reserved                    |           0 |           0 |           0 |           0 |  48,521,732 |           0 |"
                 + NL;
-        expected += "| Cylinder Deactivation               |           6 |           7 |          18 |          22 |         N/A |         N/A |"
-                + NL;
-        expected += "| Intelligent Control                 |         171 |         214 |         342 |         428 |         N/A |         N/A |"
-                + NL;
-        expected += "| Predictive Cruise Control           |          72 |          90 |       2,148 |         269 |      17,888 |           0 |"
+        expected += "| Predictive Cruise Control           |         N/A |         N/A |         N/A |         N/A |      17,888 |           0 |"
                 + NL;
         expected += "| Unknown 49                          |         N/A |         N/A |         N/A |         N/A |       2,185 |           0 |"
                 + NL;
@@ -1874,11 +2410,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                 + NL;
         expected += "| Unknown E0                          |         N/A |         N/A |         N/A |         N/A |           2 |           0 |"
                 + NL;
-        expected += "| Mfg Defined Active Technology 6     |          36 |          46 |         110 |         137 |         767 |           0 |"
-                + NL;
-        expected += "| Mfg Defined Active Technology 4     |          12 |          15 |          37 |       2,205 |         N/A |         N/A |"
-                + NL;
-        expected += "| Mfg Defined Active Technology 2     |          53 |          66 |         106 |         132 |         N/A |         N/A |"
+        expected += "| Mfg Defined Active Technology 6     |         N/A |         N/A |         N/A |         N/A |         767 |           0 |"
                 + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|"
                 + NL;
@@ -2159,15 +2691,13 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64258 = new GenericPacket(Packet.create(0xFB02, 0x00,
         // @formatter:off
-                                                                      0x40, 0x84, 0x00, 0x10, 0x41, 0x84, 0x00, 0x10,
-                                                                      0x43, 0x84, 0x00, 0x10, 0x45, 0x84, 0x00, 0x10,
-                                                                      0x47, 0x84, 0x00, 0x10, 0x49, 0x84, 0x00, 0x10,
-                                                                      0x4B, 0x84, 0x00, 0x10, 0x4D, 0x84, 0x00, 0x10,
-                                                                      0x4F, 0x84, 0x00, 0x10, 0x51, 0x84, 0x00, 0x10,
-                                                                      0x53, 0x84, 0x00, 0x10, 0x55, 0x84, 0x00, 0x10,
-                                                                      0x57, 0x84, 0x00, 0x10, 0x59, 0x84, 0x00, 0x10,
-                                                                      0x5B, 0x84, 0x00, 0x10, 0x5D, 0x84, 0x00, 0x10,
-                                                                      0x5F, 0x84, 0x00, 0x10));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64258);
         when(communicationsModule.request(eq(64258),
@@ -2176,15 +2706,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64259 = new GenericPacket(Packet.create(0xFB03, 0x00,
         // @formatter:off
-                                                                      0x60, 0x84, 0x00, 0x10, 0x61, 0x84, 0x00, 0x10,
-                                                                      0x63, 0x84, 0x00, 0x10, 0x65, 0x84, 0x00, 0x10,
-                                                                      0x67, 0x84, 0x00, 0x10, 0x69, 0x84, 0x00, 0x10,
-                                                                      0x6B, 0x84, 0x00, 0x10, 0x6D, 0x84, 0x00, 0x10,
-                                                                      0x6F, 0x84, 0x00, 0x10, 0x71, 0x84, 0x00, 0x10,
-                                                                      0x73, 0x84, 0x00, 0x10, 0x75, 0x84, 0x00, 0x10,
-                                                                      0x77, 0x84, 0x00, 0x10, 0x79, 0x84, 0x00, 0x10,
-                                                                      0x7B, 0x84, 0x00, 0x10, 0x7D, 0x84, 0x00, 0x10,
-                                                                      0x7F, 0x84, 0x08, 0x10));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64259);
         when(communicationsModule.request(eq(64259),
@@ -2193,15 +2723,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64260 = new GenericPacket(Packet.create(0xFB04, 0,
         // @formatter:off
-                                                                      0x80, 0x84, 0x00, 0x10, 0x81, 0x84, 0x00, 0x10,
-                                                                      0x83, 0x84, 0x00, 0x10, 0x85, 0x84, 0x00, 0x10,
-                                                                      0x87, 0x84, 0x00, 0x10, 0x89, 0x84, 0x00, 0x10,
-                                                                      0x8B, 0x84, 0x00, 0x10, 0x8D, 0x84, 0x00, 0x10,
-                                                                      0x8F, 0x84, 0x00, 0x10, 0x91, 0x84, 0x00, 0x10,
-                                                                      0x93, 0x84, 0x00, 0x10, 0x95, 0x84, 0x00, 0x10,
-                                                                      0x97, 0x84, 0x00, 0x10, 0x99, 0x84, 0x00, 0x10,
-                                                                      0x9B, 0x84, 0x00, 0x10, 0x9D, 0x84, 0x00, 0x10,
-                                                                      0x9F, 0x84, 0x00, 0x10));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64260);
         when(communicationsModule.request(eq(64260),
@@ -2210,15 +2740,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64261 = new GenericPacket(Packet.create(0xFB05, 0,
         // @formatter:off
-                                                                      0xA0, 0x84, 0x00, 0x10, 0xA1, 0x84, 0x00, 0x10,
-                                                                      0xA3, 0x84, 0x00, 0x10, 0xA5, 0x84, 0x00, 0x10,
-                                                                      0xA7, 0x84, 0x00, 0x10, 0xA9, 0x84, 0x00, 0x10,
-                                                                      0xAB, 0x84, 0x00, 0x10, 0xAD, 0x84, 0x00, 0x10,
-                                                                      0xAF, 0x84, 0x00, 0x10, 0xB1, 0x84, 0x00, 0x10,
-                                                                      0xB3, 0x84, 0x00, 0x10, 0xB5, 0x84, 0x00, 0x10,
-                                                                      0xB7, 0x84, 0x00, 0x10, 0xB9, 0x84, 0x00, 0x10,
-                                                                      0xBB, 0x84, 0x00, 0x10, 0xBD, 0x84, 0x00, 0x10,
-                                                                      0xBF, 0x84, 0x00, 0x10));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64261);
         when(communicationsModule.request(eq(64261),
@@ -2227,15 +2757,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64262 = new GenericPacket(Packet.create(0xFB06, 0,
         // @formatter:off
-                                                                      0x00, 0x04, 0x00, 0x0D, 0x01, 0x04, 0x00, 0x0D,
-                                                                      0x03, 0x04, 0x00, 0x0D, 0x05, 0x04, 0x00, 0x0D,
-                                                                      0x07, 0x04, 0x00, 0x0D, 0x09, 0x04, 0x00, 0x0D,
-                                                                      0x0B, 0x04, 0x00, 0x0D, 0x0D, 0x04, 0x00, 0x0D,
-                                                                      0x0F, 0x04, 0x00, 0x0D, 0x11, 0x04, 0x00, 0x0D,
-                                                                      0x13, 0x04, 0x00, 0x0D, 0x15, 0x04, 0x00, 0x0D,
-                                                                      0x17, 0x04, 0x00, 0x0D, 0x19, 0x04, 0x00, 0x0D,
-                                                                      0x1B, 0x04, 0x00, 0x0D, 0x1D, 0x04, 0x00, 0x0D,
-                                                                      0x1F, 0x04, 0x00, 0x0D));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64262);
 
@@ -2245,15 +2775,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64263 = new GenericPacket(Packet.create(0xFB07, 0,
         // @formatter:off
-                                                                      0x20, 0x04, 0x00, 0x0D, 0x21, 0x04, 0x00, 0x0D,
-                                                                      0x23, 0x04, 0x00, 0x0D, 0x25, 0x04, 0x00, 0x0D,
-                                                                      0x27, 0x04, 0x00, 0x0D, 0x29, 0x04, 0x00, 0x0D,
-                                                                      0x2B, 0x04, 0x00, 0x0D, 0x2D, 0x04, 0x00, 0x0D,
-                                                                      0x2F, 0x04, 0x00, 0x0D, 0x31, 0x04, 0x00, 0x0D,
-                                                                      0x33, 0x04, 0x00, 0x0D, 0x35, 0x04, 0x00, 0x0D,
-                                                                      0x37, 0x04, 0x00, 0x0D, 0x39, 0x04, 0x00, 0x0D,
-                                                                      0x3B, 0x04, 0x00, 0x0D, 0x3D, 0x04, 0x00, 0x0D,
-                                                                      0x3F, 0x04, 0x00, 0x0D));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64263);
         when(communicationsModule.request(eq(64263),
@@ -2732,7 +3262,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64262 = new GenericPacket(Packet.create(0xFB06, 0,
         // @formatter:off
-                                                                      0x00, 0x04, 0x00, 0x0D, 0x01, 0x04, 0x00, 0x0D,
+                                                                      0x00, 0x00, 0x00, 0x0D, 0x01, 0x04, 0x00, 0x0D,
                                                                       0x03, 0x04, 0x00, 0x0D, 0x05, 0x04, 0x00, 0x0D,
                                                                       0x07, 0x04, 0x00, 0x0D, 0x09, 0x04, 0x00, 0x0D,
                                                                       0x0B, 0x04, 0x00, 0x0D, 0x0D, 0x04, 0x00, 0x0D,
@@ -2750,15 +3280,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64263 = new GenericPacket(Packet.create(0xFB07, 0,
         // @formatter:off
-                                                                      0x20, 0x04, 0x00, 0x0D, 0x21, 0x04, 0x00, 0x0D,
-                                                                      0x23, 0x04, 0x00, 0x0D, 0x25, 0x04, 0x00, 0x0D,
-                                                                      0x27, 0x04, 0x00, 0x0D, 0x29, 0x04, 0x00, 0x0D,
-                                                                      0x2B, 0x04, 0x00, 0x0D, 0x2D, 0x04, 0x00, 0x0D,
-                                                                      0x2F, 0x04, 0x00, 0x0D, 0x31, 0x04, 0x00, 0x0D,
-                                                                      0x33, 0x04, 0x00, 0x0D, 0x35, 0x04, 0x00, 0x0D,
-                                                                      0x37, 0x04, 0x00, 0x0D, 0x39, 0x04, 0x00, 0x0D,
-                                                                      0x3B, 0x04, 0x00, 0x0D, 0x3D, 0x04, 0x00, 0x0D,
-                                                                      0x3F, 0x04, 0x00, 0x0D));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64263);
         when(communicationsModule.request(eq(64263),
@@ -2767,15 +3297,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64264 = new GenericPacket(Packet.create(0xFB08, 0x00,
         // @formatter:off
-                                                                      0x40, 0x04, 0x00, 0x0D, 0x41, 0x04, 0x00, 0x0D,
-                                                                      0x43, 0x04, 0x00, 0x0D, 0x45, 0x04, 0x00, 0x0D,
-                                                                      0x47, 0x04, 0x00, 0x0D, 0x49, 0x04, 0x00, 0x0D,
-                                                                      0x4B, 0x04, 0x00, 0x0D, 0x4D, 0x04, 0x00, 0x0D,
-                                                                      0x4F, 0x04, 0x00, 0x0D, 0x51, 0x04, 0x00, 0x0D,
-                                                                      0x53, 0x04, 0x00, 0x0D, 0x55, 0x04, 0x00, 0x0D,
-                                                                      0x57, 0x04, 0x00, 0x0D, 0x59, 0x04, 0x00, 0x0D,
-                                                                      0x5B, 0x04, 0x00, 0x0D, 0x5D, 0x04, 0x00, 0x0D,
-                                                                      0x5F, 0x04, 0x00, 0x0D));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64264);
         when(communicationsModule.request(eq(64264),
@@ -2784,15 +3314,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64265 = new GenericPacket(Packet.create(0xFB09, 0,
         // @formatter:off
-                                                                      0x60, 0x04, 0x00, 0x0D, 0x61, 0x04, 0x00, 0x0D,
-                                                                      0x63, 0x04, 0x00, 0x0D, 0x65, 0x04, 0x00, 0x0D,
-                                                                      0x67, 0x04, 0x00, 0x0D, 0x69, 0x04, 0x00, 0x0D,
-                                                                      0x6B, 0x04, 0x00, 0x0D, 0x6D, 0x04, 0x00, 0x0D,
-                                                                      0x6F, 0x04, 0x00, 0x0D, 0x71, 0x04, 0x00, 0x0D,
-                                                                      0x73, 0x04, 0x00, 0x0D, 0x75, 0x04, 0x00, 0x0D,
-                                                                      0x77, 0x04, 0x00, 0x0D, 0x79, 0x04, 0x00, 0x0D,
-                                                                      0x7B, 0x04, 0x00, 0x0D, 0x7D, 0x04, 0x00, 0x0D,
-                                                                      0x7F, 0x04, 0x00, 0x0D));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64265);
         when(communicationsModule.request(eq(64265),
@@ -2801,15 +3331,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64266 = new GenericPacket(Packet.create(0xFB0A, 0,
         // @formatter:off
-                                                                      0x80, 0x04, 0x00, 0x0D, 0x81, 0x04, 0x00, 0x0D,
-                                                                      0x83, 0x04, 0x00, 0x0D, 0x85, 0x04, 0x00, 0x0D,
-                                                                      0x87, 0x04, 0x00, 0x0D, 0x89, 0x04, 0x00, 0x0D,
-                                                                      0x8B, 0x04, 0x00, 0x0D, 0x8D, 0x04, 0x00, 0x0D,
-                                                                      0x8F, 0x04, 0x00, 0x0D, 0x91, 0x04, 0x00, 0x0D,
-                                                                      0x93, 0x04, 0x00, 0x0D, 0x95, 0x04, 0x00, 0x0D,
-                                                                      0x97, 0x04, 0x00, 0x0D, 0x99, 0x04, 0x00, 0x0D,
-                                                                      0x9B, 0x04, 0x00, 0x0D, 0x9D, 0x04, 0x00, 0x0D,
-                                                                      0x9F, 0x04, 0x00, 0x0D));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64266);
         when(communicationsModule.request(eq(64266),
@@ -2818,15 +3348,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64267 = new GenericPacket(Packet.create(0xFB0B, 0,
         // @formatter:off
-                                                                      0xA0, 0x04, 0x00, 0x0D, 0xA1, 0x04, 0x00, 0x0D,
-                                                                      0xA3, 0x04, 0x00, 0x0D, 0xA5, 0x04, 0x00, 0x0D,
-                                                                      0xA7, 0x04, 0x00, 0x0D, 0xA9, 0x04, 0x00, 0x0D,
-                                                                      0xAB, 0x04, 0x00, 0x0D, 0xAD, 0x04, 0x00, 0x0D,
-                                                                      0xAF, 0x04, 0x00, 0x0D, 0xB1, 0x04, 0x00, 0x0D,
-                                                                      0xB3, 0x04, 0x00, 0x0D, 0xB5, 0x04, 0x00, 0x0D,
-                                                                      0xB7, 0x04, 0x00, 0x0D, 0xB9, 0x04, 0x00, 0x0D,
-                                                                      0xBB, 0x04, 0x00, 0x0D, 0xBD, 0x04, 0x00, 0x0D,
-                                                                      0xBF, 0x04, 0x00, 0x0D));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x0D, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0D,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64267);
         when(communicationsModule.request(eq(64267),
@@ -2835,11 +3365,11 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64268 = new GenericPacket(Packet.create(0xFB0C, 0,
         // @formatter:off
-                                                                      0x00, 0x84, 0x01, 0x84, 0x03, 0x84, 0x05, 0x84,
-                                                                      0x07, 0x84, 0x09, 0x84, 0x0B, 0x84, 0x0D, 0x84,
-                                                                      0x0F, 0x84, 0x11, 0x84, 0x13, 0x84, 0x15, 0x84,
-                                                                      0x17, 0x84, 0x19, 0x84, 0x1B, 0x84, 0x1D, 0x84,
-                                                                      0x1F, 0x84));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00));
         // @formatter:on
         responses.add(response64268);
         when(communicationsModule.request(eq(64268),
@@ -2848,11 +3378,11 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64269 = new GenericPacket(Packet.create(0xFB0D, 0,
         // @formatter:off
-                                                                      0x20, 0x84, 0x21, 0x84, 0x23, 0x84, 0x25, 0x84,
-                                                                      0x27, 0x84, 0x29, 0x84, 0x2B, 0x84, 0x2D, 0x84,
-                                                                      0x2F, 0x84, 0x31, 0x84, 0x33, 0x84, 0x35, 0x84,
-                                                                      0x37, 0x84, 0x39, 0x84, 0x3B, 0x84, 0x3D, 0x84,
-                                                                      0x3F, 0x8));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00));
         // @formatter:on
         responses.add(response64269);
         when(communicationsModule.request(eq(64269),
@@ -2861,11 +3391,11 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64270 = new GenericPacket(Packet.create(0xFB0E, 0,
         // @formatter:off
-                                                                      0x40, 0x84, 0x41, 0x84, 0x43, 0x84, 0x45, 0x84,
-                                                                      0x47, 0x84, 0x49, 0x84, 0x4B, 0x84, 0x4D, 0x84,
-                                                                      0x4F, 0x84, 0x51, 0x84, 0x53, 0x84, 0x55, 0x84,
-                                                                      0x57, 0x84, 0x59, 0x84, 0x5B, 0x84, 0x5D, 0x84,
-                                                                      0x5F, 0x84));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00));
         // @formatter:on
         responses.add(response64270);
         when(communicationsModule.request(eq(64270),
@@ -2874,11 +3404,11 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64271 = new GenericPacket(Packet.create(0xFB0F, 0,
         // @formatter:off
-                                                                      0x60, 0x84, 0x61, 0x84, 0x63, 0x84, 0x65, 0x84,
-                                                                      0x67, 0x84, 0x69, 0x84, 0x6B, 0x84, 0x6D, 0x84,
-                                                                      0x6F, 0x84, 0x71, 0x84, 0x73, 0x84, 0x75, 0x84,
-                                                                      0x77, 0x84, 0x79, 0x84, 0x7B, 0x84, 0x7D, 0x84,
-                                                                      0x7F, 0x84));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00));
         // @formatter:on
         responses.add(response64271);
         when(communicationsModule.request(eq(64271),
@@ -2887,15 +3417,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64272 = new GenericPacket(Packet.create(0xFB10, 0,
         // @formatter:off
-                                                                      0x80, 0x84, 0x00, 0x00, 0x81, 0x84, 0x00, 0x00,
-                                                                      0x83, 0x84, 0x00, 0x00, 0x85, 0x84, 0x00, 0x00,
-                                                                      0x87, 0x84, 0x00, 0x00, 0x89, 0x84, 0x00, 0x00,
-                                                                      0x8B, 0x84, 0x00, 0x00, 0x8D, 0x84, 0x00, 0x00,
-                                                                      0x8F, 0x84, 0x00, 0x00, 0x91, 0x84, 0x00, 0x00,
-                                                                      0x93, 0x84, 0x00, 0x00, 0x95, 0x84, 0x00, 0x00,
-                                                                      0x97, 0x84, 0x00, 0x00, 0x99, 0x84, 0x00, 0x00,
-                                                                      0x9B, 0x84, 0x00, 0x00, 0x9D, 0x84, 0x00, 0x00,
-                                                                      0x9F, 0x84, 0x00, 0x00));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64272);
         when(communicationsModule.request(eq(64272),
@@ -2904,15 +3434,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64273 = new GenericPacket(Packet.create(0xFB11, 0,
         // @formatter:off
-                                                                      0xA0, 0x84, 0x00, 0x00, 0xA1, 0x84, 0x00, 0x00,
-                                                                      0xA3, 0x84, 0x00, 0x00, 0xA5, 0x84, 0x00, 0x00,
-                                                                      0xA7, 0x84, 0x00, 0x00, 0xA9, 0x84, 0x00, 0x00,
-                                                                      0xAB, 0x84, 0x00, 0x00, 0xAD, 0x84, 0x00, 0x00,
-                                                                      0xAF, 0x84, 0x00, 0x00, 0xB1, 0x84, 0x00, 0x00,
-                                                                      0xB3, 0x84, 0x00, 0x00, 0xB5, 0x84, 0x00, 0x00,
-                                                                      0xB7, 0x84, 0x00, 0x00, 0xB9, 0x84, 0x00, 0x00,
-                                                                      0xBB, 0x84, 0x00, 0x00, 0xBD, 0x84, 0x00, 0x00,
-                                                                      0xBF, 0x84, 0x00, 0x00));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64273);
         when(communicationsModule.request(eq(64273),
@@ -2921,11 +3451,11 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64274 = new GenericPacket(Packet.create(0xFB12, 0,
         // @formatter:off
-                                                                      0x00, 0x04, 0x01, 0x04, 0x03, 0x04, 0x05, 0x04,
-                                                                      0x07, 0x04, 0x09, 0x04, 0x0B, 0x04, 0x0D, 0x04,
-                                                                      0x0F, 0x04, 0x11, 0x04, 0x13, 0x04, 0x15, 0x04,
-                                                                      0x17, 0x04, 0x19, 0x04, 0x1B, 0x04, 0x1D, 0x04,
-                                                                      0x1F, 0x04));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00));
         // @formatter:on
         responses.add(response64274);
         when(communicationsModule.request(eq(64274),
@@ -2934,11 +3464,11 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64275 = new GenericPacket(Packet.create(0xFB13, 0,
         // @formatter:off
-                                                                      0x20, 0x04, 0x21, 0x04, 0x23, 0x04, 0x25, 0x04,
-                                                                      0x27, 0x04, 0x29, 0x04, 0x2B, 0x04, 0x2D, 0x04,
-                                                                      0x2F, 0x04, 0x31, 0x04, 0x33, 0x04, 0x35, 0x04,
-                                                                      0x37, 0x04, 0x39, 0x04, 0x3B, 0x04, 0x3D, 0x04,
-                                                                      0x3F, 0x04));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00));
         // @formatter:on
         responses.add(response64275);
         when(communicationsModule.request(eq(64275),
@@ -2947,11 +3477,11 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64276 = new GenericPacket(Packet.create(0xFB14, 0,
         // @formatter:off
-                                                                      0x40, 0x04, 0x41, 0x04, 0x43, 0x04, 0x45, 0x04,
-                                                                      0x47, 0x04, 0x49, 0x04, 0x4B, 0x04, 0x4D, 0x04,
-                                                                      0x4F, 0x04, 0x51, 0x04, 0x53, 0x04, 0x55, 0x04,
-                                                                      0x57, 0x04, 0x59, 0x04, 0x5B, 0x04, 0x5D, 0x04,
-                                                                      0x5F, 0x04));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00));
         // @formatter:on
         responses.add(response64276);
         when(communicationsModule.request(eq(64276),
@@ -2960,11 +3490,11 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64277 = new GenericPacket(Packet.create(0xFB15, 0,
         // @formatter:off
-                                                                      0x60, 0x04, 0x61, 0x04, 0x63, 0x04, 0x65, 0x04,
-                                                                      0x67, 0x04, 0x69, 0x04, 0x6B, 0x04, 0x6D, 0x04,
-                                                                      0x6F, 0x04, 0x71, 0x04, 0x73, 0x04, 0x75, 0x04,
-                                                                      0x77, 0x04, 0x79, 0x04, 0x7B, 0x04, 0x7D, 0x04,
-                                                                      0x7F, 0x04));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00));
         // @formatter:on
         responses.add(response64277);
         when(communicationsModule.request(eq(64277),
@@ -2973,15 +3503,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64278 = new GenericPacket(Packet.create(0xFB16, 0,
         // @formatter:off
-                                                                      0x80, 0x04, 0x00, 0x00, 0x81, 0x04, 0x00, 0x00,
-                                                                      0x83, 0x04, 0x00, 0x00, 0x85, 0x04, 0x00, 0x00,
-                                                                      0x87, 0x04, 0x00, 0x00, 0x89, 0x04, 0x00, 0x00,
-                                                                      0x8B, 0x04, 0x00, 0x00, 0x8D, 0x04, 0x00, 0x00,
-                                                                      0x8F, 0x04, 0x00, 0x00, 0x91, 0x04, 0x00, 0x00,
-                                                                      0x93, 0x04, 0x00, 0x00, 0x95, 0x04, 0x00, 0x00,
-                                                                      0x97, 0x04, 0x00, 0x00, 0x99, 0x04, 0x00, 0x00,
-                                                                      0x9B, 0x04, 0x00, 0x00, 0x9D, 0x04, 0x00, 0x00,
-                                                                      0x9F, 0x04, 0x00, 0x00));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64278);
         when(communicationsModule.request(eq(64278),
@@ -2990,15 +3520,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         GenericPacket response64279 = new GenericPacket(Packet.create(0xFB17, 0,
         // @formatter:off
-                                                                      0xA0, 0x04, 0x00, 0x00, 0xA1, 0x04, 0x00, 0x00,
-                                                                      0xA3, 0x04, 0x00, 0x00, 0xA5, 0x04, 0x00, 0x00,
-                                                                      0xA7, 0x04, 0x00, 0x00, 0xA9, 0x04, 0x00, 0x00,
-                                                                      0xAB, 0x04, 0x00, 0x00, 0xAD, 0x04, 0x00, 0x00,
-                                                                      0xAF, 0x04, 0x00, 0x00, 0xB1, 0x04, 0x00, 0x00,
-                                                                      0xB3, 0x04, 0x00, 0x00, 0xB5, 0x04, 0x00, 0x00,
-                                                                      0xB7, 0x04, 0x00, 0x00, 0xB9, 0x04, 0x00, 0x00,
-                                                                      0xBB, 0x04, 0x00, 0x00, 0xBD, 0x04, 0x00, 0x00,
-                                                                      0xBF, 0x04, 0x00, 0x00));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64279);
         when(communicationsModule.request(eq(64279),
@@ -3064,23 +3594,23 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         expected += "|                           |  Tail Pipe   |  Eng. Out.   |              |              |   Engine     |   Vehicle    |" + NL;
         expected += "|                           | NOx Mass, g  | NOx Mass, g  |  EOE, kWh    |   Fuel, l    | Hours, min   |  Dist, km    |" + NL;
         expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
-        expected += "| Bin  1 (Total)            |  218,104,992 |  218,104,960 |  218,104,928 |   10,905,242 |    3,635,081 |    1,090,524 |" + NL;
-        expected += "| Bin  2 (Idle)             |  218,104,993 |  218,104,961 |  218,104,929 |   10,905,242 |    3,635,081 |    1,090,524 |" + NL;
-        expected += "| Bin  3 (<25%, <16kph)     |  218,104,995 |  218,104,963 |  218,104,931 |   10,905,242 |    3,635,081 |    1,090,524 |" + NL;
-        expected += "| Bin  4 (<25%, 16-40kph)   |  218,104,997 |  218,104,965 |  218,104,933 |   10,905,242 |    3,635,081 |    1,090,525 |" + NL;
-        expected += "| Bin  5 (<25%, 40-64kph)   |  218,104,999 |  218,104,967 |  218,104,935 |   10,905,242 |    3,635,081 |    1,090,525 |" + NL;
-        expected += "| Bin  6 (<25%, >64kph)     |  218,105,001 |  218,104,969 |  218,104,937 |   10,905,242 |    3,635,081 |    1,090,525 |" + NL;
-        expected += "| Bin  7 (25-50%, <16kph)   |  218,105,003 |  218,104,971 |  218,104,939 |   10,905,242 |    3,635,081 |    1,090,525 |" + NL;
-        expected += "| Bin  8 (25-50%, 16-40kph) |  218,105,005 |  218,104,973 |  218,104,941 |   10,905,242 |    3,635,081 |    1,090,525 |" + NL;
-        expected += "| Bin  9 (25-50%, 40-64kph) |  218,105,007 |  218,104,975 |  218,104,943 |   10,905,242 |    3,635,081 |    1,090,525 |" + NL;
-        expected += "| Bin 10 (25-50%, >64kph)   |  218,105,009 |  218,104,977 |  218,104,945 |   10,905,242 |    3,635,081 |    1,090,525 |" + NL;
-        expected += "| Bin 11 (>50%, <16kph)     |  218,105,011 |  218,104,979 |  218,104,947 |   10,905,243 |    3,635,081 |    1,090,525 |" + NL;
-        expected += "| Bin 12 (>50%, 16-40kph)   |  218,105,013 |  218,104,981 |  218,104,949 |   10,905,243 |    3,635,081 |    1,090,525 |" + NL;
-        expected += "| Bin 13 (>50%, 40-64kph)   |  218,105,015 |  218,104,983 |  218,104,951 |   10,905,243 |    3,635,081 |    1,090,525 |" + NL;
-        expected += "| Bin 14 (>50%, >64kph)     |  218,105,017 |  218,104,985 |  218,104,953 |   10,905,243 |    3,635,081 |    1,090,525 |" + NL;
-        expected += "| Bin 15 (NTE)              |  218,105,019 |  218,104,987 |  218,104,955 |   10,905,243 |    3,635,082 |    1,090,525 |" + NL;
-        expected += "| Bin 16 (Regen)            |  218,105,021 |  218,104,989 |  218,104,957 |   10,905,243 |    3,635,082 |    1,090,525 |" + NL;
-        expected += "| Bin 17 (MIL On)           |  218,105,023 |  218,104,991 |  218,104,959 |   10,905,243 |    3,635,082 |    1,090,525 |" + NL;
+        expected += "| Bin  1 (Total)            |            0 |            0 |            0 |   10,905,190 |            0 |            0 |" + NL;
+        expected += "| Bin  2 (Idle)             |            0 |            0 |            0 |   10,905,242 |            0 |            0 |" + NL;
+        expected += "| Bin  3 (<25%, <16kph)     |            0 |            0 |            0 |   10,905,242 |            0 |            0 |" + NL;
+        expected += "| Bin  4 (<25%, 16-40kph)   |            0 |            0 |            0 |   10,905,242 |            0 |            0 |" + NL;
+        expected += "| Bin  5 (<25%, 40-64kph)   |            0 |            0 |            0 |   10,905,242 |            0 |            0 |" + NL;
+        expected += "| Bin  6 (<25%, >64kph)     |            0 |            0 |            0 |   10,905,242 |            0 |            0 |" + NL;
+        expected += "| Bin  7 (25-50%, <16kph)   |  218,103,808 |            0 |            0 |   10,905,242 |            0 |            0 |" + NL;
+        expected += "| Bin  8 (25-50%, 16-40kph) |            0 |            0 |            0 |   10,905,242 |            0 |            0 |" + NL;
+        expected += "| Bin  9 (25-50%, 40-64kph) |            0 |            0 |            0 |   10,905,242 |            0 |            0 |" + NL;
+        expected += "| Bin 10 (25-50%, >64kph)   |            0 |            0 |            0 |   10,905,242 |            0 |            0 |" + NL;
+        expected += "| Bin 11 (>50%, <16kph)     |            0 |            0 |            0 |   10,905,243 |            0 |            0 |" + NL;
+        expected += "| Bin 12 (>50%, 16-40kph)   |            0 |            0 |            0 |   10,905,243 |            0 |            0 |" + NL;
+        expected += "| Bin 13 (>50%, 40-64kph)   |            0 |            0 |            0 |   10,905,243 |            0 |            0 |" + NL;
+        expected += "| Bin 14 (>50%, >64kph)     |  218,103,808 |            0 |            0 |   10,905,243 |            0 |            0 |" + NL;
+        expected += "| Bin 15 (NTE)              |            0 |            0 |            0 |   10,905,243 |            0 |            0 |" + NL;
+        expected += "| Bin 16 (Regen)            |            0 |            0 |            0 |   10,905,243 |            0 |            0 |" + NL;
+        expected += "| Bin 17 (MIL On)           |            0 |            0 |            0 |   10,905,243 |            0 |            0 |" + NL;
         expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
         expected += NL;
         expected += "10:15:30.0000 NOx Binning Engine Activity Lifetime Array from Engine #1 (0)" + NL;
@@ -3113,23 +3643,23 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         expected += "|                           |  Tail Pipe   |  Eng. Out.   |              |              |   Engine     |   Vehicle    |" + NL;
         expected += "|                           | NOx Mass, g  | NOx Mass, g  |  EOE, kWh    |   Fuel, l    | Hours, min   |  Dist, km    |" + NL;
         expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
-        expected += "| Bin  1 (Total)            |            0 |            1 |        1,120 |          512 |          176 |          272 |" + NL;
-        expected += "| Bin  2 (Idle)             |            0 |            1 |        1,121 |          512 |          176 |          272 |" + NL;
-        expected += "| Bin  3 (<25%, <16kph)     |            0 |            1 |        1,123 |          514 |          176 |          273 |" + NL;
-        expected += "| Bin  4 (<25%, 16-40kph)   |            0 |            1 |        1,125 |          514 |          177 |          273 |" + NL;
-        expected += "| Bin  5 (<25%, 40-64kph)   |            0 |            1 |        1,127 |          516 |          177 |          274 |" + NL;
-        expected += "| Bin  6 (<25%, >64kph)     |            0 |            1 |        1,129 |          516 |          178 |          274 |" + NL;
-        expected += "| Bin  7 (25-50%, <16kph)   |            0 |            1 |        1,131 |          518 |          178 |          275 |" + NL;
-        expected += "| Bin  8 (25-50%, 16-40kph) |            0 |            1 |        1,133 |          518 |          178 |          275 |" + NL;
-        expected += "| Bin  9 (25-50%, 40-64kph) |            0 |            1 |        1,135 |          520 |          178 |          276 |" + NL;
-        expected += "| Bin 10 (25-50%, >64kph)   |            0 |            1 |        1,137 |          520 |          179 |          276 |" + NL;
-        expected += "| Bin 11 (>50%, <16kph)     |            0 |            1 |        1,139 |          522 |          179 |          277 |" + NL;
-        expected += "| Bin 12 (>50%, 16-40kph)   |            0 |            1 |        1,141 |          522 |          180 |          277 |" + NL;
-        expected += "| Bin 13 (>50%, 40-64kph)   |            0 |            1 |        1,143 |          524 |          180 |          278 |" + NL;
-        expected += "| Bin 14 (>50%, >64kph)     |            0 |            1 |        1,145 |          524 |          180 |          278 |" + NL;
-        expected += "| Bin 15 (NTE)              |            0 |            1 |        1,147 |          526 |          180 |          279 |" + NL;
-        expected += "| Bin 16 (Regen)            |            0 |            1 |        1,149 |          526 |          181 |          279 |" + NL;
-        expected += "| Bin 17 (MIL On)           |            0 |            1 |        1,151 |          528 |          181 |          280 |" + NL;
+        expected += "| Bin  1 (Total)            |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  2 (Idle)             |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  3 (<25%, <16kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  4 (<25%, 16-40kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  5 (<25%, 40-64kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  6 (<25%, >64kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  7 (25-50%, <16kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  8 (25-50%, 16-40kph) |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  9 (25-50%, 40-64kph) |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 10 (25-50%, >64kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 11 (>50%, <16kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 12 (>50%, 16-40kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 13 (>50%, 40-64kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 14 (>50%, >64kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 15 (NTE)              |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 16 (Regen)            |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 17 (MIL On)           |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
         expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
         expected += NL;
         expected += "10:15:30.0000 NOx Binning Stored 100-Hour Array from Engine #1 (0)" + NL;
@@ -3137,23 +3667,23 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         expected += "|                           |  Tail Pipe   |  Eng. Out.   |              |              |   Engine     |   Vehicle    |" + NL;
         expected += "|                           | NOx Mass, g  | NOx Mass, g  |  EOE, kWh    |   Fuel, l    | Hours, min   |  Dist, km    |" + NL;
         expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
-        expected += "| Bin  1 (Total)            |            7 |           17 |       33,888 |       16,896 |        5,637 |        8,464 |" + NL;
-        expected += "| Bin  2 (Idle)             |            7 |           17 |       33,889 |       16,896 |        5,638 |        8,464 |" + NL;
-        expected += "| Bin  3 (<25%, <16kph)     |            7 |           17 |       33,891 |       16,898 |        5,638 |        8,465 |" + NL;
-        expected += "| Bin  4 (<25%, 16-40kph)   |            7 |           17 |       33,893 |       16,898 |        5,638 |        8,465 |" + NL;
-        expected += "| Bin  5 (<25%, 40-64kph)   |            7 |           17 |       33,895 |       16,900 |        5,638 |        8,466 |" + NL;
-        expected += "| Bin  6 (<25%, >64kph)     |            7 |           17 |       33,897 |       16,900 |        5,639 |        8,466 |" + NL;
-        expected += "| Bin  7 (25-50%, <16kph)   |            7 |           17 |       33,899 |       16,902 |        5,639 |        8,467 |" + NL;
-        expected += "| Bin  8 (25-50%, 16-40kph) |            7 |           17 |       33,901 |       16,902 |        5,640 |        8,467 |" + NL;
-        expected += "| Bin  9 (25-50%, 40-64kph) |            7 |           17 |       33,903 |       16,904 |        5,640 |        8,468 |" + NL;
-        expected += "| Bin 10 (25-50%, >64kph)   |            7 |           17 |       33,905 |       16,904 |        5,640 |        8,468 |" + NL;
-        expected += "| Bin 11 (>50%, <16kph)     |            7 |           17 |       33,907 |       16,906 |        5,640 |        8,469 |" + NL;
-        expected += "| Bin 12 (>50%, 16-40kph)   |            7 |           17 |       33,909 |       16,906 |        5,641 |        8,469 |" + NL;
-        expected += "| Bin 13 (>50%, 40-64kph)   |            7 |           17 |       33,911 |       16,908 |        5,641 |        8,470 |" + NL;
-        expected += "| Bin 14 (>50%, >64kph)     |            7 |           17 |       33,913 |       16,908 |        5,642 |        8,470 |" + NL;
-        expected += "| Bin 15 (NTE)              |            7 |           17 |       33,915 |       16,910 |        5,642 |        8,471 |" + NL;
-        expected += "| Bin 16 (Regen)            |            7 |           17 |       33,917 |       16,910 |        5,642 |        8,471 |" + NL;
-        expected += "| Bin 17 (MIL On)           |            7 |           17 |       33,919 |       16,912 |          352 |        8,472 |" + NL;
+        expected += "| Bin  1 (Total)            |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  2 (Idle)             |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  3 (<25%, <16kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  4 (<25%, 16-40kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  5 (<25%, 40-64kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  6 (<25%, >64kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  7 (25-50%, <16kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  8 (25-50%, 16-40kph) |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  9 (25-50%, 40-64kph) |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 10 (25-50%, >64kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 11 (>50%, <16kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 12 (>50%, 16-40kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 13 (>50%, 40-64kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 14 (>50%, >64kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 15 (NTE)              |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 16 (Regen)            |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 17 (MIL On)           |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
         expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
        expected += NL;
         expected += NL;
