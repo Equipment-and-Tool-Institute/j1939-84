@@ -796,20 +796,22 @@ public class Part01Step26Controller extends StepController {
                                    addFailure("6.1.26.18.g - Active 100 hr array value received was greater than zero.  "
                                            + module.getModuleName() + " returned a value of " + spn.getValue());
                                }
+                               // FIXME:
                                // 6.1.26.18.f. Fail each response where the set of labels received is not a
                                // subset of the set of labels received for the lifetime active technology
                                // response.
-                               if (!expectedLabels.contains(spn.getLabel()
-                                                               .substring(spn.getLabel().indexOf("Hour Active") + 5))) {
-                                   addFailure("6.1.26.18.f - " + spn.getLabel());
-                               }
+                               // if (!expectedLabels.contains(spn.getLabel()
+                               // .substring(spn.getLabel().indexOf("Hour Active") + 5))) {
+                               // addFailure("6.1.26.18.f - " + spn.getLabel());
+                               // }
                            });
+                // FIXME:
                 // 6.1.26.18.e. Fail each response where the number of labels received are not
                 // the same as the number of labels received for the lifetime technology
                 // response.
-                if (packetForPg.getSpns().size() != ghgPackets.get(0).getSpns().size()) {
-                    addFailure("6.1.26.18.e - Number of response labels mismatch");
-                }
+                // if (packetForPg.getSpns().size() != ghgPackets.get(0).getSpns().size()) {
+                // addFailure("6.1.26.18.e - Number of response labels mismatch");
+                // }
             }
         }
     }
@@ -846,7 +848,7 @@ public class Part01Step26Controller extends StepController {
                                if (spn.getRawValue() >= 0xFAFFFFFFL) {
                                    addFailure("6.1.26.8.b - Bin value received is greater than 0xFAFFFFFF(h)"
                                            + module.getModuleName() + " returned "
-                                           + spn.getBytes());
+                                           + Arrays.toString(spn.getBytes()));
                                }
                            });
             }

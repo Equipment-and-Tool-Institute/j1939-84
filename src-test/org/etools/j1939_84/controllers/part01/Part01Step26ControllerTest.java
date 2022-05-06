@@ -6,12 +6,12 @@ package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.ERROR;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939tools.j1939.model.FuelType.DSL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.atLeastOnce;
@@ -387,262 +387,6 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         expectedMsg += "Test 1.26 - Verifying Engine #2 (1)" + NL;
         expectedMsg += "Test 1.26 - Verifying Engine #2 (1)";
         assertEquals(expectedMsg, listener.getMessages());
-    }
-
-    @Test
-    public void testRunObdPgnSupportsPg12675Verification() throws BusException {
-        DM24SPNSupportPacket obdDM24Packet = DM24SPNSupportPacket.create(0,
-                                                                         SupportedSPN.create(12675,
-                                                                                             false,
-                                                                                             true,
-                                                                                             false,
-                                                                                             false,
-                                                                                             1));
-        OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        obdModule.set(obdDM24Packet, 1);
-        var vehInfo = new VehicleInformation();
-        vehInfo.setEngineModelYear(2025);
-        vehInfo.setFuelType(FuelType.DSL);
-        dataRepository.setVehicleInformation(vehInfo);
-        dataRepository.putObdModule(obdModule);
-
-        // when(broadcastValidator.collectAndReportNotAvailableSPNs(any(),
-        // anyInt(),
-        // any(),
-        // eq(0),
-        // any(ResultsListener.class),
-        // eq(1),
-        // eq(26),
-        // eq("6.1.26.6.c")))
-        // .thenReturn(List.of("12675"));
-
-        // when(communicationsModule.request(any(Integer.class), eq(0), any())).thenAnswer(
-        // answer -> {
-        // int pgn = answer.getArgument(0);
-        // var optional = getPackets().stream()
-        // .filter(p -> p.getPacket()
-        // .getPgn() == pgn)
-        // .findFirst();
-        // return optional.isPresent()
-        // ? List.of(optional.get())
-        // : Collections.emptyList();
-        // });
-
-        OBDModuleInformation module1 = new OBDModuleInformation(1);
-        DM24SPNSupportPacket dm24SPNSupportPacket = DM24SPNSupportPacket.create(1,
-                                                                                SupportedSPN.create(12675,
-                                                                                                    false,
-                                                                                                    true,
-                                                                                                    false,
-                                                                                                    false,
-                                                                                                    1));
-        module1.set(dm24SPNSupportPacket, 1);
-        dataRepository.putObdModule(module1);
-
-        when(busService.collectNonOnRequestPGNs(any())).thenReturn(List.of(12675));
-
-        List<Integer> pgns = List.of(64262, 64263, 64264, 64265, 64266, 64267, 64258, 64259, 64260, 64261);
-        when(busService.getPGNsForDSRequest(any(), any())).thenReturn(pgns);
-        //
-        List<GenericPacket> dsPackets = new ArrayList<>();
-        var packet64262 = packet(64262, false, 0);
-        dsPackets.add(packet64262);
-        // when(j1939.request(eq(64262), eq(0),
-        // any(CommunicationsListener.class))).thenReturn(BusResult.of(packet64262));
-        when(busService.dsRequest(eq(64262), eq(0), any())).thenAnswer(answer -> Stream.of(packet64262));
-        when(busService.dsRequest(eq(64262), eq(1), any())).thenAnswer(answer -> Stream.of(packet64262));
-
-        var packet64263 = packet(64263, false, 0);
-        dsPackets.add(packet64263);
-        when(busService.dsRequest(eq(64263), eq(0), any())).thenReturn(Stream.of(packet64263));
-        when(busService.dsRequest(eq(64263), eq(1), any())).thenReturn(Stream.of(packet64263));
-
-        var packet64264 = packet(64264, false, 0);
-        dsPackets.add(packet64264);
-        when(busService.dsRequest(eq(64264), eq(0), any())).thenReturn(Stream.of(packet64264));
-        when(busService.dsRequest(eq(64264), eq(1), any())).thenReturn(Stream.of(packet64264));
-
-        var packet64265 = packet(64265, false, 0);
-        dsPackets.add(packet64265);
-        when(busService.dsRequest(eq(64265), eq(0), any())).thenReturn(Stream.of(packet64265));
-        when(busService.dsRequest(eq(64265), eq(1), any())).thenReturn(Stream.of(packet64265));
-
-        var packet64267 = packet(64267, false, 0);
-        dsPackets.add(packet64267);
-        when(busService.dsRequest(eq(64267), eq(0), any())).thenReturn(Stream.of(packet64267));
-        when(busService.dsRequest(eq(64267), eq(1), any())).thenReturn(Stream.of(packet64267));
-
-        var packet64258 = packet(64258, false, 0);
-        dsPackets.add(packet64258);
-        when(busService.dsRequest(eq(64258), eq(0), any())).thenReturn(Stream.of(packet64258));
-        when(busService.dsRequest(eq(64258), eq(1), any())).thenReturn(Stream.of(packet64258));
-
-        var packet64259 = packet(64259, false, 0);
-        dsPackets.add(packet64259);
-        when(busService.dsRequest(eq(64259), eq(0), any())).thenReturn(Stream.of(packet64259));
-        when(busService.dsRequest(eq(64259), eq(1), any())).thenReturn(Stream.of(packet64259));
-
-        GenericPacket packet64260 = packet(64260, false, 0);
-        var requestPacket64260_0 = j1939.createRequestPacket(64260, 0);
-        var requestPacket64260_1 = j1939.createRequestPacket(64260, 1);
-
-        Bus busMock = mock(Bus.class);
-        when(j1939.getBus()).thenReturn(busMock);
-        when(busMock.imposterDetected()).thenReturn(false);
-        when(busMock.send(eq(requestPacket64260_0))).thenAnswer(answer -> busMock.send(packet64260.getPacket()));
-
-        runTest();
-
-        verify(busService).setup(eq(j1939), any());
-        verify(busService, times(2)).collectNonOnRequestPGNs(any());
-        verify(busService, times(2)).getPGNsForDSRequest(any(), any());
-        verify(busService).dsRequest(eq(64262), eq(0), any());
-        verify(busService).dsRequest(eq(64263), eq(0), any());
-        verify(busService).dsRequest(eq(64265), eq(0), any());
-        verify(busService).dsRequest(eq(64258), eq(0), any());
-
-        verify(broadcastValidator).getMaximumBroadcastPeriod();
-        verify(broadcastValidator).buildPGNPacketsMap(eq(List.of()));
-        verify(broadcastValidator).reportBroadcastPeriod(anyMap(),
-                                                         eq(Collections.emptyList()),
-                                                         any(ResultsListener.class),
-                                                         eq(1),
-                                                         eq(26));
-
-        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(0),
-                                                                    eq(Collections.emptyList()),
-                                                                    eq(Collections.emptyList()),
-                                                                    eq(List.of(12675)),
-                                                                    any(ResultsListener.class),
-                                                                    eq(1),
-                                                                    eq(26),
-                                                                    eq("6.1.26.2.a"));
-        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(1),
-                                                                    any(),
-                                                                    any(),
-                                                                    eq(List.of(12675)),
-                                                                    any(ResultsListener.class),
-                                                                    eq(1),
-                                                                    eq(26),
-                                                                    eq("6.1.26.2.a"));
-
-        pgns.forEach(pg -> {
-            verify(broadcastValidator).collectAndReportNotAvailableSPNs(any(),
-                                                                        eq(pg),
-                                                                        any(),
-                                                                        eq(0),
-                                                                        any(ResultsListener.class),
-                                                                        eq(1),
-                                                                        eq(26),
-                                                                        eq("6.1.26.6.a"));
-            verify(broadcastValidator).collectAndReportNotAvailableSPNs(any(),
-                                                                        eq(pg),
-                                                                        any(),
-                                                                        eq(1),
-                                                                        any(ResultsListener.class),
-                                                                        eq(1),
-                                                                        eq(26),
-                                                                        eq("6.1.26.6.a"));
-            // verify(broadcastValidator).collectAndReportNotAvailableSPNs(any(),
-            // eq(pg),
-            // any(),
-            // isNull(),
-            // any(ResultsListener.class),
-            // eq(1),
-            // eq(26),
-            // eq("6.1.26.6.a"));
-            verify(busService).dsRequest(eq(pg), eq(0), any());
-            verify(busService).dsRequest(eq(pg), eq(1), any());
-        });
-        // pgns.forEach(pg -> {
-        // verify(broadcastValidator).collectAndReportNotAvailableSPNs(any(),
-        // eq(pg),
-        // any(),
-        // eq(0),
-        // any(ResultsListener.class),
-        // eq(1),
-        // eq(26),
-        // eq("6.1.26.6.a"));
-        // verify(broadcastValidator).collectAndReportNotAvailableSPNs(any(),
-        // eq(pg),
-        // any(),
-        // eq(1),
-        // any(ResultsListener.class),
-        // eq(1),
-        // eq(26),
-        // eq("6.1.26.6.a"));
-        // verify(broadcastValidator).collectAndReportNotAvailableSPNs(any(),
-        // eq(pg),
-        // any(),
-        // isNull(),
-        // any(ResultsListener.class),
-        // eq(1),
-        // eq(26),
-        // eq("6.1.26.6.a"));
-        // verify(busService).dsRequest(eq(pg), eq(0), any());
-        // verify(busService).dsRequest(eq(pg), eq(1), any());
-        // });
-
-        // verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        // pgns.forEach(pgn -> {
-        // verify(busService).globalRequest(eq(pgn), any());
-        // verify(busService).dsRequest(eq(pgn), eq(0), any());
-        // });
-        verify(busService).readBus(eq(0), eq("6.1.26.1.c"));
-
-        verify(tableA1Validator).reportExpectedMessages(any(ResultsListener.class));
-        // verify(tableA1Validator).reportNotAvailableSPNs(eq(packet2),
-        // any(ResultsListener.class),
-        // eq("6.1.26.6.a"));
-        // verify(tableA1Validator).reportNotAvailableSPNs(eq(packet64262),
-        // any(ResultsListener.class),
-        // eq("6.1.26.6.a"));
-        // verify(tableA1Validator).reportImplausibleSPNValues(eq(packet2),
-        // any(ResultsListener.class),
-        // eq(false),
-        // eq("6.1.26.6.d"));
-        // verify(tableA1Validator).reportImplausibleSPNValues(eq(packet4),
-        // any(ResultsListener.class),
-        // eq(false),
-        // eq("6.1.26.6.d"));
-        // verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet2),
-        // any(ResultsListener.class),
-        // eq("6.1.26.6.e"));
-        // verify(tableA1Validator).reportDuplicateSPNs(eq(List.of()),
-        // any(ResultsListener.class),
-        // eq("6.1.26.2.e"));
-
-        dsPackets.forEach(packet -> {
-            verify(tableA1Validator).reportNotAvailableSPNs(eq(packet), any(ResultsListener.class), eq("6.1.26.6.a"));
-            verify(tableA1Validator).reportImplausibleSPNValues(eq(packet),
-                                                                any(ResultsListener.class),
-                                                                eq(false),
-                                                                eq("6.1.26.6.d"));
-            verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet),
-                                                                    any(ResultsListener.class),
-                                                                    eq("6.1.26.6.e"));
-        });
-
-        verify(tableA1Validator).reportDuplicateSPNs(eq(List.of()),
-                                                     any(ResultsListener.class),
-                                                     eq("6.1.26.2.e"));
-
-        verify(tableA1Validator).reportDuplicateSPNs(any(),
-                                                     any(ResultsListener.class),
-                                                     eq("6.1.26.6.f"));
-
-        String expected = "";
-        assertEquals(expected, listener.getResults());
-
-        // String expectedMsg = "Test 1.26 - Verifying Engine #1 (0)" + NL;
-        // expectedMsg += "Test 1.26 - Verifying Engine #1 (0)" + NL;
-        // expectedMsg += "Test 1.26 - Verifying Engine #1 (0)" + NL;
-        // expectedMsg += "Test 1.26 - Verifying Engine #1 (0)" + NL;
-        // expectedMsg += "Test 1.26 - Verifying Engine #2 (1)" + NL;
-        // expectedMsg += "Test 1.26 - Verifying Engine #2 (1)" + NL;
-        // expectedMsg += "Test 1.26 - Verifying Engine #2 (1)" + NL;
-        // expectedMsg += "Test 1.26 - Verifying Engine #2 (1)";
-        // assertEquals(expectedMsg, listener.getMessages());
     }
 
     private List<GenericPacket> getPackets() {
@@ -2677,6 +2421,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packets.add(packet1);
 
         List<GenericPacket> responses = new ArrayList<>();
+        Packet requestPacket64252 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64252, 64252 >> 8, 64252 >> 16);
+        doReturn(requestPacket64252).when(j1939).createRequestPacket(64252, 0x00);
         GenericPacket response64252 = new GenericPacket(Packet.create(0xFAFC, 0x00,
         // @formatter:off
                                                                       0xA0, 0x8C, 0xA8, 0x52, 0xC2, 0x0E, 0xA8, 0x0E,
@@ -2689,6 +2435,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64252));
 
+        Packet requestPacket64258 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64258, 64258 >> 8, 64258 >> 16);
+        doReturn(requestPacket64258).when(j1939).createRequestPacket(64258, 0x00);
         GenericPacket response64258 = new GenericPacket(Packet.create(0xFB02, 0x00,
         // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2704,6 +2452,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64258));
 
+        Packet requestPacket64259 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64259, 64259 >> 8, 64259 >> 16);
+        doReturn(requestPacket64259).when(j1939).createRequestPacket(64259, 0x00);
         GenericPacket response64259 = new GenericPacket(Packet.create(0xFB03, 0x00,
         // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2721,6 +2471,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64259));
 
+        Packet requestPacket64260 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64260, 64260 >> 8, 64260 >> 16);
+        doReturn(requestPacket64260).when(j1939).createRequestPacket(64260, 0x00);
         GenericPacket response64260 = new GenericPacket(Packet.create(0xFB04, 0,
         // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2738,6 +2490,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64260));
 
+        Packet requestPacket64261 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64261, 64261 >> 8, 64261 >> 16);
+        doReturn(requestPacket64261).when(j1939).createRequestPacket(64261, 0x00);
         GenericPacket response64261 = new GenericPacket(Packet.create(0xFB05, 0,
         // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2755,6 +2509,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64261));
 
+        Packet requestPacket64262 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64262, 64262 >> 8, 64262 >> 16);
+        doReturn(requestPacket64262).when(j1939).createRequestPacket(64262, 0x00);
         GenericPacket response64262 = new GenericPacket(Packet.create(0xFB06, 0,
         // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2773,6 +2529,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64262));
 
+        Packet requestPacket64263 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64263, 64263 >> 8, 64263 >> 16);
+        doReturn(requestPacket64263).when(j1939).createRequestPacket(64263, 0x00);
         GenericPacket response64263 = new GenericPacket(Packet.create(0xFB07, 0,
         // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2790,6 +2548,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64263));
 
+        Packet requestPacket64264 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64264, 64264 >> 8, 64264 >> 16);
+        doReturn(requestPacket64264).when(j1939).createRequestPacket(64264, 0x00);
         GenericPacket response64264 = new GenericPacket(Packet.create(0xFB08, 0x00,
         // @formatter:off
                                                                       0x40, 0x04, 0x00, 0x0D, 0x41, 0x04, 0x00, 0x0D,
@@ -2807,6 +2567,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64264));
 
+        Packet requestPacket64265 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64265, 64265 >> 8, 64265 >> 16);
+        doReturn(requestPacket64265).when(j1939).createRequestPacket(64265, 0x00);
         GenericPacket response64265 = new GenericPacket(Packet.create(0xFB09, 0,
         // @formatter:off
                                                                       0x60, 0x04, 0x00, 0x0D, 0x61, 0x04, 0x00, 0x0D,
@@ -2824,6 +2586,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64265));
 
+        Packet requestPacket64266 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64266, 64266 >> 8, 64266 >> 16);
+        doReturn(requestPacket64266).when(j1939).createRequestPacket(64266, 0x00);
         GenericPacket response64266 = new GenericPacket(Packet.create(0xFB0A, 0,
         // @formatter:off
                                                         0x80, 0x04, 0x00, 0x0D, 0x81, 0x04, 0x00, 0x0D,
@@ -2841,6 +2605,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64266));
 
+        Packet requestPacket64267 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64267, 64267 >> 8, 64267 >> 16);
+        doReturn(requestPacket64267).when(j1939).createRequestPacket(64267, 0x00);
         GenericPacket response64267 = new GenericPacket(Packet.create(0xFB0B, 0,
         // @formatter:off
                                                                       0xA0, 0x04, 0x00, 0x0D, 0xA1, 0x04, 0x00, 0x0D,
@@ -2858,6 +2624,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64267));
 
+        Packet requestPacket64268 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64268, 64268 >> 8, 64268 >> 16);
+        doReturn(requestPacket64268).when(j1939).createRequestPacket(64268, 0x00);
         GenericPacket response64268 = new GenericPacket(Packet.create(0xFB0C, 0,
         // @formatter:off
                                                                       0x00, 0x84, 0x01, 0x84, 0x03, 0x84, 0x05, 0x84,
@@ -2871,6 +2639,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64268));
 
+        Packet requestPacket64269 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64269, 64269 >> 8, 64269 >> 16);
+        doReturn(requestPacket64269).when(j1939).createRequestPacket(64269, 0x00);
         GenericPacket response64269 = new GenericPacket(Packet.create(0xFB0D, 0,
         // @formatter:off
                                                                       0x20, 0x84, 0x21, 0x84, 0x23, 0x84, 0x25, 0x84,
@@ -2884,6 +2654,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64269));
 
+        Packet requestPacket64270 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64270, 64270 >> 8, 64270 >> 16);
+        doReturn(requestPacket64270).when(j1939).createRequestPacket(64270, 0x00);
         GenericPacket response64270 = new GenericPacket(Packet.create(0xFB0E, 0,
         // @formatter:off
                                                                       0x40, 0x84, 0x41, 0x84, 0x43, 0x84, 0x45, 0x84,
@@ -2897,6 +2669,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64270));
 
+        Packet requestPacket64271 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64271, 64271 >> 8, 64271 >> 16);
+        doReturn(requestPacket64271).when(j1939).createRequestPacket(64271, 0x00);
         GenericPacket response64271 = new GenericPacket(Packet.create(0xFB0F, 0,
         // @formatter:off
                                                                       0x60, 0x84, 0x61, 0x84, 0x63, 0x84, 0x65, 0x84,
@@ -2910,6 +2684,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64271));
 
+        Packet requestPacket64272 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64272, 64272 >> 8, 64272 >> 16);
+        doReturn(requestPacket64272).when(j1939).createRequestPacket(64272, 0x00);
         GenericPacket response64272 = new GenericPacket(Packet.create(0xFB10, 0,
         // @formatter:off
                                                                       0x80, 0x84, 0x00, 0x00, 0x81, 0x84, 0x00, 0x00,
@@ -2927,6 +2703,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64272));
 
+        Packet requestPacket64273 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64273, 64273 >> 8, 64273 >> 16);
+        doReturn(requestPacket64273).when(j1939).createRequestPacket(64273, 0x00);
         GenericPacket response64273 = new GenericPacket(Packet.create(0xFB11, 0,
         // @formatter:off
                                                                       0xA0, 0x84, 0x00, 0x00, 0xA1, 0x84, 0x00, 0x00,
@@ -2944,6 +2722,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64273));
 
+        Packet requestPacket64274 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64274, 64274 >> 8, 64274 >> 16);
+        doReturn(requestPacket64274).when(j1939).createRequestPacket(64274, 0x00);
         GenericPacket response64274 = new GenericPacket(Packet.create(0xFB12, 0,
         // @formatter:off
                                                                       0x00, 0x04, 0x01, 0x04, 0x03, 0x04, 0x05, 0x04,
@@ -2957,6 +2737,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64274));
 
+        Packet requestPacket64275 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64275, 64275 >> 8, 64275 >> 16);
+        doReturn(requestPacket64275).when(j1939).createRequestPacket(64275, 0x00);
         GenericPacket response64275 = new GenericPacket(Packet.create(0xFB13, 0,
         // @formatter:off
                                                                       0x20, 0x04, 0x21, 0x04, 0x23, 0x04, 0x25, 0x04,
@@ -2970,6 +2752,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64275));
 
+        Packet requestPacket64276 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64276, 64276 >> 8, 64276 >> 16);
+        doReturn(requestPacket64276).when(j1939).createRequestPacket(64276, 0x00);
         GenericPacket response64276 = new GenericPacket(Packet.create(0xFB14, 0,
         // @formatter:off
                                                                       0x40, 0x04, 0x41, 0x04, 0x43, 0x04, 0x45, 0x04,
@@ -2983,6 +2767,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64276));
 
+        Packet requestPacket64277 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64277, 64277 >> 8, 64277 >> 16);
+        doReturn(requestPacket64277).when(j1939).createRequestPacket(64277, 0x00);
         GenericPacket response64277 = new GenericPacket(Packet.create(0xFB15, 0,
         // @formatter:off
                                                                       0x60, 0x04, 0x61, 0x04, 0x63, 0x04, 0x65, 0x04,
@@ -2996,6 +2782,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64277));
 
+        Packet requestPacket64278 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64278, 64278 >> 8, 64278 >> 16);
+        doReturn(requestPacket64278).when(j1939).createRequestPacket(64278, 0x00);
         GenericPacket response64278 = new GenericPacket(Packet.create(0xFB16, 0,
         // @formatter:off
                                                                       0x80, 0x04, 0x00, 0x00, 0x81, 0x04, 0x00, 0x00,
@@ -3013,6 +2801,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64278));
 
+        Packet requestPacket64279 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64279, 64279 >> 8, 64265 >> 16);
+        doReturn(requestPacket64279).when(j1939).createRequestPacket(64279, 0x00);
         GenericPacket response64279 = new GenericPacket(Packet.create(0xFB17, 0,
         // @formatter:off
                                                                       0xA0, 0x04, 0x00, 0x00, 0xA1, 0x04, 0x00, 0x00,
@@ -3100,6 +2890,642 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         expected += NL;
 
         // assertEquals(expected, listener.getResults());
+
+        String expectedMsg = "";
+        expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime Fuel Consumption Bins (NTFCV) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime Engine Run Time Bins (NTEHV) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime Vehicle Distance Bins (NTVMV) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime Engine Output Energy Bins (NTEEV) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime Engine Out NOx Mass Bins (NTENV) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime System Out NOx Mass Bins (NTSNV) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting NOx Tracking Engine Activity Lifetime Fuel Consumption Bins (NTFCEA) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting NOx Tracking Engine Activity Lifetime Engine Run Time Bins (NTEHEA) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting NOx Tracking Engine Activity Lifetime Vehicle Distance Bins (NTVMEA) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting NOx Tracking Engine Activity Lifetime Engine Output Energy Bins (NTEEEA) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting NOx Tracking Active 100 Hour Fuel Consumption Bins (NTFCA) from Engine #1 (0)" + NL;
+        expectedMsg += "Requesting NOx Tracking Active 100 Hour Engine Run Time Bins (NTEHA) from Engine #1 (0)" + NL;
+        expectedMsg += "Requesting NOx Tracking Active 100 Hour Vehicle Distance Bins (NTVMA) from Engine #1 (0)" + NL;
+        expectedMsg += "Requesting NOx Tracking Active 100 Hour Engine Output Energy Bins (NTEEA) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting NOx Tracking Active 100 Hour Engine Out NOx Mass Bins (NTENA) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting NOx Tracking Active 100 Hour System Out NOx Mass Bins (NTSNA) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting NOx Tracking Stored 100 Hour Fuel Consumption Bins (NTFCS) from Engine #1 (0)" + NL;
+        expectedMsg += "Requesting NOx Tracking Stored 100 Hour Engine Run Time Bins (NTEHS) from Engine #1 (0)" + NL;
+        expectedMsg += "Requesting NOx Tracking Stored 100 Hour Vehicle Distance Bins (NTVMS) from Engine #1 (0)" + NL;
+        expectedMsg += "Requesting NOx Tracking Stored 100 Hour Engine Output Energy Bins (NTEES) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting NOx Tracking Stored 100 Hour Engine Out NOx Mass Bins (NTENS) from Engine #1 (0)"
+                + NL;
+        expectedMsg += "Requesting NOx Tracking Stored 100 Hour System Out NOx Mass Bins (NTSNS) from Engine #1 (0)";
+        assertEquals(expectedMsg, listener.getMessages());
+    }
+
+    @Test
+    public void testRunObdPgnSupports12675FailureEightB() throws BusException {
+        int supportedSpn = 12675;
+        List<Integer> supportedSpns = Arrays.asList(supportedSpn);
+
+        var vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2025);
+        vehInfo.setFuelType(FuelType.DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+
+        OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
+        SupportedSPN supportedSPN = SupportedSPN.create(supportedSpn,
+                                                        false,
+                                                        true,
+                                                        false,
+                                                        false,
+                                                        1);
+        obdModule0.set(DM24SPNSupportPacket.create(0,
+                                                   supportedSPN),
+                       1);
+        dataRepository.putObdModule(obdModule0);
+
+        when(broadcastValidator.getMaximumBroadcastPeriod()).thenReturn(3);
+
+        List<GenericPacket> packets = new ArrayList<>();
+
+        GenericPacket packet3 = packet(supportedSpn, false, 0);
+        packets.add(packet3);
+        GenericPacket packet8 = packet(888, true, 0);
+        packets.add(packet8);
+        when(busService.readBus(eq(12), eq("6.1.26.1.c"))).thenReturn(packets.stream());
+
+        GenericPacket packet1 = packet(supportedSpn, false, 0);
+        packets.add(packet1);
+
+        List<GenericPacket> responses = new ArrayList<>();
+        Packet requestPacket64252 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64252, 64252 >> 8, 64252 >> 16);
+        doReturn(requestPacket64252).when(j1939).createRequestPacket(64252, 0x00);
+        GenericPacket response64252 = new GenericPacket(Packet.create(0xFAFC, 0x00,
+        // @formatter:off
+                                                                      0xA0, 0x8C, 0xA8, 0x52, 0xC2, 0x0E, 0xA8, 0x0E,
+                                                                      0xCD, 0x49, 0x54, 0xAD, 0x03, 0x00, 0xBC, 0x34,
+                                                                      0x84, 0x03, 0x10, 0x00, 0x28, 0x23, 0x9C, 0x00,
+                                                                      0x07, 0x00, 0x08, 0x07));
+        // @formatter:on
+        responses.add(response64252);
+        when(communicationsModule.request(eq(64252),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64252));
+
+        Packet requestPacket64258 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64258, 64258 >> 8, 64258 >> 16);
+        doReturn(requestPacket64258).when(j1939).createRequestPacket(64258, 0x00);
+        GenericPacket response64258 = new GenericPacket(Packet.create(0xFB02, 0x00,
+        // @formatter:off
+                                                                      0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
+        // @formatter:on
+        responses.add(response64258);
+        when(communicationsModule.request(eq(64258),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64258));
+
+        Packet requestPacket64259 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64259, 64259 >> 8, 64259 >> 16);
+        doReturn(requestPacket64259).when(j1939).createRequestPacket(64259, 0x00);
+        GenericPacket response64259 = new GenericPacket(Packet.create(0xFB03, 0x00,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
+        // @formatter:on
+        responses.add(response64259);
+        when(communicationsModule.request(eq(64259),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64259));
+
+        Packet requestPacket64260 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64260, 64260 >> 8, 64260 >> 16);
+        doReturn(requestPacket64260).when(j1939).createRequestPacket(64260, 0x00);
+        GenericPacket response64260 = new GenericPacket(Packet.create(0xFB04, 0,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
+        // @formatter:on
+        responses.add(response64260);
+        when(communicationsModule.request(eq(64260),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64260));
+
+        Packet requestPacket64261 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64261, 64261 >> 8, 64261 >> 16);
+        doReturn(requestPacket64261).when(j1939).createRequestPacket(64261, 0x00);
+        GenericPacket response64261 = new GenericPacket(Packet.create(0xFB05, 0,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
+        // @formatter:on
+        responses.add(response64261);
+        when(communicationsModule.request(eq(64261),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64261));
+
+        Packet requestPacket64262 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64262, 64262 >> 8, 64262 >> 16);
+        doReturn(requestPacket64262).when(j1939).createRequestPacket(64262, 0x00);
+        GenericPacket response64262 = new GenericPacket(Packet.create(0xFB06, 0,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
+        // @formatter:on
+        responses.add(response64262);
+
+        when(communicationsModule.request(eq(64262),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64262));
+
+        Packet requestPacket64263 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64263, 64263 >> 8, 64263 >> 16);
+        doReturn(requestPacket64263).when(j1939).createRequestPacket(64263, 0x00);
+        GenericPacket response64263 = new GenericPacket(Packet.create(0xFB07, 0,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
+        // @formatter:on
+        responses.add(response64263);
+        when(communicationsModule.request(eq(64263),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64263));
+
+        Packet requestPacket64264 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64264, 64264 >> 8, 64264 >> 16);
+        doReturn(requestPacket64264).when(j1939).createRequestPacket(64264, 0x00);
+        GenericPacket response64264 = new GenericPacket(Packet.create(0xFB08, 0x00,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
+        // @formatter:on
+        responses.add(response64264);
+        when(communicationsModule.request(eq(64264),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64264));
+
+        Packet requestPacket64265 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64265, 64265 >> 8, 64265 >> 16);
+        doReturn(requestPacket64265).when(j1939).createRequestPacket(64265, 0x00);
+        GenericPacket response64265 = new GenericPacket(Packet.create(0xFB09, 0,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
+        // @formatter:on
+        responses.add(response64265);
+        when(communicationsModule.request(eq(64265),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64265));
+
+        Packet requestPacket64266 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64266, 64266 >> 8, 64266 >> 16);
+        doReturn(requestPacket64266).when(j1939).createRequestPacket(64266, 0x00);
+        GenericPacket response64266 = new GenericPacket(Packet.create(0xFB0A, 0,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
+        // @formatter:on
+        responses.add(response64266);
+        when(communicationsModule.request(eq(64266),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64266));
+
+        Packet requestPacket64267 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64267, 64267 >> 8, 64267 >> 16);
+        doReturn(requestPacket64267).when(j1939).createRequestPacket(64267, 0x00);
+        GenericPacket response64267 = new GenericPacket(Packet.create(0xFB0B, 0,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
+        // @formatter:on
+        responses.add(response64267);
+        when(communicationsModule.request(eq(64267),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64267));
+
+        Packet requestPacket64268 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64268, 64268 >> 8, 64268 >> 16);
+        doReturn(requestPacket64268).when(j1939).createRequestPacket(64268, 0x00);
+        GenericPacket response64268 = new GenericPacket(Packet.create(0xFB0C, 0,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00));
+        // @formatter:on
+        responses.add(response64268);
+        when(communicationsModule.request(eq(64268),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64268));
+
+        Packet requestPacket64269 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64269, 64269 >> 8, 64269 >> 16);
+        doReturn(requestPacket64269).when(j1939).createRequestPacket(64269, 0x00);
+        GenericPacket response64269 = new GenericPacket(Packet.create(0xFB0D, 0,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00));
+        // @formatter:on
+        responses.add(response64269);
+        when(communicationsModule.request(eq(64269),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64269));
+
+        Packet requestPacket64270 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64270, 64270 >> 8, 64270 >> 16);
+        doReturn(requestPacket64270).when(j1939).createRequestPacket(64270, 0x00);
+        GenericPacket response64270 = new GenericPacket(Packet.create(0xFB0E, 0,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00));
+        // @formatter:on
+        responses.add(response64270);
+        when(communicationsModule.request(eq(64270),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64270));
+
+        Packet requestPacket64271 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64271, 64271 >> 8, 64271 >> 16);
+        doReturn(requestPacket64271).when(j1939).createRequestPacket(64271, 0x00);
+        GenericPacket response64271 = new GenericPacket(Packet.create(0xFB0F, 0,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00));
+        // @formatter:on
+        responses.add(response64271);
+        when(communicationsModule.request(eq(64271),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64271));
+
+        Packet requestPacket64272 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64272, 64272 >> 8, 64272 >> 16);
+        doReturn(requestPacket64272).when(j1939).createRequestPacket(64272, 0x00);
+        GenericPacket response64272 = new GenericPacket(Packet.create(0xFB10, 0,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
+        // @formatter:on
+        responses.add(response64272);
+        when(communicationsModule.request(eq(64272),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64272));
+
+        Packet requestPacket64273 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64273, 64273 >> 8, 64273 >> 16);
+        doReturn(requestPacket64273).when(j1939).createRequestPacket(64273, 0x00);
+        GenericPacket response64273 = new GenericPacket(Packet.create(0xFB11, 0,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
+        // @formatter:on
+        responses.add(response64273);
+        when(communicationsModule.request(eq(64273),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64273));
+
+        Packet requestPacket64274 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64274, 64274 >> 8, 64274 >> 16);
+        doReturn(requestPacket64274).when(j1939).createRequestPacket(64274, 0x00);
+        GenericPacket response64274 = new GenericPacket(Packet.create(0xFB12, 0,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00));
+        // @formatter:on
+        responses.add(response64274);
+        when(communicationsModule.request(eq(64274),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64274));
+
+        Packet requestPacket64275 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64275, 64275 >> 8, 64275 >> 16);
+        doReturn(requestPacket64275).when(j1939).createRequestPacket(64275, 0x00);
+        GenericPacket response64275 = new GenericPacket(Packet.create(0xFB13, 0,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00));
+        // @formatter:on
+        responses.add(response64275);
+        when(communicationsModule.request(eq(64275),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64275));
+
+        Packet requestPacket64276 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64276, 64276 >> 8, 64276 >> 16);
+        doReturn(requestPacket64276).when(j1939).createRequestPacket(64276, 0x00);
+        GenericPacket response64276 = new GenericPacket(Packet.create(0xFB14, 0,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00));
+        // @formatter:on
+        responses.add(response64276);
+        when(communicationsModule.request(eq(64276),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64276));
+
+        Packet requestPacket64277 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64277, 64277 >> 8, 64277 >> 16);
+        doReturn(requestPacket64277).when(j1939).createRequestPacket(64277, 0x00);
+        GenericPacket response64277 = new GenericPacket(Packet.create(0xFB15, 0,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00));
+        // @formatter:on
+        responses.add(response64277);
+        when(communicationsModule.request(eq(64277),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64277));
+
+        Packet requestPacket64278 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64278, 64278 >> 8, 64278 >> 16);
+        doReturn(requestPacket64278).when(j1939).createRequestPacket(64278, 0x00);
+        GenericPacket response64278 = new GenericPacket(Packet.create(0xFB16, 0,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
+        // @formatter:on
+        responses.add(response64278);
+        when(communicationsModule.request(eq(64278),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64278));
+
+        Packet requestPacket64279 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64279, 64279 >> 8, 64265 >> 16);
+        doReturn(requestPacket64279).when(j1939).createRequestPacket(64279, 0x00);
+        GenericPacket response64279 = new GenericPacket(Packet.create(0xFB17, 0,
+        // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
+        // @formatter:on
+        responses.add(response64279);
+        when(communicationsModule.request(eq(64279),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64279));
+
+        Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = new HashMap<>();
+        packetMap.put(11111, Map.of(0, List.of(packet1)));
+        packetMap.put(33333, Map.of(0, List.of(packet3)));
+        when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
+
+        Bus busMock = mock(Bus.class);
+        when(j1939.getBus()).thenReturn(busMock);
+        when(busMock.imposterDetected()).thenReturn(false);
+
+        runTest();
+
+        verify(broadcastValidator).getMaximumBroadcastPeriod();
+        verify(broadcastValidator).buildPGNPacketsMap(packets);
+        verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
+                                                         any(),
+                                                         any(ResultsListener.class),
+                                                         eq(1),
+                                                         eq(26));
+        packets.forEach(packet -> {
+            verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(packet.getSourceAddress()),
+                                                                        any(),
+                                                                        eq(Collections.emptyList()),
+                                                                        eq(Collections.emptyList()),
+                                                                        any(ResultsListener.class),
+                                                                        eq(1),
+                                                                        eq(26),
+                                                                        eq("6.1.26.2.a"));
+        });
+        verify(busService).setup(eq(j1939), any(ResultsListener.class));
+        verify(busService).readBus(12, "6.1.26.1.c");
+        verify(busService).collectNonOnRequestPGNs(supportedSpns.subList(1, supportedSpns.size()));
+        verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns.subList(1, supportedSpns.size())));
+        verify(busService).getPGNsForDSRequest(any(), any());
+
+        verify(mockListener).addOutcome(eq(instance.getPartNumber()),
+                                        eq(instance.getStepNumber()),
+                                        eq(FAIL),
+                                        eq("6.1.26.8.b - Bin value received is greater than 0xFAFFFFFF(h)Engine #1 (0) returned [-2, -1, -1, -1]"));
+
+        verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
+        verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
+                                                                       any(ResultsListener.class),
+                                                                       any());
+        verify(tableA1Validator, atLeastOnce()).reportImplausibleSPNValues(any(),
+                                                                           any(ResultsListener.class),
+                                                                           eq(false),
+                                                                           any());
+        verify(tableA1Validator, atLeastOnce()).reportNonObdModuleProvidedSPNs(any(),
+                                                                               any(ResultsListener.class),
+                                                                               any());
+        verify(tableA1Validator, atLeastOnce()).reportProvidedButNotSupportedSPNs(any(),
+                                                                                  any(ResultsListener.class),
+                                                                                  any());
+        verify(tableA1Validator, atLeastOnce()).reportPacketIfNotReported(any(),
+                                                                          any(ResultsListener.class),
+                                                                          eq(false));
+        verify(tableA1Validator, atLeastOnce()).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
+
+        //@formatter:off
+        String expected = "10:15:30.0000 NOx Binning Lifetime Array from Engine #1 (0)" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += "|                           |  Tail Pipe   |  Eng. Out.   |              |              |   Engine     |   Vehicle    |" + NL;
+        expected += "|                           | NOx Mass, g  | NOx Mass, g  |  EOE, kWh    |   Fuel, l    | Hours, min   |  Dist, km    |" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += "| Bin  1 (Total)            |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  2 (Idle)             |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  3 (<25%, <16kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  4 (<25%, 16-40kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  5 (<25%, 40-64kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  6 (<25%, >64kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  7 (25-50%, <16kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  8 (25-50%, 16-40kph) |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  9 (25-50%, 40-64kph) |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 10 (25-50%, >64kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 11 (>50%, <16kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 12 (>50%, 16-40kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 13 (>50%, 40-64kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 14 (>50%, >64kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 15 (NTE)              |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 16 (Regen)            |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 17 (MIL On)           |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += NL;
+        expected += "10:15:30.0000 NOx Binning Engine Activity Lifetime Array from Engine #1 (0)" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += "|                           |              |              |   Engine     |   Vehicle    |" + NL;
+        expected += "|                           |  EOE, kWh    |   Fuel, l    | Hours, min   |  Dist, km    |" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += "| Bin  1 (Total)            |            0 |Not Available |            0 |            0 |" + NL;
+        expected += "| Bin  2 (Idle)             |            0 |Not Available |            0 |            0 |" + NL;
+        expected += "| Bin  3 (<25%, <16kph)     |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  4 (<25%, 16-40kph)   |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  5 (<25%, 40-64kph)   |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  6 (<25%, >64kph)     |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  7 (25-50%, <16kph)   |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  8 (25-50%, 16-40kph) |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  9 (25-50%, 40-64kph) |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 10 (25-50%, >64kph)   |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 11 (>50%, <16kph)     |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 12 (>50%, 16-40kph)   |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 13 (>50%, 40-64kph)   |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 14 (>50%, >64kph)     |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 15 (NTE)              |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 16 (Regen)            |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 17 (MIL On)           |            0 |            0 |            0 |            0 |" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += NL;
+        expected += NL;
+        expected += "10:15:30.0000 NOx Binning Active 100-Hour Array from Engine #1 (0)" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += "|                           |  Tail Pipe   |  Eng. Out.   |              |              |   Engine     |   Vehicle    |" + NL;
+        expected += "|                           | NOx Mass, g  | NOx Mass, g  |  EOE, kWh    |   Fuel, l    | Hours, min   |  Dist, km    |" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += "| Bin  1 (Total)            |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  2 (Idle)             |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  3 (<25%, <16kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  4 (<25%, 16-40kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  5 (<25%, 40-64kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  6 (<25%, >64kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  7 (25-50%, <16kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  8 (25-50%, 16-40kph) |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  9 (25-50%, 40-64kph) |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 10 (25-50%, >64kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 11 (>50%, <16kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 12 (>50%, 16-40kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 13 (>50%, 40-64kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 14 (>50%, >64kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 15 (NTE)              |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 16 (Regen)            |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 17 (MIL On)           |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += NL;
+        expected += "10:15:30.0000 NOx Binning Stored 100-Hour Array from Engine #1 (0)" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += "|                           |  Tail Pipe   |  Eng. Out.   |              |              |   Engine     |   Vehicle    |" + NL;
+        expected += "|                           | NOx Mass, g  | NOx Mass, g  |  EOE, kWh    |   Fuel, l    | Hours, min   |  Dist, km    |" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += "| Bin  1 (Total)            |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  2 (Idle)             |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  3 (<25%, <16kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  4 (<25%, 16-40kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  5 (<25%, 40-64kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  6 (<25%, >64kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  7 (25-50%, <16kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  8 (25-50%, 16-40kph) |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin  9 (25-50%, 40-64kph) |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 10 (25-50%, >64kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 11 (>50%, <16kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 12 (>50%, 16-40kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 13 (>50%, 40-64kph)   |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 14 (>50%, >64kph)     |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 15 (NTE)              |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 16 (Regen)            |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "| Bin 17 (MIL On)           |            0 |            0 |            0 |            0 |            0 |            0 |" + NL;
+        expected += "|---------------------------+--------------+--------------+--------------+--------------+--------------+--------------|" + NL;
+        expected += NL;
+        expected += NL;
+        //@formatter:on
+        assertEquals(expected, listener.getResults());
 
         String expectedMsg = "";
         expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime Fuel Consumption Bins (NTFCV) from Engine #1 (0)"
