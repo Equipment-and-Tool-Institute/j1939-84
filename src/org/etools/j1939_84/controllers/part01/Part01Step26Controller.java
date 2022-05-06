@@ -148,17 +148,32 @@ public class Part01Step26Controller extends StepController {
         // list noting those omitted SPs and supported SPs as ‘broadcast’ or ‘upon request’.
         List<Integer> supportedSPNs = getDataRepository().getObdModules()
                                                          .stream()
+                                                         // FIXME: (Update method when clarification of SPs list of
+                                                         // WARN? FAIL? BOTH?
+                                                         // 6.1.26.1.b. Add any omissions from Table A-1, excluding
+                                                         // those SPs noted (as CI or SI) for the opposite fuel type
+                                                         // provided by the user
+                                                         // 6.1.26.1.c. Omit the following SPNs (588, 976, 1213,
+                                                         // 1220, 12675, 12691, 12730, 12783, 12797)
+                                                         // which are included in the list. Display the completed list
+                                                         // noting those omitted SPs, supported SPs as
+                                                         // ‘broadcast’ or ‘upon request’, and additions from Table A-1.
                                                          .flatMap(m -> m.getFilteredDataStreamSPNs().stream())
-                                                         // 6.1.26.1.b. Gather broadcast data for all SPs that are
-                                                         // supported for data stream in the OBD ECU DM24 responses.
+                                                         // 6.1.26.1.d. Gather broadcast data for all SPNs that are
+                                                         // supported for data stream in the OBD ECU DM24 responses, and
+                                                         // the added SPNs from Table A-1. This shall include the both
+                                                         // SPs that are expected to be queried with DS queries (in step
+                                                         // 6.1.26.5 for SPs supported in DM24) and SPs that are
+                                                         // expected without queries
                                                          .map(SupportedSPN::getSpn)
                                                          .collect(Collectors.toList());
         // Display completed list
         tableA1Validator.reportExpectedMessages(getListener());
 
-        // 6.1.26.1.c. Gather/timestamp each parameter at least three times to be able to verify frequency of broadcast.
+        // 6.1.26.1.e. Gather/timestamp each parameter that is observed at least three times to be able to verify
+        // frequency of broadcast
         Stream<GenericPacket> packetStream = busService.readBus(broadcastValidator.getMaximumBroadcastPeriod() * 4,
-                                                                "6.1.26.1.c");
+                                                                "6.1.26.1.e");
 
         List<GenericPacket> packets = packetStream.peek(p -> {
                                                       try {
@@ -768,7 +783,7 @@ public class Part01Step26Controller extends StepController {
             if (packetForPg == null) {
                 if (getEngineModelYear() >= 2024) {
                     // 6.1.26.18.a. For all MY2024+ engines, Warn each PG query where no response was received.
-                    addWarning("6.1.26.18.a - No response was received from "
+                    addFailure("6.1.26.18.a - No response was received from "
                             + module.getModuleName() + " for PG "
                             + pg);
                 }
