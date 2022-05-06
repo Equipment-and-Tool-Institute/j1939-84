@@ -289,11 +289,13 @@ public class Part01Step26Controller extends StepController {
                                                .map(Object::toString)
                                                .collect(Collectors.joining(", "));
                 // 6.1.26.5.a - DS messages to ECU that indicated support in DM24 for upon request SPs and SPs not
-                // observed in step 1
+                // observed in step 1.o and SPs added from Table A-1, regardless of whether the SPs were or were not
+                // observed in step 1. [Where a PG contains more than one SP (to be queried), that PG need only be
+                // queried one time].
                 List<GenericPacket> dsResponse = busService.dsRequest(pgn, moduleAddress, spns)
                                                            .peek(p -> tableA1Validator.reportNotAvailableSPNs(p,
                                                                                                               getListener(),
-                                                                                                              "6.1.26.6.a"))
+                                                                                                              "6.1.26.5.a"))
                                                            .peek(p ->
                                                            // 6.1.26.6.d. Fail/warn if any broadcast data is not valid
                                                            // for KOEO conditions as per Table A-1, Min Data Stream
@@ -322,30 +324,30 @@ public class Part01Step26Controller extends StepController {
                                                                                                     "6.1.26.6.a");
 
                 if (!notAvailableSPNs.isEmpty()) {
-                    // 6.1.25.5.b - If no response/no valid data for any SP requested in 6.1.25.3.a, send global message
+                    // 6.1.26.5.b - If no response/no valid data for any SP requested in 6.1.25.3.a, send global message
                     // to request that SP(s)
                     String globalMessage = "Global Request for PGN " + pgn + " for SPNs "
                             + String.join(", ", notAvailableSPNs);
                     List<GenericPacket> globalPackets = busService.globalRequest(pgn, globalMessage)
                                                                   .peek(p -> tableA1Validator.reportNotAvailableSPNs(p,
                                                                                                                      getListener(),
-                                                                                                                     "6.1.26.6.a"))
+                                                                                                                     "6.1.26.5.b"))
                                                                   .peek(p ->
-                                                                  // 6.1.26.6.d. Fail/warn if any broadcast data is not
-                                                                  // valid for KOEO conditions
-                                                                  // as per Table A-1, Min Data Stream Support.
+                                                                  // 6.1.26.6.e. Fail/warn if any data received (that is
+                                                                  // supported in DM24 by the subject OBD ECU) is not
+                                                                  // valid for KOEO conditions as per section A.1 Table
+                                                                  // A-1, Minimum Data Stream Support.
                                                                   tableA1Validator.reportImplausibleSPNValues(p,
                                                                                                               getListener(),
                                                                                                               false,
-                                                                                                              "6.1.26.6.d"))
+                                                                                                              "6.1.26.6.e"))
                                                                   .peek(p ->
-                                                                  // 6.1.26.6.e. Fail/warn per Table A-1, if an expected
-                                                                  // SPN from the DM24 support
-                                                                  // list from an OBD ECU is provided by a non-OBD ECU.
-                                                                  // (provided extraneously)
+                                                                  // 6.1.26.6.f. Warn/info per Table A-1, if an expected
+                                                                  // SPN from the DM24 support list is provided by a
+                                                                  // non-OBD ECU
                                                                   tableA1Validator.reportNonObdModuleProvidedSPNs(p,
                                                                                                                   getListener(),
-                                                                                                                  "6.1.26.6.e"))
+                                                                                                                  "6.1.26.6.f"))
                                                                   .collect(Collectors.toList());
                     onRequestPackets.addAll(globalPackets);
                     broadcastValidator.collectAndReportNotAvailableSPNs(supportedSPNs,
@@ -395,10 +397,10 @@ public class Part01Step26Controller extends StepController {
             }
         }// end obdModule
 
-        // 6.1.26.6.f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1
+        // 6.1.26.6.g. Fail/warn per Table A-1, if two or more ECUs provide an SPN listed in Table A-1
         tableA1Validator.reportDuplicateSPNs(onRequestPackets,
                                              getListener(),
-                                             "6.1.26.6.f");
+                                             "6.1.26.6.g");
 
     }
 
