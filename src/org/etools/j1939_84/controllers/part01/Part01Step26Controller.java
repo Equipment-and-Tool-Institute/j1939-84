@@ -357,7 +357,7 @@ public class Part01Step26Controller extends StepController {
                                                                         getListener(),
                                                                         getPartNumber(),
                                                                         getStepNumber(),
-                                                                        "6.1.26.6.a");
+                                                                        "6.1.26.6.c");
                 }
             }
             // 6.1.26.7 Actions4 for MY2022+ Diesel Engines
