@@ -159,17 +159,19 @@ public class Part01Step26Controller extends StepController {
                                                          // noting those omitted SPs, supported SPs as
                                                          // ‘broadcast’ or ‘upon request’, and additions from Table A-1.
                                                          .flatMap(m -> m.getFilteredDataStreamSPNs().stream())
-                                                         // 6.1.26.1.d. Gather broadcast data for all SPNs that are
-                                                         // supported for data stream in the OBD ECU DM24 responses, and
-                                                         // the added SPNs from Table A-1. This shall include the both
-                                                         // SPs that are expected to be queried with DS queries (in step
-                                                         // 6.1.26.5 for SPs supported in DM24) and SPs that are
-                                                         // expected without queries
                                                          .map(SupportedSPN::getSpn)
                                                          .collect(Collectors.toList());
-        // Display completed list
+
+        // FIXME: Eric defining and this will need to updated in the tableA1Validator
+        // 6.1.26.1.b. Add any omissions from Table A-1, excluding those SPs noted (as CI or SI) for the opposite fuel
+        // type provided by the user.
+        // 6.1.26.1.c. Display the completed list noting those omitted SPs, supported SPs as ‘broadcast’ or
+        // ‘upon request’, and additions from Table A-1.
         tableA1Validator.reportExpectedMessages(getListener());
 
+        // 6.1.26.1.d. Gather broadcast data for all SPNs that are supported for data stream in the OBD ECU DM24
+        // responses, and the added SPNs from Table A-1. This shall include the both SPs that are expected to be queried
+        // with DS queries (in step 6.1.26.5 for SPs supported in DM24) and SPs that are expected without queries.
         // 6.1.26.1.e. Gather/timestamp each parameter that is observed at least three times to be able to verify
         // frequency of broadcast
         Stream<GenericPacket> packetStream = busService.readBus(broadcastValidator.getMaximumBroadcastPeriod() * 4,
@@ -297,23 +299,28 @@ public class Part01Step26Controller extends StepController {
                                                                                                               getListener(),
                                                                                                               "6.1.26.5.a"))
                                                            .peek(p ->
-                                                           // 6.1.26.6.d. Fail/warn if any broadcast data is not valid
+                                                           // 6.1.26.6.e. Fail/warn if any broadcast data is not valid
                                                            // for KOEO conditions as per Table A-1, Min Data Stream
                                                            // Support.
                                                            tableA1Validator.reportImplausibleSPNValues(p,
                                                                                                        getListener(),
                                                                                                        false,
-                                                                                                       "6.1.26.6.d"))
+                                                                                                       "6.1.26.6.e"))
                                                            .peek(p ->
-                                                           // 6.1.26.6.e. Fail/warn per Table A-1, if an expected SPN
+                                                           // 6.1.26.6.f. Fail/warn per Table A-1, if an expected SPN
                                                            // from the DM24 support list from an OBD ECU is provided by
-                                                           // a non-OBD ECU. (provided extraneously)
+                                                           // a non-OBD ECU.
                                                            tableA1Validator.reportNonObdModuleProvidedSPNs(p,
                                                                                                            getListener(),
-                                                                                                           "6.1.26.6.e"))
+                                                                                                           "6.1.26.6.f"))
                                                            .collect(Collectors.toList());
                 onRequestPackets.addAll(dsResponse);
-
+                // 6.1.26.6.a Ignore NACK received for any SP added from table A-1, whose PG does not contain any SPs
+                // listed as supported in DM24
+                // 6.1.26.6.b Fail if no response or NACK for any SP indicated as supported by the OBD ECU in DM24.
+                // FIXME: downgrade needs to be implemented in the broadcastValidator
+                // Downgrade the failure to a warning where an upon request SPN was received in 6.1.26.1, and the
+                // request was not replied to with a NACK.
                 List<String> notAvailableSPNs = broadcastValidator.collectAndReportNotAvailableSPNs(supportedSPNs,
                                                                                                     pgn,
                                                                                                     dsResponse,
@@ -333,10 +340,9 @@ public class Part01Step26Controller extends StepController {
                                                                                                                      getListener(),
                                                                                                                      "6.1.26.5.b"))
                                                                   .peek(p ->
-                                                                  // 6.1.26.6.e. Fail/warn if any data received (that is
-                                                                  // supported in DM24 by the subject OBD ECU) is not
-                                                                  // valid for KOEO conditions as per section A.1 Table
-                                                                  // A-1, Minimum Data Stream Support.
+                                                                  // 6.1.26.6.e. Fail/warn if any broadcast data is not
+                                                                  // valid for KOEO conditions
+                                                                  // as per Table A-1, Min Data Stream Support.
                                                                   tableA1Validator.reportImplausibleSPNValues(p,
                                                                                                               getListener(),
                                                                                                               false,
@@ -349,15 +355,19 @@ public class Part01Step26Controller extends StepController {
                                                                                                                   getListener(),
                                                                                                                   "6.1.26.6.f"))
                                                                   .collect(Collectors.toList());
+
+                    // Map of PGN to (Map of Source Address to List of Packets)
+                    Map<Integer, Map<Integer, List<GenericPacket>>> foundGlobalPackets = broadcastValidator.buildPGNPacketsMap(globalPackets);
+
+                    // 6.1.26.6.c - Fail if any parameter in a fixed period message, upon request, is not broadcast
+                    // within ± 10% of the specified broadcast period.
+                    broadcastValidator.reportBroadcastPeriod(foundGlobalPackets,
+                                                             supportedSPNs,
+                                                             getListener(),
+                                                             getPartNumber(),
+                                                             getStepNumber());
+
                     onRequestPackets.addAll(globalPackets);
-                    broadcastValidator.collectAndReportNotAvailableSPNs(supportedSPNs,
-                                                                        pgn,
-                                                                        globalPackets,
-                                                                        null,
-                                                                        getListener(),
-                                                                        getPartNumber(),
-                                                                        getStepNumber(),
-                                                                        "6.1.26.6.c");
                 }
             }
             // 6.1.26.7 Actions4 for MY2022+ Diesel Engines
@@ -397,11 +407,14 @@ public class Part01Step26Controller extends StepController {
             }
         }// end obdModule
 
-        // 6.1.26.6.g. Fail/warn per Table A-1, if two or more ECUs provide an SPN listed in Table A-1
+        // 6.1.26.6.g. Fail/warn per Table A-1, if two or more ECUs provide an SPN listed in Table A-1.
         tableA1Validator.reportDuplicateSPNs(onRequestPackets,
                                              getListener(),
                                              "6.1.26.6.g");
 
+        // 6.1.26.6.h. Fail/warn per Table A-1 column, “Action if SPN provided but not included in DM24”
+        // FIXME: the call to then new Table A-1 validator method for this functionality need to be added here once the
+        // method has been written - note: call may need to move into obdModule loop
     }
 
     private void testSp12783(OBDModuleInformation module) {
@@ -428,8 +441,8 @@ public class Part01Step26Controller extends StepController {
         for (int pg : ghgLifeTimeSps) {
             GenericPacket packetForPg = haveResponseWithPg(ghgLifeTimePackets, pg);
             if (packetForPg == null) {
-                // 6.1.17.24.a. Fail PG query where no response was received
-                addFailure("6.1.17.24.a - No response was received from "
+                // 6.1.26.24.a. Fail PG query where no response was received
+                addFailure("6.1.26.24.a - No response was received from "
                         + module.getModuleName() + "for PG "
                         + pg);
             } else {
@@ -437,10 +450,10 @@ public class Part01Step26Controller extends StepController {
                            .forEach(spn -> {
                                // SAE INTERNATIONAL J1939TM-84 Proposed Draft 24 March
                                // 2022 Page 37 of 140
-                               // 6.1.17.24.b - Fail PG query where any accumulator value
+                               // 6.1.26.24.b - Fail PG query where any accumulator value
                                // received is greater than FAFFFFFFh.
                                if (spn.getRawValue() >= 0xFAFFFFFFL) {
-                                   addFailure("6.1.17.24.b - Bin value received is greater than 0xFAFFFFFF(h) "
+                                   addFailure("6.1.26.24.b - Bin value received is greater than 0xFAFFFFFF(h) "
                                            + module.getModuleName() + " returned "
                                            + Arrays.toString(spn.getBytes()));
                                }
@@ -462,8 +475,7 @@ public class Part01Step26Controller extends StepController {
                                                     hybridChargeOpsSps)
                                                                        .stream()
                                                                        // 6.1.26.24.b. Record
-                                                                       // each value for
-                                                                       // use in Part 2.
+                                                                       // each value for use in Part 2.
                                                                        .peek(this::save)
                                                                        .collect(Collectors.toList());
 
