@@ -142,14 +142,21 @@ public class Part01Step26Controller extends StepController {
         // Finally, the bus is monitored again for any missing data
         // The Table A1 validator then reports on the data found
 
-        // 6.1.26.1.a. Create a list of expected SPNs and PGNs from the DM24 response, where the data stream support bit
-        // defined in SAE J1939-73 5.7.24 is 0. Omit the following SPs (588, 976, 1213, 1220, 12675, 12730, 12783,
-        // 12797) which are included in the list. Omit any remaining SPs that map to multiple PGs. Display the completed
-        // list noting those omitted SPs and supported SPs as ‘broadcast’ or ‘upon request’.
+        // 6.1.26.1.a. Create a list of expected SPs and PGs from the DM24 response, where the data stream support bit
+        // defined in SAE J1939-73 5.7.24 is 0
         List<Integer> supportedSPNs = getDataRepository().getObdModules()
                                                          .stream()
-                                                         // FIXME: (Update method when clarification of SPs list of
-                                                         // WARN? FAIL? BOTH?
+                                                         // FIXME: Eric defining and this will need to updated in the
+                                                         // tableA1Validator (Update method when clarification of SPs
+                                                         // list of WARN? FAIL? BOTH?
+                                                         // @Joe we just need a new method to "add back" the SP per the
+                                                         // spec Eric is providing for tableA1Validator; or, perhaps, a
+                                                         // new method which combines the getFilteredDataStreamSPNs()
+                                                         // functionality with the "add back" functionality would make
+                                                         // more sense since this will be repeated in several
+                                                         // places in the testing - not sure on that, apparently wrong
+                                                         // on that check email from Eric date 5/8/22 @ around 9:30 AM
+                                                         // containing document entitled "SecondChanceClarification.docx
                                                          // 6.1.26.1.b. Add any omissions from Table A-1, excluding
                                                          // those SPs noted (as CI or SI) for the opposite fuel type
                                                          // provided by the user
@@ -162,9 +169,6 @@ public class Part01Step26Controller extends StepController {
                                                          .map(SupportedSPN::getSpn)
                                                          .collect(Collectors.toList());
 
-        // FIXME: Eric defining and this will need to updated in the tableA1Validator
-        // 6.1.26.1.b. Add any omissions from Table A-1, excluding those SPs noted (as CI or SI) for the opposite fuel
-        // type provided by the user.
         // 6.1.26.1.c. Display the completed list noting those omitted SPs, supported SPs as ‘broadcast’ or
         // ‘upon request’, and additions from Table A-1.
         tableA1Validator.reportExpectedMessages(getListener());
@@ -178,12 +182,12 @@ public class Part01Step26Controller extends StepController {
                                                                 "6.1.26.1.e");
 
         List<GenericPacket> packets = packetStream.peek(p -> {
-                                                      try {
-                                                          Controller.checkEnding();
-                                                      } catch (InterruptedException e) {
-                                                          packetStream.close();
-                                                      }
-                                                  })
+            try {
+                Controller.checkEnding();
+            } catch (InterruptedException e) {
+                packetStream.close();
+            }
+        })
                                                   .peek(p ->
                                                   // 6.1.26.2.a - Fail if no response/no valid data for any broadcast SP
                                                   // indicated as supported by the OBD ECU in DM24
@@ -208,12 +212,11 @@ public class Part01Step26Controller extends StepController {
                                                   // 6.1.26.3.a. Identify SPNs provided in the data stream that are
                                                   // listed in Table A-1, but are not supported by any OBD ECU in its
                                                   // DM24 response.
-
-                                                  // 6.1.26.4.a. Fail/warn per Table A-1 column, “Action if SPN provided
-                                                  // but not included in DM24”.
                                                   tableA1Validator.reportProvidedButNotSupportedSPNs(p,
                                                                                                      getListener(),
-                                                                                                     "6.1.26.4.a"))
+                                                                                                     "6.1.26.3.a"))
+                                                  // 6.1.26.4.a. Fail/warn per Table A-1 column, “Action if SPN provided
+                                                  // but not included in DM24”.
                                                   .peek(p -> tableA1Validator.reportPacketIfNotReported(p,
                                                                                                         getListener(),
                                                                                                         false))
@@ -225,10 +228,6 @@ public class Part01Step26Controller extends StepController {
             addWarning(msg);
             displayInstructionAndWait(msg, "Second device using SA 0xF9", ERROR);
         }
-
-        // 6.1.26.2.e - Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1
-        tableA1Validator.reportDuplicateSPNs(packets, getListener(), "6.1.26.2.e");
-
         // Check the Broadcast Period of the received packets1
         // Map of PGN to (Map of Source Address to List of Packets)
         Map<Integer, Map<Integer, List<GenericPacket>>> foundPackets = broadcastValidator.buildPGNPacketsMap(packets);
@@ -239,6 +238,9 @@ public class Part01Step26Controller extends StepController {
                                                  getListener(),
                                                  getPartNumber(),
                                                  getStepNumber());
+
+        // 6.1.26.2.e - Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1
+        tableA1Validator.reportDuplicateSPNs(packets, getListener(), "6.1.26.2.e");
 
         List<GenericPacket> onRequestPackets = new ArrayList<>();
         // Find and report any Supported SPNs which should have been received but weren't
@@ -642,15 +644,18 @@ public class Part01Step26Controller extends StepController {
                         + module.getModuleName() + "for PG "
                         + pg);
             } else {
-                packetForPg.getSpns().stream().filter(spn -> {
-                    // FIXME: requirements need updated
-                    return spn.getRawValue() > 0xFAFFFFFFL;
-                }).forEach(spn -> {
-                    // 6.1.26.12.b. Fail PG query where any bin value received is greater than FAFFh.
-                    addFailure("6.1.26.12.b - Bin value received is greater than 0xFAFF(h)"
-                            + module.getModuleName() + " returned "
-                            + Arrays.toString(spn.getBytes()));
-                });
+                packetForPg.getSpns()
+                           .stream()
+                           .filter(spn -> {
+                               // FIXME: requirements need updated
+                               return spn.getRawValue() > 0xFAFFFFFFL;
+                           })
+                           .forEach(spn -> {
+                               // 6.1.26.12.b. Fail PG query where any bin value received is greater than FAFFh.
+                               addFailure("6.1.26.12.b - Bin value received is greater than 0xFAFF(h)"
+                                       + module.getModuleName() + " returned "
+                                       + Arrays.toString(spn.getBytes()));
+                           });
             }
         }
 
@@ -739,23 +744,23 @@ public class Part01Step26Controller extends StepController {
                         + module.getModuleName() + "for PG "
                         + pg);
             } else {
-                    packetForPg.getSpns()
-                               .forEach(spn -> {
-                                   // 6.1.26.16.b. Fail any accumulator value received that is greater
-                                   // than FAFFFFFFh.
-                                   if (spn.getRawValue() > 0xFAFFFFFFL) {
-                                       addFailure("6.1.26.16.b - Bin value received is greater than 0xFAFFFFFF"
-                                               + module.getModuleName() + " returned "
-                                               + Arrays.toString(spn.getBytes()));
-                                   }
-                                   // 6.1.26.16.c. Fail PG query where any index value received is
-                                   // greater than FAh.
-                                   if (spn.getId() == 12691 && spn.getValue() > 0xFAL) {
-                                       addFailure("6.1.26.16.c - " + spn.getId() + " PG query index received was "
-                                               + spn.getValue());
-                                   }
+                packetForPg.getSpns()
+                           .forEach(spn -> {
+                               // 6.1.26.16.b. Fail any accumulator value received that is greater
+                               // than FAFFFFFFh.
+                               if (spn.getRawValue() > 0xFAFFFFFFL) {
+                                   addFailure("6.1.26.16.b - Bin value received is greater than 0xFAFFFFFF"
+                                           + module.getModuleName() + " returned "
+                                           + Arrays.toString(spn.getBytes()));
+                               }
+                               // 6.1.26.16.c. Fail PG query where any index value received is
+                               // greater than FAh.
+                               if (spn.getId() == 12691 && spn.getValue() > 0xFAL) {
+                                   addFailure("6.1.26.16.c - " + spn.getId() + " PG query index received was "
+                                           + spn.getValue());
+                               }
 
-                               });
+                           });
             }
         }
 
@@ -796,6 +801,8 @@ public class Part01Step26Controller extends StepController {
             GenericPacket packetForPg = haveResponseWithPg(ghg100HrPackets, pg);
             if (packetForPg == null) {
                 if (getEngineModelYear() >= 2024) {
+                    // FIXME: current version of the document says warning; Eric clarified to be a failure
+                    // @Joe - we just need to remove above comment when Eric gives us a document with it corrected.
                     // 6.1.26.18.a. For all MY2024+ engines, Warn each PG query where no response was received.
                     addFailure("6.1.26.18.a - No response was received from "
                             + module.getModuleName() + " for PG "

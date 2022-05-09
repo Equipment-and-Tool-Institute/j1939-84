@@ -331,7 +331,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
             verify(busService).dsRequest(eq(pgn), eq(0), any());
         });
         verify(busService).readBus(eq(0),
-                                   eq("6.1.26.1.c"));
+                                   eq("6.1.26.1.e"));
 
         verify(tableA1Validator).reportExpectedMessages(any(ResultsListener.class));
         verify(tableA1Validator).reportNotAvailableSPNs(eq(packet2),
@@ -693,7 +693,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(12, "6.1.26.1.c")).thenReturn(packets.stream());
+        when(busService.readBus(12, "6.1.26.1.e")).thenReturn(packets.stream());
 
         Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = new HashMap<>();
         packetMap.put(11111, Map.of(0, List.of(packet1)));
@@ -727,7 +727,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         eq("6.1.26.2.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.1.26.1.c");
+        verify(busService).readBus(12, "6.1.26.1.e");
         verify(busService).collectNonOnRequestPGNs(supportedSpns);
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns.subList(1, supportedSpns.size())));
         verify(busService).getPGNsForDSRequest(any(), any());
@@ -807,7 +807,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(eq(12), eq("6.1.26.1.c"))).thenReturn(packets.stream());
+        when(busService.readBus(eq(12), eq("6.1.26.1.e"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(12730, false, 0);
         packets.add(packet1);
@@ -888,7 +888,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         eq("6.1.26.2.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.1.26.1.c");
+        verify(busService).readBus(12, "6.1.26.1.e");
         verify(busService, atLeastOnce()).collectNonOnRequestPGNs(any());
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
         verify(busService, atLeastOnce()).getPGNsForDSRequest(any(), any());
@@ -971,7 +971,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(eq(12), eq("6.1.26.1.c"))).thenReturn(packets.stream());
+        when(busService.readBus(eq(12), eq("6.1.26.1.e"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(12783, false, 0);
         packets.add(packet1);
@@ -1016,8 +1016,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packetMap.put(33333, Map.of(0, List.of(packet3)));
         when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
 
-        // when(busService.collectNonOnRequestPGNs(supportedSpns))
-        // .thenReturn(List.of(11111, 22222, 33333));
+        when(busService.collectNonOnRequestPGNs(supportedSpns))
+                                                               .thenReturn(List.of(11111, 22222, 33333));
 
         Bus busMock = mock(Bus.class);
         when(j1939.getBus()).thenReturn(busMock);
@@ -1044,7 +1044,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         eq("6.1.26.2.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.1.26.1.c");
+        verify(busService).readBus(12, "6.1.26.1.e");
         verify(busService).collectNonOnRequestPGNs(supportedSpns.subList(1, supportedSpns.size()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns.subList(1, supportedSpns.size())));
         verify(busService).getPGNsForDSRequest(any(), any());
@@ -1140,7 +1140,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(eq(12), eq("6.1.26.1.c"))).thenReturn(packets.stream());
+        when(busService.readBus(eq(12), eq("6.1.26.1.e"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
@@ -1223,7 +1223,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         eq("6.1.26.2.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.1.26.1.c");
+        verify(busService).readBus(12, "6.1.26.1.e");
         verify(busService).collectNonOnRequestPGNs(supportedSpns.subList(1, supportedSpns.size()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns.subList(1, supportedSpns.size())));
         verify(busService).getPGNsForDSRequest(any(), any());
@@ -1319,7 +1319,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(eq(12), eq("6.1.26.1.c"))).thenReturn(packets.stream());
+        when(busService.readBus(eq(12), eq("6.1.26.1.e"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
@@ -1373,8 +1373,8 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packetMap.put(33333, Map.of(0, List.of(packet3)));
         when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
 
-        // when(busService.collectNonOnRequestPGNs(supportedSpns))
-        // .thenReturn(List.of(11111, 22222, 33333));
+        when(busService.collectNonOnRequestPGNs(supportedSpns))
+                                                               .thenReturn(List.of(11111, 22222, 33333));
 
         Bus busMock = mock(Bus.class);
         when(j1939.getBus()).thenReturn(busMock);
@@ -1400,7 +1400,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         eq("6.1.26.2.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.1.26.1.c");
+        verify(busService).readBus(12, "6.1.26.1.e");
         verify(busService).collectNonOnRequestPGNs(supportedSpns.subList(1, supportedSpns.size()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns.subList(1, supportedSpns.size())));
         verify(busService).getPGNsForDSRequest(any(), any());
@@ -1484,7 +1484,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(eq(12), eq("6.1.26.1.c"))).thenReturn(packets.stream());
+        when(busService.readBus(eq(12), eq("6.1.26.1.e"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
@@ -1571,7 +1571,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         eq("6.1.26.2.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.1.26.1.c");
+        verify(busService).readBus(12, "6.1.26.1.e");
         verify(busService).collectNonOnRequestPGNs(eq(List.of()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
         verify(busService).getPGNsForDSRequest(any(), any());
@@ -1679,7 +1679,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(eq(12), eq("6.1.26.1.c"))).thenReturn(packets.stream());
+        when(busService.readBus(eq(12), eq("6.1.26.1.e"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
@@ -1766,14 +1766,14 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         eq("6.1.26.2.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.1.26.1.c");
+        verify(busService).readBus(12, "6.1.26.1.e");
         verify(busService).collectNonOnRequestPGNs(eq(List.of()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
         verify(busService).getPGNsForDSRequest(any(), any());
 
         verify(mockListener).addOutcome(eq(instance.getPartNumber()),
                                         eq(instance.getStepNumber()),
-                                        eq(WARN),
+                                        eq(FAIL),
                                         eq("6.1.26.18.a - No response was received from Engine #1 (0) for PG 64255"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
@@ -1855,7 +1855,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(eq(12), eq("6.1.26.1.c"))).thenReturn(packets.stream());
+        when(busService.readBus(eq(12), eq("6.1.26.1.e"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
@@ -1909,8 +1909,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packetMap.put(33333, Map.of(0, List.of(packet3)));
         when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
 
-        // when(busService.collectNonOnRequestPGNs(supportedSpns))
-        // .thenReturn(List.of(11111, 22222, 33333));
+        when(busService.collectNonOnRequestPGNs(supportedSpns)).thenReturn(List.of(11111, 22222, 33333));
 
         Bus busMock = mock(Bus.class);
         when(j1939.getBus()).thenReturn(busMock);
@@ -1936,7 +1935,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         eq("6.1.26.2.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.1.26.1.c");
+        verify(busService).readBus(12, "6.1.26.1.e");
         verify(busService).collectNonOnRequestPGNs(supportedSpns.subList(1, supportedSpns.size()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns.subList(1, supportedSpns.size())));
         verify(busService).getPGNsForDSRequest(any(), any());
@@ -2020,7 +2019,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(eq(12), eq("6.1.26.1.c"))).thenReturn(packets.stream());
+        when(busService.readBus(eq(12), eq("6.1.26.1.e"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
@@ -2107,7 +2106,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         eq("6.1.26.2.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.1.26.1.c");
+        verify(busService).readBus(12, "6.1.26.1.e");
         verify(busService).collectNonOnRequestPGNs(eq(List.of()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
         verify(busService).getPGNsForDSRequest(any(), any());
@@ -2201,7 +2200,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(eq(12), eq("6.1.26.1.c"))).thenReturn(packets.stream());
+        when(busService.readBus(eq(12), eq("6.1.26.1.e"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
@@ -2331,7 +2330,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         eq("6.1.26.2.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.1.26.1.c");
+        verify(busService).readBus(12, "6.1.26.1.e");
         verify(busService).collectNonOnRequestPGNs(eq(List.of()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
         verify(busService).getPGNsForDSRequest(any(), any());
@@ -2415,7 +2414,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(eq(12), eq("6.1.26.1.c"))).thenReturn(packets.stream());
+        when(busService.readBus(eq(12), eq("6.1.26.1.e"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
@@ -2849,7 +2848,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         eq("6.1.26.2.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.1.26.1.c");
+        verify(busService).readBus(12, "6.1.26.1.e");
         verify(busService).collectNonOnRequestPGNs(supportedSpns.subList(1, supportedSpns.size()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns.subList(1, supportedSpns.size())));
         verify(busService).getPGNsForDSRequest(any(), any());
@@ -2962,7 +2961,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(eq(12), eq("6.1.26.1.c"))).thenReturn(packets.stream());
+        when(busService.readBus(eq(12), eq("6.1.26.1.e"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
@@ -3396,7 +3395,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         eq("6.1.26.2.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.1.26.1.c");
+        verify(busService).readBus(12, "6.1.26.1.e");
         verify(busService).collectNonOnRequestPGNs(supportedSpns.subList(1, supportedSpns.size()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns.subList(1, supportedSpns.size())));
         verify(busService).getPGNsForDSRequest(any(), any());
@@ -3600,7 +3599,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(eq(12), eq("6.1.26.1.c"))).thenReturn(packets.stream());
+        when(busService.readBus(eq(12), eq("6.1.26.1.e"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
@@ -3990,7 +3989,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         eq("6.1.26.2.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.1.26.1.c");
+        verify(busService).readBus(12, "6.1.26.1.e");
         verify(busService).collectNonOnRequestPGNs(supportedSpns.subList(1, supportedSpns.size()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns.subList(1, supportedSpns.size())));
         verify(busService).getPGNsForDSRequest(any(), any());
@@ -4178,7 +4177,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         GenericPacket packet1 = packet(111, false, 0);
         packets.add(packet1);
 
-        when(busService.readBus(eq(12), eq("6.1.26.1.c"))).thenAnswer(a -> {
+        when(busService.readBus(eq(12), eq("6.1.26.1.e"))).thenAnswer(a -> {
             instance.stop();
             return packets.stream();
         });
@@ -4224,7 +4223,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                     eq("6.1.26.2.a"));
 
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(eq(12), eq("6.1.26.1.c"));
+        verify(busService).readBus(eq(12), eq("6.1.26.1.e"));
         verify(busService, times(2))
                                     .collectNonOnRequestPGNs(eq(List.of(111, 111, 444)));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
@@ -4247,19 +4246,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                          eq("6.1.26.2.e"));
             verify(tableA1Validator).reportProvidedButNotSupportedSPNs(eq(packet),
                                                                        any(ResultsListener.class),
-                                                                       eq("6.1.26.4.a"));
+                                                                       eq("6.1.26.3.a"));
             verify(tableA1Validator).reportPacketIfNotReported(eq(packet),
                                                                any(ResultsListener.class),
                                                                eq(false));
         });
 
-        // verify(tableA1Validator).reportImplausibleSPNValues(any(),
-        // any(ResultsListener.class),
-        // eq(false),
-        // eq("6.1.26.2.e"));
         verify(tableA1Validator).reportDuplicateSPNs(any(),
                                                      any(ResultsListener.class),
-                                                     eq("6.1.26.6.f"));
+                                                     eq("6.1.26.6.g"));
 
         String expected = "";
         assertEquals(expected, listener.getResults());
