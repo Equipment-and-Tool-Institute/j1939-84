@@ -3,7 +3,20 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static net.soliddesign.j1939tools.modules.NOxBinningModule.NOx_LIFETIME_ACTIVITY_SPs;
+import static net.soliddesign.j1939tools.modules.NOxBinningModule.NOx_LIFETIME_SPs;
+import static net.soliddesign.j1939tools.modules.NOxBinningModule.NOx_TRACKING_ACTIVE_100_HOURS_SPs;
+import static net.soliddesign.j1939tools.modules.NOxBinningModule.NOx_TRACKING_STORED_100_HOURS_SPs;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.ERROR;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_100_HR;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_GREEN_HOUSE_100_HR;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_HYBRID_100_HR;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_STORED_100_HR;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_STORED_GREEN_HOUSE_100_HR;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_STORED_HYBRID_100_HR;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_GREEN_HOUSE_PGs;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_HYBRID_PGs;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_PGs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,38 +56,6 @@ public class Part01Step26Controller extends StepController {
 
     private final GhgTrackingModule ghgTrackingModule;
     private final NOxBinningModule nOxBinningModule;
-
-    // 64262 NOx Tracking Valid NOx Lifetime Fuel Consumption Bins
-    // 64263 NOx Tracking Valid NOx Lifetime Engine Run Time Bins
-    // 64264 NOx Tracking Valid NOx Lifetime Vehicle Distance Bins
-    // 64265 NOx Tracking Valid NOx Lifetime Engine Output Energy Bins
-    // 64266 NOx Tracking Valid NOx Lifetime Engine Out NOx Mass Bins
-    // 64267 NOx Tracking Valid NOx Lifetime System Out NOx Mass Bins
-    private static final int[] NOx_LIFETIME_SPs = { 64262, 64263, 64264, 64265, 64266, 64267 };
-
-    // 64258 NOx Tracking Engine Activity Lifetime Fuel Consumption Bins
-    // 64259 NOx Tracking Engine Activity Lifetime Engine Run Time Bins
-    // 64260 NOx Tracking Engine Activity Lifetime Vehicle Distance Bins
-    // 64261 NOx Tracking Engine Activity Lifetime Engine Output Energy Bins NTEEEA
-    private static final int[] NOx_LIFETIME_ACTIVITY_SPs = { 64258, 64259, 64260, 64261 };
-    // PG Acronym NTFCA
-    // NTEHA NTVMA NTEEA NTENA
-    // NTSNA NTFCS NTEHS NTVMS
-    // NTEES NTENS NTSNS
-    // 64274 NOx Tracking Active 100 Hour Fuel Consumption Bins
-    // 64275 NOx Tracking Active 100 Hour Engine Run Time Bins
-    // 64276 NOx Tracking Active 100 Hour Vehicle Distance Bins
-    // 64277 NOx Tracking Active 100 Hour Engine Output Energy Bins
-    // 64278 NOx Tracking Active 100 Hour Engine Out NOx Mass Bins
-    // 64279 NOx Tracking Active 100 Hour System Out NOx Mass Bins
-    private static final int[] NOx_TRACKING_ACTIVE_100_HOURS_SPs = { 64274, 64275, 64276, 64277, 64278, 64279 };
-    // 64268 NOx Tracking Stored 100 Hour
-    // 64269 NOx Tracking Stored 100 Hour
-    // 64270 NOx Tracking Stored 100 Hour
-    // 64271 NOx Tracking Stored 100 Hour
-    // 64272 NOx Tracking Stored 100 Hour
-    // 64273 NOx Tracking Stored 100 Hour
-    private static final int[] NOx_TRACKING_STORED_100_HOURS_SPs = { 64268, 64269, 64270, 64271, 64272, 64273 };
 
     private final BroadcastValidator broadcastValidator;
     private final BusService busService;
@@ -133,14 +114,6 @@ public class Part01Step26Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         busService.setup(getJ1939(), getListener());
-
-        // This will listen for all Broadcast PGNs in hopes of finding all Data
-        // Stream Supported SPNs. Then by module, process and report on the data found,
-        // any missing data and on-request PGNs are requested DS
-        // That data is reported on
-        // Any yet missing data is requested globally
-        // Finally, the bus is monitored again for any missing data
-        // The Table A1 validator then reports on the data found
 
         // 6.1.26.1.a. Create a list of expected SPs and PGs from the DM24 response, where the data stream support bit
         // defined in SAE J1939-73 5.7.24 is 0
@@ -268,7 +241,7 @@ public class Part01Step26Controller extends StepController {
                                                                                             getListener(),
                                                                                             getPartNumber(),
                                                                                             getStepNumber(),
-                                                                                            "6.1.26.2.a");
+                                                                                            "6.1.26.5.a");
 
             // DS Request for all SPNs that are sent on-request AND those were missed earlier
             List<Integer> requestPGNs = busService.getPGNsForDSRequest(missingSPNs, dataStreamSPNs);
@@ -321,6 +294,7 @@ public class Part01Step26Controller extends StepController {
                 // listed as supported in DM24
                 // 6.1.26.6.b Fail if no response or NACK for any SP indicated as supported by the OBD ECU in DM24.
                 // FIXME: downgrade needs to be implemented in the broadcastValidator
+                // @Joe - I just need to implement a new method that will do the downgrading to a WARN
                 // Downgrade the failure to a warning where an upon request SPN was received in 6.1.26.1, and the
                 // request was not replied to with a NACK.
                 List<String> notAvailableSPNs = broadcastValidator.collectAndReportNotAvailableSPNs(supportedSPNs,
@@ -415,6 +389,8 @@ public class Part01Step26Controller extends StepController {
                                              "6.1.26.6.g");
 
         // 6.1.26.6.h. Fail/warn per Table A-1 column, “Action if SPN provided but not included in DM24”
+        // @Joe we just need a method to call here. Eric added a column to Table A-1, I believe; please double check me
+        // on that
         // FIXME: the call to then new Table A-1 validator method for this functionality need to be added here once the
         // method has been written - note: call may need to move into obdModule loop
     }
@@ -527,9 +503,8 @@ public class Part01Step26Controller extends StepController {
         // a. DS request message to ECU that indicated support in DM24 for upon request
         // SP 12797 (Hybrid Lifetime Propulsion System Active Time) for 64241 PSA Times
         // Lifetime Hours
-        int[] ghgPropulsionSystemPgs = { 64241 };
         var ghgTrackingPackets = requestPackets(module.getSourceAddress(),
-                                                ghgPropulsionSystemPgs)
+                                                GHG_TRACKING_LIFETIME_HYBRID_PGs)
                                                                        .stream()
                                                                        // 6.1.26.19.b.
                                                                        // Record
@@ -539,7 +514,7 @@ public class Part01Step26Controller extends StepController {
                                                                        .peek(this::save)
                                                                        .collect(Collectors.toList());
 
-        for (int pg : ghgPropulsionSystemPgs) {
+        for (int pg : GHG_TRACKING_LIFETIME_HYBRID_PGs) {
             GenericPacket packetForPg = haveResponseWithPg(ghgTrackingPackets, pg);
             if (packetForPg == null) {
                 // 6.1.26.20.a - Fail PG query where no response was received.
@@ -566,14 +541,13 @@ public class Part01Step26Controller extends StepController {
         // SP 12797 (Hybrid Lifetime Propulsion System Active Time) for Active 100hr
         // PSA Times and Stored 100hr PSA Times PGs:
         // PG PG Label
-        // 64242 PSA Times Stored 100 Hours
-        // 64243 PSA Times Active 100 Hours
-        // PG Acronym PSATS PSATA
+        // 64242 PSA Times Stored 100 Hours PG Acronym PSATS
+        // 64243 PSA Times Active 100 Hours PG Acronym PSATA
         // c. List data received in a table using lifetime, stored 100 hr, active 100hr
         // for columns, and categories for rows.
-        int[] nOxLifeTimeSps = { 64242, 64243 };
+        int[] hybridLifeTimePgs = CollectionUtils.join(GHG_STORED_HYBRID_100_HR, GHG_ACTIVE_HYBRID_100_HR);
         List<GenericPacket> ghgPackets = requestPackets(module.getSourceAddress(),
-                                                        nOxLifeTimeSps)
+                                                        hybridLifeTimePgs)
                                                                        .stream()
                                                                        // 6.1.26.21.b.
                                                                        // Record each
@@ -588,7 +562,7 @@ public class Part01Step26Controller extends StepController {
                                                                                   ghgPackets.stream())
                                                                           .collect(Collectors.toList())));
         }
-        for (int pg : nOxLifeTimeSps) {
+        for (int pg : hybridLifeTimePgs) {
             GenericPacket packetForPg = haveResponseWithPg(ghgPackets, pg);
             if (packetForPg == null) {
                 // 6.1.26.22.a. For MY2024+ HEV and BEV drives, Fail each PG query where no
@@ -623,23 +597,21 @@ public class Part01Step26Controller extends StepController {
     }
 
     private void testSp12730(OBDModuleInformation module) {
-        // 6.1.26.11 Actions6 for all MY2022+ Engines
-        // 6.1.26.11.a - DS request messages to ECU that indicated support in DM24 for upon request SP 12730 (GHG
-        // Tracking Lifetime Engine Run
-        // Time) for PG 64252 GHG Tracking Lifetime Array Data.
-        int[] ghgTrackingLifetime100HrPgs = { 64252 };
+        // 6.2.17.11 Actions6 for all MY2022+ Engines
+        // 6.2.17.11.a - DS request messages to ECU that indicated support in DM24 for upon request SP 12730 (GHG
+        // Tracking Lifetime Engine Run Time) for PG 64252 GHG Tracking Lifetime Array Data.
         var ghgTrackingLifetimePackets = requestPackets(module.getSourceAddress(),
-                                                        ghgTrackingLifetime100HrPgs)
+                                                        GHG_TRACKING_LIFETIME_PGs)
                                                                                     .stream()
-                                                                                    // 6.1.26.11.b - Record each value
-                                                                                    // for use in Part 2.
+                                                                                  // 6.2.17.11.b - Record each value
+                                                                                  // for use in Part 12.
                                                                                     .peek(this::save)
                                                                                     .collect(Collectors.toList());
 
-        for (int pg : ghgTrackingLifetime100HrPgs) {
+        for (int pg : GHG_TRACKING_LIFETIME_PGs) {
             GenericPacket packetForPg = haveResponseWithPg(ghgTrackingLifetimePackets, pg);
             if (packetForPg == null) {
-                // 6.1.26.12.a. Fail PG query where no response was received
+                // 6.2.17.12.a. Fail PG query where no response was received
                 addFailure("6.1.26.12.a - No response was received from "
                         + module.getModuleName() + "for PG "
                         + pg);
@@ -648,6 +620,8 @@ public class Part01Step26Controller extends StepController {
                            .stream()
                            .filter(spn -> {
                                // FIXME: requirements need updated
+                               // @Joe this is implemented correctly. We just need to remove comment when new document
+                               // with correction is released.
                                return spn.getRawValue() > 0xFAFFFFFFL;
                            })
                            .forEach(spn -> {
@@ -662,11 +636,10 @@ public class Part01Step26Controller extends StepController {
         // 6.1.26.13 Actions7 for MY2022+ Engines
         // a. DS request message to ECU that indicated support in DM24 for upon request
         // SP 12730 (GHG Tracking Lifetime Engine Run Time) for each 100hr GHG tracking
-        // PG
-        // PG PG Label
+        // PG Label
         // 64254 GHG Tracking Active 100 Hour Array Data
         // 64253 GHG Tracking Stored 100 Hour Array Data
-        int[] ghgTrackingActive100HrPgs = { 64253, 64254 };
+        int[] ghgTrackingActive100HrPgs = CollectionUtils.join(GHG_ACTIVE_100_HR, GHG_STORED_100_HR);
         var ghgTrackingPackets = requestPackets(module.getSourceAddress(),
                                                 ghgTrackingActive100HrPgs)
                                                                           .stream()
@@ -722,13 +695,12 @@ public class Part01Step26Controller extends StepController {
     }
 
     private void testSp12691(OBDModuleInformation module) {
-        int[] ghgTrackingLifePgs = { 64257 };
         // 6.1.26.15 Actions8 for all MY2022+ Engines
         // a. DS request message to ECU that indicated support in DM24 for upon request
         // SP 12691 (GHG Tracking Lifetime Active Technology Index) for
         // PG 64257 Green House Gas Lifetime Active Technology Tracking.
         var ghgPackets = requestPackets(module.getSourceAddress(),
-                                        ghgTrackingLifePgs)
+                                        GHG_TRACKING_LIFETIME_GREEN_HOUSE_PGs)
                                                            .stream()
                                                            // 6.1.26.15.b. Record
                                                            // each value for use
@@ -736,7 +708,7 @@ public class Part01Step26Controller extends StepController {
                                                            .peek(this::save)
                                                            .collect(Collectors.toList());
 
-        for (int pg : ghgTrackingLifePgs) {
+        for (int pg : GHG_TRACKING_LIFETIME_GREEN_HOUSE_PGs) {
             GenericPacket packetForPg = haveResponseWithPg(ghgPackets, pg);
             if (packetForPg == null) {
                 // 6.1.26.16.a. Warn PG query where no response was received.
@@ -773,8 +745,8 @@ public class Part01Step26Controller extends StepController {
         // PG PG Label
         // 64256 Green House Gas Active 100 Hour Active Technology Tracking
         // 64255 Green House Gas Stored 100 Hour Active Technology Tracking
-        int[] ghgTracking100HrPgs = { 64255, 64256 };
         // PG Acronym GHGTTA GHGTTS
+        int[] ghgTracking100HrPgs = CollectionUtils.join(GHG_ACTIVE_GREEN_HOUSE_100_HR, GHG_STORED_GREEN_HOUSE_100_HR);
         var ghg100HrPackets = requestPackets(module.getSourceAddress(),
                                              ghgTracking100HrPgs)
                                                                  .stream()

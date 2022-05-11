@@ -724,7 +724,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         any(ResultsListener.class),
                                                                         eq(1),
                                                                         eq(26),
-                                                                        eq("6.1.26.2.a"));
+                                                                        eq("6.1.26.5.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
         verify(busService).readBus(12, "6.1.26.1.e");
@@ -885,7 +885,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         any(),
                                                                         eq(1),
                                                                         eq(26),
-                                                                        eq("6.1.26.2.a"));
+                                                                        eq("6.1.26.5.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
         verify(busService).readBus(12, "6.1.26.1.e");
@@ -1041,7 +1041,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         any(ResultsListener.class),
                                                                         eq(1),
                                                                         eq(26),
-                                                                        eq("6.1.26.2.a"));
+                                                                        eq("6.1.26.5.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
         verify(busService).readBus(12, "6.1.26.1.e");
@@ -1049,17 +1049,6 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns.subList(1, supportedSpns.size())));
         verify(busService).getPGNsForDSRequest(any(), any());
 
-        // verify(ghgTrackingModule).format(any());
-        // verify(mockListener).addOutcome(1,
-        // 26,
-        // WARN,
-        // "6.1.26 - Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are
-        // possible");
-        // verify(mockListener).onUrgentMessage(eq("6.1.26 - Unexpected Service Tool Message from SA 0xF9 observed. Test
-        // results uncertain. False failures are possible"),
-        // eq("Second device using SA 0xF9"),
-        // eq(ERROR),
-        // any());
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
                                                                        any(ResultsListener.class),
@@ -1220,7 +1209,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         any(ResultsListener.class),
                                                                         eq(1),
                                                                         eq(26),
-                                                                        eq("6.1.26.2.a"));
+                                                                        eq("6.1.26.5.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
         verify(busService).readBus(12, "6.1.26.1.e");
@@ -1397,7 +1386,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         any(ResultsListener.class),
                                                                         eq(1),
                                                                         eq(26),
-                                                                        eq("6.1.26.2.a"));
+                                                                        eq("6.1.26.5.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
         verify(busService).readBus(12, "6.1.26.1.e");
@@ -1568,7 +1557,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         any(ResultsListener.class),
                                                                         eq(1),
                                                                         eq(26),
-                                                                        eq("6.1.26.2.a"));
+                                                                        eq("6.1.26.5.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
         verify(busService).readBus(12, "6.1.26.1.e");
@@ -1640,12 +1629,11 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         assertEquals(expected, listener.getResults());
 
-        String expectedMsg = "";
-        expectedMsg += "Requesting Green House Gas Lifetime Active Technology Tracking (GHGTTL) from Engine #1 (0)"
+        String expectedMsg = "Requesting Green House Gas Lifetime Active Technology Tracking (GHGTTL) from Engine #1 (0)"
                 + NL;
-        expectedMsg += "Requesting Green House Gas Stored 100 Hour Active Technology Tracking (GHGTTS) from Engine #1 (0)"
+        expectedMsg += "Requesting Green House Gas Active 100 Hour Active Technology Tracking (GHGTTA) from Engine #1 (0)"
                 + NL;
-        expectedMsg += "Requesting Green House Gas Active 100 Hour Active Technology Tracking (GHGTTA) from Engine #1 (0)";
+        expectedMsg += "Requesting Green House Gas Stored 100 Hour Active Technology Tracking (GHGTTS) from Engine #1 (0)";
         assertEquals(expectedMsg, listener.getMessages());
     }
 
@@ -1763,7 +1751,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         any(ResultsListener.class),
                                                                         eq(1),
                                                                         eq(26),
-                                                                        eq("6.1.26.2.a"));
+                                                                        eq("6.1.26.5.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
         verify(busService).readBus(12, "6.1.26.1.e");
@@ -1818,9 +1806,9 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         String expectedMsg = "";
         expectedMsg += "Requesting Green House Gas Lifetime Active Technology Tracking (GHGTTL) from Engine #1 (0)"
                 + NL;
-        expectedMsg += "Requesting Green House Gas Stored 100 Hour Active Technology Tracking (GHGTTS) from Engine #1 (0)"
+        expectedMsg += "Requesting Green House Gas Active 100 Hour Active Technology Tracking (GHGTTA) from Engine #1 (0)"
                 + NL;
-        expectedMsg += "Requesting Green House Gas Active 100 Hour Active Technology Tracking (GHGTTA) from Engine #1 (0)";
+        expectedMsg += "Requesting Green House Gas Stored 100 Hour Active Technology Tracking (GHGTTS) from Engine #1 (0)";
         assertEquals(expectedMsg, listener.getMessages());
     }
 
@@ -1932,7 +1920,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         any(ResultsListener.class),
                                                                         eq(1),
                                                                         eq(26),
-                                                                        eq("6.1.26.2.a"));
+                                                                        eq("6.1.26.5.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
         verify(busService).readBus(12, "6.1.26.1.e");
@@ -2103,7 +2091,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         any(ResultsListener.class),
                                                                         eq(1),
                                                                         eq(26),
-                                                                        eq("6.1.26.2.a"));
+                                                                        eq("6.1.26.5.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
         verify(busService).readBus(12, "6.1.26.1.e");
@@ -2164,9 +2152,9 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         String expectedMsg = "";
         expectedMsg += "Requesting Green House Gas Lifetime Active Technology Tracking (GHGTTL) from Engine #1 (0)"
                 + NL;
-        expectedMsg += "Requesting Green House Gas Stored 100 Hour Active Technology Tracking (GHGTTS) from Engine #1 (0)"
+        expectedMsg += "Requesting Green House Gas Active 100 Hour Active Technology Tracking (GHGTTA) from Engine #1 (0)"
                 + NL;
-        expectedMsg += "Requesting Green House Gas Active 100 Hour Active Technology Tracking (GHGTTA) from Engine #1 (0)";
+        expectedMsg += "Requesting Green House Gas Stored 100 Hour Active Technology Tracking (GHGTTS) from Engine #1 (0)";
         assertEquals(expectedMsg, listener.getMessages());
     }
 
@@ -2327,7 +2315,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         any(ResultsListener.class),
                                                                         eq(1),
                                                                         eq(26),
-                                                                        eq("6.1.26.2.a"));
+                                                                        eq("6.1.26.5.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
         verify(busService).readBus(12, "6.1.26.1.e");
@@ -2551,15 +2539,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         doReturn(requestPacket64264).when(j1939).createRequestPacket(64264, 0x00);
         GenericPacket response64264 = new GenericPacket(Packet.create(0xFB08, 0x00,
         // @formatter:off
-                                                                      0x40, 0x04, 0x00, 0x0D, 0x41, 0x04, 0x00, 0x0D,
-                                                                      0x43, 0x04, 0x00, 0x0D, 0x45, 0x04, 0x00, 0x0D,
-                                                                      0x47, 0x04, 0x00, 0x0D, 0x49, 0x04, 0x00, 0x0D,
-                                                                      0x4B, 0x04, 0x00, 0x0D, 0x4D, 0x04, 0x00, 0x0D,
-                                                                      0x4F, 0x04, 0x00, 0x0D, 0x51, 0x04, 0x00, 0x0D,
-                                                                      0x53, 0x04, 0x00, 0x0D, 0x55, 0x04, 0x00, 0x0D,
-                                                                      0x57, 0x04, 0x00, 0x0D, 0x59, 0x04, 0x00, 0x0D,
-                                                                      0x5B, 0x04, 0x00, 0x0D, 0x5D, 0x04, 0x00, 0x0D,
-                                                                      0x5F, 0x04, 0x00, 0x0D));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64264);
         when(communicationsModule.request(eq(64264),
@@ -2570,15 +2558,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         doReturn(requestPacket64265).when(j1939).createRequestPacket(64265, 0x00);
         GenericPacket response64265 = new GenericPacket(Packet.create(0xFB09, 0,
         // @formatter:off
-                                                                      0x60, 0x04, 0x00, 0x0D, 0x61, 0x04, 0x00, 0x0D,
-                                                                      0x63, 0x04, 0x00, 0x0D, 0x65, 0x04, 0x00, 0x0D,
-                                                                      0x67, 0x04, 0x00, 0x0D, 0x69, 0x04, 0x00, 0x0D,
-                                                                      0x6B, 0x04, 0x00, 0x0D, 0x6D, 0x04, 0x00, 0x0D,
-                                                                      0x6F, 0x04, 0x00, 0x0D, 0x71, 0x04, 0x00, 0x0D,
-                                                                      0x73, 0x04, 0x00, 0x0D, 0x75, 0x04, 0x00, 0x0D,
-                                                                      0x77, 0x04, 0x00, 0x0D, 0x79, 0x04, 0x00, 0x0D,
-                                                                      0x7B, 0x04, 0x00, 0x0D, 0x7D, 0x04, 0x00, 0x0D,
-                                                                      0x7F, 0x04, 0x00, 0x0D));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0D,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64265);
         when(communicationsModule.request(eq(64265),
@@ -2589,15 +2577,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         doReturn(requestPacket64266).when(j1939).createRequestPacket(64266, 0x00);
         GenericPacket response64266 = new GenericPacket(Packet.create(0xFB0A, 0,
         // @formatter:off
-                                                        0x80, 0x04, 0x00, 0x0D, 0x81, 0x04, 0x00, 0x0D,
-                                                        0x83, 0x04, 0x00, 0x0D, 0x85, 0x04, 0x00, 0x0D,
-                                                        0x87, 0x04, 0x00, 0x0D, 0x89, 0x04, 0x00, 0x0D,
-                                                        0x8B, 0x04, 0x00, 0x0D, 0x8D, 0x04, 0x00, 0x0D,
-                                                        0x8F, 0x04, 0x00, 0x0D, 0x91, 0x04, 0x00, 0x0D,
-                                                        0x93, 0x04, 0x00, 0x0D, 0x95, 0x04, 0x00, 0x0D,
-                                                        0x97, 0x04, 0x00, 0x0D, 0x99, 0x04, 0x00, 0x0D,
-                                                        0x9B, 0x04, 0x00, 0x0D, 0x9D, 0x04, 0x00, 0x0D,
-                                                        0x9F, 0x04, 0x00, 0x0D));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64266);
         when(communicationsModule.request(eq(64266),
@@ -2608,15 +2596,15 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         doReturn(requestPacket64267).when(j1939).createRequestPacket(64267, 0x00);
         GenericPacket response64267 = new GenericPacket(Packet.create(0xFB0B, 0,
         // @formatter:off
-                                                                      0xA0, 0x04, 0x00, 0x0D, 0xA1, 0x04, 0x00, 0x0D,
-                                                                      0xA3, 0x04, 0x00, 0x0D, 0xA5, 0x04, 0x00, 0x0D,
-                                                                      0xA7, 0x04, 0x00, 0x0D, 0xA9, 0x04, 0x00, 0x0D,
-                                                                      0xAB, 0x04, 0x00, 0x0D, 0xAD, 0x04, 0x00, 0x0D,
-                                                                      0xAF, 0x04, 0x00, 0x0D, 0xB1, 0x04, 0x00, 0x0D,
-                                                                      0xB3, 0x04, 0x00, 0x0D, 0xB5, 0x04, 0x00, 0x0D,
-                                                                      0xB7, 0x04, 0x00, 0x0D, 0xB9, 0x04, 0x00, 0x0D,
-                                                                      0xBB, 0x04, 0x00, 0x0D, 0xBD, 0x04, 0x00, 0x0D,
-                                                                      0xBF, 0x04, 0x00, 0x0D));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0xBD, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         responses.add(response64267);
         when(communicationsModule.request(eq(64267),
@@ -2845,7 +2833,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         any(ResultsListener.class),
                                                                         eq(1),
                                                                         eq(26),
-                                                                        eq("6.1.26.2.a"));
+                                                                        eq("6.1.26.5.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
         verify(busService).readBus(12, "6.1.26.1.e");
@@ -3392,7 +3380,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         any(ResultsListener.class),
                                                                         eq(1),
                                                                         eq(26),
-                                                                        eq("6.1.26.2.a"));
+                                                                        eq("6.1.26.5.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
         verify(busService).readBus(12, "6.1.26.1.e");
@@ -3986,7 +3974,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                         any(ResultsListener.class),
                                                                         eq(1),
                                                                         eq(26),
-                                                                        eq("6.1.26.2.a"));
+                                                                        eq("6.1.26.5.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
         verify(busService).readBus(12, "6.1.26.1.e");
@@ -4202,7 +4190,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                     any(ResultsListener.class),
                                                                     eq(1),
                                                                     eq(26),
-                                                                    eq("6.1.26.2.a"));
+                                                                    eq("6.1.26.5.a"));
         verify(broadcastValidator).collectAndReportNotAvailableSPNs(
                                                                     eq(1),
                                                                     eq(List.of()),
@@ -4211,7 +4199,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                     any(ResultsListener.class),
                                                                     eq(1),
                                                                     eq(26),
-                                                                    eq("6.1.26.2.a"));
+                                                                    eq("6.1.26.5.a"));
 
         verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(1),
                                                                     eq(List.of()),
@@ -4220,7 +4208,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                                     any(ResultsListener.class),
                                                                     eq(1),
                                                                     eq(26),
-                                                                    eq("6.1.26.2.a"));
+                                                                    eq("6.1.26.5.a"));
 
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
         verify(busService).readBus(eq(12), eq("6.1.26.1.e"));
