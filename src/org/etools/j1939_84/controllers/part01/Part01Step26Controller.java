@@ -351,38 +351,27 @@ public class Part01Step26Controller extends StepController {
             }
             // 6.1.26.7 Actions4 for MY2022+ Diesel Engines
             if (getEngineModelYear() >= 2022 && getFuelType().isCompressionIgnition()) {
-                getDataRepository()
-                                   .getObdModules()
-                                   .stream()
-                                   .filter(obdModuleInformation -> {
-                                       return obdModuleInformation.supportsSpn(12675)
-                                               || obdModuleInformation.supportsSpn(12730)
-                                               || obdModuleInformation.supportsSpn(12691)
-                                               || obdModuleInformation.supportsSpn(12797)
-                                               || obdModuleInformation.supportsSpn(12783);
-                                   })
-                                   .forEach(module -> {
-                                       if (module.supportsSpn(12675)) {
-                                           // 6.1.26.7 - 6.1.26.10
-                                           testSp12675(module);
-                                       }
-                                       if (module.supportsSpn(12730)) {
-                                           // 6.1.26.11 - 6.1.26.14
-                                           testSp12730(module);
-                                       }
-                                       if (module.supportsSpn(12691)) {
-                                           // 6.1.26.15 - 6.1.26.18
-                                           testSp12691(module);
-                                       }
-                                       if (module.supportsSpn(12797)) {
-                                           // 6.1.26.19 - 6.1.26.22
-                                           testSp12797(module);
-                                       }
-                                       if (module.supportsSpn(12783)) {
-                                           // 6.1.26.23, 6.1.17.24, 6.1.26.24 & 6.1.26.25
-                                           testSp12783(module);
-                                       }
-                                   });
+                if (obdModule.supportsSpn(12675)) {
+                    // 6.1.26.7 - 6.1.26.10
+                    testSp12675(obdModule);
+                }
+                if (obdModule.supportsSpn(12730)) {
+                    // 6.1.26.11 - 6.1.26.14
+                    testSp12730(obdModule);
+                }
+                if (obdModule.supportsSpn(12691)) {
+                    // 6.1.26.15 - 6.1.26.18
+                    testSp12691(obdModule);
+                }
+                if (obdModule.supportsSpn(12797)) {
+                    // 6.1.26.19 - 6.1.26.22
+                    testSp12797(obdModule);
+                }
+                if (obdModule.supportsSpn(12783)) {
+                    // 6.1.26.23, 6.1.17.24, 6.1.26.24 & 6.1.26.25
+                    testSp12783(obdModule);
+                }
+
             }
         }// end obdModule
 
@@ -429,8 +418,6 @@ public class Part01Step26Controller extends StepController {
         } else {
             packetForPg.getSpns()
                        .forEach(spn -> {
-                           // SAE INTERNATIONAL J1939TM-84 Proposed Draft 24 March
-                           // 2022 Page 37 of 140
                            // 6.1.26.24.b - Fail PG query where any accumulator value
                            // received is greater than FAFFFFFFh.
                            if (spn.getRawValue() >= 0xFAFFFFFFL) {
@@ -449,9 +436,9 @@ public class Part01Step26Controller extends StepController {
         // 64246 Hybrid Charge Depleting or Increasing Operation Active 100 Hours
         // 64245 Hybrid Charge Depleting or Increasing Operation Stored 100 Hours
         // PG Acronym HCDIOA HCDIOS
-        int[] hybridChargeOpsSps = { GHG_STORED_HYBRID_CHG_DEPLETING_100_HR, GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR };
         var hybridChargeOpsPackets = requestPackets(module.getSourceAddress(),
-                                                    hybridChargeOpsSps)
+                                                    GHG_STORED_HYBRID_CHG_DEPLETING_100_HR,
+                                                    GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR)
                                                                        .stream()
                                                                        // 6.1.26.24.b. Record
                                                                        // each value for use in Part 2.
@@ -465,9 +452,9 @@ public class Part01Step26Controller extends StepController {
                                                                                   hybridChargeOpsPackets.stream())
                                                                           .collect(Collectors.toList())));
         }
-        for (int pg : hybridChargeOpsSps) {
+        for (int pg : List.of(GHG_STORED_HYBRID_CHG_DEPLETING_100_HR, GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR)) {
             GenericPacket hybridPacketForPg = haveResponseWithPg(hybridChargeOpsPackets,
-                                                           pg);
+                                                                 pg);
             if (hybridPacketForPg == null) {
                 // 6.1.26.25.a - For MY2024+ Plug-in HEV DRIVES, Fail each PG query where
                 // no response was received.
@@ -485,15 +472,15 @@ public class Part01Step26Controller extends StepController {
                 }
             } else {
                 hybridPacketForPg.getSpns()
-                           .forEach(spn -> {
-                               /// 6.1.26.25.c - Fail each PG query where any active
-                               /// technology label or accumulator value
-                               // received is greater than FAFFh, respectively.
-                               if (spn.getRawValue() >= 0xFAFFL) {
-                                   addFailure("6.1.26.22.c - Bin value received is greater than 0xFAFF(h)"
+                                 .forEach(spn -> {
+                                     /// 6.1.26.25.c - Fail each PG query where any active
+                                     /// technology label or accumulator value
+                                     // received is greater than FAFFh, respectively.
+                                     if (spn.getRawValue() >= 0xFAFFL) {
+                                         addFailure("6.1.26.22.c - Bin value received is greater than 0xFAFF(h)"
                                                  + module.getModuleName() + " for " + spn);
-                               }
-                           });
+                                     }
+                                 });
             }
         }
     }
@@ -579,8 +566,6 @@ public class Part01Step26Controller extends StepController {
             } else {
                 hybridPacketForPg.getSpns()
                                  .forEach(spn -> {
-                                     // SAE INTERNATIONAL J1939TM-84 Proposed Draft 24 March
-                                     // 2022 Page 37 of 140
                                      // 6.1.26.22.c. Fail each PG query where any accumulator
                                      // value received is greater than FAFFh.
                                      if (spn.getRawValue() >= 0xFAFFL) {
@@ -632,17 +617,17 @@ public class Part01Step26Controller extends StepController {
         // PG Label
         // 64254 GHG Tracking Active 100 Hour Array Data
         // 64253 GHG Tracking Stored 100 Hour Array Data
-        int[] ghgTrackingActive100HrPgs = { GHG_ACTIVE_100_HR, GHG_STORED_100_HR };
         var ghgTrackingPackets = requestPackets(module.getSourceAddress(),
-                                                ghgTrackingActive100HrPgs)
-                                                                          .stream()
-                                                                          // 6.1.26.13.b.
-                                                                          // Record
-                                                                          // each value
-                                                                          // for use
-                                                                          // in Part 2.
-                                                                          .peek(this::save)
-                                                                          .collect(Collectors.toList());
+                                                GHG_ACTIVE_100_HR,
+                                                GHG_STORED_100_HR)
+                                                                  .stream()
+                                                                  // 6.1.26.13.b.
+                                                                  // Record
+                                                                  // each value
+                                                                  // for use
+                                                                  // in Part 2.
+                                                                  .peek(this::save)
+                                                                  .collect(Collectors.toList());
 
         if (!ghgTrackingPackets.isEmpty()) {
             // 6.1.26.13.c. List data received in a table using lifetime, stored 100 hr,
@@ -652,7 +637,7 @@ public class Part01Step26Controller extends StepController {
                                                                                .collect(Collectors.toList())));
         }
 
-        for (int pg : ghgTrackingActive100HrPgs) {
+        for (int pg : List.of(GHG_ACTIVE_100_HR, GHG_STORED_100_HR)) {
             GenericPacket ghgTrackingpacketForPg = haveResponseWithPg(ghgTrackingPackets, pg);
             if (ghgTrackingpacketForPg == null) {
                 // 6.1.26.14.a. For all MY2024+ engines, Fail each PG query where no response was received.
@@ -676,7 +661,7 @@ public class Part01Step26Controller extends StepController {
                                               addFailure("6.1.26.14.c - Bin value received is greater than 0xFAFF"
                                                       + module.getModuleName() + " for " + spn);
                                           }
-                                          if (spn.getSlot().toValue(spn.getBytes()) > 0) {
+                                          if (GHG_ACTIVE_100_HR == spn.getId() && spn.getValue() > 0) {
                                               // 6.1.26.14.d - Fail each active 100 hr array value that is greater than
                                               // zero
                                               addFailure("6.1.26.14.d - Active 100 hr array value received is greater than zero"
@@ -719,15 +704,14 @@ public class Part01Step26Controller extends StepController {
                            // 6.1.26.16.c. Fail PG query where any index value received is
                            // greater than FAh.
                            if (spn.getId() == 12691 && spn.getValue() > 0xFAL) {
-                               addFailure("6.1.26.16.c - " + spn.getId() + " PG query index received was "
-                                       + spn.getValue());
+                               addFailure("6.1.26.16.c - " + spn.getId()
+                                       + " returned an index value that was greater than 0xFA(h)");
                            }
 
                        });
         }
 
         // 6.1.26.17 Actions9 for MY2022+ Engines
-        // SAE INTERNATIONAL J1939TM-84 Proposed Draft 24 March 2022 Page 36 of 140
         // a. DS request message to ECU that indicated support in DM24 for upon request
         // SP 12691 (GHG Tracking Lifetime Active Technology Index) for Active 100hr
         // Active technology PG, followed by DS request message to ECU for
@@ -736,15 +720,15 @@ public class Part01Step26Controller extends StepController {
         // 64256 Green House Gas Active 100 Hour Active Technology Tracking
         // 64255 Green House Gas Stored 100 Hour Active Technology Tracking
         // PG Acronym GHGTTA GHGTTS
-        int[] ghgTracking100HrPgs = { GHG_ACTIVE_GREEN_HOUSE_100_HR, GHG_STORED_GREEN_HOUSE_100_HR };
         var ghg100HrPackets = requestPackets(module.getSourceAddress(),
-                                             ghgTracking100HrPgs)
-                                                                 .stream()
-                                                                 // 6.1.26.17.b. Record
-                                                                 // each value for use
-                                                                 // in Part 2.
-                                                                 .peek(this::save)
-                                                                 .collect(Collectors.toList());
+                                             GHG_ACTIVE_GREEN_HOUSE_100_HR,
+                                             GHG_STORED_GREEN_HOUSE_100_HR)
+                                                                           .stream()
+                                                                           // 6.1.26.17.b. Record
+                                                                           // each value for use
+                                                                           // in Part 2.
+                                                                           .peek(this::save)
+                                                                           .collect(Collectors.toList());
         if (!ghg100HrPackets.isEmpty()) {
             // 6.1.26.17.c. List data received in a table using lifetime, stored 100 hr,
             // active 100hr for columns, and categories for rows.
@@ -753,7 +737,7 @@ public class Part01Step26Controller extends StepController {
                                                                            .collect(Collectors.toList())));
         }
 
-        for (int pg : ghgTracking100HrPgs) {
+        for (int pg : List.of(GHG_ACTIVE_GREEN_HOUSE_100_HR, GHG_STORED_GREEN_HOUSE_100_HR)) {
             GenericPacket ghgTracking100HrPacket = haveResponseWithPg(ghg100HrPackets, pg);
             if (ghgTracking100HrPacket == null) {
                 if (getEngineModelYear() >= 2024) {
@@ -784,12 +768,11 @@ public class Part01Step26Controller extends StepController {
                                           if (spn.getId() == 12691 && spn.getValue() > 0xFAL) {
                                               addFailure("6.1.26.16.c - PG query index received was " + "");
                                           }
-                                          if (spn.getValue() > 0) {
+                                          if (GHG_ACTIVE_GREEN_HOUSE_100_HR == spn.getId() && spn.getValue() > 0) {
                                               // 6.1.26.18.g. Fail each active 100 hr array value that is greater than
                                               // zero
-                                              addFailure("6.1.26.18.g - Active 100 hr array value received was greater than zero.  "
-                                                      + module.getModuleName() + " returned a value of "
-                                                      + spn.getValue());
+                                              addFailure("6.1.26.18.g - Active 100 hr array value received was greater than zero from  "
+                                                      + module.getModuleName());
                                           }
                                           // FIXME:
                                           // 6.1.26.18.f. Fail each response where the set of labels received is not a
@@ -812,23 +795,23 @@ public class Part01Step26Controller extends StepController {
     }
 
     private void testSp12675(OBDModuleInformation module) {
-        int[] nOxLifeTimeSps = CollectionUtils.join(NOx_LIFETIME_SPs,
-                                                    NOx_LIFETIME_ACTIVITY_SPs);
         // 6.1.26.7.a. DS request messages to ECU that indicated support in DM24 for upon
         // request SPN 12675 (NOx Tracking Engine
         var nOxPackets = requestPackets(module.getSourceAddress(),
-                                        nOxLifeTimeSps)
-                                                       .stream()
-                                                       // 6.1.26.7.b. Record
-                                                       // each value for use
-                                                       // in Part 2.
-                                                       .peek(this::save)
-                                                       .collect(Collectors.toList());
+                                        CollectionUtils.join(NOx_LIFETIME_SPs,
+                                                             NOx_LIFETIME_ACTIVITY_SPs))
+                                                                                        .stream()
+                                                                                        // 6.1.26.7.b. Record
+                                                                                        // each value for use
+                                                                                        // in Part 2.
+                                                                                        .peek(this::save)
+                                                                                        .collect(Collectors.toList());
         if (!nOxPackets.isEmpty()) {
             // 6.1.26.7.c. List data received in a table using bin numbers for rows.
             getListener().onResult(nOxBinningModule.format(nOxPackets));
         }
-        for (int pg : nOxLifeTimeSps) {
+        for (int pg : CollectionUtils.join(NOx_LIFETIME_SPs,
+                                           NOx_LIFETIME_ACTIVITY_SPs)) {
             GenericPacket packetForPg = haveResponseWithPg(nOxPackets, pg);
             if (packetForPg == null) {
                 // 6.1.26.8.a. Fail each PG query where no response was received.
@@ -848,28 +831,33 @@ public class Part01Step26Controller extends StepController {
             }
         }
 
-        int[] nOx100HourSps = CollectionUtils.join(NOx_TRACKING_ACTIVE_100_HOURS_SPs,
-                                                   NOx_TRACKING_STORED_100_HOURS_SPs);
         // 6.1.26.9.a - DS request message to ECU that indicated support in DM24 for upon
         // request SPN 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1
         // - Total) for each active 100hr NOx binning PG, followed by each Stored 100 hr PG
         // Label
         List<GenericPacket> nOx100HourPackets = requestPackets(module.getSourceAddress(),
-                                                               nOx100HourSps)
-                                                                             .stream()
-                                                                             // 6.1.26.9.b -
-                                                                             // Record each
-                                                                             // value
-                                                                             // for use in
-                                                                             // Part 2.
-                                                                             .peek(this::save)
-                                                                             .collect(Collectors.toList());
+                                                               CollectionUtils.join(NOx_TRACKING_ACTIVE_100_HOURS_SPs,
+                                                                                    NOx_TRACKING_STORED_100_HOURS_SPs))
+                                                                                                                       .stream()
+                                                                                                                       // 6.1.26.9.b
+                                                                                                                       // -
+                                                                                                                       // Record
+                                                                                                                       // each
+                                                                                                                       // value
+                                                                                                                       // for
+                                                                                                                       // use
+                                                                                                                       // in
+                                                                                                                       // Part
+                                                                                                                       // 2.
+                                                                                                                       .peek(this::save)
+                                                                                                                       .collect(Collectors.toList());
 
         if (!nOx100HourPackets.isEmpty()) {
             // 6.1.26.9.c - List data received in a table using bin numbers for rows.
             getListener().onResult(nOxBinningModule.format(nOx100HourPackets));
         }
-        for (int pg : nOx100HourSps) {
+        for (int pg : CollectionUtils.join(NOx_TRACKING_ACTIVE_100_HOURS_SPs,
+                                           NOx_TRACKING_STORED_100_HOURS_SPs)) {
             GenericPacket packetForPg = haveResponseWithPg(nOx100HourPackets, pg);
             if (packetForPg == null) {
                 // 6.1.26.10.a. For all MY2024+ Diesel engines, Fail each PG query where no response was received.
