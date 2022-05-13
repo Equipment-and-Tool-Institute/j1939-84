@@ -65,6 +65,14 @@ public class GhgTrackingArrayModule {
                 { "|--------------------------------+", "-------------+", "-------------+", "-------------|" },
         };
 
+        return printTable(packets, headerRows, columnWidths, leftPad, table);
+    }
+
+    private String printTable(List<GenericPacket> packets,
+                              int headerRows,
+                              int[] columnWidths,
+                              boolean[] leftPad,
+                              String[][] table) {
         StringBuilder sb = new StringBuilder();
         for (int rowIndex = 0; rowIndex < table.length; rowIndex++) {
             String[] row = table[rowIndex];
@@ -90,7 +98,8 @@ public class GhgTrackingArrayModule {
             sb.append(NL);
         }
 
-        return sb.toString();
+        String s = sb.toString();
+        return s;
     }
 
     private String printTrackingArray(List<GenericPacket> packets) {
@@ -119,32 +128,7 @@ public class GhgTrackingArrayModule {
                 {"|-------------------------+", "-------------+", "-------------+", "-------------|"},
         };
 
-        StringBuilder sb = new StringBuilder();
-        for (int rowIndex = 0; rowIndex < table.length; rowIndex++) {
-            String[] row = table[rowIndex];
-            for (int colIndex = 0; colIndex < row.length; colIndex++) {
-                String cell = row[colIndex];
-                int columnWidth = columnWidths[colIndex];
-                if (cell.contains("SPN_")) {
-                    int spnId = parseSpnId(cell);
-                    String value = getSpnValue(packets, spnId);
-                    sb.append(StringUtils.padLeft(value, columnWidth)).append(" |");
-                } else {
-                    if (rowIndex < headerRows) {
-                        sb.append(StringUtils.center(cell, columnWidth));
-                    } else {
-                        if (leftPad[colIndex]) {
-                            sb.append(StringUtils.padRight(cell, columnWidth));
-                        } else {
-                            sb.append(StringUtils.padLeft(cell, columnWidth));
-                        }
-                    }
-                }
-            }
-            sb.append(NL);
-        }
-
-        return sb.toString();
+        return printTable(packets, headerRows, columnWidths, leftPad, table);
     }
 
     private String getSpnValue(List<GenericPacket> packets, int spnId) {
