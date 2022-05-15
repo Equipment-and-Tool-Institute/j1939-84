@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.etools.j1939tools.bus.Packet;
-import org.etools.j1939tools.j1939.J1939;
-import org.etools.j1939tools.j1939.J1939DaRepository;
 import org.etools.j1939tools.j1939.model.PgnDefinition;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.Slot;

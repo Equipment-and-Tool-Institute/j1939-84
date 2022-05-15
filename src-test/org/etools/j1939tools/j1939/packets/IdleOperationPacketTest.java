@@ -6,7 +6,6 @@ package org.etools.j1939tools.j1939.packets;
 
 import static org.junit.Assert.assertEquals;
 
-import org.etools.j1939tools.j1939.packets.IdleOperationPacket;
 import org.junit.Test;
 
 public class IdleOperationPacketTest {

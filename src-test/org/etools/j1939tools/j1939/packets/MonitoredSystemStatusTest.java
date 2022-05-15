@@ -14,7 +14,6 @@ import static org.etools.j1939tools.j1939.packets.DM5MonitoredSystemStatus.SUPPO
 import static org.etools.j1939tools.j1939.packets.MonitoredSystemStatus.findStatus;
 import static org.junit.Assert.assertEquals;
 
-import org.etools.j1939tools.j1939.packets.MonitoredSystem;
 import org.junit.Test;
 
 /**

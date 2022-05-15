@@ -11,7 +11,6 @@ import static org.etools.j1939tools.j1939.packets.DM26MonitoredSystemStatus.valu
 import static org.etools.j1939tools.j1939.packets.DM26MonitoredSystemStatus.values;
 import static org.junit.Assert.assertEquals;
 
-import org.etools.j1939tools.j1939.packets.DM26MonitoredSystemStatus;
 import org.junit.Test;
 
 /**

@@ -7,7 +7,6 @@ import static org.etools.j1939tools.j1939.packets.DM7CommandTestsPacket.PGN;
 import static org.junit.Assert.assertEquals;
 
 import org.etools.j1939tools.bus.Packet;
-import org.etools.j1939tools.j1939.packets.DM7CommandTestsPacket;
 import org.junit.Test;
 
 /**

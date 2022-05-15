@@ -1,7 +1,6 @@
 package org.etools.j1939tools.j1939.packets;
 
 import org.etools.j1939tools.bus.Packet;
-import org.etools.j1939tools.j1939.packets.GhgActiveTechnologyPacket;
 import org.etools.j1939tools.utils.CollectionUtils;
 import org.junit.Test;
 

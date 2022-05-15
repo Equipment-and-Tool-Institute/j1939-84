@@ -25,7 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import org.etools.j1939tools.J1939tools;
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
@@ -92,7 +92,7 @@ public class RP1210Bus implements Bus {
              connectionString,
              address,
              appPacketize,
-             J1939tools.getLogger());
+             J1939_84.getLogger());
     }
 
     private static ThreadFactory nameThreadFactory(String name) {

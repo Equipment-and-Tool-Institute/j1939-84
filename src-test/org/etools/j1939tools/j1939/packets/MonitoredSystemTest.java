@@ -16,8 +16,6 @@ import static org.etools.j1939tools.j1939.packets.MonitoredSystemStatus.findStat
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import org.etools.j1939tools.j1939.packets.MonitoredSystem;
-import org.etools.j1939tools.j1939.packets.MonitoredSystemStatus;
 import org.junit.Test;
 
 /**

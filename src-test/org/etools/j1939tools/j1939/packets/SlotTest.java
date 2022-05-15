@@ -10,7 +10,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.etools.j1939tools.j1939.J1939DaRepository;
-import org.etools.j1939tools.j1939.packets.Slot;
 import org.junit.Test;
 
 /**

@@ -14,7 +14,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.etools.j1939tools.J1939tools;
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939tools.j1939.J1939TP;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
@@ -80,7 +80,7 @@ public class RP1210 {
 
     private Collection<? extends Adapter> getSyntheticAdapters() {
         List<Adapter> adapters = new ArrayList<>();
-        if (J1939tools.isTesting()) {
+        if (J1939_84.isTesting()) {
             adapters.add(LOOP_BACK_ADAPTER);
         }
         return adapters;
@@ -128,7 +128,7 @@ public class RP1210 {
                             }
                         }
                     } catch (IOException e) {
-                        J1939tools.getLogger().log(Level.SEVERE, "Error Parsing ini file", e);
+                        J1939_84.getLogger().log(Level.SEVERE, "Error Parsing ini file", e);
                     }
                 }
             } catch (IOException e) {
@@ -186,7 +186,7 @@ public class RP1210 {
         try {
             timestampWeight = Long.parseLong(vendorSection.getOrDefault("TimeStampWeight", "1"));
         } catch (Throwable t) {
-            J1939tools.getLogger()
+            J1939_84.getLogger()
                       .log(Level.SEVERE,
                            "Error Parsing TimeStampWeight from ini file.  Assuming 1000 (ms resolution).",
                            t);
