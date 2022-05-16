@@ -780,6 +780,7 @@ public class Part01Step26Controller extends StepController {
                                                       + module.getModuleName());
                                           }
                                           // FIXME:
+                                          // @Joe this is in the emailed document and will updated with it
                                           // 6.1.26.18.f. Fail each response where the set of labels received is not a
                                           // subset of the set of labels received for the lifetime active technology
                                           // response.
@@ -789,6 +790,7 @@ public class Part01Step26Controller extends StepController {
                                           // }
                                       });
                 // FIXME:
+                // @Joe this is in the emailed document and will updated with it
                 // 6.1.26.18.e. Fail each response where the number of labels received are not
                 // the same as the number of labels received for the lifetime technology
                 // response.
