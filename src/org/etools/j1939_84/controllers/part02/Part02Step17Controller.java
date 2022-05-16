@@ -357,10 +357,10 @@ public class Part02Step17Controller extends StepController {
                                              "6.2.17.6.g");
 
         // 6.2.17.6.h. Fail/warn per Table A-1 column, “Action if SPN provided but not included in DM24”
-        // @Joe we just need a method to call here. Eric added a column to Table A-1, I believe; please double check me
-        // on that
-        // FIXME: the call to then new Table A-1 validator method for this functionality need to be added here once the
-        // method has been written - note: call may need to move into obdModule loop
+        onRequestPackets.stream()
+                        .forEach(packet -> tableA1Validator.reportProvidedButNotSupportedSPNs(packet,
+                                                                                              getListener(),
+                                                                                              "6.2.17.6.h"));
     }
 
     private void testSp12783(OBDModuleInformation module) {
