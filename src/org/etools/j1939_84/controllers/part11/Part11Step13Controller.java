@@ -157,7 +157,7 @@ public class Part11Step13Controller extends StepController {
         if (packetForPg == null) {
             // 6.2.17.24.a. Fail PG query where no response was received
             addFailure("6.2.17.24.a - No response was received from "
-                    + module.getModuleName() + "for PG "
+                    + module.getModuleName() + " for PG "
                     + GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PGs);
         } else {
             packetForPg.getSpns()
@@ -167,9 +167,8 @@ public class Part11Step13Controller extends StepController {
                            // 6.2.17.24.b - Fail PG query where any accumulator value
                            // received is greater than FAFFFFFFh.
                            if (spn.getRawValue() >= 0xFAFFFFFFL) {
-                               addFailure("6.2.17.24.b - Bin value received is greater than 0xFAFFFFFF(h) "
-                                       + module.getModuleName() + " returned "
-                                       + Arrays.toString(spn.getBytes()));
+                               addFailure("6.2.17.24.b - Bin value received is greater than 0xFAFFFFFF(h) from "
+                                       + module.getModuleName() + " for " + spn);
                            }
                            // FIXME: this needs to implemented once the datarepo is fixed
                            // @Joe - just need to add the call once the dataRepo bug is fix
@@ -219,14 +218,14 @@ public class Part11Step13Controller extends StepController {
                 // no response was received.
                 if (getEngineModelYear() >= 2024) {
                     addFailure("6.2.17.26.a - No response was received from "
-                            + module.getModuleName() + "for PG "
+                            + module.getModuleName() + " for PG "
                             + pg);
                 }
                 // 6.2.17.26.b - For MY2022-23 Plug-in HEV DRIVES, Warn each PG query,
                 // where no response was received
                 if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
                     addWarning("6.2.17.26.b - No response was received from "
-                            + module.getModuleName() + "for PG "
+                            + module.getModuleName() + " for PG "
                             + pg);
                 }
             } else {
@@ -236,9 +235,9 @@ public class Part11Step13Controller extends StepController {
                                      /// technology label or accumulator value
                                      // received is greater than FAFFh, respectively.
                                      if (spn.getRawValue() >= 0xFAFFL) {
-                                         addFailure("6.2.17.26.c - Bin value received is greater than 0xFAFF(h)"
-                                                 + module.getModuleName() + " returned "
-                                                 + Arrays.toString(spn.getBytes()));
+                                         addFailure("6.2.17.26.c - Bin value received is greater than 0xFAFF(h) from "
+                                                 + module.getModuleName() + " for "
+                                                 + spn);
                                      }
                                      // FIXME: this needs to be implemented once the dataRepo is fixed
                                      // @Joe: just need to add the call and warning when the dataRepo bug is fixed.
@@ -280,7 +279,7 @@ public class Part11Step13Controller extends StepController {
             if (packetForPg == null) {
                 // 6.2.17.20.a - Fail PG query where no response was received.
                 addWarning("6.2.17.20.a - No response was received from "
-                        + module.getModuleName() + "for PG "
+                        + module.getModuleName() + " for PG "
                         + GHG_TRACKING_LIFETIME_HYBRID_PGs);
             } else {
                 packetForPg.getSpns()
@@ -288,9 +287,8 @@ public class Part11Step13Controller extends StepController {
                                // 6.2.17.20.b - Fail PG query where any accumulator value
                                // received is greater than FAFFFFFFh.
                                if (spn.getRawValue() >= 0xFAFFFFFFL) {
-                                   addFailure("6.1.26.20.b - Bin value received is greater than 0xFAFFFFFF(h)"
-                                           + module.getModuleName() + " returned "
-                                           + Arrays.toString(spn.getBytes()));
+                                   addFailure("6.1.26.20.b - Bin value received is greater than 0xFAFFFFFF(h) from "
+                                           + module.getModuleName() + " for " + spn);
                                }
                                // FIXME: need to add functionality when dataRepo is updated
                                // 6.2.17.20.c - Fail all values where the corresponding values received
@@ -331,14 +329,14 @@ public class Part11Step13Controller extends StepController {
                 // response was received.
                 if (getEngineModelYear() >= 2024) {
                     addFailure("6.2.17.22.a - No response was received from "
-                            + module.getModuleName() + "for PG "
+                            + module.getModuleName() + " for PG "
                             + pg);
                 }
                 // 6.2.17.22.b - For MY2022-23 HEV and BEV drives, Warn each PG query, where no
                 // response was received.
                 if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
                     addWarning("6.2.17.22.b - No response was received from "
-                            + module.getModuleName() + "for PG "
+                            + module.getModuleName() + " for PG "
                             + pg);
                 }
             } else {
@@ -349,9 +347,8 @@ public class Part11Step13Controller extends StepController {
                                // 6.2.17.22.c - Fail each PG query where any accumulator
                                // value received is greater than FAFFh.
                                if (spn.getRawValue() >= 0xFAFFL) {
-                                   addFailure("6.2.17.22.c - Bin value received is greater than 0xFAFFFFFF(h)"
-                                           + module.getModuleName() + " returned "
-                                           + Arrays.toString(spn.getBytes()));
+                                         addFailure("6.2.17.22.c - Bin value received is greater than 0xFAFFFFFF(h) from "
+                                                 + module.getModuleName() + " for " + spn);
                                }
                                // FIXME: needs to be implemented once the dataRepo is fixed
                                // @Joe - I just need to fill in the call once I fix the dataRepo bug I found
@@ -374,7 +371,7 @@ public class Part11Step13Controller extends StepController {
             if (packetForPg == null) {
                 // 6.11.13.6.a. Fail PG query where no response was received
                 addFailure("6.11.13.6.a - No response was received from "
-                        + module.getModuleName() + "for PG "
+                        + module.getModuleName() + " for PG "
                         + GHG_TRACKING_LIFETIME_PGs);
             } else {
                 packetForPg.getSpns()
@@ -382,9 +379,8 @@ public class Part11Step13Controller extends StepController {
                            .forEach(spn -> {
                                // 6.11.13.6.b. Fail PG query where any bin value received is greater than FAFFh.
                                if (spn.getRawValue() > 0xFAFFL) {
-                                   addFailure("6.11.13.6.b - Bin value received is greater than 0xFAFFFFFFL(h)"
-                                           + module.getModuleName() + " returned "
-                                           + Arrays.toString(spn.getBytes()));
+                                   addFailure("6.11.13.6.b - Bin value received is greater than 0xFAFFFFFFL(h) from "
+                                           + module.getModuleName() + " for " + spn);
                                }
                                // FIXME: this needs to be implemented on the dataRepo bug is fixed
                                // 6.11.13.6.c - Fail all values where the corresponding value received in part 2 is
@@ -420,13 +416,13 @@ public class Part11Step13Controller extends StepController {
                 // 6.11.13.8.a. For all MY2024+ engines, Fail each PG query where no response was received.
                 if (getEngineModelYear() >= 2024) {
                     addFailure("6.2.17.14.a - No response was received from "
-                            + module.getModuleName() + "for PG "
+                            + module.getModuleName() + " for PG "
                             + pg);
                 }
                 // 6.11.13.8.b. For MY2022-23 engines, Warn each PG query, where no response was received
                 if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
                     addWarning("6.11.13.8.b - No response was received from "
-                            + module.getModuleName() + "for PG "
+                            + module.getModuleName() + " for PG "
                             + pg);
                 }
             } else {
@@ -435,15 +431,14 @@ public class Part11Step13Controller extends StepController {
                                if (spn.getRawValue() > 0xFAFFL) {
                                          // 6.11.13.8.c - Fail each PG query where any value received is greater than
                                          // FAFFh.
-                                         addFailure("6.11.13.8.c - Bin value received is greater than 0xFAFF "
+                                         addFailure("6.11.13.8.c - Bin value received is greater than 0xFAFF(h) from "
                                            + module.getModuleName() + " returned "
                                            + Arrays.toString(spn.getBytes()));
                                }
                                if (spn.getSlot().toValue(spn.getBytes()) > 0) {
                                          // 6.11.13.8.d - Fail each active 100 hr array value that is greater than zero
-                                         addFailure("6.11.13.8.d - Active 100 hr array value received is greater than zero "
-                                           + module.getModuleName() + " returned "
-                                           + Arrays.toString(spn.getBytes()));
+                                         addFailure("6.11.13.8.d - Active 100 hr array value received is greater than zero from "
+                                                 + module.getModuleName() + " for " + spn);
                                }
                                      // FIXME: the need to be implemented
                                      // @Joe just need to implement these yet.
@@ -475,7 +470,7 @@ public class Part11Step13Controller extends StepController {
             if (packetForPg == null) {
                 // 6.11.13.10.a. Warn PG query where no response was received.
                 addWarning("6.11.13.10.a - No response was received from "
-                        + module.getModuleName() + "for PG "
+                        + module.getModuleName() + " for PG "
                         + GHG_TRACKING_LIFETIME_GREEN_HOUSE_PGs);
             } else {
                 packetForPg.getSpns()
@@ -483,9 +478,8 @@ public class Part11Step13Controller extends StepController {
                                // 6.11.13.10.b. Fail any accumulator value received that is greater
                                // than FAFFFFFFh.
                                if (spn.getRawValue() > 0xFAFFFFFFL) {
-                                   addFailure("6.11.13.10.b - Bin value received is greater than 0xFAFFFFFF"
-                                           + module.getModuleName() + " returned "
-                                           + Arrays.toString(spn.getBytes()));
+                                   addFailure("6.11.13.10.b - Bin value received is greater than 0xFAFFFFFF(h) from "
+                                           + module.getModuleName() + " for " + spn);
                                }
                                // FIXME: this needs to implemented when the dataRepo is fixed
                                // @Joe: just need to add a call and if adding the failure when the dataRepo bug is fixed
@@ -540,9 +534,8 @@ public class Part11Step13Controller extends StepController {
                                          // accumulator value received is greater than FAh, or FAFFh, respectively.
                                          if (GHG_ACTIVE_GREEN_HOUSE_100_HR == spn.getId()
                                                  && spn.getRawValue() >= 0xFAFFL) {
-                                             addFailure("6.11.13.12.c - Active Technology value received is greater than 0xFAFF(h)"
-                                           + module.getModuleName() + " returned "
-                                           + spn.getBytes());
+                                             addFailure("6.11.13.12.c - Active Technology value received is greater than 0xFAFF(h) from "
+                                                     + module.getModuleName() + " for " + spn);
                                }
                                          // FIXME:
                                          // @Joe values defined in email will update when I get that processed
@@ -582,7 +575,7 @@ public class Part11Step13Controller extends StepController {
             if (packetForPg == null) {
                 // 6.11.13.2.a. Fail each PG query where no response was received.
                 addFailure("6.11.13.2.a - No response was received from "
-                        + module.getModuleName() + "for PG "
+                        + module.getModuleName() + " for PG "
                         + pg);
             } else {
                 packetForPg.getSpns()
@@ -590,13 +583,11 @@ public class Part11Step13Controller extends StepController {
                                // 6.11.13.2.b. Fail each PG query where any bin value received
                                // is greater than FAFFFFFFh.
                                if (spn.getRawValue() >= 0xFAFFFFFFL) {
-                                   addFailure("6.12.12.2.b - Bin value received is greater than 0xFAFFFFFF(h)"
-                                           + module.getModuleName() + " returned "
-                                           + Arrays.toString(spn.getBytes()));
+                                   addFailure("6.12.12.2.b - Bin value received is greater than 0xFAFFFFFF(h) from "
+                                           + module.getModuleName() + " for " + spn);
                                }
                                // FIXME X3: need to write the method to pull back the value by PF number. Currently have
-                               // to
-                               // use a class name. These next 3 will be fixed when the dataRepo has been corrected.
+                               // to use a class name. These next 3 will be fixed when the dataRepo has been corrected.
                                // @Joe just need to write the method to handle this and implement the call
                                // 6.11.13.2.c Fail all values where the corresponding value received in part 2 is
                                // greater
@@ -630,13 +621,13 @@ public class Part11Step13Controller extends StepController {
                 // 6.11.13.4.a. For all MY2024+ Diesel engines, Fail each PG query where no response was received.
                 if (getEngineModelYear() >= 2024) {
                     addFailure("6.11.13.4.a - No response was received from "
-                            + module.getModuleName() + "for PG "
+                            + module.getModuleName() + " for PG "
                             + pg);
                 }
                 // 6.11.13.4.b. For all MY2022-23 Diesel engines, Warn each PG query where no response was received.
                 if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
                     addWarning("6.11.13.4.b - No response was received from "
-                            + module.getModuleName() + "for PG "
+                            + module.getModuleName() + " for PG "
                             + pg);
                 }
             } else {
@@ -644,9 +635,8 @@ public class Part11Step13Controller extends StepController {
                     if (spn.getRawValue() >= 0xFAFFFFFFL) {
                         // 6.11.13.4.c. Fail each PG query where any bin value received is greater than FAFFh. (Use
                         // FAFFFFFFh for NOx values)
-                        addFailure("6.11.13.4.c - Bin value received is greater than 0xFAFFFFFF(h)"
-                                + module.getModuleName() + " returned " + Arrays.toString(spn.getBytes()) + " for "
-                                + spn);
+                        addFailure("6.11.13.4.c - Bin value received is greater than 0xFAFFFFFF(h) from "
+                                + module.getModuleName() + " for " + spn);
 
                     }
                     // 6.11.13.4.d. Fail all values where the corresponding value received in part 2 is greater than the
