@@ -34,6 +34,7 @@ import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939tools.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939tools.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket;
+import org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte;
 import org.etools.j1939tools.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939tools.j1939.packets.DM25ExpandedFreezeFrame;
@@ -55,7 +56,6 @@ import org.etools.j1939tools.j1939.packets.DiagnosticReadinessPacket;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.MonitoredSystem;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
-import org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte;
 
 public class CommunicationsModule extends FunctionalModule {
 
