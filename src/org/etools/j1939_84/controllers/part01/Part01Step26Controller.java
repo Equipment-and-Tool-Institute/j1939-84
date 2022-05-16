@@ -16,10 +16,10 @@ import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_STORED_100_HR;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_STORED_GREEN_HOUSE_100_HR;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_STORED_HYBRID_100_HR;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_STORED_HYBRID_CHG_DEPLETING_100_HR;
-import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_GREEN_HOUSE_PGs;
-import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PGs;
-import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_HYBRID_PGs;
-import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_PGs;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_HYBRID_PG;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_PG;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -395,7 +395,7 @@ public class Part01Step26Controller extends StepController {
         // Engine off) for
         // PG 64244 Hybrid Charge Depleting or Increasing Operation Lifetime Hours
         List<GenericPacket> ghgLifeTimePackets = requestPackets(module.getSourceAddress(),
-                                                                GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PGs)
+                                                                GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG)
                                                                                                                .stream()
                                                                                                                // 6.1.26.23.b.
                                                                                                                // Record
@@ -410,12 +410,12 @@ public class Part01Step26Controller extends StepController {
                                                                                                                .collect(Collectors.toList());
 
         GenericPacket packetForPg = haveResponseWithPg(ghgLifeTimePackets,
-                                                       GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PGs);
+                                                       GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG);
         if (packetForPg == null) {
             // 6.1.26.24.a. Fail PG query where no response was received
             addFailure("6.1.26.24.a - No response was received from "
                     + module.getModuleName() + "for PG "
-                    + GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PGs);
+                    + GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG);
         } else {
             packetForPg.getSpns()
                        .forEach(spn -> {
@@ -440,11 +440,12 @@ public class Part01Step26Controller extends StepController {
         var hybridChargeOpsPackets = requestPackets(module.getSourceAddress(),
                                                     GHG_STORED_HYBRID_CHG_DEPLETING_100_HR,
                                                     GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR)
-                                                                       .stream()
-                                                                       // 6.1.26.24.b. Record
-                                                                       // each value for use in Part 2.
-                                                                       .peek(this::save)
-                                                                       .collect(Collectors.toList());
+                                                                                           .stream()
+                                                                                           // 6.1.26.24.b. Record
+                                                                                           // each value for use in Part
+                                                                                           // 2.
+                                                                                           .peek(this::save)
+                                                                                           .collect(Collectors.toList());
 
         if (!hybridChargeOpsPackets.isEmpty()) {
             // 6.1.26.24.c - List data received in a table using lifetime, stored 100 hr, active 100hr for columns, and
@@ -492,7 +493,7 @@ public class Part01Step26Controller extends StepController {
         // SP 12797 (Hybrid Lifetime Propulsion System Active Time) for 64241 PSA Times
         // Lifetime Hours
         var ghgTrackingPackets = requestPackets(module.getSourceAddress(),
-                                                GHG_TRACKING_LIFETIME_HYBRID_PGs)
+                                                GHG_TRACKING_LIFETIME_HYBRID_PG)
                                                                                  .stream()
                                                                                  // 6.1.26.19.b.
                                                                                  // Record
@@ -502,12 +503,12 @@ public class Part01Step26Controller extends StepController {
                                                                                  .peek(this::save)
                                                                                  .collect(Collectors.toList());
 
-        GenericPacket packetForPg = haveResponseWithPg(ghgTrackingPackets, GHG_TRACKING_LIFETIME_HYBRID_PGs);
+        GenericPacket packetForPg = haveResponseWithPg(ghgTrackingPackets, GHG_TRACKING_LIFETIME_HYBRID_PG);
         if (packetForPg == null) {
             // 6.1.26.20.a - Fail PG query where no response was received.
             addWarning("6.1.26.20.a - No response was received from "
                     + module.getModuleName() + "for PG "
-                    + GHG_TRACKING_LIFETIME_HYBRID_PGs);
+                    + GHG_TRACKING_LIFETIME_HYBRID_PG);
         } else {
             packetForPg.getSpns()
                        .forEach(spn -> {
@@ -583,19 +584,19 @@ public class Part01Step26Controller extends StepController {
         // 6.2.17.11.a - DS request messages to ECU that indicated support in DM24 for upon request SP 12730 (GHG
         // Tracking Lifetime Engine Run Time) for PG 64252 GHG Tracking Lifetime Array Data.
         var ghgTrackingLifetimePackets = requestPackets(module.getSourceAddress(),
-                                                        GHG_TRACKING_LIFETIME_PGs)
+                                                        GHG_TRACKING_LIFETIME_PG)
                                                                                   .stream()
                                                                                   // 6.2.17.11.b - Record each value
                                                                                   // for use in Part 12.
                                                                                   .peek(this::save)
                                                                                   .collect(Collectors.toList());
 
-        GenericPacket packetForPg = haveResponseWithPg(ghgTrackingLifetimePackets, GHG_TRACKING_LIFETIME_PGs);
+        GenericPacket packetForPg = haveResponseWithPg(ghgTrackingLifetimePackets, GHG_TRACKING_LIFETIME_PG);
         if (packetForPg == null) {
             // 6.2.17.12.a. Fail PG query where no response was received
             addFailure("6.1.26.12.a - No response was received from "
                     + module.getModuleName() + "for PG "
-                    + GHG_TRACKING_LIFETIME_PGs);
+                    + GHG_TRACKING_LIFETIME_PG);
         } else {
             packetForPg.getSpns()
                        .stream()
@@ -648,7 +649,7 @@ public class Part01Step26Controller extends StepController {
                             + pg);
                 }
                 // 6.1.26.14.b. For MY2022-23 engines, Warn each PG query, where no response was received
-                if (2022 <= getEngineModelYear() && getEngineModelYear() >= 2023) {
+                if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
                     addWarning("6.1.26.10.b - No response was received from "
                             + module.getModuleName() + "for PG "
                             + pg);
@@ -679,7 +680,7 @@ public class Part01Step26Controller extends StepController {
         // SP 12691 (GHG Tracking Lifetime Active Technology Index) for
         // PG 64257 Green House Gas Lifetime Active Technology Tracking.
         var ghgPackets = requestPackets(module.getSourceAddress(),
-                                        GHG_TRACKING_LIFETIME_GREEN_HOUSE_PGs)
+                                        GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG)
                                                                               .stream()
                                                                               // 6.1.26.15.b. Record
                                                                               // each value for use
@@ -687,12 +688,12 @@ public class Part01Step26Controller extends StepController {
                                                                               .peek(this::save)
                                                                               .collect(Collectors.toList());
 
-        GenericPacket packetForPg = haveResponseWithPg(ghgPackets, GHG_TRACKING_LIFETIME_GREEN_HOUSE_PGs);
+        GenericPacket packetForPg = haveResponseWithPg(ghgPackets, GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG);
         if (packetForPg == null) {
             // 6.1.26.16.a. Warn PG query where no response was received.
             addWarning("6.1.26.16.a - No response was received from "
                     + module.getModuleName() + "for PG "
-                    + GHG_TRACKING_LIFETIME_GREEN_HOUSE_PGs);
+                    + GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG);
         } else {
             packetForPg.getSpns()
                        .forEach(spn -> {

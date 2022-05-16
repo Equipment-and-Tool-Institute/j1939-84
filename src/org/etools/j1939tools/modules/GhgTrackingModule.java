@@ -12,28 +12,28 @@ public class GhgTrackingModule {
     // places: 6.1.26, 6.2.17 and 6.12.12
 
     // 64252 GHG Tracking Lifetime Array Data - PG Acronym GHGTL
-    public static final int GHG_TRACKING_LIFETIME_PGs = 64252;
+    public static final int GHG_TRACKING_LIFETIME_PG = 64252;
     // 64254 GHG Tracking Lifetime Array Data - PG Acronym GHGTA
     public static final int GHG_ACTIVE_100_HR = 64254;
     // 64253 GHG Tracking Lifetime Array Data - PG Acronym GHGTS
     public static final int GHG_STORED_100_HR = 64253;
 
     // 64241 PSA Times Lifetime Hours - PG Acronym PSATL
-    public static final int GHG_TRACKING_LIFETIME_HYBRID_PGs = 64241;
+    public static final int GHG_TRACKING_LIFETIME_HYBRID_PG = 64241;
     // 64243 PSA Times Active 100 Hours - PG Acronym PSATA
     public static final int GHG_ACTIVE_HYBRID_100_HR = 64243;
     // 64242 PSA Times Stored 100 Hours - PG Acronym PSATS
     public static final int GHG_STORED_HYBRID_100_HR = 64242;
 
     // 64244 Hybrid Charge Depleting or Increasing Operation Lifetime Hours - PG Acronym HCDIOL
-    public static final int GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PGs = 64244;
+    public static final int GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG = 64244;
     // 64246 Hybrid Charge Depleting or Increasing Operation Stored 100 Hours - PG Acronym HCDIOA
     public static final int GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR = 64246;
     // 64245 Hybrid Charge Depleting or Increasing Operation Active 100 Hours - PG Acronym HCDIOS
     public static final int GHG_STORED_HYBRID_CHG_DEPLETING_100_HR = 64245;
 
     // 64257 Green House Gas Lifetime Active Technology Tracking - PG Acronym GHGTTL
-    public static final int GHG_TRACKING_LIFETIME_GREEN_HOUSE_PGs = 64257;
+    public static final int GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG = 64257;
     // 64256 Green House Gas Active 100 Hour Active Technology Tracking - PG Acronym GHGTTS
     public static final int GHG_ACTIVE_GREEN_HOUSE_100_HR = 64256;
     // 64255 Green House Gas Stored 100 Hour Active Technology Tracking - PG Acronym GHGTTA

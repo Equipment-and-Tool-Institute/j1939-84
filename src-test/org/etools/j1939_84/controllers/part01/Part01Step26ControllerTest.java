@@ -11,7 +11,7 @@ import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939tools.j1939.model.FuelType.DSL;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_STORED_HYBRID_CHG_DEPLETING_100_HR;
-import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PGs;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -1005,7 +1005,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         // @formatter:on
         responses.add(response64246);
 
-        when(communicationsModule.request(eq(GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PGs),
+        when(communicationsModule.request(eq(GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64244));
         when(communicationsModule.request(eq(GHG_STORED_HYBRID_CHG_DEPLETING_100_HR),
