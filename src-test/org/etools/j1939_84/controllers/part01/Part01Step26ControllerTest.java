@@ -4228,7 +4228,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                                          eq("6.1.26.2.e"));
             verify(tableA1Validator).reportProvidedButNotSupportedSPNs(eq(packet),
                                                                        any(ResultsListener.class),
-                                                                       eq("6.1.26.3.a"));
+                                                                       eq("6.1.26.4.a"));
             verify(tableA1Validator).reportPacketIfNotReported(eq(packet),
                                                                any(ResultsListener.class),
                                                                eq(false));
