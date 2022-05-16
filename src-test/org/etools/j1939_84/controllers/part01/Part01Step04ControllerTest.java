@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939tools.j1939.model.FuelType.BATT_ELEC;
@@ -14,6 +13,7 @@ import static org.etools.j1939tools.j1939.model.FuelType.HYB_GAS;
 import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -21,7 +21,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -150,7 +149,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
     // Test handling of no response from the modules
     @Test
-    public void testEmptyObdModules() throws IOException {
+    public void testEmptyObdModules() {
         DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
         when(packet1.getSourceAddress()).thenReturn(0);
 
@@ -160,6 +159,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                                                             .thenReturn(BusResult.of(packet1));
 
         VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setEngineModelYear(2013);
         vehicleInfo.setFuelType(BI_GAS);
         dataRepository.setVehicleInformation(vehicleInfo);
 
@@ -194,11 +194,10 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                                             FAIL,
                                             "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
 
-        verify(supportedSpnModule).validateDataStreamSpns(any(), any(), any());
+        verify(supportedSpnModule).validateDataStreamSpns(any(), any(), any(), anyInt());
         verify(supportedSpnModule).validateFreezeFrameSpns(any(), any());
 
         verify(vehicleInformationModule).setJ1939(j1939);
-        verify(vehicleInformationModule).getEngineModelYear();
     }
 
     @Test
@@ -208,7 +207,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
             @TestItem(verifies = "6.1.4.1.b", dependsOn = "J1939TPTest.testRequestTimeout"),
             @TestItem(verifies = "6.1.4.2.a,b,c")
     }, description = "Using a response that indicates that 6.1.4.2.a, 6.1.4.2.b, 6.1.4.2.c all failed, verify that the failures are in the report.")
-    public void testErroredObject() throws IOException {
+    public void testErroredObject() {
         DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
         when(packet1.getSourceAddress()).thenReturn(0);
 
@@ -222,6 +221,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                                                             .thenReturn(BusResult.of(packet4));
 
         VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setEngineModelYear(2013);
         vehicleInfo.setFuelType(BI_GAS);
         dataRepository.setVehicleInformation(vehicleInfo);
 
@@ -248,11 +248,10 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
 
-        verify(supportedSpnModule).validateDataStreamSpns(any(), any(), any());
+        verify(supportedSpnModule).validateDataStreamSpns(any(), any(), any(), anyInt());
         verify(supportedSpnModule).validateFreezeFrameSpns(any(), any());
 
         verify(vehicleInformationModule).setJ1939(j1939);
-        verify(vehicleInformationModule, times(2)).getEngineModelYear();
     }
 
     @Test
@@ -279,7 +278,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
     @Test
     // Testing object without any errors.
     @TestDoc(value = @TestItem(verifies = "6.1.4.2.a,b,c"), description = "Verify that step completes without errors when none of the fail criteria are met.")
-    public void testGoodObjects() throws IOException {
+    public void testGoodObjects() {
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
         dataRepository.putObdModule(new OBDModuleInformation(1));
@@ -342,9 +341,10 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
         VehicleInformation vehicleInfo = new VehicleInformation();
         vehicleInfo.setFuelType(BI_GAS);
+        vehicleInfo.setEngineModelYear(2013);
         dataRepository.setVehicleInformation(vehicleInfo);
 
-        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any())).thenReturn(true);
+        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any(), anyInt())).thenReturn(true);
         when(supportedSpnModule.validateFreezeFrameSpns(any(), any())).thenReturn(true);
 
         runTest();
@@ -365,7 +365,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         //@formatter:on
 
         Collections.sort(expectedDataStreamsPacket4);
-        verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(BI_GAS));
+        verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(BI_GAS), anyInt());
 
         List<Integer> expectedFreezeFrames = Arrays.asList(512,
                                                            513,
@@ -671,14 +671,12 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         };
         expectedPacket4Spns.sort(Comparator.comparingInt(SupportedSPN::getSpn));
         assertEquals(expectedPacket4Spns, dataRepository.getObdModule(1).getSupportedSPNs());
-
-        verify(vehicleInformationModule, times(2)).getEngineModelYear();
     }
 
     @Test
     // Testing object without any errors.
     @TestDoc(value = @TestItem(verifies = "6.1.4.2.d"), description = "For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1 - Total) is not included in DM24 response.")
-    public void testMy2022ObjectsMissing12675() throws IOException {
+    public void testMy2022ObjectsMissing12675() {
 
         //@formatter:off
         DM24SPNSupportPacket packet1 = DM24SPNSupportPacket.create(0x00,
@@ -837,11 +835,11 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obd0x01);
 
         VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setEngineModelYear(2022);
         vehicleInfo.setFuelType(BI_DSL);
         dataRepository.setVehicleInformation(vehicleInfo);
-        when(vehicleInformationModule.getEngineModelYear()).thenReturn(2022);
 
-        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any())).thenReturn(true);
+        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any(), anyInt())).thenReturn(true);
         when(supportedSpnModule.validateFreezeFrameSpns(any(), any())).thenReturn(true);
 
         runTest();
@@ -863,7 +861,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         //@formatter:on
 
         Collections.sort(expectedDataStreamsPacket4);
-        verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(BI_DSL));
+        verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(BI_DSL), eq(2022));
 
         List<Integer> expectedFreezeFrames = Arrays.asList(92, 110, 190, 512, 513, 529, 531, 533, 535, 537, 3301);
         Collections.sort(expectedFreezeFrames);
@@ -1023,23 +1021,17 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(4),
                                         eq(FAIL),
-                                        eq("6.1.4.2.d - For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1 - Total)"
-                                                + NL
-                                                + "            is not included in DM24 response from Engine #1 (0)"));
+                                        eq("6.1.4.2.d - SP 12675 is not included in DM24 response from Engine #1 (0)"));
         verify(mockListener).addOutcome(eq(1),
                                         eq(4),
                                         eq(FAIL),
-                                        eq("6.1.4.2.d - For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1 - Total)"
-                                                + NL
-                                                + "            is not included in DM24 response from Engine #2 (1)"));
-
-        verify(vehicleInformationModule, times(2)).getEngineModelYear();
+                                        eq("6.1.4.2.d - SP 12675 is not included in DM24 response from Engine #2 (1)"));
     }
 
     @Test
     // Testing object without any errors.
     @TestDoc(value = @TestItem(verifies = "6.1.4.2"), description = "Verify that step completes without errors when none of the fail criteria are met using a MY2022+ engine.")
-    public void testMy2022Objects() throws IOException {
+    public void testMy2022Objects() {
 
         //@formatter:off
         DM24SPNSupportPacket packet1 = DM24SPNSupportPacket.create(0x00,
@@ -1200,11 +1192,11 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obd0x01);
 
         VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setEngineModelYear(2022);
         vehicleInfo.setFuelType(BI_DSL);
         dataRepository.setVehicleInformation(vehicleInfo);
-        when(vehicleInformationModule.getEngineModelYear()).thenReturn(2022);
 
-        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any())).thenReturn(true);
+        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any(), anyInt())).thenReturn(true);
         when(supportedSpnModule.validateFreezeFrameSpns(any(), any())).thenReturn(true);
 
         runTest();
@@ -1226,7 +1218,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         //@formatter:on
 
         Collections.sort(expectedDataStreamsPacket4);
-        verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(BI_DSL));
+        verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(BI_DSL), eq(2022));
 
         List<Integer> expectedFreezeFrames = Arrays.asList(92, 110, 190, 512, 513, 529, 531, 533, 535, 537, 3301);
         Collections.sort(expectedFreezeFrames);
@@ -1384,14 +1376,12 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         };
         expectedPacket4Spns.sort(Comparator.comparingInt(SupportedSPN::getSpn));
         assertEquals(expectedPacket4Spns, dataRepository.getObdModule(1).getSupportedSPNs());
-
-        verify(vehicleInformationModule, times(2)).getEngineModelYear();
     }
 
     @Test
     // Testing object without any errors.
     @TestDoc(value = @TestItem(verifies = "6.1.4.2.d"), description = "For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1 - Total) is not included in DM24 response.")
-    public void testMy2022ObjectsMissing12783() throws IOException {
+    public void testMy2022ObjectsMissing12783() {
 
         //@formatter:off
         DM24SPNSupportPacket packet1 = DM24SPNSupportPacket.create(0x00,
@@ -1548,11 +1538,11 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obd0x01);
 
         VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setEngineModelYear(2022);
         vehicleInfo.setFuelType(BATT_ELEC);
         dataRepository.setVehicleInformation(vehicleInfo);
-        when(vehicleInformationModule.getEngineModelYear()).thenReturn(2022);
 
-        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any())).thenReturn(true);
+        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any(), anyInt())).thenReturn(true);
         when(supportedSpnModule.validateFreezeFrameSpns(any(), any())).thenReturn(true);
 
         runTest();
@@ -1574,7 +1564,10 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         //@formatter:on
 
         Collections.sort(expectedDataStreamsPacket4);
-        verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(BATT_ELEC));
+        verify(supportedSpnModule).validateDataStreamSpns(any(),
+                                                          eq(expectedDataStreamsPacket4),
+                                                          eq(BATT_ELEC),
+                                                          eq(2022));
 
         List<Integer> expectedFreezeFrames = Arrays.asList(92, 110, 190, 512, 513, 529, 531, 533, 535, 537, 3301);
         Collections.sort(expectedFreezeFrames);
@@ -1732,21 +1725,17 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(4),
                                         eq(FAIL),
-                                        eq("6.1.4.2.h - For all MY2022+ Plug-in HEV drives, Fail if SP 12783 (Hybrid Lifetime Distance Traveled in Charge Depleting Operation with Engine off),"
-                                                + NL + " is not included in DM24 response from Engine #1 (0)"));
+                                        eq("6.1.4.2.h - SP 12783 is not included in DM24 response from Engine #1 (0)"));
         verify(mockListener).addOutcome(eq(1),
                                         eq(4),
                                         eq(FAIL),
-                                        eq("6.1.4.2.h - For all MY2022+ Plug-in HEV drives, Fail if SP 12783 (Hybrid Lifetime Distance Traveled in Charge Depleting Operation with Engine off),"
-                                                + NL + " is not included in DM24 response from Engine #2 (1)"));
-
-        verify(vehicleInformationModule, times(2)).getEngineModelYear();
+                                        eq("6.1.4.2.h - SP 12783 is not included in DM24 response from Engine #2 (1)"));
     }
 
     @Test
     // Testing object without any errors.
     @TestDoc(value = @TestItem(verifies = "6.1.4.2.d"), description = "For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1 - Total) is not included in DM24 response.")
-    public void testMy2022ObjectsMissing12691() throws IOException {
+    public void testMy2022ObjectsMissing12691() {
 
         //@formatter:off
         DM24SPNSupportPacket packet1 = DM24SPNSupportPacket.create(0x00,
@@ -1901,11 +1890,11 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obd0x01);
 
         VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setEngineModelYear(2022);
         vehicleInfo.setFuelType(HYB_GAS);
         dataRepository.setVehicleInformation(vehicleInfo);
-        when(vehicleInformationModule.getEngineModelYear()).thenReturn(2022);
 
-        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any())).thenReturn(true);
+        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any(), anyInt())).thenReturn(true);
         when(supportedSpnModule.validateFreezeFrameSpns(any(), any())).thenReturn(true);
 
         runTest();
@@ -1927,7 +1916,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         //@formatter:on
 
         Collections.sort(expectedDataStreamsPacket4);
-        verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(HYB_GAS));
+        verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(HYB_GAS), eq(2022));
 
         List<Integer> expectedFreezeFrames = Arrays.asList(92, 110, 190, 512, 513, 529, 531, 533, 535, 537, 3301);
         Collections.sort(expectedFreezeFrames);
@@ -2083,19 +2072,17 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(4),
                                         eq(WARN),
-                                        eq("6.1.4.2.f - For all MY2022+ engines, Warn if SP 12691 (GHG Tracking Lifetime Active Technology Index) is not included in DM24 response from Engine #1 (0)"));
+                                        eq("6.1.4.2.f - SP 12691 is not included in DM24 response from Engine #1 (0)"));
         verify(mockListener).addOutcome(eq(1),
                                         eq(4),
                                         eq(WARN),
-                                        eq("6.1.4.2.f - For all MY2022+ engines, Warn if SP 12691 (GHG Tracking Lifetime Active Technology Index) is not included in DM24 response from Engine #2 (1)"));
-
-        verify(vehicleInformationModule, times(2)).getEngineModelYear();
+                                        eq("6.1.4.2.f - SP 12691 is not included in DM24 response from Engine #2 (1)"));
     }
 
     @Test
     // Testing object without any errors.
     @TestDoc(value = @TestItem(verifies = "6.1.4.2.d"), description = "For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1 - Total) is not included in DM24 response.")
-    public void testMy2022ObjectsMissing12730() throws IOException {
+    public void testMy2022ObjectsMissing12730() {
 
         //@formatter:off
         DM24SPNSupportPacket packet1 = DM24SPNSupportPacket.create(0x00,
@@ -2252,11 +2239,11 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obd0x01);
 
         VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setEngineModelYear(2022);
         vehicleInfo.setFuelType(HYB_GAS);
         dataRepository.setVehicleInformation(vehicleInfo);
-        when(vehicleInformationModule.getEngineModelYear()).thenReturn(2022);
 
-        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any())).thenReturn(true);
+        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any(), anyInt())).thenReturn(true);
         when(supportedSpnModule.validateFreezeFrameSpns(any(), any())).thenReturn(true);
 
         runTest();
@@ -2278,7 +2265,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         //@formatter:on
 
         Collections.sort(expectedDataStreamsPacket4);
-        verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(HYB_GAS));
+        verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(HYB_GAS), eq(2022));
 
         List<Integer> expectedFreezeFrames = Arrays.asList(92, 110, 190, 512, 513, 529, 531, 533, 535, 537, 3301);
         Collections.sort(expectedFreezeFrames);
@@ -2436,19 +2423,17 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(4),
                                         eq(WARN),
-                                        eq("6.1.4.2.e. - For all MY2022+ engines, Fail if SP 12730 (GHG Tracking Engine Run Time) is not included in DM24 response from Engine #1 (0)"));
+                                        eq("6.1.4.2.e - SP 12730 is not included in DM24 response from Engine #1 (0)"));
         verify(mockListener).addOutcome(eq(1),
                                         eq(4),
                                         eq(WARN),
-                                        eq("6.1.4.2.e. - For all MY2022+ engines, Fail if SP 12730 (GHG Tracking Engine Run Time) is not included in DM24 response from Engine #2 (1)"));
-
-        verify(vehicleInformationModule, times(2)).getEngineModelYear();
+                                        eq("6.1.4.2.e - SP 12730 is not included in DM24 response from Engine #2 (1)"));
     }
 
     @Test
     // Testing object without any errors.
     @TestDoc(value = @TestItem(verifies = "6.1.4.2.d"), description = "For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1 - Total) is not included in DM24 response.")
-    public void testMy2022ObjectsMissing12797() throws IOException {
+    public void testMy2022ObjectsMissing12797() {
 
         //@formatter:off
         DM24SPNSupportPacket packet1 = DM24SPNSupportPacket.create(0x00,
@@ -2603,11 +2588,11 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obd0x01);
 
         VehicleInformation vehicleInfo = new VehicleInformation();
+        vehicleInfo.setEngineModelYear(2022);
         vehicleInfo.setFuelType(HYB_ETH);
         dataRepository.setVehicleInformation(vehicleInfo);
-        when(vehicleInformationModule.getEngineModelYear()).thenReturn(2022);
 
-        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any())).thenReturn(true);
+        when(supportedSpnModule.validateDataStreamSpns(any(), any(), any(), anyInt())).thenReturn(true);
         when(supportedSpnModule.validateFreezeFrameSpns(any(), any())).thenReturn(true);
 
         runTest();
@@ -2629,7 +2614,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         //@formatter:on
 
         Collections.sort(expectedDataStreamsPacket4);
-        verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(HYB_ETH));
+        verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(HYB_ETH), eq(2022));
 
         List<Integer> expectedFreezeFrames = Arrays.asList(92, 110, 190, 512, 513, 529, 531, 533, 535, 537, 3301);
         Collections.sort(expectedFreezeFrames);
@@ -2785,16 +2770,10 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(4),
                                         eq(FAIL),
-                                        eq("6.1.4.2.g - For all MY2022+ HEV and BEV drives, Fail if SP 12797 (Hybrid Lifetime Propulsion System Active Time),"
-                                                + NL
-                                                + " is not included in DM24 response (SP 12797 is Lifetime EV Tracking Byte 1 SP) from Engine #1 (0)"));
+                                        eq("6.1.4.2.g - SP 12797 is not included in DM24 response from Engine #1 (0)"));
         verify(mockListener).addOutcome(eq(1),
                                         eq(4),
                                         eq(FAIL),
-                                        eq("6.1.4.2.g - For all MY2022+ HEV and BEV drives, Fail if SP 12797 (Hybrid Lifetime Propulsion System Active Time),"
-                                                + NL
-                                                + " is not included in DM24 response (SP 12797 is Lifetime EV Tracking Byte 1 SP) from Engine #2 (1)"));
-
-        verify(vehicleInformationModule, times(2)).getEngineModelYear();
+                                        eq("6.1.4.2.g - SP 12797 is not included in DM24 response from Engine #2 (1)"));
     }
 }

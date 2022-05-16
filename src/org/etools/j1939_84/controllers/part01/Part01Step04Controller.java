@@ -3,11 +3,9 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939tools.j1939.model.FuelType.BATT_ELEC;
 import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -23,9 +21,7 @@ import org.etools.j1939_84.modules.SupportedSpnModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.j1939.Lookup;
-import org.etools.j1939tools.j1939.model.FuelType;
 import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
-import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.j1939.packets.SupportedSPN;
 import org.etools.j1939tools.modules.CommunicationsModule;
@@ -137,7 +133,10 @@ public class Part01Step04Controller extends StepController {
                                                           .sorted()
                                                           .collect(Collectors.toList());
 
-        boolean dataStreamOk = supportedSpnModule.validateDataStreamSpns(getListener(), dataStreamSPNs, getFuelType());
+        boolean dataStreamOk = supportedSpnModule.validateDataStreamSpns(getListener(),
+                                                                         dataStreamSPNs,
+                                                                         getFuelType(),
+                                                                         getEngineModelYear());
         if (!dataStreamOk) {
             addFailure("6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
         }
@@ -160,54 +159,38 @@ public class Part01Step04Controller extends StepController {
 
         for (OBDModuleInformation obdModule : getDataRepository().getObdModules()) {
             // For MY2022+ diesel engines
-            boolean modelYearIs2022Plus = getVehicleInformationModule().getEngineModelYear() >= 2022;
-            List<GenericPacket> packets = new ArrayList<>();
-            int address = obdModule.getSourceAddress();
-            FuelType fuelType = getFuelType();
+            boolean modelYearIs2022Plus = getEngineModelYear() >= 2022;
 
             // 6.1.4.2.d. For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel
             // Consumption Bin 1 - Total) is not included in DM24 response
-            if (modelYearIs2022Plus && fuelType.isCompressionIgnition()
-                    && !obdModule.supportsSpn(12675)) {
-                    addFailure(
-                               "6.1.4.2.d - For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1 - Total)"
-                                       + NL + "            is not included in DM24 response from "
-                                       + Lookup.getAddressName(obdModule.getSourceAddress()));
+            if (modelYearIs2022Plus && getFuelType().isCompressionIgnition() && !obdModule.supportsSpn(12675)) {
+                addFailure("6.1.4.2.d - SP 12675 is not included in DM24 response from " + obdModule.getModuleName());
             }
             // 6.1.4.2.e. For all MY2022+ engines, Fail if SP 12730 (GHG Tracking Engine Run Time) is not included
             // in DM24 response
             if (modelYearIs2022Plus && !obdModule.supportsSpn(12730)) {
-                addWarning(
-                           "6.1.4.2.e. - For all MY2022+ engines, Fail if SP 12730 (GHG Tracking Engine Run Time) is not included in DM24 response from "
-                                   + Lookup.getAddressName(obdModule.getSourceAddress()));
+                addWarning("6.1.4.2.e - SP 12730 is not included in DM24 response from " + obdModule.getModuleName());
             }
 
             // 6.1.4.2.f. For all MY2022+ engines, Warn if SP 12691 (GHG Tracking Lifetime Active Technology Index)
             // is not included in DM24 response
             if (modelYearIs2022Plus && !obdModule.supportsSpn(12691)) {
-                addWarning(
-                           "6.1.4.2.f - For all MY2022+ engines, Warn if SP 12691 (GHG Tracking Lifetime Active Technology Index) is not included in DM24 response from "
-                                   + Lookup.getAddressName(obdModule.getSourceAddress()));
+                addWarning("6.1.4.2.f - SP 12691 is not included in DM24 response from " + obdModule.getModuleName());
             }
 
             // 6.1.4.2.g. For all MY2022+ HEV and BEV drives, Fail if SP 12797 (Hybrid Lifetime Propulsion System
             // Active Time), is not included in DM24 response. (SP 12797 is Lifetime EV Tracking Byte 1 SP)
-            if (modelYearIs2022Plus && (fuelType.isHybrid() || fuelType.isElectric())
+            if (modelYearIs2022Plus && (getFuelType().isHybrid() || getFuelType().isElectric())
                     && !obdModule.supportsSpn(12797)) {
-                addFailure("6.1.4.2.g - For all MY2022+ HEV and BEV drives, Fail if SP 12797 (Hybrid Lifetime Propulsion System Active Time),"
-                                   + NL
-                                   + " is not included in DM24 response (SP 12797 is Lifetime EV Tracking Byte 1 SP) from "
-                        + Lookup.getAddressName(obdModule.getSourceAddress()));
+                addFailure("6.1.4.2.g - SP 12797 is not included in DM24 response from " + obdModule.getModuleName());
             }
 
             // 6.1.4.2.h. For all MY2022+ Plug-in HEV drives, Fail if SP 12783 (Hybrid Lifetime Distance Traveled in
             // Charge Depleting Operation with Engine off), is not included in DM24 response
-            if (modelYearIs2022Plus && fuelType == BATT_ELEC && !obdModule.supportsSpn(12783)) {
-                addFailure(
-                           "6.1.4.2.h - For all MY2022+ Plug-in HEV drives, Fail if SP 12783 (Hybrid Lifetime Distance Traveled in Charge Depleting Operation with Engine off),"
-                                   + NL + " is not included in DM24 response from "
-                                   + Lookup.getAddressName(obdModule.getSourceAddress()));
+            if (modelYearIs2022Plus && getFuelType() == BATT_ELEC && !obdModule.supportsSpn(12783)) {
+                addFailure("6.1.4.2.h - SP 12783 is not included in DM24 response from " + obdModule.getModuleName());
             }
         }
     }
+
 }
