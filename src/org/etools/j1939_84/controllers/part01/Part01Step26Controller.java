@@ -133,6 +133,8 @@ public class Part01Step26Controller extends StepController {
                                                          // places in the testing - not sure on that, apparently wrong
                                                          // on that check email from Eric date 5/8/22 @ around 9:30 AM
                                                          // containing document entitled "SecondChanceClarification.docx
+                                                         // FIXME: need to update to add functionality of 6.1.26.1.b
+                                                         // @Joe - will be implemented with Eric new file is completed
                                                          // 6.1.26.1.b. Add any omissions from Table A-1, excluding
                                                          // those SPs noted (as CI or SI) for the opposite fuel type
                                                          // provided by the user
@@ -154,6 +156,7 @@ public class Part01Step26Controller extends StepController {
         // with DS queries (in step 6.1.26.5 for SPs supported in DM24) and SPs that are expected without queries.
         // 6.1.26.1.e. Gather/timestamp each parameter that is observed at least three times to be able to verify
         // frequency of broadcast
+        // we need 3 samples plus time for a BAM, to 4 * maxPeriod
         Stream<GenericPacket> packetStream = busService.readBus(broadcastValidator.getMaximumBroadcastPeriod() * 4,
                                                                 "6.1.26.1.e");
 
@@ -188,11 +191,11 @@ public class Part01Step26Controller extends StepController {
                                                   // 6.1.26.3.a. Identify SPNs provided in the data stream that are
                                                   // listed in Table A-1, but are not supported by any OBD ECU in its
                                                   // DM24 response.
-                                                  tableA1Validator.reportProvidedButNotSupportedSPNs(p,
-                                                                                                     getListener(),
-                                                                                                     "6.1.26.3.a"))
                                                   // 6.1.26.4.a. Fail/warn per Table A-1 column, “Action if SPN provided
                                                   // but not included in DM24”.
+                                                  tableA1Validator.reportProvidedButNotSupportedSPNs(p,
+                                                                                                     getListener(),
+                                                                                                     "6.1.26.4.a"))
                                                   .peek(p -> tableA1Validator.reportPacketIfNotReported(p,
                                                                                                         getListener(),
                                                                                                         false))
@@ -307,7 +310,7 @@ public class Part01Step26Controller extends StepController {
                                                                                                     getListener(),
                                                                                                     getPartNumber(),
                                                                                                     getStepNumber(),
-                                                                                                    "6.1.26.6.a");
+                                                                                                    "6.1.26.6.b");
 
                 if (!notAvailableSPNs.isEmpty()) {
                     // 6.1.26.5.b - If no response/no valid data for any SP requested in 6.1.25.3.a, send global message
