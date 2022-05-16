@@ -389,7 +389,7 @@ public class Part02Step17Controller extends StepController {
             if (packetForPg == null) {
                 // 6.2.17.24.a. Fail PG query where no response was received
                 addFailure("6.2.17.24.a - No response was received from "
-                        + module.getModuleName() + "for PG "
+                        + module.getModuleName() + " for PG "
                         + GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PGs);
             } else {
                 packetForPg.getSpns()
@@ -444,14 +444,14 @@ public class Part02Step17Controller extends StepController {
                 // no response was received.
                 if (getEngineModelYear() >= 2024) {
                     addFailure("6.2.17.26.a - No response was received from "
-                            + module.getModuleName() + "for PG "
+                            + module.getModuleName() + " for PG "
                             + pg);
                 }
                 // 6.2.17.26.b - For MY2022-23 Plug-in HEV DRIVES, Warn each PG query,
                 // where no response was received
                 if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
                     addWarning("6.2.17.26.b - No response was received from "
-                            + module.getModuleName() + "for PG "
+                            + module.getModuleName() + " for PG "
                             + pg);
                 }
             } else {
@@ -504,7 +504,7 @@ public class Part02Step17Controller extends StepController {
             if (packetForPg == null) {
                 // 6.2.17.20.a - Fail PG query where no response was received.
                 addWarning("6.2.17.20.a - No response was received from "
-                        + module.getModuleName() + "for PG "
+                        + module.getModuleName() + " for PG "
                         + GHG_TRACKING_LIFETIME_HYBRID_PGs);
             } else {
                 packetForPg.getSpns()
@@ -554,14 +554,14 @@ public class Part02Step17Controller extends StepController {
                 // response was received.
                 if (getEngineModelYear() >= 2024) {
                     addFailure("6.2.17.22.a - No response was received from "
-                            + module.getModuleName() + "for PG "
+                            + module.getModuleName() + " for PG "
                             + pg);
                 }
                 // 6.2.17.22.b - For MY2022-23 HEV and BEV drives, Warn each PG query, where no
                 // response was received.
                 if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
                     addWarning("6.2.17.22.b - No response was received from "
-                            + module.getModuleName() + "for PG "
+                            + module.getModuleName() + " for PG "
                             + pg);
                 }
             } else {
@@ -601,7 +601,7 @@ public class Part02Step17Controller extends StepController {
             if (packetForPg == null) {
                 // 6.2.17.12.a. Fail PG query where no response was received
                 addFailure("6.2.17.12.a - No response was received from "
-                        + module.getModuleName() + "for PG "
+                        + module.getModuleName() + " for PG "
                         + GHG_TRACKING_LIFETIME_PGs);
             } else {
                 packetForPg.getSpns()
@@ -652,13 +652,13 @@ public class Part02Step17Controller extends StepController {
                 // 6.2.17.14.a. For all MY2024+ engines, Fail each PG query where no response was received.
                 if (getEngineModelYear() >= 2024) {
                     addFailure("6.2.17.14.a - No response was received from "
-                            + module.getModuleName() + "for PG "
+                            + module.getModuleName() + " for PG "
                             + pg);
                 }
                 // 6.2.17.14.b. For MY2022-23 engines, Warn each PG query, where no response was received
                 if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
                     addWarning("6.2.17.14.b - No response was received from "
-                            + module.getModuleName() + "for PG "
+                            + module.getModuleName() + " for PG "
                             + pg);
                 }
             } else {
@@ -698,7 +698,7 @@ public class Part02Step17Controller extends StepController {
             if (packetForPg == null) {
                 // 6.2.17.16.a. Warn PG query where no response was received.
                 addWarning("6.2.17.16.a - No response was received from "
-                        + module.getModuleName() + "for PG "
+                        + module.getModuleName() + " for PG "
                         + pg);
             } else {
                 packetForPg.getSpns()
@@ -788,6 +788,7 @@ public class Part02Step17Controller extends StepController {
                            });
                 // FIXME:
                 // 6.2.17.18.e. Fail each response where the number of labels received are not
+                // @Joe this is clarified in the email from Eric
                 // the same as the number of labels received for the lifetime technology
                 // response.
                 // if (packetForPg.getSpns().size() != ghgPackets.get(0).getSpns().size()) {
@@ -819,7 +820,7 @@ public class Part02Step17Controller extends StepController {
             if (packetForPg == null) {
                 // 6.2.17.8.a. Fail each PG query where no response was received.
                 addFailure("6.2.17.8.a - No response was received from "
-                        + module.getModuleName() + "for PG "
+                        + module.getModuleName() + " for PG "
                         + pg);
             } else {
                 packetForPg.getSpns()
@@ -827,7 +828,7 @@ public class Part02Step17Controller extends StepController {
                                // 6.2.17.8.b. Fail each PG query where any bin value received
                                // is greater than FAFFFFFFh.
                                if (spn.getRawValue() >= 0xFAFFFFFFL) {
-                                   addFailure("6.2.17.8.b - Bin value received is greater than 0xFAFFFFFF(h)"
+                                   addFailure("6.2.17.8.b - Bin value received is greater than 0xFAFFFFFF(h) form "
                                            + module.getModuleName() + " for " + spn);
                                }
                                // FIXME: need to write the method to pull back the value by PF number. Currently have to
@@ -867,13 +868,13 @@ public class Part02Step17Controller extends StepController {
                 // 6.2.17.10.a. For all MY2024+ Diesel engines, Fail each PG query where no response was received.
                 if (getEngineModelYear() >= 2024) {
                     addFailure("6.2.17.10.a - No response was received from "
-                            + module.getModuleName() + "for PG "
+                            + module.getModuleName() + " for PG "
                             + pg);
                 }
                 // 6.2.17.10.b. For all MY2022-23 Diesel engines, Warn each PG query where no response was received.
                 if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
                     addWarning("6.2.17.10.b - No response was received from "
-                            + module.getModuleName() + "for PG "
+                            + module.getModuleName() + " for PG "
                             + pg);
                 }
             } else {
@@ -889,7 +890,7 @@ public class Part02Step17Controller extends StepController {
                     if (spn.getValue() > 0) {
                         // 6.2.17.10.d. Warn for all active 100 hr bin 3 through bin 17 values that are greater than
                         // zero. (Where supported)
-                        addWarning("6.2.17.10.d - Active 100 hr array bin 3 through bin 17 values received has a value greater than zero (where supported)"
+                        addWarning("6.2.17.10.d - Active 100 hr array bin 3 through bin 17 values received has a value greater than zero (where supported) from "
                                 + module.getModuleName() + " for " + spn);
 
                     }
