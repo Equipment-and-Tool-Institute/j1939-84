@@ -55,7 +55,7 @@ public class Part02Step17Controller extends StepController {
              new EngineSpeedModule(),
              new VehicleInformationModule(),
              new CommunicationsModule(),
-             new TableA1Validator(DataRepository.getInstance(), PART_NUMBER, STEP_NUMBER),
+             new TableA1Validator(PART_NUMBER, STEP_NUMBER),
              J1939DaRepository.getInstance(),
              new BroadcastValidator(DataRepository.getInstance(), J1939DaRepository.getInstance()),
              new BusService(J1939DaRepository.getInstance()));

@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class SpnGroup {
+public class SpnGroup implements Comparable<SpnGroup> {
     public final List<Integer> spns;
 
     public SpnGroup(Integer... spns) {
@@ -26,5 +26,12 @@ public class SpnGroup {
     @Override
     public String toString() {
         return "SPNs: " + spns.stream().map(Object::toString).collect(Collectors.joining(", "));
+    }
+
+    @Override
+    public int compareTo(SpnGroup spnGroup) {
+        int thisSum = spns.stream().mapToInt(s -> s).sum();
+        int thatSum = spnGroup.spns.stream().mapToInt(s -> s).sum();
+        return thisSum - thatSum;
     }
 }
