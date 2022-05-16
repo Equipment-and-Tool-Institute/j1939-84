@@ -9,6 +9,10 @@ public class TableA1ValueValidator {
 
     private final DataRepository dataRepository;
 
+    TableA1ValueValidator() {
+        this(DataRepository.getInstance());
+    }
+
     TableA1ValueValidator(DataRepository dataRepository) {
         this.dataRepository = dataRepository;
     }
@@ -34,9 +38,14 @@ public class TableA1ValueValidator {
             case 91:
                 return value > 0;
             case 514:
-            case 2978:
                 if (isEngineRunning) {
                     return value <= 0;
+                } else {
+                    return value > 0;
+                }
+            case 2978:
+                if (isEngineRunning) {
+                    return value > 8 || value < 0;
                 } else {
                     return value > 0;
                 }
@@ -112,10 +121,25 @@ public class TableA1ValueValidator {
                     return value > 0;
                 }
             case 7333:
+            case 2659:
+            case 12750:
+            case 12751:
+            case 6894:
+            case 4331:
+            case 6595:
+            case 12752:
+            case 4348:
+            case 6593:
+            case 3481:
+            case 5503:
+            case 12743:
+            case 3479:
+            case 5444:
+                return !isEngineRunning && value > 0;
             case 3609:
             case 3610:
             case 3251:
-                return !isEngineRunning && value > 0;
+                return !isEngineRunning && value > 3;
             case 3226:
                 return !isEngineRunning && value != 3012.8 && value > 500;
             case 132:
@@ -133,16 +157,16 @@ public class TableA1ValueValidator {
             case 102:
             case 1127:
                 if (isEngineRunning) {
-                    return value > 10;
+                    return value > 21;
                 } else {
-                    return value > 2;
+                    return value > 4;
                 }
             case 106:
             case 3563:
                 if (isEngineRunning) {
-                    return value > 111;
+                    return value > 121;
                 } else {
-                    return value > 104;
+                    return value > 105;
                 }
             case 5829:
                 if (isEngineRunning) {
@@ -150,6 +174,10 @@ public class TableA1ValueValidator {
                 } else {
                     return value > 5;
                 }
+            case 4360:
+            case 4363:
+                return !isEngineRunning && value < 7;
+
         }
         return false;
     }

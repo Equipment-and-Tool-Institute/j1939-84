@@ -38,6 +38,7 @@ import org.etools.j1939tools.j1939.model.SpnDefinition;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.SupportedSPN;
 import org.etools.j1939tools.modules.DateTimeModule;
+import org.etools.j1939tools.modules.TestDateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -273,31 +274,31 @@ public class BroadcastValidatorTest {
 
         String expected = "" + NL;
         expected += "PGN 11111 from Engine #1 (0)" + NL;
-        expected += "07:30:00.0000 - 11111" + NL;
+        expected += "10:15:30.0000 - 11111" + NL;
         expected += NL;
         expected += "PGN 22222 from Engine #1 (0)" + NL;
-        expected += "07:30:00.1000 - 22222" + NL;
-        expected += "07:30:00.2000 - 22222" + NL;
+        expected += "10:15:30.0000 - 22222" + NL;
+        expected += "10:15:30.0000 - 22222" + NL;
         expected += NL;
         expected += "PGN 33333 from Engine #1 (0)" + NL;
-        expected += "07:30:01.0000 - 33333" + NL;
-        expected += "07:30:02.0010 - 33333" + NL;
-        expected += "07:30:02.9990 - 33333" + NL;
+        expected += "10:15:30.0000 - 33333" + NL;
+        expected += "10:15:30.0000 - 33333" + NL;
+        expected += "10:15:30.0000 - 33333" + NL;
         expected += NL;
         expected += "PGN 44444 from Engine #1 (0)" + NL;
-        expected += "07:30:05.0000 - 44444" + NL;
-        expected += "07:30:05.0500 - 44444" + NL;
-        expected += "07:30:05.1000 - 44444" + NL;
+        expected += "10:15:30.0000 - 44444" + NL;
+        expected += "10:15:30.0000 - 44444" + NL;
+        expected += "10:15:30.0000 - 44444" + NL;
         expected += NL;
         expected += "PGN 55555 from Engine #1 (0)" + NL;
-        expected += "07:30:01.0000 - 55555" + NL;
-        expected += "07:30:02.0000 - 55555" + NL;
-        expected += "07:30:03.0000 - 55555" + NL;
+        expected += "10:15:30.0000 - 55555" + NL;
+        expected += "10:15:30.0000 - 55555" + NL;
+        expected += "10:15:30.0000 - 55555" + NL;
         expected += NL;
         expected += "PGN 66666 from Engine #1 (0)" + NL;
-        expected += "07:30:02.0000 - 66666" + NL;
-        expected += "07:30:04.5000 - 66666" + NL;
-        expected += "07:30:07.0000 - 66666" + NL;
+        expected += "10:15:30.0000 - 66666" + NL;
+        expected += "10:15:30.0000 - 66666" + NL;
+        expected += "10:15:30.0000 - 66666" + NL;
 
         assertEquals(expected, listener.getResults());
 
@@ -314,6 +315,7 @@ public class BroadcastValidatorTest {
 
     @Before
     public void setUp() throws Exception {
+        DateTimeModule.setInstance(new TestDateTimeModule());
         instance = new BroadcastValidator(dataRepository, j1939DaRepository);
     }
 

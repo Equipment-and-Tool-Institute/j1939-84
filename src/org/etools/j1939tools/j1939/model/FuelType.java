@@ -168,25 +168,10 @@ public enum FuelType {
      */
     private final int value;
 
-    /**
-     * The SAE defined value for the Electric Type
-     */
     private final boolean isElectric;
 
-    /**
-     * The SAE defined value for the Hybrid Type
-     */
     private final boolean isHybrid;
 
-    /**
-     * Constructor
-     * 
-     * @param value
-     *                       the SAE defined value for the Fuel Type
-     * @param string
-     * @param isElectric
-     * @param isHybrid
-     */
     FuelType(int value, String string, IgnitionType ignitionType, boolean isElectric, boolean isHybrid) {
         this.string = string;
         this.value = value;

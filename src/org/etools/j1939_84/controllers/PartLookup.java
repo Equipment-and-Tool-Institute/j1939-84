@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import org.etools.j1939_84.J1939_84;
-import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.resources.J193984Resources;
 
 import com.opencsv.CSVReader;
@@ -27,11 +26,6 @@ public class PartLookup {
      * The Map that holds the values for the Test Parts
      */
     private static final Map<Integer, String> parts = loadMap("parts.csv");
-
-    private static final Map<Integer, String> duplicateSpnOutcomes = loadMap("outcomeForDuplicateSpns.csv");
-
-    private static final Map<Integer, String> nonObdSpnOutcomes = loadMap("outcomeForNonObd.csv");
-
 
     static {
         steps.add(loadMap("part01Steps.csv"));
@@ -78,7 +72,6 @@ public class PartLookup {
         return find(getStepMap(partNumber), stepNumber);
     }
 
-
     private static Map<Integer, String> getStepMap(int partNumber) {
         if (steps.size() >= partNumber && partNumber > 0) {
             return steps.get(partNumber - 1);
@@ -100,31 +93,17 @@ public class PartLookup {
         String[] values;
 
         InputStream is = J193984Resources.class.getResourceAsStream(fileName);
-        InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
-        try (CSVReader reader = new CSVReader(isReader)) {
-            while ((values = reader.readNext()) != null) {
-                map.put(Integer.valueOf(values[0]), values[1]);
+        if (is != null) {
+            InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
+            try (CSVReader reader = new CSVReader(isReader)) {
+                while ((values = reader.readNext()) != null) {
+                    map.put(Integer.valueOf(values[0]), values[1]);
+                }
+            } catch (Exception e) {
+                J1939_84.getLogger().log(Level.SEVERE, "Error loading map from " + fileName, e);
             }
-        } catch (Exception e) {
-            J1939_84.getLogger().log(Level.SEVERE, "Error loading map from " + fileName, e);
         }
         return map;
-    }
-
-    public static Outcome getOutcomeForDuplicateSpn(int spn) {
-        try {
-            return Outcome.valueOf(find(duplicateSpnOutcomes, spn));
-        } catch (Exception e) {
-            return Outcome.PASS;
-        }
-    }
-
-    public static Outcome getOutcomeForNonObdModuleProvidingSpn(int spn) {
-        try {
-            return Outcome.valueOf(find(nonObdSpnOutcomes, spn));
-        } catch (Exception e) {
-            return Outcome.PASS;
-        }
     }
 
 }

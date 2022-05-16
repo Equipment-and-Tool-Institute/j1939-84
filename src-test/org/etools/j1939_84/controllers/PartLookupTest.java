@@ -3,9 +3,6 @@
  */
 package org.etools.j1939_84.controllers;
 
-import static org.etools.j1939_84.model.Outcome.FAIL;
-import static org.etools.j1939_84.model.Outcome.PASS;
-import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -44,23 +41,6 @@ public class PartLookupTest {
         assertEquals("DM5: Diagnostic readiness 1", PartLookup.getStepName(11, 10));
         assertEquals("DM7/DM30: Command Non-Continuously Monitored Test/Scaled Test Results",
                      PartLookup.getStepName(12, 11));
-    }
-
-    @Test
-    public void testGetOutcomeForDuplicateSpn() {
-        assertEquals(PASS, PartLookup.getOutcomeForDuplicateSpn(123)); // Unknown
-        assertEquals(WARN, PartLookup.getOutcomeForDuplicateSpn(84)); // WARN
-        assertEquals(PASS, PartLookup.getOutcomeForDuplicateSpn(2848)); // PASS
-        assertEquals(FAIL, PartLookup.getOutcomeForDuplicateSpn(102)); // FAIL
-    }
-
-    @Test
-    public void testGetOutcomeForNonObdModuleProvidingSpn() {
-        assertEquals(PASS, PartLookup.getOutcomeForNonObdModuleProvidingSpn(123)); // Unknown
-        assertEquals(WARN, PartLookup.getOutcomeForNonObdModuleProvidingSpn(3226)); // WARN
-        assertEquals(PASS, PartLookup.getOutcomeForNonObdModuleProvidingSpn(168)); // PASS
-        assertEquals(FAIL, PartLookup.getOutcomeForNonObdModuleProvidingSpn(183)); // FAIL
-
     }
 
 }

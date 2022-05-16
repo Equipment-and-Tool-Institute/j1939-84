@@ -39,6 +39,16 @@ public class DM24SPNSupportPacket extends GenericPacket {
         return new DM24SPNSupportPacket(Packet.create(PGN, source, data));
     }
 
+    public static DM24SPNSupportPacket create(int source, List<SupportedSPN> spns) {
+
+        int[] data = new int[0];
+        for (SupportedSPN spn : spns) {
+            data = join(data, spn.getData());
+        }
+
+        return new DM24SPNSupportPacket(Packet.create(PGN, source, data));
+    }
+
     @Override
     public boolean equals(Object o) {
         return super.equals(o);

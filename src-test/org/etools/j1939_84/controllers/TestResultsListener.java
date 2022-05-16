@@ -41,7 +41,6 @@ public class TestResultsListener implements ResultsListener {
         mockListener.addOutcome(partNumber, stepNumber, outcome, message);
     }
 
-
     @Override
     public void onComplete(boolean success) {
         complete = true;
@@ -119,6 +118,19 @@ public class TestResultsListener implements ResultsListener {
 
     public List<ActionOutcome> getOutcomes() {
         return outcomes;
+    }
+
+    public String printOutcomes() {
+        StringBuilder sb = new StringBuilder();
+        for (ActionOutcome outcome : outcomes) {
+            sb.append("verify(mockListener).addOutcome(1, 26, ")
+              .append(outcome.getOutcome())
+              .append(", \"")
+              .append(outcome.getMessage())
+              .append("\");")
+              .append(NL);
+        }
+        return sb.toString();
     }
 
 }

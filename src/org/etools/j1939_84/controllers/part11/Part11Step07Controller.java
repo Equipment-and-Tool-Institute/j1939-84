@@ -33,7 +33,7 @@ import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.j1939.packets.PerformanceRatio;
 import org.etools.j1939tools.modules.CommunicationsModule;
-import org.etools.j1939tools.modules.DateTimeModule;;
+import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
  * 6.11.7 DM20/DM28/Broadcast data: Waiting until General Denominator Is Met
@@ -61,7 +61,7 @@ public class Part11Step07Controller extends StepController {
              new EngineSpeedModule(),
              new VehicleInformationModule(),
              new CommunicationsModule(),
-             new TableA1Validator(DataRepository.getInstance(), PART_NUMBER, STEP_NUMBER));
+             new TableA1Validator(PART_NUMBER, STEP_NUMBER));
     }
 
     Part11Step07Controller(ScheduledExecutorService executor,

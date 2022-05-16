@@ -25,6 +25,10 @@ public class TableA1ValueValidatorTest {
     @Before
     public void setUp() throws Exception {
         dataRepository = DataRepository.newInstance();
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setFuelType(FuelType.DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+
         instance = new TableA1ValueValidator(dataRepository);
     }
 
@@ -53,8 +57,8 @@ public class TableA1ValueValidatorTest {
         assertTrue(instance.isImplausible(514, 1.0, false));
         assertFalse(instance.isImplausible(514, 0.0, false));
 
-        assertTrue(instance.isImplausible(2978, 0.0, true));
-        assertFalse(instance.isImplausible(2978, 1.0, true));
+        assertTrue(instance.isImplausible(2978, 8.1, true));
+        assertFalse(instance.isImplausible(2978, 8.0, true));
         assertTrue(instance.isImplausible(2978, 1.0, false));
         assertFalse(instance.isImplausible(2978, 0.0, false));
 
@@ -170,17 +174,17 @@ public class TableA1ValueValidatorTest {
         assertFalse(instance.isImplausible(3609, 0.0, true));
         assertFalse(instance.isImplausible(3609, 0.1, true));
         assertFalse(instance.isImplausible(3609, 0.0, false));
-        assertTrue(instance.isImplausible(3609, 0.1, false));
+        assertTrue(instance.isImplausible(3609, 3.1, false));
 
         assertFalse(instance.isImplausible(3610, 0.0, true));
         assertFalse(instance.isImplausible(3610, 0.1, true));
         assertFalse(instance.isImplausible(3610, 0.0, false));
-        assertTrue(instance.isImplausible(3610, 0.1, false));
+        assertTrue(instance.isImplausible(3610, 3.1, false));
 
         assertFalse(instance.isImplausible(3251, 0.0, true));
         assertFalse(instance.isImplausible(3251, 0.1, true));
         assertFalse(instance.isImplausible(3251, 0.0, false));
-        assertTrue(instance.isImplausible(3251, 0.1, false));
+        assertTrue(instance.isImplausible(3251, 3.1, false));
 
         assertFalse(instance.isImplausible(3226, 1000.0, true));
         assertFalse(instance.isImplausible(3226, (double) 0xFB00, true));
@@ -198,25 +202,25 @@ public class TableA1ValueValidatorTest {
         assertFalse(instance.isImplausible(6393, 0.03, false));
         assertTrue(instance.isImplausible(6393, 0.05, false));
 
-        assertTrue(instance.isImplausible(102, 11.0, true));
-        assertFalse(instance.isImplausible(102, 10.0, true));
-        assertFalse(instance.isImplausible(102, 1.0, false));
-        assertTrue(instance.isImplausible(102, 3.0, false));
+        assertTrue(instance.isImplausible(102, 21.1, true));
+        assertFalse(instance.isImplausible(102, 21.0, true));
+        assertFalse(instance.isImplausible(102, 4.0, false));
+        assertTrue(instance.isImplausible(102, 4.1, false));
 
-        assertTrue(instance.isImplausible(1127, 11.0, true));
-        assertFalse(instance.isImplausible(1127, 10.0, true));
-        assertFalse(instance.isImplausible(1127, 1.0, false));
-        assertTrue(instance.isImplausible(1127, 3.0, false));
+        assertTrue(instance.isImplausible(1127, 21.1, true));
+        assertFalse(instance.isImplausible(1127, 21.0, true));
+        assertFalse(instance.isImplausible(1127, 4.0, false));
+        assertTrue(instance.isImplausible(1127, 4.1, false));
 
-        assertTrue(instance.isImplausible(106, 112.0, true));
-        assertFalse(instance.isImplausible(106, 111.0, true));
-        assertFalse(instance.isImplausible(106, 104.0, false));
-        assertTrue(instance.isImplausible(106, 105.0, false));
+        assertTrue(instance.isImplausible(106, 121.1, true));
+        assertFalse(instance.isImplausible(106, 121.0, true));
+        assertFalse(instance.isImplausible(106, 105.0, false));
+        assertTrue(instance.isImplausible(106, 105.1, false));
 
-        assertTrue(instance.isImplausible(3563, 112.0, true));
-        assertFalse(instance.isImplausible(3563, 111.0, true));
-        assertFalse(instance.isImplausible(3563, 104.0, false));
-        assertTrue(instance.isImplausible(3563, 105.0, false));
+        assertTrue(instance.isImplausible(3563, 121.1, true));
+        assertFalse(instance.isImplausible(3563, 121.0, true));
+        assertFalse(instance.isImplausible(3563, 105.0, false));
+        assertTrue(instance.isImplausible(3563, 105.1, false));
 
         assertTrue(instance.isImplausible(5829, 51.0, true));
         assertFalse(instance.isImplausible(5829, 50.0, true));
@@ -224,6 +228,84 @@ public class TableA1ValueValidatorTest {
         assertFalse(instance.isImplausible(5829, 5.0, false));
 
         assertFalse(instance.isImplausible(123, 66.6, false));
+
+        assertFalse(instance.isImplausible(4360, 0.0, true));
+        assertTrue(instance.isImplausible(4360, 6.9, false));
+        assertFalse(instance.isImplausible(4360, 7.0, false));
+
+        assertFalse(instance.isImplausible(4363, 0.0, true));
+        assertTrue(instance.isImplausible(4363, 6.9, false));
+        assertFalse(instance.isImplausible(4363, 7.0, false));
+
+        assertFalse(instance.isImplausible(2659, 0.0, true));
+        assertFalse(instance.isImplausible(2659, 0.1, true));
+        assertFalse(instance.isImplausible(2659, 0.0, false));
+        assertTrue(instance.isImplausible(2659, 0.1, false));
+
+        assertFalse(instance.isImplausible(12750, 0.0, true));
+        assertFalse(instance.isImplausible(12750, 0.1, true));
+        assertFalse(instance.isImplausible(12750, 0.0, false));
+        assertTrue(instance.isImplausible(12750, 0.1, false));
+
+        assertFalse(instance.isImplausible(12751, 0.0, true));
+        assertFalse(instance.isImplausible(12751, 0.1, true));
+        assertFalse(instance.isImplausible(12751, 0.0, false));
+        assertTrue(instance.isImplausible(12751, 0.1, false));
+
+        assertFalse(instance.isImplausible(12752, 0.0, true));
+        assertFalse(instance.isImplausible(12752, 0.1, true));
+        assertFalse(instance.isImplausible(12752, 0.0, false));
+        assertTrue(instance.isImplausible(12752, 0.1, false));
+
+        assertFalse(instance.isImplausible(6894, 0.0, true));
+        assertFalse(instance.isImplausible(6894, 0.1, true));
+        assertFalse(instance.isImplausible(6894, 0.0, false));
+        assertTrue(instance.isImplausible(6894, 0.1, false));
+
+        assertFalse(instance.isImplausible(4331, 0.0, true));
+        assertFalse(instance.isImplausible(4331, 0.1, true));
+        assertFalse(instance.isImplausible(4331, 0.0, false));
+        assertTrue(instance.isImplausible(4331, 0.1, false));
+
+        assertFalse(instance.isImplausible(6595, 0.0, true));
+        assertFalse(instance.isImplausible(6595, 0.1, true));
+        assertFalse(instance.isImplausible(6595, 0.0, false));
+        assertTrue(instance.isImplausible(6595, 0.1, false));
+
+        assertFalse(instance.isImplausible(4348, 0.0, true));
+        assertFalse(instance.isImplausible(4348, 0.1, true));
+        assertFalse(instance.isImplausible(4348, 0.0, false));
+        assertTrue(instance.isImplausible(4348, 0.1, false));
+
+        assertFalse(instance.isImplausible(6593, 0.0, true));
+        assertFalse(instance.isImplausible(6593, 0.1, true));
+        assertFalse(instance.isImplausible(6593, 0.0, false));
+        assertTrue(instance.isImplausible(6593, 0.1, false));
+
+        assertFalse(instance.isImplausible(3481, 0.0, true));
+        assertFalse(instance.isImplausible(3481, 0.1, true));
+        assertFalse(instance.isImplausible(3481, 0.0, false));
+        assertTrue(instance.isImplausible(3481, 0.1, false));
+
+        assertFalse(instance.isImplausible(5503, 0.0, true));
+        assertFalse(instance.isImplausible(5503, 0.1, true));
+        assertFalse(instance.isImplausible(5503, 0.0, false));
+        assertTrue(instance.isImplausible(5503, 0.1, false));
+
+        assertFalse(instance.isImplausible(12743, 0.0, true));
+        assertFalse(instance.isImplausible(12743, 0.1, true));
+        assertFalse(instance.isImplausible(12743, 0.0, false));
+        assertTrue(instance.isImplausible(12743, 0.1, false));
+
+        assertFalse(instance.isImplausible(3479, 0.0, true));
+        assertFalse(instance.isImplausible(3479, 0.1, true));
+        assertFalse(instance.isImplausible(3479, 0.0, false));
+        assertTrue(instance.isImplausible(3479, 0.1, false));
+
+        assertFalse(instance.isImplausible(5444, 0.0, true));
+        assertFalse(instance.isImplausible(5444, 0.1, true));
+        assertFalse(instance.isImplausible(5444, 0.0, false));
+        assertTrue(instance.isImplausible(5444, 0.1, false));
     }
 
     @Test
