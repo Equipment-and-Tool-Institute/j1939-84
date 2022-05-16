@@ -394,8 +394,6 @@ public class Part02Step17Controller extends StepController {
             } else {
                 packetForPg.getSpns()
                            .forEach(spn -> {
-                               // SAE INTERNATIONAL J1939TM-84 Proposed Draft 24 March
-                               // 2022 Page 37 of 140
                                // 6.2.17.24.b - Fail PG query where any accumulator value
                                // received is greater than FAFFFFFFh.
                                if (spn.getRawValue() >= 0xFAFFFFFFL) {
@@ -567,8 +565,6 @@ public class Part02Step17Controller extends StepController {
             } else {
                 hybridPacketForPg.getSpns()
                            .forEach(spn -> {
-                               // SAE INTERNATIONAL J1939TM-84 Proposed Draft 24 March
-                               // 2022 Page 37 of 140
                                // 6.2.17.22.c - Fail each PG query where any accumulator
                                // value received is greater than FAFFh.
                                if (spn.getRawValue() >= 0xFAFFL) {
@@ -718,7 +714,6 @@ public class Part02Step17Controller extends StepController {
         }
 
         // 6.2.17.17 Actions9 for MY2022+ Engines
-        // SAE INTERNATIONAL J1939TM-84 Proposed Draft 24 March 2022 Page 36 of 140
         // 6.2.17.17.a - DS request message to ECU that indicated support in DM24 for upon request
         // SP 12691 (GHG Tracking Lifetime Active Technology Index) for Active 100hr
         // Active technology PG, followed by DS request message to ECU for
