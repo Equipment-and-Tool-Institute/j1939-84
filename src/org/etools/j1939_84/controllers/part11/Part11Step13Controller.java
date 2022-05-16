@@ -128,16 +128,7 @@ public class Part11Step13Controller extends StepController {
                                        testSp12783(module);
                                    }
                                });
-            // 6.2.17.6.g. Fail/warn per Table A-1, if two or more ECUs provide an SPN listed in Table A-1.
-            // tableA1Validator.reportDuplicateSPNs(onRequestPackets,
-            // getListener(),
-            // "6.2.17.6.g");
 
-            // 6.2.17.6.h. Fail/warn per Table A-1 column, “Action if SPN provided but not included in DM24”
-            // @Joe we just need a method to call here. Eric added a column to Table A-1, I believe; please double check
-            // me on that
-            // FIXME: the call to then new Table A-1 validator method for this functionality need to be added here once
-            // the method has been written - note: call may need to move into obdModule loop
         }
     }
 
