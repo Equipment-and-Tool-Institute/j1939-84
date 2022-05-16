@@ -449,7 +449,7 @@ public class Part02Step17Controller extends StepController {
                 }
                 // 6.2.17.26.b - For MY2022-23 Plug-in HEV DRIVES, Warn each PG query,
                 // where no response was received
-                if (2022 <= getEngineModelYear() && getEngineModelYear() >= 2023) {
+                if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
                     addWarning("6.2.17.26.b - No response was received from "
                             + module.getModuleName() + "for PG "
                             + pg);
@@ -559,7 +559,7 @@ public class Part02Step17Controller extends StepController {
                 }
                 // 6.2.17.22.b - For MY2022-23 HEV and BEV drives, Warn each PG query, where no
                 // response was received.
-                if (2022 <= getEngineModelYear() && getEngineModelYear() >= 2023) {
+                if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
                     addWarning("6.2.17.22.b - No response was received from "
                             + module.getModuleName() + "for PG "
                             + pg);
@@ -656,7 +656,7 @@ public class Part02Step17Controller extends StepController {
                             + pg);
                 }
                 // 6.2.17.14.b. For MY2022-23 engines, Warn each PG query, where no response was received
-                if (2022 <= getEngineModelYear() && getEngineModelYear() >= 2023) {
+                if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
                     addWarning("6.2.17.14.b - No response was received from "
                             + module.getModuleName() + "for PG "
                             + pg);
@@ -871,7 +871,7 @@ public class Part02Step17Controller extends StepController {
                             + pg);
                 }
                 // 6.2.17.10.b. For all MY2022-23 Diesel engines, Warn each PG query where no response was received.
-                if (2022 <= getEngineModelYear() && getEngineModelYear() >= 2023) {
+                if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
                     addWarning("6.2.17.10.b - No response was received from "
                             + module.getModuleName() + "for PG "
                             + pg);
