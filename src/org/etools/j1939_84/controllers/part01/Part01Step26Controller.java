@@ -467,7 +467,7 @@ public class Part01Step26Controller extends StepController {
                 }
                 // 6.1.26.25.b - For MY2022-23 Plug-in HEV DRIVES, Warn each PG query,
                 // where no response was received
-                if (2022 <= getEngineModelYear() && getEngineModelYear() >= 2023) {
+                if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
                     addWarning("6.1.26.25.b - No response was received from "
                             + module.getModuleName() + "for PG "
                             + pg);
@@ -560,7 +560,7 @@ public class Part01Step26Controller extends StepController {
                 }
                 // b. For MY2022-23 HEV and BEV drives, Warn each PG query, where no
                 // response was
-                if (2022 <= getEngineModelYear() && getEngineModelYear() >= 2023) {
+                if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
                     addWarning("6.1.26.22.b - No response was received from "
                             + module.getModuleName() + "for PG "
                             + pg);
@@ -869,7 +869,7 @@ public class Part01Step26Controller extends StepController {
                             + pg);
                 }
                 // 6.1.26.10.b. For all MY2022-23 Diesel engines, Warn each PG query where no response was received.
-                if (2022 <= getEngineModelYear() && getEngineModelYear() >= 2023) {
+                if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
                     addWarning("6.1.26.10.b - No response was received from "
                             + module.getModuleName() + "for PG "
                             + pg);
