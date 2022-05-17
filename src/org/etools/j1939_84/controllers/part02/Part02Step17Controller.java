@@ -317,14 +317,6 @@ public class Part02Step17Controller extends StepController {
             if (getEngineModelYear() >= 2022 && getFuelType().isCompressionIgnition()) {
                 getDataRepository()
                                    .getObdModules()
-                                   .stream()
-                                   .filter(obdModuleInformation -> {
-                                       return obdModuleInformation.supportsSpn(12675)
-                                               || obdModuleInformation.supportsSpn(12730)
-                                               || obdModuleInformation.supportsSpn(12691)
-                                               || obdModuleInformation.supportsSpn(12797)
-                                               || obdModuleInformation.supportsSpn(12783);
-                                   })
                                    .forEach(module -> {
                                        if (module.supportsSpn(12675)) {
                                            // 6.2.17.7 - 6.2.17.10
@@ -367,8 +359,7 @@ public class Part02Step17Controller extends StepController {
         // 6.2.17.23 Actions12 for MY2022+ Plug-in HEV DRIVES
         // a. DS request message to ECU that indicated support in DM24 for upon request
         // SP 12783 (Hybrid Lifetime Distance Traveled in Charge Depleting Operation with
-        // Engine off) for
-        // PG 64244 Hybrid Charge Depleting or Increasing Operation Lifetime Hours
+        // Engine off) for PG 64244 Hybrid Charge Depleting or Increasing Operation Lifetime Hours
         List<GenericPacket> ghgChgDepletingLifeTimePackets = requestPackets(module.getSourceAddress(),
                                                                             GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PGs)
                                                                                                                            .stream()
@@ -386,28 +377,27 @@ public class Part02Step17Controller extends StepController {
 
         GenericPacket packetForPg = haveResponseWithPg(ghgChgDepletingLifeTimePackets,
                                                        GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PGs);
-            if (packetForPg == null) {
-                // 6.2.17.24.a. Fail PG query where no response was received
-                addFailure("6.2.17.24.a - No response was received from "
-                        + module.getModuleName() + " for PG "
-                        + GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PGs);
-            } else {
-                packetForPg.getSpns()
-                           .forEach(spn -> {
-                               // 6.2.17.24.b - Fail PG query where any accumulator value
-                               // received is greater than FAFFFFFFh.
-                               if (spn.getRawValue() >= 0xFAFFFFFFL) {
-                                   addFailure("6.2.17.24.b - Bin value received is greater than 0xFAFFFFFF(h) from "
-                                           + module.getModuleName() + " for " + spn);
-                               }
-                               // FIXME: this needs to implemented once the datarepo is fixed
-                               // @Joe - just need to add the call once the dataRepo bug is fix
-                               // 6.2.17.14.c Fail all values where the corresponding value received is part 1 is
-                               // greater than the part 2 value
+        if (packetForPg == null) {
+            // 6.2.17.24.a. Fail PG query where no response was received
+            addFailure("6.2.17.24.a - No response was received from "
+                    + module.getModuleName() + " for PG "
+                    + GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PGs);
+        } else {
+            packetForPg.getSpns()
+                       .forEach(spn -> {
+                           // 6.2.17.24.b - Fail PG query where any accumulator value
+                           // received is greater than FAFFFFFFh.
+                           if (spn.getRawValue() >= 0xFAFFFFFFL) {
+                               addFailure("6.2.17.24.b - Bin value received is greater than 0xFAFFFFFF(h) from "
+                                       + module.getModuleName() + " for " + spn);
+                           }
+                           // FIXME: this needs to implemented once the datarepo is fixed
+                           // @Joe - just need to add the call once the dataRepo bug is fix
+                           // 6.2.17.14.c Fail all values where the corresponding value received is part 1 is
+                           // greater than the part 2 value
 
-                           });
-            }
-
+                       });
+        }
 
         // 6.2.17.25 Actions13 for MY2022+ Plug-in HEV DRIVES
         // 6.2.17.25.a - DS request message to ECU that indicated support in DM24 for upon request
@@ -420,11 +410,12 @@ public class Part02Step17Controller extends StepController {
         var hybridChargeOpsPackets = requestPackets(module.getSourceAddress(),
                                                     GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR,
                                                     GHG_STORED_HYBRID_CHG_DEPLETING_100_HR)
-                                                                       .stream()
-                                                                       // 6.2.17.25.b. Record
-                                                                       // each value for use in Part 12.
-                                                                       .peek(this::save)
-                                                                       .collect(Collectors.toList());
+                                                                                           .stream()
+                                                                                           // 6.2.17.25.b. Record
+                                                                                           // each value for use in Part
+                                                                                           // 12.
+                                                                                           .peek(this::save)
+                                                                                           .collect(Collectors.toList());
 
         if (!ghgChgDepletingLifeTimePackets.isEmpty() || !hybridChargeOpsPackets.isEmpty()) {
             // 6.2.17.25.c - List data received in a table using lifetime, stored 100 hr, active 100hr for columns, and
@@ -436,7 +427,7 @@ public class Part02Step17Controller extends StepController {
         for (int pg : List.of(GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR,
                               GHG_STORED_HYBRID_CHG_DEPLETING_100_HR)) {
             GenericPacket hybridPacketForPg = haveResponseWithPg(hybridChargeOpsPackets,
-                                                           pg);
+                                                                 pg);
             if (hybridPacketForPg == null) {
                 // 6.2.17.26.a - For MY2024+ Plug-in HEV DRIVES, Fail each PG query where
                 // no response was received.
@@ -454,25 +445,20 @@ public class Part02Step17Controller extends StepController {
                 }
             } else {
                 hybridPacketForPg.getSpns()
-                           .forEach(spn -> {
-                               /// 6.2.17.26.c - Fail each PG query where any active
-                               /// technology label or accumulator value
-                               // received is greater than FAFFh, respectively.
-                               if (spn.getRawValue() >= 0xFAFFL) {
+                                 .forEach(spn -> {
+                                     /// 6.2.17.26.c - Fail each PG query where any active
+                                     /// technology label or accumulator value
+                                     // received is greater than FAFFh, respectively.
+                                     if (spn.getRawValue() >= 0xFAFFL) {
                                          addFailure("6.2.17.26.c - Bin value received is greater than 0xFAFF(h) from "
                                                  + module.getModuleName() + " for " + spn);
-                               }
-                               // FIXME: this needs to be implemented once the dataRepo is fixed
-                               // @Joe: just need to add the call and warning when the dataRepo bug is fixed.
-                               /// 6.2.17.26.d - Fail each PG query where any active
-                               /// technology label or accumulator value
-                               // received is greater than FAFFh, respectively.
-                               // if (spn.getRawValue() >= 0xFAFFL) {
-                               // addFailure("6.2.17.26.c - Bin value received is greater than 0xFAFF(h)"
-                               // + module.getModuleName() + " returned "
-                               // + Arrays.toString(spn.getBytes()));
-                               // }
-                           });
+                                     }
+                                     // FIXME: this needs to be implemented once the dataRepo is fixed
+                                     // @Joe: just need to add the call and warning when the dataRepo bug is fixed.
+                                     // 6.2.17.26.d - Fail all values where the corresponding value received in part 1
+                                     // is greater than the part 2 value
+
+                                 });
             }
         }
     }
@@ -499,26 +485,27 @@ public class Part02Step17Controller extends StepController {
             getListener().onResult(ghgTrackingModule.formatXevTable(ghgTrackingPackets));
         }
         GenericPacket packetForPg = haveResponseWithPg(ghgTrackingPackets, GHG_TRACKING_LIFETIME_HYBRID_PGs);
-            if (packetForPg == null) {
-                // 6.2.17.20.a - Fail PG query where no response was received.
-                addWarning("6.2.17.20.a - No response was received from "
-                        + module.getModuleName() + " for PG "
-                        + GHG_TRACKING_LIFETIME_HYBRID_PGs);
-            } else {
-                packetForPg.getSpns()
-                           .forEach(spn -> {
-                               // 6.2.17.20.b - Fail PG query where any accumulator value
-                               // received is greater than FAFFFFFFh.
-                               if (spn.getRawValue() >= 0xFAFFFFFFL) {
-                                   addFailure("6.1.26.20.b - Bin value received is greater than 0xFAFFFFFF(h) from "
-                                           + module.getModuleName() + " for " + spn);
-                               }
-                               // FIXME: need to add functionality when dataRepo is updated
-                               // 6.2.17.20.c - Fail all values where the corresponding values received
+        if (packetForPg == null) {
+            // 6.2.17.20.a - Fail PG query where no response was received.
+            addWarning("6.2.17.20.a - No response was received from "
+                    + module.getModuleName() + " for PG "
+                    + GHG_TRACKING_LIFETIME_HYBRID_PGs);
+        } else {
+            packetForPg.getSpns()
+                       .forEach(spn -> {
+                           // 6.2.17.20.b - Fail PG query where any accumulator value
+                           // received is greater than FAFFFFFFh.
+                           if (spn.getRawValue() >= 0xFAFFFFFFL) {
+                               addFailure("6.1.26.20.b - Bin value received is greater than 0xFAFFFFFF(h) from "
+                                       + module.getModuleName() + " for " + spn);
+                           }
+                           // FIXME: need to add functionality when dataRepo is updated
+                           // @Joe: just need to add the call and warning when the dataRepo bug is fixed.
+                           // 6.2.17.20.c - Fail all values where the corresponding value received in part 1 is greater
+                           // than the part 2 value
 
-                           });
-            }
-
+                       });
+        }
 
         // 6.2.17.21 Actions11 for MY2022+ HEV and BEV drives
         // 6.2.17.21.a - DS request message to ECU that indicated support in DM24 for upon request
@@ -532,13 +519,13 @@ public class Part02Step17Controller extends StepController {
         List<GenericPacket> ghgPackets = requestPackets(module.getSourceAddress(),
                                                         GHG_STORED_HYBRID_100_HR,
                                                         GHG_ACTIVE_HYBRID_100_HR)
-                                                                       .stream()
-                                                                       // 6.2.17.21.b. -
-                                                                       // Record each
-                                                                       // value for use
-                                                                       // in Part 12.
-                                                                       .peek(this::save)
-                                                                       .collect(Collectors.toList());
+                                                                                 .stream()
+                                                                                 // 6.2.17.21.b. -
+                                                                                 // Record each
+                                                                                 // value for use
+                                                                                 // in Part 12.
+                                                                                 .peek(this::save)
+                                                                                 .collect(Collectors.toList());
 
         if (!ghgPackets.isEmpty()) {
             // 6.2.17.21.c. List data received in a table using lifetime, stored 100 hr, active 100 hr for columns and
@@ -564,18 +551,18 @@ public class Part02Step17Controller extends StepController {
                 }
             } else {
                 hybridPacketForPg.getSpns()
-                           .forEach(spn -> {
-                               // 6.2.17.22.c - Fail each PG query where any accumulator
-                               // value received is greater than FAFFh.
-                               if (spn.getRawValue() >= 0xFAFFL) {
+                                 .forEach(spn -> {
+                                     // 6.2.17.22.c - Fail each PG query where any accumulator
+                                     // value received is greater than FAFFh.
+                                     if (spn.getRawValue() >= 0xFAFFL) {
                                          addFailure("6.2.17.22.c - Bin value received is greater than 0xFAFFFFFF(h) from "
                                                  + module.getModuleName() + " for " + spn);
-                               }
-                               // FIXME: needs to be implemented once the dataRepo is fixed
-                               // @Joe - I just need to fill in the call once I fix the dataRepo bug I found
-                               // 6.2.17.22.d - Fail all values where the corresponding value received in part 1 is
-                               // greater than the part 2 values. (where supported)
-                           });
+                                     }
+                                     // FIXME: needs to be implemented once the dataRepo is fixed
+                                     // @Joe - I just need to fill in the call once I fix the dataRepo bug I found
+                                     // 6.2.17.22.d - Fail all values where the corresponding value received in part 1
+                                     // is greater than the part 2 values. (where supported)
+                                 });
             }
         }
     }
@@ -583,8 +570,7 @@ public class Part02Step17Controller extends StepController {
     private void testSp12730(OBDModuleInformation module) {
         // 6.2.17.11 Actions6 for all MY2022+ Engines
         // 6.2.17.11.a - DS request messages to ECU that indicated support in DM24 for upon request SP 12730 (GHG
-        // Tracking Lifetime Engine Run
-        // Time) for PG 64252 GHG Tracking Lifetime Array Data.
+        // Tracking Lifetime Engine Run Time) for PG 64252 GHG Tracking Lifetime Array Data.
         var ghgTrackingLifetimePackets = requestPackets(module.getSourceAddress(),
                                                         GHG_TRACKING_LIFETIME_PGs)
                                                                                   .stream()
@@ -594,45 +580,42 @@ public class Part02Step17Controller extends StepController {
                                                                                   .collect(Collectors.toList());
 
         GenericPacket packetForPg = haveResponseWithPg(ghgTrackingLifetimePackets, GHG_TRACKING_LIFETIME_PGs);
-            if (packetForPg == null) {
-                // 6.2.17.12.a. Fail PG query where no response was received
-                addFailure("6.2.17.12.a - No response was received from "
-                        + module.getModuleName() + " for PG "
-                        + GHG_TRACKING_LIFETIME_PGs);
-            } else {
-                packetForPg.getSpns()
-                           .stream()
-                           .forEach(spn -> {
-                               // 6.2.17.12.b. Fail PG query where any bin value received is greater than FAFFh.
-                               if (spn.getRawValue() > 0xFAFFFFFFL) {
-                                   addFailure("6.2.17.12.b - Bin value received is greater than 0xFAFFFFFFL(h) from "
-                                           + module.getModuleName() + " for " + spn);
-                               }
-                               // FIXME: this needs to be implemented on the dataRepo bug is fixed
-                               // 6.2.17.12.c - Fail all values where the corresponding value received in part 1 is
-                               // greater than the part 2 value (where supported)
-                           });
-            }
-
+        if (packetForPg == null) {
+            // 6.2.17.12.a. Fail PG query where no response was received
+            addFailure("6.2.17.12.a - No response was received from "
+                    + module.getModuleName() + " for PG "
+                    + GHG_TRACKING_LIFETIME_PGs);
+        } else {
+            packetForPg.getSpns()
+                       .forEach(spn -> {
+                           // 6.2.17.12.b. Fail PG query where any bin value received is greater than FAFFh.
+                           if (spn.getRawValue() > 0xFAFFFFFFL) {
+                               addFailure("6.2.17.12.b - Bin value received is greater than 0xFAFFFFFFL(h) from "
+                                       + module.getModuleName() + " for " + spn);
+                           }
+                           // FIXME: this needs to be implemented on the dataRepo bug is fixed
+                           // 6.2.17.12.c - Fail all values where the corresponding value received in part 1 is
+                           // greater than the part 2 value (where supported)
+                       });
+        }
 
         // 6.2.17.13 Actions7 for MY2022+ Engines
         // 6.2.17.13.a - DS request message to ECU that indicated support in DM24 for upon request
-        // SP 12730 (GHG Tracking Lifetime Engine Run Time) for each 100hr GHG tracking
-        // PG
+        // SP 12730 (GHG Tracking Lifetime Engine Run Time) for each 100hr GHG tracking PG
         // PG PG Label
         // 64254 GHG Tracking Active 100 Hour Array Data
         // 64253 GHG Tracking Stored 100 Hour Array Data
         var ghgTrackingPackets = requestPackets(module.getSourceAddress(),
                                                 GHG_ACTIVE_100_HR,
                                                 GHG_STORED_100_HR)
-                                                                          .stream()
-                                                                          // 6.2.17.13.b.
-                                                                          // Record
-                                                                          // each value
-                                                                          // for use
-                                                                          // in Part 12.
-                                                                          .peek(this::save)
-                                                                          .collect(Collectors.toList());
+                                                                  .stream()
+                                                                  // 6.2.17.13.b.
+                                                                  // Record
+                                                                  // each value
+                                                                  // for use
+                                                                  // in Part 12.
+                                                                  .peek(this::save)
+                                                                  .collect(Collectors.toList());
 
         if (!ghgTrackingLifetimePackets.isEmpty() || !ghgTrackingPackets.isEmpty()) {
             // 6.2.17.13.c. List data received in a table using lifetime, stored 100 hr,
@@ -659,18 +642,20 @@ public class Part02Step17Controller extends StepController {
                 }
             } else {
                 trackingPacketForPg.getSpns()
-                           .forEach(spn -> {
-                               if (spn.getRawValue() > 0xFAFFL) {
-                                   // 6.2.17.14.c - Fail each PG query where any value received is greater than FAFFh.
-                                           addFailure("6.1.26.14.c - Bin value received is greater than 0xFAFF from "
+                                   .forEach(spn -> {
+                                       if (spn.getRawValue() > 0xFAFFL) {
+                                           // 6.2.17.14.c - Fail each PG query where any value received is greater than
+                                           // FAFFh.
+                                           addFailure("6.2.17.14.c - Bin value received is greater than 0xFAFF from "
                                                    + module.getModuleName() + " for " + spn);
-                               }
+                                       }
                                        if (spn.getValue() > 0) {
-                                   // 6.2.17.14.d - Fail each active 100 hr array value that is greater than zero
+                                           // 6.2.17.14.d - Fail each active 100 hr array value that is greater than
+                                           // zero
                                            addFailure("6.2.17.14.d - Active 100 hr array value received is greater than zero from "
                                                    + module.getModuleName() + " for " + spn);
-                               }
-                           });
+                                       }
+                                   });
             }
         }
     }
@@ -724,12 +709,12 @@ public class Part02Step17Controller extends StepController {
         var ghg100HrPackets = requestPackets(module.getSourceAddress(),
                                              GHG_ACTIVE_GREEN_HOUSE_100_HR,
                                              GHG_STORED_GREEN_HOUSE_100_HR)
-                                                                 .stream()
-                                                                 // 6.2.17.17.b. Record
-                                                                 // each value for use
-                                                                 // in Part 12.
-                                                                 .peek(this::save)
-                                                                 .collect(Collectors.toList());
+                                                                           .stream()
+                                                                           // 6.2.17.17.b. Record
+                                                                           // each value for use
+                                                                           // in Part 12.
+                                                                           .peek(this::save)
+                                                                           .collect(Collectors.toList());
         if (!ghgPackets.isEmpty() || !ghg100HrPackets.isEmpty()) {
             // 6.2.17.17.c. List data received in a table using lifetime, stored 100 hr,
             // active 100hr for columns, and categories for rows.
@@ -765,30 +750,24 @@ public class Part02Step17Controller extends StepController {
                                }
                                // 6.2.17.18.d. Fail PG query where any index value received is greater than FAh.
                                if (spn.getId() == 12691 && spn.getValue() > 0xFAL) {
-                                   addFailure("6.2.17.18.c - PG query index received was " + "");
+                                   addFailure("6.2.17.18.d - PG query index received was " + "");
                                }
                                if (GHG_ACTIVE_GREEN_HOUSE_100_HR == spn.getId() && spn.getValue() > 0) {
                                    // 6.2.17.18.g. Fail each active 100 hr array value that is greater than zero
                                    addFailure("6.2.17.18.g - Active 100 hr array value received was greater than zero from  "
                                            + module.getModuleName() + " for " + spn);
                                }
-                               // FIXME:
-                               // 6.2.17.18.f. Fail each response where the set of labels received is not a
-                               // subset of the set of labels received for the lifetime active technology
-                               // response.
-                               // if (!expectedLabels.contains(spn.getLabel()
-                               // .substring(spn.getLabel().indexOf("Hour Active") + 5))) {
-                               // addFailure("6.2.17.18.f - " + spn.getLabel());
-                               // }
+
                            });
                 // FIXME:
                 // 6.2.17.18.e. Fail each response where the number of labels received are not
-                // @Joe this is clarified in the email from Eric
-                // the same as the number of labels received for the lifetime technology
+                // @Joe this is clarified in the email from Eric the same as the number of labels received for the
+                // lifetime technology response.
+                // FIXME:
+                // 6.2.17.18.f. Fail each response where the set of labels received is not a
+                // subset of the set of labels received for the lifetime active technology
                 // response.
-                // if (packetForPg.getSpns().size() != ghgPackets.get(0).getSpns().size()) {
-                // addFailure("6.2.17.18.e - Number of response labels mismatch");
-                // }
+
             }
         }
     }
@@ -843,14 +822,19 @@ public class Part02Step17Controller extends StepController {
         List<GenericPacket> nOx100HourPackets = requestPackets(module.getSourceAddress(),
                                                                CollectionUtils.join(NOx_TRACKING_ACTIVE_100_HOURS_SPs,
                                                                                     NOx_TRACKING_STORED_100_HOURS_SPs))
-                                                                             .stream()
-                                                                             // 6.2.17.9.b -
-                                                                             // Record each
-                                                                             // value
-                                                                             // for use in
-                                                                             // Part 12.
-                                                                             .peek(this::save)
-                                                                             .collect(Collectors.toList());
+                                                                                                                       .stream()
+                                                                                                                       // 6.2.17.9.b
+                                                                                                                       // -
+                                                                                                                       // Record
+                                                                                                                       // each
+                                                                                                                       // value
+                                                                                                                       // for
+                                                                                                                       // use
+                                                                                                                       // in
+                                                                                                                       // Part
+                                                                                                                       // 12.
+                                                                                                                       .peek(this::save)
+                                                                                                                       .collect(Collectors.toList());
 
         if (!nOx100HourPackets.isEmpty()) {
             // 6.2.17.9.c - List data received in a table using bin numbers for rows.
@@ -885,7 +869,7 @@ public class Part02Step17Controller extends StepController {
                     if (spn.getValue() > 0) {
                         // 6.2.17.10.d. Warn for all active 100 hr bin 3 through bin 17 values that are greater than
                         // zero. (Where supported)
-                        addWarning("6.2.17.10.d - Active 100 hr array bin 3 through bin 17 values received has a value greater than zero (where supported) from "
+                        addWarning("6.2.17.10.d - Bin value received is greater than zero from "
                                 + module.getModuleName() + " for " + spn);
 
                     }
