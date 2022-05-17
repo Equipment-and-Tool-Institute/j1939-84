@@ -21,7 +21,6 @@ import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFET
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_PG;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -327,7 +326,7 @@ public class Part11Step13Controller extends StepController {
                            }
                            // FIXME: this needs to be implemented on the dataRepo bug is fixed
                            // 6.11.13.6.c - Fail all values where the corresponding value received in part 2 is
-                           // greater than the part 12 value
+                           // greater than the part 11 value
                            // 6.11.13.6.d - Fail if lifetime engine hours < 600 seconds
                        });
         }
@@ -373,8 +372,7 @@ public class Part11Step13Controller extends StepController {
                                          // 6.11.13.8.c - Fail each PG query where any value received is greater than
                                          // FAFFh.
                                          addFailure("6.11.13.8.c - Bin value received is greater than 0xFAFF(h) from "
-                                                 + module.getModuleName() + " returned "
-                                                 + Arrays.toString(spn.getBytes()));
+                                                 + module.getModuleName() + " for " + spn);
                                      }
                                      if (spn.getSlot().toValue(spn.getBytes()) > 0) {
                                          // 6.11.13.8.d - Fail each active 100 hr array value that is greater than zero
