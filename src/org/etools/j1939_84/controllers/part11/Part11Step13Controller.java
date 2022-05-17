@@ -15,10 +15,10 @@ import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_STORED_100_HR;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_STORED_GREEN_HOUSE_100_HR;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_STORED_HYBRID_100_HR;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_STORED_HYBRID_CHG_DEPLETING_100_HR;
-import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_GREEN_HOUSE_PGs;
-import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PGs;
-import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_HYBRID_PGs;
-import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_PGs;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_HYBRID_PG;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_PG;
 
 import java.util.Arrays;
 import java.util.List;
@@ -62,7 +62,7 @@ public class Part11Step13Controller extends StepController {
              new EngineSpeedModule(),
              new VehicleInformationModule(),
              new CommunicationsModule(),
-             new TableA1Validator(DataRepository.getInstance(), PART_NUMBER, STEP_NUMBER),
+             new TableA1Validator(PART_NUMBER, STEP_NUMBER),
              new GhgTrackingModule(DateTimeModule.getInstance()),
              new NOxBinningModule(DateTimeModule.getInstance()));
     }
@@ -139,7 +139,7 @@ public class Part11Step13Controller extends StepController {
         // Engine off) for
         // PG 64244 Hybrid Charge Depleting or Increasing Operation Lifetime Hours
         List<GenericPacket> ghgChgDepletingLifeTimePackets = requestPackets(module.getSourceAddress(),
-                                                                            GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PGs)
+                                                                            GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG)
                                                                                                                            .stream()
                                                                                                                            // 6.2.17.23.b.
                                                                                                                            // Record
@@ -153,12 +153,12 @@ public class Part11Step13Controller extends StepController {
                                                                                                                            .peek(this::save)
                                                                                                                            .collect(Collectors.toList());
         GenericPacket packetForPg = haveResponseWithPg(ghgChgDepletingLifeTimePackets,
-                                                       GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PGs);
+                                                       GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG);
         if (packetForPg == null) {
             // 6.2.17.24.a. Fail PG query where no response was received
             addFailure("6.2.17.24.a - No response was received from "
                     + module.getModuleName() + " for PG "
-                    + GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PGs);
+                    + GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG);
         } else {
             packetForPg.getSpns()
                        .forEach(spn -> {
@@ -189,18 +189,18 @@ public class Part11Step13Controller extends StepController {
         var hybridChargeOpsPackets = requestPackets(module.getSourceAddress(),
                                                     GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR,
                                                     GHG_STORED_HYBRID_CHG_DEPLETING_100_HR)
-                                                                                                                 .stream()
-                                                                                                                 // 6.2.17.25.b.
-                                                                                                                 // Record
-                                                                                                                 // each
-                                                                                                                 // value
-                                                                                                                 // for
-                                                                                                                 // use
-                                                                                                                 // in
-                                                                                                                 // Part
-                                                                                                                 // 12.
-                                                                                                                 .peek(this::save)
-                                                                                                                 .collect(Collectors.toList());
+                                                                                           .stream()
+                                                                                           // 6.2.17.25.b.
+                                                                                           // Record
+                                                                                           // each
+                                                                                           // value
+                                                                                           // for
+                                                                                           // use
+                                                                                           // in
+                                                                                           // Part
+                                                                                           // 12.
+                                                                                           .peek(this::save)
+                                                                                           .collect(Collectors.toList());
 
         if (!ghgChgDepletingLifeTimePackets.isEmpty() || !hybridChargeOpsPackets.isEmpty()) {
             // 6.2.17.25.c - List data received in a table using lifetime, stored 100 hr, active 100hr for columns, and
@@ -210,7 +210,7 @@ public class Part11Step13Controller extends StepController {
                                                                           .collect(Collectors.toList())));
         }
         for (int pg : List.of(GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR,
-                                           GHG_STORED_HYBRID_CHG_DEPLETING_100_HR)) {
+                              GHG_STORED_HYBRID_CHG_DEPLETING_100_HR)) {
             GenericPacket hybridPacketForPg = haveResponseWithPg(hybridChargeOpsPackets,
                                                                  pg);
             if (hybridPacketForPg == null) {
@@ -260,42 +260,41 @@ public class Part11Step13Controller extends StepController {
         // SP 12797 (Hybrid Lifetime Propulsion System Active Time) for 64241 PSA Times
         // Lifetime Hours
         var ghgTrackingPackets = requestPackets(module.getSourceAddress(),
-                                                GHG_TRACKING_LIFETIME_HYBRID_PGs)
-                                                                                 .stream()
-                                                                                 // 6.2.17.19.b.
-                                                                                 // Record
-                                                                                 // each value for
-                                                                                 // use
-                                                                                 // in Part 12.
-                                                                                 .peek(this::save)
-                                                                                 .collect(Collectors.toList());
+                                                GHG_TRACKING_LIFETIME_HYBRID_PG)
+                                                                                .stream()
+                                                                                // 6.2.17.19.b.
+                                                                                // Record
+                                                                                // each value for
+                                                                                // use
+                                                                                // in Part 12.
+                                                                                .peek(this::save)
+                                                                                .collect(Collectors.toList());
 
         if (!ghgTrackingPackets.isEmpty()) {
             // 6.11.13.13.c - List data received in a table using lifetime, stored 100 hr, active 100hr for columns, and
             // categories for rows.
             getListener().onResult(ghgTrackingModule.formatXevTable(ghgTrackingPackets));
         }
-        GenericPacket packetForPg = haveResponseWithPg(ghgTrackingPackets, GHG_TRACKING_LIFETIME_HYBRID_PGs);
-            if (packetForPg == null) {
-                // 6.2.17.20.a - Fail PG query where no response was received.
-                addWarning("6.2.17.20.a - No response was received from "
-                        + module.getModuleName() + " for PG "
-                        + GHG_TRACKING_LIFETIME_HYBRID_PGs);
-            } else {
-                packetForPg.getSpns()
-                           .forEach(spn -> {
-                               // 6.2.17.20.b - Fail PG query where any accumulator value
-                               // received is greater than FAFFFFFFh.
-                               if (spn.getRawValue() >= 0xFAFFFFFFL) {
-                                   addFailure("6.1.26.20.b - Bin value received is greater than 0xFAFFFFFF(h) from "
-                                           + module.getModuleName() + " for " + spn);
-                               }
-                               // FIXME: need to add functionality when dataRepo is updated
-                               // 6.2.17.20.c - Fail all values where the corresponding values received
+        GenericPacket packetForPg = haveResponseWithPg(ghgTrackingPackets, GHG_TRACKING_LIFETIME_HYBRID_PG);
+        if (packetForPg == null) {
+            // 6.2.17.20.a - Fail PG query where no response was received.
+            addWarning("6.2.17.20.a - No response was received from "
+                    + module.getModuleName() + " for PG "
+                    + GHG_TRACKING_LIFETIME_HYBRID_PG);
+        } else {
+            packetForPg.getSpns()
+                       .forEach(spn -> {
+                           // 6.2.17.20.b - Fail PG query where any accumulator value
+                           // received is greater than FAFFFFFFh.
+                           if (spn.getRawValue() >= 0xFAFFFFFFL) {
+                               addFailure("6.1.26.20.b - Bin value received is greater than 0xFAFFFFFF(h) from "
+                                       + module.getModuleName() + " for " + spn);
+                           }
+                           // FIXME: need to add functionality when dataRepo is updated
+                           // 6.2.17.20.c - Fail all values where the corresponding values received
 
-                           });
-            }
-
+                       });
+        }
 
         // 6.2.17.21 Actions11 for MY2022+ HEV and BEV drives
         // 6.2.17.21.a - DS request message to ECU that indicated support in DM24 for upon request
@@ -309,13 +308,13 @@ public class Part11Step13Controller extends StepController {
         List<GenericPacket> ghgPackets = requestPackets(module.getSourceAddress(),
                                                         GHG_STORED_HYBRID_100_HR,
                                                         GHG_ACTIVE_HYBRID_100_HR)
-                                                                       .stream()
-                                                                       // 6.2.17.21.b. -
-                                                                       // Record each
-                                                                       // value for use
-                                                                       // in Part 12.
-                                                                       .peek(this::save)
-                                                                       .collect(Collectors.toList());
+                                                                                 .stream()
+                                                                                 // 6.2.17.21.b. -
+                                                                                 // Record each
+                                                                                 // value for use
+                                                                                 // in Part 12.
+                                                                                 .peek(this::save)
+                                                                                 .collect(Collectors.toList());
 
         if (!ghgPackets.isEmpty()) {
             // 6.2.17.21.c. List data received in a table using lifetime, stored 100 hr, active 100 hr for columns and
@@ -341,20 +340,21 @@ public class Part11Step13Controller extends StepController {
                 }
             } else {
                 hybridPacketForPg.getSpns()
-                           .forEach(spn -> {
-                               // SAE INTERNATIONAL J1939TM-84 Proposed Draft 24 March
-                               // 2022 Page 37 of 140
-                               // 6.2.17.22.c - Fail each PG query where any accumulator
-                               // value received is greater than FAFFh.
-                               if (spn.getRawValue() >= 0xFAFFL) {
+                                 .forEach(spn -> {
+                                     // SAE INTERNATIONAL J1939TM-84 Proposed Draft 24 March
+                                     // 2022 Page 37 of 140
+                                     // 6.2.17.22.c - Fail each PG query where any accumulator
+                                     // value received is greater than FAFFh.
+                                     if (spn.getRawValue() >= 0xFAFFL) {
                                          addFailure("6.2.17.22.c - Bin value received is greater than 0xFAFFFFFF(h) from "
                                                  + module.getModuleName() + " for " + spn);
-                               }
-                               // FIXME: needs to be implemented once the dataRepo is fixed
-                               // @Joe - I just need to fill in the call once I fix the dataRepo bug I found
-                               // 6.2.17.22.d - Fail all values where the corresponding value received in part 1 is
-                               // greater than the part 2 values. (where supported)
-                           });
+                                     }
+                                     // FIXME: needs to be implemented once the dataRepo is fixed
+                                     // @Joe - I just need to fill in the call once I fix the dataRepo bug I found
+                                     // 6.2.17.22.d - Fail all values where the corresponding value received in part 1
+                                     // is
+                                     // greater than the part 2 values. (where supported)
+                                 });
             }
         }
     }
@@ -365,31 +365,31 @@ public class Part11Step13Controller extends StepController {
         // Tracking Lifetime Engine Run
         // Time) for PG 64252 GHG Tracking Lifetime Array Data.
         var ghgTrackingLifetimePackets = requestPackets(module.getSourceAddress(),
-                                                        GHG_TRACKING_LIFETIME_PGs);
+                                                        GHG_TRACKING_LIFETIME_PG);
 
-        GenericPacket packetForPg = haveResponseWithPg(ghgTrackingLifetimePackets, GHG_TRACKING_LIFETIME_PGs);
-            if (packetForPg == null) {
-                // 6.11.13.6.a. Fail PG query where no response was received
-                addFailure("6.11.13.6.a - No response was received from "
-                        + module.getModuleName() + " for PG "
-                        + GHG_TRACKING_LIFETIME_PGs);
-            } else {
-                packetForPg.getSpns()
-                           .stream()
-                           .forEach(spn -> {
-                               // 6.11.13.6.b. Fail PG query where any bin value received is greater than FAFFh.
-                               if (spn.getRawValue() > 0xFAFFL) {
-                                   addFailure("6.11.13.6.b - Bin value received is greater than 0xFAFFFFFFL(h) from "
-                                           + module.getModuleName() + " for " + spn);
-                               }
-                               // FIXME: this needs to be implemented on the dataRepo bug is fixed
-                               // 6.11.13.6.c - Fail all values where the corresponding value received in part 2 is
-                               // greater than the part 12 value
-                               // 6.11.13.6.d - Fail if lifetime engine hours < 600 seconds
-                           });
-            }
+        GenericPacket packetForPg = haveResponseWithPg(ghgTrackingLifetimePackets, GHG_TRACKING_LIFETIME_PG);
+        if (packetForPg == null) {
+            // 6.11.13.6.a. Fail PG query where no response was received
+            addFailure("6.11.13.6.a - No response was received from "
+                    + module.getModuleName() + " for PG "
+                    + GHG_TRACKING_LIFETIME_PG);
+        } else {
+            packetForPg.getSpns()
+                       .stream()
+                       .forEach(spn -> {
+                           // 6.11.13.6.b. Fail PG query where any bin value received is greater than FAFFh.
+                           if (spn.getRawValue() > 0xFAFFL) {
+                               addFailure("6.11.13.6.b - Bin value received is greater than 0xFAFFFFFFL(h) from "
+                                       + module.getModuleName() + " for " + spn);
+                           }
+                           // FIXME: this needs to be implemented on the dataRepo bug is fixed
+                           // 6.11.13.6.c - Fail all values where the corresponding value received in part 2 is
+                           // greater than the part 12 value
+                           // 6.11.13.6.d - Fail if lifetime engine hours < 600 seconds
+                       });
+        }
 
-            // 6.11.13.7 Actions4 for MY2022+ Engines
+        // 6.11.13.7 Actions4 for MY2022+ Engines
         // 6.2.17.13.a - DS request message to ECU that indicated support in DM24 for upon request
         // SP 12730 (GHG Tracking Lifetime Engine Run Time) for each 100hr GHG tracking
         // PG
@@ -399,8 +399,8 @@ public class Part11Step13Controller extends StepController {
         var ghgTrackingPackets = requestPackets(module.getSourceAddress(),
                                                 GHG_ACTIVE_100_HR,
                                                 GHG_STORED_100_HR)
-                                                                          .stream()
-                                                                          .collect(Collectors.toList());
+                                                                  .stream()
+                                                                  .collect(Collectors.toList());
 
         if (!ghgTrackingLifetimePackets.isEmpty() || !ghgTrackingPackets.isEmpty()) {
             // 6.11.13.7.b. List data received in a table using lifetime, stored 100 hr,
@@ -427,19 +427,19 @@ public class Part11Step13Controller extends StepController {
                 }
             } else {
                 hybridPacketForPg.getSpns()
-                           .forEach(spn -> {
-                               if (spn.getRawValue() > 0xFAFFL) {
+                                 .forEach(spn -> {
+                                     if (spn.getRawValue() > 0xFAFFL) {
                                          // 6.11.13.8.c - Fail each PG query where any value received is greater than
                                          // FAFFh.
                                          addFailure("6.11.13.8.c - Bin value received is greater than 0xFAFF(h) from "
-                                           + module.getModuleName() + " returned "
-                                           + Arrays.toString(spn.getBytes()));
-                               }
-                               if (spn.getSlot().toValue(spn.getBytes()) > 0) {
+                                                 + module.getModuleName() + " returned "
+                                                 + Arrays.toString(spn.getBytes()));
+                                     }
+                                     if (spn.getSlot().toValue(spn.getBytes()) > 0) {
                                          // 6.11.13.8.d - Fail each active 100 hr array value that is greater than zero
                                          addFailure("6.11.13.8.d - Active 100 hr array value received is greater than zero from "
                                                  + module.getModuleName() + " for " + spn);
-                               }
+                                     }
                                      // FIXME: the need to be implemented
                                      // @Joe just need to implement these yet.
                                      // 6.11.13.8.e - Fail if active 100 hrs engine hours < 600 seconds. (where
@@ -447,7 +447,7 @@ public class Part11Step13Controller extends StepController {
                                      // 6.11.13.8.f. Warn for all active 100 hr vehicle distance => 0.25 km. (Where
                                      // supported).
                                      // g. Warn for active 100 hr EOE <= 0.5 kW-hr (where supported)
-                           });
+                                 });
             }
         }
     }
@@ -458,37 +458,37 @@ public class Part11Step13Controller extends StepController {
         // SP 12691 (GHG Tracking Lifetime Active Technology Index) for PG 64257 Green House Gas Lifetime Active
         // Technology Tracking.
         var ghgPackets = requestPackets(module.getSourceAddress(),
-                                        GHG_TRACKING_LIFETIME_GREEN_HOUSE_PGs)
-                                                                              .stream()
-                                                                              // 6.2.17.15.b. Record
-                                                                              // each value for use
-                                                                              // in Part 12.
-                                                                              .peek(this::save)
-                                                                              .collect(Collectors.toList());
+                                        GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG)
+                                                                             .stream()
+                                                                             // 6.2.17.15.b. Record
+                                                                             // each value for use
+                                                                             // in Part 12.
+                                                                             .peek(this::save)
+                                                                             .collect(Collectors.toList());
 
-        GenericPacket packetForPg = haveResponseWithPg(ghgPackets, GHG_TRACKING_LIFETIME_GREEN_HOUSE_PGs);
-            if (packetForPg == null) {
-                // 6.11.13.10.a. Warn PG query where no response was received.
-                addWarning("6.11.13.10.a - No response was received from "
-                        + module.getModuleName() + " for PG "
-                        + GHG_TRACKING_LIFETIME_GREEN_HOUSE_PGs);
-            } else {
-                packetForPg.getSpns()
-                           .forEach(spn -> {
-                               // 6.11.13.10.b. Fail any accumulator value received that is greater
-                               // than FAFFFFFFh.
-                               if (spn.getRawValue() > 0xFAFFFFFFL) {
-                                   addFailure("6.11.13.10.b - Bin value received is greater than 0xFAFFFFFF(h) from "
-                                           + module.getModuleName() + " for " + spn);
-                               }
-                               // FIXME: this needs to implemented when the dataRepo is fixed
-                               // @Joe: just need to add a call and if adding the failure when the dataRepo bug is fixed
-                               // 6.11.13.10.c. Fail PG query where any index value received is
-                               // greater than FAh.
-                           });
-            }
+        GenericPacket packetForPg = haveResponseWithPg(ghgPackets, GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG);
+        if (packetForPg == null) {
+            // 6.11.13.10.a. Warn PG query where no response was received.
+            addWarning("6.11.13.10.a - No response was received from "
+                    + module.getModuleName() + " for PG "
+                    + GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG);
+        } else {
+            packetForPg.getSpns()
+                       .forEach(spn -> {
+                           // 6.11.13.10.b. Fail any accumulator value received that is greater
+                           // than FAFFFFFFh.
+                           if (spn.getRawValue() > 0xFAFFFFFFL) {
+                               addFailure("6.11.13.10.b - Bin value received is greater than 0xFAFFFFFF(h) from "
+                                       + module.getModuleName() + " for " + spn);
+                           }
+                           // FIXME: this needs to implemented when the dataRepo is fixed
+                           // @Joe: just need to add a call and if adding the failure when the dataRepo bug is fixed
+                           // 6.11.13.10.c. Fail PG query where any index value received is
+                           // greater than FAh.
+                       });
+        }
 
-            // 6.11.13.11 Actions9 for MY2022+ Engines
+        // 6.11.13.11 Actions9 for MY2022+ Engines
         // SAE INTERNATIONAL J1939TM-84 Proposed Draft 24 March 2022 Page 36 of 140
         // 6.11.13.11.a - DS request message to ECU that indicated support in DM24 for upon request
         // SP 12691 (GHG Tracking Lifetime Active Technology Index) for Active 100hr
@@ -500,8 +500,8 @@ public class Part11Step13Controller extends StepController {
         var ghg100HrPackets = requestPackets(module.getSourceAddress(),
                                              GHG_ACTIVE_GREEN_HOUSE_100_HR,
                                              GHG_STORED_GREEN_HOUSE_100_HR)
-                                                                 .stream()
-                                                                 .collect(Collectors.toList());
+                                                                           .stream()
+                                                                           .collect(Collectors.toList());
         if (!ghgPackets.isEmpty() || !ghg100HrPackets.isEmpty()) {
             // 6.11.13.11.b. List data received in a table using lifetime, stored 100 hr,
             // active 100hr for columns, and categories for rows.
@@ -527,7 +527,7 @@ public class Part11Step13Controller extends StepController {
                 }
             } else {
                 greenHousePacketForPg.getSpns()
-                           .forEach(spn -> {
+                                     .forEach(spn -> {
                                          // FIXME:
                                          // @Joe values defined in email will update when I get that processed
                                          // 6.11.13.12.c. Fail each PG query where any active technology label or
@@ -536,7 +536,7 @@ public class Part11Step13Controller extends StepController {
                                                  && spn.getRawValue() >= 0xFAFFL) {
                                              addFailure("6.11.13.12.c - Active Technology value received is greater than 0xFAFF(h) from "
                                                      + module.getModuleName() + " for " + spn);
-                               }
+                                         }
                                          // FIXME:
                                          // @Joe values defined in email will update when I get that processed
                                          // FAh.
@@ -555,7 +555,7 @@ public class Part11Step13Controller extends StepController {
                                          // 6.11.13.12.h. Warn for any active 100 hr active technology vehicle distance
                                          // => 0.25 km. (Where supported).
 
-                           });
+                                     });
             }
         }
     }
