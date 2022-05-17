@@ -140,18 +140,18 @@ public class Part11Step13Controller extends StepController {
         // PG 64244 Hybrid Charge Depleting or Increasing Operation Lifetime Hours
         List<GenericPacket> ghgChgDepletingLifeTimePackets = requestPackets(module.getSourceAddress(),
                                                                             GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG)
-                                                                                                                           .stream()
-                                                                                                                           // 6.2.17.23.b.
-                                                                                                                           // Record
-                                                                                                                           // each
-                                                                                                                           // value
-                                                                                                                           // for
-                                                                                                                           // use
-                                                                                                                           // in
-                                                                                                                           // Part
-                                                                                                                           // 12.
-                                                                                                                           .peek(this::save)
-                                                                                                                           .collect(Collectors.toList());
+                                                                                                                          .stream()
+                                                                                                                          // 6.2.17.23.b.
+                                                                                                                          // Record
+                                                                                                                          // each
+                                                                                                                          // value
+                                                                                                                          // for
+                                                                                                                          // use
+                                                                                                                          // in
+                                                                                                                          // Part
+                                                                                                                          // 12.
+                                                                                                                          .peek(this::save)
+                                                                                                                          .collect(Collectors.toList());
         GenericPacket packetForPg = haveResponseWithPg(ghgChgDepletingLifeTimePackets,
                                                        GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG);
         if (packetForPg == null) {
@@ -375,7 +375,6 @@ public class Part11Step13Controller extends StepController {
                     + GHG_TRACKING_LIFETIME_PG);
         } else {
             packetForPg.getSpns()
-                       .stream()
                        .forEach(spn -> {
                            // 6.11.13.6.b. Fail PG query where any bin value received is greater than FAFFh.
                            if (spn.getRawValue() > 0xFAFFL) {
