@@ -24,11 +24,13 @@ import org.etools.j1939tools.modules.DateTimeModule;
 import org.etools.j1939tools.modules.TestDateTimeModule;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class TableA1ValidatorNonObdModuleProvidedSPNTest {
 
