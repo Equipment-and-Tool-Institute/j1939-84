@@ -109,7 +109,6 @@ public class Part11Step13ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               vehicleInformationModule,
                                               communicationsModule,
-                                              tableA1Validator,
                                               ghgTrackingModule,
                                               nOxBinningModule);
 
