@@ -749,7 +749,8 @@ public class Part02Step17Controller extends StepController {
                                }
                                // 6.2.17.18.d. Fail PG query where any index value received is greater than FAh.
                                if (spn.getId() == 12691 && spn.getValue() > 0xFAL) {
-                                   addFailure("6.2.17.18.d - PG query index received was " + "");
+                                   addFailure("6.2.17.18.d - PG query index received was greater than FA(h) from "
+                                           + module.getModuleName() + " for " + spn);
                                }
                                if (GHG_ACTIVE_GREEN_HOUSE_100_HR == spn.getId() && spn.getValue() > 0) {
                                    // 6.2.17.18.g. Fail each active 100 hr array value that is greater than zero
