@@ -478,11 +478,6 @@ public class Part02Step17Controller extends StepController {
                                                                                  .peek(this::save)
                                                                                  .collect(Collectors.toList());
 
-        if (!ghgTrackingPackets.isEmpty()) {
-            // 6.2.17.19.c - List data received in a table using lifetime, stored 100 hr, active 100hr for columns, and
-            // categories for rows.
-            getListener().onResult(ghgTrackingModule.formatXevTable(ghgTrackingPackets));
-        }
         GenericPacket packetForPg = haveResponseWithPg(ghgTrackingPackets, GHG_TRACKING_LIFETIME_HYBRID_PGs);
         if (packetForPg == null) {
             // 6.2.17.20.a - Fail PG query where no response was received.
@@ -495,7 +490,7 @@ public class Part02Step17Controller extends StepController {
                            // 6.2.17.20.b - Fail PG query where any accumulator value
                            // received is greater than FAFFFFFFh.
                            if (spn.getRawValue() >= 0xFAFFFFFFL) {
-                               addFailure("6.1.26.20.b - Bin value received is greater than 0xFAFFFFFF(h) from "
+                               addFailure("6.2.17.20.b - Bin value received is greater than 0xFAFFFFFF(h) from "
                                        + module.getModuleName() + " for " + spn);
                            }
                            // FIXME: need to add functionality when dataRepo is updated
@@ -526,10 +521,15 @@ public class Part02Step17Controller extends StepController {
                                                                                  .peek(this::save)
                                                                                  .collect(Collectors.toList());
 
-        if (!ghgPackets.isEmpty()) {
+        if (!ghgTrackingPackets.isEmpty() || !ghgPackets.isEmpty()) {
+            // 6.2.17.19.c - List data received in a table using lifetime, stored 100 hr, active 100hr for columns, and
+            // categories for rows.
             // 6.2.17.21.c. List data received in a table using lifetime, stored 100 hr, active 100 hr for columns and
             // categories for rows.
-            getListener().onResult(ghgTrackingModule.formatXevTable(ghgPackets));
+            getListener().onResult(ghgTrackingModule.formatXevTable(Stream.concat(ghgTrackingPackets.stream(),
+                                                                                  ghgPackets.stream())
+                                                                          .collect(
+                                                                                   Collectors.toList())));
         }
         for (int pg : List.of(GHG_STORED_HYBRID_100_HR, GHG_ACTIVE_HYBRID_100_HR)) {
             GenericPacket hybridPacketForPg = haveResponseWithPg(ghgPackets, pg);
