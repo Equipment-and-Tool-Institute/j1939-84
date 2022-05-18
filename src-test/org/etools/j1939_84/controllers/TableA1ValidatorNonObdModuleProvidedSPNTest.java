@@ -31,7 +31,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @Ignore
-
 @RunWith(MockitoJUnitRunner.class)
 public class TableA1ValidatorNonObdModuleProvidedSPNTest {
 
