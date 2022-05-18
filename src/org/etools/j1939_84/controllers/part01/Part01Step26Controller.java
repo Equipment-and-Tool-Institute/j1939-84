@@ -898,9 +898,6 @@ public class Part01Step26Controller extends StepController {
                 });
             }
         }
-
-        // 6.1.26.6.f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1
-        tableA1Validator.reportDuplicateSPNs(onRequestPackets, getListener(), "6.1.26.6.f");
     }
 
 }
