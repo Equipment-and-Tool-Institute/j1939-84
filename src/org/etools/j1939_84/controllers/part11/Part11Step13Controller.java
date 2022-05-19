@@ -41,7 +41,7 @@ import org.etools.j1939tools.modules.NOxBinningModule;
 import org.etools.j1939tools.utils.CollectionUtils;
 
 /**
- * 6.11.13 Part 11 to Part 12 Transition
+ * 6.11.13 NOx Binning and GHG tracking for MY2022+ Engines.and Vehicles
  */
 public class Part11Step13Controller extends StepController {
     private static final int PART_NUMBER = 11;
@@ -92,14 +92,6 @@ public class Part11Step13Controller extends StepController {
         if (getEngineModelYear() >= 2022 && getFuelType().isCompressionIgnition()) {
             getDataRepository()
                                .getObdModules()
-                               .stream()
-                               .filter(obdModuleInformation -> {
-                                   return obdModuleInformation.supportsSpn(12675)
-                                           || obdModuleInformation.supportsSpn(12730)
-                                           || obdModuleInformation.supportsSpn(12691)
-                                           || obdModuleInformation.supportsSpn(12797)
-                                           || obdModuleInformation.supportsSpn(12783);
-                               })
                                .forEach(module -> {
                                    if (module.supportsSpn(12675)) {
                                        // 6.11.13.1 - 6.11.13.4
@@ -146,7 +138,7 @@ public class Part11Step13Controller extends StepController {
                        .forEach(spn -> {
                            // 6.11.13.18.b - Fail PG query where any accumulator value
                            // received is greater than FAFFFFFFh.
-                           if (spn.getRawValue() >= 0xFAFFFFFFL) {
+                           if (spn.getRawValue() > 0xFAFFFFFFL) {
                                addFailure("6.11.13.18.b - Bin value received is greater than 0xFAFFFFFF(h) from "
                                        + module.getModuleName() + " for " + spn);
                            }
@@ -201,7 +193,7 @@ public class Part11Step13Controller extends StepController {
                                  .forEach(spn -> {
                                      // 6.11.13.20.c - Fail each PG query where any active technology label or
                                      // accumulator value received is greater than FAFFh, respectively.
-                                     if (spn.getRawValue() >= 0xFAFFL) {
+                                     if (spn.getRawValue() > 0xFAFFL) {
                                          addFailure("6.11.13.20.c - Bin value received is greater than 0xFAFF(h) from "
                                                  + module.getModuleName() + " for "
                                                  + spn);
@@ -235,7 +227,7 @@ public class Part11Step13Controller extends StepController {
                        .forEach(spn -> {
                            // 6.11.13.14.b - Fail PG query where any accumulator value
                            // received is greater than FAFFFFFFh.
-                           if (spn.getRawValue() >= 0xFAFFFFFFL) {
+                           if (spn.getRawValue() > 0xFAFFFFFFL) {
                                addFailure("6.11.13.14.b - Bin value received is greater than 0xFAFFFFFF(h) from "
                                        + module.getModuleName() + " for " + spn);
                            }
@@ -289,8 +281,8 @@ public class Part11Step13Controller extends StepController {
                                  .forEach(spn -> {
                                      // 6.11.13.16.c - Fail each PG query where any accumulator
                                      // value received is greater than FAFFh.
-                                     if (spn.getRawValue() >= 0xFAFFL) {
-                                         addFailure("6.11.13.16.c - Bin value received is greater than 0xFAFFFFFF(h) from "
+                                     if (spn.getRawValue() > 0xFAFFL) {
+                                         addFailure("6.11.13.16.c - Bin value received is greater than 0xFAFF(h) from "
                                                  + module.getModuleName() + " for " + spn);
                                      }
                                      // FIXME: needs to be implemented once the dataRepo is fixed
@@ -321,7 +313,7 @@ public class Part11Step13Controller extends StepController {
                        .forEach(spn -> {
                            // 6.11.13.6.b. Fail PG query where any bin value received is greater than FAFFh.
                            if (spn.getRawValue() > 0xFAFFL) {
-                               addFailure("6.11.13.6.b - Bin value received is greater than 0xFAFFFFFFL(h) from "
+                               addFailure("6.11.13.6.b - Bin value received is greater than 0xFAFF(h) from "
                                        + module.getModuleName() + " for " + spn);
                            }
                            // FIXME: this needs to be implemented on the dataRepo bug is fixed
@@ -379,13 +371,35 @@ public class Part11Step13Controller extends StepController {
                                          addFailure("6.11.13.8.d - Active 100 hr array value received is greater than zero from "
                                                  + module.getModuleName() + " for " + spn);
                                      }
-                                     // FIXME: the need to be implemented
-                                     // @Joe just need to implement these yet.
                                      // 6.11.13.8.e - Fail if active 100 hrs engine hours < 600 seconds. (where
                                      // supported)
+                                     if (spn.getId() == 12700 ||
+                                             spn.getId() == 12715 ||
+                                             spn.getId() == 12730) {
+                                         if (spn.getValue() < 600) {
+                                             addWarning("6.11.13.8.g - Active Tech engine hours received is < 600 seconds from "
+                                                     + module.getModuleName() + " for " + spn);
+                                         }
+                                     }
                                      // 6.11.13.8.f. Warn for all active 100 hr vehicle distance => 0.25 km. (Where
                                      // supported).
+                                     if (spn.getId() == 12701 ||
+                                             spn.getId() == 12716 ||
+                                             spn.getId() == 12731) {
+                                         if (spn.getValue() >= 0.25) {
+                                             addWarning("6.11.13.8.f - Active Tech vehicle distance received is => 0.25km from "
+                                                     + module.getModuleName() + " for " + spn);
+                                         }
+                                     }
                                      // 6.11.13.8.g. Warn for active 100 hr EOE <= 0.5 kW-hr (where supported)
+                                     if (spn.getId() == 12704 ||
+                                             spn.getId() == 12719 ||
+                                             spn.getId() == 12734) {
+                                         if (spn.getValue() <= 0.5) {
+                                             addWarning("6.11.13.8.g - Active Tech EOE received is <= 0.5 kW-hr from "
+                                                     + module.getModuleName() + " for " + spn);
+                                         }
+                                     }
                                  });
             }
         }
@@ -414,10 +428,11 @@ public class Part11Step13Controller extends StepController {
                                addFailure("6.11.13.10.b - Bin value received is greater than 0xFAFFFFFF(h) from "
                                        + module.getModuleName() + " for " + spn);
                            }
-                           // FIXME: this needs to implemented when the dataRepo is fixed
-                           // @Joe: just need to add a call and if adding the failure when the dataRepo bug is fixed
                            // 6.11.13.10.c. Fail PG query where any index value received is
                            // greater than FAh.
+                           if (spn.getSlot().getId() == 12691 && spn.getRawValue() > 0xFA) {
+
+                           }
                        });
         }
 
@@ -464,29 +479,46 @@ public class Part11Step13Controller extends StepController {
                                          // @Joe values defined in email will update when I get that processed
                                          // 6.11.13.12.c. Fail each PG query where any active technology label or
                                          // accumulator value received is greater than FAh, or FAFFh, respectively.
-                                         if (GHG_ACTIVE_GREEN_HOUSE_100_HR == spn.getId()
-                                                 && spn.getRawValue() >= 0xFAFFL) {
-                                             addFailure("6.11.13.12.c - Active Technology value received is greater than 0xFAFF(h) from "
-                                                     + module.getModuleName() + " for " + spn);
+                                         if (spn.getId() == 12691 || spn.getId() == 12694 || spn.getId() == 12697) {
+                                             if (spn.getRawValue() > 0xFAL) {
+                                                 addFailure("6.11.13.12.c - Active Technology value received is greater than 0xFA(h) from "
+                                                         + module.getModuleName() + " for " + spn);
+                                             }
+                                         } else {
+                                             if (spn.getRawValue() > 0xFAFFL) {
+                                                 addFailure("6.11.13.12.c - Active Technology value received is greater than 0xFAFF(h) from "
+                                                         + module.getModuleName() + " for " + spn);
+                                             }
                                          }
                                          // FIXME:
                                          // @Joe values defined in email will update when I get that processed
-                                         // FAh.
                                          // 6.11.13.12.d. Fail each response where the number of labels received are not
                                          // the same as the number of labels received for the lifetime technology
                                          // response.
+
                                          // @Joe values defined in email will update when I get that processed
                                          // 6.11.13.12.e. Fail each response where the set of labels received is not a
                                          // subset of the set of labels received for the lifetime’ active technology
                                          // response.
+
                                          // @Joe, will implement once dataRepo bug is fixed. (f-h)
                                          // 6.11.13.12.f. Fail all values where the corresponding value received in part
                                          // 2 is greater than the part 12 value. (Where supported)
+
+                                         // @Joe, will implement once dataRepo bug is fixed. (f-h)
                                          // 6.11.13.12.g. Warn if any stored 100 hrs active technology engine hours >
                                          // part 2 value + 600 seconds (where supported)
+
                                          // 6.11.13.12.h. Warn for any active 100 hr active technology vehicle distance
                                          // => 0.25 km. (Where supported).
-
+                                         if (spn.getId() == 12699 ||
+                                                 spn.getId() == 12696 ||
+                                                 spn.getId() == 12693) {
+                                             if (spn.getValue() >= 0.25) {
+                                                 addWarning("6.11.13.12.h - Active Tech vehicle distance received is => 0.25km from "
+                                                         + module.getModuleName() + " for " + spn);
+                                             }
+                                         }
                                      });
             }
         }
@@ -513,7 +545,7 @@ public class Part11Step13Controller extends StepController {
                            .forEach(spn -> {
                                // 6.11.13.2.b. Fail each PG query where any bin value received
                                // is greater than FAFFFFFFh.
-                               if (spn.getRawValue() >= 0xFAFFFFFFL) {
+                               if (spn.getRawValue() > 0xFAFFFFFFL) {
                                    addFailure("6.12.12.2.b - Bin value received is greater than 0xFAFFFFFF(h) from "
                                            + module.getModuleName() + " for " + spn);
                                }
@@ -561,7 +593,7 @@ public class Part11Step13Controller extends StepController {
                 }
             } else {
                 packetForPg.getSpns().forEach(spn -> {
-                    if (spn.getRawValue() >= 0xFAFFFFFFL) {
+                    if (spn.getRawValue() > 0xFAFFFFFFL) {
                         // 6.11.13.4.c. Fail each PG query where any bin value received is greater than FAFFh. (Use
                         // FAFFFFFFh for NOx values)
                         addFailure("6.11.13.4.c - Bin value received is greater than 0xFAFFFFFF(h) from "
