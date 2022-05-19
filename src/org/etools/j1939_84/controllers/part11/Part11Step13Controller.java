@@ -162,13 +162,12 @@ public class Part11Step13Controller extends StepController {
                                                                     GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR,
                                                                     GHG_STORED_HYBRID_CHG_DEPLETING_100_HR));
 
-        if (!ghgChgDepletingLifeTimePackets.isEmpty() || !hybridChargeOpsPackets.isEmpty()) {
-            // 6.11.13.19.b - List data received in a table using lifetime, stored 100 hr, active 100hr for columns, and
-            // categories for rows.
-            getListener().onResult(ghgTrackingModule.formatXevTable(Stream.concat(ghgChgDepletingLifeTimePackets.stream(),
-                                                                                  hybridChargeOpsPackets.stream())
-                                                                          .collect(Collectors.toList())));
-        }
+        // 6.11.13.19.b - List data received in a table using lifetime, stored 100 hr, active 100hr for columns, and
+        // categories for rows.
+        getListener().onResult(ghgTrackingModule.formatXevTable(Stream.concat(ghgChgDepletingLifeTimePackets.stream(),
+                                                                              hybridChargeOpsPackets.stream())
+                                                                      .collect(Collectors.toList())));
+
         for (int pg : List.of(GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR,
                               GHG_STORED_HYBRID_CHG_DEPLETING_100_HR)) {
             GenericPacket hybridPacketForPg = haveResponseWithPg(hybridChargeOpsPackets,
@@ -250,15 +249,14 @@ public class Part11Step13Controller extends StepController {
                                                         GHG_STORED_HYBRID_100_HR,
                                                         GHG_ACTIVE_HYBRID_100_HR);
 
-        if (!ghgTrackingPackets.isEmpty() || !ghgPackets.isEmpty()) {
-            // 6.11.13.13.b - List data received in a table using lifetime, stored 100 hr, active 100hr for columns, and
-            // categories for rows.
-            // 6.11.13.15.b - List data received in a table using lifetime, stored 100 hr, active 100 hr for columns and
-            // categories for rows.
-            getListener().onResult(ghgTrackingModule.formatXevTable(Stream.concat(ghgTrackingPackets.stream(),
-                                                                                  ghgPackets.stream())
-                                                                          .collect(Collectors.toList())));
-        }
+        // 6.11.13.13.b - List data received in a table using lifetime, stored 100 hr, active 100hr for columns, and
+        // categories for rows.
+        // 6.11.13.15.b - List data received in a table using lifetime, stored 100 hr, active 100 hr for columns and
+        // categories for rows.
+        getListener().onResult(ghgTrackingModule.formatXevTable(Stream.concat(ghgTrackingPackets.stream(),
+                                                                              ghgPackets.stream())
+                                                                      .collect(Collectors.toList())));
+
         for (int pg : List.of(GHG_STORED_HYBRID_100_HR, GHG_ACTIVE_HYBRID_100_HR)) {
             GenericPacket hybridPacketForPg = haveResponseWithPg(ghgPackets, pg);
             if (hybridPacketForPg == null) {
@@ -334,13 +332,11 @@ public class Part11Step13Controller extends StepController {
                                                 GHG_ACTIVE_100_HR,
                                                 GHG_STORED_100_HR);
 
-        if (!ghgTrackingLifetimePackets.isEmpty() || !ghgTrackingPackets.isEmpty()) {
-            // 6.11.13.7.b. List data received in a table using lifetime, stored 100 hr,
-            // active 100hr for columns, and categories for rows.
-            getListener().onResult(ghgTrackingModule.formatTrackingTable(Stream.concat(ghgTrackingLifetimePackets.stream(),
-                                                                                       ghgTrackingPackets.stream())
-                                                                               .collect(Collectors.toList())));
-        }
+        // 6.11.13.7.b. List data received in a table using lifetime, stored 100 hr,
+        // active 100hr for columns, and categories for rows.
+        getListener().onResult(ghgTrackingModule.formatTrackingTable(Stream.concat(ghgTrackingLifetimePackets.stream(),
+                                                                                   ghgTrackingPackets.stream())
+                                                                           .collect(Collectors.toList())));
 
         for (int pg : List.of(GHG_ACTIVE_100_HR, GHG_STORED_100_HR)) {
             GenericPacket hybridPacketForPg = haveResponseWithPg(ghgTrackingPackets, pg);
@@ -449,13 +445,11 @@ public class Part11Step13Controller extends StepController {
                                              GHG_ACTIVE_GREEN_HOUSE_100_HR,
                                              GHG_STORED_GREEN_HOUSE_100_HR);
 
-        if (!ghgPackets.isEmpty() || !ghg100HrPackets.isEmpty()) {
-            // 6.11.13.11.b. List data received in a table using lifetime, stored 100 hr,
-            // active 100hr for columns, and categories for rows.
-            getListener().onResult(ghgTrackingModule.formatTechTable(Stream.concat(ghgPackets.stream(),
-                                                                                   ghg100HrPackets.stream())
-                                                                           .collect(Collectors.toList())));
-        }
+        // 6.11.13.11.b. List data received in a table using lifetime, stored 100 hr,
+        // active 100hr for columns, and categories for rows.
+        getListener().onResult(ghgTrackingModule.formatTechTable(Stream.concat(ghgPackets.stream(),
+                                                                               ghg100HrPackets.stream())
+                                                                       .collect(Collectors.toList())));
 
         for (int pg : List.of(GHG_ACTIVE_GREEN_HOUSE_100_HR, GHG_STORED_GREEN_HOUSE_100_HR)) {
             GenericPacket greenHousePacketForPg = haveResponseWithPg(ghg100HrPackets, pg);
@@ -570,12 +564,10 @@ public class Part11Step13Controller extends StepController {
         List<GenericPacket> nOx100HourPackets = requestPackets(module.getSourceAddress(),
                                                                nOx100HourSps);
 
-        if (!nOx100HourPackets.isEmpty()) {
-            // 6.11.13.3.b - List data received in a table using bin numbers for rows.
-            getListener().onResult(nOxBinningModule.format(Stream.concat(nOxPackets.stream(),
-                                                                         nOx100HourPackets.stream())
-                                                                 .collect(Collectors.toList())));
-        }
+        // 6.11.13.3.b - List data received in a table using bin numbers for rows.
+        getListener().onResult(nOxBinningModule.format(Stream.concat(nOxPackets.stream(),
+                                                                     nOx100HourPackets.stream())
+                                                             .collect(Collectors.toList())));
         for (int pg : nOx100HourSps) {
             GenericPacket packetForPg = haveResponseWithPg(nOx100HourPackets, pg);
             if (packetForPg == null) {
@@ -605,29 +597,163 @@ public class Part11Step13Controller extends StepController {
                     // 6.11.13.4.d. Fail all values where the corresponding value received in part 2 is greater than the
                     // part 11 value (where supported)
 
-                    // 64274, 64275, 64276, 64277, 64278, 64279 64268, 64269, 64270, 64271, 64272, 64273 | 64258, 64259,
-                    // 64260, 64261 | 64262, 64263, 64264, 64265, 64266, 64267
                     // 6.11.13.4.e. Fail if active 100 hrs engine hours < 600 seconds (where supported)
-                    var engineHoursSps = new ArrayList<>();
-
                     if (spn.getId() == 12699 ||
                             spn.getId() == 12696 ||
                             spn.getId() == 12693) {
                         if (spn.getValue() < 600) {
-                            addWarning("6.11.13.4.3 - Active Tech engine hours received is < 600 seconds from "
+                            addWarning("6.11.13.4.e - Active Tech engine hours received is < 600 seconds from "
                                     + module.getModuleName() + " for " + spn);
                         }
                     }
+
                     // 6.11.13.4.f. Info, if stored 100 hrs engine hours > 0 seconds (where supported)
+                    if (pg == 64269 && spn.getValue() > 0) {
+                        addFailure("6.11.13.4.f - Active Tech stored engine hours received is < 0 seconds from "
+                                + module.getModuleName() + " for " + spn);
+                    }
+
+                    // FIXME:
+                    // @Joe just need to add the logic once the dataRepo bug is fixed.
                     // 6.11.13.4.g. Warn for all active 100 hr bin 3 through bin 16 values that are greater than their
                     // respective values for the bins 3 through 16 in part 2 (where supported)
+
                     // 6.11.13.4.h. Warn for all active 100 hr vehicle distance bins => 0.25 km (where supported)
+                    if (pg == 64276 ||
+                            pg == 64270 ||
+                            pg == 64264) {
+                        if (spn.getValue() >= 0.25) {
+                            addWarning("6.11.13.4.h - Active 100 hr vehicle distance bins received is => 0.25 km from "
+                                    + module.getModuleName() + " for " + spn);
+                        }
+
+                    }
+
                     // 6.11.13.4.i. Warn for active 100 hr EOE bin 1 and bin 2 <= 0.5kW-hr (where supported
+                    // 64271 - Bin 1 => 12457
+                    // 64271 - Bin 2 => 12458
+                    // 64265 - Bin 1 => 12559
+                    // 64265 - Bin 2 => 12560
+                    // 64261 - Bin 1 => 12627
+                    // 64261 - Bin 2 => 12628
+                    if (pg == 64271) {
+                        var bin1Value = packetForPg.getSpn(12457).orElse(null);
+                        var bin2Value = packetForPg.getSpn(12458).orElse(null);
+                        if (bin1Value != null
+                                && bin2Value != null
+                                && bin1Value.getValue() <= 0.5
+                                && bin2Value.getValue() <= 0.5) {
+                            addWarning("6.11.13.4.i - Active 100 hr EOE bin1 and bin2 received is <= 0.5kW-hr from "
+                                    + module.getModuleName() + " for " + spn);
+                        }
+                    }
+                    if (pg == 64265) {
+                        var bin1Value = packetForPg.getSpn(12559).orElse(null);
+                        var bin2Value = packetForPg.getSpn(12560).orElse(null);
+                        if (bin1Value != null
+                                && bin2Value != null
+                                && bin1Value.getValue() <= 0.5
+                                && bin2Value.getValue() <= 0.5) {
+                            addWarning("6.11.13.4.i - Active 100 hr EOE bin1 and bin2 received is <= 0.5kW-hr from "
+                                    + module.getModuleName() + " for " + spn);
+                        }
+                    }
+                    if (pg == 64261) {
+                        var bin1Value = packetForPg.getSpn(12627).orElse(null);
+                        var bin2Value = packetForPg.getSpn(12628).orElse(null);
+                        if (bin1Value != null
+                                && bin2Value != null
+                                && bin1Value.getValue() <= 0.5
+                                && bin2Value.getValue() <= 0.5) {
+                            addWarning("6.11.13.4.i - Active 100 hr EOE bin1 and bin2 received is <= 0.5kW-hr from "
+                                    + module.getModuleName() + " for " + spn);
+                        }
+                    }
+
                     // 6.11.13.4.j. Warn for active 100 hr engine out NOx bin1 and bin 2 = 0 (where supported)
+                    // 64278 - Bin 1 => 12338
+                    // 64278 - Bin 2 => 12339
+                    // 64272 - Bin 1 => 12440
+                    // 64272 - Bin 2 => 12441
+                    // 64266 - Bin 1 => 12542
+                    // 64266 - Bin 2 => 12543
+                    if (pg == 64278) {
+                        var bin1Value = packetForPg.getSpn(12338).orElse(null);
+                        var bin2Value = packetForPg.getSpn(12339).orElse(null);
+                        if (bin1Value != null
+                                && bin2Value != null
+                                && bin1Value.getValue() == 0
+                                && bin2Value.getValue() == 0) {
+                            addWarning("6.11.13.4.k - Active 100 hr system out Nox bin1 and bin2 received is = 0 seconds from "
+                                    + module.getModuleName() + " for " + spn);
+                        }
+                    }
+                    if (pg == 64272) {
+                        var bin1Value = packetForPg.getSpn(12440).orElse(null);
+                        var bin2Value = packetForPg.getSpn(12441).orElse(null);
+                        if (bin1Value != null
+                                && bin2Value != null
+                                && bin1Value.getValue() == 0
+                                && bin2Value.getValue() == 0) {
+                            addWarning("6.11.13.4.k - Active 100 hr system out Nox bin1 and bin2 received is = 0 seconds from "
+                                    + module.getModuleName() + " for " + spn);
+                        }
+                    }
+                    if (pg == 64266) {
+                        var bin1Value = packetForPg.getSpn(12542).orElse(null);
+                        var bin2Value = packetForPg.getSpn(12543).orElse(null);
+                        if (bin1Value != null
+                                && bin2Value != null
+                                && bin1Value.getValue() == 0
+                                && bin2Value.getValue() == 0) {
+                            addWarning("6.11.13.4.k - Active 100 hr system out Nox bin1 and bin2 received is = 0 seconds from "
+                                    + module.getModuleName() + " for " + spn);
+                        }
+                    }
+
                     // 6.11.13.4.k. Warn for active 100 hr system out Nox bin 1 and bin 2 = 0 (where supported)
+                    // 64279 - Bin 1 => 12321
+                    // 64279 - Bin 2 => 12322
+                    // 64273 - Bin 1 => 12423
+                    // 64273 - Bin 2 => 12424
+                    // 64267 - Bin 1 => 12525
+                    // 64267 - Bin 2 => 12526
+                    int id = spn.getId();
+                    if (pg == 64279) {
+                        var bin1Value = packetForPg.getSpn(12321).orElse(null);
+                        var bin2Value = packetForPg.getSpn(12322).orElse(null);
+                        if (bin1Value != null
+                                && bin2Value != null
+                                && bin1Value.getValue() == 0
+                                && bin2Value.getValue() == 0) {
+                            addWarning("6.11.13.4.k - Active 100 hr system out Nox bin1 and bin2 received is = 0 seconds from "
+                                    + module.getModuleName() + " for " + spn);
+                        }
+                    }
+                    if (pg == 64273) {
+                        var bin1Value = packetForPg.getSpn(12423).orElse(null);
+                        var bin2Value = packetForPg.getSpn(12424).orElse(null);
+                        if (bin1Value != null
+                                && bin2Value != null
+                                && bin1Value.getValue() == 0
+                                && bin2Value.getValue() == 0) {
+                            addWarning("6.11.13.4.k - Active 100 hr system out Nox bin1 and bin2 received is = 0 seconds from "
+                                    + module.getModuleName() + " for " + spn);
+                        }
+                    }
+                    if (pg == 64267) {
+                        var bin1Value = packetForPg.getSpn(12525).orElse(null);
+                        var bin2Value = packetForPg.getSpn(12526).orElse(null);
+                        if (bin1Value != null
+                                && bin2Value != null
+                                && bin1Value.getValue() == 0
+                                && bin2Value.getValue() == 0) {
+                            addWarning("6.11.13.4.k - Active 100 hr system out Nox bin1 and bin2 received is = 0 seconds from "
+                                    + module.getModuleName() + " for " + spn);
+                        }
+                    }
                 });
             }
         }
     }
-
 }
