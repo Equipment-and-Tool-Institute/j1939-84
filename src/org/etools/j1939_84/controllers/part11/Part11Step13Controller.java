@@ -600,9 +600,24 @@ public class Part11Step13Controller extends StepController {
                                 + module.getModuleName() + " for " + spn);
 
                     }
+                    // @FIXME
+                    // @Joe - dataRepo bug problem
                     // 6.11.13.4.d. Fail all values where the corresponding value received in part 2 is greater than the
                     // part 11 value (where supported)
+
+                    // 64274, 64275, 64276, 64277, 64278, 64279 64268, 64269, 64270, 64271, 64272, 64273 | 64258, 64259,
+                    // 64260, 64261 | 64262, 64263, 64264, 64265, 64266, 64267
                     // 6.11.13.4.e. Fail if active 100 hrs engine hours < 600 seconds (where supported)
+                    var engineHoursSps = new ArrayList<>();
+
+                    if (spn.getId() == 12699 ||
+                            spn.getId() == 12696 ||
+                            spn.getId() == 12693) {
+                        if (spn.getValue() < 600) {
+                            addWarning("6.11.13.4.3 - Active Tech engine hours received is < 600 seconds from "
+                                    + module.getModuleName() + " for " + spn);
+                        }
+                    }
                     // 6.11.13.4.f. Info, if stored 100 hrs engine hours > 0 seconds (where supported)
                     // 6.11.13.4.g. Warn for all active 100 hr bin 3 through bin 16 values that are greater than their
                     // respective values for the bins 3 through 16 in part 2 (where supported)
