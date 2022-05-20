@@ -584,20 +584,20 @@ public class Part01Step26Controller extends StepController {
     }
 
     private void testSp12730(OBDModuleInformation module) {
-        // 6.2.17.11 Actions6 for all MY2022+ Engines
-        // 6.2.17.11.a - DS request messages to ECU that indicated support in DM24 for upon request SP 12730 (GHG
+        // 6.1.26.11 Actions6 for all MY2022+ Engines
+        // 6.1.26.11.a - DS request messages to ECU that indicated support in DM24 for upon request SP 12730 (GHG
         // Tracking Lifetime Engine Run Time) for PG 64252 GHG Tracking Lifetime Array Data.
         var ghgTrackingLifetimePackets = requestPackets(module.getSourceAddress(),
                                                         GHG_TRACKING_LIFETIME_PG)
                                                                                   .stream()
-                                                                                  // 6.2.17.11.b - Record each value
+                                                                                 // 6.1.26.11.b - Record each value
                                                                                   // for use in Part 12.
                                                                                   .peek(this::save)
                                                                                   .collect(Collectors.toList());
 
         GenericPacket packetForPg = haveResponseWithPg(ghgTrackingLifetimePackets, GHG_TRACKING_LIFETIME_PG);
         if (packetForPg == null) {
-            // 6.2.17.12.a. Fail PG query where no response was received
+            // 6.1.26.12.a. Fail PG query where no response was received
             addFailure("6.1.26.12.a - No response was received from "
                     + module.getModuleName() + "for PG "
                     + GHG_TRACKING_LIFETIME_PG);
