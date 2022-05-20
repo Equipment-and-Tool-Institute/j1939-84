@@ -28,8 +28,6 @@ import org.etools.j1939tools.j1939.packets.SupportedSPN;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
-;
-
 /**
  * 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results
  */
@@ -170,6 +168,22 @@ public class Part01Step12Controller extends StepController {
         } else if (getFuelType().isSparkIgnition()) {
             tableA7Validator.validateForSparkIgnition(vehicleTestResults, getListener());
         }
+
+        // 6.1.12.3 Actions2: // 6.1.12.3 was omitted in error.
+        // a. DS DM7 with TID 245 (for DM58) using FMI 31 for each SP identified as supporting DM58 in a DM24 response
+        // In step 6.1.4.1 to the SP’s respective OBD ECU.
+        // Display the scaled engineering value for the requested SP.
+        // 6.1.12.4 Fail/Warn criteria2:
+        // a. Fail if NACK received for DM7 PG from OBD ECU
+        // b. Fail, if DM58 not received (after allowed retries)
+        // c. Fail, if expected unused bytes in DM58 are not padded with FFh.
+        // d. Fail, if data returned is greater than FBh (for 1 byte SP), FBFFh (for 2 byte SP), or FBFFFFFFh (for 4
+        // byte SP).
+        // 6.1.12.5 Actions3:
+        // a. DS DM7 with TID 245 (for DM58) using FMI 31 for first SP identified as not supporting DM58 in a DM24
+        // response In step 6.1.4.1 to the SP’s respective OBD ECU. (Use of an SP that supports test results is
+        // preferred when available).
+        // 6.1.12.6 Fail/Warn criteria3:
 
     }
 
