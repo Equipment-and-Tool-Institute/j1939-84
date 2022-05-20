@@ -318,6 +318,10 @@ public class Part11Step13Controller extends StepController {
                            // 6.11.13.6.c - Fail all values where the corresponding value received in part 2 is
                            // greater than the part 11 value
                            // 6.11.13.6.d - Fail if lifetime engine hours < 600 seconds
+                           if (spn.getId() == 12730 && spn.getValue() < 600) {
+                               addFailure("6.11.13.6.d - Lifetime engine hours received is < 600 seconds from "
+                                       + module.getModuleName() + " for " + spn);
+                           }
                        });
         }
 
@@ -540,7 +544,7 @@ public class Part11Step13Controller extends StepController {
                                // 6.11.13.2.b. Fail each PG query where any bin value received
                                // is greater than FAFFFFFFh.
                                if (spn.getRawValue() > 0xFAFFFFFFL) {
-                                   addFailure("6.12.12.2.b - Bin value received is greater than 0xFAFFFFFF(h) from "
+                                   addFailure("6.11.13.2.b - Bin value received is greater than 0xFAFFFFFF(h) from "
                                            + module.getModuleName() + " for " + spn);
                                }
                                // FIXME X3: need to write the method to pull back the value by PF number. Currently have
@@ -609,7 +613,7 @@ public class Part11Step13Controller extends StepController {
 
                     // 6.11.13.4.f. Info, if stored 100 hrs engine hours > 0 seconds (where supported)
                     if (pg == 64269 && spn.getValue() > 0) {
-                        addFailure("6.11.13.4.f - Active Tech stored engine hours received is < 0 seconds from "
+                        addFailure("6.11.13.4.f - Active Tech stored engine hours received is > 0 seconds from "
                                 + module.getModuleName() + " for " + spn);
                     }
 
