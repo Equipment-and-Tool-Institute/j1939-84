@@ -19,7 +19,7 @@ import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
 /**
- * 6.11.13 Part 11 to Part 12 Transition
+ * 6.11.14 Part 11 to Part 12 Transition
  */
 public class Part11Step14Controller extends StepController {
     private static final int PART_NUMBER = 11;
