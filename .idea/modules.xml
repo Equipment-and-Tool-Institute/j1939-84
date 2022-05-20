@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/j1939-84.iml" filepath="$PROJECT_DIR$/j1939-84.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../j1939tools/j1939tools.iml" filepath="$PROJECT_DIR$/../j1939tools/j1939tools.iml" />
     </modules>
   </component>
 </project>
