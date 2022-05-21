@@ -198,7 +198,7 @@ public class Part01Step12Controller extends StepController {
                                                    if (response.right.isPresent()) {
                                                        addFailure("6.1.12.4.a - NACK received for DM7 PG from OBD ECU from "
                                                                + module.getModuleName() + " for SP " + spn);
-                                                   } else {
+                                                   } else if (response.left.isPresent()) {
                                                        var dm58 = response.left;
 
                                                        DM58RationalityFaultSpData packet = dm58.get();
@@ -285,6 +285,7 @@ public class Part01Step12Controller extends StepController {
             case 4:
                 return rawValue > 0xFBFFFFFFL;
             default:
+                getListener().onResult("No data evaluated");
                 break;
         }
         return false;
@@ -294,7 +295,6 @@ public class Part01Step12Controller extends StepController {
         Slot slot = J1939DaRepository.findSlot(packet.getSpn().getSlot().getId(), packet.getSpn().getId());
 
         int slotLength = slot.getByteLength();
-        int spnLength = packet.getSpnDataBytes().length;
 
         byte[] paddingBytes;
 
