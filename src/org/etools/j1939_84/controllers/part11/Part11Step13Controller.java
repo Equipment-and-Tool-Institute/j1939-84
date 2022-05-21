@@ -41,7 +41,7 @@ import org.etools.j1939tools.modules.NOxBinningModule;
 import org.etools.j1939tools.utils.CollectionUtils;
 
 /**
- * 6.11.13 NOx Binning and GHG tracking for MY2022+ Engines.and Vehicles
+ * 6.11.13 NOx Binning and GHG tracking for MY2022+ Engines and Vehicles
  */
 public class Part11Step13Controller extends StepController {
     private static final int PART_NUMBER = 11;
