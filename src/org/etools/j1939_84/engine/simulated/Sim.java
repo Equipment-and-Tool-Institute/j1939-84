@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
-import org.etools.j1939tools.J1939tools;
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939tools.bus.Bus;
 import org.etools.j1939tools.bus.BusException;
 import org.etools.j1939tools.bus.Packet;
@@ -60,7 +60,7 @@ public class Sim implements AutoCloseable {
         Stream<Packet> stream = bus.read(365, TimeUnit.DAYS)
                                    .peek(p -> {
                                        if (logPackets) {
-                                           J1939tools.getLogger().log(Level.FINE, p.toTimeString());
+                                           J1939_84.getLogger().log(Level.FINE, p.toTimeString());
                                        }
                                    });
         exec.submit(() -> stream.parallel().forEach(packet -> {
@@ -98,7 +98,7 @@ public class Sim implements AutoCloseable {
                     return response.getPgn() < 0xF000 && request.getDestination() != 0xFF;
                 }
             } catch (Throwable t) {
-                J1939tools.getLogger().log(Level.SEVERE, "Error in Response", t);
+                J1939_84.getLogger().log(Level.SEVERE, "Error in Response", t);
             }
             return false;
         });
@@ -152,7 +152,7 @@ public class Sim implements AutoCloseable {
         try {
             bus.send(p);
         } catch (Throwable e) {
-            J1939tools.getLogger().log(Level.SEVERE, "Error sending", e);
+            J1939_84.getLogger().log(Level.SEVERE, "Error sending", e);
         }
     }
 

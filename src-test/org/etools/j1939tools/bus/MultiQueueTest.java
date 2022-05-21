@@ -11,8 +11,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import org.etools.j1939tools.bus.BusException;
-import org.etools.j1939tools.bus.MultiQueue;
 import org.etools.testdoc.TestDoc;
 import org.junit.Test;
 

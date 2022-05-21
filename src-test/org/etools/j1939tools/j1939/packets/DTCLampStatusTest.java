@@ -3,7 +3,7 @@
  */
 package org.etools.j1939tools.j1939.packets;
 
-import static org.etools.j1939tools.J1939tools.NL;
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939tools.j1939.packets.LampStatus.OTHER;
 import static org.etools.j1939tools.j1939.packets.LampStatus.SLOW_FLASH;
@@ -11,8 +11,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.etools.j1939tools.j1939.packets.DTCLampStatus;
-import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
 import org.junit.Test;
 
 /**

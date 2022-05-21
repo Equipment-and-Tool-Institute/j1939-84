@@ -6,7 +6,6 @@ package org.etools.j1939tools.j1939.packets;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import org.etools.j1939tools.j1939.packets.LampStatus;
 import org.junit.Test;
 
 /**

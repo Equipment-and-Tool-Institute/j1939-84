@@ -18,7 +18,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.etools.j1939tools.J1939tools;
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939tools.j1939.J1939;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -183,7 +183,7 @@ public class Packet {
 
             return Packet.create(priority, id, source, tx, bytes);
         } catch (Exception e) {
-            J1939tools.getLogger().log(Level.SEVERE, string + " could not be parsed into a Packet", e);
+            J1939_84.getLogger().log(Level.SEVERE, string + " could not be parsed into a Packet", e);
         }
         return null;
     }

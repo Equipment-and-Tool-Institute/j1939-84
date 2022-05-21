@@ -8,7 +8,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.modules.DateTimeModule;
 import org.etools.j1939tools.modules.TestDateTimeModule;
 import org.junit.After;

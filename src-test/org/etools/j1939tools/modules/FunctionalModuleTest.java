@@ -7,8 +7,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
 import org.etools.j1939tools.j1939.J1939;
-import org.etools.j1939tools.modules.DateTimeModule;
-import org.etools.j1939tools.modules.FunctionalModule;
 import org.junit.Before;
 import org.junit.Test;
 

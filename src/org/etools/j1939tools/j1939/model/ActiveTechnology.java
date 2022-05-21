@@ -9,7 +9,7 @@ import org.etools.j1939tools.j1939.packets.Slot;
 import org.etools.j1939tools.utils.CollectionUtils;
 
 import static java.util.Comparator.comparingInt;
-import static org.etools.j1939tools.J1939tools.NL;
+import static org.etools.j1939_84.J1939_84.NL;
 
 public class ActiveTechnology {
 

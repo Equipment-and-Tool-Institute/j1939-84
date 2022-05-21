@@ -5,8 +5,6 @@ package org.etools.j1939tools.j1939.model;
 
 import static org.junit.Assert.assertEquals;
 
-import org.etools.j1939tools.j1939.model.SpnDataParser;
-import org.etools.j1939tools.j1939.model.SpnDefinition;
 import org.junit.Test;
 
 public class SpnDataParserTest {

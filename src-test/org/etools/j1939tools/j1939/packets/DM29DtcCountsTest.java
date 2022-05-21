@@ -3,12 +3,11 @@
  */
 package org.etools.j1939tools.j1939.packets;
 
-import static org.etools.j1939tools.J1939tools.NL;
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939tools.j1939.packets.DM29DtcCounts.PGN;
 import static org.junit.Assert.assertEquals;
 
 import org.etools.j1939tools.bus.Packet;
-import org.etools.j1939tools.j1939.packets.DM29DtcCounts;
 import org.junit.Before;
 import org.junit.Test;
 

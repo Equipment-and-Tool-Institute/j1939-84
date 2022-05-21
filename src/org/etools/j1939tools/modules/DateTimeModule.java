@@ -4,6 +4,11 @@
 package org.etools.j1939tools.modules;
 
 
+import static java.time.temporal.ChronoField.HOUR_OF_DAY;
+import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
+import static java.time.temporal.ChronoField.NANO_OF_SECOND;
+import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -13,9 +18,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-import org.etools.j1939tools.J1939tools;
-
-import static java.time.temporal.ChronoField.*;
+import org.etools.j1939_84.J1939_84;
 
 /**
  * The Module responsible for the Date/Time
@@ -97,7 +100,7 @@ public class DateTimeModule {
         Instant now = Instant.now().plusNanos(nanoOffset);
         if (now.isBefore(last)) {
             now = last;
-            J1939tools.getLogger().log(Level.INFO, "Reusing now: " + now);
+            J1939_84.getLogger().log(Level.INFO, "Reusing now: " + now);
         } else {
             last = now;
         }
