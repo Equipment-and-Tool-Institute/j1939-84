@@ -49,7 +49,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
     /**
      * The default extension for report files created by this application
      */
-    static final String FILE_SUFFIX = "j1939tools-84";
+    static final String FILE_SUFFIX = "txt";
 
     private final Executor executor;
 
