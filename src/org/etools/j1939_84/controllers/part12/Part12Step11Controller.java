@@ -139,9 +139,7 @@ public class Part12Step11Controller extends StepController {
                                                                             + " for SP " + spn);
                                                                 });
                   });
-        });
-        getDataRepository().getObdModuleAddresses().forEach(moduleAddress -> {
-            getDm58AndVerifyData(moduleAddress);
+            getDm58AndVerifyData(module.getSourceAddress());
         });
     }
 
