@@ -9,7 +9,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import org.etools.j1939tools.j1939.packets.PerformanceRatio;
 import org.junit.Test;
 
 /**

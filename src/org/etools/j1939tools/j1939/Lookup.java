@@ -3,8 +3,6 @@
  */
 package org.etools.j1939tools.j1939;
 
-import static org.etools.j1939tools.J1939tools.getLogger;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -12,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939tools.resources.J1939ToolsResources;
 
 import com.opencsv.CSVReader;
@@ -128,7 +127,7 @@ public class Lookup {
                 map.put(Integer.valueOf(values[0]), values[1]);
             }
         } catch (Exception e) {
-            getLogger().log(Level.SEVERE, "Error loading map from " + fileName, e);
+            J1939_84.getLogger().log(Level.SEVERE, "Error loading map from " + fileName, e);
         }
         return map;
     }

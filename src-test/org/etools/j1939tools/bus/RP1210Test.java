@@ -16,14 +16,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
-import org.etools.j1939tools.J1939tools;
-import org.etools.j1939tools.bus.Adapter;
-import org.etools.j1939tools.bus.Bus;
-import org.etools.j1939tools.bus.BusException;
-import org.etools.j1939tools.bus.EchoBus;
-import org.etools.j1939tools.bus.Either;
-import org.etools.j1939tools.bus.RP1210;
-import org.etools.j1939tools.bus.RP1210Bus;
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939tools.j1939.J1939;
 import org.etools.j1939tools.j1939.J1939TP;
 import org.etools.j1939tools.j1939.packets.DM29DtcCounts;
@@ -90,12 +83,12 @@ public class RP1210Test {
 
     @After
     public void tearDown() throws Exception {
-        J1939tools.setTesting(false);
+        J1939_84.setTesting(false);
     }
 
     @Test
     public void testGetAdapters() throws Exception {
-        J1939tools.setTesting(false);
+        J1939_84.setTesting(false);
 
         RP1210 instance = createInstance("test/rp1210/RP121032.INI");
         List<Adapter> actual = instance.getAdapters();
@@ -134,7 +127,7 @@ public class RP1210Test {
 
     @Test
     public void testGetAdaptersWithBadIniDriverFile() throws Exception {
-        J1939tools.setTesting(false);
+        J1939_84.setTesting(false);
         RP1210 instance = createInstance("test/rp1210_badDriver/RP121032.INI");
         List<Adapter> actual = instance.getAdapters();
         assertEquals(3, actual.size());
@@ -160,7 +153,7 @@ public class RP1210Test {
 
     @Test
     public void testGetAdaptersWithBadIniFile() throws Exception {
-        J1939tools.setTesting(false);
+        J1939_84.setTesting(false);
         RP1210 instance = createInstance("test/rp1210Bad/RP121032.INI");
         try {
             instance.getAdapters();
@@ -172,7 +165,7 @@ public class RP1210Test {
 
     @Test
     public void testGetAdaptersWithTestingTrue() throws Exception {
-        J1939tools.setTesting(true);
+        J1939_84.setTesting(true);
         RP1210 instance = createInstance("test/rp1210/RP121032.INI");
         List<Adapter> actual = instance.getAdapters();
         {
@@ -217,7 +210,7 @@ public class RP1210Test {
     @Ignore
     // What is this trying to test? There is no Simulated Adapter DLL to load
     public void testSetAdapterWithLookBackAdapter() throws Exception {
-        J1939tools.setTesting(true);
+        J1939_84.setTesting(true);
         RP1210 instance = createInstance("test/rp1210/RP121032.INI");
         List<Adapter> adapters = instance.getAdapters();
         Adapter adapter = adapters.get(0);

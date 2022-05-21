@@ -33,12 +33,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import org.etools.j1939tools.bus.Adapter;
-import org.etools.j1939tools.bus.BusException;
-import org.etools.j1939tools.bus.MultiQueue;
-import org.etools.j1939tools.bus.Packet;
-import org.etools.j1939tools.bus.RP1210Bus;
-import org.etools.j1939tools.bus.RP1210Library;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

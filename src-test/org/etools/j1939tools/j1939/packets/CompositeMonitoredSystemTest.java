@@ -22,9 +22,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 
-import org.etools.j1939tools.j1939.packets.CompositeMonitoredSystem;
-import org.etools.j1939tools.j1939.packets.CompositeSystem;
-import org.etools.j1939tools.j1939.packets.MonitoredSystem;
 import org.junit.Test;
 
 /**

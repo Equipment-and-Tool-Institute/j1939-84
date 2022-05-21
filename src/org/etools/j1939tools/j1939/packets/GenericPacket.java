@@ -3,8 +3,7 @@
  */
 package org.etools.j1939tools.j1939.packets;
 
-import static org.etools.j1939tools.J1939tools.NL;
-import static org.etools.j1939tools.J1939tools.getLogger;
+import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +12,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.j1939.J1939DaRepository;
 import org.etools.j1939tools.j1939.model.PgnDefinition;
@@ -52,7 +52,7 @@ public class GenericPacket extends ParsedPacket {
                 result.append("  ").append(spn.toString()).append(NL);
             }
         } catch (Exception e) {
-            getLogger().log(Level.SEVERE, "Error creating string", e);
+            J1939_84.getLogger().log(Level.SEVERE, "Error creating string", e);
         }
         return result.toString();
     }

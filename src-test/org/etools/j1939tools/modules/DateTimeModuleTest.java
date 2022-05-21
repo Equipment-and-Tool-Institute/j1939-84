@@ -9,7 +9,6 @@ import static org.junit.Assert.assertTrue;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.Before;
 import org.junit.Test;
 

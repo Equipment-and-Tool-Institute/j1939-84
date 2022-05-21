@@ -2,10 +2,8 @@ package org.etools.j1939tools.j1939.model;
 
 import org.junit.Test;
 
-import static org.etools.j1939tools.J1939tools.NL;
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
-
-import org.etools.j1939tools.j1939.model.ActiveTechnology;
 
 public class ActiveTechnologyTest {
 

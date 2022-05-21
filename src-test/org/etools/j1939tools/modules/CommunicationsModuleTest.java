@@ -5,7 +5,7 @@ package org.etools.j1939tools.modules;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.etools.j1939tools.J1939tools.NL;
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939tools.j1939.J1939.GLOBAL_ADDR;
 import static org.etools.j1939tools.j1939.packets.CompositeSystem.AC_SYSTEM_REFRIGERANT;
 import static org.etools.j1939tools.j1939.packets.CompositeSystem.BOOST_PRESSURE_CONTROL_SYS;
@@ -68,8 +68,6 @@ import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.MonitoredSystem;
 import org.etools.j1939tools.j1939.packets.MonitoredSystemStatus;
 import org.etools.j1939tools.j1939.packets.VehicleIdentificationPacket;
-import org.etools.j1939tools.modules.CommunicationsModule;
-import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -6,8 +6,6 @@ package org.etools.j1939tools.j1939.packets;
 import static org.junit.Assert.assertEquals;
 
 import org.etools.j1939tools.j1939.J1939DaRepository;
-import org.etools.j1939tools.j1939.packets.BitSlot;
-import org.etools.j1939tools.j1939.packets.Slot;
 import org.junit.Test;
 
 /**

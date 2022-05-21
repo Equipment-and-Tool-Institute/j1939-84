@@ -3,7 +3,7 @@
  */
 package org.etools.j1939tools.j1939.packets;
 
-import static org.etools.j1939tools.J1939tools.NL;
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939tools.j1939.packets.DM26TripDiagnosticReadinessPacket.PGN;
 import static org.etools.j1939tools.j1939.packets.DM26TripDiagnosticReadinessPacket.create;
 import static org.junit.Assert.assertEquals;
@@ -14,12 +14,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.etools.j1939tools.bus.Packet;
-import org.etools.j1939tools.j1939.packets.CompositeSystem;
-import org.etools.j1939tools.j1939.packets.DM26TripDiagnosticReadinessPacket;
-import org.etools.j1939tools.j1939.packets.DiagnosticReadinessPacket;
-import org.etools.j1939tools.j1939.packets.MonitoredSystem;
-import org.etools.j1939tools.j1939.packets.MonitoredSystemStatus;
-import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.junit.Test;
 
 /**

@@ -32,8 +32,6 @@ import org.etools.j1939tools.bus.Either;
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.bus.TestResultsListener;
-import org.etools.j1939tools.j1939.J1939;
-import org.etools.j1939tools.j1939.J1939TP;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939tools.j1939.packets.DM11ClearActiveDTCsPacket;

@@ -5,7 +5,6 @@ package org.etools.j1939tools.j1939;
 
 import static org.junit.Assert.assertEquals;
 
-import org.etools.j1939tools.j1939.Lookup;
 import org.junit.Test;
 
 /**

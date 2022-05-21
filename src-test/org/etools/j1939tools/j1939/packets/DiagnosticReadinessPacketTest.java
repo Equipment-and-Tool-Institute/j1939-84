@@ -11,10 +11,6 @@ import java.util.List;
 import java.util.Objects;
 
 import org.etools.j1939tools.bus.Packet;
-import org.etools.j1939tools.j1939.packets.CompositeSystem;
-import org.etools.j1939tools.j1939.packets.DiagnosticReadinessPacket;
-import org.etools.j1939tools.j1939.packets.MonitoredSystem;
-import org.etools.j1939tools.j1939.packets.MonitoredSystemStatus;
 import org.junit.Ignore;
 import org.junit.Test;
 

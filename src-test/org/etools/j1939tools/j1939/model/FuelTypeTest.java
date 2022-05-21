@@ -36,7 +36,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.etools.j1939tools.j1939.model.FuelType;
 import org.etools.testdoc.TestDoc;
 import org.junit.Test;
 
