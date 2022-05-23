@@ -230,26 +230,37 @@ public class Part01Step12Controller extends StepController {
                                                                             + spn);
                                                                 });
                   });
-            // 6.1.13.6 - 6.1.12.6
-            getDm58AndVerifyData(module.getSourceAddress());
         });
+        getDm58AndVerifyData();
     }
 
-    private void getDm58AndVerifyData(int moduleAddress) {
+    private void getDm58AndVerifyData() {
 
         // 6.1.12.5 Actions3:
         // a. DS DM7 with TID 245 (for DM58) using FMI 31 for first SP identified as not supporting DM58 in a DM24
         // response In step 6.1.4.1 to the SP’s respective OBD ECU. (Use of an SP that supports test results is
         // preferred when available).
+        var obdModules = getDataRepository().getObdModules()
+                                            .stream()
+                                            .filter(module -> {
+                                                var supportedSPNs = module.getSupportedSPNs()
+                                                                          .stream()
+                                                                          .filter(supportedSPN -> !supportedSPN.supportsRationalityFaultData())
+                                                                          .collect(Collectors.toList());
+                                                if (!supportedSPNs.isEmpty()) {
+                                                    return true;
+                                                }
+                                                return false;
+                                            })
+                                            .collect(Collectors.toList());
+
         var nonRatFaultSps = getDataRepository().getObdModules()
                                                 .stream()
-                                                .filter(module -> module.getSourceAddress() == moduleAddress)
                                                 .flatMap(m -> m.getSupportedSPNs().stream())
                                                 .filter(supported -> !supported.supportsRationalityFaultData())
                                                 .collect(Collectors.toList());
-        if (nonRatFaultSps.isEmpty()) {
-            getListener().onResult("6.1.12.5.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from "
-                    + Lookup.getAddressName(moduleAddress));
+        if (nonRatFaultSps.isEmpty() || obdModules.isEmpty()) {
+            getListener().onResult("6.1.12.5.a - No SPs found that do NOT indicate support for DM58 in the DM24 response");
         } else {
             int requestSpn = nonRatFaultSps.stream()
                                            .filter(SupportedSPN::supportsScaledTestResults)
@@ -257,7 +268,9 @@ public class Part01Step12Controller extends StepController {
                                            .orElseGet(() -> nonRatFaultSps.get(0))
                                            .getSpn();
 
-            var packet = getCommunicationsModule().requestDM58(getListener(), moduleAddress, requestSpn)
+            var packet = getCommunicationsModule().requestDM58(getListener(),
+                                                               obdModules.get(0).getSourceAddress(),
+                                                               requestSpn)
                                                   .requestResult()
                                                   .getAcks()
                                                   .stream()
@@ -268,7 +281,7 @@ public class Part01Step12Controller extends StepController {
             // a. Fail if a NACK is not received
             if (packet == null || packet.getResponse() != AcknowledgmentPacket.Response.NACK) {
                 addFailure("6.1.12.6.a - NACK not received for DM7 PG from OBD ECU "
-                        + Lookup.getAddressName(moduleAddress) + " for spn " + requestSpn);
+                        + Lookup.getAddressName(obdModules.get(0).getSourceAddress()) + " for spn " + requestSpn);
             }
         }
     }
