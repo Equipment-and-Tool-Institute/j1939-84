@@ -27,10 +27,11 @@ import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.model.PgnDefinition;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939tools.j1939.packets.AddressClaimPacket;
 import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
-import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 import org.etools.testdoc.TestDoc;
@@ -124,23 +125,34 @@ public class Part01Step03ControllerTest {
         when(communicationsModule.requestDM5(any())).thenReturn(requestResult);
 
         DM5DiagnosticReadinessPacket packet1 = mock(DM5DiagnosticReadinessPacket.class);
+        PgnDefinition pgnDefinition = mock(PgnDefinition.class);
+        when(packet1.getPgnDefinition()).thenReturn(pgnDefinition);
+        when(packet1.getPgnDefinition().getId()).thenReturn(DM5DiagnosticReadinessPacket.PGN);
         packets.add(packet1);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
+        when(packet2.getPgnDefinition()).thenReturn(pgnDefinition);
+        when(packet2.getPgnDefinition().getId()).thenReturn(AcknowledgmentPacket.PGN);
         when(packet2.getResponse()).thenReturn(Response.ACK);
         acks.add(packet2);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
+        when(packet3.getPgnDefinition()).thenReturn(pgnDefinition);
+        when(packet3.getPgnDefinition().getId()).thenReturn(AcknowledgmentPacket.PGN);
         when(packet3.getResponse()).thenReturn(Response.NACK);
         acks.add(packet3);
 
         DM5DiagnosticReadinessPacket packet4 = mock(DM5DiagnosticReadinessPacket.class);
+        when(packet4.getPgnDefinition()).thenReturn(pgnDefinition);
+        when(packet4.getPgnDefinition().getId()).thenReturn(DM5DiagnosticReadinessPacket.PGN);
         when(packet4.isObd()).thenReturn(true);
         when(packet4.getSourceAddress()).thenReturn(0);
         when(packet4.getOBDCompliance()).thenReturn((byte) 4);
         packets.add(packet4);
 
         DM5DiagnosticReadinessPacket packet5 = mock(DM5DiagnosticReadinessPacket.class);
+        when(packet5.getPgnDefinition()).thenReturn(pgnDefinition);
+        when(packet5.getPgnDefinition().getId()).thenReturn(DM5DiagnosticReadinessPacket.PGN);
         when(packet5.isObd()).thenReturn(true);
         when(packet5.getSourceAddress()).thenReturn(17);
         when(packet5.getOBDCompliance()).thenReturn((byte) 5);
@@ -224,17 +236,26 @@ public class Part01Step03ControllerTest {
         RequestResult<DM5DiagnosticReadinessPacket> requestResult = new RequestResult<>(false, packets, acks);
         DM5DiagnosticReadinessPacket packet1 = mock(DM5DiagnosticReadinessPacket.class);
         when(packet1.getOBDCompliance()).thenReturn((byte) 4);
+        PgnDefinition pgnDefinition = mock(PgnDefinition.class);
+        when(packet1.getPgnDefinition()).thenReturn(pgnDefinition);
+        when(packet1.getPgnDefinition().getId()).thenReturn(DM5DiagnosticReadinessPacket.PGN);
         packets.add(packet1);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
+        when(packet2.getPgnDefinition()).thenReturn(pgnDefinition);
+        when(packet2.getPgnDefinition().getId()).thenReturn(AcknowledgmentPacket.PGN);
         when(packet2.getResponse()).thenReturn(Response.ACK);
         acks.add(packet2);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
+        when(packet3.getPgnDefinition()).thenReturn(pgnDefinition);
+        when(packet3.getPgnDefinition().getId()).thenReturn(AcknowledgmentPacket.PGN);
         when(packet3.getResponse()).thenReturn(Response.NACK);
         acks.add(packet3);
 
         DM5DiagnosticReadinessPacket packet4 = mock(DM5DiagnosticReadinessPacket.class);
+        when(packet4.getPgnDefinition()).thenReturn(pgnDefinition);
+        when(packet4.getPgnDefinition().getId()).thenReturn(DM5DiagnosticReadinessPacket.PGN);
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0, 0);
         dataRepository.putObdModule(obdInfo);
