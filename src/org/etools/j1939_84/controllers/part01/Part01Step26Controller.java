@@ -70,7 +70,6 @@ public class Part01Step26Controller extends StepController {
     public Part01Step26Controller() {
         this(Executors.newSingleThreadScheduledExecutor(),
              new BannerModule(),
-             DateTimeModule.getInstance(),
              DataRepository.getInstance(),
              new EngineSpeedModule(),
              new VehicleInformationModule(),
@@ -85,7 +84,6 @@ public class Part01Step26Controller extends StepController {
 
     Part01Step26Controller(Executor executor,
                            BannerModule bannerModule,
-                           DateTimeModule dateTimeModule,
                            DataRepository dataRepository,
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
@@ -98,7 +96,7 @@ public class Part01Step26Controller extends StepController {
                            NOxBinningModule nOxBinningModule) {
         super(executor,
               bannerModule,
-              dateTimeModule,
+              DateTimeModule.getInstance(),
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
@@ -122,41 +120,29 @@ public class Part01Step26Controller extends StepController {
         // defined in SAE J1939-73 5.7.24 is 0
         List<Integer> supportedSPNs = getDataRepository().getObdModules()
                                                          .stream()
-                                                         // FIXME: Eric defining and this will need to updated in the
-                                                         // tableA1Validator (Update method when clarification of SPs
-                                                         // list of WARN? FAIL? BOTH?
-                                                         // @Joe we just need a new method to "add back" the SP per the
-                                                         // spec Eric is providing for tableA1Validator; or, perhaps, a
-                                                         // new method which combines the getFilteredDataStreamSPNs()
-                                                         // functionality with the "add back" functionality would make
-                                                         // more sense since this will be repeated in several
-                                                         // places in the testing - not sure on that, apparently wrong
-                                                         // on that check email from Eric date 5/8/22 @ around 9:30 AM
-                                                         // containing document entitled "SecondChanceClarification.docx
                                                          // FIXME: need to update to add functionality of 6.1.26.1.b
-                                                         // @Joe - will be implemented with Eric new file is completed
+                                                         // @Joe - will be implemented with changes Matt & Eric are
+                                                         // working through
                                                          // 6.1.26.1.b. Add any omissions from Table A-1, excluding
                                                          // those SPs noted (as CI or SI) for the opposite fuel type
                                                          // provided by the user
-                                                         // 6.1.26.1.c. Omit the following SPNs (588, 976, 1213,
-                                                         // 1220, 12675, 12691, 12730, 12783, 12797)
-                                                         // which are included in the list. Display the completed list
-                                                         // noting those omitted SPs, supported SPs as
-                                                         // ‘broadcast’ or ‘upon request’, and additions from Table A-1.
+                                                         .peek(module -> {
+                                                             // 6.1.26.1.c. Omit the following SPNs (588, 976, 1213,
+                                                             // 1220, 12675, 12691, 12730, 12783, 12797) which are
+                                                             // included in the list. Display the completed list noting
+                                                             // those omitted SPs, supported SPs as ‘broadcast’ or ‘upon
+                                                             // request’, and additions from Table A-1.
+                                                             tableA1Validator.reportMessages(getListener(), module);
+                                                         })
                                                          .flatMap(m -> m.getFilteredDataStreamSPNs().stream())
                                                          .map(SupportedSPN::getSpn)
                                                          .collect(Collectors.toList());
-
-        // 6.1.26.1.c. Display the completed list noting those omitted SPs, supported SPs as ‘broadcast’ or
-        // ‘upon request’, and additions from Table A-1.
-        tableA1Validator.reportExpectedMessages(getListener());
 
         // 6.1.26.1.d. Gather broadcast data for all SPNs that are supported for data stream in the OBD ECU DM24
         // responses, and the added SPNs from Table A-1. This shall include the both SPs that are expected to be queried
         // with DS queries (in step 6.1.26.5 for SPs supported in DM24) and SPs that are expected without queries.
         // 6.1.26.1.e. Gather/timestamp each parameter that is observed at least three times to be able to verify
-        // frequency of broadcast
-        // we need 3 samples plus time for a BAM, to 4 * maxPeriod
+        // frequency of broadcast - we need 3 samples plus time for a BAM, to 4 * maxPeriod
         Stream<GenericPacket> packetStream = busService.readBus(broadcastValidator.getMaximumBroadcastPeriod() * 4,
                                                                 "6.1.26.1.e");
 
@@ -188,9 +174,6 @@ public class Part01Step26Controller extends StepController {
                                                                                                   getListener(),
                                                                                                   "6.1.26.2.d"))
                                                   .peek(p ->
-                                                  // 6.1.26.3.a. Identify SPNs provided in the data stream that are
-                                                  // listed in Table A-1, but are not supported by any OBD ECU in its
-                                                  // DM24 response.
                                                   // 6.1.26.4.a. Fail/warn per Table A-1 column, “Action if SPN provided
                                                   // but not included in DM24”.
                                                   tableA1Validator.reportProvidedButNotSupportedSPNs(p,
@@ -240,6 +223,8 @@ public class Part01Step26Controller extends StepController {
             // Find the PGN Definitions for the PGNs we expect to receive
             List<Integer> requiredPgns = new ArrayList<>(busService.collectNonOnRequestPGNs(supportedSPNs));
 
+            // 6.1.26.3.a. Identify SPNs provided in the data stream that are listed in Table A-1, but are not supported
+            // by any OBD ECU in its DM24 response.
             List<Integer> missingSPNs = broadcastValidator.collectAndReportNotAvailableSPNs(moduleAddress,
                                                                                             modulePackets,
                                                                                             dataStreamSPNs,
@@ -247,7 +232,7 @@ public class Part01Step26Controller extends StepController {
                                                                                             getListener(),
                                                                                             getPartNumber(),
                                                                                             getStepNumber(),
-                                                                                            "6.1.26.5.a");
+                                                                                            "6.1.26.3.a");
 
             // DS Request for all SPNs that are sent on-request AND those were missed earlier
             List<Integer> requestPGNs = busService.getPGNsForDSRequest(missingSPNs, dataStreamSPNs);
@@ -375,7 +360,6 @@ public class Part01Step26Controller extends StepController {
                     testSp12783(obdModule);
                 }
 
-
             }
         }// end obdModule
 
@@ -385,8 +369,7 @@ public class Part01Step26Controller extends StepController {
                                              "6.1.26.6.g");
 
         // 6.1.26.6.h. Fail/warn per Table A-1 column, “Action if SPN provided but not included in DM24”
-        onRequestPackets.stream()
-                        .forEach(packet -> tableA1Validator.reportProvidedButNotSupportedSPNs(packet,
+        onRequestPackets.forEach(packet -> tableA1Validator.reportProvidedButNotSupportedSPNs(packet,
                                                                                               getListener(),
                                                                                               "6.1.26.6.h"));
 
@@ -400,18 +383,18 @@ public class Part01Step26Controller extends StepController {
         // PG 64244 Hybrid Charge Depleting or Increasing Operation Lifetime Hours
         List<GenericPacket> ghgLifeTimePackets = requestPackets(module.getSourceAddress(),
                                                                 GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG)
-                                                                                                               .stream()
-                                                                                                               // 6.1.26.23.b.
-                                                                                                               // Record
-                                                                                                               // each
-                                                                                                               // value
-                                                                                                               // for
-                                                                                                               // use
-                                                                                                               // in
-                                                                                                               // Part
-                                                                                                               // 12.
-                                                                                                               .peek(this::save)
-                                                                                                               .collect(Collectors.toList());
+                                                                                                              .stream()
+                                                                                                              // 6.1.26.23.b.
+                                                                                                              // Record
+                                                                                                              // each
+                                                                                                              // value
+                                                                                                              // for
+                                                                                                              // use
+                                                                                                              // in
+                                                                                                              // Part
+                                                                                                              // 12.
+                                                                                                              .peek(this::save)
+                                                                                                              .collect(Collectors.toList());
 
         GenericPacket packetForPg = haveResponseWithPg(ghgLifeTimePackets,
                                                        GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG);
@@ -498,14 +481,14 @@ public class Part01Step26Controller extends StepController {
         // Lifetime Hours
         var ghgTrackingPackets = requestPackets(module.getSourceAddress(),
                                                 GHG_TRACKING_LIFETIME_HYBRID_PG)
-                                                                                 .stream()
-                                                                                 // 6.1.26.19.b.
-                                                                                 // Record
-                                                                                 // each value for
-                                                                                 // use
-                                                                                 // in Part 2.
-                                                                                 .peek(this::save)
-                                                                                 .collect(Collectors.toList());
+                                                                                .stream()
+                                                                                // 6.1.26.19.b.
+                                                                                // Record
+                                                                                // each value for
+                                                                                // use
+                                                                                // in Part 2.
+                                                                                .peek(this::save)
+                                                                                .collect(Collectors.toList());
 
         GenericPacket packetForPg = haveResponseWithPg(ghgTrackingPackets, GHG_TRACKING_LIFETIME_HYBRID_PG);
         if (packetForPg == null) {
@@ -589,11 +572,11 @@ public class Part01Step26Controller extends StepController {
         // Tracking Lifetime Engine Run Time) for PG 64252 GHG Tracking Lifetime Array Data.
         var ghgTrackingLifetimePackets = requestPackets(module.getSourceAddress(),
                                                         GHG_TRACKING_LIFETIME_PG)
-                                                                                  .stream()
+                                                                                 .stream()
                                                                                  // 6.1.26.11.b - Record each value
-                                                                                  // for use in Part 12.
-                                                                                  .peek(this::save)
-                                                                                  .collect(Collectors.toList());
+                                                                                 // for use in Part 12.
+                                                                                 .peek(this::save)
+                                                                                 .collect(Collectors.toList());
 
         GenericPacket packetForPg = haveResponseWithPg(ghgTrackingLifetimePackets, GHG_TRACKING_LIFETIME_PG);
         if (packetForPg == null) {
@@ -685,12 +668,12 @@ public class Part01Step26Controller extends StepController {
         // PG 64257 Green House Gas Lifetime Active Technology Tracking.
         var ghgPackets = requestPackets(module.getSourceAddress(),
                                         GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG)
-                                                                              .stream()
-                                                                              // 6.1.26.15.b. Record
-                                                                              // each value for use
-                                                                              // in Part 2.
-                                                                              .peek(this::save)
-                                                                              .collect(Collectors.toList());
+                                                                             .stream()
+                                                                             // 6.1.26.15.b. Record
+                                                                             // each value for use
+                                                                             // in Part 2.
+                                                                             .peek(this::save)
+                                                                             .collect(Collectors.toList());
 
         GenericPacket packetForPg = haveResponseWithPg(ghgPackets, GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG);
         if (packetForPg == null) {
@@ -784,20 +767,16 @@ public class Part01Step26Controller extends StepController {
                                           // @Joe this is in the emailed document and will updated with it
                                           // 6.1.26.18.f. Fail each response where the set of labels received is not a
                                           // subset of the set of labels received for the lifetime active technology
-                                          // response.
-                                          // if (!expectedLabels.contains(spn.getLabel()
-                                          // .substring(spn.getLabel().indexOf("Hour Active") + 5))) {
-                                          // addFailure("6.1.26.18.f - " + spn.getLabel());
-                                          // }
+                                          // response. Part of the change order included in
+                                          // SecondChanceClarification.docx
+
                                       });
                 // FIXME:
                 // @Joe this is in the emailed document and will updated with it
                 // 6.1.26.18.e. Fail each response where the number of labels received are not
                 // the same as the number of labels received for the lifetime technology
-                // response.
-                // if (packetForPg.getSpns().size() != ghgPackets.get(0).getSpns().size()) {
-                // addFailure("6.1.26.18.e - Number of response labels mismatch");
-                // }
+                // response. Part of the change order included in SecondChanceClarification.docx
+
             }
         }
     }
@@ -890,7 +869,10 @@ public class Part01Step26Controller extends StepController {
 
                     }
                     // 6.1.26.10.d. Fail each active 100 hr array value that is greater than zero. (where supported)
-                    if (Arrays.asList(NOx_TRACKING_ACTIVE_100_HOURS_SPs).contains(spn) && spn.getValue() > 0) {
+                    Integer spnId = spn.getId();
+                    var nOxTrackingActive100HoursSps = List.of(Arrays.stream(NOx_TRACKING_ACTIVE_100_HOURS_SPs)
+                                                                     .toArray());
+                    if (nOxTrackingActive100HoursSps.contains(spnId) && spn.getValue() > 0) {
                         // 6.1.26.10.d. Fail each active 100 hr array value that is greater than zero. (where supported)
                         addFailure("6.1.26.10.d - Active 100 hr array value received is greater than zero (where supported) from "
                                 + module.getModuleName() + " for " + spn);
@@ -898,8 +880,5 @@ public class Part01Step26Controller extends StepController {
                 });
             }
         }
-
-
     }
-
 }

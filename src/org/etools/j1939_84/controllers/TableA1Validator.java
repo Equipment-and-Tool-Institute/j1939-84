@@ -235,25 +235,29 @@ public class TableA1Validator {
                       .map(dataRepository::getObdModule)
                       .forEach(moduleInfo -> {
 
-                          Map<Integer, List<Integer>> pgnMap = getMessages(moduleInfo.getSourceAddress(), listener);
-                          pgnMap.keySet().stream().sorted().forEach(pgn -> {
-                              String spns = pgnMap.get(pgn)
-                                                  .stream()
-                                                  .sorted()
-                                                  .map(Object::toString)
-                                                  .collect(Collectors.joining(", "));
-                              String msg = "PGN " + pgn + " from " + moduleInfo.getModuleName() + " with SPNs " + spns;
-
-                              PgnDefinition pgnDefinition = j1939DaRepository.findPgnDefinition(pgn);
-                              if (pgnDefinition.isOnRequest()) {
-                                  msg = "  Req " + msg;
-                              } else {
-                                  msg = "  BCT " + msg;
-                              }
-
-                              listener.onResult(msg);
-                          });
+                          reportMessages(listener, moduleInfo);
                       });
+    }
+
+    public void reportMessages(ResultsListener listener, OBDModuleInformation moduleInfo) {
+        Map<Integer, List<Integer>> pgnMap = getMessages(moduleInfo.getSourceAddress(), listener);
+        pgnMap.keySet().stream().sorted().forEach(pgn -> {
+            String spns = pgnMap.get(pgn)
+                                .stream()
+                                .sorted()
+                                .map(Object::toString)
+                                .collect(Collectors.joining(", "));
+            String msg = "PGN " + pgn + " from " + moduleInfo.getModuleName() + " with SPNs " + spns;
+
+            PgnDefinition pgnDefinition = j1939DaRepository.findPgnDefinition(pgn);
+            if (pgnDefinition.isOnRequest()) {
+                msg = "  Req " + msg;
+            } else {
+                msg = "  BCT " + msg;
+            }
+
+            listener.onResult(msg);
+        });
     }
 
     /**
