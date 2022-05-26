@@ -522,7 +522,9 @@ public class J1939 {
     }
 
     public Stream<Packet> read(long timeout, TimeUnit unit) throws BusException {
-        return bus.read(timeout, unit);
+        return bus.read(timeout, unit)
+                  // only return complete and valid packets (not broken TP packets).
+                  .filter(Packet::isValid);
     }
 
     public <T extends GenericPacket> BusResult<T> requestDS(String title,
@@ -963,7 +965,14 @@ public class J1939 {
                       .skip(10)
                       .forEach(f -> f.delete());
                 try (PrintWriter out = new PrintWriter(new FileWriter(file))) {
-                    loggerStream.forEach(p -> out.println(p.toVectorString(start)));
+                    loggerStream.forEach(p -> {
+                        try {
+                            out.println(p.toVectorString(start));
+                        } catch (Throwable t) {
+                            out.println(t.getMessage());
+                            J1939_84.getLogger().log(Level.WARNING, "Packet Failure", t);
+                        }
+                    });
                 }
             } catch (Throwable e) {
                 J1939_84.getLogger().log(Level.SEVERE, "Unable to log packets.", e);

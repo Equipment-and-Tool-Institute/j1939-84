@@ -326,14 +326,7 @@ public class Packet {
     }
 
     synchronized private int[] getData() {
-        while (data == null) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                // No worries
-            }
-        }
-        if (data.length == 0) {
+        if (!isValid()) {
             throw new PacketException(String.format("Failed Packet: %s %06X%02X [?]%n%s",
                                                     DateTimeModule.getInstance().getTimeFormatter().format(timestamp),
                                                     priority << 18 | id,
@@ -343,6 +336,17 @@ public class Packet {
                                                                   .collect(Collectors.joining(System.lineSeparator()))));
         }
         return data;
+    }
+
+    synchronized public boolean isValid() {
+        while (data == null) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                // No worries
+            }
+        }
+        return data.length > 0;
     }
 
     synchronized public void setData(byte... data) {
