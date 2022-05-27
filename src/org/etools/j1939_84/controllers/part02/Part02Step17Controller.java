@@ -272,8 +272,7 @@ public class Part02Step17Controller extends StepController {
                 if (!notAvailableSPNs.isEmpty()) {
                     // 6.2.17.5.b. If no response/no valid data for any SPN requested in 6.2.16.3.a, send global message
                     // to request that SPN(s). Re-request the missing SPNs globally
-                    String globalMessage = "Global Request for PGN " + pgn + " for SPNs "
-                            + String.join(", ", notAvailableSPNs);
+                    String globalMessage = "PGN " + pgn + " for SPNs " + String.join(", ", notAvailableSPNs);
                     if (!j1939DaRepository.findPgnDefinition(pgn).isOnRequest()) {
                         // 6.2.17.6.c. Warn when global request was required for “broadcast” SPN
                         addWarning("6.2.17.6.c - " + "Global request was required for PGN " + pgn

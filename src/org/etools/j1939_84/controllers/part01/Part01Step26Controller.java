@@ -315,8 +315,7 @@ public class Part01Step26Controller extends StepController {
                 if (!notAvailableSPNs.isEmpty()) {
                     // 6.1.26.5.b - If no response/no valid data for any SP requested in 6.1.25.3.a, send global message
                     // to request that SP(s)
-                    String globalMessage = "Global Request for PGN " + pgn + " for SPNs "
-                            + String.join(", ", notAvailableSPNs);
+                    String globalMessage = "PGN " + pgn + " for SPNs " + String.join(", ", notAvailableSPNs);
                     List<GenericPacket> globalPackets = busService.globalRequest(pgn, globalMessage)
                                                                   .peek(p -> tableA1Validator.reportNotAvailableSPNs(p,
                                                                                                                      getListener(),

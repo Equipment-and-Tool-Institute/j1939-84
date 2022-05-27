@@ -73,7 +73,7 @@ public class Part09Step23Controller extends StepController {
                                                              if (p.getMalfunctionIndicatorLampStatus() != OFF
                                                                      &&
                                                                      p.getMalfunctionIndicatorLampStatus() != NOT_SUPPORTED) {
-                                                                 addFailure(format("6.9.22.2.a - ECU %s reported MIL status of %s",
+                                                                 addFailure(format("6.9.23.2.a - ECU %s reported MIL status of %s",
                                                                                    p.getModuleName(),
                                                                                    p.getMalfunctionIndicatorLampStatus()));
                                                              }
