@@ -9,8 +9,10 @@ import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939tools.j1939.model.FuelType.BATT_ELEC;
 import static org.etools.j1939tools.j1939.model.FuelType.BI_DSL;
 import static org.etools.j1939tools.j1939.model.FuelType.BI_GAS;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -32,7 +34,10 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.CommunicationsListener;
+import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939tools.j1939.packets.ScaledTestResult;
@@ -191,12 +196,18 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                                      eq(supportedSPN.getSpn()),
                                                      eq(31))).thenReturn(List.of(dm30Packet));
 
+        AcknowledgmentPacket ackPacket = AcknowledgmentPacket.create(0x00, NACK);
+        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
+                                              eq(0x00),
+                                              anyInt())).thenReturn(BusResult.of(ackPacket));
+
         when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForCompressionIgnition(any(), any())).thenReturn(true);
 
         runTest();
 
         verify(communicationsModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
+        verify(communicationsModule).requestDM58(any(), eq(0x00), anyInt());
 
         verify(tableA7Validator, times(2)).findDuplicates(any());
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
@@ -267,12 +278,18 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                                      eq(supportedSPN.getSpn()),
                                                      eq(31))).thenReturn(List.of(dm30Packet));
 
+        AcknowledgmentPacket ackPacket = AcknowledgmentPacket.create(0x00, NACK);
+        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
+                                              eq(0x00),
+                                              anyInt())).thenReturn(BusResult.of(ackPacket));
+
         when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForCompressionIgnition(any(), any())).thenReturn(false);
 
         runTest();
 
         verify(communicationsModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
+        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), anyInt());
 
         verify(tableA7Validator, times(2)).findDuplicates(any());
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
@@ -336,6 +353,11 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                                      eq(99),
                                                      eq(31))).thenReturn(List.of());
 
+        AcknowledgmentPacket ackPacket = AcknowledgmentPacket.create(0x00, NACK);
+        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
+                                              eq(0x00),
+                                              anyInt())).thenReturn(BusResult.of(ackPacket));
+
         when(tableA7Validator.validateForSparkIgnition(any(), any(ResultsListener.class))).thenReturn(true);
 
         runTest();
@@ -344,6 +366,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.1.12.2.a (A.7.2.a) - No test result for Supported SP 99 from Engine #1 (0)");
+        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), anyInt());
 
         verify(communicationsModule).requestTestResults(any(), eq(0), eq(247), eq(99), eq(31));
 
@@ -438,9 +461,15 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                                      eq(supportedSPN.getSpn()),
                                                      eq(31))).thenReturn(List.of(dm30Packet));
 
+        AcknowledgmentPacket ackPacket = AcknowledgmentPacket.create(0x00, NACK);
+        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
+                                              eq(0x00),
+                                              anyInt())).thenReturn(BusResult.of(ackPacket));
+
         runTest();
 
         verify(communicationsModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
+        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), anyInt());
 
         verify(tableA7Validator, times(2)).findDuplicates(any());
 
@@ -505,6 +534,11 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                                      eq(supportedSPN.getSpn()),
                                                      eq(31))).thenReturn(List.of(dm30Packet));
 
+        AcknowledgmentPacket ackPacket = AcknowledgmentPacket.create(0x00, NACK);
+        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
+                                              eq(0x00),
+                                              anyInt())).thenReturn(BusResult.of(ackPacket));
+
         when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
@@ -516,6 +550,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                         "6.1.12.2.a (A.7.1.b) - Test result for SP 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
 
         verify(communicationsModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
+        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), anyInt());
 
         verify(tableA7Validator, times(2)).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
@@ -581,6 +616,11 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                                      eq(supportedSPN.getSpn()),
                                                      eq(31))).thenReturn(List.of(dm30Packet));
 
+        AcknowledgmentPacket ackPacket = AcknowledgmentPacket.create(0x00, NACK);
+        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
+                                              eq(0x00),
+                                              anyInt())).thenReturn(BusResult.of(ackPacket));
+
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
         runTest();
@@ -591,6 +631,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                         "6.1.12.2.a (A.7.1.b) - Test result for SP 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
 
         verify(communicationsModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
+        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), anyInt());
 
         verify(tableA7Validator, times(2)).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
@@ -649,12 +690,16 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 242, 0x25, 0, 0);
         DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, 0, scaledTestResult);
-
         when(communicationsModule.requestTestResults(any(),
                                                      eq(0),
                                                      eq(247),
                                                      eq(157),
                                                      eq(31))).thenReturn(List.of(dm30Packet));
+
+        AcknowledgmentPacket ackPacket = AcknowledgmentPacket.create(0x00, NACK);
+        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
+                                              eq(0x00),
+                                              anyInt())).thenReturn(BusResult.of(ackPacket));
 
         when(tableA7Validator.findDuplicates(any())).thenReturn(Set.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
@@ -667,6 +712,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                         "6.1.12.2.a (A.7.1.b) - Test result for SP 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
 
         verify(communicationsModule).requestTestResults(any(), eq(0), eq(247), eq(supportedSPN.getSpn()), eq(31));
+        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), anyInt());
 
         verify(tableA7Validator, times(2)).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
@@ -733,6 +779,11 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                                      eq(157),
                                                      eq(31))).thenReturn(List.of(dm30Packet));
 
+        AcknowledgmentPacket ackPacket = AcknowledgmentPacket.create(0x00, NACK);
+        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
+                                              eq(0x00),
+                                              anyInt())).thenReturn(BusResult.of(ackPacket));
+
         when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
         runTest();
@@ -743,6 +794,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                         "6.1.12.2.a (A.7.1.c) - #1 SLOT identifier for SP 157 FMI 0 from Engine #1 (0) is invalid");
 
         verify(communicationsModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
+        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), anyInt());
 
         verify(tableA7Validator, times(2)).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
@@ -801,7 +853,9 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
 
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
+        String expectedResults = "6.1.12.5.a - No SPs found that do NOT indicate support for DM58 in the DM24 response"
+                + NL;
+        assertEquals(expectedResults, listener.getResults());
     }
 
     /**
@@ -861,6 +915,11 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                                      eq(157),
                                                      eq(31))).thenReturn(List.of(dm30Packet));
 
+        AcknowledgmentPacket ackPacket = AcknowledgmentPacket.create(0x00, NACK);
+        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
+                                              eq(0x00),
+                                              anyInt())).thenReturn(BusResult.of(ackPacket));
+
         when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
@@ -871,6 +930,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                                         eq(247),
                                                         eq(157),
                                                         eq(31));
+        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), anyInt());
 
         verify(mockListener).addOutcome(1,
                                         12,
@@ -953,6 +1013,11 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
+        AcknowledgmentPacket ackPacket = AcknowledgmentPacket.create(0x00, NACK);
+        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
+                                              eq(0x00),
+                                              anyInt())).thenReturn(BusResult.of(ackPacket));
+
         runTest();
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -961,6 +1026,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                         "6.1.12.2.a (A.7.1.d) - Engine #1 (0) returned duplicate test results for SP 159 FMI 18");
 
         verify(communicationsModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSP.getSpn()), eq(31));
+        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), anyInt());
 
         verify(tableA7Validator, times(2)).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
@@ -1049,6 +1115,11 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                                      eq(159),
                                                      eq(31))).thenReturn(List.of(dm30Packet0x09));
 
+        AcknowledgmentPacket ackPacket01 = AcknowledgmentPacket.create(0x00, NACK);
+        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
+                                              eq(0x00),
+                                              anyInt())).thenReturn(BusResult.of(ackPacket01));
+
         when(tableA7Validator.findDuplicates(eq(List.of(scaledTestResult2)))).thenReturn(List.of());
         when(tableA7Validator.findDuplicates(eq(List.of(scaledTestResult,
                                                         scaledTestResult2)))).thenReturn(List.of(scaledTestResult,
@@ -1073,6 +1144,8 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                                         eq(247),
                                                         eq(supportedSP0x09.getSpn()),
                                                         eq(31));
+
+        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), anyInt());
 
         verify(tableA7Validator, times(3)).findDuplicates(any());
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
@@ -1139,6 +1212,11 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                                      eq(159),
                                                      eq(31))).thenReturn(List.of(dm30Packet2));
 
+        AcknowledgmentPacket ackPacket = AcknowledgmentPacket.create(0x00, NACK);
+        when(communicationsModule.requestDM58(any(CommunicationsListener.class),
+                                              eq(0x00),
+                                              anyInt())).thenReturn(BusResult.of(ackPacket));
+
         when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(false);
 
@@ -1147,6 +1225,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         assertEquals(List.of(), listener.getOutcomes());
 
         verify(communicationsModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSP.getSpn()), eq(31));
+        verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), anyInt());
 
         verify(tableA7Validator, times(2)).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());

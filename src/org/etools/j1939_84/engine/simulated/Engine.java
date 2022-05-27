@@ -77,6 +77,7 @@ import org.etools.j1939tools.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
 import org.etools.j1939tools.j1939.packets.DM34NTEStatus;
 import org.etools.j1939tools.j1939.packets.DM3DiagnosticDataClearPacket;
 import org.etools.j1939tools.j1939.packets.DM56EngineFamilyPacket;
+import org.etools.j1939tools.j1939.packets.DM58RationalityFaultSpData;
 import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939tools.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939tools.j1939.packets.DM7CommandTestsPacket;
@@ -1179,6 +1180,20 @@ public class Engine implements AutoCloseable {
         sim.response(p -> isRequestFor(65255, p),
                      () -> Packet.create(65255, ADDR, 0, 0, 0, 0, 0, 0, 0, 0));
 
+        // DM58 Req PGN 64475 from Engine #1 (0)
+        sim.response(Engine::isRequestForDM58,
+                     (p) -> {
+                         DM7CommandTestsPacket dm7 = new DM7CommandTestsPacket(p);
+                         if (dm7.getSpn() == 102) {
+                             return AcknowledgmentPacket.create(ADDR, NACK).getPacket();
+                         }
+                         return DM58RationalityFaultSpData.create(ADDR,
+                                                                  dm7.getTestId(),
+                                                                  dm7.getSpn(),
+                                                                  new int[] { 0xDD, 0xCC, 0xBB, 0xAA })
+                                                          .getPacket();
+                     });
+
         // BCT PGN 61443 from Engine #1 (0) with SPNs 91, 92
         sim.schedule(50,
                      MILLISECONDS,
@@ -1303,7 +1318,11 @@ public class Engine implements AutoCloseable {
     }
 
     private static boolean isRequestForDM30(Packet packet) {
-        return packet.getPgn() == 0xE300;
+        if (packet.getPgn() == DM7CommandTestsPacket.PGN) {
+            DM7CommandTestsPacket dm7 = new DM7CommandTestsPacket(packet);
+            return dm7.getTestId() == 247;
+        }
+        return false;
     }
 
     private static boolean isRequestFor(int pgn, Packet packet) {
@@ -1393,6 +1412,14 @@ public class Engine implements AutoCloseable {
                        MISFIRE,
                        NMHC_CONVERTING_CATALYST,
                        NOX_CATALYST_ABSORBER);
+    }
+
+    private static boolean isRequestForDM58(Packet packet) {
+        if (packet.getPgn() == DM7CommandTestsPacket.PGN) {
+            DM7CommandTestsPacket dm7 = new DM7CommandTestsPacket(packet);
+            return dm7.getTestId() == 245;
+        }
+        return false;
     }
 
 }

@@ -235,6 +235,11 @@ public class TableA1Validator {
                       .map(dataRepository::getObdModule)
                       .forEach(moduleInfo -> {
 
+                          reportMessages(listener, moduleInfo);
+                      });
+    }
+
+    public void reportMessages(ResultsListener listener, OBDModuleInformation moduleInfo) {
                           Map<Integer, List<Integer>> pgnMap = getMessages(moduleInfo.getSourceAddress(), listener);
                           pgnMap.keySet().stream().sorted().forEach(pgn -> {
                               String spns = pgnMap.get(pgn)
@@ -253,7 +258,6 @@ public class TableA1Validator {
 
                               listener.onResult(msg);
                           });
-                      });
     }
 
     /**
