@@ -163,6 +163,7 @@ public class OBDModuleInformation implements Cloneable {
         packetArchive.put(packet, partNumber);
     }
 
+    @Deprecated
     public <T extends GenericPacket> T get(Class<T> clazz, int partNumber) {
         return packetArchive.get(getPg(clazz), partNumber);
     }
