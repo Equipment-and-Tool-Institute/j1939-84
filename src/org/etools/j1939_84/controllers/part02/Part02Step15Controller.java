@@ -86,7 +86,7 @@ public class Part02Step15Controller extends StepController {
         // 6.2.15.2.a. Fail if no ECU responds.
         // [Engines using SI technology need not respond until the 2024 engine model year].
         if (globalPackets.isEmpty()) {
-            if (isNotSparkIgnition() || getEngineModelYear() >= 2024) {
+            if (!isSparkIgnition() || getEngineModelYear() >= 2024) {
                 addFailure("6.2.15.2.a - No ECU responded to the global request");
             }
         } else {
@@ -141,17 +141,10 @@ public class Part02Step15Controller extends StepController {
             }
         }
 
-        if (isNotSparkIgnition() || getEngineModelYear() >= 2024) {
+        if (!isSparkIgnition() || getEngineModelYear() >= 2024) {
             // 6.2.15.5.b. Fail if NACK not received from OBD ECUs that did not respond to global query.
             checkForNACKsGlobal(globalPackets, filterRequestResultAcks(dsResponses), "6.2.15.5.b");
         }
     }
 
-    private boolean isNotSparkIgnition() {
-        return !getFuelType().isSparkIgnition();
-    }
-
-    private int getEngineModelYear() {
-        return getDataRepository().getVehicleInformation().getEngineModelYear();
-    }
 }

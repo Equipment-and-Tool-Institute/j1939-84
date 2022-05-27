@@ -1,9 +1,11 @@
 package org.etools.j1939tools.modules;
 
-import static org.etools.j1939tools.J1939tools.NL;
+import static org.etools.j1939_84.J1939_84.NL;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.etools.j1939tools.j1939.model.ActiveTechnology;
 import org.etools.j1939tools.j1939.model.Spn;
@@ -35,6 +37,23 @@ public class GhgActiveTechnologyArrayModule {
     }
 
     private String printTechnologyArray(List<GenericPacket> packets) {
+        var pgns = new ArrayList<>();
+        for (GenericPacket packet : packets) {
+            pgns.add(packet.getPgnDefinition().getId());
+        }
+        if (pgns.contains(64256) || pgns.contains(64255) || pgns.contains(64257)) {
+            return printTechnologyArray(packets, 64256, 64255, 64257);
+        }
+        if (pgns.contains(64253) || pgns.contains(64254)) {
+            return printTechnologyArray(packets, 64254, 64253, 0);
+        }
+        return "";
+    }
+
+    private String printTechnologyArray(List<GenericPacket> packets,
+                                        int activeArrayPg,
+                                        int storedArrayPg,
+                                        int lifetimeArrayPg) {
         String spacer1 = "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|";
         String header1 = "|                                     |    Active   |    Active   |    Stored   |    Stored   |             |             |";
         String header2 = "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |";
@@ -48,9 +67,9 @@ public class GhgActiveTechnologyArrayModule {
         sb.append(spacer1).append(NL);
 
         for (int refIndex = 0; refIndex <= 250; refIndex++) {
-            var active = getActiveTechnology(64256, refIndex, packets);
-            var stored = getActiveTechnology(64255, refIndex, packets);
-            var lifetime = getActiveTechnology(64257, refIndex, packets);
+            var active = getActiveTechnology(activeArrayPg, refIndex, packets);
+            var stored = getActiveTechnology(storedArrayPg, refIndex, packets);
+            var lifetime = getActiveTechnology(lifetimeArrayPg, refIndex, packets);
 
             String line = writeLine(active, stored, lifetime);
             if (line != null) {
@@ -59,6 +78,44 @@ public class GhgActiveTechnologyArrayModule {
         }
         sb.append(spacer1).append(NL);
         return sb.toString();
+    }
+
+    private String getSpnValue(List<GenericPacket> packets, int spnId) {
+        return packets.stream()
+                      .map(p -> p.getSpn(spnId))
+                      .filter(Optional::isPresent)
+                      .map(Optional::get)
+                      .map(this::printSpn)
+                      .map(v -> {
+                          if ("Not Available".equals(v)) {
+                              return "N/A";
+                          } else {
+                              return v;
+                          }
+                      })
+                      .findFirst()
+                      .orElse("");
+    }
+
+    private int parseSpnId(String cell) {
+        return Integer.parseInt(cell.replace("SPN_", "").replace(" ", ""));
+    }
+
+    private String printSpn(Spn spn) {
+        if (spn.isNotAvailable() || spn.isError()) {
+            return spn.getStringValue();
+        }
+
+        double value = spn.getValue();
+
+        String unit = spn.getSlot().getUnit();
+        if ("s".equals(unit)) {
+            value = value / 60; // Convert seconds to minutes
+        } else if ("m".equals(unit)) {
+            value = value / 1000; // Convert meters to kilometers
+        }
+
+        return decimalFormat.format(value);
     }
 
     private String writeLine(ActiveTechnology active, ActiveTechnology stored, ActiveTechnology lifetime) {

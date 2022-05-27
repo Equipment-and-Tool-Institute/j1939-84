@@ -3,7 +3,7 @@
  */
 package org.etools.j1939tools.bus;
 
-import static org.etools.j1939tools.J1939tools.NL;
+import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
 import java.util.List;

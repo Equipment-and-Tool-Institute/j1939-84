@@ -49,7 +49,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
     /**
      * The default extension for report files created by this application
      */
-    static final String FILE_SUFFIX = "j1939tools-84";
+    static final String FILE_SUFFIX = "txt";
 
     private final Executor executor;
 
@@ -548,6 +548,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         if (this.bus != null) {
             this.bus.close();
             this.bus = null;
+            this.j1939.closeLogger();
             this.j1939 = null;
             vehicleInformationModule.setJ1939(null);
         }
@@ -555,6 +556,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         if (bus != null) {
             this.bus = bus;
             this.j1939 = new J1939(bus);
+            this.j1939.startLogger();
             vehicleInformationModule.setJ1939(getJ1939());
         }
     }

@@ -7,7 +7,7 @@ import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
-import static org.etools.j1939tools.J1939tools.NL;
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939tools.j1939.J1939.GLOBAL_ADDR;
 
 import java.io.IOException;

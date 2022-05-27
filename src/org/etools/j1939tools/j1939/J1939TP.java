@@ -371,7 +371,7 @@ public class J1939TP implements Bus {
                                       rts.get(7));
             fine("tx EOM", eom);
             packet.getFragments().add(bus.send(eom));
-            
+
             // signal done collecting packet data
             packet.setData(data);
         }
@@ -534,5 +534,10 @@ public class J1939TP implements Bus {
 
     public boolean isPassAll() {
         return passAll;
+    }
+
+    @Override
+    public Bus getRawBus() {
+        return bus;
     }
 }

@@ -4,8 +4,25 @@
 package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.ERROR;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_100_HR;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_GREEN_HOUSE_100_HR;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_HYBRID_100_HR;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_STORED_100_HR;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_STORED_GREEN_HOUSE_100_HR;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_STORED_HYBRID_100_HR;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_STORED_HYBRID_CHG_DEPLETING_100_HR;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_HYBRID_PG;
+import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_PG;
+import static org.etools.j1939tools.modules.NOxBinningModule.NOx_LIFETIME_ACTIVITY_SPs;
+import static org.etools.j1939tools.modules.NOxBinningModule.NOx_LIFETIME_SPs;
+import static org.etools.j1939tools.modules.NOxBinningModule.NOx_TRACKING_ACTIVE_100_HOURS_SPs;
+import static org.etools.j1939tools.modules.NOxBinningModule.NOx_TRACKING_STORED_100_HOURS_SPs;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,47 +49,16 @@ import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.SupportedSPN;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
+import org.etools.j1939tools.modules.GhgTrackingModule;
+import org.etools.j1939tools.modules.NOxBinningModule;
+import org.etools.j1939tools.utils.CollectionUtils;
 
-/**
- * 6.1.26 Data stream support verification
- * 
- * 6.1.26.1 Actions: a. Gather broadcast data
- * for all SPNs that are supported for data stream in the OBD ECU DM24
- * responses. b. Gather/timestamp each parameter at least three times to be able
- * to verify frequency of broadcast.
- * <p>
- * 6.1.26.2 Fail/warn criteria: a. Fail if no response/no valid data for any
- * broadcast SPN indicated as supported by the OBD ECU in DM24. b. Fail if any
- * parameter is not broadcast within ± 10% of the specified broadcast period. c.
- * Fail/warn if any broadcast data is not valid for KOEO conditions as per Table
- * A-1, Minimum Data Stream Support. d. Fail/warn per Table A-1, if an expected
- * SPN from the DM24 support list is provided by a non-OBD ECU. e. Fail/warn per
- * Table A-1 if two or more ECUs provide an SPN listed in Table A-1
- * <p>
- * 6.1.26.3 Actions2 a. Identify SPNs provided in the data stream that are
- * listed in Table A-1, but are not supported by any OBD ECU in its DM24
- * response. 6.1.26.4 Fail/Warn Criteria2 a. Fail/warn per Table A-1 column,
- * “Action if SPN provided but not included in DM24”.
- * <p>
- * 6.1.26.5 Actions3: a. DS messages to ECU that indicated support in DM24 for
- * upon request SPNs and SPNs not observed in step 1. b. If no response/no valid
- * data for any SPN requested in 6.1.25.3.a, send global message to request that
- * SPN(s).
- * <p>
- * 6.1.26.6 Fail/warn criteria3: [Refer to footnotes 23 and 24 for a and b,
- * respectively] a. Fail if no response/no valid data for any broadcast SPN
- * indicated as supported by the OBD ECU in DM24. b. Fail if any parameter in a
- * fixed period broadcast message is not broadcast within ± 10% of the specified
- * broadcast period. c. Fail if any parameter in a variable period broadcast
- * message exceeds 110% of its recommended broadcast period.26 d. Fail/warn if
- * any broadcast data is not valid for KOEO conditions as per section A.1Table
- * A-1, Minimum Data Stream Support. e. Warn/info per Table A-1, if an expected
- * SPN from the DM24 support list is provided by a non-OBD ECU. f. Fail/warn per
- * Table A-1, if two or more ECUs provide an SPN listed in Table A-1.
- */
 public class Part01Step26Controller extends StepController {
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 26;
+
+    private final GhgTrackingModule ghgTrackingModule;
+    private final NOxBinningModule nOxBinningModule;
 
     private final BroadcastValidator broadcastValidator;
     private final BusService busService;
@@ -89,10 +75,12 @@ public class Part01Step26Controller extends StepController {
              new EngineSpeedModule(),
              new VehicleInformationModule(),
              new CommunicationsModule(),
-             new TableA1Validator(DataRepository.getInstance(), PART_NUMBER, STEP_NUMBER),
+             new TableA1Validator(PART_NUMBER, STEP_NUMBER),
              J1939DaRepository.getInstance(),
              new BroadcastValidator(DataRepository.getInstance(), J1939DaRepository.getInstance()),
-             new BusService(J1939DaRepository.getInstance()));
+             new BusService(J1939DaRepository.getInstance()),
+             new GhgTrackingModule(DateTimeModule.getInstance()),
+             new NOxBinningModule(DateTimeModule.getInstance()));
     }
 
     Part01Step26Controller(Executor executor,
@@ -105,7 +93,9 @@ public class Part01Step26Controller extends StepController {
                            TableA1Validator tableA1Validator,
                            J1939DaRepository j1939DaRepository,
                            BroadcastValidator broadcastValidator,
-                           BusService busService) {
+                           BusService busService,
+                           GhgTrackingModule ghgTrackingModule,
+                           NOxBinningModule nOxBinningModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
@@ -120,73 +110,87 @@ public class Part01Step26Controller extends StepController {
         this.j1939DaRepository = j1939DaRepository;
         this.broadcastValidator = broadcastValidator;
         this.busService = busService;
+        this.ghgTrackingModule = ghgTrackingModule;
+        this.nOxBinningModule = nOxBinningModule;
     }
 
     @Override
     protected void run() throws Throwable {
         busService.setup(getJ1939(), getListener());
 
-        // This will listen for all Broadcast PGNs in hopes of finding all Data
-        // Stream Supported SPNs
-        // Then by module, process and report on the data found
-        // Any missing data and on-request PGNs are requested DS
-        // That data is reported on
-        // Any yet missing data is requested globally
-        // Finally, the bus is monitored again for any missing data
-        // The Table A1 validator then reports on the data found
-
-        // Collect all the Data Stream Supported SPNs from all OBD Modules.
+        // 6.1.26.1.a. Create a list of expected SPs and PGs from the DM24 response, where the data stream support bit
+        // defined in SAE J1939-73 5.7.24 is 0
         List<Integer> supportedSPNs = getDataRepository().getObdModules()
                                                          .stream()
+                                                         // FIXME: Eric defining and this will need to updated in the
+                                                         // tableA1Validator (Update method when clarification of SPs
+                                                         // list of WARN? FAIL? BOTH?
+                                                         // @Joe we just need a new method to "add back" the SP per the
+                                                         // spec Eric is providing for tableA1Validator; or, perhaps, a
+                                                         // new method which combines the getFilteredDataStreamSPNs()
+                                                         // functionality with the "add back" functionality would make
+                                                         // more sense since this will be repeated in several
+                                                         // places in the testing - not sure on that, apparently wrong
+                                                         // on that check email from Eric date 5/8/22 @ around 9:30 AM
+                                                         // containing document entitled "SecondChanceClarification.docx
+                                                         // FIXME: need to update to add functionality of 6.1.26.1.b
+                                                         // @Joe - will be implemented with Eric new file is completed
+                                                         // 6.1.26.1.b. Add any omissions from Table A-1, excluding
+                                                         // those SPs noted (as CI or SI) for the opposite fuel type
+                                                         // provided by the user
+                                                         // 6.1.26.1.c. Omit the following SPNs (588, 976, 1213,
+                                                         // 1220, 12675, 12691, 12730, 12783, 12797)
+                                                         // which are included in the list. Display the completed list
+                                                         // noting those omitted SPs, supported SPs as
+                                                         // ‘broadcast’ or ‘upon request’, and additions from Table A-1.
                                                          .flatMap(m -> m.getFilteredDataStreamSPNs().stream())
                                                          .map(SupportedSPN::getSpn)
                                                          .collect(Collectors.toList());
 
+        // 6.1.26.1.c. Display the completed list noting those omitted SPs, supported SPs as ‘broadcast’ or
+        // ‘upon request’, and additions from Table A-1.
         tableA1Validator.reportExpectedMessages(getListener());
 
-        // 6.1.26.1.a. Gather broadcast data for all SPNs that are supported for data
-        // stream in the OBD ECU DM24 responses.
+        // 6.1.26.1.d. Gather broadcast data for all SPNs that are supported for data stream in the OBD ECU DM24
+        // responses, and the added SPNs from Table A-1. This shall include the both SPs that are expected to be queried
+        // with DS queries (in step 6.1.26.5 for SPs supported in DM24) and SPs that are expected without queries.
+        // 6.1.26.1.e. Gather/timestamp each parameter that is observed at least three times to be able to verify
+        // frequency of broadcast
         // we need 3 samples plus time for a BAM, to 4 * maxPeriod
         Stream<GenericPacket> packetStream = busService.readBus(broadcastValidator.getMaximumBroadcastPeriod() * 4,
-                                                                "6.1.26.1.a");
+                                                                "6.1.26.1.e");
 
-        List<GenericPacket> packets = packetStream
-                                                  .peek(p -> {
-                                                      try {
-                                                          Controller.checkEnding();
-                                                      } catch (InterruptedException e) {
-                                                          packetStream.close();
-                                                      }
-                                                  })
+        List<GenericPacket> packets = packetStream.peek(p -> {
+            try {
+                Controller.checkEnding();
+            } catch (InterruptedException e) {
+                packetStream.close();
+            }
+        })
                                                   .peek(p ->
-                                                  // 6.1.26.2.a. Fail if unsupported (received as not available (as
-                                                  // described in SAE J1939-71))
-                                                  // for any broadcast SPN indicated as supported by the OBD ECU in DM24
-                                                  // with the Source Address matching the received message) in DM24.
+                                                  // 6.1.26.2.a - Fail if no response/no valid data for any broadcast SP
+                                                  // indicated as supported by the OBD ECU in DM24
                                                   tableA1Validator.reportNotAvailableSPNs(p,
                                                                                           getListener(),
                                                                                           "6.1.26.2.a"))
                                                   .peek(p ->
-                                                  // 6.1.26.2.d. Fail/warn if any broadcast data is not valid for KOEO
-                                                  // conditions
-                                                  // as per Table A-1, Min Data Stream Support.
+                                                  // 6.1.26.2.c - Fail/warn if any broadcast data is not valid for KOEO
+                                                  // conditions as per Table A1, Minimum Data Stream Support
                                                   tableA1Validator.reportImplausibleSPNValues(p,
                                                                                               getListener(),
                                                                                               false,
-                                                                                              "6.1.26.2.d"))
+                                                                                              "6.1.26.2.c"))
                                                   .peek(p ->
-                                                  // 6.1.26.2.e. Fail/warn per Table A-1, if an expected SPN from the
-                                                  // DM24 support
-                                                  // list from an OBD ECU is provided by a non-OBD ECU. (provided
-                                                  // extraneously)
+                                                  // 6.1.26.2.d - Fail/warn per Table A-1, if an expected SPN from the
+                                                  // DM24 support list from an OBD ECU is provided by a non-OBD ECU.
+                                                  // (provided extraneously)
                                                   tableA1Validator.reportNonObdModuleProvidedSPNs(p,
                                                                                                   getListener(),
-                                                                                                  "6.1.26.2.e"))
+                                                                                                  "6.1.26.2.d"))
                                                   .peek(p ->
                                                   // 6.1.26.3.a. Identify SPNs provided in the data stream that are
-                                                  // listed
-                                                  // in Table A-1, but are not supported by any OBD ECU in its DM24
-                                                  // response.
+                                                  // listed in Table A-1, but are not supported by any OBD ECU in its
+                                                  // DM24 response.
                                                   // 6.1.26.4.a. Fail/warn per Table A-1 column, “Action if SPN provided
                                                   // but not included in DM24”.
                                                   tableA1Validator.reportProvidedButNotSupportedSPNs(p,
@@ -203,19 +207,19 @@ public class Part01Step26Controller extends StepController {
             addWarning(msg);
             displayInstructionAndWait(msg, "Second device using SA 0xF9", ERROR);
         }
-
-        // 6.1.26.2.f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1
-        tableA1Validator.reportDuplicateSPNs(packets, getListener(), "6.1.26.2.f");
-
         // Check the Broadcast Period of the received packets1
         // Map of PGN to (Map of Source Address to List of Packets)
         Map<Integer, Map<Integer, List<GenericPacket>>> foundPackets = broadcastValidator.buildPGNPacketsMap(packets);
 
+        // 6.1.26.2.b - Fail if any parameter is not broadcast within ±10% of the specified broadcast period
         broadcastValidator.reportBroadcastPeriod(foundPackets,
                                                  supportedSPNs,
                                                  getListener(),
                                                  getPartNumber(),
                                                  getStepNumber());
+
+        // 6.1.26.2.e - Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1
+        tableA1Validator.reportDuplicateSPNs(packets, getListener(), "6.1.26.2.e");
 
         List<GenericPacket> onRequestPackets = new ArrayList<>();
         // Find and report any Supported SPNs which should have been received but weren't
@@ -243,7 +247,7 @@ public class Part01Step26Controller extends StepController {
                                                                                             getListener(),
                                                                                             getPartNumber(),
                                                                                             getStepNumber(),
-                                                                                            "6.1.26.2.a");
+                                                                                            "6.1.26.5.a");
 
             // DS Request for all SPNs that are sent on-request AND those were missed earlier
             List<Integer> requestPGNs = busService.getPGNsForDSRequest(missingSPNs, dataStreamSPNs);
@@ -267,29 +271,38 @@ public class Part01Step26Controller extends StepController {
                                                .sorted()
                                                .map(Object::toString)
                                                .collect(Collectors.joining(", "));
+                // 6.1.26.5.a - DS messages to ECU that indicated support in DM24 for upon request SPs and SPs not
+                // observed in step 1.o and SPs added from Table A-1, regardless of whether the SPs were or were not
+                // observed in step 1. [Where a PG contains more than one SP (to be queried), that PG need only be
+                // queried one time].
                 List<GenericPacket> dsResponse = busService.dsRequest(pgn, moduleAddress, spns)
                                                            .peek(p -> tableA1Validator.reportNotAvailableSPNs(p,
                                                                                                               getListener(),
-                                                                                                              "6.1.26.6.a"))
+                                                                                                              "6.1.26.5.a"))
                                                            .peek(p ->
-                                                           // 6.1.26.6.d. Fail/warn if any broadcast data is not valid
-                                                           // for KOEO conditions
-                                                           // as per Table A-1, Min Data Stream Support.
+                                                           // 6.1.26.6.e. Fail/warn if any broadcast data is not valid
+                                                           // for KOEO conditions as per Table A-1, Min Data Stream
+                                                           // Support.
                                                            tableA1Validator.reportImplausibleSPNValues(p,
                                                                                                        getListener(),
                                                                                                        false,
-                                                                                                       "6.1.26.6.d"))
+                                                                                                       "6.1.26.6.e"))
                                                            .peek(p ->
-                                                           // 6.1.26.2.e. Fail/warn per Table A-1, if an expected SPN
-                                                           // from the DM24 support
-                                                           // list from an OBD ECU is provided by a non-OBD ECU.
-                                                           // (provided extraneously)
+                                                           // 6.1.26.6.f. Fail/warn per Table A-1, if an expected SPN
+                                                           // from the DM24 support list from an OBD ECU is provided by
+                                                           // a non-OBD ECU.
                                                            tableA1Validator.reportNonObdModuleProvidedSPNs(p,
                                                                                                            getListener(),
-                                                                                                           "6.1.26.6.e"))
+                                                                                                           "6.1.26.6.f"))
                                                            .collect(Collectors.toList());
                 onRequestPackets.addAll(dsResponse);
-
+                // 6.1.26.6.a Ignore NACK received for any SP added from table A-1, whose PG does not contain any SPs
+                // listed as supported in DM24
+                // 6.1.26.6.b Fail if no response or NACK for any SP indicated as supported by the OBD ECU in DM24.
+                // FIXME: downgrade needs to be implemented in the broadcastValidator
+                // @Joe - I just need to implement a new method that will do the downgrading to a WARN
+                // Downgrade the failure to a warning where an upon request SPN was received in 6.1.26.1, and the
+                // request was not replied to with a NACK.
                 List<String> notAvailableSPNs = broadcastValidator.collectAndReportNotAvailableSPNs(supportedSPNs,
                                                                                                     pgn,
                                                                                                     dsResponse,
@@ -297,50 +310,596 @@ public class Part01Step26Controller extends StepController {
                                                                                                     getListener(),
                                                                                                     getPartNumber(),
                                                                                                     getStepNumber(),
-                                                                                                    "6.1.26.6.a");
+                                                                                                    "6.1.26.6.b");
 
                 if (!notAvailableSPNs.isEmpty()) {
-                    // Re-request the missing SPNs globally
+                    // 6.1.26.5.b - If no response/no valid data for any SP requested in 6.1.25.3.a, send global message
+                    // to request that SP(s)
                     String globalMessage = "Global Request for PGN " + pgn + " for SPNs "
                             + String.join(", ", notAvailableSPNs);
                     List<GenericPacket> globalPackets = busService.globalRequest(pgn, globalMessage)
                                                                   .peek(p -> tableA1Validator.reportNotAvailableSPNs(p,
                                                                                                                      getListener(),
-                                                                                                                     "6.1.26.6.a"))
+                                                                                                                     "6.1.26.5.b"))
                                                                   .peek(p ->
-                                                                  // 6.1.26.6.d. Fail/warn if any broadcast data is not
+                                                                  // 6.1.26.6.e. Fail/warn if any broadcast data is not
                                                                   // valid for KOEO conditions
                                                                   // as per Table A-1, Min Data Stream Support.
                                                                   tableA1Validator.reportImplausibleSPNValues(p,
                                                                                                               getListener(),
                                                                                                               false,
-                                                                                                              "6.1.26.6.d"))
+                                                                                                              "6.1.26.6.e"))
                                                                   .peek(p ->
-                                                                  // 6.1.26.6.e. Fail/warn per Table A-1, if an expected
-                                                                  // SPN from the DM24 support
-                                                                  // list from an OBD ECU is provided by a non-OBD ECU.
-                                                                  // (provided extraneously)
+                                                                  // 6.1.26.6.f. Warn/info per Table A-1, if an expected
+                                                                  // SPN from the DM24 support list is provided by a
+                                                                  // non-OBD ECU
                                                                   tableA1Validator.reportNonObdModuleProvidedSPNs(p,
                                                                                                                   getListener(),
-                                                                                                                  "6.1.26.6.e"))
+                                                                                                                  "6.1.26.6.f"))
                                                                   .collect(Collectors.toList());
+
+                    // Map of PGN to (Map of Source Address to List of Packets)
+                    Map<Integer, Map<Integer, List<GenericPacket>>> foundGlobalPackets = broadcastValidator.buildPGNPacketsMap(globalPackets);
+
+                    // 6.1.26.6.c - Fail if any parameter in a fixed period message, upon request, is not broadcast
+                    // within ± 10% of the specified broadcast period.
+                    broadcastValidator.reportBroadcastPeriod(foundGlobalPackets,
+                                                             supportedSPNs,
+                                                             getListener(),
+                                                             getPartNumber(),
+                                                             getStepNumber());
+
                     onRequestPackets.addAll(globalPackets);
-                    broadcastValidator.collectAndReportNotAvailableSPNs(supportedSPNs,
-                                                                        pgn,
-                                                                        globalPackets,
-                                                                        null,
-                                                                        getListener(),
-                                                                        getPartNumber(),
-                                                                        getStepNumber(),
-                                                                        "6.1.26.6.a");
                 }
+            }
+            // 6.1.26.7 Actions4 for MY2022+ Diesel Engines
+            if (getEngineModelYear() >= 2022 && getFuelType().isCompressionIgnition()) {
+                if (obdModule.supportsSpn(12675)) {
+                    // 6.1.26.7 - 6.1.26.10
+                    testSp12675(obdModule);
+                }
+                if (obdModule.supportsSpn(12730)) {
+                    // 6.1.26.11 - 6.1.26.14
+                    testSp12730(obdModule);
+                }
+                if (obdModule.supportsSpn(12691)) {
+                    // 6.1.26.15 - 6.1.26.18
+                    testSp12691(obdModule);
+                }
+                if (obdModule.supportsSpn(12797)) {
+                    // 6.1.26.19 - 6.1.26.22
+                    testSp12797(obdModule);
+                }
+                if (obdModule.supportsSpn(12783)) {
+                    // 6.1.26.23, 6.1.17.24, 6.1.26.24 & 6.1.26.25
+                    testSp12783(obdModule);
+                }
+
+
+            }
+        }// end obdModule
+
+        // 6.1.26.6.g. Fail/warn per Table A-1, if two or more ECUs provide an SPN listed in Table A-1.
+        tableA1Validator.reportDuplicateSPNs(onRequestPackets,
+                                             getListener(),
+                                             "6.1.26.6.g");
+
+        // 6.1.26.6.h. Fail/warn per Table A-1 column, “Action if SPN provided but not included in DM24”
+        onRequestPackets.stream()
+                        .forEach(packet -> tableA1Validator.reportProvidedButNotSupportedSPNs(packet,
+                                                                                              getListener(),
+                                                                                              "6.1.26.6.h"));
+
+    }
+
+    private void testSp12783(OBDModuleInformation module) {
+        // 6.1.26.23 Actions12 for MY2022+ Plug-in HEV DRIVES
+        // a. DS request message to ECU that indicated support in DM24 for upon request
+        // SP 12783 (Hybrid Lifetime Distance Traveled in Charge Depleting Operation with
+        // Engine off) for
+        // PG 64244 Hybrid Charge Depleting or Increasing Operation Lifetime Hours
+        List<GenericPacket> ghgLifeTimePackets = requestPackets(module.getSourceAddress(),
+                                                                GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG)
+                                                                                                               .stream()
+                                                                                                               // 6.1.26.23.b.
+                                                                                                               // Record
+                                                                                                               // each
+                                                                                                               // value
+                                                                                                               // for
+                                                                                                               // use
+                                                                                                               // in
+                                                                                                               // Part
+                                                                                                               // 12.
+                                                                                                               .peek(this::save)
+                                                                                                               .collect(Collectors.toList());
+
+        GenericPacket packetForPg = haveResponseWithPg(ghgLifeTimePackets,
+                                                       GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG);
+        if (packetForPg == null) {
+            // 6.1.26.24.a. Fail PG query where no response was received
+            addFailure("6.1.26.24.a - No response was received from "
+                    + module.getModuleName() + "for PG "
+                    + GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG);
+        } else {
+            packetForPg.getSpns()
+                       .forEach(spn -> {
+                           // 6.1.26.24.b - Fail PG query where any accumulator value
+                           // received is greater than FAFFFFFFh.
+                           if (spn.getRawValue() >= 0xFAFFFFFFL) {
+                               addFailure("6.1.26.24.b - Bin value received is greater than 0xFAFFFFFF(h) "
+                                       + module.getModuleName() + " for " + spn);
+                           }
+                       });
+        }
+
+        // 6.1.26.24 Actions13 for MY2022+ Plug-in HEV DRIVES
+        // a. DS request message to ECU that indicated support in DM24 for upon request
+        // SP 12783 (Hybrid Lifetime Distance Traveled in Charge Depleting Operation with
+        // Engine off) for Active 100hr Charge Depleting times and
+        // Stored 100hr PSA Charge Depleting PGs:
+        // PG PG Label
+        // 64246 Hybrid Charge Depleting or Increasing Operation Active 100 Hours
+        // 64245 Hybrid Charge Depleting or Increasing Operation Stored 100 Hours
+        // PG Acronym HCDIOA HCDIOS
+        var hybridChargeOpsPackets = requestPackets(module.getSourceAddress(),
+                                                    GHG_STORED_HYBRID_CHG_DEPLETING_100_HR,
+                                                    GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR)
+                                                                                           .stream()
+                                                                                           // 6.1.26.24.b. Record
+                                                                                           // each value for use in Part
+                                                                                           // 2.
+                                                                                           .peek(this::save)
+                                                                                           .collect(Collectors.toList());
+
+        if (!hybridChargeOpsPackets.isEmpty()) {
+            // 6.1.26.24.c - List data received in a table using lifetime, stored 100 hr, active 100hr for columns, and
+            // categories for rows.
+            getListener().onResult(ghgTrackingModule.formatXevTable(Stream.concat(ghgLifeTimePackets.stream(),
+                                                                                  hybridChargeOpsPackets.stream())
+                                                                          .collect(Collectors.toList())));
+        }
+        for (int pg : List.of(GHG_STORED_HYBRID_CHG_DEPLETING_100_HR, GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR)) {
+            GenericPacket hybridPacketForPg = haveResponseWithPg(hybridChargeOpsPackets,
+                                                                 pg);
+            if (hybridPacketForPg == null) {
+                // 6.1.26.25.a - For MY2024+ Plug-in HEV DRIVES, Fail each PG query where
+                // no response was received.
+                if (getEngineModelYear() >= 2024) {
+                    addFailure("6.1.26.25.a - No response was received from "
+                            + module.getModuleName() + "for PG "
+                            + pg);
+                }
+                // 6.1.26.25.b - For MY2022-23 Plug-in HEV DRIVES, Warn each PG query,
+                // where no response was received
+                if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
+                    addWarning("6.1.26.25.b - No response was received from "
+                            + module.getModuleName() + "for PG "
+                            + pg);
+                }
+            } else {
+                hybridPacketForPg.getSpns()
+                                 .forEach(spn -> {
+                                     /// 6.1.26.25.c - Fail each PG query where any active
+                                     /// technology label or accumulator value
+                                     // received is greater than FAFFh, respectively.
+                                     if (spn.getRawValue() >= 0xFAFFL) {
+                                         addFailure("6.1.26.22.c - Bin value received is greater than 0xFAFF(h) from "
+                                                 + module.getModuleName() + " for " + spn);
+                                     }
+                                 });
+            }
+        }
+    }
+
+    private void testSp12797(OBDModuleInformation module) {
+        // 6.1.26.19 Actions10 for MY2022+ HEV and BEV drives
+        // a. DS request message to ECU that indicated support in DM24 for upon request
+        // SP 12797 (Hybrid Lifetime Propulsion System Active Time) for 64241 PSA Times
+        // Lifetime Hours
+        var ghgTrackingPackets = requestPackets(module.getSourceAddress(),
+                                                GHG_TRACKING_LIFETIME_HYBRID_PG)
+                                                                                 .stream()
+                                                                                 // 6.1.26.19.b.
+                                                                                 // Record
+                                                                                 // each value for
+                                                                                 // use
+                                                                                 // in Part 2.
+                                                                                 .peek(this::save)
+                                                                                 .collect(Collectors.toList());
+
+        GenericPacket packetForPg = haveResponseWithPg(ghgTrackingPackets, GHG_TRACKING_LIFETIME_HYBRID_PG);
+        if (packetForPg == null) {
+            // 6.1.26.20.a - Fail PG query where no response was received.
+            addWarning("6.1.26.20.a - No response was received from "
+                    + module.getModuleName() + "for PG "
+                    + GHG_TRACKING_LIFETIME_HYBRID_PG);
+        } else {
+            packetForPg.getSpns()
+                       .forEach(spn -> {
+                           // 6.1.26.20.b - Fail PG query where any accumulator value
+                           // received is greater than FAFFFFFFh.
+                           if (spn.getRawValue() >= 0xFAFFFFFFL) {
+                               addFailure("6.1.26.20.b - Bin value received is greater than 0xFAFFFFFF(h) from "
+                                       + module.getModuleName() + " for " + spn);
+                           }
+
+                       });
+        }
+
+        // 6.1.26.21 Actions11 for MY2022+ HEV and BEV drives
+        // a. DS request message to ECU that indicated support in DM24 for upon request
+        // SP 12797 (Hybrid Lifetime Propulsion System Active Time) for Active 100hr
+        // PSA Times and Stored 100hr PSA Times PGs:
+        // PG PG Label
+        // 64242 PSA Times Stored 100 Hours PG Acronym PSATS
+        // 64243 PSA Times Active 100 Hours PG Acronym PSATA
+        // c. List data received in a table using lifetime, stored 100 hr, active 100hr
+        // for columns, and categories for rows.
+        int[] hybridLifeTimePgs = { GHG_STORED_HYBRID_100_HR, GHG_ACTIVE_HYBRID_100_HR };
+        List<GenericPacket> ghgPackets = requestPackets(module.getSourceAddress(),
+                                                        hybridLifeTimePgs)
+                                                                          .stream()
+                                                                          // 6.1.26.21.b.
+                                                                          // Record each
+                                                                          // value for use
+                                                                          // in Part 2.
+                                                                          .peek(this::save)
+                                                                          .collect(Collectors.toList());
+
+        if (!ghgPackets.isEmpty()) {
+            // 6.1.26.21.c. List data received in a table using bin numbers for rows.
+            getListener().onResult(ghgTrackingModule.formatXevTable(Stream.concat(ghgTrackingPackets.stream(),
+                                                                                  ghgPackets.stream())
+                                                                          .collect(Collectors.toList())));
+        }
+        for (int pg : hybridLifeTimePgs) {
+            GenericPacket hybridPacketForPg = haveResponseWithPg(ghgPackets, pg);
+            if (hybridPacketForPg == null) {
+                // 6.1.26.22.a. For MY2024+ HEV and BEV drives, Fail each PG query where no
+                // response was received.
+                if (getEngineModelYear() >= 2024) {
+                    addFailure("6.1.26.22.a - No response was received from "
+                            + module.getModuleName() + "for PG "
+                            + pg);
+                }
+                // b. For MY2022-23 HEV and BEV drives, Warn each PG query, where no
+                // response was
+                if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
+                    addWarning("6.1.26.22.b - No response was received from "
+                            + module.getModuleName() + "for PG "
+                            + pg);
+                }
+            } else {
+                hybridPacketForPg.getSpns()
+                                 .forEach(spn -> {
+                                     // 6.1.26.22.c. Fail each PG query where any accumulator
+                                     // value received is greater than FAFFh.
+                                     if (spn.getRawValue() >= 0xFAFFL) {
+                                         addFailure("6.1.26.22.c - Bin value received is greater than 0xFAFFFFFF(h) from "
+                                                 + module.getModuleName() + " for " + spn);
+                                     }
+                                 });
+            }
+        }
+    }
+
+    private void testSp12730(OBDModuleInformation module) {
+        // 6.1.26.11 Actions6 for all MY2022+ Engines
+        // 6.1.26.11.a - DS request messages to ECU that indicated support in DM24 for upon request SP 12730 (GHG
+        // Tracking Lifetime Engine Run Time) for PG 64252 GHG Tracking Lifetime Array Data.
+        var ghgTrackingLifetimePackets = requestPackets(module.getSourceAddress(),
+                                                        GHG_TRACKING_LIFETIME_PG)
+                                                                                  .stream()
+                                                                                 // 6.1.26.11.b - Record each value
+                                                                                  // for use in Part 12.
+                                                                                  .peek(this::save)
+                                                                                  .collect(Collectors.toList());
+
+        GenericPacket packetForPg = haveResponseWithPg(ghgTrackingLifetimePackets, GHG_TRACKING_LIFETIME_PG);
+        if (packetForPg == null) {
+            // 6.1.26.12.a. Fail PG query where no response was received
+            addFailure("6.1.26.12.a - No response was received from "
+                    + module.getModuleName() + "for PG "
+                    + GHG_TRACKING_LIFETIME_PG);
+        } else {
+            packetForPg.getSpns()
+                       .stream()
+                       .filter(spn -> {
+                           // FIXME: requirements need updated
+                           // @Joe this is implemented correctly. We just need to remove comment when new document
+                           // with correction is released.
+                           return spn.getRawValue() > 0xFAFFFFFFL;
+                       })
+                       .forEach(spn -> {
+                           // 6.1.26.12.b. Fail PG query where any bin value received is greater than FAFFh.
+                           addFailure("6.1.26.12.b - Bin value received is greater than 0xFAFF(h) from "
+                                   + module.getModuleName() + " for " + spn);
+                       });
+        }
+
+        // 6.1.26.13 Actions7 for MY2022+ Engines
+        // a. DS request message to ECU that indicated support in DM24 for upon request
+        // SP 12730 (GHG Tracking Lifetime Engine Run Time) for each 100hr GHG tracking
+        // PG Label
+        // 64254 GHG Tracking Active 100 Hour Array Data
+        // 64253 GHG Tracking Stored 100 Hour Array Data
+        var ghgTrackingPackets = requestPackets(module.getSourceAddress(),
+                                                GHG_ACTIVE_100_HR,
+                                                GHG_STORED_100_HR)
+                                                                  .stream()
+                                                                  // 6.1.26.13.b.
+                                                                  // Record
+                                                                  // each value
+                                                                  // for use
+                                                                  // in Part 2.
+                                                                  .peek(this::save)
+                                                                  .collect(Collectors.toList());
+
+        if (!ghgTrackingPackets.isEmpty()) {
+            // 6.1.26.13.c. List data received in a table using lifetime, stored 100 hr,
+            // active 100hr for columns, and categories for rows.
+            getListener().onResult(ghgTrackingModule.formatTrackingTable(Stream.concat(ghgTrackingLifetimePackets.stream(),
+                                                                                       ghgTrackingPackets.stream())
+                                                                               .collect(Collectors.toList())));
+        }
+
+        for (int pg : List.of(GHG_ACTIVE_100_HR, GHG_STORED_100_HR)) {
+            GenericPacket ghgTrackingpacketForPg = haveResponseWithPg(ghgTrackingPackets, pg);
+            if (ghgTrackingpacketForPg == null) {
+                // 6.1.26.14.a. For all MY2024+ engines, Fail each PG query where no response was received.
+                if (getEngineModelYear() >= 2024) {
+                    addFailure("6.1.26.10.a - No response was received from "
+                            + module.getModuleName() + " for PG "
+                            + pg);
+                }
+                // 6.1.26.14.b. For MY2022-23 engines, Warn each PG query, where no response was received
+                if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
+                    addWarning("6.1.26.10.b - No response was received from "
+                            + module.getModuleName() + " for PG "
+                            + pg);
+                }
+            } else {
+                ghgTrackingpacketForPg.getSpns()
+                                      .forEach(spn -> {
+                                          if (spn.getRawValue() > 0xFAFFL) {
+                                              // 6.1.26.14.c. Fail each PG query where any value received is greater
+                                              // than FAFFh.
+                                              addFailure("6.1.26.14.c - Bin value received is greater than 0xFAFF from "
+                                                      + module.getModuleName() + " for " + spn);
+                                          }
+                                          if (GHG_ACTIVE_100_HR == spn.getId() && spn.getValue() > 0) {
+                                              // 6.1.26.14.d - Fail each active 100 hr array value that is greater than
+                                              // zero
+                                              addFailure("6.1.26.14.d - Active 100 hr array value received is greater than zero from "
+                                                      + module.getModuleName() + " for " + spn);
+                                          }
+                                      });
+            }
+        }
+    }
+
+    private void testSp12691(OBDModuleInformation module) {
+        // 6.1.26.15 Actions8 for all MY2022+ Engines
+        // a. DS request message to ECU that indicated support in DM24 for upon request
+        // SP 12691 (GHG Tracking Lifetime Active Technology Index) for
+        // PG 64257 Green House Gas Lifetime Active Technology Tracking.
+        var ghgPackets = requestPackets(module.getSourceAddress(),
+                                        GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG)
+                                                                              .stream()
+                                                                              // 6.1.26.15.b. Record
+                                                                              // each value for use
+                                                                              // in Part 2.
+                                                                              .peek(this::save)
+                                                                              .collect(Collectors.toList());
+
+        GenericPacket packetForPg = haveResponseWithPg(ghgPackets, GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG);
+        if (packetForPg == null) {
+            // 6.1.26.16.a. Warn PG query where no response was received.
+            addWarning("6.1.26.16.a - No response was received from "
+                    + module.getModuleName() + " for PG "
+                    + GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG);
+        } else {
+            packetForPg.getSpns()
+                       .forEach(spn -> {
+                           // 6.1.26.16.b. Fail any accumulator value received that is greater
+                           // than FAFFFFFFh.
+                           if (spn.getRawValue() > 0xFAFFFFFFL) {
+                               addFailure("6.1.26.16.b - Bin value received is greater than 0xFAFFFFFF(h) from "
+                                       + module.getModuleName() + " for " + spn);
+                           }
+                           // 6.1.26.16.c. Fail PG query where any index value received is
+                           // greater than FAh.
+                           if (spn.getId() == 12691 && spn.getValue() > 0xFAL) {
+                               addFailure("6.1.26.16.c - " + spn.getId()
+                                       + " returned an index value that was greater than 0xFA(h)");
+                           }
+
+                       });
+        }
+
+        // 6.1.26.17 Actions9 for MY2022+ Engines
+        // a. DS request message to ECU that indicated support in DM24 for upon request
+        // SP 12691 (GHG Tracking Lifetime Active Technology Index) for Active 100hr
+        // Active technology PG, followed by DS request message to ECU for
+        // Stored 100 hr Active Technology PG.
+        // PG PG Label
+        // 64256 Green House Gas Active 100 Hour Active Technology Tracking
+        // 64255 Green House Gas Stored 100 Hour Active Technology Tracking
+        // PG Acronym GHGTTA GHGTTS
+        var ghg100HrPackets = requestPackets(module.getSourceAddress(),
+                                             GHG_ACTIVE_GREEN_HOUSE_100_HR,
+                                             GHG_STORED_GREEN_HOUSE_100_HR)
+                                                                           .stream()
+                                                                           // 6.1.26.17.b. Record
+                                                                           // each value for use
+                                                                           // in Part 2.
+                                                                           .peek(this::save)
+                                                                           .collect(Collectors.toList());
+        if (!ghg100HrPackets.isEmpty()) {
+            // 6.1.26.17.c. List data received in a table using lifetime, stored 100 hr,
+            // active 100hr for columns, and categories for rows.
+            getListener().onResult(ghgTrackingModule.formatTechTable(Stream.concat(ghgPackets.stream(),
+                                                                                   ghg100HrPackets.stream())
+                                                                           .collect(Collectors.toList())));
+        }
+
+        for (int pg : List.of(GHG_ACTIVE_GREEN_HOUSE_100_HR, GHG_STORED_GREEN_HOUSE_100_HR)) {
+            GenericPacket ghgTracking100HrPacket = haveResponseWithPg(ghg100HrPackets, pg);
+            if (ghgTracking100HrPacket == null) {
+                if (getEngineModelYear() >= 2024) {
+                    // FIXME: current version of the document says warning; Eric clarified to be a failure
+                    // @Joe - we just need to remove above comment when Eric gives us a document with it corrected.
+                    // 6.1.26.18.a. For all MY2024+ engines, Warn each PG query where no response was received.
+                    addFailure("6.1.26.18.a - No response was received from "
+                            + module.getModuleName() + " for PG "
+                            + pg);
+                }
+                if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
+                    // 6.1.26.18.b. For MY2022-23 engines, Warn each PG query, where no response was received
+                    addWarning("6.1.26.18.b - No response was received from "
+                            + module.getModuleName() + " for PG "
+                            + pg);
+                }
+            } else {
+                ghgTracking100HrPacket.getSpns()
+                                      .forEach(spn -> {
+                                          // 6.1.26.18.c. Fail PG query where any bin value received is greater than
+                                          // FAFFh.
+                                          if (spn.getRawValue() >= 0xFAFFL) {
+                                              addFailure("6.1.26.18.c - Bin value received is greater than 0xFAFF(h)"
+                                                      + module.getModuleName() + " for " + spn);
+                                          }
+                                          // 6.1.26.18.d. Fail PG query where any index value received is greater than
+                                          // FAh.
+                                          if (spn.getId() == 12691 && spn.getValue() > 0xFAL) {
+                                              addFailure("6.1.26.16.c - PG query index received was " + "");
+                                          }
+                                          if (GHG_ACTIVE_GREEN_HOUSE_100_HR == spn.getId() && spn.getValue() > 0) {
+                                              // 6.1.26.18.g. Fail each active 100 hr array value that is greater than
+                                              // zero
+                                              addFailure("6.1.26.18.g - Active 100 hr array value received was greater than zero from  "
+                                                      + module.getModuleName());
+                                          }
+                                          // FIXME:
+                                          // @Joe this is in the emailed document and will updated with it
+                                          // 6.1.26.18.f. Fail each response where the set of labels received is not a
+                                          // subset of the set of labels received for the lifetime active technology
+                                          // response.
+                                          // if (!expectedLabels.contains(spn.getLabel()
+                                          // .substring(spn.getLabel().indexOf("Hour Active") + 5))) {
+                                          // addFailure("6.1.26.18.f - " + spn.getLabel());
+                                          // }
+                                      });
+                // FIXME:
+                // @Joe this is in the emailed document and will updated with it
+                // 6.1.26.18.e. Fail each response where the number of labels received are not
+                // the same as the number of labels received for the lifetime technology
+                // response.
+                // if (packetForPg.getSpns().size() != ghgPackets.get(0).getSpns().size()) {
+                // addFailure("6.1.26.18.e - Number of response labels mismatch");
+                // }
+            }
+        }
+    }
+
+    private void testSp12675(OBDModuleInformation module) {
+        // 6.1.26.7.a. DS request messages to ECU that indicated support in DM24 for upon
+        // request SPN 12675 (NOx Tracking Engine
+        var nOxPackets = requestPackets(module.getSourceAddress(),
+                                        CollectionUtils.join(NOx_LIFETIME_SPs,
+                                                             NOx_LIFETIME_ACTIVITY_SPs))
+                                                                                        .stream()
+                                                                                        // 6.1.26.7.b. Record
+                                                                                        // each value for use
+                                                                                        // in Part 2.
+                                                                                        .peek(this::save)
+                                                                                        .collect(Collectors.toList());
+        if (!nOxPackets.isEmpty()) {
+            // 6.1.26.7.c. List data received in a table using bin numbers for rows.
+            getListener().onResult(nOxBinningModule.format(nOxPackets));
+        }
+        for (int pg : CollectionUtils.join(NOx_LIFETIME_SPs,
+                                           NOx_LIFETIME_ACTIVITY_SPs)) {
+            GenericPacket packetForPg = haveResponseWithPg(nOxPackets, pg);
+            if (packetForPg == null) {
+                // 6.1.26.8.a. Fail each PG query where no response was received.
+                addFailure("6.1.26.8.a - No response was received from "
+                        + module.getModuleName() + " for PG "
+                        + pg);
+            } else {
+                packetForPg.getSpns()
+                           .forEach(spn -> {
+                               // 6.1.26.8.b. Fail each PG query where any bin value received
+                               // is greater than FAFFFFFFh.
+                               if (spn.getRawValue() >= 0xFAFFFFFFL) {
+                                   addFailure("6.1.26.8.b - Bin value received is greater than 0xFAFFFFFF(h) "
+                                           + module.getModuleName() + " for " + spn);
+                               }
+                           });
             }
         }
 
-        // 6.1.26.6.f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1
-        tableA1Validator.reportDuplicateSPNs(onRequestPackets,
-                                             getListener(),
-                                             "6.1.26.6.f");
+        // 6.1.26.9.a - DS request message to ECU that indicated support in DM24 for upon
+        // request SPN 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1
+        // - Total) for each active 100hr NOx binning PG, followed by each Stored 100 hr PG
+        // Label
+        List<GenericPacket> nOx100HourPackets = requestPackets(module.getSourceAddress(),
+                                                               CollectionUtils.join(NOx_TRACKING_ACTIVE_100_HOURS_SPs,
+                                                                                    NOx_TRACKING_STORED_100_HOURS_SPs))
+                                                                                                                       .stream()
+                                                                                                                       // 6.1.26.9.b
+                                                                                                                       // -
+                                                                                                                       // Record
+                                                                                                                       // each
+                                                                                                                       // value
+                                                                                                                       // for
+                                                                                                                       // use
+                                                                                                                       // in
+                                                                                                                       // Part
+                                                                                                                       // 2.
+                                                                                                                       .peek(this::save)
+                                                                                                                       .collect(Collectors.toList());
+
+        if (!nOx100HourPackets.isEmpty()) {
+            // 6.1.26.9.c - List data received in a table using bin numbers for rows.
+            getListener().onResult(nOxBinningModule.format(nOx100HourPackets));
+        }
+        for (int pg : CollectionUtils.join(NOx_TRACKING_ACTIVE_100_HOURS_SPs,
+                                           NOx_TRACKING_STORED_100_HOURS_SPs)) {
+            GenericPacket packetForPg = haveResponseWithPg(nOx100HourPackets, pg);
+            if (packetForPg == null) {
+                // 6.1.26.10.a. For all MY2024+ Diesel engines, Fail each PG query where no response was received.
+                if (getEngineModelYear() >= 2024) {
+                    addFailure("6.1.26.10.a - No response was received from "
+                            + module.getModuleName() + " for PG "
+                            + pg);
+                }
+                // 6.1.26.10.b. For all MY2022-23 Diesel engines, Warn each PG query where no response was received.
+                if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
+                    addWarning("6.1.26.10.b - No response was received from "
+                            + module.getModuleName() + " for PG "
+                            + pg);
+                }
+            } else {
+                packetForPg.getSpns().forEach(spn -> {
+                    if (spn.getRawValue() >= 0xFAFFFFFFL) {
+                        // 6.1.26.10.c. Fail each PG query where any bin value received is greater than FAFFh. (Use
+                        // FAFFFFFFh for NOx values)
+                        addFailure("6.1.26.10.c - Bin value received is greater than 0xFAFFFFFF(h)"
+                                + module.getModuleName() + " for " + spn);
+
+                    }
+                    // 6.1.26.10.d. Fail each active 100 hr array value that is greater than zero. (where supported)
+                    if (Arrays.asList(NOx_TRACKING_ACTIVE_100_HOURS_SPs).contains(spn) && spn.getValue() > 0) {
+                        // 6.1.26.10.d. Fail each active 100 hr array value that is greater than zero. (where supported)
+                        addFailure("6.1.26.10.d - Active 100 hr array value received is greater than zero (where supported) from "
+                                + module.getModuleName() + " for " + spn);
+                    }
+                });
+            }
+        }
+
+
     }
 
 }

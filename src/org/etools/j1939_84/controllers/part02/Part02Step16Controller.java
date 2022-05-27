@@ -20,8 +20,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.j1939.Lookup;
 import org.etools.j1939tools.j1939.packets.DM34NTEStatus;
-import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.j1939.packets.DM34NTEStatus.AreaStatus;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -69,7 +69,7 @@ public class Part02Step16Controller extends StepController {
         var globalPackets = getCommunicationsModule().requestDM34(getListener()).getPackets();
 
         // 6.2.16.2.a. Fail if no ECU responds, unless the user selected SI technology.
-        if (globalPackets.isEmpty() && !getFuelType().isSparkIgnition()) {
+        if (globalPackets.isEmpty() && !isSparkIgnition()) {
             addFailure("6.2.16.2.a - No ECU responded to the global request");
         }
 

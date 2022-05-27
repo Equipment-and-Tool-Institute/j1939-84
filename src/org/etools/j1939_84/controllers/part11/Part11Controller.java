@@ -15,8 +15,6 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
-;
-
 /**
  * 6.11 Part 11 Exercise General Denominator
  */
@@ -42,7 +40,8 @@ public class Part11Controller extends PartController {
              new Part11Step10Controller(),
              new Part11Step11Controller(),
              new Part11Step12Controller(),
-             new Part11Step13Controller());
+             new Part11Step13Controller(),
+             new Part11Step14Controller());
     }
 
     /**

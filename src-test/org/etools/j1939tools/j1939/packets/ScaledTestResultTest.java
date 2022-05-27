@@ -9,7 +9,6 @@ import static org.etools.j1939tools.j1939.packets.ScaledTestResult.TestResult.NO
 import static org.etools.j1939tools.j1939.packets.ScaledTestResult.TestResult.PASSED;
 import static org.junit.Assert.assertEquals;
 
-import org.etools.j1939tools.j1939.packets.ScaledTestResult;
 import org.etools.j1939tools.j1939.packets.ScaledTestResult.TestResult;
 import org.junit.Test;
 

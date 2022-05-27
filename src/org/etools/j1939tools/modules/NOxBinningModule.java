@@ -1,8 +1,9 @@
 package org.etools.j1939tools.modules;
 
-import static org.etools.j1939tools.J1939tools.NL;
+import static org.etools.j1939_84.J1939_84.NL;
 
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,13 +49,47 @@ public class NOxBinningModule {
             "                         ", "NOx Mass, g", "NOx Mass, g", "EOE, kWh", "Fuel, l", "Hours, min", "Dist, km"
     };
 
-    private static final int[] ACTIVE_100_HOUR_PGNS = new int[] { 0xFB17, 0xFB16, 0xFB15, 0xFB12, 0xFB13, 0xFB14 };
+    private static final Integer[] ACTIVE_100_HOUR_PGNS = new Integer[] { 0xFB17, 0xFB16, 0xFB15, 0xFB12, 0xFB13,
+            0xFB14 };
 
-    private static final int[] STORED_100_HOUR_PGNS = new int[] { 0xFB11, 0xFB10, 0xFB0F, 0xFB0C, 0xFB0D, 0xFB0E };
+    private static final Integer[] STORED_100_HOUR_PGNS = new Integer[] { 0xFB11, 0xFB10, 0xFB0F, 0xFB0C, 0xFB0D,
+            0xFB0E };
 
-    private static final int[] LIFETIME_PGNS = new int[] { 0xFB0B, 0xFB0A, 0xFB09, 0xFB06, 0xFB07, 0xFB08 };
+    private static final Integer[] LIFETIME_PGNS = new Integer[] { 0xFB0B, 0xFB0A, 0xFB09, 0xFB06, 0xFB07, 0xFB08 };
 
-    private static final int[] ENGINE_LIFETIME_PGNS = new int[] { 0, 0, 0xFB05, 0xFB02, 0xFB03, 0xFB04 };
+    private static final Integer[] ENGINE_LIFETIME_PGNS = new Integer[] { 0, 0, 0xFB05, 0xFB02, 0xFB03, 0xFB04 };
+
+    // 64262 NOx Tracking Valid NOx Lifetime Fuel Consumption Bins
+    // 64263 NOx Tracking Valid NOx Lifetime Engine Run Time Bins
+    // 64264 NOx Tracking Valid NOx Lifetime Vehicle Distance Bins
+    // 64265 NOx Tracking Valid NOx Lifetime Engine Output Energy Bins
+    // 64266 NOx Tracking Valid NOx Lifetime Engine Out NOx Mass Bins
+    // 64267 NOx Tracking Valid NOx Lifetime System Out NOx Mass Bins
+    public static final int[] NOx_LIFETIME_SPs = { 64262, 64263, 64264, 64265, 64266, 64267 };
+
+    // 64258 NOx Tracking Engine Activity Lifetime Fuel Consumption Bins
+    // 64259 NOx Tracking Engine Activity Lifetime Engine Run Time Bins
+    // 64260 NOx Tracking Engine Activity Lifetime Vehicle Distance Bins
+    // 64261 NOx Tracking Engine Activity Lifetime Engine Output Energy Bins NTEEEA
+    public static final int[] NOx_LIFETIME_ACTIVITY_SPs = { 64258, 64259, 64260, 64261 };
+    // PG Acronym NTFCA
+    // NTEHA NTVMA NTEEA NTENA
+    // NTSNA NTFCS NTEHS NTVMS
+    // NTEES NTENS NTSNS
+    // 64274 NOx Tracking Active 100 Hour Fuel Consumption Bins
+    // 64275 NOx Tracking Active 100 Hour Engine Run Time Bins
+    // 64276 NOx Tracking Active 100 Hour Vehicle Distance Bins
+    // 64277 NOx Tracking Active 100 Hour Engine Output Energy Bins
+    // 64278 NOx Tracking Active 100 Hour Engine Out NOx Mass Bins
+    // 64279 NOx Tracking Active 100 Hour System Out NOx Mass Bins
+    public static final int[] NOx_TRACKING_ACTIVE_100_HOURS_SPs = { 64274, 64275, 64276, 64277, 64278, 64279 };
+    // 64268 NOx Tracking Stored 100 Hour
+    // 64269 NOx Tracking Stored 100 Hour
+    // 64270 NOx Tracking Stored 100 Hour
+    // 64271 NOx Tracking Stored 100 Hour
+    // 64272 NOx Tracking Stored 100 Hour
+    // 64273 NOx Tracking Stored 100 Hour
+    public static final int[] NOx_TRACKING_STORED_100_HOURS_SPs = { 64268, 64269, 64270, 64271, 64272, 64273 };
 
     private final DecimalFormat decimalFormat = new DecimalFormat("#,##0");
     private final static int columnWidth = 13;
@@ -62,21 +97,57 @@ public class NOxBinningModule {
 
     public String format(List<GenericPacket> packets) {
         String moduleName = Lookup.getAddressName(packets.get(0).getSourceAddress());
-        String result = "";
+        StringBuilder result = new StringBuilder("");
+        boolean packetsContainActive = false;
+        boolean packetsContainStored = false;
+        boolean packetsContainLifetime = false;
+        boolean packetsContainEngineLifetime = false;
+        for (GenericPacket pkt : packets) {
+            if (List.of(ACTIVE_100_HOUR_PGNS).contains(pkt.getPgnDefinition().getId())) {
+                packetsContainActive = true;
+            }
+            if (List.of(STORED_100_HOUR_PGNS).contains(pkt.getPgnDefinition().getId())) {
+                packetsContainStored = true;
+            }
+            if (List.of(LIFETIME_PGNS).contains(pkt.getPgnDefinition().getId())) {
+                packetsContainLifetime = true;
+            }
+            if (List.of(ENGINE_LIFETIME_PGNS).contains(pkt.getPgnDefinition().getId())) {
+                packetsContainEngineLifetime = true;
+            }
+        }
+        if (packetsContainActive) {
+            result.append(timeStamp())
+                  .append(" NOx Binning Active 100-Hour Array from ")
+                  .append(moduleName)
+                  .append(NL)
+                  .append(printTable(packets,
+                                     Arrays.stream(ACTIVE_100_HOUR_PGNS).mapToInt(Integer::intValue).toArray(),
+                                     6));
+        }
+        if (packetsContainStored) {
+            result.append(timeStamp())
+                  .append(" NOx Binning Stored 100-Hour Array from ")
+                  .append(moduleName)
+                  .append(NL)
+                  .append(printTable(packets,
+                                     Arrays.stream(STORED_100_HOUR_PGNS).mapToInt(Integer::intValue).toArray(),
+                                     6));
+        }
+        if (packetsContainLifetime) {
+            result.append(timeStamp() + " NOx Binning Lifetime Array from " + moduleName)
+                  .append(NL)
+                  .append(printTable(packets, Arrays.stream(LIFETIME_PGNS).mapToInt(Integer::intValue).toArray(), 6));
+        }
+        if (packetsContainEngineLifetime) {
+            result.append(timeStamp() + " NOx Binning Engine Activity Lifetime Array from " + moduleName)
+                  .append(NL)
+                  .append(printTable(packets,
+                                     Arrays.stream(ENGINE_LIFETIME_PGNS).mapToInt(Integer::intValue).toArray(),
+                                     4));
+        }
 
-        result += timeStamp() + " NOx Binning Active 100-Hour Array from " + moduleName + NL;
-        result += printTable(packets, ACTIVE_100_HOUR_PGNS, 6);
-
-        result += timeStamp() + " NOx Binning Stored 100-Hour Array from " + moduleName + NL;
-        result += printTable(packets, STORED_100_HOUR_PGNS, 6);
-
-        result += timeStamp() + " NOx Binning Lifetime Array from " + moduleName + NL;
-        result += printTable(packets, LIFETIME_PGNS, 6);
-
-        result += timeStamp() + " NOx Binning Engine Activity Lifetime Array from " + moduleName + NL;
-        result += printTable(packets, ENGINE_LIFETIME_PGNS, 4);
-
-        return result;
+        return result.toString();
     }
 
     private String timeStamp() {

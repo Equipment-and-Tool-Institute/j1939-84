@@ -1,17 +1,17 @@
 package org.etools.j1939tools.modules;
 
-import org.etools.j1939tools.bus.Packet;
-import org.etools.j1939tools.j1939.packets.GenericPacket;
-import org.etools.j1939tools.modules.GhgTrackingModule;
-import org.junit.Before;
-import org.junit.Test;
+
+import static junit.framework.TestCase.assertEquals;
+import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.etools.j1939tools.J1939tools.NL;
+import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.junit.Before;
+import org.junit.Test;
 
 public class GhgTrackingModuleTest {
     private static final int ADDR = 0;
@@ -134,12 +134,12 @@ public class GhgTrackingModuleTest {
         expected += "| Eng.Out.Energy, kW-hr   |      14,170 |      54,906 |   1,049,476 |" + NL;
         expected += "| PKE Numerator           |     180,735 | 811,401,221 |  51,163,080 |" + NL;
         expected += "| Urban Speed Run Time, s |       1,688 |           5 |   1,966,080 |" + NL;
-        expected += "| Idle Run Time, s        |         112 |       5,041 |         N/A |" + NL;
-        expected += "| Engine Idle Fuel, l     |           6 |          37 |         N/A |" + NL;
-        expected += "| PTO Run Time, s         |       1,125 |       9,144 |         N/A |" + NL;
-        expected += "| PTO Fuel Consumption, l |          59 |       1,532 |         N/A |" + NL;
-        expected += "| AES Shutdown Count      |           5 |      59,293 |         N/A |" + NL;
-        expected += "| Stop-Start Run Time, s  |         225 |           2 |         N/A |" + NL;
+        expected += "| Idle Run Time, s        |         112 |       5,041 |           0 |" + NL;
+        expected += "| Engine Idle Fuel, l     |           6 |          37 |           0 |" + NL;
+        expected += "| PTO Run Time, s         |       1,125 |       9,144 |           0 |" + NL;
+        expected += "| PTO Fuel Consumption, l |          59 |       1,532 |           0 |" + NL;
+        expected += "| AES Shutdown Count      |           5 |      59,293 |           0 |" + NL;
+        expected += "| Stop-Start Run Time, s  |         225 |           2 |           0 |" + NL;
         expected += "|-------------------------+-------------+-------------+-------------|" + NL;
         expected += "" + NL;
         expected += "10:15:30.0000 GHG Active Technology Arrays from Engine #1 (0)" + NL;

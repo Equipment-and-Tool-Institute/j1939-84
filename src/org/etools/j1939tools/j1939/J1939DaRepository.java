@@ -1,7 +1,6 @@
 package org.etools.j1939tools.j1939;
 
 import static java.lang.Integer.parseInt;
-import static org.etools.j1939tools.J1939tools.getLogger;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,6 +23,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939tools.j1939.model.PgnDefinition;
 import org.etools.j1939tools.j1939.model.SpnDefinition;
 import org.etools.j1939tools.j1939.packets.BitSlot;
@@ -64,7 +64,7 @@ public class J1939DaRepository {
         }
         if (slot == null) {
             if (id != -1) {
-                getLogger().log(Level.INFO, "Unable to find SLOT " + id);
+                J1939_84.getLogger().log(Level.INFO, "Unable to find SLOT " + id);
             }
             return new Slot(id, "Unknown", "UNK", 1.0, 0.0, null, 0);
         }
@@ -303,7 +303,7 @@ public class J1939DaRepository {
                 }
             }
         } catch (Exception e) {
-            getLogger().log(Level.SEVERE, "Error loading map from " + fileName, e);
+            J1939_84.getLogger().log(Level.SEVERE, "Error loading map from " + fileName, e);
         }
         return bitSlotMap;
     }
@@ -324,7 +324,7 @@ public class J1939DaRepository {
     }
 
     private void logError(String s, Exception e) {
-        getLogger().log(Level.SEVERE, s, e);
+        J1939_84.getLogger().log(Level.SEVERE, s, e);
     }
 
     static private int parseTransmissionRate(String transmissionRate) throws ParseError {
@@ -485,7 +485,7 @@ public class J1939DaRepository {
         loadLookUpTables();
         PgnDefinition pgnDefinition = pgnLut.get(pgn);
         if (pgnDefinition == null) {
-            getLogger().log(Level.INFO, "Unable to find PgnDefinition for " + pgn);
+            J1939_84.getLogger().log(Level.INFO, "Unable to find PgnDefinition for " + pgn);
             return new PgnDefinition(pgn, "Unknown", "UNK", false, false, 0, List.of());
         }
         return pgnDefinition;
@@ -508,7 +508,7 @@ public class J1939DaRepository {
         loadLookUpTables();
         SpnDefinition spnDefinition = spnLut.get(spn);
         if (spnDefinition == null) {
-            getLogger().log(Level.INFO, "Unable to find SpnDefinition for " + spn);
+            J1939_84.getLogger().log(Level.INFO, "Unable to find SpnDefinition for " + spn);
             return new SpnDefinition(spn, "Unknown", 0, 0, -1);
         }
         return spnDefinition;

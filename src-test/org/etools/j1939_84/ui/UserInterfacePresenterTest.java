@@ -85,7 +85,7 @@ public class UserInterfacePresenterTest {
     private static File mockFile(boolean newFile) throws IOException {
         File file = mock(File.class);
         when(file.exists()).thenReturn(false);
-        when(file.getName()).thenReturn("name.j1939tools-84");
+        when(file.getName()).thenReturn("name.txt");
         when(file.getAbsolutePath()).thenReturn(path);
         when(file.createNewFile()).thenReturn(newFile);
         return file;
@@ -380,7 +380,7 @@ public class UserInterfacePresenterTest {
 
     @Test
     public void testOnFileChosenNewFileWithoutExtensionCreated() throws Exception {
-        File tempFile = File.createTempFile("testing", ".txt");
+        File tempFile = File.createTempFile("testing", "");
         assertTrue(tempFile.delete());
         File file = new File(tempFile.getAbsolutePath());
 
@@ -389,7 +389,7 @@ public class UserInterfacePresenterTest {
 
         File reportFile = instance.getReportFile();
         assertNotNull(reportFile);
-        assertTrue(reportFile.getAbsolutePath().endsWith(tempFile.getName() + ".j1939tools-84"));
+        assertTrue(reportFile.getAbsolutePath().endsWith(tempFile.getName() + ".txt"));
 
         verify(reportFileModule).setReportFile(eq(reportFile));
 
@@ -512,7 +512,7 @@ public class UserInterfacePresenterTest {
         instance.onReadVehicleInfoButtonClicked();
         executor.run();
 
-        verify(vehicleInformationModule).setJ1939(any());
+        verify(vehicleInformationModule, times(2)).setJ1939(any());
         verify(vehicleInformationModule).getVin();
         verify(vehicleInformationModule).getCalibrationsAsString();
         verify(vehicleInformationModule).reset();
@@ -550,7 +550,7 @@ public class UserInterfacePresenterTest {
         instance.onReadVehicleInfoButtonClicked();
         executor.run();
 
-        verify(vehicleInformationModule).setJ1939(any());
+        verify(vehicleInformationModule, times(2)).setJ1939(any());
         verify(vehicleInformationModule).getVin();
         verify(vehicleInformationModule).reset();
         verify(view).setVin("");
@@ -581,7 +581,7 @@ public class UserInterfacePresenterTest {
         instance.onReadVehicleInfoButtonClicked();
         executor.run();
 
-        verify(vehicleInformationModule).setJ1939(any());
+        verify(vehicleInformationModule, times(2)).setJ1939(any());
         verify(vehicleInformationModule).reset();
         verify(view).setVin("");
         verify(view).setEngineCals("");

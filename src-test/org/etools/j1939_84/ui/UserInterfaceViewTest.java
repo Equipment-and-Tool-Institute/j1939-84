@@ -107,7 +107,7 @@ public class UserInterfaceViewTest {
         assertEquals("J1939-84 Data Files", filter.getDescription());
         String[] extensions = filter.getExtensions();
         assertEquals(1, extensions.length);
-        assertEquals("j1939tools-84", extensions[0]);
+        assertEquals("txt", extensions[0]);
     }
 
     /**

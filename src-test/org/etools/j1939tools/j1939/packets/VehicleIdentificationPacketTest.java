@@ -8,7 +8,6 @@ import static org.junit.Assert.assertEquals;
 import java.nio.charset.StandardCharsets;
 
 import org.etools.j1939tools.bus.Packet;
-import org.etools.j1939tools.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939tools.modules.DateTimeModule;
 import org.etools.j1939tools.modules.TestDateTimeModule;
 import org.etools.testdoc.TestDoc;

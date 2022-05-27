@@ -3,8 +3,14 @@
  */
 package org.etools.j1939tools.j1939;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.logging.Level.SEVERE;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.BUSY;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -21,6 +27,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939tools.CommunicationsListener;
 import org.etools.j1939tools.bus.Bus;
 import org.etools.j1939tools.bus.BusException;
@@ -28,8 +35,8 @@ import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.bus.EchoBus;
 import org.etools.j1939tools.bus.Either;
 import org.etools.j1939tools.bus.Packet;
-import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.bus.Packet.PacketException;
+import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.AddressClaimPacket;
 import org.etools.j1939tools.j1939.packets.ComponentIdentificationPacket;
@@ -69,10 +76,7 @@ import org.etools.j1939tools.j1939.packets.TotalVehicleDistancePacket;
 import org.etools.j1939tools.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939tools.modules.DateTimeModule;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.logging.Level.SEVERE;
-import static org.etools.j1939tools.J1939tools.getLogger;
-import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.BUSY;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * A Wrapper around a {@link Bus} that provides functionality specific to SAE
@@ -117,6 +121,8 @@ public class J1939 {
     private int warnings;
 
     private boolean logDeltaTime;
+
+    private Stream<Packet> loggerStream = Stream.empty();
 
     public J1939() {
         this(new EchoBus(0xA5));
@@ -169,7 +175,7 @@ public class J1939 {
     }
 
     private static void severe(String message, Throwable t) {
-        getLogger().log(SEVERE, message, t);
+        J1939_84.getLogger().log(SEVERE, message, t);
     }
 
     static private Predicate<Packet> sourceFilter(int addr) {
@@ -414,7 +420,7 @@ public class J1939 {
                     .filter(e -> e.left.isPresent())
                     .flatMap(e -> e.left.stream());
         } catch (BusException e) {
-            getLogger().log(Level.SEVERE, "Error while reading bus", e);
+            J1939_84.getLogger().log(Level.SEVERE, "Error while reading bus", e);
         }
         return Stream.empty();
     }
@@ -516,7 +522,9 @@ public class J1939 {
     }
 
     public Stream<Packet> read(long timeout, TimeUnit unit) throws BusException {
-        return bus.read(timeout, unit);
+        return bus.read(timeout, unit)
+                  // only return complete and valid packets (not broken TP packets).
+                  .filter(Packet::isValid);
     }
 
     public <T extends GenericPacket> BusResult<T> requestDS(String title,
@@ -693,8 +701,8 @@ public class J1939 {
                                                 || !map.containsKey(((ParsedPacket) e.resolve()).getSourceAddress()))
                                    .collect(Collectors.toMap(r1 -> ((ParsedPacket) r1.resolve()).getSourceAddress(),
                                                              r1 -> r1,
-                                                             // if there are two responses, take the second.  This should only happen if there are rogue tools on the bus.
-                                                             (a,b) -> b)));
+                                                             // if there are two responses, take the first.  This should only happen if there are rogue tools on the bus.
+                                                             (a, b) -> a)));
             results = map.values();
         }
 
@@ -930,15 +938,49 @@ public class J1939 {
     private void logTiming(CommunicationsListener listener, String message) {
         warnings++;
         listener.onResult(message);
-        getLogger().warning(message);
+        J1939_84.getLogger().warning(message);
     }
 
     private void logWarning(CommunicationsListener listener, String message) {
         listener.onResult(message);
-        getLogger().warning(message);
+        J1939_84.getLogger().warning(message);
     }
 
     private void logInfo(String message) {
-        getLogger().info(message);
+        J1939_84.getLogger().info(message);
+    }
+
+    public void startLogger() throws BusException {
+        Instant start = Instant.now();
+        loggerStream = bus.getRawBus().read(Integer.MAX_VALUE, TimeUnit.DAYS);
+        new Thread(() -> {
+            try {
+                final String PREFIX = "J1939-84-CAN-";
+                final String SUFFIX = ".asc";
+                File file = File.createTempFile(PREFIX, SUFFIX);
+                // delete all but last 10 logs
+                Stream.of(file.getParentFile()
+                              .listFiles((dir, name) -> name.startsWith(PREFIX) && name.endsWith(SUFFIX)))
+                      .sorted(Comparator.comparing(f -> -f.lastModified()))
+                      .skip(10)
+                      .forEach(f -> f.delete());
+                try (PrintWriter out = new PrintWriter(new FileWriter(file))) {
+                    loggerStream.forEach(p -> {
+                        try {
+                            out.println(p.toVectorString(start));
+                        } catch (Throwable t) {
+                            out.println(t.getMessage());
+                            J1939_84.getLogger().log(Level.WARNING, "Packet Failure", t);
+                        }
+                    });
+                }
+            } catch (Throwable e) {
+                J1939_84.getLogger().log(Level.SEVERE, "Unable to log packets.", e);
+            }
+        }).start();
+    }
+
+    public void closeLogger() {
+        loggerStream.close();
     }
 }

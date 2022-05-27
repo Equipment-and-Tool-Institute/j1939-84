@@ -39,7 +39,6 @@ import static org.etools.j1939tools.j1939.model.ObdCompliance.VALUE_253;
 import static org.etools.j1939tools.j1939.model.ObdCompliance.WWH_OBD;
 import static org.junit.Assert.assertEquals;
 
-import org.etools.j1939tools.j1939.model.ObdCompliance;
 import org.junit.Test;
 
 /**

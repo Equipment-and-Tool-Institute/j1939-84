@@ -3,12 +3,6 @@ package org.etools.j1939tools.bus;
 import static org.etools.j1939tools.bus.RP1210Library.BLOCKING_NONE;
 import static org.etools.j1939tools.bus.RP1210Library.NOTIFICATION_NONE;
 
-import org.etools.j1939tools.bus.BusException;
-import org.etools.j1939tools.bus.Packet;
-import org.etools.j1939tools.bus.RP1210;
-import org.etools.j1939tools.bus.RP1210Bus;
-import org.etools.j1939tools.bus.RP1210Library;
-
 public class Generator {
     public static void main(String... args) throws BusException {
         String name = "NXULNK32";

@@ -3,7 +3,7 @@
  */
 package org.etools.j1939tools.j1939.packets;
 
-import static org.etools.j1939tools.J1939tools.NL;
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939tools.utils.CollectionUtils.join;
 
 import java.util.ArrayList;
@@ -30,6 +30,16 @@ public class DM24SPNSupportPacket extends GenericPacket {
     }
 
     public static DM24SPNSupportPacket create(int source, SupportedSPN... spns) {
+
+        int[] data = new int[0];
+        for (SupportedSPN spn : spns) {
+            data = join(data, spn.getData());
+        }
+
+        return new DM24SPNSupportPacket(Packet.create(PGN, source, data));
+    }
+
+    public static DM24SPNSupportPacket create(int source, List<SupportedSPN> spns) {
 
         int[] data = new int[0];
         for (SupportedSPN spn : spns) {

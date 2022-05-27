@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 import java.nio.charset.StandardCharsets;
 
 import org.etools.j1939tools.bus.Packet;
-import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.junit.Test;
 
 /**

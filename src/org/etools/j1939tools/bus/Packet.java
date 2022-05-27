@@ -18,7 +18,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.etools.j1939tools.J1939tools;
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939tools.j1939.J1939;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -183,7 +183,7 @@ public class Packet {
 
             return Packet.create(priority, id, source, tx, bytes);
         } catch (Exception e) {
-            J1939tools.getLogger().log(Level.SEVERE, string + " could not be parsed into a Packet", e);
+            J1939_84.getLogger().log(Level.SEVERE, string + " could not be parsed into a Packet", e);
         }
         return null;
     }
@@ -326,14 +326,7 @@ public class Packet {
     }
 
     synchronized private int[] getData() {
-        while (data == null) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                // No worries
-            }
-        }
-        if (data.length == 0) {
+        if (!isValid()) {
             throw new PacketException(String.format("Failed Packet: %s %06X%02X [?]%n%s",
                                                     DateTimeModule.getInstance().getTimeFormatter().format(timestamp),
                                                     priority << 18 | id,
@@ -343,6 +336,17 @@ public class Packet {
                                                                   .collect(Collectors.joining(System.lineSeparator()))));
         }
         return data;
+    }
+
+    synchronized public boolean isValid() {
+        while (data == null) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                // No worries
+            }
+        }
+        return data.length > 0;
     }
 
     synchronized public void setData(byte... data) {

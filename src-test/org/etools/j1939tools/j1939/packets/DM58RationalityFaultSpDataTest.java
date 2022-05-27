@@ -4,16 +4,13 @@
 
 package org.etools.j1939tools.j1939.packets;
 
-import static org.etools.j1939tools.J1939tools.NL;
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 
 import org.etools.j1939tools.bus.Packet;
-import org.etools.j1939tools.j1939.packets.DM58RationalityFaultSpData;
-import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
-import org.etools.j1939tools.j1939.packets.SupportedSPN;
 import org.etools.j1939tools.modules.DateTimeModule;
 import org.etools.j1939tools.modules.TestDateTimeModule;
 import org.etools.j1939tools.utils.CollectionUtils;
@@ -92,7 +89,7 @@ public class DM58RationalityFaultSpDataTest {
         String expected = "DM58 from Engine #1 (0): " + NL;
         expected += "  Test Identifier: 245" + NL;
         expected += "  Rationality Fault SPN: 190" + NL;
-        expected += "  Rationality Fault SPN Data Value: [DD CC BB AA]" + NL;
+        expected += "  Rationality Fault SPN Data Value: [DD CC]" + NL;
         expected += "  SPN   190, Engine Speed: 6555.625 rpm" + NL;
         assertEquals(expected, instance.toString());
     }

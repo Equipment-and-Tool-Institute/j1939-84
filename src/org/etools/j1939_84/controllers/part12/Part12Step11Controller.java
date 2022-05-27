@@ -81,8 +81,7 @@ public class Part12Step11Controller extends StepController {
 
         // 6.12.11.1.b. Use responses to help verify coordinated DM11 code clear in this part
         // (i.e., all or no ECUs clear). For example, this will be evident in the increased count of initialized test
-        // results for the SPN and FMI
-        // pairs that were listed with non-initialized values.
+        // results for the SPN and FMI pairs that were listed with non-initialized values.
 
         // 6.12.11.2 Actions2:
         // a. DS DM7 with TID 245 (for DM58) using FMI 31 for each SP identified as supporting DM58 in a DM24 response
@@ -140,9 +139,7 @@ public class Part12Step11Controller extends StepController {
                                                                             + " for SP " + spn);
                                                                 });
                   });
-        });
-        getDataRepository().getObdModuleAddresses().forEach(moduleAddress -> {
-            getDm58AndVerifyData(moduleAddress);
+            getDm58AndVerifyData(module.getSourceAddress());
         });
     }
 

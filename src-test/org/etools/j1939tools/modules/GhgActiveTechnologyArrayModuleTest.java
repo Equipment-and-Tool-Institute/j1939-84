@@ -2,7 +2,6 @@ package org.etools.j1939tools.modules;
 
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
-import org.etools.j1939tools.modules.GhgActiveTechnologyArrayModule;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.etools.j1939tools.J1939tools.NL;
+import static org.etools.j1939_84.J1939_84.NL;
 
 public class GhgActiveTechnologyArrayModuleTest {
     private static final int ADDR = 0;

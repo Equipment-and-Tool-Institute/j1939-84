@@ -4,7 +4,7 @@
 package org.etools.j1939tools.modules;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.etools.j1939tools.J1939tools.NL;
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939tools.j1939.J1939.GLOBAL_ADDR;
 import static org.etools.j1939tools.j1939.Lookup.getAddressName;
 
@@ -34,6 +34,7 @@ import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939tools.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939tools.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket;
+import org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte;
 import org.etools.j1939tools.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939tools.j1939.packets.DM25ExpandedFreezeFrame;
@@ -55,7 +56,6 @@ import org.etools.j1939tools.j1939.packets.DiagnosticReadinessPacket;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.MonitoredSystem;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
-import org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByte;
 
 public class CommunicationsModule extends FunctionalModule {
 
@@ -173,7 +173,7 @@ public class CommunicationsModule extends FunctionalModule {
                                                             ControlByte controlByte,
                                                             int spn,
                                                             int fmi) {
-        String title = "Destination Specific DM22 Request to " + getAddressName(address);
+        String title = "DM22";
         var requestPacket = DM22IndividualClearPacket.createRequest(getJ1939().getBus().getAddress(),
                                                                     address,
                                                                     controlByte,

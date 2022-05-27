@@ -9,8 +9,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.etools.j1939tools.bus.Packet;
-import org.etools.j1939tools.j1939.packets.DM31DtcToLampAssociation;
-import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
 import org.junit.Test;
 
 /**

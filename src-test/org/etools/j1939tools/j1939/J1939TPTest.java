@@ -22,7 +22,6 @@ import org.etools.j1939tools.bus.Bus;
 import org.etools.j1939tools.bus.BusException;
 import org.etools.j1939tools.bus.EchoBus;
 import org.etools.j1939tools.bus.Packet;
-import org.etools.j1939tools.j1939.J1939TP;
 import org.etools.j1939tools.j1939.J1939TP.CtsBusException;
 import org.etools.testdoc.TestDoc;
 import org.etools.testdoc.TestItem;

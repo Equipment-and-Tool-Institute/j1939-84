@@ -80,7 +80,7 @@ public class Part09Step23Controller extends StepController {
                                                              // 6.9.23.2.b. Fail if any ECU reports an
                                                              // active DTC.
                                                              if (p.hasDTCs()) {
-                                                                 addFailure(format("6.9.22.2.b - ECU %s reported a previously active DTC",
+                                                                 addFailure(format("6.9.23.2.b - ECU %s reported a active DTC",
                                                                                    p.getModuleName()));
                                                              }
                                                          })
