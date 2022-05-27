@@ -952,7 +952,7 @@ public class J1939 {
 
     public void startLogger() throws BusException {
         Instant start = Instant.now();
-        loggerStream = bus.read(Integer.MAX_VALUE, TimeUnit.DAYS);
+        loggerStream = bus.getRawBus().read(Integer.MAX_VALUE, TimeUnit.DAYS);
         new Thread(() -> {
             try {
                 final String PREFIX = "J1939-84-CAN-";

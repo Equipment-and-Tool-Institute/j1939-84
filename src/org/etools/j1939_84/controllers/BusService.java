@@ -79,8 +79,7 @@ public class BusService {
      * @return               List of Packets received
      */
     public Stream<GenericPacket> dsRequest(int pgn, int moduleAddress, String spns) {
-        String message = "DS Request for PGN " + pgn + " to " + Lookup.getAddressName(moduleAddress) + " for SPNs "
-                + spns;
+        String message = "for PGN " + pgn + " for SPNs " + spns;
         Packet requestPacket = j1939.createRequestPacket(pgn, moduleAddress);
         return j1939.requestDS(message, pgn, requestPacket, listener)
                     .getPacket()

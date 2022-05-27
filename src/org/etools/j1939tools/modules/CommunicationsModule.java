@@ -173,7 +173,7 @@ public class CommunicationsModule extends FunctionalModule {
                                                             ControlByte controlByte,
                                                             int spn,
                                                             int fmi) {
-        String title = "Destination Specific DM22 Request to " + getAddressName(address);
+        String title = "DM22";
         var requestPacket = DM22IndividualClearPacket.createRequest(getJ1939().getBus().getAddress(),
                                                                     address,
                                                                     controlByte,

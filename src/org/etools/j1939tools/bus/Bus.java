@@ -98,4 +98,11 @@ public interface Bus extends AutoCloseable {
      * @return if another module is detected on the CAN bus using this address.
      */
     boolean imposterDetected();
+
+    /**
+     * Get non-TP bus.
+     */
+    default Bus getRawBus() {
+        return this;
+    }
 }
