@@ -211,7 +211,7 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.9.22.2.a - ECU Engine #1 (0) reported MIL status of alternate off");
+                                        "6.9.23.2.a - ECU Engine #1 (0) reported MIL status of alternate off");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -266,15 +266,15 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.9.22.2.a - ECU Engine #1 (0) reported MIL status of on");
+                                        "6.9.23.2.a - ECU Engine #1 (0) reported MIL status of on");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.9.22.2.b - ECU Engine #1 (0) reported a previously active DTC");
+                                        "6.9.23.2.b - ECU Engine #1 (0) reported a active DTC");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.9.22.2.a - ECU Body Controller (33) reported MIL status of on");
+                                        "6.9.23.2.a - ECU Body Controller (33) reported MIL status of on");
 
     }
 }
