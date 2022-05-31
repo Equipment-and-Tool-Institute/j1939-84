@@ -1146,7 +1146,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                                         eq(31));
 
         verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), anyInt());
-        // verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x09), anyInt());
 
         verify(tableA7Validator, times(3)).findDuplicates(any());
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
