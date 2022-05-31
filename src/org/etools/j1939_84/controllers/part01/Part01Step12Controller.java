@@ -126,6 +126,8 @@ public class Part01Step12Controller extends StepController {
                                                           .flatMap(p -> p.getTestResults().stream())
                                                           .collect(Collectors.toList());
 
+                             // 6.1.12.1.d. Warn if any ECU reports more than one set of test results for the same
+                             // SP+FMI.
                              testResultsByModuleMap.put(obdModule.getSourceAddress(),
                                                         new HashSet<>(testResults));
                              // 6.1.12.2.a Table A.7.1.d Warn if any ECU reports more than one set of test results for
@@ -182,8 +184,7 @@ public class Part01Step12Controller extends StepController {
 
         // 6.1.12.3 Actions2: // 6.1.12.3 was omitted in error.
         // 6.1.12.3.a. DS DM7 with TID 245 (for DM58) using FMI 31 for each SP identified as supporting DM58 in a DM24
-        // response
-        // In step 6.1.4.1 to the SP’s respective OBD ECU.
+        // response In step 6.1.4.1 to the SP’s respective OBD ECU.
         // Display the scaled engineering value for the requested SP.
         getDataRepository().getObdModules().forEach(module -> {
             module.getSupportedSPNs()
@@ -277,9 +278,7 @@ public class Part01Step12Controller extends StepController {
                                            .getSpn();
 
             int sourceAddress = obdModules.get(0).getSourceAddress();
-            var packet = getCommunicationsModule().requestDM58(getListener(),
-                                                               sourceAddress,
-                                                               requestSpn)
+            var packet = getCommunicationsModule().requestDM58(getListener(), sourceAddress, requestSpn)
                                                   .requestResult()
                                                   .getAcks()
                                                   .stream()
