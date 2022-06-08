@@ -123,19 +123,28 @@ public class Part02Step17Controller extends StepController {
 
         busService.setup(getJ1939(), getListener());
 
-        // Collect all the Data Stream Supported SPNs from all OBD Modules.
+        // 6.2.17.1.a Create a list of expected SPNs and PGNs from the DM24 response, where the data stream support bit
+        // defined in SAE J1939-73 5.7.24 is 0. Omit the following SPNs (588, 976, 1213, 1220, 12675, 12691, 12730,
+        // 12783, 12797) which are included in the list. Omit any remaining SPNs that map to multiple PGs.
         List<Integer> supportedSPNs = getDataRepository().getObdModules()
                                                          .stream()
+                                                         // Display the completed list noting those omitted SPs,
+                                                         // supported SPs as ‘broadcast’ or ‘upon request’, and
+                                                         // additions from Table A-1.
+                                                         .peek(module -> tableA1Validator.reportMessages(getListener(),
+                                                                                                         module))
                                                          .flatMap(m -> m.getFilteredDataStreamSPNs().stream())
                                                          .map(SupportedSPN::getSpn)
                                                          .collect(Collectors.toList());
 
-        tableA1Validator.reportExpectedMessages(getListener());
-
-        // 6.2.17.1.a. Gather broadcast data for all SPNs that are supported for data stream in the OBD ECU responses.
+        // 6.2.17.1.b. Gather broadcast data for all SPNs that are supported for data stream in the OBD ECU responses
+        // and the added SPNs from Table A-1, using the SPN list from Part 1. This shall include the both SPs that are
+        // expected to be queried with DS queries (in step 5 for SPs supported in DM24) and SPs that that are expected
+        // without queries.
+        // 6.2.17.1.c. Gather/timestamp each parameter at least three times to be able to verify frequency of broadcast
         // x4 to ensure all necessary messages have been received
         Stream<GenericPacket> packetStream = busService.readBus(broadcastValidator.getMaximumBroadcastPeriod() * 4,
-                                                                "6.2.17.1.a");
+                                                                "6.2.17.1.c");
         var packets = packetStream
                                   .peek(p -> {
                                       try {
@@ -145,16 +154,13 @@ public class Part02Step17Controller extends StepController {
                                       }
                                   })
                                   .peek(p -> {
-                                      // 6.2.17.2.a. Fail if unsupported (received as not available (as
-                                      // described in SAE J1939-71))
-                                      // for any broadcast SPN indicated as supported by the OBD ECU in DM24
-                                      // with the Source Address matching the received message) in DM24.
+                                      // 6.2.17.2.a. Fail if no response/no valid data for any broadcast SP indicated as
+                                      // supported in DM24.
                                       tableA1Validator.reportNotAvailableSPNs(p, getListener(), "6.2.17.2.a");
                                   })
                                   .peek(p -> {
                                       // 6.2.17.2.b. Fail/warn if any broadcast data is not valid for KOER
-                                      // conditions
-                                      // as per Table A-1, Minimum Data Stream Support.
+                                      // conditions as per Table A-1, Minimum Data Stream Support.
                                       tableA1Validator.reportImplausibleSPNValues(p, getListener(), true, "6.2.17.2.b");
                                   })
                                   .peek(p -> {
@@ -163,18 +169,17 @@ public class Part02Step17Controller extends StepController {
                                       tableA1Validator.reportNonObdModuleProvidedSPNs(p, getListener(), "6.2.17.2.c");
                                   })
                                   .peek(p -> {
-
                                       // 6.2.17.3.a. Identify SPNs provided in the data stream that are listed
-                                      // in Table A-1 but not supported by any OBD ECU in its DM24 response.
+                                      // in Table A-1 but not supported by any OBD ECU in its DM24 response.1`
                                       // 6.2.17.4.a. Fail/warn per Table A-1 column, “Action if SPN provided
                                       // but not included in DM24”.
                                       tableA1Validator.reportProvidedButNotSupportedSPNs(p,
                                                                                          getListener(),
                                                                                          "6.2.17.4.a");
                                   })
-                                  .peek(p -> {
-                                      tableA1Validator.reportPacketIfNotReported(p, getListener(), false);
-                                  })
+                                  // .peek(p -> {
+                                  // tableA1Validator.reportPacketIfNotReported(p, getListener(), false);
+                                  // })
                                   .collect(Collectors.toList());
         List<GenericPacket> onRequestPackets = new ArrayList<>();
 
@@ -185,6 +190,10 @@ public class Part02Step17Controller extends StepController {
         // Map of PGN to (Map of Source Address to List of Packets)
         Map<Integer, Map<Integer, List<GenericPacket>>> foundPackets = broadcastValidator.buildPGNPacketsMap(packets);
 
+        // 6.2.17.6.c - Fail if any parameter in a fixed period message, upon request, is not broadcast within ± 10% of
+        // the specified broadcast period
+        // 6.2.17.6.d - Fail if any parameter in a variable period broadcast message exceeds 110% of its recommended
+        // broadcast period. [see foot 26].
         broadcastValidator.reportBroadcastPeriod(foundPackets,
                                                  supportedSPNs,
                                                  getListener(),
@@ -215,11 +224,8 @@ public class Part02Step17Controller extends StepController {
                                                                                             getListener(),
                                                                                             getPartNumber(),
                                                                                             getStepNumber(),
-                                                                                            "6.2.17.2.a");
+                                                                                            "6.2.17.5.a");
 
-            // 6.2.17.5.a. DS messages to ECU that indicated support in DM24 for upon request SPNs and SPNs not observed
-            // in step 1.
-            // DS Request for all SPNs that are sent on-request AND those were missed earlier
             List<Integer> requestPGNs = busService.getPGNsForDSRequest(missingSPNs, dataStreamSPNs);
 
             // Remove the SPNs that were already received
@@ -241,22 +247,32 @@ public class Part02Step17Controller extends StepController {
                                                .sorted()
                                                .map(Object::toString)
                                                .collect(Collectors.joining(", "));
+
+                // 6.2.17.5.a. DS messages to ECU that indicated support in DM24 for upon request SPs and SPs added from
+                // Table A-1, regardless of whether the SPs were or were not observed in step 1. [Where a PG contains
+                // more than one SP (to be queried), that PG need only be queried one time].
                 List<GenericPacket> dsResponse = busService.dsRequest(pgn, moduleAddress, spns)
                                                            .peek(p ->
-                                                           // 6.2.17.6.a. Fail if no response/no valid data for any upon
-                                                           // request SPN indicated as
-                                                           // supported in DM24, per Table A-1.
+                                                           // 6.2.17.6.a. Ignore NACK received for any SP added from
+                                                           // table A-1, whose PG does not contain any SPs listed as
+                                                           // supported in DM24.
+                                                           // 6.2.17.6.b. Fail if no response or NACK for any SP
+                                                           // indicated as supported by the OBD ECU in DM24. Downgrade
+                                                           // the failure to a warning where an upon request SPN was
+                                                           // received in 6.1.17.1, and the request was not replied to
+                                                           // with a NACK
                                                            tableA1Validator.reportNotAvailableSPNs(p,
                                                                                                    getListener(),
-                                                                                                   "6.2.17.6.a"))
+                                                                                                   "6.2.17.6.b"))
                                                            .peek(p ->
-                                                           // 6.2.17.6.b. Fail/warn if any upon request data is not
-                                                           // valid for
-                                                           // KOER conditions as per section A.1.
+                                                           // 6.2.17.6.e. Fail/warn if any data received (that is
+                                                           // supported in DM24 by the subject OBD ECU) is not valid for
+                                                           // KOEO conditions as per section A.1Table A-1, Minimum Data
+                                                           // Stream Support.
                                                            tableA1Validator.reportImplausibleSPNValues(p,
                                                                                                        getListener(),
                                                                                                        true,
-                                                                                                       "6.2.17.6.b"))
+                                                                                                       "6.2.17.6.e"))
                                                            .collect(Collectors.toList());
                 onRequestPackets.addAll(dsResponse);
 
@@ -267,38 +283,44 @@ public class Part02Step17Controller extends StepController {
                                                                                                     getListener(),
                                                                                                     getPartNumber(),
                                                                                                     getStepNumber(),
-                                                                                                    "6.2.17.6.a");
+                                                                                                    "6.2.17.5.b");
 
                 if (!notAvailableSPNs.isEmpty()) {
                     // 6.2.17.5.b. If no response/no valid data for any SPN requested in 6.2.16.3.a, send global message
                     // to request that SPN(s). Re-request the missing SPNs globally
                     String globalMessage = "PGN " + pgn + " for SPNs " + String.join(", ", notAvailableSPNs);
                     if (!j1939DaRepository.findPgnDefinition(pgn).isOnRequest()) {
-                        // 6.2.17.6.c. Warn when global request was required for “broadcast” SPN
-                        addWarning("6.2.17.6.c - " + "Global request was required for PGN " + pgn
+                        // 6.2.17.5.b. Warn when global request was required for “broadcast” SPN
+                        addWarning("6.2.17.5.b - " + "Global request was required for PGN " + pgn
                                 + " for broadcast SPNs " +
                                 String.join(", ", notAvailableSPNs));
                     }
                     List<GenericPacket> globalPackets = busService.globalRequest(pgn, globalMessage)
                                                                   .peek(p ->
-                                                                  // 6.2.17.6.a. Fail if no response/no valid data for
-                                                                  // any upon request
-                                                                  // SPN indicated as supported in DM24, per Table A-1.
+                                                                  // 6.2.17.6.a. Ignore NACK received for any SP added
+                                                                  // from table A-1, whose PG does not contain any SPs
+                                                                  // listed as supported in DM24.
+                                                                  // 6.2.17.6.b Fail if no response or NACK for any SP
+                                                                  // indicated as supported by the OBD ECU in DM24.
+                                                                  // Downgrade the failure to a warning where an upon
+                                                                  // request SPN was received in 6.1.17.1, and the
+                                                                  // request was not replied to with a NACK
                                                                   tableA1Validator.reportNotAvailableSPNs(p,
                                                                                                           getListener(),
-                                                                                                          "6.2.17.6.a"))
+                                                                                                          "6.2.17.6.b"))
                                                                   .peek(p ->
 
-                                                                  // 6.2.17.6.b. Fail/warn if any upon request data is
-                                                                  // not valid for
-                                                                  // KOER conditions as per section A.1.
+                                                                  // 6.2.17.6.e. Fail/warn if any data received (that is
+                                                                  // supported in DM24 by the subject OBD ECU) is not
+                                                                  // valid for KOER conditions as per Table A-1, Minimum
+                                                                  // Data Stream Suppo
                                                                   tableA1Validator.reportImplausibleSPNValues(p,
                                                                                                               getListener(),
                                                                                                               true,
                                                                                                               "6.2.17.6.b"))
                                                                   .collect(Collectors.toList());
 
-                    // 6.2.17.6.a. Fail if no response/no valid data for any upon request
+                    // 6.2.17.6.e. Fail if no response/no valid data for any upon request
                     // SPN indicated as supported in DM24, per Table A-1.
                     broadcastValidator.collectAndReportNotAvailableSPNs(supportedSPNs,
                                                                         pgn,
@@ -307,39 +329,34 @@ public class Part02Step17Controller extends StepController {
                                                                         getListener(),
                                                                         getPartNumber(),
                                                                         getStepNumber(),
-                                                                        "6.2.17.6.a");
+                                                                        "6.2.17.6.e");
                     onRequestPackets.addAll(globalPackets);
                 }
             }// end pgn
 
             // 6.2.17.7 Actions4 for MY2022+ Diesel Engines
             if (getEngineModelYear() >= 2022 && getFuelType().isCompressionIgnition()) {
-                getDataRepository()
-                                   .getObdModules()
-                                   .forEach(module -> {
-                                       if (module.supportsSpn(12675)) {
+                                       if (obdModule.supportsSpn(12675)) {
                                            // 6.2.17.7 - 6.2.17.10
-                                           testSp12675(module);
+                                           testSp12675(obdModule);
                                        }
-                                       if (module.supportsSpn(12730)) {
+                                       if (obdModule.supportsSpn(12730)) {
                                            // 6.2.17.11 - 6.2.17.14
-                                           testSp12730(module);
+                                           testSp12730(obdModule);
                                        }
-                                       if (module.supportsSpn(12691)) {
+                                       if (obdModule.supportsSpn(12691)) {
                                            // 6.2.17.15 - 6.2.17.18
-                                           testSp12691(module);
+                                           testSp12691(obdModule);
                                        }
-                                       if (module.supportsSpn(12797)) {
+                                       if (obdModule.supportsSpn(12797)) {
                                            // 6.2.17.19 - 6.2.17.22
-                                           testSp12797(module);
+                                           testSp12797(obdModule);
                                        }
-                                       if (module.supportsSpn(12783)) {
+                                       if (obdModule.supportsSpn(12783)) {
                                            // 6.2.17.23 - 6.2.17.26
-                                           testSp12783(module);
+                                           testSp12783(obdModule);
                                        }
-                                   });
-            }
-
+                                   };
         }// end obdModule
 
         // 6.2.17.6.g. Fail/warn per Table A-1, if two or more ECUs provide an SPN listed in Table A-1.
@@ -381,6 +398,7 @@ public class Part02Step17Controller extends StepController {
                     + module.getModuleName() + " for PG "
                     + GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG);
         } else {
+            var partOnePacket = get(packetForPg.getPgnDefinition().getId(), module.getSourceAddress(), 1);
             packetForPg.getSpns()
                        .forEach(spn -> {
                            // 6.2.17.24.b - Fail PG query where any accumulator value
@@ -389,10 +407,13 @@ public class Part02Step17Controller extends StepController {
                                addFailure("6.2.17.24.b - Bin value received is greater than 0xFAFFFFFF(h) from "
                                        + module.getModuleName() + " for " + spn);
                            }
-                           // FIXME: this needs to implemented once the datarepo is fixed
-                           // @Joe - just need to add the call once the dataRepo bug is fix
                            // 6.2.17.14.c Fail all values where the corresponding value received is part 1 is
                            // greater than the part 2 value
+                           var spnValue = partOnePacket.getSpn(spn.getId()).orElse(null);
+                           if (spnValue != null && spnValue.getRawValue() > spn.getRawValue()) {
+                               addFailure("6.2.17.14.c - Value received from " + module.getModuleName() + " for " + spn
+                                       + " was greater than part 1 value");
+                           }
 
                        });
         }
@@ -548,6 +569,7 @@ public class Part02Step17Controller extends StepController {
                             + pg);
                 }
             } else {
+                var partOnePacket = get(hybridPacketForPg.getPgnDefinition().getId(), module.getSourceAddress(), 1);
                 hybridPacketForPg.getSpns()
                                  .forEach(spn -> {
                                      // 6.2.17.22.c - Fail each PG query where any accumulator
@@ -556,10 +578,14 @@ public class Part02Step17Controller extends StepController {
                                          addFailure("6.2.17.22.c - Bin value received is greater than 0xFAFFFFFF(h) from "
                                                  + module.getModuleName() + " for " + spn);
                                      }
-                                     // FIXME: needs to be implemented once the dataRepo is fixed
-                                     // @Joe - I just need to fill in the call once I fix the dataRepo bug I found
                                      // 6.2.17.22.d - Fail all values where the corresponding value received in part 1
                                      // is greater than the part 2 values. (where supported)
+                                     var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(0.00);
+                                     if (partOneValue > spn.getRawValue()) {
+                                         addFailure("6.2.17.22.d - Value received from " + module.getModuleName()
+                                                 + " for " + spn
+                                                 + " was greater than part 1 value");
+                                     }
                                  });
             }
         }
@@ -796,6 +822,7 @@ public class Part02Step17Controller extends StepController {
                         + module.getModuleName() + " for PG "
                         + pg);
             } else {
+                module.get(pg, 1);
                 packetForPg.getSpns()
                            .forEach(spn -> {
                                // 6.2.17.8.b. Fail each PG query where any bin value received
@@ -809,7 +836,12 @@ public class Part02Step17Controller extends StepController {
                                // @Joe just need to write the method to handle this
                                // 6.2.17.8.c Fail all values where the corresponding value received in part 1 is greater
                                // than the part 2 value
-                               // if(spn.getRawValue() > module.get())
+                               Spn partOneSpn = module.get(pg, 1).getSpn(spn.getId()).orElse(null);
+                               if (partOneSpn != null && partOneSpn.getRawValue() > spn.getRawValue()) {
+                                   addFailure("6.2.17.8.c - " + module.getModuleName()
+                                           + " reported part 1 value greater than part 2 for "
+                                           + spn);
+                               }
                            });
             }
         }

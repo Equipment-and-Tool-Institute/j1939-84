@@ -131,8 +131,12 @@ public abstract class StepController extends Controller {
     }
 
     protected <T extends GenericPacket> T get(Class<T> packetClass, int address, int partNumber) {
+        return get(getPg(packetClass), address, partNumber);
+    }
+
+    protected <T extends GenericPacket> T get(int pg, int address, int partNumber) {
         OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(address);
-        return obdModuleInformation == null ? null : obdModuleInformation.get(packetClass, partNumber);
+        return obdModuleInformation == null ? null : obdModuleInformation.get(pg, partNumber);
     }
 
     protected List<GenericPacket>
@@ -408,5 +412,16 @@ public abstract class StepController extends Controller {
 
     protected int getEngineModelYear() {
         return getDataRepository().getVehicleInformation().getEngineModelYear();
+    }
+
+    // Helper method to get the pg for the class object
+    private static int getPg(Class<? extends GenericPacket> clazz) {
+        int pg = 0;
+        try {
+            pg = clazz.getField("PGN").getInt(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return pg;
     }
 }
