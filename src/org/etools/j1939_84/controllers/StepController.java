@@ -10,6 +10,7 @@ import static org.etools.j1939_84.J1939_84.isTesting;
 import static org.etools.j1939_84.controllers.Controller.Ending.STOPPED;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
+import static org.etools.j1939_84.controllers.ResultsListener.MessageType.ERROR;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.etools.j1939_84.model.Outcome.FAIL;
@@ -155,7 +156,7 @@ public abstract class StepController extends Controller {
             }
             return packets;
         } catch (Exception e) {
-            e.printStackTrace();
+            getLogger().log(ERROR, e.printStackTrace());
         }
         return null;
     }
