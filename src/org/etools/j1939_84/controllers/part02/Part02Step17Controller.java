@@ -829,7 +829,7 @@ public class Part02Step17Controller extends StepController {
                         + module.getModuleName() + " for PG "
                         + pg);
             } else {
-                module.get(pg, 1);
+                var partOnePacket = get(packetForPg.getPgnDefinition().getId(), module.getSourceAddress(), 1);
                 packetForPg.getSpns()
                            .forEach(spn -> {
                                // 6.2.17.8.b. Fail each PG query where any bin value received
@@ -840,8 +840,8 @@ public class Part02Step17Controller extends StepController {
                                }
                                // 6.2.17.8.c Fail all values where the corresponding value received in part 1 is greater
                                // than the part 2 value
-                               Spn partOneSpn = module.get(pg, 1).getSpn(spn.getId()).orElse(null);
-                               if (partOneSpn != null && partOneSpn.getRawValue() > spn.getRawValue()) {
+                               var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                               if (partOneValue > spn.getRawValue()) {
                                    addFailure("6.2.17.8.c - " + module.getModuleName()
                                            + " reported part 1 value greater than part 2 for "
                                            + spn);
