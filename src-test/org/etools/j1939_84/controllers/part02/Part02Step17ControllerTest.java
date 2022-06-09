@@ -107,7 +107,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
     private ReportFileModule reportFileModule;
 
      private static final int BUS_ADDR = 0xA5;
-    private static final int BUS_ADDR = 0xA5;
 
     @Mock
     private CommunicationsModule communicationsModule;
