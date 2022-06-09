@@ -718,8 +718,6 @@ public class Part02Step17Controller extends StepController {
                         + module.getModuleName() + " for PG "
                         + pg);
             } else {
-                var partOnePacket = get(packetForPg.getPgnDefinition().getId(), module.getSourceAddress(), 1);
-
                 packetForPg.getSpns()
                            .forEach(spn -> {
                                // 6.2.17.16.b. Fail any accumulator value received that is greater
@@ -728,15 +726,13 @@ public class Part02Step17Controller extends StepController {
                                    addFailure("6.2.17.16.b - Bin value received is greater than 0xFAFFFFFF(h) from "
                                            + module.getModuleName() + " for " + spn);
                                }
-                               // FIXME: this needs to implemented when the dataRepo is fixed
-                               // @Joe: just need to add a call and if adding the failure when the dataRepo bug is fixed
                                // 6.2.17.16.c. Fail PG query where any index value received is
                                // greater than FAh.
-                               var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(0.00);
-                               if (partOneValue > spn.getRawValue()) {
-                                   addFailure("6.2.17.22.d - Value received from " + module.getModuleName()
+                               var indexSpn = 12691;
+                               if (spn.getId() == indexSpn && spn.getRawValue() > 0xFAL) {
+                                   addFailure("6.2.17.16.c - Value received from " + module.getModuleName()
                                                       + " for " + spn
-                                                      + " was greater than part 1 value");
+                                                      + " was greater than 0xFA(h)");
                                }
 
                            });
