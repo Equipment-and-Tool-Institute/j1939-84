@@ -156,7 +156,7 @@ public abstract class StepController extends Controller {
             }
             return packets;
         } catch (Exception e) {
-            getLogger().log(ERROR, e.printStackTrace());
+            getLogger().log(ERROR, e.printStackTrace().toString());
         }
         return null;
     }
