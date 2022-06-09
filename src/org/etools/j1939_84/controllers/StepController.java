@@ -10,6 +10,7 @@ import static org.etools.j1939_84.J1939_84.isTesting;
 import static org.etools.j1939_84.controllers.Controller.Ending.STOPPED;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
+import static org.etools.j1939_84.controllers.ResultsListener.MessageType.ERROR;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.etools.j1939_84.model.Outcome.FAIL;
@@ -25,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
@@ -131,8 +133,12 @@ public abstract class StepController extends Controller {
     }
 
     protected <T extends GenericPacket> T get(Class<T> packetClass, int address, int partNumber) {
+        return get(getPg(packetClass), address, partNumber);
+    }
+
+    protected <T extends GenericPacket> T get(int pg, int address, int partNumber) {
         OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(address);
-        return obdModuleInformation == null ? null : obdModuleInformation.get(packetClass, partNumber);
+        return obdModuleInformation == null ? null : obdModuleInformation.get(pg, partNumber);
     }
 
     protected List<GenericPacket>
@@ -151,7 +157,7 @@ public abstract class StepController extends Controller {
             }
             return packets;
         } catch (Exception e) {
-            e.printStackTrace();
+            getLogger().log(Level.SEVERE, e.getMessage());
         }
         return null;
     }
@@ -408,5 +414,16 @@ public abstract class StepController extends Controller {
 
     protected int getEngineModelYear() {
         return getDataRepository().getVehicleInformation().getEngineModelYear();
+    }
+
+    // Helper method to get the pg for the class object
+    private static int getPg(Class<? extends GenericPacket> clazz) {
+        int pg = 0;
+        try {
+            pg = clazz.getField("PGN").getInt(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return pg;
     }
 }

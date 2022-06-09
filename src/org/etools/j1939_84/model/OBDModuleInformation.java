@@ -165,7 +165,11 @@ public class OBDModuleInformation implements Cloneable {
 
     @Deprecated
     public <T extends GenericPacket> T get(Class<T> clazz, int partNumber) {
-        return packetArchive.get(getPg(clazz), partNumber);
+        return get(getPg(clazz), partNumber);
+    }
+
+    public <T extends GenericPacket> T get(int pg, int partNumber) {
+        return packetArchive.get(pg, partNumber);
     }
 
     public <T extends GenericPacket> T getLatest(Class<T> clazz) {
