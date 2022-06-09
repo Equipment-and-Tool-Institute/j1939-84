@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
@@ -156,7 +157,7 @@ public abstract class StepController extends Controller {
             }
             return packets;
         } catch (Exception e) {
-            getLogger().log(ERROR, e.printStackTrace().toString());
+            getLogger().log(Level.SEVERE, e.getMessage());
         }
         return null;
     }
