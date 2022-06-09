@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
+import static org.etools.j1939tools.j1939.packets.ParsedPacket.NOT_AVAILABLE;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_100_HR;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_GREEN_HOUSE_100_HR;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_HYBRID_100_HR;
@@ -427,19 +428,16 @@ public class Part02Step17Controller extends StepController {
                                                     GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR,
                                                     GHG_STORED_HYBRID_CHG_DEPLETING_100_HR)
                                                                                            .stream()
-                                                                                           // 6.2.17.25.b. Record
-                                                                                           // each value for use in Part
-                                                                                           // 12.
+                                                                                           // 6.2.17.25.b. Record each
+                                                                                           // value for use in Part 12.
                                                                                            .peek(this::save)
                                                                                            .collect(Collectors.toList());
 
-        if (!ghgChgDepletingLifeTimePackets.isEmpty() || !hybridChargeOpsPackets.isEmpty()) {
-            // 6.2.17.25.c - List data received in a table using lifetime, stored 100 hr, active 100hr for columns, and
-            // categories for rows.
-            getListener().onResult(ghgTrackingModule.formatXevTable(Stream.concat(ghgChgDepletingLifeTimePackets.stream(),
-                                                                                  hybridChargeOpsPackets.stream())
-                                                                          .collect(Collectors.toList())));
-        }
+        // 6.2.17.25.c - List data received in a table using lifetime, stored 100 hr, active 100hr for columns, and
+        // categories for rows.
+        getListener().onResult(ghgTrackingModule.formatXevTable(Stream.concat(ghgChgDepletingLifeTimePackets.stream(),
+                                                                              hybridChargeOpsPackets.stream())
+                                                                      .collect(Collectors.toList())));
         for (int pg : List.of(GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR,
                               GHG_STORED_HYBRID_CHG_DEPLETING_100_HR)) {
             GenericPacket hybridPacketForPg = haveResponseWithPg(hybridChargeOpsPackets,
@@ -472,10 +470,11 @@ public class Part02Step17Controller extends StepController {
                                      }
                                      // 6.2.17.26.d - Fail all values where the corresponding value received in part 1
                                      // is greater than the part 2 value
-                                     var spnValue = partOnePacket.getSpn(spn.getId()).orElse(null);
+                                     var spnValue = partOnePacket.getSpn(spn.getId()).orElse(NOT_AVAILABLE);
                                      if (spnValue != null && spnValue.getRawValue() > spn.getRawValue()) {
-                                         addFailure("6.2.17.26.d - Value received from " + module.getModuleName() + " for " + spn
-                                                            + " was greater than part 1 value");
+                                         addFailure("6.2.17.26.d - Value received from " + module.getModuleName()
+                                                 + " for " + spn
+                                                 + " was greater than part 1 value");
                                      }
 
                                  });
@@ -492,10 +491,8 @@ public class Part02Step17Controller extends StepController {
                                                 GHG_TRACKING_LIFETIME_HYBRID_PG)
                                                                                 .stream()
                                                                                 // 6.2.17.19.b.
-                                                                                // Record
-                                                                                // each value for
-                                                                                // use
-                                                                                // in Part 12.
+                                                                                // Record each value for
+                                                                                // use in Part 12.
                                                                                 .peek(this::save)
                                                                                 .collect(Collectors.toList());
 
@@ -517,10 +514,10 @@ public class Part02Step17Controller extends StepController {
                            }
                            // 6.2.17.20.c - Fail all values where the corresponding value received in part 1 is greater
                            // than the part 2 value
-                           var spnValue = partOnePacket.getSpn(spn.getId()).orElse(null);
-                           if (spnValue != null && spnValue.getRawValue() > spn.getRawValue()) {
+                           var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                           if (partOneValue > spn.getRawValue()) {
                                addFailure("6.2.17.20.c - Value received from " + module.getModuleName() + " for " + spn
-                                                  + " was greater than part 1 value");
+                                       + " was greater than part 1 value");
                            }
 
                        });
@@ -585,7 +582,7 @@ public class Part02Step17Controller extends StepController {
                                      }
                                      // 6.2.17.22.d - Fail all values where the corresponding value received in part 1
                                      // is greater than the part 2 values. (where supported)
-                                     var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(0.00);
+                                     var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
                                      if (partOneValue > spn.getRawValue()) {
                                          addFailure("6.2.17.22.d - Value received from " + module.getModuleName()
                                                  + " for " + spn
@@ -625,13 +622,12 @@ public class Part02Step17Controller extends StepController {
                            }
                            // 6.2.17.12.c - Fail all values where the corresponding value received in part 1 is
                            // greater than the part 2 value (where supported)
-                           var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(0.00);
+                           var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
                            if (partOneValue > spn.getRawValue()) {
                                addFailure("6.2.17.22.d - Value received from " + module.getModuleName()
-                                                  + " for " + spn
-                                                  + " was greater than part 1 value");
+                                       + " for " + spn
+                                       + " was greater than part 1 value");
                            }
-
                        });
         }
 
@@ -731,8 +727,8 @@ public class Part02Step17Controller extends StepController {
                                var indexSpn = 12691;
                                if (spn.getId() == indexSpn && spn.getRawValue() > 0xFAL) {
                                    addFailure("6.2.17.16.c - Value received from " + module.getModuleName()
-                                                      + " for " + spn
-                                                      + " was greater than 0xFA(h)");
+                                           + " for " + spn
+                                           + " was greater than 0xFA(h)");
                                }
 
                            });
@@ -756,13 +752,11 @@ public class Part02Step17Controller extends StepController {
                                                                            // in Part 12.
                                                                            .peek(this::save)
                                                                            .collect(Collectors.toList());
-        if (!ghgPackets.isEmpty() || !ghg100HrPackets.isEmpty()) {
-            // 6.2.17.17.c. List data received in a table using lifetime, stored 100 hr,
-            // active 100hr for columns, and categories for rows.
-            getListener().onResult(ghgTrackingModule.formatTechTable(Stream.concat(ghgPackets.stream(),
-                                                                                   ghg100HrPackets.stream())
-                                                                           .collect(Collectors.toList())));
-        }
+        // 6.2.17.17.c. List data received in a table using lifetime, stored 100 hr,
+        // active 100hr for columns, and categories for rows.
+        getListener().onResult(ghgTrackingModule.formatTechTable(Stream.concat(ghgPackets.stream(),
+                                                                               ghg100HrPackets.stream())
+                                                                       .collect(Collectors.toList())));
 
         for (int pg : List.of(GHG_ACTIVE_GREEN_HOUSE_100_HR, GHG_STORED_GREEN_HOUSE_100_HR)) {
             GenericPacket packetForPg = haveResponseWithPg(ghg100HrPackets, pg);
@@ -827,10 +821,9 @@ public class Part02Step17Controller extends StepController {
                                                        // in Part 12.
                                                        .peek(this::save)
                                                        .collect(Collectors.toList());
-        if (!nOxPackets.isEmpty()) {
-            // 6.2.17.7.c. List data received in a table using bin numbers for rows.
-            getListener().onResult(nOxBinningModule.format(nOxPackets));
-        }
+        // FIXME:  @Joe this requirement needs to be removed
+        // 6.2.17.7.c. List data received in a table using bin numbers for rows.
+        getListener().onResult(nOxBinningModule.format(nOxPackets));
         for (int pg : nOxLifeTimeSps) {
             GenericPacket packetForPg = haveResponseWithPg(nOxPackets, pg);
             if (packetForPg == null) {
@@ -869,22 +862,15 @@ public class Part02Step17Controller extends StepController {
                                                                                     NOx_TRACKING_STORED_100_HOURS_SPs))
                                                                                                                        .stream()
                                                                                                                        // 6.2.17.9.b
-                                                                                                                       // -
-                                                                                                                       // Record
-                                                                                                                       // each
-                                                                                                                       // value
-                                                                                                                       // for
-                                                                                                                       // use
-                                                                                                                       // in
-                                                                                                                       // Part
-                                                                                                                       // 12.
+                                                                                                                       // - Record
+                                                                                                                       // each value
+                                                                                                                       // for use
+                                                                                                                       // in Part 12.
                                                                                                                        .peek(this::save)
                                                                                                                        .collect(Collectors.toList());
 
-        if (!nOx100HourPackets.isEmpty()) {
-            // 6.2.17.9.c - List data received in a table using bin numbers for rows.
-            getListener().onResult(nOxBinningModule.format(nOx100HourPackets));
-        }
+        // 6.2.17.9.c - List data received in a table using bin numbers for rows.
+        getListener().onResult(nOxBinningModule.format(nOx100HourPackets));
         for (int pg : CollectionUtils.join(NOx_TRACKING_ACTIVE_100_HOURS_SPs,
                                            NOx_TRACKING_STORED_100_HOURS_SPs)) {
             GenericPacket packetForPg = haveResponseWithPg(nOx100HourPackets, pg);
