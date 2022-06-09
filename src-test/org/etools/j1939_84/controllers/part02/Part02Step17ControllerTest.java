@@ -843,7 +843,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         assertEquals(expectedMsg, listener.getMessages());
     }
 
-//    @Test
+    @Test
     public void runWithUiInterruptionFailure() {
 
         var vehInfo = new VehicleInformation();
@@ -896,14 +896,13 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
 
         verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(0),
                                                                     any(),
-                                                                    eq(List.of(111)),
+                                                                    eq(List.of()),
                                                                     eq(List.of()),
                                                                     any(ResultsListener.class),
                                                                     eq(2),
                                                                     eq(17),
                                                                     eq("6.2.17.5.a"));
-        verify(broadcastValidator).collectAndReportNotAvailableSPNs(
-                                                                    eq(1),
+        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(1),
                                                                     eq(List.of()),
                                                                     eq(List.of(111, 444)),
                                                                     eq(List.of()),
@@ -924,18 +923,23 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
         verify(busService).readBus(eq(12), eq("6.2.17.1.c"));
         verify(busService, times(2)).collectNonOnRequestPGNs(eq(List.of(111, 111, 444)));
-        verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of(111)));
+        verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of(111, 444)));
 
         verify(tableA1Validator).reportMessages(any(ResultsListener.class), eq(obdModule0));
         verify(tableA1Validator).reportMessages(any(ResultsListener.class), eq(obdModule1));
         packets.forEach(packet -> {
+            verify(tableA1Validator).reportNotAvailableSPNs(eq(packet), any(ResultsListener.class), eq("6.2.17.2.a"));
+            verify(tableA1Validator).reportImplausibleSPNValues(eq(packet), any(ResultsListener.class), eq(true), eq("6.2.17.2.b"));
+            verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet), any(ResultsListener.class), eq("6.2.17.2.c"));
             verify(tableA1Validator).reportDuplicateSPNs(any(),
                                                          any(ResultsListener.class),
                                                          eq("6.2.17.2.d"));
+            verify(tableA1Validator).reportProvidedButNotSupportedSPNs(eq(packet),
+                                                               any(ResultsListener.class),
+                                                               eq("6.2.17.4.a"));
 
         });
-
         verify(tableA1Validator).reportDuplicateSPNs(any(),
                                                      any(ResultsListener.class),
                                                      eq("6.2.17.6.g"));
@@ -1141,7 +1145,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         obdModule0.set(packet1, 1);
         packets.add(packet1);
 
-        Packet requestPacket64257 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64257, 64257 >> 8, 64257 >> 16);
+//        Packet requestPacket64257 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64257, 64257 >> 8, 64257 >> 16);
 //        doReturn(requestPacket64257).when(j1939).createRequestPacket(64257, 0x00);
 
         GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
@@ -1159,7 +1163,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64257));
 
-        Packet requestPacket64255 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64255, 64255 >> 8, 64255 >> 16);
+//        Packet requestPacket64255 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64255, 64255 >> 8, 64255 >> 16);
 //        doReturn(requestPacket64255).when(j1939).createRequestPacket(64255, 0x00);
         GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
@@ -2386,7 +2390,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         assertEquals(expectedMsg, listener.getMessages());
     }
 
-    // @Test
+     @Test
     public void testRunObdPgnSupports12675Part1DiffPart2(){
         int supportedSpn = 12675;
         List<Integer> supportedSpns = List.of(supportedSpn);
@@ -2424,7 +2428,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         obdModule0.set(packet1, 1);
 
         Packet requestPacket64252 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64252, 64252 >> 8, 64252 >> 16);
-        doReturn(requestPacket64252).when(j1939).createRequestPacket(64252, 0x00);
+//        doReturn(requestPacket64252).when(j1939).createRequestPacket(64252, 0x00);
         GenericPacket response64252 = new GenericPacket(Packet.create(0xFAFC, 0x00,
         // @formatter:off
                                                                       0xA0, 0x8C, 0xA8, 0x52, 0xC2, 0x0E, 0xA8, 0x0E,
@@ -2433,12 +2437,12 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x07, 0x00, 0x08, 0x07));
         // @formatter:on
         obdModule0.set(response64252, 1);
-        when(communicationsModule.request(eq(64252),
-                                          eq(0),
-                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64252));
+//        when(communicationsModule.request(eq(64252),
+//                                          eq(0),
+//                                          any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64252));
 
         Packet requestPacket64258 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64258, 64258 >> 8, 64258 >> 16);
-        doReturn(requestPacket64258).when(j1939).createRequestPacket(64258, 0x00);
+//        doReturn(requestPacket64258).when(j1939).createRequestPacket(64258, 0x00);
         GenericPacket response64258 = new GenericPacket(Packet.create(0xFB02, 0x00,
         // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2455,7 +2459,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64258));
 
         Packet requestPacket64259 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64259, 64259 >> 8, 64259 >> 16);
-        doReturn(requestPacket64259).when(j1939).createRequestPacket(64259, 0x00);
+//        doReturn(requestPacket64259).when(j1939).createRequestPacket(64259, 0x00);
         GenericPacket response64259 = new GenericPacket(Packet.create(0xFB03, 0x00,
         // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2474,7 +2478,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64259));
 
         Packet requestPacket64260 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64260, 64260 >> 8, 64260 >> 16);
-        doReturn(requestPacket64260).when(j1939).createRequestPacket(64260, 0x00);
+//        doReturn(requestPacket64260).when(j1939).createRequestPacket(64260, 0x00);
         GenericPacket response64260 = new GenericPacket(Packet.create(0xFB04, 0,
         // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2493,7 +2497,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64260));
 
         Packet requestPacket64261 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64261, 64261 >> 8, 64261 >> 16);
-        doReturn(requestPacket64261).when(j1939).createRequestPacket(64261, 0x00);
+//        doReturn(requestPacket64261).when(j1939).createRequestPacket(64261, 0x00);
         GenericPacket response64261 = new GenericPacket(Packet.create(0xFB05, 0,
         // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2512,7 +2516,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64261));
 
         Packet requestPacket64262 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64262, 64262 >> 8, 64262 >> 16);
-        doReturn(requestPacket64262).when(j1939).createRequestPacket(64262, 0x00);
+//        doReturn(requestPacket64262).when(j1939).createRequestPacket(64262, 0x00);
         GenericPacket response64262 = new GenericPacket(Packet.create(0xFB06, 0,
         // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2543,7 +2547,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64262));
 
         Packet requestPacket64263 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64263, 64263 >> 8, 64263 >> 16);
-        doReturn(requestPacket64263).when(j1939).createRequestPacket(64263, 0x00);
+//        doReturn(requestPacket64263).when(j1939).createRequestPacket(64263, 0x00);
         GenericPacket response64263 = new GenericPacket(Packet.create(0xFB07, 0,
         // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2562,7 +2566,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64263));
 
         Packet requestPacket64264 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64264, 64264 >> 8, 64264 >> 16);
-        doReturn(requestPacket64264).when(j1939).createRequestPacket(64264, 0x00);
+//        doReturn(requestPacket64264).when(j1939).createRequestPacket(64264, 0x00);
         GenericPacket response64264 = new GenericPacket(Packet.create(0xFB08, 0x00,
         // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2581,7 +2585,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64264));
 
         Packet requestPacket64265 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64265, 64265 >> 8, 64265 >> 16);
-        doReturn(requestPacket64265).when(j1939).createRequestPacket(64265, 0x00);
+//        doReturn(requestPacket64265).when(j1939).createRequestPacket(64265, 0x00);
         GenericPacket response64265 = new GenericPacket(Packet.create(0xFB09, 0,
         // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2600,7 +2604,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64265));
 
         Packet requestPacket64266 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64266, 64266 >> 8, 64266 >> 16);
-        doReturn(requestPacket64266).when(j1939).createRequestPacket(64266, 0x00);
+//        doReturn(requestPacket64266).when(j1939).createRequestPacket(64266, 0x00);
         GenericPacket response64266 = new GenericPacket(Packet.create(0xFB0A, 0,
         // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2619,7 +2623,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64266));
 
         Packet requestPacket64267 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64267, 64267 >> 8, 64267 >> 16);
-        doReturn(requestPacket64267).when(j1939).createRequestPacket(64267, 0x00);
+//        doReturn(requestPacket64267).when(j1939).createRequestPacket(64267, 0x00);
         GenericPacket response64267 = new GenericPacket(Packet.create(0xFB0B, 0,
         // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2638,7 +2642,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64267));
 
         Packet requestPacket64268 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64268, 64268 >> 8, 64268 >> 16);
-        doReturn(requestPacket64268).when(j1939).createRequestPacket(64268, 0x00);
+//        doReturn(requestPacket64268).when(j1939).createRequestPacket(64268, 0x00);
         GenericPacket response64268 = new GenericPacket(Packet.create(0xFB0C, 0,
         // @formatter:off
                                                                       0x00, 0x84, 0x01, 0x84, 0x03, 0x84, 0x05, 0x84,
@@ -2653,7 +2657,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64268));
 
         Packet requestPacket64269 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64269, 64269 >> 8, 64269 >> 16);
-        doReturn(requestPacket64269).when(j1939).createRequestPacket(64269, 0x00);
+//        doReturn(requestPacket64269).when(j1939).createRequestPacket(64269, 0x00);
         GenericPacket response64269 = new GenericPacket(Packet.create(0xFB0D, 0,
         // @formatter:off
                                                                       0x20, 0x84, 0x21, 0x84, 0x23, 0x84, 0x25, 0x84,
@@ -2668,7 +2672,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64269));
 
         Packet requestPacket64270 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64270, 64270 >> 8, 64270 >> 16);
-        doReturn(requestPacket64270).when(j1939).createRequestPacket(64270, 0x00);
+//        doReturn(requestPacket64270).when(j1939).createRequestPacket(64270, 0x00);
         GenericPacket response64270 = new GenericPacket(Packet.create(0xFB0E, 0,
         // @formatter:off
                                                                       0x40, 0x84, 0x41, 0x84, 0x43, 0x84, 0x45, 0x84,
@@ -2683,7 +2687,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64270));
 
         Packet requestPacket64271 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64271, 64271 >> 8, 64271 >> 16);
-        doReturn(requestPacket64271).when(j1939).createRequestPacket(64271, 0x00);
+//        doReturn(requestPacket64271).when(j1939).createRequestPacket(64271, 0x00);
         GenericPacket response64271 = new GenericPacket(Packet.create(0xFB0F, 0,
         // @formatter:off
                                                                       0x60, 0x84, 0x61, 0x84, 0x63, 0x84, 0x65, 0x84,
@@ -2698,7 +2702,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64271));
 
         Packet requestPacket64272 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64272, 64272 >> 8, 64272 >> 16);
-        doReturn(requestPacket64272).when(j1939).createRequestPacket(64272, 0x00);
+//        doReturn(requestPacket64272).when(j1939).createRequestPacket(64272, 0x00);
         GenericPacket response64272 = new GenericPacket(Packet.create(0xFB10, 0,
         // @formatter:off
                                                                       0x80, 0x84, 0x00, 0x00, 0x81, 0x84, 0x00, 0x00,
@@ -2717,7 +2721,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64272));
 
         Packet requestPacket64273 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64273, 64273 >> 8, 64273 >> 16);
-        doReturn(requestPacket64273).when(j1939).createRequestPacket(64273, 0x00);
+//        doReturn(requestPacket64273).when(j1939).createRequestPacket(64273, 0x00);
         GenericPacket response64273 = new GenericPacket(Packet.create(0xFB11, 0,
         // @formatter:off
                                                                       0xA0, 0x84, 0x00, 0x00, 0xA1, 0x84, 0x00, 0x00,
@@ -2736,7 +2740,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64273));
 
         Packet requestPacket64274 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64274, 64274 >> 8, 64274 >> 16);
-        doReturn(requestPacket64274).when(j1939).createRequestPacket(64274, 0x00);
+//        doReturn(requestPacket64274).when(j1939).createRequestPacket(64274, 0x00);
         GenericPacket response64274 = new GenericPacket(Packet.create(0xFB12, 0,
         // @formatter:off
                                                                       0x00, 0x04, 0x01, 0x04, 0x03, 0x04, 0x05, 0x04,
@@ -2751,7 +2755,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64274));
 
         Packet requestPacket64275 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64275, 64275 >> 8, 64275 >> 16);
-        doReturn(requestPacket64275).when(j1939).createRequestPacket(64275, 0x00);
+//        doReturn(requestPacket64275).when(j1939).createRequestPacket(64275, 0x00);
         GenericPacket response64275 = new GenericPacket(Packet.create(0xFB13, 0,
         // @formatter:off
                                                                       0x20, 0x04, 0x21, 0x04, 0x23, 0x04, 0x25, 0x04,
@@ -2766,7 +2770,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64275));
 
         Packet requestPacket64276 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64276, 64276 >> 8, 64276 >> 16);
-        doReturn(requestPacket64276).when(j1939).createRequestPacket(64276, 0x00);
+//        doReturn(requestPacket64276).when(j1939).createRequestPacket(64276, 0x00);
         GenericPacket response64276 = new GenericPacket(Packet.create(0xFB14, 0,
         // @formatter:off
                                                                       0x40, 0x04, 0x41, 0x04, 0x43, 0x04, 0x45, 0x04,
@@ -2781,7 +2785,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64276));
 
         Packet requestPacket64277 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64277, 64277 >> 8, 64277 >> 16);
-        doReturn(requestPacket64277).when(j1939).createRequestPacket(64277, 0x00);
+//        doReturn(requestPacket64277).when(j1939).createRequestPacket(64277, 0x00);
         GenericPacket response64277 = new GenericPacket(Packet.create(0xFB15, 0,
         // @formatter:off
                                                                       0x60, 0x04, 0x61, 0x04, 0x63, 0x04, 0x65, 0x04,
@@ -2796,7 +2800,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64277));
 
         Packet requestPacket64278 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64278, 64278 >> 8, 64278 >> 16);
-        doReturn(requestPacket64278).when(j1939).createRequestPacket(64278, 0x00);
+//        doReturn(requestPacket64278).when(j1939).createRequestPacket(64278, 0x00);
         GenericPacket response64278 = new GenericPacket(Packet.create(0xFB16, 0,
         // @formatter:off
                                                                       0x80, 0x04, 0x00, 0x00, 0x81, 0x04, 0x00, 0x00,
@@ -2815,7 +2819,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64278));
 
         Packet requestPacket64279 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64279, 64279 >> 8, 64265 >> 16);
-        doReturn(requestPacket64279).when(j1939).createRequestPacket(64279, 0x00);
+//        doReturn(requestPacket64279).when(j1939).createRequestPacket(64279, 0x00);
         GenericPacket response64279 = new GenericPacket(Packet.create(0xFB17, 0,
         // @formatter:off
                                                                       0xA0, 0x04, 0x00, 0x00, 0xA1, 0x04, 0x00, 0x00,
@@ -2839,8 +2843,8 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
 
         Bus busMock = mock(Bus.class);
-        when(j1939.getBus()).thenReturn(busMock);
-        when(busMock.imposterDetected()).thenReturn(false);
+//        when(j1939.getBus()).thenReturn(busMock);
+//        when(busMock.imposterDetected()).thenReturn(false);
 
         dataRepository.putObdModule(obdModule0);
 
@@ -2848,6 +2852,15 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
 
         verify(broadcastValidator).getMaximumBroadcastPeriod();
         verify(broadcastValidator).buildPGNPacketsMap(any());
+        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(0),
+                                                                    any(),
+                                                                    any(),
+                                                                    any(),
+                                                                    any(ResultsListener.class),
+                                                                    eq(2),
+                                                                    eq(17),
+                                                                    eq("6.2.17.5.a"));
+
         verify(broadcastValidator).reportBroadcastPeriod(any(),
                                                          any(),
                                                          any(ResultsListener.class),
@@ -2862,6 +2875,18 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         verify(busService).getPGNsForDSRequest(any(), any());
 
         verify(tableA1Validator).reportMessages(any(ResultsListener.class), eq(obdModule0));
+        packets.forEach(packet -> {
+            verify(tableA1Validator).reportNotAvailableSPNs(eq(packet), any(ResultsListener.class), eq("6.2.17.2.a"));
+            verify(tableA1Validator).reportImplausibleSPNValues(eq(packet), any(ResultsListener.class), eq(true), eq("6.2.17.2.b"));
+            verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet), any(ResultsListener.class), eq("6.2.17.2.c"));
+            verify(tableA1Validator).reportProvidedButNotSupportedSPNs(eq(packet),
+                                                               any(ResultsListener.class),
+                                                               eq("6.2.17.4.a"));
+        });
+        verify(tableA1Validator).reportDuplicateSPNs(any(), any(ResultsListener.class), eq("6.2.17.2.d"));
+         verify(tableA1Validator).reportDuplicateSPNs(any(),
+                                              any(ResultsListener.class),
+                                              eq("6.2.17.6.g"));
 
         String expected = "10:15:30.0000 NOx Binning Lifetime Array from Engine #1 (0)" + NL;
         // @formatter:off

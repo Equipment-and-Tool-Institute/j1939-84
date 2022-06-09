@@ -407,7 +407,7 @@ public class Part02Step17Controller extends StepController {
                            // 6.2.17.14.c Fail all values where the corresponding value received is part 1 is
                            // greater than the part 2 value
                            var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                           if (partOneValue > spn.getRawValue()) {
+                           if (partOneValue > spn.getValue()) {
                                addFailure("6.2.17.14.c - Value received from " + module.getModuleName() + " for " + spn
                                                   + " was greater than part 1 value");
                            }
@@ -470,7 +470,7 @@ public class Part02Step17Controller extends StepController {
                                      // 6.2.17.26.d - Fail all values where the corresponding value received in part 1
                                      // is greater than the part 2 value
                                      var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                                     if (partOneValue > spn.getRawValue()) {
+                                     if (partOneValue > spn.getValue()) {
                                          addFailure("6.2.17.26.d - Value received from " + module.getModuleName() + " for " + spn
                                                             + " was greater than part 1 value");
                                      }
@@ -512,7 +512,7 @@ public class Part02Step17Controller extends StepController {
                            // 6.2.17.20.c - Fail all values where the corresponding value received in part 1 is greater
                            // than the part 2 value
                            var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                           if (partOneValue > spn.getRawValue()) {
+                           if (partOneValue > spn.getValue()) {
                                addFailure("6.2.17.20.c - Value received from " + module.getModuleName() + " for " + spn
                                        + " was greater than part 1 value");
                            }
@@ -580,7 +580,7 @@ public class Part02Step17Controller extends StepController {
                                      // 6.2.17.22.d - Fail all values where the corresponding value received in part 1
                                      // is greater than the part 2 values. (where supported)
                                      var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                                     if (partOneValue > spn.getRawValue()) {
+                                     if (partOneValue > spn.getValue()) {
                                          addFailure("6.2.17.22.d - Value received from " + module.getModuleName()
                                                  + " for " + spn
                                                  + " was greater than part 1 value");
@@ -620,7 +620,7 @@ public class Part02Step17Controller extends StepController {
                            // 6.2.17.12.c - Fail all values where the corresponding value received in part 1 is
                            // greater than the part 2 value (where supported)
                            var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                           if (partOneValue > spn.getRawValue()) {
+                           if (partOneValue > spn.getValue()) {
                                addFailure("6.2.17.22.d - Value received from " + module.getModuleName()
                                        + " for " + spn
                                        + " was greater than part 1 value");
@@ -781,7 +781,7 @@ public class Part02Step17Controller extends StepController {
                                            + module.getModuleName() + " for " + spn);
                                }
                                // 6.2.17.18.d. Fail PG query where any index value received is greater than FAh.
-                               if (spn.getId() == 12691 && spn.getValue() > 0xFAL) {
+                               if (spn.getId() == 12691 && spn.getRawValue() > 0xFAL) {
                                    addFailure("6.2.17.18.d - PG query index received was greater than FA(h) from "
                                            + module.getModuleName() + " for " + spn);
                                }
@@ -841,7 +841,7 @@ public class Part02Step17Controller extends StepController {
                                // 6.2.17.8.c Fail all values where the corresponding value received in part 1 is greater
                                // than the part 2 value
                                var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                               if (partOneValue > spn.getRawValue()) {
+                               if (partOneValue > spn.getValue()) {
                                    addFailure("6.2.17.8.c - " + module.getModuleName()
                                            + " reported part 1 value greater than part 2 for "
                                            + spn);
