@@ -170,16 +170,13 @@ public class Part02Step17Controller extends StepController {
                                   })
                                   .peek(p -> {
                                       // 6.2.17.3.a. Identify SPNs provided in the data stream that are listed
-                                      // in Table A-1 but not supported by any OBD ECU in its DM24 response.1`
+                                      // in Table A-1 but not supported by any OBD ECU in its DM24 response.
                                       // 6.2.17.4.a. Fail/warn per Table A-1 column, “Action if SPN provided
                                       // but not included in DM24”.
                                       tableA1Validator.reportProvidedButNotSupportedSPNs(p,
                                                                                          getListener(),
                                                                                          "6.2.17.4.a");
                                   })
-                                  // .peek(p -> {
-                                  // tableA1Validator.reportPacketIfNotReported(p, getListener(), false);
-                                  // })
                                   .collect(Collectors.toList());
         List<GenericPacket> onRequestPackets = new ArrayList<>();
 
@@ -309,11 +306,10 @@ public class Part02Step17Controller extends StepController {
                                                                                                           getListener(),
                                                                                                           "6.2.17.6.b"))
                                                                   .peek(p ->
-
                                                                   // 6.2.17.6.e. Fail/warn if any data received (that is
                                                                   // supported in DM24 by the subject OBD ECU) is not
                                                                   // valid for KOER conditions as per Table A-1, Minimum
-                                                                  // Data Stream Suppo
+                                                                  // Data Stream Support
                                                                   tableA1Validator.reportImplausibleSPNValues(p,
                                                                                                               getListener(),
                                                                                                               true,
@@ -336,27 +332,28 @@ public class Part02Step17Controller extends StepController {
 
             // 6.2.17.7 Actions4 for MY2022+ Diesel Engines
             if (getEngineModelYear() >= 2022 && getFuelType().isCompressionIgnition()) {
-                                       if (obdModule.supportsSpn(12675)) {
-                                           // 6.2.17.7 - 6.2.17.10
-                                           testSp12675(obdModule);
-                                       }
-                                       if (obdModule.supportsSpn(12730)) {
-                                           // 6.2.17.11 - 6.2.17.14
-                                           testSp12730(obdModule);
-                                       }
-                                       if (obdModule.supportsSpn(12691)) {
-                                           // 6.2.17.15 - 6.2.17.18
-                                           testSp12691(obdModule);
-                                       }
-                                       if (obdModule.supportsSpn(12797)) {
-                                           // 6.2.17.19 - 6.2.17.22
-                                           testSp12797(obdModule);
-                                       }
-                                       if (obdModule.supportsSpn(12783)) {
-                                           // 6.2.17.23 - 6.2.17.26
-                                           testSp12783(obdModule);
-                                       }
-                                   };
+                if (obdModule.supportsSpn(12675)) {
+                    // 6.2.17.7 - 6.2.17.10
+                    testSp12675(obdModule);
+                }
+                if (obdModule.supportsSpn(12730)) {
+                    // 6.2.17.11 - 6.2.17.14
+                    testSp12730(obdModule);
+                }
+                if (obdModule.supportsSpn(12691)) {
+                    // 6.2.17.15 - 6.2.17.18
+                    testSp12691(obdModule);
+                }
+                if (obdModule.supportsSpn(12797)) {
+                    // 6.2.17.19 - 6.2.17.22
+                    testSp12797(obdModule);
+                }
+                if (obdModule.supportsSpn(12783)) {
+                    // 6.2.17.23 - 6.2.17.26
+                    testSp12783(obdModule);
+                }
+            }
+            ;
         }// end obdModule
 
         // 6.2.17.6.g. Fail/warn per Table A-1, if two or more ECUs provide an SPN listed in Table A-1.
@@ -377,18 +374,18 @@ public class Part02Step17Controller extends StepController {
         // Engine off) for PG 64244 Hybrid Charge Depleting or Increasing Operation Lifetime Hours
         List<GenericPacket> ghgChgDepletingLifeTimePackets = requestPackets(module.getSourceAddress(),
                                                                             GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG)
-                                                                                                                           .stream()
-                                                                                                                           // 6.2.17.23.b.
-                                                                                                                           // Record
-                                                                                                                           // each
-                                                                                                                           // value
-                                                                                                                           // for
-                                                                                                                           // use
-                                                                                                                           // in
-                                                                                                                           // Part
-                                                                                                                           // 12.
-                                                                                                                           .peek(this::save)
-                                                                                                                           .collect(Collectors.toList());
+                                                                                                                          .stream()
+                                                                                                                          // 6.2.17.23.b.
+                                                                                                                          // Record
+                                                                                                                          // each
+                                                                                                                          // value
+                                                                                                                          // for
+                                                                                                                          // use
+                                                                                                                          // in
+                                                                                                                          // Part
+                                                                                                                          // 12.
+                                                                                                                          .peek(this::save)
+                                                                                                                          .collect(Collectors.toList());
 
         GenericPacket packetForPg = haveResponseWithPg(ghgChgDepletingLifeTimePackets,
                                                        GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG);
@@ -463,6 +460,7 @@ public class Part02Step17Controller extends StepController {
                             + pg);
                 }
             } else {
+                var partOnePacket = get(hybridPacketForPg.getPgnDefinition().getId(), module.getSourceAddress(), 1);
                 hybridPacketForPg.getSpns()
                                  .forEach(spn -> {
                                      /// 6.2.17.26.c - Fail each PG query where any active
@@ -472,10 +470,13 @@ public class Part02Step17Controller extends StepController {
                                          addFailure("6.2.17.26.c - Bin value received is greater than 0xFAFF(h) from "
                                                  + module.getModuleName() + " for " + spn);
                                      }
-                                     // FIXME: this needs to be implemented once the dataRepo is fixed
-                                     // @Joe: just need to add the call and warning when the dataRepo bug is fixed.
                                      // 6.2.17.26.d - Fail all values where the corresponding value received in part 1
                                      // is greater than the part 2 value
+                                     var spnValue = partOnePacket.getSpn(spn.getId()).orElse(null);
+                                     if (spnValue != null && spnValue.getRawValue() > spn.getRawValue()) {
+                                         addFailure("6.2.17.26.d - Value received from " + module.getModuleName() + " for " + spn
+                                                            + " was greater than part 1 value");
+                                     }
 
                                  });
             }
@@ -489,14 +490,14 @@ public class Part02Step17Controller extends StepController {
         // Lifetime Hours
         var ghgTrackingPackets = requestPackets(module.getSourceAddress(),
                                                 GHG_TRACKING_LIFETIME_HYBRID_PG)
-                                                                                 .stream()
-                                                                                 // 6.2.17.19.b.
-                                                                                 // Record
-                                                                                 // each value for
-                                                                                 // use
-                                                                                 // in Part 12.
-                                                                                 .peek(this::save)
-                                                                                 .collect(Collectors.toList());
+                                                                                .stream()
+                                                                                // 6.2.17.19.b.
+                                                                                // Record
+                                                                                // each value for
+                                                                                // use
+                                                                                // in Part 12.
+                                                                                .peek(this::save)
+                                                                                .collect(Collectors.toList());
 
         GenericPacket packetForPg = haveResponseWithPg(ghgTrackingPackets, GHG_TRACKING_LIFETIME_HYBRID_PG);
         if (packetForPg == null) {
@@ -505,6 +506,7 @@ public class Part02Step17Controller extends StepController {
                     + module.getModuleName() + " for PG "
                     + GHG_TRACKING_LIFETIME_HYBRID_PG);
         } else {
+            var partOnePacket = get(packetForPg.getPgnDefinition().getId(), module.getSourceAddress(), 1);
             packetForPg.getSpns()
                        .forEach(spn -> {
                            // 6.2.17.20.b - Fail PG query where any accumulator value
@@ -513,10 +515,13 @@ public class Part02Step17Controller extends StepController {
                                addFailure("6.2.17.20.b - Bin value received is greater than 0xFAFFFFFF(h) from "
                                        + module.getModuleName() + " for " + spn);
                            }
-                           // FIXME: need to add functionality when dataRepo is updated
-                           // @Joe: just need to add the call and warning when the dataRepo bug is fixed.
                            // 6.2.17.20.c - Fail all values where the corresponding value received in part 1 is greater
                            // than the part 2 value
+                           var spnValue = partOnePacket.getSpn(spn.getId()).orElse(null);
+                           if (spnValue != null && spnValue.getRawValue() > spn.getRawValue()) {
+                               addFailure("6.2.17.20.c - Value received from " + module.getModuleName() + " for " + spn
+                                                  + " was greater than part 1 value");
+                           }
 
                        });
         }
@@ -597,11 +602,11 @@ public class Part02Step17Controller extends StepController {
         // Tracking Lifetime Engine Run Time) for PG 64252 GHG Tracking Lifetime Array Data.
         var ghgTrackingLifetimePackets = requestPackets(module.getSourceAddress(),
                                                         GHG_TRACKING_LIFETIME_PG)
-                                                                                  .stream()
-                                                                                  // 6.2.17.11.b - Record each value
-                                                                                  // for use in Part 12.
-                                                                                  .peek(this::save)
-                                                                                  .collect(Collectors.toList());
+                                                                                 .stream()
+                                                                                 // 6.2.17.11.b - Record each value
+                                                                                 // for use in Part 12.
+                                                                                 .peek(this::save)
+                                                                                 .collect(Collectors.toList());
 
         GenericPacket packetForPg = haveResponseWithPg(ghgTrackingLifetimePackets, GHG_TRACKING_LIFETIME_PG);
         if (packetForPg == null) {
@@ -610,6 +615,7 @@ public class Part02Step17Controller extends StepController {
                     + module.getModuleName() + " for PG "
                     + GHG_TRACKING_LIFETIME_PG);
         } else {
+            var partOnePacket = get(packetForPg.getPgnDefinition().getId(), module.getSourceAddress(), 1);
             packetForPg.getSpns()
                        .forEach(spn -> {
                            // 6.2.17.12.b. Fail PG query where any bin value received is greater than FAFFh.
@@ -617,9 +623,15 @@ public class Part02Step17Controller extends StepController {
                                addFailure("6.2.17.12.b - Bin value received is greater than 0xFAFFFFFFL(h) from "
                                        + module.getModuleName() + " for " + spn);
                            }
-                           // FIXME: this needs to be implemented on the dataRepo bug is fixed
                            // 6.2.17.12.c - Fail all values where the corresponding value received in part 1 is
                            // greater than the part 2 value (where supported)
+                           var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(0.00);
+                           if (partOneValue > spn.getRawValue()) {
+                               addFailure("6.2.17.22.d - Value received from " + module.getModuleName()
+                                                  + " for " + spn
+                                                  + " was greater than part 1 value");
+                           }
+
                        });
         }
 
@@ -691,12 +703,12 @@ public class Part02Step17Controller extends StepController {
         // PG 64257 Green House Gas Lifetime Active Technology Tracking.
         var ghgPackets = requestPackets(module.getSourceAddress(),
                                         GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG)
-                                                                              .stream()
-                                                                              // 6.2.17.15.b. Record
-                                                                              // each value for use
-                                                                              // in Part 12.
-                                                                              .peek(this::save)
-                                                                              .collect(Collectors.toList());
+                                                                             .stream()
+                                                                             // 6.2.17.15.b. Record
+                                                                             // each value for use
+                                                                             // in Part 12.
+                                                                             .peek(this::save)
+                                                                             .collect(Collectors.toList());
 
         for (int pg : List.of(GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG)) {
             GenericPacket packetForPg = haveResponseWithPg(ghgPackets, pg);
@@ -706,6 +718,8 @@ public class Part02Step17Controller extends StepController {
                         + module.getModuleName() + " for PG "
                         + pg);
             } else {
+                var partOnePacket = get(packetForPg.getPgnDefinition().getId(), module.getSourceAddress(), 1);
+
                 packetForPg.getSpns()
                            .forEach(spn -> {
                                // 6.2.17.16.b. Fail any accumulator value received that is greater
@@ -718,6 +732,13 @@ public class Part02Step17Controller extends StepController {
                                // @Joe: just need to add a call and if adding the failure when the dataRepo bug is fixed
                                // 6.2.17.16.c. Fail PG query where any index value received is
                                // greater than FAh.
+                               var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(0.00);
+                               if (partOneValue > spn.getRawValue()) {
+                                   addFailure("6.2.17.22.d - Value received from " + module.getModuleName()
+                                                      + " for " + spn
+                                                      + " was greater than part 1 value");
+                               }
+
                            });
             }
         }
@@ -831,9 +852,6 @@ public class Part02Step17Controller extends StepController {
                                    addFailure("6.2.17.8.b - Bin value received is greater than 0xFAFFFFFF(h) form "
                                            + module.getModuleName() + " for " + spn);
                                }
-                               // FIXME: need to write the method to pull back the value by PF number. Currently have to
-                               // use a class name.
-                               // @Joe just need to write the method to handle this
                                // 6.2.17.8.c Fail all values where the corresponding value received in part 1 is greater
                                // than the part 2 value
                                Spn partOneSpn = module.get(pg, 1).getSpn(spn.getId()).orElse(null);

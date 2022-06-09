@@ -70,7 +70,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
- @Ignore
+// @Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class Part02Step17ControllerTest extends AbstractControllerTest {
 
@@ -110,11 +110,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
     @Mock
     private ReportFileModule reportFileModule;
 
-    private GhgTrackingModule ghgTrackingModule;
-
-    private NOxBinningModule nOxBinningModule;
-
-    private static final int BUS_ADDR = 0xA5;
+     private static final int BUS_ADDR = 0xA5;
 
     @Mock
     private CommunicationsModule communicationsModule;
@@ -144,8 +140,8 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(new TestDateTimeModule());
         J1939DaRepository j1939DaRepository = J1939DaRepository.getInstance();
         dataRepository = DataRepository.newInstance();
-        ghgTrackingModule = new GhgTrackingModule(DateTimeModule.getInstance());
-        nOxBinningModule = new NOxBinningModule((DateTimeModule.getInstance()));
+        GhgTrackingModule ghgTrackingModule = new GhgTrackingModule(DateTimeModule.getInstance());
+        NOxBinningModule nOxBinningModule = new NOxBinningModule((DateTimeModule.getInstance()));
 
         instance = new Part02Step17Controller(executor,
                                               bannerModule,
