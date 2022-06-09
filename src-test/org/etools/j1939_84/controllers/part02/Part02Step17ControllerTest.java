@@ -30,13 +30,11 @@ import java.util.stream.Stream;
 
 import org.etools.j1939_84.controllers.BroadcastValidator;
 import org.etools.j1939_84.controllers.BusService;
-import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TableA1Validator;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -64,13 +62,11 @@ import org.etools.j1939tools.modules.GhgTrackingModule;
 import org.etools.j1939tools.modules.NOxBinningModule;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-// @Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class Part02Step17ControllerTest extends AbstractControllerTest {
 
@@ -125,11 +121,11 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         GenericPacket mock = mock(GenericPacket.class);
 
         Spn spn = mock(Spn.class);
-//        when(spn.getId()).thenReturn(spnId);
-//        if (isNotAvailable != null) {
-//            when(spn.isNotAvailable()).thenReturn(isNotAvailable);
-//        }
-//        when(mock.getSpns()).thenReturn(List.of(spn));
+        when(spn.getId()).thenReturn(spnId);
+        if (isNotAvailable != null) {
+            when(spn.isNotAvailable()).thenReturn(isNotAvailable);
+        }
+        when(mock.getSpns()).thenReturn(List.of(spn));
 
         return mock;
     }
@@ -214,7 +210,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         packets.add(packet1);
         obdModule0.set(packet1, 1);
 
-        List<GenericPacket> responses = new ArrayList<>();
         GenericPacket response64244 = new GenericPacket(Packet.create(0xFAF4,
                                                                       0x00,
                                                                       // @formatter:off
@@ -223,7 +218,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x5C, 0x9D, 0x01, 0x00, 0x1E, 0x42, 0x00, 0x00,
                                                                       0x7A, 0xDF, 0x01, 0x00));
         // @formatter:on
-        responses.add(response64244);
         obdModule0.set(response64244, 1);
 
         GenericPacket response64245 = new GenericPacket(Packet.create(0xFAF5, 0x00,
@@ -231,7 +225,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x00, 0x23, 0x00, 0x1C, 0x00, 0x07, 0x56, 0x05,
                                                                       0x56, 0x01, 0xCC, 0x1F, 0x16, 0x05, 0xE2, 0x24));
         // @formatter:on
-        responses.add(response64245);
         obdModule0.set(response64245, 1);
 
         GenericPacket response64246 = new GenericPacket(Packet.create(0xFAF6, 0x00,
@@ -239,7 +232,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x40, 0x1A, 0x00, 0x15, 0x40, 0x05, 0x00, 0x04,
                                                                       0x00, 0x01, 0xD9, 0x17, 0xD1, 0x03, 0xAA, 0x1B));
         // @formatter:on
-        responses.add(response64246);
         obdModule0.set(response64246, 1);
 
         when(communicationsModule.request(eq(64244),
@@ -258,18 +250,11 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         packetMap.put(33333, Map.of(0, List.of(packet3)));
         when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
 
-//        when(busService.collectNonOnRequestPGNs(supportedSpns)).thenReturn(List.of(11111, 22222, 33333));
-
-//        Bus busMock = mock(Bus.class);
-        // when(j1939.getBus()).thenReturn(busMock);
-        // when(busMock.imposterDetected()).thenReturn(false);
-        // when(busMock.send(eq(request64253))).thenAnswer(answer -> busMock.send(response64253));
-
         runTest();
 
         verify(broadcastValidator).getMaximumBroadcastPeriod();
         verify(broadcastValidator).buildPGNPacketsMap(packets);
-        verify(broadcastValidator).reportBroadcastPeriod(any(),//eq(packetMap),
+        verify(broadcastValidator).reportBroadcastPeriod(any(),
                                                          any(),
                                                          any(ResultsListener.class),
                                                          eq(2),
@@ -304,9 +289,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         verify(tableA1Validator, atLeastOnce()).reportProvidedButNotSupportedSPNs(any(),
                                                                                   any(ResultsListener.class),
                                                                                   eq("6.2.17.4.a"));
-//        verify(tableA1Validator, atLeastOnce()).reportPacketIfNotReported(any(),
-//                                                                          any(ResultsListener.class),
-//                                                                          eq(false));
+
         verify(tableA1Validator, atLeastOnce()).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
 
         String expected = "10:15:30.0000 GHG Tracking Arrays from Engine #1 (0)" + NL;
@@ -409,15 +392,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         //@formatter:on
         obdModule1.set(packet1, 1);
 
-//        when(broadcastValidator.collectAndReportNotAvailableSPNs(any(),
-//                                                                 anyInt(),
-//                                                                 any(),
-//                                                                 eq(0),
-//                                                                 any(ResultsListener.class),
-//                                                                 eq(2),
-//                                                                 eq(17),
-//                                                                 eq("6.2.17.6.a")))
-//                                                                                   .thenReturn(List.of("111"));
         OBDModuleInformation obdModule17 = new OBDModuleInformation(17);
         dataRepository.putObdModule(obdModule17);
         DM24SPNSupportPacket packet17 = DM24SPNSupportPacket.create(17,
@@ -451,9 +425,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         GenericPacket packet6 = packet(666, true);
         dsPackets.add(packet6);
         when(busService.dsRequest(eq(66666), eq(0), any())).thenReturn(Stream.of(packet6));
-
-        GenericPacket packet2 = packet(222, false);
-//        when(busService.globalRequest(eq(22222), any())).thenReturn(Stream.of(packet2));
 
         runTest();
 
@@ -625,7 +596,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         assertEquals(expectedMsg, listener.getMessages());
     }
 
-//    @Test
+    @Test
     public void runWithUnExpectedToolSaMsg() {
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2025);
@@ -641,7 +612,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         // 222 - Global Request with value
         // 555 - Global Request no response
         // 666 - Global Request with n/a
-        List<Integer> supportedSpns = Arrays.asList(111, 222, 333, 444, 555, 666, 777, 888, 999);
+        List<Integer> supportedSpns = List.of(111, 222, 333, 444, 555, 666, 777, 888, 999);
         List<SupportedSPN> supportedSPNList = spns(111, 222, 333, 444, 555, 666, 777, 888, 999);
 
         OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
@@ -699,15 +670,15 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         verify(busService, atLeastOnce()).getPGNsForDSRequest(any(), any());
 
         verify(broadcastValidator).getMaximumBroadcastPeriod();
-        verify(broadcastValidator).buildPGNPacketsMap(any());
+        verify(broadcastValidator).buildPGNPacketsMap(eq(packets));
         verify(broadcastValidator).reportBroadcastPeriod(any(),
                                                          eq(List.of(111, 111, 222, 333, 444, 555, 666, 777, 888, 999)),
                                                          any(ResultsListener.class),
                                                          eq(2),
                                                          eq(17));
         verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(0),
+                                                                    eq(packets),
                                                                     eq(List.of()),
-                                                                    eq(List.of(111)),
                                                                     eq(onRequestPgns),
                                                                     any(ResultsListener.class),
                                                                     eq(2),
@@ -732,39 +703,25 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                     eq("6.2.17.5.a"));
 
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-//        verify(busService.getPGNsForDSRequest(any(), any()));
-//        verify(busService,
-//               times(3)).collectNonOnRequestPGNs(eq(List.of(111, 111, 222, 333, 444, 555, 666, 777, 888, 999)));
-        verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
+        verify(busService, times(2)).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns));
-        verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
 
         verify(tableA1Validator).reportMessages(any(ResultsListener.class), eq(obdModule0));
         verify(tableA1Validator).reportMessages(any(ResultsListener.class), eq(obdModule1));
         verify(tableA1Validator).reportMessages(any(ResultsListener.class), eq(obdModule17));
-
-//        packets.forEach(packet -> {
-//            verify(tableA1Validator).reportNotAvailableSPNs(eq(packet), any(ResultsListener.class), eq("6.2.17.2.a"));
-//            verify(tableA1Validator).reportImplausibleSPNValues(eq(packet),
-//                                                                any(ResultsListener.class),
-//                                                                eq(true),
-//                                                                eq("6.2.17.2.b"));
-//            verify(tableA1Validator).reportImplausibleSPNValues(eq(packet),
-//                                                                any(ResultsListener.class),
-//                                                                eq(true),
-//                                                                eq("6.2.17.2.b"));
-//            verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet),
-//                                                                    any(ResultsListener.class),
-//                                                                    eq("6.2.17.2.c"));
-
-//            verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet),
-//                                                                    any(ResultsListener.class),
-//                                                                    eq("6.2.17.2.c"));
-//            verify(tableA1Validator).reportProvidedButNotSupportedSPNs(eq(packet),
-//                                                                       any(ResultsListener.class),
-//                                                                       eq("6.2.17.4.a"));
-//            verify(tableA1Validator).reportPacketIfNotReported(eq(packet), any(ResultsListener.class), eq(false));
-//        });
+        packets.forEach(packet -> {
+            verify(tableA1Validator).reportNotAvailableSPNs(eq(packet), any(ResultsListener.class), eq("6.2.17.2.a"));
+            verify(tableA1Validator).reportImplausibleSPNValues(eq(packet),
+                                                                any(ResultsListener.class),
+                                                                eq(true),
+                                                                eq("6.2.17.2.b"));
+            verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet),
+                                                                    any(ResultsListener.class),
+                                                                    eq("6.2.17.2.c"));
+            verify(tableA1Validator).reportProvidedButNotSupportedSPNs(eq(packet),
+                                                                       any(ResultsListener.class),
+                                                                       eq("6.2.17.4.a"));
+        });
         verify(tableA1Validator, atLeastOnce()).reportDuplicateSPNs(any(),
                                                                     any(ResultsListener.class),
                                                                     eq("6.2.17.2.d"));
@@ -781,7 +738,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         assertEquals(expectedMsg, listener.getMessages());
     }
 
-//    @Test
+    @Test
     public void testInterruptedExceptionToForcePacketStreamClose() {
         // SPNs
         // 111 - Broadcast with value
@@ -824,7 +781,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(broadcastValidator).getMaximumBroadcastPeriod();
-        verify(broadcastValidator).buildPGNPacketsMap(List.of());
+        verify(broadcastValidator).buildPGNPacketsMap(eq(packets));
         verify(broadcastValidator).reportBroadcastPeriod(any(),
                                                          any(),
                                                          any(ResultsListener.class),
@@ -832,8 +789,16 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                          eq(17));
 
         verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(0),
+                                                                    any(),
                                                                     eq(List.of()),
-                                                                    eq(List.of(111)),
+                                                                    eq(List.of()),
+                                                                    any(ResultsListener.class),
+                                                                    eq(2),
+                                                                    eq(17),
+                                                                    eq("6.2.17.5.a"));
+        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(1),
+                                                                    any(),
+                                                                    eq(List.of(111, 444)),
                                                                     eq(List.of()),
                                                                     any(ResultsListener.class),
                                                                     eq(2),
@@ -846,32 +811,32 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                     .collectNonOnRequestPGNs(eq(List.of(111, 111, 444)));
 
         verify(busService).getPGNsForDSRequest(List.of(), List.of(111, 444));
+        verify(busService).getPGNsForDSRequest(List.of(), List.of());
 
-        verify(tableA1Validator).reportMessages(any(ResultsListener.class), any());
-//        packets.forEach(packet -> {
-//            verify(tableA1Validator).reportNotAvailableSPNs(eq(packet),
-//                                                            any(ResultsListener.class),
-//                                                            eq("6.2.17.2.a"));
-//            verify(tableA1Validator).reportImplausibleSPNValues(eq(packet),
-//                                                                any(ResultsListener.class),
-//                                                                eq(true),
-//                                                                eq("6.2.17.2.b"));
-//            verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet),
-//                                                                    any(ResultsListener.class),
-//                                                                    eq("6.2.17.2.c"));
-//            verify(tableA1Validator).reportProvidedButNotSupportedSPNs(eq(packet),
-//                                                                       any(ResultsListener.class),
-//                                                                       eq("6.2.17.4.a"));
+        verify(tableA1Validator, atLeastOnce()).reportMessages(any(ResultsListener.class), any());
+        packets.forEach(packet -> {
+            verify(tableA1Validator).reportNotAvailableSPNs(eq(packet),
+                                                            any(ResultsListener.class),
+                                                            eq("6.2.17.2.a"));
+            verify(tableA1Validator).reportImplausibleSPNValues(eq(packet),
+                                                                any(ResultsListener.class),
+                                                                eq(true),
+                                                                eq("6.2.17.2.b"));
+            verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet),
+                                                                    any(ResultsListener.class),
+                                                                    eq("6.2.17.2.c"));
+            verify(tableA1Validator).reportProvidedButNotSupportedSPNs(eq(packet),
+                                                                       any(ResultsListener.class),
+                                                                       eq("6.2.17.4.a"));
 //            verify(tableA1Validator).reportPacketIfNotReported(any(GenericPacket.class),
 //                                                               any(ResultsListener.class),
 //                                                               eq(false));
 //
-//            verify(tableA1Validator).reportDuplicateSPNs(any(),
-//                                                         any(ResultsListener.class),
-//                                                         eq("6.2.17.2.d"));
-//        });
-
-        verify(tableA1Validator).reportPacketIfNotReported(any(), any(ResultsListener.class), eq(false));
+            verify(tableA1Validator).reportDuplicateSPNs(any(),
+                                                         any(ResultsListener.class),
+                                                         eq("6.2.17.2.d"));
+        });
+//        verify(tableA1Validator).reportPacketIfNotReported(any(), any(ResultsListener.class), eq(false));
         verify(tableA1Validator).reportDuplicateSPNs(any(),
                                                      any(ResultsListener.class),
                                                      eq("6.2.17.6.g"));
@@ -986,7 +951,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         assertEquals(expectedMsg, listener.getMessages());
     }
 
-//    @Test
+    @Test
     public void testRunObdPgnSupports12797() throws BusException {
         final int supportedSpn = 12797;
         List<Integer> supportedSpns = List.of(supportedSpn);
@@ -1023,14 +988,12 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
 
-        List<GenericPacket> responses = new ArrayList<>();
         GenericPacket response64241 = new GenericPacket(Packet.create(0xFAF1,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF0, 0x6A, 0x67, 0x01, 0xD8, 0x79, 0x43, 0x01,
                                                                       0x1C, 0x9F, 0xE9, 0x00));
         // @formatter:on
-        responses.add(response64241);
         obdModule0.set(response64241, 1);
         when(communicationsModule.request(eq(64241),
                                           eq(0),
@@ -1047,7 +1010,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0xFF,
                                                                       0xFF));
         // @formatter:on
-        responses.add(response64242);
         obdModule0.set(response64242, 1);
         when(communicationsModule.request(eq(64242),
                                           eq(0),
@@ -1064,7 +1026,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0xFF,
                                                                       0xFF));
         // @formatter:on
-        responses.add(response64243);
         obdModule0.set(response64243, 1);
         when(communicationsModule.request(eq(64243),
                                           eq(0),
@@ -1077,8 +1038,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         packetMap.put(33333, Map.of(0, List.of(packet3)));
         when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
 
-        when(busService.collectNonOnRequestPGNs(supportedSpns))
-                                                               .thenReturn(List.of(11111, 22222, 33333));
 
         runTest();
 
@@ -1089,16 +1048,16 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                          any(ResultsListener.class),
                                                          eq(2),
                                                          eq(17));
-//        packets.forEach(packet -> {
-//            verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(packet.getSourceAddress()),
-//                                                                        any(),
-//                                                                        eq(Collections.emptyList()),
-//                                                                        eq(Collections.emptyList()),
-//                                                                        any(ResultsListener.class),
-//                                                                        eq(2),
-//                                                                        eq(17),
-//                                                                        eq("6.2.17.5.a"));
-//        });
+        packets.forEach(packet -> {
+            verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(packet.getSourceAddress()),
+                                                                        any(),
+                                                                        eq(Collections.emptyList()),
+                                                                        eq(Collections.emptyList()),
+                                                                        any(ResultsListener.class),
+                                                                        eq(2),
+                                                                        eq(17),
+                                                                        eq("6.2.17.5.a"));
+        });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
         verify(busService).readBus(12, "6.2.17.1.c");
         verify(busService).collectNonOnRequestPGNs(supportedSpns.subList(1, supportedSpns.size()));
@@ -1107,6 +1066,11 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
 
         verify(tableA1Validator, atLeastOnce()).reportMessages(any(ResultsListener.class), eq(obdModule0));
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(), any(ResultsListener.class), eq("6.2.17.2.a"));
+        verify(tableA1Validator, atLeastOnce()).reportImplausibleSPNValues(any(), any(ResultsListener.class), eq(true), eq("6.2.17.2.b"));
+        verify(tableA1Validator, atLeastOnce()).reportNonObdModuleProvidedSPNs(any(), any(ResultsListener.class), eq("6.2.17.2.c"));
+        verify(tableA1Validator, atLeastOnce()).reportProvidedButNotSupportedSPNs(any(),
+                                                           any(ResultsListener.class),
+                                                           eq("6.2.17.4.a"));
         verify(tableA1Validator, atLeastOnce()).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
 
         String expected = "10:15:30.0000 GHG Tracking Arrays from Engine #1 (0)" + NL;
@@ -1139,10 +1103,9 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         assertEquals(expectedMsg, listener.getMessages());
     }
 
-//    @Test
+    @Test
     public void testRunObdPgnSupports12691WarningTwentrysixEighteenA() throws BusException {
         final int supportedSpn = 12691;
-        List<Integer> supportedSpns = Arrays.asList(supportedSpn);
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2025);
@@ -1159,25 +1122,26 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         obdModule0.set(DM24SPNSupportPacket.create(0x00,
                                                    supportedSPN),
                        1);
-        dataRepository.putObdModule(obdModule0);
 
         when(broadcastValidator.getMaximumBroadcastPeriod()).thenReturn(3);
 
         List<GenericPacket> packets = new ArrayList<>();
 
         GenericPacket packet3 = packet(supportedSpn, false, 0);
+        obdModule0.set(packet3, 1);
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
+        obdModule0.set(packet8, 1);
         packets.add(packet8);
         when(busService.readBus(eq(12), eq("6.2.17.1.c"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
+        obdModule0.set(packet1, 1);
         packets.add(packet1);
 
         Packet requestPacket64257 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64257, 64257 >> 8, 64257 >> 16);
         doReturn(requestPacket64257).when(j1939).createRequestPacket(64257, 0x00);
 
-        List<GenericPacket> responses = new ArrayList<>();
         GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
@@ -1188,7 +1152,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0xF7, 0x4B, 0xC3, 0x00, 0x00, 0x90, 0xFB, 0x00, 0x00,
                                                                       0xF5, 0xD0, 0xB3, 0x00, 0x00, 0x38, 0xED, 0x02, 0x00));
         // @formatter:on
-        responses.add(response64257);
+        obdModule0.set(response64257, 1);
         when(communicationsModule.request(eq(64257),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64257));
@@ -1205,7 +1169,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0xF7, 0xDC, 0x00, 0x74, 0x22,
                                                                       0xF5, 0x91, 0x02, 0x24, 0x02));
         // @formatter:on
-        responses.add(response64255);
+        obdModule0.set(response64255, 1);
         when(communicationsModule.request(eq(64255),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of());
@@ -1222,7 +1186,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,
                                                                       0x00, 0x00, 0x00, 0x00, 0x00));
         // @formatter:on
-        responses.add(response64256);
         when(communicationsModule.request(eq(64256),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64256));
@@ -1232,21 +1195,14 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         packetMap.put(33333, Map.of(0, List.of(packet3)));
         when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
 
-        Bus busMock = mock(Bus.class);
-        // when(j1939.getBus()).thenReturn(busMock);
-        // when(busMock.imposterDetected()).thenReturn(false);
 
         runTest();
 
         verify(broadcastValidator).getMaximumBroadcastPeriod();
         verify(broadcastValidator).buildPGNPacketsMap(any());
-//        verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
-//                                                         any(),
-//                                                         any(ResultsListener.class),
-//                                                         eq(2),
-//                                                         eq(17));
+
         packets.forEach(packet -> {
-            verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(packet.getSourceAddress()),
+            verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(0),
                                                                         any(),
                                                                         eq(Collections.emptyList()),
                                                                         eq(Collections.emptyList()),
@@ -1280,9 +1236,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         verify(tableA1Validator, atLeastOnce()).reportProvidedButNotSupportedSPNs(any(),
                                                                                   any(ResultsListener.class),
                                                                                   any());
-//        verify(tableA1Validator, atLeastOnce()).reportPacketIfNotReported(any(),
-//                                                                          any(ResultsListener.class),
-//                                                                          eq(false));
         verify(tableA1Validator, atLeastOnce()).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
 
         // @formatter:off
@@ -1408,10 +1361,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         packetMap.put(33333, Map.of(0, List.of(packet3)));
         when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
 
-        Bus busMock = mock(Bus.class);
-        // when(j1939.getBus()).thenReturn(busMock);
-        // when(busMock.imposterDetected()).thenReturn(false);
-
         runTest();
 
         verify(broadcastValidator).getMaximumBroadcastPeriod();
@@ -1437,22 +1386,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
         verify(busService).getPGNsForDSRequest(any(), any());
 
-//        verify(mockListener).addOutcome(eq(instance.getPartNumber()),
-//                                        eq(instance.getStepNumber()),
-//                                        eq(Outcome.FAIL),
-//                                        eq("6.2.17.18.g - Active 100 hr array value received was greater than zero.  Engine #1 (0) returned a value of 128910.0"));
-//        verify(mockListener).addOutcome(eq(instance.getPartNumber()),
-//                                        eq(instance.getStepNumber()),
-//                                        eq(Outcome.FAIL),
-//                                        eq("6.2.17.18.g - Active 100 hr array value received was greater than zero.  Engine #1 (0) returned a value of 3340.5"));
-//        verify(mockListener).addOutcome(eq(instance.getPartNumber()),
-//                                        eq(instance.getStepNumber()),
-//                                        eq(Outcome.FAIL),
-//                                        eq("6.2.17.18.g - Active 100 hr array value received was greater than zero.  Engine #1 (0) returned a value of 4290.0"));
-//        verify(mockListener).addOutcome(eq(instance.getPartNumber()),
-//                                        eq(instance.getStepNumber()),
-//                                        eq(Outcome.FAIL),
-//                                        eq("6.2.17.18.g - Active 100 hr array value received was greater than zero.  Engine #1 (0) returned a value of 6656.25"));
 
         verify(tableA1Validator, atLeastOnce()).reportMessages(any(ResultsListener.class), eq(obdModule0));
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -1468,9 +1401,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         verify(tableA1Validator, atLeastOnce()).reportProvidedButNotSupportedSPNs(any(),
                                                                                   any(ResultsListener.class),
                                                                                   any());
-//        verify(tableA1Validator, atLeastOnce()).reportPacketIfNotReported(any(),
-//                                                                          any(ResultsListener.class),
-//                                                                          eq(false));
         verify(tableA1Validator, atLeastOnce()).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
 
         // @formatter:off
@@ -1531,7 +1461,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         obdModule0.set(DM24SPNSupportPacket.create(0,
                                                    supportedSPN),
                        1);
-        dataRepository.putObdModule(obdModule0);
 
         when(broadcastValidator.getMaximumBroadcastPeriod()).thenReturn(3);
 
@@ -1539,12 +1468,15 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
 
         GenericPacket packet3 = packet(supportedSpn, false, 0);
         packets.add(packet3);
+        obdModule0.set(packet3, 1);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
+        obdModule0.set(packet8, 1);
         when(busService.readBus(eq(12), eq("6.2.17.1.c"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
+        obdModule0.set(packet1, 1);
 
         List<GenericPacket> responses = new ArrayList<>();
         GenericPacket response64241 = new GenericPacket(Packet.create(0xFAF1,
@@ -1554,6 +1486,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x1C, 0x9F, 0xE9, 0x00));
         // @formatter:on
         responses.add(response64241);
+        obdModule0.set(response64241, 1);
         when(communicationsModule.request(eq(64241),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64241));
@@ -1570,6 +1503,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0xFF));
         // @formatter:on
         responses.add(response64242);
+        obdModule0.set(response64242, 1);
         when(communicationsModule.request(eq(64242),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64242));
@@ -1586,20 +1520,17 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0xFF));
         // @formatter:on
         responses.add(response64243);
+        obdModule0.set(response64243, 1);
         when(communicationsModule.request(eq(64243),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64243));
+
+        dataRepository.putObdModule(obdModule0);
 
         Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = new HashMap<>();
         packetMap.put(11111, Map.of(0, List.of(packet1)));
         packetMap.put(33333, Map.of(0, List.of(packet3)));
         when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
-
-        // when(busService.collectNonOnRequestPGNs(supportedSpns)).thenReturn(List.of(11111, 22222, 33333));
-
-        Bus busMock = mock(Bus.class);
-        // when(j1939.getBus()).thenReturn(busMock);
-        // when(busMock.imposterDetected()).thenReturn(false);
 
         runTest();
 
@@ -1704,9 +1635,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         Spn spn = new Spn(spnId, Lookup.getSpnName(spnId), slot, bytes);
 
         when(mock.getSourceAddress()).thenReturn(sourceAddress);
-        // if (isNotAvailable != null) {
-        // when(spn.isNotAvailable()).thenReturn(isNotAvailable);
-        // }
         when(mock.getSpns()).thenReturn(List.of(spn));
         PgnDefinition pgnDefinition = mock(PgnDefinition.class);
         when(pgnDefinition.getId()).thenReturn(spnId);
@@ -1737,7 +1665,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         // 222 - Global Request with value
         // 555 - Global Request no response
         // 666 - Global Request with n/a
-        List<Integer> supportedSpns = List.of(12730, 222, 333, 444, 555, 666, 777, 888, 999);
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2022);
@@ -1754,7 +1681,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         obdModule0.set(DM24SPNSupportPacket.create(0,
                                                    supportedSPN),
                        1);
-        dataRepository.putObdModule(obdModule0);
 
         when(broadcastValidator.getMaximumBroadcastPeriod()).thenReturn(3);
 
@@ -1762,11 +1688,14 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
 
         GenericPacket packet3 = packet(333, true, 0);
         packets.add(packet3);
+        obdModule0.set(packet3, 1);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
+        obdModule0.set(packet8, 1);
 //        when(busService.readBus(eq(12), eq("6.1.26.1.c"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(12730, false, 0);
+        obdModule0.set(packet1, 1);
         packets.add(packet1);
 
         Packet requestPacket64252 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64252, 64252 >> 8, 64252 >> 16);
@@ -1782,6 +1711,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64252));
         packets.add(response64252);
+        obdModule0.set(response64252, 1);
 
         Packet requestPacket64253 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64253, 64253 >> 8, 64253 >> 16);
 //        doReturn(requestPacket64253).when(j1939).createRequestPacket(64253, 0x00);
@@ -1798,6 +1728,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64253));
         packets.add(response64253);
+        obdModule0.set(response64253, 1);
 
         Packet requestPacket64254 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64254, 64254 >> 8, 64254 >> 16);
 //        doReturn(requestPacket64254).when(j1939).createRequestPacket(eq(64254), eq(0x00));
@@ -1812,13 +1743,17 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> List.of(response64254));
         packets.add(response64254);
+        obdModule0.set(response64254, 1);
+
+        dataRepository.putObdModule(obdModule0);
 
         Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = new HashMap<>();
         packetMap.put(11111, Map.of(0, List.of(packet1)));
         packetMap.put(33333, Map.of(0, List.of(packet3)));
-        when(broadcastValidator.buildPGNPacketsMap(any())).thenReturn(packetMap);
+//        when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
 
-        when(busService.collectNonOnRequestPGNs(any())).thenReturn(List.of(11111, 22222, 33333));
+//        when(busService.collectNonOnRequestPGNs(supportedSpns))
+//                                                               .thenReturn(List.of(11111, 22222, 33333));
 
         Bus busMock = mock(Bus.class);
 //        when(j1939.getBus()).thenReturn(busMock);
@@ -2398,7 +2333,7 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
         expected += NL;
 
-        // assertEquals(expected, listener.getResults());
+//         assertEquals(expected, listener.getResults());
 
         String expectedMsg = "";
         expectedMsg += "Requesting NOx Tracking Valid NOx Lifetime Fuel Consumption Bins (NTFCV) from Engine #1 (0)"
@@ -2478,7 +2413,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
         packets.add(packet1);
         obdModule0.set(packet1, 1);
 
-        List<GenericPacket> responses = new ArrayList<>();
         Packet requestPacket64252 = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, 64252, 64252 >> 8, 64252 >> 16);
         doReturn(requestPacket64252).when(j1939).createRequestPacket(64252, 0x00);
         GenericPacket response64252 = new GenericPacket(Packet.create(0xFAFC, 0x00,
@@ -2488,7 +2422,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x84, 0x03, 0x10, 0x00, 0x28, 0x23, 0x9C, 0x00,
                                                                       0x07, 0x00, 0x08, 0x07));
         // @formatter:on
-        responses.add(response64252);
         obdModule0.set(response64252, 1);
         when(communicationsModule.request(eq(64252),
                                           eq(0),
@@ -2506,7 +2439,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                                                       0x00, 0x00, 0x00, 0x00));
         // @formatter:on
-        responses.add(response64258);
         obdModule0.set(response64258, 1);
         when(communicationsModule.request(eq(64258),
                                           eq(0),
@@ -2526,7 +2458,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                                                       0x00, 0x00, 0x00, 0x00));
         // @formatter:on
-        responses.add(response64259);
         obdModule0.set(response64259, 1);
         when(communicationsModule.request(eq(64259),
                                           eq(0),
@@ -2546,7 +2477,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                                                       0x00, 0x00, 0x00, 0x00));
         // @formatter:on
-        responses.add(response64260);
         obdModule0.set(response64260, 1);
         when(communicationsModule.request(eq(64260),
                                           eq(0),
@@ -2566,7 +2496,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                                                       0x00, 0x00, 0x00, 0x00));
         // @formatter:on
-        responses.add(response64261);
         obdModule0.set(response64261, 1);
         when(communicationsModule.request(eq(64261),
                                           eq(0),
@@ -2586,7 +2515,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                                                       0x00, 0x00, 0x00, 0x00));
         // @formatter:on
-        responses.add(response64262);
         GenericPacket response64262PartOne = new GenericPacket(Packet.create(0xFB06, 0,
         // @formatter:off
                                                                              0xAA, 0xC0, 0x0D, 0xB0, 0x00, 0x00, 0x00, 0x00,
@@ -2618,7 +2546,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                                                       0x00, 0x00, 0x00, 0x00));
         // @formatter:on
-        responses.add(response64263);
         obdModule0.set(response64263, 1);
         when(communicationsModule.request(eq(64263),
                                           eq(0),
@@ -2638,7 +2565,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                                                       0x00, 0x00, 0x00, 0x00));
         // @formatter:on
-        responses.add(response64264);
         obdModule0.set(response64264, 1);
         when(communicationsModule.request(eq(64264),
                                           eq(0),
@@ -2658,7 +2584,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                                                       0x00, 0x00, 0x00, 0x00));
         // @formatter:on
-        responses.add(response64265);
         obdModule0.set(response64265, 1);
         when(communicationsModule.request(eq(64265),
                                           eq(0),
@@ -2678,7 +2603,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                                                       0x00, 0x00, 0x00, 0x00));
         // @formatter:on
-        responses.add(response64266);
         obdModule0.set(response64266, 1);
         when(communicationsModule.request(eq(64266),
                                           eq(0),
@@ -2698,7 +2622,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x00, 0x00, 0x00, 0x00, 0xBD, 0x00, 0x00, 0x00,
                                                                       0x00, 0x00, 0x00, 0x00));
         // @formatter:on
-        responses.add(response64267);
         obdModule0.set(response64267, 1);
         when(communicationsModule.request(eq(64267),
                                           eq(0),
@@ -2714,7 +2637,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x17, 0x84, 0x19, 0x84, 0x1B, 0x84, 0x1D, 0x84,
                                                                       0x1F, 0x84));
         // @formatter:on
-        responses.add(response64268);
         obdModule0.set(response64268, 1);
         when(communicationsModule.request(eq(64268),
                                           eq(0),
@@ -2730,7 +2652,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x37, 0x84, 0x39, 0x84, 0x3B, 0x84, 0x3D, 0x84,
                                                                       0x3F, 0x8));
         // @formatter:on
-        responses.add(response64269);
         obdModule0.set(response64269, 1);
         when(communicationsModule.request(eq(64269),
                                           eq(0),
@@ -2746,7 +2667,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x57, 0x84, 0x59, 0x84, 0x5B, 0x84, 0x5D, 0x84,
                                                                       0x5F, 0x84));
         // @formatter:on
-        responses.add(response64270);
         obdModule0.set(response64270, 1);
         when(communicationsModule.request(eq(64270),
                                           eq(0),
@@ -2762,7 +2682,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x77, 0x84, 0x79, 0x84, 0x7B, 0x84, 0x7D, 0x84,
                                                                       0x7F, 0x84));
         // @formatter:on
-        responses.add(response64271);
         obdModule0.set(response64271, 1);
         when(communicationsModule.request(eq(64271),
                                           eq(0),
@@ -2782,7 +2701,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x9B, 0x84, 0x00, 0x00, 0x9D, 0x84, 0x00, 0x00,
                                                                       0x9F, 0x84, 0x00, 0x00));
         // @formatter:on
-        responses.add(response64272);
         obdModule0.set(response64272, 1);
         when(communicationsModule.request(eq(64272),
                                           eq(0),
@@ -2802,7 +2720,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0xBB, 0x84, 0x00, 0x00, 0xBD, 0x84, 0x00, 0x00,
                                                                       0xBF, 0x84, 0x00, 0x00));
         // @formatter:on
-        responses.add(response64273);
         obdModule0.set(response64273, 1);
         when(communicationsModule.request(eq(64273),
                                           eq(0),
@@ -2818,7 +2735,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x17, 0x04, 0x19, 0x04, 0x1B, 0x04, 0x1D, 0x04,
                                                                       0x1F, 0x04));
         // @formatter:on
-        responses.add(response64274);
         obdModule0.set(response64274, 1);
         when(communicationsModule.request(eq(64274),
                                           eq(0),
@@ -2834,7 +2750,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x37, 0x04, 0x39, 0x04, 0x3B, 0x04, 0x3D, 0x04,
                                                                       0x3F, 0x04));
         // @formatter:on
-        responses.add(response64275);
         obdModule0.set(response64275, 1);
         when(communicationsModule.request(eq(64275),
                                           eq(0),
@@ -2850,7 +2765,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x57, 0x04, 0x59, 0x04, 0x5B, 0x04, 0x5D, 0x04,
                                                                       0x5F, 0x04));
         // @formatter:on
-        responses.add(response64276);
         obdModule0.set(response64276, 1);
         when(communicationsModule.request(eq(64276),
                                           eq(0),
@@ -2866,7 +2780,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x77, 0x04, 0x79, 0x04, 0x7B, 0x04, 0x7D, 0x04,
                                                                       0x7F, 0x04));
         // @formatter:on
-        responses.add(response64277);
         obdModule0.set(response64277, 1);
         when(communicationsModule.request(eq(64277),
                                           eq(0),
@@ -2886,7 +2799,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0x9B, 0x04, 0x00, 0x00, 0x9D, 0x04, 0x00, 0x00,
                                                                       0x9F, 0x04, 0x00, 0x00));
         // @formatter:on
-        responses.add(response64278);
         obdModule0.set(response64278, 1);
         when(communicationsModule.request(eq(64278),
                                           eq(0),
@@ -2906,7 +2818,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
                                                                       0xBB, 0x04, 0x00, 0x00, 0xBD, 0x04, 0x00, 0x00,
                                                                       0xBF, 0x04, 0x00, 0x00));
         // @formatter:on
-        responses.add(response64279);
         obdModule0.set(response64279, 1);
         when(communicationsModule.request(eq(64279),
                                           eq(0),
@@ -2941,24 +2852,6 @@ public class Part02Step17ControllerTest extends AbstractControllerTest {
 
         verify(tableA1Validator).reportMessages(any(ResultsListener.class), eq(obdModule0));
 
-//        verify(tableA1Validator).reportMessages(any(ResultsListener.class), obdModule0);
-//        verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
-//                                                                       any(ResultsListener.class),
-//                                                                       any());
-//        verify(tableA1Validator, atLeastOnce()).reportImplausibleSPNValues(any(),
-//                                                                           any(ResultsListener.class),
-//                                                                           eq(true),
-//                                                                           any());
-//        verify(tableA1Validator, atLeastOnce()).reportNonObdModuleProvidedSPNs(any(),
-//                                                                               any(ResultsListener.class),
-//                                                                               any());
-//        verify(tableA1Validator, atLeastOnce()).reportProvidedButNotSupportedSPNs(any(),
-//                                                                                  any(ResultsListener.class),
-//                                                                                  any());
-//        verify(tableA1Validator, atLeastOnce()).reportPacketIfNotReported(any(),
-//                                                                          any(ResultsListener.class),
-//                                                                          eq(false));
-//        verify(tableA1Validator, atLeastOnce()).reportDuplicateSPNs(any(), any(ResultsListener.class), eq("6.2.17.2.d"));
 
         String expected = "10:15:30.0000 NOx Binning Lifetime Array from Engine #1 (0)" + NL;
         // @formatter:off

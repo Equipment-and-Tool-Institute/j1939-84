@@ -354,7 +354,6 @@ public class Part02Step17Controller extends StepController {
                     testSp12783(obdModule);
                 }
             }
-            ;
         }// end obdModule
 
         // 6.2.17.6.g. Fail/warn per Table A-1, if two or more ECUs provide an SPN listed in Table A-1.
@@ -407,10 +406,10 @@ public class Part02Step17Controller extends StepController {
                            }
                            // 6.2.17.14.c Fail all values where the corresponding value received is part 1 is
                            // greater than the part 2 value
-                           var spnValue = partOnePacket.getSpn(spn.getId()).orElse(null);
-                           if (spnValue != null && spnValue.getRawValue() > spn.getRawValue()) {
+                           var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                           if (partOneValue > spn.getRawValue()) {
                                addFailure("6.2.17.14.c - Value received from " + module.getModuleName() + " for " + spn
-                                       + " was greater than part 1 value");
+                                                  + " was greater than part 1 value");
                            }
 
                        });
@@ -470,13 +469,11 @@ public class Part02Step17Controller extends StepController {
                                      }
                                      // 6.2.17.26.d - Fail all values where the corresponding value received in part 1
                                      // is greater than the part 2 value
-                                     var spnValue = partOnePacket.getSpn(spn.getId()).orElse(NOT_AVAILABLE);
-                                     if (spnValue != null && spnValue.getRawValue() > spn.getRawValue()) {
-                                         addFailure("6.2.17.26.d - Value received from " + module.getModuleName()
-                                                 + " for " + spn
-                                                 + " was greater than part 1 value");
+                                     var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                                     if (partOneValue > spn.getRawValue()) {
+                                         addFailure("6.2.17.26.d - Value received from " + module.getModuleName() + " for " + spn
+                                                            + " was greater than part 1 value");
                                      }
-
                                  });
             }
         }
