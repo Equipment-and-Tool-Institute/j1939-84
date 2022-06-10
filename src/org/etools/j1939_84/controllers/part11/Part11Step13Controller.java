@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part11;
 
+import static org.etools.j1939tools.j1939.packets.ParsedPacket.NOT_AVAILABLE;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_100_HR;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_GREEN_HOUSE_100_HR;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_HYBRID_100_HR;
@@ -134,6 +135,7 @@ public class Part11Step13Controller extends StepController {
                     + module.getModuleName() + " for PG "
                     + GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG);
         } else {
+            var partTwoPacket = get(packetForPg.getPgnDefinition().getId(), module.getSourceAddress(), 2);
             packetForPg.getSpns()
                        .forEach(spn -> {
                            // 6.11.13.18.b - Fail PG query where any accumulator value
@@ -142,10 +144,14 @@ public class Part11Step13Controller extends StepController {
                                addFailure("6.11.13.18.b - Bin value received is greater than 0xFAFFFFFF(h) from "
                                        + module.getModuleName() + " for " + spn);
                            }
-                           // FIXME: this needs to implemented once the datarepo is fixed
-                           // @Joe - just need to add the call once the dataRepo bug is fix
                            // 6.11.13.18.c Fail all values where the corresponding value received is part 2 is
                            // greater than the part 11 value
+                           var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                           if (partTwoValue > spn.getValue()) {
+                               addFailure("6.11.13.18.c - Value received from " + module.getModuleName()
+                                                  + " for " + spn
+                                                  + "  in part 2 was greater than part 11 value");
+                           }
 
                        });
         }
@@ -188,6 +194,7 @@ public class Part11Step13Controller extends StepController {
                             + pg);
                 }
             } else {
+                var partTwoPacket = get(packetForPg.getPgnDefinition().getId(), module.getSourceAddress(), 2);
                 hybridPacketForPg.getSpns()
                                  .forEach(spn -> {
                                      // 6.11.13.20.c - Fail each PG query where any active technology label or
@@ -197,11 +204,15 @@ public class Part11Step13Controller extends StepController {
                                                  + module.getModuleName() + " for "
                                                  + spn);
                                      }
-                                     // FIXME: this needs to be implemented once the dataRepo is fixed
-                                     // @Joe: just need to add the call and warning when the dataRepo bug is fixed.
-                                     /// 6.11.13.20.d - Fail all values where the corresponding value received in part 1
-                                     // is greater than the part 2 value. (Where supported)
-                                     // }
+                                     // 6.11.13.20.d -  Fail all values where the corresponding value received in part 2
+                                     // is greater than the part 11 value. (Where supported)
+                                     var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                                     if (partTwoValue > spn.getValue()) {
+                                         addFailure("6.11.13.20.d - Value received from " + module.getModuleName()
+                                                            + " for " + spn
+                                                            + " in part 2 was greater than part 11 value");
+                                     }
+
                                  });
             }
         }
@@ -222,6 +233,7 @@ public class Part11Step13Controller extends StepController {
                     + module.getModuleName() + " for PG "
                     + GHG_TRACKING_LIFETIME_HYBRID_PG);
         } else {
+            var partTwoPacket = get(packetForPg.getPgnDefinition().getId(), module.getSourceAddress(), 2);
             packetForPg.getSpns()
                        .forEach(spn -> {
                            // 6.11.13.14.b - Fail PG query where any accumulator value
@@ -230,10 +242,14 @@ public class Part11Step13Controller extends StepController {
                                addFailure("6.11.13.14.b - Bin value received is greater than 0xFAFFFFFF(h) from "
                                        + module.getModuleName() + " for " + spn);
                            }
-                           // FIXME: need to add functionality when dataRepo is updated
-                           // @Joe: just need to add the call and warning when the dataRepo bug is fixed.
-                           // 6.11.13.14.c - Fail all values where the corresponding value received in part 1 is greater
-                           // than the part 2 value
+                           // 6.11.13.14.c - Fail all values where the corresponding value received in part 2 is
+                           // greater than the part 11 value.
+                           var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                           if (partTwoValue > spn.getValue()) {
+                               addFailure("6.11.13.14.c - Value received from " + module.getModuleName()
+                                                  + " for " + spn
+                                                  + " in part 2 was greater than part 11 value");
+                           }
 
                        });
         }
@@ -275,6 +291,7 @@ public class Part11Step13Controller extends StepController {
                             + pg);
                 }
             } else {
+                var partTwoPacket = get(packetForPg.getPgnDefinition().getId(), module.getSourceAddress(), 2);
                 hybridPacketForPg.getSpns()
                                  .forEach(spn -> {
                                      // 6.11.13.16.c - Fail each PG query where any accumulator
@@ -283,10 +300,14 @@ public class Part11Step13Controller extends StepController {
                                          addFailure("6.11.13.16.c - Bin value received is greater than 0xFAFF(h) from "
                                                  + module.getModuleName() + " for " + spn);
                                      }
-                                     // FIXME: needs to be implemented once the dataRepo is fixed
-                                     // @Joe - I just need to fill in the call once I fix the dataRepo bug I found
-                                     // 6.11.13.16.d - Fail all values where the corresponding value received in part 11
-                                     // is greater than the part 2 values. (where supported)
+                                     // 6.11.13.16.d - Fail all values where the corresponding value received in part 2
+                                     // is greater than the part 11 value. (Where supported)
+                                     var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                                     if (partTwoValue > spn.getValue()) {
+                                         addFailure("6.11.13.16.d - Value received from " + module.getModuleName()
+                                                            + " for " + spn
+                                                            + " in part 2 was greater than part 11 value");
+                                     }
                                  });
             }
         }
@@ -307,6 +328,7 @@ public class Part11Step13Controller extends StepController {
                     + module.getModuleName() + " for PG "
                     + GHG_TRACKING_LIFETIME_PG);
         } else {
+            var partTwoPacket = get(packetForPg.getPgnDefinition().getId(), module.getSourceAddress(), 2);
             packetForPg.getSpns()
                        .forEach(spn -> {
                            // 6.11.13.6.b. Fail PG query where any bin value received is greater than FAFFh.
@@ -314,9 +336,14 @@ public class Part11Step13Controller extends StepController {
                                addFailure("6.11.13.6.b - Bin value received is greater than 0xFAFF(h) from "
                                        + module.getModuleName() + " for " + spn);
                            }
-                           // FIXME: this needs to be implemented on the dataRepo bug is fixed
                            // 6.11.13.6.c - Fail all values where the corresponding value received in part 2 is
                            // greater than the part 11 value
+                           var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                           if (partTwoValue > spn.getValue()) {
+                               addFailure("6.11.13.6.c - Value received from " + module.getModuleName()
+                                                  + " for " + spn
+                                                  + " in part 2 was greater than part 11 value");
+                           }
                            // 6.11.13.6.d - Fail if lifetime engine hours < 600 seconds
                            if (spn.getId() == 12730 && spn.getValue() < 600) {
                                addFailure("6.11.13.6.d - Lifetime engine hours received is < 600 seconds from "
@@ -377,7 +404,7 @@ public class Part11Step13Controller extends StepController {
                                              spn.getId() == 12715 ||
                                              spn.getId() == 12730) {
                                          if (spn.getValue() < 600) {
-                                             addWarning("6.11.13.8.g - Active Tech engine hours received is < 600 seconds from "
+                                             addWarning("6.11.13.8.e - Active Tech engine hours received is < 600 seconds from "
                                                      + module.getModuleName() + " for " + spn);
                                          }
                                      }
@@ -431,7 +458,8 @@ public class Part11Step13Controller extends StepController {
                            // 6.11.13.10.c. Fail PG query where any index value received is
                            // greater than FAh.
                            if (spn.getSlot().getId() == 12691 && spn.getRawValue() > 0xFA) {
-
+                               addFailure("6.11.13.10.c - Index value received is greater than 0xFA(h) from "
+                               + module.getModuleName() + " for " + spn);
                            }
                        });
         }
@@ -471,6 +499,7 @@ public class Part11Step13Controller extends StepController {
                             + pg);
                 }
             } else {
+                var partTwoPacket = get(packetForPg.getPgnDefinition().getId(), module.getSourceAddress(), 2);
                 greenHousePacketForPg.getSpns()
                                      .forEach(spn -> {
                                          // FIXME:
@@ -494,29 +523,39 @@ public class Part11Step13Controller extends StepController {
                                          // the same as the number of labels received for the lifetime technology
                                          // response.
 
+                                         // FIXME:
                                          // @Joe values defined in email will update when I get that processed
                                          // 6.11.13.12.e. Fail each response where the set of labels received is not a
                                          // subset of the set of labels received for the lifetime’ active technology
                                          // response.
 
-                                         // @Joe, will implement once dataRepo bug is fixed. (f-h)
-                                         // 6.11.13.12.f. Fail all values where the corresponding value received in part
-                                         // 2 is greater than the part 12 value. (Where supported)
+                                         // 6.11.13.12.f. Fail all values where the corresponding value received in
+                                         // part 2 is greater than the part 11 value. (Where supported)
+                                         var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                                         if (partTwoValue > spn.getValue()) {
+                                             addFailure("6.11.13.12.f - Value received from " + module.getModuleName()
+                                                                + " for " + spn
+                                                                + " in part 2 was greater than part 11 value");
+                                         }
 
+                                         // FIXME:
                                          // @Joe, will implement once dataRepo bug is fixed. (f-h)
                                          // 6.11.13.12.g. Warn if any stored 100 hrs active technology engine hours >
                                          // part 2 value + 600 seconds (where supported)
-
+//                                         if(spn.getId() == 12698 || spn.getId() == 12696 || spn.getId() == 12693) {
+//                                                 if( spn.getValue() > partTwoValue + 600) {
+//                                                     addWarning("6.11.13.12.g - Active Tech time received is > part 2 value + 600 seconds");
+//                                                 }
+//                                         }
+                                         // FIXME:
                                          // 6.11.13.12.h. Warn for any active 100 hr active technology vehicle distance
                                          // => 0.25 km. (Where supported).
-                                         if (spn.getId() == 12699 ||
-                                                 spn.getId() == 12696 ||
-                                                 spn.getId() == 12693) {
-                                             if (spn.getValue() >= 0.25) {
-                                                 addWarning("6.11.13.12.h - Active Tech vehicle distance received is => 0.25km from "
-                                                         + module.getModuleName() + " for " + spn);
-                                             }
-                                         }
+//                                         if (spn.getId() == 12699 || spn.getId() == 12696 ||spn.getId() == 12693) {
+//                                             if (spn.getValue() >= 0.25) {
+//                                                 addWarning("6.11.13.12.h - Active Tech vehicle distance received is => 0.25km from "
+//                                                         + module.getModuleName() + " for " + spn);
+//                                             }
+//                                         }
                                      });
             }
         }
@@ -539,6 +578,7 @@ public class Part11Step13Controller extends StepController {
                         + module.getModuleName() + " for PG "
                         + pg);
             } else {
+                var partTwoPacket = get(packetForPg.getPgnDefinition().getId(), module.getSourceAddress(), 2);
                 packetForPg.getSpns()
                            .forEach(spn -> {
                                // 6.11.13.2.b. Fail each PG query where any bin value received
@@ -547,14 +587,28 @@ public class Part11Step13Controller extends StepController {
                                    addFailure("6.11.13.2.b - Bin value received is greater than 0xFAFFFFFF(h) from "
                                            + module.getModuleName() + " for " + spn);
                                }
-                               // FIXME X3: need to write the method to pull back the value by PF number. Currently have
-                               // to use a class name. These next 3 will be fixed when the dataRepo has been corrected.
-                               // @Joe just need to write the method to handle this and implement the call
                                // 6.11.13.2.c Fail all values where the corresponding value received in part 2 is
-                               // greater
-                               // than the part 12 value
+                               // greater than the part 12 value.
+                               var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                               if (partTwoValue > spn.getValue()) {
+                                   addFailure("6.11.13.2.c - Value received from " + module.getModuleName()
+                                                      + " for " + spn
+                                                      + " in part 2 was greater than part 11 value");
+                               }
+                               //FIXME
                                // 6.11.13.2.d Fail if lifetime engine hours < part 2 value + 600 seconds
+//                               if(spn.getId() == 12698 || spn.getId() == 12696 || spn.getId() == 12693) {
+//                                   if( spn.getValue() > partTwoValue + 600) {
+//                                       addWarning("6.11.13.2.d - Active Tech time received is > part 2 value + 600 seconds");
+//                                   }
+//                               }
+                               //FIXME
                                // 6.11.13.2.e Fail if lifetime engine activity engine hours < part 2 value + 600 seconds
+//                               if(spn.getId() == 12698 || spn.getId() == 12696 || spn.getId() == 12693) {
+//                                   if( spn.getValue() > partTwoValue + 600) {
+//                                       addWarning("6.11.13.12.g - Active Tech time received is > part 2 value + 600 seconds");
+//                                   }
+//                               }
                            });
             }
         }
@@ -588,6 +642,7 @@ public class Part11Step13Controller extends StepController {
                             + pg);
                 }
             } else {
+                var partTwoPacket = get(packetForPg.getPgnDefinition().getId(), module.getSourceAddress(), 2);
                 packetForPg.getSpns().forEach(spn -> {
                     if (spn.getRawValue() > 0xFAFFFFFFL) {
                         // 6.11.13.4.c. Fail each PG query where any bin value received is greater than FAFFh. (Use
@@ -596,10 +651,14 @@ public class Part11Step13Controller extends StepController {
                                 + module.getModuleName() + " for " + spn);
 
                     }
-                    // @FIXME
-                    // @Joe - dataRepo bug problem
                     // 6.11.13.4.d. Fail all values where the corresponding value received in part 2 is greater than the
                     // part 11 value (where supported)
+                    var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                    if (partTwoValue > spn.getValue()) {
+                        addFailure("6.11.13.4.d - Value received from " + module.getModuleName()
+                                           + " for " + spn
+                                           + " in part 2 was greater than part 11 value");
+                    }
 
                     // 6.11.13.4.e. Fail if active 100 hrs engine hours < 600 seconds (where supported)
                     if (spn.getId() == 12699 ||

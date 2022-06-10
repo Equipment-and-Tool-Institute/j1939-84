@@ -323,7 +323,7 @@ public class J1939Test {
 
     /*
      * This tests real data that has previously failed. The individual BAM
-     * packets tae longer than 200 ms, so if we wait for one before trying to
+     * packets take longer than 200 ms, so if we wait for one before trying to
      * read the next, we will miss some. Each BAM message completes at a
      * different time.
      */
@@ -503,18 +503,26 @@ public class J1939Test {
             }).start();
             long start = System.currentTimeMillis();
             new Thread(() -> {
-                Packet p = stream.findFirst().get();
-                System.err.format("exists:  %d%n", System.currentTimeMillis() - start);
-                String timeString = p.toTimeString();
-                System.err.format("complete:  %d  %s%n", System.currentTimeMillis() - start, timeString);
+                try {
+                    Packet p = stream.findFirst().get();
+                    System.err.format("exists:  %d%n", System.currentTimeMillis() - start);
+                    String timeString = p.toTimeString();
+                    System.err.format("complete:  %d  %s%n", System.currentTimeMillis() - start, timeString);
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
             }).start();
             RequestResult<ComponentIdentificationPacket> response = j1939.requestGlobal("test",
                                                                                         ComponentIdentificationPacket.class,
                                                                                         NOOP);
-            List<Either<ComponentIdentificationPacket, AcknowledgmentPacket>> l;
-            l = response.getEither();
-            System.err.format("### post %d%n", System.currentTimeMillis() - start);
-            assertEquals(4, l.size());
+            System.err.format("### post %d%n  %s%n",
+                              System.currentTimeMillis() - start,
+                              response.getEither()
+                                      .stream()
+                                      .map(r -> r.left.map(ComponentIdentificationPacket::getPacket))
+                                      .collect(Collectors.toList()));
+            // only 3 complete messages are receive.
+            assertEquals(3, response.getEither().size());
         }
     }
 

@@ -186,7 +186,7 @@ public class CommunicationsModule extends FunctionalModule {
                                                                 ControlByte controlByte,
                                                                 int spn,
                                                                 int fmi) {
-        String title = "Global DM22 Request";
+        String title = "DM22";
         var requestPacket = DM22IndividualClearPacket.createRequest(getJ1939().getBus().getAddress(),
                                                                     GLOBAL_ADDR,
                                                                     controlByte,

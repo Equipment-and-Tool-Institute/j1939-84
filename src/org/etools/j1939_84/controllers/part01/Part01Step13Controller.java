@@ -136,7 +136,7 @@ public class Part01Step13Controller extends StepController {
         // 6.1.13.4.a. Fail if any difference compared to data received during global request.
         compareRequestPackets(obdGlobalPackets, filterPackets(dsPackets), "6.1.13.4.a");
 
-        // 6.1.13.4.a. Fail if any difference compared to data received during global request.
+        // 6.1.13.4.b. Fail if NACK not received from OBD ECUs that did not respond to global query.
         checkForNACKsGlobal(obdGlobalPackets, filterAcks(dsPackets), "6.1.13.4.b.");
     }
 }

@@ -315,8 +315,7 @@ public class Part01Step26Controller extends StepController {
                 if (!notAvailableSPNs.isEmpty()) {
                     // 6.1.26.5.b - If no response/no valid data for any SP requested in 6.1.25.3.a, send global message
                     // to request that SP(s)
-                    String globalMessage = "Global Request for PGN " + pgn + " for SPNs "
-                            + String.join(", ", notAvailableSPNs);
+                    String globalMessage = "PGN " + pgn + " for SPNs " + String.join(", ", notAvailableSPNs);
                     List<GenericPacket> globalPackets = busService.globalRequest(pgn, globalMessage)
                                                                   .peek(p -> tableA1Validator.reportNotAvailableSPNs(p,
                                                                                                                      getListener(),
@@ -425,7 +424,7 @@ public class Part01Step26Controller extends StepController {
                        .forEach(spn -> {
                            // 6.1.26.24.b - Fail PG query where any accumulator value
                            // received is greater than FAFFFFFFh.
-                           if (spn.getRawValue() >= 0xFAFFFFFFL) {
+                           if (spn.getRawValue() > 0xFAFFFFFFL) {
                                addFailure("6.1.26.24.b - Bin value received is greater than 0xFAFFFFFF(h) "
                                        + module.getModuleName() + " for " + spn);
                            }
@@ -482,7 +481,7 @@ public class Part01Step26Controller extends StepController {
                                      /// 6.1.26.25.c - Fail each PG query where any active
                                      /// technology label or accumulator value
                                      // received is greater than FAFFh, respectively.
-                                     if (spn.getRawValue() >= 0xFAFFL) {
+                                     if (spn.getRawValue() > 0xFAFFL) {
                                          addFailure("6.1.26.22.c - Bin value received is greater than 0xFAFF(h) from "
                                                  + module.getModuleName() + " for " + spn);
                                      }
@@ -518,7 +517,7 @@ public class Part01Step26Controller extends StepController {
                        .forEach(spn -> {
                            // 6.1.26.20.b - Fail PG query where any accumulator value
                            // received is greater than FAFFFFFFh.
-                           if (spn.getRawValue() >= 0xFAFFFFFFL) {
+                           if (spn.getRawValue() > 0xFAFFFFFFL) {
                                addFailure("6.1.26.20.b - Bin value received is greater than 0xFAFFFFFF(h) from "
                                        + module.getModuleName() + " for " + spn);
                            }
@@ -574,7 +573,7 @@ public class Part01Step26Controller extends StepController {
                                  .forEach(spn -> {
                                      // 6.1.26.22.c. Fail each PG query where any accumulator
                                      // value received is greater than FAFFh.
-                                     if (spn.getRawValue() >= 0xFAFFL) {
+                                     if (spn.getRawValue() > 0xFAFFL) {
                                          addFailure("6.1.26.22.c - Bin value received is greater than 0xFAFFFFFF(h) from "
                                                  + module.getModuleName() + " for " + spn);
                                      }
@@ -605,14 +604,11 @@ public class Part01Step26Controller extends StepController {
             packetForPg.getSpns()
                        .stream()
                        .filter(spn -> {
-                           // FIXME: requirements need updated
-                           // @Joe this is implemented correctly. We just need to remove comment when new document
-                           // with correction is released.
                            return spn.getRawValue() > 0xFAFFFFFFL;
                        })
                        .forEach(spn -> {
-                           // 6.1.26.12.b. Fail PG query where any bin value received is greater than FAFFh.
-                           addFailure("6.1.26.12.b - Bin value received is greater than 0xFAFF(h) from "
+                           // 6.1.26.12.b. Fail PG query where any bin value received is greater than FAFFFFFFh.
+                           addFailure("6.1.26.12.b - Bin value received is greater than 0xFAFFFFFF(h) from "
                                    + module.getModuleName() + " for " + spn);
                        });
         }
@@ -648,13 +644,13 @@ public class Part01Step26Controller extends StepController {
             if (ghgTrackingpacketForPg == null) {
                 // 6.1.26.14.a. For all MY2024+ engines, Fail each PG query where no response was received.
                 if (getEngineModelYear() >= 2024) {
-                    addFailure("6.1.26.10.a - No response was received from "
+                    addFailure("6.1.26.14.a - No response was received from "
                             + module.getModuleName() + " for PG "
                             + pg);
                 }
                 // 6.1.26.14.b. For MY2022-23 engines, Warn each PG query, where no response was received
                 if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
-                    addWarning("6.1.26.10.b - No response was received from "
+                    addWarning("6.1.26.14.b - No response was received from "
                             + module.getModuleName() + " for PG "
                             + pg);
                 }
@@ -765,7 +761,7 @@ public class Part01Step26Controller extends StepController {
                                       .forEach(spn -> {
                                           // 6.1.26.18.c. Fail PG query where any bin value received is greater than
                                           // FAFFh.
-                                          if (spn.getRawValue() >= 0xFAFFL) {
+                                          if (spn.getRawValue() > 0xFAFFL) {
                                               addFailure("6.1.26.18.c - Bin value received is greater than 0xFAFF(h)"
                                                       + module.getModuleName() + " for " + spn);
                                           }
@@ -831,7 +827,7 @@ public class Part01Step26Controller extends StepController {
                            .forEach(spn -> {
                                // 6.1.26.8.b. Fail each PG query where any bin value received
                                // is greater than FAFFFFFFh.
-                               if (spn.getRawValue() >= 0xFAFFFFFFL) {
+                               if (spn.getRawValue() > 0xFAFFFFFFL) {
                                    addFailure("6.1.26.8.b - Bin value received is greater than 0xFAFFFFFF(h) "
                                            + module.getModuleName() + " for " + spn);
                                }
@@ -882,7 +878,7 @@ public class Part01Step26Controller extends StepController {
                 }
             } else {
                 packetForPg.getSpns().forEach(spn -> {
-                    if (spn.getRawValue() >= 0xFAFFFFFFL) {
+                    if (spn.getRawValue() > 0xFAFFFFFFL) {
                         // 6.1.26.10.c. Fail each PG query where any bin value received is greater than FAFFh. (Use
                         // FAFFFFFFh for NOx values)
                         addFailure("6.1.26.10.c - Bin value received is greater than 0xFAFFFFFF(h)"

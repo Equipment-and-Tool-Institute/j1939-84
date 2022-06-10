@@ -163,8 +163,13 @@ public class OBDModuleInformation implements Cloneable {
         packetArchive.put(packet, partNumber);
     }
 
+    @Deprecated
     public <T extends GenericPacket> T get(Class<T> clazz, int partNumber) {
-        return packetArchive.get(clazz, partNumber);
+        return get(getPg(clazz), partNumber);
+    }
+
+    public <T extends GenericPacket> T get(int pg, int partNumber) {
+        return packetArchive.get(pg, partNumber);
     }
 
     public <T extends GenericPacket> T getLatest(Class<T> clazz) {
@@ -185,40 +190,53 @@ public class OBDModuleInformation implements Cloneable {
 
     private static class PacketArchive {
 
-        private final Map<Class<? extends GenericPacket>, GenericPacket[]> packetArchive = new HashMap<>();
+        private final Map<Integer, GenericPacket[]> packetArchive = new HashMap<>();
 
         public void put(GenericPacket packet, int partNumber) {
             if (partNumber == 0) {
                 throw new IllegalArgumentException("0 is not a valid partNumber");
             }
 
-            var packets = getPackets(packet.getClass());
+            int id = packet.getPgnDefinition().getId();
+            var packets = getPackets(id);
             packets[partNumber] = packet;
-            packetArchive.put(packet.getClass(), packets);
+            packetArchive.put(id, packets);
         }
 
         public <T extends GenericPacket> T getLatest(Class<T> clazz) {
             for (int i = 12; i > 0; i--) {
-                var packet = get(clazz, i);
+                var packet = get(getPg(clazz), i);
                 if (packet != null) {
-                    return packet;
+                    return (T) packet;
                 }
             }
             return null;
+
         }
 
-        public <T extends GenericPacket> T get(Class<T> clazz, int partNumber) {
+        public <T extends GenericPacket> T get(int pg, int partNumber) {
             if (partNumber == 0) {
                 throw new IllegalArgumentException("0 is not a valid partNumber");
             }
 
-            return (T) getPackets(clazz)[partNumber];
+            return (T) getPackets(pg)[partNumber];
         }
 
-        private <T extends GenericPacket> GenericPacket[] getPackets(Class<T> clazz) {
-            return packetArchive.getOrDefault(clazz, new GenericPacket[13]);
+        private <T extends GenericPacket> GenericPacket[] getPackets(int pg) {
+            return packetArchive.getOrDefault(pg, new GenericPacket[13]);
         }
 
+    }
+
+    // Helper method to get the pg for the class object
+    private static int getPg(Class<? extends GenericPacket> clazz) {
+        int pg = 0;
+        try {
+            pg = clazz.getField("PGN").getInt(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return pg;
     }
 
 }

@@ -43,6 +43,7 @@ import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.model.PgnDefinition;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939tools.j1939.packets.SupportedSPN;
@@ -151,6 +152,9 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testEmptyObdModules() {
         DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
+        PgnDefinition pgnDefinition = mock(PgnDefinition.class);
+        when(packet1.getPgnDefinition()).thenReturn(pgnDefinition);
+        when(packet1.getPgnDefinition().getId()).thenReturn(DM24SPNSupportPacket.PGN);
         when(packet1.getSourceAddress()).thenReturn(0);
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
@@ -209,6 +213,9 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
     }, description = "Using a response that indicates that 6.1.4.2.a, 6.1.4.2.b, 6.1.4.2.c all failed, verify that the failures are in the report.")
     public void testErroredObject() {
         DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
+        PgnDefinition pgnDefinition = mock(PgnDefinition.class);
+        when(packet1.getPgnDefinition()).thenReturn(pgnDefinition);
+        when(packet1.getPgnDefinition().getId()).thenReturn(DM24SPNSupportPacket.PGN);
         when(packet1.getSourceAddress()).thenReturn(0);
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
@@ -216,6 +223,8 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         AcknowledgmentPacket packet4 = AcknowledgmentPacket.create(1, NACK);
+        when(packet1.getPgnDefinition()).thenReturn(pgnDefinition);
+        when(packet1.getPgnDefinition().getId()).thenReturn(DM24SPNSupportPacket.PGN);
         when(communicationsModule.requestDM24(any(), eq(1)))
                                                             .thenReturn(BusResult.empty())
                                                             .thenReturn(BusResult.of(packet4));

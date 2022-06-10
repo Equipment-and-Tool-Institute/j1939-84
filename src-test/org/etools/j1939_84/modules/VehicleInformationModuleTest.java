@@ -3,8 +3,8 @@
  */
 package org.etools.j1939_84.modules;
 
-import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 import static org.etools.j1939tools.j1939.J1939.GLOBAL_ADDR;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -233,14 +233,14 @@ public class VehicleInformationModuleTest {
 
         doReturn(new RequestResult<>(false, packet1, packet2, packet3))
                                                                        .when(j1939)
-                                                                       .requestGlobal("Global Request for Address Claim",
+                                                                       .requestGlobal("Address Claim",
                                                                                       AddressClaimPacket.class,
                                                                                       listener);
 
         instance.reportAddressClaim(listener);
         assertEquals("", listener.getResults());
 
-        verify(j1939).requestGlobal("Global Request for Address Claim", AddressClaimPacket.class, listener);
+        verify(j1939).requestGlobal("Address Claim", AddressClaimPacket.class, listener);
     }
 
     @Test
@@ -248,24 +248,24 @@ public class VehicleInformationModuleTest {
         AddressClaimPacket packet1 = new AddressClaimPacket(Packet.parse("18EEFF55 10 F7 45 01 00 45 00 01"));
         doReturn(new RequestResult<>(false, packet1))
                                                      .when(j1939)
-                                                     .requestGlobal("Global Request for Address Claim",
+                                                     .requestGlobal("Address Claim",
                                                                     AddressClaimPacket.class,
                                                                     listener);
 
         instance.reportAddressClaim(listener);
         assertEquals("Error: No ECU reported Function 0" + NL, listener.getResults());
-        verify(j1939).requestGlobal("Global Request for Address Claim", AddressClaimPacket.class, listener);
+        verify(j1939).requestGlobal("Address Claim", AddressClaimPacket.class, listener);
     }
 
     @Test
     public void testReportAddressClaimNoResponse() {
         doReturn(RequestResult.empty(), RequestResult.empty(), RequestResult.empty())
                                                                                      .when(j1939)
-                                                                                     .requestGlobal("Global Request for Address Claim",
+                                                                                     .requestGlobal("Address Claim",
                                                                                                     AddressClaimPacket.class,
                                                                                                     NOOP);
         instance.reportAddressClaim(NOOP);
-        verify(j1939).requestGlobal("Global Request for Address Claim", AddressClaimPacket.class, NOOP);
+        verify(j1939).requestGlobal("Address Claim", AddressClaimPacket.class, NOOP);
     }
 
     @Test

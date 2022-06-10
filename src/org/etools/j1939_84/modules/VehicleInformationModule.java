@@ -186,7 +186,7 @@ public class VehicleInformationModule extends FunctionalModule {
      *                     the {@link CommunicationsListener that will be given the report
      */
     public RequestResult<AddressClaimPacket> reportAddressClaim(ResultsListener listener) {
-        RequestResult<AddressClaimPacket> responses = getJ1939().requestGlobal("Global Request for Address Claim",
+        RequestResult<AddressClaimPacket> responses = getJ1939().requestGlobal("Address Claim",
                                                                                AddressClaimPacket.class,
                                                                                listener);
         if (!responses.getPackets().isEmpty()

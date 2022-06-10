@@ -114,6 +114,8 @@ public class Part01Step12Controller extends StepController {
                                                                                         247,
                                                                                         spId,
                                                                                         31);
+                         // 6.1.12.2.a Table A.7.2.a Fail if no test result is received for any of the SPN+FMI
+                         // combinations listed in Table A5A.
                          if (dm30Packets.isEmpty()) {
                              addFailure("6.1.12.2.a (A.7.2.a) - No test result for Supported SP " + spId + " from "
                                      + moduleName);
@@ -128,6 +130,8 @@ public class Part01Step12Controller extends StepController {
                              // SP+FMI.
                              testResultsByModuleMap.put(obdModule.getSourceAddress(),
                                                         new HashSet<>(testResults));
+                             // 6.1.12.2.a Table A.7.1.d Warn if any ECU reports more than one set of test results for
+                             // the same SPN+FMI.
                              tableA7Validator.findDuplicates(testResults)
                                              .stream()
                                              .distinct() // let's log it just once
@@ -159,6 +163,9 @@ public class Part01Step12Controller extends StepController {
                                                                                .stream()
                                                                                .flatMap(Collection::stream)
                                                                                .collect(Collectors.toList());
+
+        // 6.1.12.2.a. Table A.7.2.b Warn if more than one ECU responds with test results for the same SPN+FMI
+        // combination
         tableA7Validator.findDuplicates(scaledTestResults)
                         .stream()
                         .distinct() // let's log it just once
@@ -176,8 +183,8 @@ public class Part01Step12Controller extends StepController {
         }
 
         // 6.1.12.3 Actions2: // 6.1.12.3 was omitted in error.
-        // a. DS DM7 with TID 245 (for DM58) using FMI 31 for each SP identified as supporting DM58 in a DM24 response
-        // In step 6.1.4.1 to the SP’s respective OBD ECU.
+        // 6.1.12.3.a. DS DM7 with TID 245 (for DM58) using FMI 31 for each SP identified as supporting DM58 in a DM24
+        // response In step 6.1.4.1 to the SP’s respective OBD ECU.
         // Display the scaled engineering value for the requested SP.
         getDataRepository().getObdModules().forEach(module -> {
             module.getSupportedSPNs()
@@ -230,26 +237,39 @@ public class Part01Step12Controller extends StepController {
                                                                             + spn);
                                                                 });
                   });
-            // 6.1.13.6 - 6.1.12.6
-            getDm58AndVerifyData(module.getSourceAddress());
         });
+        // 6.1.12.5 - 6.1.12.6
+        getDm58AndVerifyData();
     }
 
-    private void getDm58AndVerifyData(int moduleAddress) {
+    private void getDm58AndVerifyData() {
 
         // 6.1.12.5 Actions3:
-        // a. DS DM7 with TID 245 (for DM58) using FMI 31 for first SP identified as not supporting DM58 in a DM24
+        // 6.1.12.5.a. DS DM7 with TID 245 (for DM58) using FMI 31 for first SP identified as not supporting DM58 in a
+        // DM24
         // response In step 6.1.4.1 to the SP’s respective OBD ECU. (Use of an SP that supports test results is
         // preferred when available).
+        var obdModules = getDataRepository().getObdModules()
+                                            .stream()
+                                            .filter(module -> {
+                                                var supportedSPNs = module.getSupportedSPNs()
+                                                                          .stream()
+                                                                          .filter(supportedSPN -> !supportedSPN.supportsRationalityFaultData())
+                                                                          .collect(Collectors.toList());
+                                                if (!supportedSPNs.isEmpty()) {
+                                                    return true;
+                                                }
+                                                return false;
+                                            })
+                                            .collect(Collectors.toList());
+
         var nonRatFaultSps = getDataRepository().getObdModules()
                                                 .stream()
-                                                .filter(module -> module.getSourceAddress() == moduleAddress)
                                                 .flatMap(m -> m.getSupportedSPNs().stream())
                                                 .filter(supported -> !supported.supportsRationalityFaultData())
                                                 .collect(Collectors.toList());
-        if (nonRatFaultSps.isEmpty()) {
-            getListener().onResult("6.1.12.5.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from "
-                    + Lookup.getAddressName(moduleAddress));
+        if (nonRatFaultSps.isEmpty() || obdModules.isEmpty()) {
+            getListener().onResult("6.1.12.5.a - No SPs found that do NOT indicate support for DM58 in the DM24 response");
         } else {
             int requestSpn = nonRatFaultSps.stream()
                                            .filter(SupportedSPN::supportsScaledTestResults)
@@ -257,7 +277,8 @@ public class Part01Step12Controller extends StepController {
                                            .orElseGet(() -> nonRatFaultSps.get(0))
                                            .getSpn();
 
-            var packet = getCommunicationsModule().requestDM58(getListener(), moduleAddress, requestSpn)
+            int sourceAddress = obdModules.get(0).getSourceAddress();
+            var packet = getCommunicationsModule().requestDM58(getListener(), sourceAddress, requestSpn)
                                                   .requestResult()
                                                   .getAcks()
                                                   .stream()
@@ -265,10 +286,10 @@ public class Part01Step12Controller extends StepController {
                                                   .orElse(null);
 
             // 6.1.12.6 Fail/Warn criteria3:
-            // a. Fail if a NACK is not received
+            // 6.1.12.6.a. Fail if a NACK is not received
             if (packet == null || packet.getResponse() != AcknowledgmentPacket.Response.NACK) {
                 addFailure("6.1.12.6.a - NACK not received for DM7 PG from OBD ECU "
-                        + Lookup.getAddressName(moduleAddress) + " for spn " + requestSpn);
+                        + Lookup.getAddressName(sourceAddress) + " for spn " + requestSpn);
             }
         }
     }
@@ -332,7 +353,7 @@ public class Part01Step12Controller extends StepController {
 
         String moduleName = Lookup.getAddressName(packet.getSourceAddress());
 
-        // 6.1.12.1.a. Fail if no test result (comprised of a SP+FMI with a test result
+        // 6.1.12.2.a. Table A.7.1.a Fail if no test result (comprised of a SP+FMI with a test result
         // and a min and max test limit) for an SP indicated as supported is
         // actually reported from the ECU/device that indicated support.
 
@@ -345,7 +366,7 @@ public class Part01Step12Controller extends StepController {
             addFailure("6.1.12.2.a (A.7.1.a) - No test result for supported SP " + spId + " from " + moduleName);
         }
 
-        // 6.1.12.1.b. Fail if any test result does not report the test result/min test
+        // 6.1.12.2.a. Table A.7.1.b Fail if any test result does not report the test result/min test
         // limit/max test limit as initialized (after code clear) values (either
         // 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000).
         for (ScaledTestResult result : testResults) {
@@ -355,7 +376,7 @@ public class Part01Step12Controller extends StepController {
                         + " does not report the test result/min test limit/max test limit initialized properly");
             }
 
-            // 6.1.12.1.c. Fail if the SLOT identifier for any test results is an
+            // 6.1.12.2.a. Table A.7.1.c Fail if the SLOT identifier for any test results is an
             // undefined or a not valid SLOT in Appendix A of J1939-71. See
             // Table A-7-2 3 for a list of the valid, SLOTs known to be
             // appropriate for use in test results.
