@@ -204,8 +204,8 @@ public class Part11Step13Controller extends StepController {
                                                  + module.getModuleName() + " for "
                                                  + spn);
                                      }
-                                     // 6.11.13.20.d - Fail all values where the corresponding value received in part 1
-                                     // is greater than the part 2 value. (Where supported)
+                                     // 6.11.13.20.d -  Fail all values where the corresponding value received in part 2
+                                     // is greater than the part 11 value. (Where supported)
                                      var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
                                      if (partTwoValue > spn.getValue()) {
                                          addFailure("6.11.13.20.d - Value received from " + module.getModuleName()
@@ -242,8 +242,8 @@ public class Part11Step13Controller extends StepController {
                                addFailure("6.11.13.14.b - Bin value received is greater than 0xFAFFFFFF(h) from "
                                        + module.getModuleName() + " for " + spn);
                            }
-                           // 6.11.13.14.c - Fail all values where the corresponding value received in part 1 is greater
-                           // than the part 2 value
+                           // 6.11.13.14.c - Fail all values where the corresponding value received in part 2 is
+                           // greater than the part 11 value.
                            var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
                            if (partTwoValue > spn.getValue()) {
                                addFailure("6.11.13.14.c - Value received from " + module.getModuleName()
@@ -300,8 +300,8 @@ public class Part11Step13Controller extends StepController {
                                          addFailure("6.11.13.16.c - Bin value received is greater than 0xFAFF(h) from "
                                                  + module.getModuleName() + " for " + spn);
                                      }
-                                     // 6.11.13.16.d - Fail all values where the corresponding value received in part 11
-                                     // is greater than the part 2 values. (where supported)
+                                     // 6.11.13.16.d - Fail all values where the corresponding value received in part 2
+                                     // is greater than the part 11 value. (Where supported)
                                      var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
                                      if (partTwoValue > spn.getValue()) {
                                          addFailure("6.11.13.16.d - Value received from " + module.getModuleName()
@@ -529,8 +529,8 @@ public class Part11Step13Controller extends StepController {
                                          // subset of the set of labels received for the lifetime’ active technology
                                          // response.
 
-                                         // 6.11.13.12.f. Fail all values where the corresponding value received in part
-                                         // 2 is greater than the part 12 value. (Where supported)
+                                         // 6.11.13.12.f. Fail all values where the corresponding value received in
+                                         // part 2 is greater than the part 11 value. (Where supported)
                                          var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
                                          if (partTwoValue > spn.getValue()) {
                                              addFailure("6.11.13.12.f - Value received from " + module.getModuleName()
@@ -588,9 +588,9 @@ public class Part11Step13Controller extends StepController {
                                            + module.getModuleName() + " for " + spn);
                                }
                                // 6.11.13.2.c Fail all values where the corresponding value received in part 2 is
-                               // greater than the part 12 value
+                               // greater than the part 12 value.
                                var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                               if (partTwoValue > partTwoValue) {
+                               if (partTwoValue > spn.getValue()) {
                                    addFailure("6.11.13.2.c - Value received from " + module.getModuleName()
                                                       + " for " + spn
                                                       + " in part 2 was greater than part 11 value");
