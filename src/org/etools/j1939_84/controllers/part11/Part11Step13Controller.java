@@ -150,7 +150,7 @@ public class Part11Step13Controller extends StepController {
                            if (partTwoValue > spn.getValue()) {
                                addFailure("6.11.13.18.c - Value received from " + module.getModuleName()
                                                   + " for " + spn
-                                                  + " was greater than part 2 value");
+                                                  + " was less than part 2 value");
                            }
 
                        });
@@ -210,7 +210,7 @@ public class Part11Step13Controller extends StepController {
                                      if (partTwoValue > spn.getValue()) {
                                          addFailure("6.11.13.20.d - Value received from " + module.getModuleName()
                                                             + " for " + spn
-                                                            + " was greater than part 2 value");
+                                                            + " was less than part 2 value");
                                      }
 
                                  });
@@ -248,7 +248,7 @@ public class Part11Step13Controller extends StepController {
                            if (partTwoValue > spn.getValue()) {
                                addFailure("6.11.13.14.c - Value received from " + module.getModuleName()
                                                   + " for " + spn
-                                                  + " was greater than part 2 value");
+                                                  + " was less than part 2 value");
                            }
 
                        });
@@ -306,7 +306,7 @@ public class Part11Step13Controller extends StepController {
                                      if (partTwoValue > spn.getValue()) {
                                          addFailure("6.11.13.16.d - Value received from " + module.getModuleName()
                                                             + " for " + spn
-                                                            + " was greater than part 2 value");
+                                                            + " was less than part 2 value");
                                      }
                                  });
             }
@@ -342,7 +342,7 @@ public class Part11Step13Controller extends StepController {
                            if (partTwoValue > spn.getValue()) {
                                addFailure("6.11.13.6.c - Value received from " + module.getModuleName()
                                                   + " for " + spn
-                                                  + " was greater than part 2 value");
+                                                  + " was less than part 2 value");
                            }
                            // 6.11.13.6.d - Fail if lifetime engine hours < 600 seconds
                            if (spn.getId() == 12730 && spn.getValue() < 600) {
@@ -458,7 +458,8 @@ public class Part11Step13Controller extends StepController {
                            // 6.11.13.10.c. Fail PG query where any index value received is
                            // greater than FAh.
                            if (spn.getSlot().getId() == 12691 && spn.getRawValue() > 0xFA) {
-
+                               addFailure("6.11.13.10.c - Index value received is greater than 0xFA(h) from "
+                               + module.getModuleName() + " for " + spn);
                            }
                        });
         }
@@ -534,7 +535,7 @@ public class Part11Step13Controller extends StepController {
                                          if (partTwoValue > spn.getValue()) {
                                              addFailure("6.11.13.12.f - Value received from " + module.getModuleName()
                                                                 + " for " + spn
-                                                                + " was greater than part 2 value");
+                                                                + " was less than part 2 value");
                                          }
 
                                          // FIXME:
@@ -592,7 +593,7 @@ public class Part11Step13Controller extends StepController {
                                if (partTwoValue > spn.getValue()) {
                                    addFailure("6.11.13.2.c - Value received from " + module.getModuleName()
                                                       + " for " + spn
-                                                      + " was greater than part 2 value");
+                                                      + " was less than part 2 value");
                                }
                                //FIXME
                                // 6.11.13.2.d Fail if lifetime engine hours < part 2 value + 600 seconds
@@ -656,7 +657,7 @@ public class Part11Step13Controller extends StepController {
                     if (partTwoValue > spn.getValue()) {
                         addFailure("6.11.13.4.d - Value received from " + module.getModuleName()
                                            + " for " + spn
-                                           + " was greater than part 2 value");
+                                           + " was less than part 2 value");
                     }
 
                     // 6.11.13.4.e. Fail if active 100 hrs engine hours < 600 seconds (where supported)
