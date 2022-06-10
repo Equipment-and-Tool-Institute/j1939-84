@@ -72,12 +72,12 @@ public class Part07Step02Controller extends StepController {
         var packets = filterPackets(dsResults);
         packets.forEach(this::save);
 
-        // 6.7.2.2.b Fail if no OBD ECU reports previously active DTC.
+        // 6.7.2.2.a Fail if no OBD ECU reports previously active DTC.
         boolean noObdDtc = packets.stream()
                                   .filter(p -> isObdModule(p.getSourceAddress()))
                                   .noneMatch(DiagnosticTroubleCodePacket::hasDTCs);
         if (noObdDtc) {
-            addFailure("6.7.2.2.b - No OBD ECU reported a previously active DTC");
+            addFailure("6.7.2.2.a - No OBD ECU reported a previously active DTC");
         }
 
         // 6.7.2.2.b Fail if reported previously active DTC does not match DM12 active DTC from part 6.

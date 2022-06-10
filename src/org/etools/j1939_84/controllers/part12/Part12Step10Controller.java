@@ -111,7 +111,7 @@ public class Part12Step10Controller extends StepController {
                   .filter(p -> p.getResponse() == ACK)
                   .map(ParsedPacket::getModuleName)
                   .forEach(moduleName -> {
-                      addWarning("6.12.10.4.b - " + moduleName + " responded with a ACK");
+                      addInfo("6.12.10.4.b - " + moduleName + " responded with a ACK");
                   });
 
         // 6.12.10.4.c. Check diagnostic information and fail if any ECU partially erases diagnostic information

@@ -574,7 +574,7 @@ public class Part02Step17Controller extends StepController {
                                      // 6.2.17.22.c - Fail each PG query where any accumulator
                                      // value received is greater than FAFFh.
                                      if (spn.getRawValue() > 0xFAFFL) {
-                                         addFailure("6.2.17.22.c - Bin value received is greater than 0xFAFFFFFF(h) from "
+                                         addFailure("6.2.17.22.c - Bin value received is greater than 0xFAFF(h) from "
                                                  + module.getModuleName() + " for " + spn);
                                      }
                                      // 6.2.17.22.d - Fail all values where the corresponding value received in part 1

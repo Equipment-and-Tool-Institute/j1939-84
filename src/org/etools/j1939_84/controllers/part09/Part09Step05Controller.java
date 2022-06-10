@@ -111,7 +111,7 @@ public class Part09Step05Controller extends StepController {
                          .orElse(0);
 
         if (max - min > 1) {
-            addFailure("6.9.5.3.a - More than one ECU reported time SCC > 0 and times reported differ by > 1 minute");
+            addWarning("6.9.5.3.a - More than one ECU reported time SCC > 0 and times reported differ by > 1 minute");
         }
     }
 
