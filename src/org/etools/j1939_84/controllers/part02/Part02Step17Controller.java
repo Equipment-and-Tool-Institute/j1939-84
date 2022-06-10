@@ -409,7 +409,7 @@ public class Part02Step17Controller extends StepController {
                            var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
                            if (partOneValue > spn.getValue()) {
                                addFailure("6.2.17.24.c - Value received from " + module.getModuleName() + " for " + spn
-                                                  + " was greater than part 1 value");
+                                                  + " was less than part 1 value");
                            }
 
                        });
@@ -472,7 +472,7 @@ public class Part02Step17Controller extends StepController {
                                      var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
                                      if (partOneValue > spn.getValue()) {
                                          addFailure("6.2.17.26.d - Value received from " + module.getModuleName() + " for " + spn
-                                                            + " was greater than part 1 value");
+                                                            + " was less than part 1 value");
                                      }
                                  });
             }
@@ -514,7 +514,7 @@ public class Part02Step17Controller extends StepController {
                            var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
                            if (partOneValue > spn.getValue()) {
                                addFailure("6.2.17.20.c - Value received from " + module.getModuleName() + " for " + spn
-                                       + " was greater than part 1 value");
+                                       + " was less than part 1 value");
                            }
 
                        });
@@ -583,7 +583,7 @@ public class Part02Step17Controller extends StepController {
                                      if (partOneValue > spn.getValue()) {
                                          addFailure("6.2.17.22.d - Value received from " + module.getModuleName()
                                                  + " for " + spn
-                                                 + " was greater than part 1 value");
+                                                 + " was less than part 1 value");
                                      }
                                  });
             }
@@ -623,7 +623,7 @@ public class Part02Step17Controller extends StepController {
                            if (partOneValue > spn.getValue()) {
                                addFailure("6.2.17.12.c - Value received from " + module.getModuleName()
                                        + " for " + spn
-                                       + " was greater than part 1 value");
+                                       + " was less than part 1 value");
                            }
                        });
         }
@@ -684,7 +684,7 @@ public class Part02Step17Controller extends StepController {
                                        if (partOneValue > spn.getValue()) {
                                            addFailure("6.2.17.14.d - Value received from " + module.getModuleName()
                                                               + " for " + spn
-                                                              + " was greater than part 1 value");
+                                                              + " was less than part 1 value");
                                        }
                                    });
             }
@@ -727,7 +727,7 @@ public class Part02Step17Controller extends StepController {
                                if (partOneValue > spn.getValue()) {
                                    addFailure("6.2.17.16.c - Value received from " + module.getModuleName()
                                                       + " for " + spn
-                                                      + " was greater than part 1 value");
+                                                      + " was less than part 1 value");
                                }
                            });
             }
@@ -843,9 +843,8 @@ public class Part02Step17Controller extends StepController {
                                // than the part 2 value
                                var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
                                if (partOneValue > spn.getValue()) {
-                                   addFailure("6.2.17.8.c - " + module.getModuleName()
-                                           + " reported part 1 value greater than part 2 for "
-                                           + spn);
+                                   addFailure("6.2.17.8.c - Value received from " + module.getModuleName()
+                                           + " for " + spn + " was less than part 1 value");
                                }
                            });
             }
