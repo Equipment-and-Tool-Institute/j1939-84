@@ -952,7 +952,8 @@ public class J1939 {
 
     public void startLogger() throws BusException {
         Instant start = Instant.now();
-        loggerStream = bus.getRawBus().read(Integer.MAX_VALUE, TimeUnit.DAYS);
+        // do not crash tests that do not include a raw bus.
+        loggerStream = (bus.getRawBus() == null ? bus : bus.getRawBus()).read(Integer.MAX_VALUE, TimeUnit.DAYS);
         new Thread(() -> {
             try {
                 final String PREFIX = "J1939-84-CAN-";
