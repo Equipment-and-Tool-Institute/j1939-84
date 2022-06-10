@@ -5,7 +5,7 @@ package org.etools.j1939_84.controllers.part12;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
-import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.ACK;
 import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.junit.Assert.assertEquals;
@@ -254,7 +254,7 @@ public class Part12Step10ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.12.10.4.b - Engine #1 (0) responded with a ACK");
 
         assertEquals(10000, dateTimeModule.getTimeAsLong());

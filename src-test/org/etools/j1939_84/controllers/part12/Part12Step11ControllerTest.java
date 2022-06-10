@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
@@ -301,7 +302,7 @@ public class Part12Step11ControllerTest extends AbstractControllerTest {
                                         eq("6.12.11.3.b. DM58 not received from Engine #1 (0) for SP SPN 4145 - System Cumulative Continuous MI Time"));
 
         assertEquals("", listener.getMessages());
-        assertEquals("6.12.11.4.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from Engine #1 (0)\n",
+        assertEquals("6.12.11.4.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from Engine #1 (0)" + J1939_84.NL,
                      listener.getResults());
         ActionOutcome expectedActionOutcome = new ActionOutcome(FAIL,
                                                                 "6.12.11.3.b. DM58 not received from Engine #1 (0) for SP SPN 4145 - System Cumulative Continuous MI Time");
@@ -342,8 +343,8 @@ public class Part12Step11ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestTestResults(any(), eq(0), eq(250), eq(456), eq(9));
 
         assertEquals("", listener.getMessages());
-        String expectedResults = "6.12.11.4.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from Engine #1 (0)\n";
-        expectedResults += "6.12.11.4.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from Engine #2 (1)\n";
+        String expectedResults = "6.12.11.4.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from Engine #1 (0)" + J1939_84.NL;
+        expectedResults += "6.12.11.4.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from Engine #2 (1)"+J1939_84.NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals(List.of(), listener.getOutcomes());
     }
@@ -787,7 +788,7 @@ public class Part12Step11ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(source), eq(27));
 
         assertEquals("", listener.getMessages());
-        String expectedResults = "Not checking for FF - SP SPN   271, Unknown: Not Available length is 0\n";
+        String expectedResults = "Not checking for FF - SP SPN   271, Unknown: Not Available length is 0" + J1939_84.NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals(List.of(), listener.getOutcomes());
     }
