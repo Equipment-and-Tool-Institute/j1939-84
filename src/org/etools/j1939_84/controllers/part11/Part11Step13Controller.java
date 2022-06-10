@@ -404,7 +404,7 @@ public class Part11Step13Controller extends StepController {
                                              spn.getId() == 12715 ||
                                              spn.getId() == 12730) {
                                          if (spn.getValue() < 600) {
-                                             addWarning("6.11.13.8.g - Active Tech engine hours received is < 600 seconds from "
+                                             addWarning("6.11.13.8.e - Active Tech engine hours received is < 600 seconds from "
                                                      + module.getModuleName() + " for " + spn);
                                          }
                                      }
