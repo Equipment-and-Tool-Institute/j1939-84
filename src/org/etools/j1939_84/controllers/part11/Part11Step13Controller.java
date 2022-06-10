@@ -654,7 +654,7 @@ public class Part11Step13Controller extends StepController {
                     // 6.11.13.4.d. Fail all values where the corresponding value received in part 2 is greater than the
                     // part 11 value (where supported)
                     var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                    if (partTwoValue > spn.getValue()) {
+                    if (spn.getValue() > partTwoValue) {
                         addFailure("6.11.13.4.d - Value received from " + module.getModuleName()
                                            + " for " + spn
                                            + " was greater than part 2 value");
