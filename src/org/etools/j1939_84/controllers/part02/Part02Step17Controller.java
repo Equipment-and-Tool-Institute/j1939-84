@@ -400,7 +400,7 @@ public class Part02Step17Controller extends StepController {
                        .forEach(spn -> {
                            // 6.2.17.24.b - Fail PG query where any accumulator value
                            // received is greater than FAFFFFFFh.
-                           if (spn.getRawValue() >= 0xFAFFFFFFL) {
+                           if (spn.getRawValue() > 0xFAFFFFFFL) {
                                addFailure("6.2.17.24.b - Bin value received is greater than 0xFAFFFFFF(h) from "
                                        + module.getModuleName() + " for " + spn);
                            }
@@ -463,7 +463,7 @@ public class Part02Step17Controller extends StepController {
                                      /// 6.2.17.26.c - Fail each PG query where any active
                                      /// technology label or accumulator value
                                      // received is greater than FAFFh, respectively.
-                                     if (spn.getRawValue() >= 0xFAFFL) {
+                                     if (spn.getRawValue() > 0xFAFFL) {
                                          addFailure("6.2.17.26.c - Bin value received is greater than 0xFAFF(h) from "
                                                  + module.getModuleName() + " for " + spn);
                                      }
@@ -505,7 +505,7 @@ public class Part02Step17Controller extends StepController {
                        .forEach(spn -> {
                            // 6.2.17.20.b - Fail PG query where any accumulator value
                            // received is greater than FAFFFFFFh.
-                           if (spn.getRawValue() >= 0xFAFFFFFFL) {
+                           if (spn.getRawValue() > 0xFAFFFFFFL) {
                                addFailure("6.2.17.20.b - Bin value received is greater than 0xFAFFFFFF(h) from "
                                        + module.getModuleName() + " for " + spn);
                            }
@@ -573,7 +573,7 @@ public class Part02Step17Controller extends StepController {
                                  .forEach(spn -> {
                                      // 6.2.17.22.c - Fail each PG query where any accumulator
                                      // value received is greater than FAFFh.
-                                     if (spn.getRawValue() >= 0xFAFFL) {
+                                     if (spn.getRawValue() > 0xFAFFL) {
                                          addFailure("6.2.17.22.c - Bin value received is greater than 0xFAFFFFFF(h) from "
                                                  + module.getModuleName() + " for " + spn);
                                      }
@@ -777,7 +777,7 @@ public class Part02Step17Controller extends StepController {
                 packetForPg.getSpns()
                            .forEach(spn -> {
                                // 6.2.17.18.c. Fail PG query where any bin value received is greater than FAFFh.
-                               if (spn.getRawValue() >= 0xFAFFL) {
+                               if (spn.getRawValue() > 0xFAFFL) {
                                    addFailure("6.2.17.18.c - Bin value received is greater than 0xFAFF(h) from "
                                            + module.getModuleName() + " for " + spn);
                                }
@@ -835,7 +835,7 @@ public class Part02Step17Controller extends StepController {
                            .forEach(spn -> {
                                // 6.2.17.8.b. Fail each PG query where any bin value received
                                // is greater than FAFFFFFFh.
-                               if (spn.getRawValue() >= 0xFAFFFFFFL) {
+                               if (spn.getRawValue() > 0xFAFFFFFFL) {
                                    addFailure("6.2.17.8.b - Bin value received is greater than 0xFAFFFFFF(h) form "
                                            + module.getModuleName() + " for " + spn);
                                }
@@ -887,7 +887,7 @@ public class Part02Step17Controller extends StepController {
                 }
             } else {
                 packetForPg.getSpns().forEach(spn -> {
-                    if (spn.getRawValue() >= 0xFAFFFFFFL) {
+                    if (spn.getRawValue() > 0xFAFFFFFFL) {
                         // 6.2.17.10.c. Fail each PG query where any bin value received is greater than FAFFh. (Use
                         // FAFFFFFFh for NOx values)
                         addFailure("6.2.17.10.c - Bin value received is greater than 0xFAFFFFFF(h) from "
