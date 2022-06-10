@@ -404,11 +404,11 @@ public class Part02Step17Controller extends StepController {
                                addFailure("6.2.17.24.b - Bin value received is greater than 0xFAFFFFFF(h) from "
                                        + module.getModuleName() + " for " + spn);
                            }
-                           // 6.2.17.14.c Fail all values where the corresponding value received is part 1 is
+                           // 6.2.17.24.c Fail all values where the corresponding value received is part 1 is
                            // greater than the part 2 value
                            var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
                            if (partOneValue > spn.getValue()) {
-                               addFailure("6.2.17.14.c - Value received from " + module.getModuleName() + " for " + spn
+                               addFailure("6.2.17.24.c - Value received from " + module.getModuleName() + " for " + spn
                                                   + " was greater than part 1 value");
                            }
 
@@ -621,7 +621,7 @@ public class Part02Step17Controller extends StepController {
                            // greater than the part 2 value (where supported)
                            var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
                            if (partOneValue > spn.getValue()) {
-                               addFailure("6.2.17.22.d - Value received from " + module.getModuleName()
+                               addFailure("6.2.17.12.c - Value received from " + module.getModuleName()
                                        + " for " + spn
                                        + " was greater than part 1 value");
                            }
@@ -670,6 +670,7 @@ public class Part02Step17Controller extends StepController {
                             + pg);
                 }
             } else {
+                var partOnePacket = get(trackingPacketForPg.getPgnDefinition().getId(), module.getSourceAddress(), 1);
                 trackingPacketForPg.getSpns()
                                    .forEach(spn -> {
                                        if (spn.getRawValue() > 0xFAFFL) {
@@ -678,11 +679,12 @@ public class Part02Step17Controller extends StepController {
                                            addFailure("6.2.17.14.c - Bin value received is greater than 0xFAFF from "
                                                    + module.getModuleName() + " for " + spn);
                                        }
-                                       if (spn.getValue() > 0) {
-                                           // 6.2.17.14.d - Fail each active 100 hr array value that is greater than
-                                           // zero
-                                           addFailure("6.2.17.14.d - Active 100 hr array value received is greater than zero from "
-                                                   + module.getModuleName() + " for " + spn);
+                                       // 6.2.17.14.d - Fail all values where the corresponding value received in part 1 is greater than the part 2 value
+                                       var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                                       if (partOneValue > spn.getValue()) {
+                                           addFailure("6.2.17.14.d - Value received from " + module.getModuleName()
+                                                              + " for " + spn
+                                                              + " was greater than part 1 value");
                                        }
                                    });
             }
@@ -711,6 +713,7 @@ public class Part02Step17Controller extends StepController {
                         + module.getModuleName() + " for PG "
                         + pg);
             } else {
+                var partOnePacket = get(packetForPg.getPgnDefinition().getId(), module.getSourceAddress(), 1);
                 packetForPg.getSpns()
                            .forEach(spn -> {
                                // 6.2.17.16.b. Fail any accumulator value received that is greater
@@ -719,15 +722,13 @@ public class Part02Step17Controller extends StepController {
                                    addFailure("6.2.17.16.b - Bin value received is greater than 0xFAFFFFFF(h) from "
                                            + module.getModuleName() + " for " + spn);
                                }
-                               // 6.2.17.16.c. Fail PG query where any index value received is
-                               // greater than FAh.
-                               var indexSpn = 12691;
-                               if (spn.getId() == indexSpn && spn.getRawValue() > 0xFAL) {
+                               // 6.2.17.16.c. Fail all values where the corresponding value received in part 1 is greater than the part 2 value.
+                               var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                               if (partOneValue > spn.getValue()) {
                                    addFailure("6.2.17.16.c - Value received from " + module.getModuleName()
-                                           + " for " + spn
-                                           + " was greater than 0xFA(h)");
+                                                      + " for " + spn
+                                                      + " was greater than part 1 value");
                                }
-
                            });
             }
         }
