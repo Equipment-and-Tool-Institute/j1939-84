@@ -886,11 +886,13 @@ public class Part02Step17Controller extends StepController {
                 }
             } else {
                 packetForPg.getSpns().forEach(spn -> {
-                    if (spn.getRawValue() > 0xFAFFFFFFL) {
+                    var checkValue =  spn.getSlot().getLength() == 2 ? 0xFAFFL : 0xFAFFFFFFL;
+                    var checkValueString = spn.getSlot().getLength() == 2 ? String.format("0x%04X", checkValue) : String.format("0x%08X", checkValue);
+                    if (spn.getRawValue() > checkValue) {
                         // 6.2.17.10.c. Fail each PG query where any bin value received is greater than FAFFh. (Use
                         // FAFFFFFFh for NOx values)
-                        addFailure("6.2.17.10.c - Bin value received is greater than 0xFAFFFFFF(h) from "
-                                + module.getModuleName() + " for " + spn);
+                         addFailure("6.2.17.10.c - Bin value received is greater than " + checkValueString + "(h) from "
+                                           + module.getModuleName() + " for " + spn);
 
                     }
                     // 6.2.17.10.e. Fail each active 100 hr array value that is greater than zero. (where supported)
