@@ -767,7 +767,7 @@ public class Part01Step26Controller extends StepController {
                                           // 6.1.26.18.d. Fail PG query where any index value received is greater than
                                           // FAh.
                                           if (spn.getId() == 12691 && spn.getValue() > 0xFAL) {
-                                              addFailure("6.1.26.16.c - PG query index received was " + "");
+                                              addFailure("6.1.26.18.d - PG query index received was " + "");
                                           }
                                           if (GHG_ACTIVE_GREEN_HOUSE_100_HR == spn.getId() && spn.getValue() > 0) {
                                               // 6.1.26.18.g. Fail each active 100 hr array value that is greater than
