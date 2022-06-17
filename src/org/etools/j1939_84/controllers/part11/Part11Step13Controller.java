@@ -24,6 +24,7 @@ import static org.etools.j1939tools.modules.NOxBinningModule.NOx_TRACKING_STORED
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -36,6 +37,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.model.Spn;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
@@ -328,35 +330,36 @@ public class Part11Step13Controller extends StepController {
         var ghgTrackingLifetimePackets = requestPackets(module.getSourceAddress(),
                                                         GHG_TRACKING_LIFETIME_PG);
 
-        GenericPacket packetForPg = haveResponseWithPg(ghgTrackingLifetimePackets, GHG_TRACKING_LIFETIME_PG);
-        if (packetForPg == null) {
+        if (ghgTrackingLifetimePackets == null) {
             // 6.11.13.6.a. Fail PG query where no response was received
             addFailure("6.11.13.6.a - No response was received from "
                     + module.getModuleName() + " for PG "
                     + GHG_TRACKING_LIFETIME_PG);
         } else {
-            var partTwoPacket = get(packetForPg.getPgnDefinition().getId(), module.getSourceAddress(), 2);
-            packetForPg.getSpns()
-                       .forEach(spn -> {
-                           // 6.11.13.6.b. Fail PG query where any bin value received is greater than FAFFh.
-                           if (spn.getRawValue() > 0xFAFFL) {
-                               addFailure("6.11.13.6.b - Bin value received is greater than 0xFAFF(h) from "
-                                       + module.getModuleName() + " for " + spn);
-                           }
-                           // 6.11.13.6.c - Fail all values where the corresponding value received in part 2 is
-                           // greater than the part 11 value
-                           var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                           if (partTwoValue > spn.getValue()) {
-                               addFailure("6.11.13.6.c - Value received from " + module.getModuleName()
-                                                  + " for " + spn
-                                                  + " in part 2 was greater than part 11 value");
-                           }
-                           // 6.11.13.6.d - Fail if lifetime engine hours SPN 12730 < 600 seconds. (Where supported)
-                           if (spn.getId() == 12730 && spn.getValue() < 600) {
-                               addFailure("6.11.13.6.d - Lifetime engine hours SPN " + spn.getId() + " received is < 600 seconds from "
-                                       + module.getModuleName());
-                           }
-                       });
+            var partTwoPacket = get(GHG_TRACKING_LIFETIME_PG, module.getSourceAddress(), 2);
+
+            ghgTrackingLifetimePackets.stream().map(GenericPacket::getSpns).forEach(spns -> {
+                spns.forEach(spn -> {
+                    // 6.11.13.6.b. Fail PG query where any bin value received is greater than FAFFh.
+                    if (spn.getRawValue() > 0xFAFFL) {
+                        addFailure("6.11.13.6.b - Bin value received is greater than 0xFAFF(h) from "
+                                           + module.getModuleName() + " for " + spn);
+                    }
+                    // 6.11.13.6.c - Fail all values where the corresponding value received in part 2 is
+                    // greater than the part 11 value
+                    var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                    if (partTwoValue > spn.getValue()) {
+                        addFailure("6.11.13.6.c - Value received from " + module.getModuleName()
+                                           + " for " + spn
+                                           + " in part 2 was greater than part 11 value");
+                    }
+                    // 6.11.13.6.d - Fail if lifetime engine hours SPN 12730 < 600 seconds. (Where supported)
+                    if (spn.getId() == 12730 && spn.getValue() < 600) {
+                        addFailure("6.11.13.6.d - Lifetime engine hours SPN " + spn.getId() + " received is < 600 seconds from "
+                                           + module.getModuleName());
+                    }
+                });
+            });
         }
 
         // 6.11.13.7 Actions4 for MY2022+ Engines
@@ -436,31 +439,31 @@ public class Part11Step13Controller extends StepController {
         // 6.11.13.9.a - DS request message to ECU that indicated support in DM24 for upon request
         // SP 12691 (GHG Tracking Lifetime Active Technology Index) for PG 64257 Green House Gas Lifetime Active
         // Technology Tracking.
-        var ghgPackets = requestPackets(module.getSourceAddress(),
+        var lifetimeGhgPackets = requestPackets(module.getSourceAddress(),
                                         GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG);
 
-        GenericPacket packetForPg = haveResponseWithPg(ghgPackets, GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG);
-        if (packetForPg == null) {
+        if (lifetimeGhgPackets == null) {
             // 6.11.13.10.a. Warn PG query where no response was received.
             addWarning("6.11.13.10.a - No response was received from "
                     + module.getModuleName() + " for PG "
                     + GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG);
         } else {
-            packetForPg.getSpns()
-                       .forEach(spn -> {
-                           // 6.11.13.10.b. Fail any accumulator value received that is greater
-                           // than FAFFFFFFh.
-                           if (spn.getRawValue() > 0xFAFFFFFFL) {
-                               addFailure("6.11.13.10.b - Bin value received is greater than 0xFAFFFFFF(h) from "
-                                       + module.getModuleName() + " for " + spn);
-                           }
-                           // 6.11.13.10.c. Fail PG query where any index value received is
-                           // greater than FAh.
-                           if (spn.getSlot().getId() == 12691 && spn.getRawValue() > 0xFA) {
-                               addFailure("6.11.13.10.c - Index value received is greater than 0xFA(h) from "
-                               + module.getModuleName() + " for " + spn);
-                           }
-                       });
+            lifetimeGhgPackets.stream().map(GenericPacket::getSpns).forEach(spns -> {
+                spns.forEach(spn -> {
+                    // 6.11.13.10.b. Fail any accumulator value received that is greater
+                    // than FAFFFFFFh.
+                    if (spn.getRawValue() > 0xFAFFFFFFL) {
+                        addFailure("6.11.13.10.b - Bin value received is greater than 0xFAFFFFFF(h) from "
+                                + module.getModuleName() + " for " + spn);
+                    }
+                    // 6.11.13.10.c. Fail PG query where any index value received is
+                    // greater than FAh.
+                    if (spn.getSlot().getId() == 12691 && spn.getRawValue() > 0xFA) {
+                        addFailure("6.11.13.10.c - Index value received is greater than 0xFA(h) from "
+                                + module.getModuleName() + " for " + spn);
+                    }
+                });
+            });
         }
 
         // 6.11.13.11 Actions9 for MY2022+ Engines
@@ -478,10 +481,10 @@ public class Part11Step13Controller extends StepController {
 
         // 6.11.13.11.b. List data received in a table using lifetime, stored 100 hr,
         // active 100hr for columns, and categories for rows.
-        getListener().onResult(ghgTrackingModule.formatTechTable(Stream.concat(ghgPackets.stream(),
+        getListener().onResult(ghgTrackingModule.formatTechTable(Stream.concat(lifetimeGhgPackets.stream(),
                                                                                ghg100HrPackets.stream())
                                                                        .collect(Collectors.toList())));
-
+        
         for (int pg : List.of(GHG_ACTIVE_GREEN_HOUSE_100_HR, GHG_STORED_GREEN_HOUSE_100_HR)) {
             GenericPacket greenHousePacketForPg = haveResponseWithPg(ghg100HrPackets, pg);
             if (greenHousePacketForPg == null) {
@@ -498,62 +501,83 @@ public class Part11Step13Controller extends StepController {
                             + pg);
                 }
             } else {
-                var partTwoPacket = get(packetForPg.getPgnDefinition().getId(), module.getSourceAddress(), 2);
-                // FIXME:
-                // @Joe values defined in email will update when I get that processed
-                var numLifeTimeLabels = packetForPg.getSpnValue(12691).orElse(NOT_AVAILABLE);
-                var numCurrentPgLabels = greenHousePacketForPg.getPgnDefinition().getId() == 64255 ? greenHousePacketForPg.getSpnValue(12697).orElse(
-                        NOT_AVAILABLE) : greenHousePacketForPg.getSpnValue(12694).orElse(NOT_AVAILABLE);
-
-                // 6.11.13.12.d. Fail each response where the number of labels received are not
-                // the same as the number of labels received for the lifetime technology response.
-//                if(numLifeTimeLabels != numCurrentPgLabels){
-//                    addFailure("6.11.13.12.d - Number of labels received differs from the number of lifetime labels in response for PG " + greenHousePacketForPg.getPgnDefinition().getId() + NL);
-//                }
-
-                    // FIXME:
-                    // @Joe values defined in email will update when I get that processed
-                    // 6.11.13.12.e. Fail each response where the set of labels received is not a
-                    // subset of the set of labels received for the lifetime’ active technology
-                    // response.
-                greenHousePacketForPg.getSpns()
-                                     .forEach(spn -> {
-                                         // 6.11.13.12.c. Fail each PG query where any active technology label or
-                                         // accumulator value received is greater than FAh, or FAFFh, respectively.
-                                         if (spn.getId() == 12691 || spn.getId() == 12694 || spn.getId() == 12697) {
-                                             if (spn.getRawValue() > 0xFAL) {
-                                                 addFailure("6.11.13.12.c - Active Technology value received is greater than 0xFA(h) from "
-                                                         + module.getModuleName() + " for " + spn);
-                                             }
-                                         } else {
-                                             if (spn.getRawValue() > 0xFAFFL) {
-                                                 addFailure("6.11.13.12.c - Active Technology value received is greater than 0xFAFF(h) from "
-                                                         + module.getModuleName() + " for " + spn);
-                                             }
-                                         }
-                                         // 6.11.13.12.f. Fail all values where the corresponding value received in
-                                         // part 2 is greater than the part 11 value. (Where supported)
-                                         var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                                         if (partTwoValue > spn.getValue()) {
-                                             addFailure("6.11.13.12.f - Value received from " + module.getModuleName()
-                                                                + " for " + spn
-                                                                + " in part 2 was greater than part 11 value");
-                                         }
-                                         // 6.11.13.12.g. Warn if any active 100 hrs active technology engine hours SPN 12695 > part 2 value + 600 seconds (where supported)
-                                         if(spn.getId() == 12695) {
-                                                 if( spn.getValue() > partTwoValue + 600) {
-                                                     addWarning("6.11.13.12.g - Active Tech time received is > part 2 value + 600 seconds");
-                                                 }
-                                         }
-                                         // 6.11.13.12.h. Warn for any active 100 hr active technology vehicle distance SPN 12696 => 0.25 km. (Where supported).
-                                         if (spn.getId() == 12696) {
-                                             if (spn.getValue() >= 0.25) {
-                                                 addWarning("6.11.13.12.h - Active Tech vehicle distance received is => 0.25km from "
-                                                         + module.getModuleName() + " for " + spn);
-                                             }
-                                         }
-                                     });
+                var partTwoPacket = get(greenHousePacketForPg.getPgnDefinition().getId(), module.getSourceAddress(), 2);
+                ghg100HrPackets.stream().map(GenericPacket::getSpns).forEach(spns -> {
+                    spns.forEach(spn -> {
+                        // 6.11.13.12.c. Fail each PG query where any active technology label or
+                        // accumulator value received is greater than FAh, or FAFFh, respectively.
+                        if (spn.getId() == 12691 || spn.getId() == 12694 || spn.getId() == 12697) {
+                            if (spn.getRawValue() > 0xFAL) {
+                                addFailure(
+                                        "6.11.13.12.c - Active Technology value received is greater than 0xFA(h) from "
+                                                + module.getModuleName() + " for " + spn);
+                            }
+                        } else {
+                            if (spn.getRawValue() > 0xFAFFL) {
+                                addFailure(
+                                        "6.11.13.12.c - Active Technology value received is greater than 0xFAFF(h) from "
+                                                + module.getModuleName() + " for " + spn);
+                            }
+                        }
+                        // 6.11.13.12.f. Fail all values where the corresponding value received in
+                        // part 2 is greater than the part 11 value. (Where supported)
+                        var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                        if (partTwoValue > spn.getValue()) {
+                            addFailure("6.11.13.12.f - Value received from " + module.getModuleName()
+                                               + " for " + spn
+                                               + " in part 2 was greater than part 11 value");
+                        }
+                        // 6.11.13.12.g. Warn if any active 100 hrs active technology engine hours SPN 12695 > part 2 value + 600 seconds (where supported)
+                        if (spn.getId() == 12695) {
+                            if (spn.getValue() > partTwoValue + 600) {
+                                addWarning("6.11.13.12.g - Active Tech time received is > part 2 value + 600 seconds");
+                            }
+                        }
+                        // 6.11.13.12.h. Warn for any active 100 hr active technology vehicle distance SPN 12696 => 0.25 km. (Where supported).
+                        if (spn.getId() == 12696) {
+                            if (spn.getValue() >= 0.25) {
+                                addWarning("6.11.13.12.h - Active Tech vehicle distance received is => 0.25km from "
+                                                   + module.getModuleName() + " for " + spn);
+                            }
+                        }
+                    });
+                });
             }
+        }
+
+        var lifetimeLabels = lifetimeGhgPackets.stream()
+                .flatMap(p -> p.getSpns().stream())
+                .filter(spn -> spn.getId() == 12691)
+                .map(Spn::getValue)
+                .collect(Collectors.toCollection(HashSet::new));
+        var activeLabels = ghg100HrPackets.stream()
+                .flatMap(p -> p.getSpns().stream())
+                .filter(spn -> spn.getId() == 12697)
+                .map(Spn::getValue)
+                .collect(Collectors.toCollection(HashSet::new));
+        var storedLabels = ghg100HrPackets.stream()
+                .flatMap(p -> p.getSpns().stream())
+                .filter(spn -> spn.getId() == 12694)
+                .map(Spn::getValue)
+                .collect(Collectors.toCollection(HashSet::new));
+       
+        // 6.11.13.12.d. Fail each response where the number of labels received are not
+        // the same as the number of labels received for the lifetime technology response.
+        if (lifetimeLabels.size() != activeLabels.size()) {
+            addFailure("6.11.13.12.d - Number of active labels received differs from the number of lifetime labels");
+        }
+        if (lifetimeLabels.size() != storedLabels.size()) {
+            addFailure("6.11.13.12.d - Number of stored labels received differs from the number of lifetime labels");
+        }
+
+        // 6.11.13.12.e. Fail each response where the set of labels received is not a
+        // subset of the set of labels received for the lifetime’ active technology
+        // response.
+        if (!lifetimeLabels.containsAll(activeLabels)) {
+            addFailure("6.11.13.12.e - Active labels received is not a subset of lifetime labels");
+        }
+        if (!lifetimeLabels.containsAll(storedLabels)) {
+            addFailure("6.11.13.12.e - Stored labels received is not a subset of lifetime labels");
         }
     }
 
