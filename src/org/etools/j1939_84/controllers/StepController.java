@@ -41,8 +41,10 @@ import org.etools.j1939tools.j1939.J1939DaRepository;
 import org.etools.j1939tools.j1939.Lookup;
 import org.etools.j1939tools.j1939.model.FuelType;
 import org.etools.j1939tools.j1939.model.PgnDefinition;
+import org.etools.j1939tools.j1939.model.Spn;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.CompositeSystem;
+import org.etools.j1939tools.j1939.packets.DM58RationalityFaultSpData;
 import org.etools.j1939tools.j1939.packets.DiagnosticReadinessPacket;
 import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
@@ -50,6 +52,7 @@ import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.LampStatus;
 import org.etools.j1939tools.j1939.packets.MonitoredSystem;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.j1939.packets.Slot;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -425,5 +428,60 @@ public abstract class StepController extends Controller {
             e.printStackTrace();
         }
         return pg;
+    }
+
+    protected boolean areUnusedBytesPaddedWithFFh(DM58RationalityFaultSpData packet) {
+        Slot slot = J1939DaRepository.findSlot(packet.getSpn().getSlot().getId(), packet.getSpn().getId());
+
+        int slotLength = slot.getByteLength();
+        int spnLength = packet.getSpnDataBytes().length;
+
+        byte[] paddingBytes;
+
+        switch (slotLength) {
+            case 1:
+                paddingBytes = new byte[] { packet.getSpnDataBytes()[1], packet.getSpnDataBytes()[2],
+                        packet.getSpnDataBytes()[3] };
+                break;
+            case 2:
+                paddingBytes = new byte[] { packet.getSpnDataBytes()[2], packet.getSpnDataBytes()[3] };
+                break;
+            case 3:
+                paddingBytes = new byte[] { packet.getSpnDataBytes()[3] };
+                break;
+            case 4:
+                return true;
+            default: {
+                getListener().onResult("Not checking for FF - SP " + packet.getSpn() + " length is " + slotLength);
+                return true;
+            }
+        }
+        return allBytesAreFF(paddingBytes);
+    }
+
+    protected boolean allBytesAreFF(byte[] dataBytes) {
+        for (byte bYte : dataBytes) {
+            if (bYte != (byte) 0xFF) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected boolean isGreaterThanFb(DM58RationalityFaultSpData packet) {
+        Spn spn = packet.getSpn();
+        long rawValue = spn.getRawValue();
+
+        switch (spn.getSlot().getByteLength()) {
+            case 1:
+                return rawValue > 0xFB;
+            case 2:
+                return rawValue > 0xFBFF;
+            case 4:
+                return rawValue > 0xFBFFFFFFL;
+            default:
+                break;
+        }
+        return false;
     }
 }
