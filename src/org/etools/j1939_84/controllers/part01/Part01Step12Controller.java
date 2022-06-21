@@ -256,10 +256,7 @@ public class Part01Step12Controller extends StepController {
                                                                           .stream()
                                                                           .filter(supportedSPN -> !supportedSPN.supportsRationalityFaultData())
                                                                           .collect(Collectors.toList());
-                                                if (!supportedSPNs.isEmpty()) {
-                                                    return true;
-                                                }
-                                                return false;
+                                                return !supportedSPNs.isEmpty();
                                             })
                                             .collect(Collectors.toList());
 
@@ -294,60 +291,6 @@ public class Part01Step12Controller extends StepController {
         }
     }
 
-    private boolean isGreaterThanFb(DM58RationalityFaultSpData packet) {
-        Spn spn = packet.getSpn();
-        long rawValue = spn.getRawValue();
-
-        switch (spn.getSlot().getByteLength()) {
-            case 1:
-                return rawValue > 0xFB;
-            case 2:
-                return rawValue > 0xFBFF;
-            case 4:
-                return rawValue > 0xFBFFFFFFL;
-            default:
-                getListener().onResult("No data evaluated");
-                break;
-        }
-        return false;
-    }
-
-    private boolean areUnusedBytesPaddedWithFFh(DM58RationalityFaultSpData packet) {
-        Slot slot = J1939DaRepository.findSlot(packet.getSpn().getSlot().getId(), packet.getSpn().getId());
-
-        int slotLength = slot.getByteLength();
-
-        byte[] paddingBytes;
-
-        switch (slotLength) {
-            case 1:
-                paddingBytes = new byte[] { packet.getSpnDataBytes()[1], packet.getSpnDataBytes()[2],
-                        packet.getSpnDataBytes()[3] };
-                break;
-            case 2:
-                paddingBytes = new byte[] { packet.getSpnDataBytes()[2], packet.getSpnDataBytes()[3] };
-                break;
-            case 3:
-                paddingBytes = new byte[] { packet.getSpnDataBytes()[3] };
-                break;
-            case 4:
-                return true;
-            default: {
-                getListener().onResult("Not checking for FF - SP " + packet.getSpn() + " length is " + slotLength);
-                return true;
-            }
-        }
-        return allBytesAreFF(paddingBytes);
-    }
-
-    private boolean allBytesAreFF(byte[] dataBytes) {
-        for (byte bYte : dataBytes) {
-            if (bYte != (byte) 0xFF) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     private void verifyDM30PacketSupported(DM30ScaledTestResultsPacket packet, int spId) {
 
