@@ -634,7 +634,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
         var dm58PacketSpn2 = DM58RationalityFaultSpData.create(source,
                                                                245,
                                                                spn2.getSpn(),
-                                                               new int[] { 0xFF, 0xFF, 0xFF, 0xFF });
+                                                               new int[] { 0xF0, 0xFF, 0xFF, 0xFF });
         when(communicationsModule.requestDM58(any(CommunicationsListener.class),
                                               eq(source),
                                               eq(spn2.getSpn()))).thenReturn(new BusResult<>(false, dm58PacketSpn2));
@@ -642,7 +642,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
         var dm58PacketSpn3 = DM58RationalityFaultSpData.create(source,
                                                                245,
                                                                spn3.getSpn(),
-                                                               new int[] { 0xFF, 0xFA, 0xFF, 0xFF });
+                                                               new int[] { 0xFF, 0xF0, 0xFF, 0xFF });
         when(communicationsModule.requestDM58(any(CommunicationsListener.class),
                                               eq(source),
                                               eq(spn3.getSpn()))).thenReturn(new BusResult<>(false, dm58PacketSpn3));
