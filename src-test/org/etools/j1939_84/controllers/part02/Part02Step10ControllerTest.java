@@ -619,7 +619,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
                 .thenReturn(List.of(DM30ScaledTestResultsPacket.create(source, 0, testResult4)));
 
         obdModule0.setScaledTestResults(List.of(testResult4));
-        obdModule0.set(getDm24SPNSupportPacket(0x00), 1);//DM24SPNSupportPacket.create(source, spn1, spn2, spn3), 1);
+        obdModule0.set(getDm24SPNSupportPacket(0x00), 1);
         dataRepository.putObdModule(obdModule0);
 
         var dm58PacketSpn1 = DM58RationalityFaultSpData.create(source,
