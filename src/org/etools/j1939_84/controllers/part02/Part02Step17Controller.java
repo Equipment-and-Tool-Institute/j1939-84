@@ -22,6 +22,7 @@ import static org.etools.j1939tools.modules.NOxBinningModule.NOx_TRACKING_ACTIVE
 import static org.etools.j1939tools.modules.NOxBinningModule.NOx_TRACKING_STORED_100_HOURS_SPs;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -696,7 +697,7 @@ public class Part02Step17Controller extends StepController {
         // 6.2.17.15.a - DS request message to ECU that indicated support in DM24 for upon request
         // SP 12691 (GHG Tracking Lifetime Active Technology Index) for
         // PG 64257 Green House Gas Lifetime Active Technology Tracking.
-        var ghgPackets = requestPackets(module.getSourceAddress(),
+        var lifetimeGhgPackets = requestPackets(module.getSourceAddress(),
                                         GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG)
                                                                              .stream()
                                                                              // 6.2.17.15.b. Record
@@ -706,7 +707,7 @@ public class Part02Step17Controller extends StepController {
                                                                              .collect(Collectors.toList());
 
         for (int pg : List.of(GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG)) {
-            GenericPacket packetForPg = haveResponseWithPg(ghgPackets, pg);
+            GenericPacket packetForPg = haveResponseWithPg(lifetimeGhgPackets, pg);
             if (packetForPg == null) {
                 // 6.2.17.16.a. Warn PG query where no response was received.
                 addWarning("6.2.17.16.a - No response was received from "
@@ -750,9 +751,10 @@ public class Part02Step17Controller extends StepController {
                                                                            // in Part 12.
                                                                            .peek(this::save)
                                                                            .collect(Collectors.toList());
+
         // 6.2.17.17.c. List data received in a table using lifetime, stored 100 hr,
         // active 100hr for columns, and categories for rows.
-        getListener().onResult(ghgTrackingModule.formatTechTable(Stream.concat(ghgPackets.stream(),
+        getListener().onResult(ghgTrackingModule.formatTechTable(Stream.concat(lifetimeGhgPackets.stream(),
                                                                                ghg100HrPackets.stream())
                                                                        .collect(Collectors.toList())));
 
@@ -793,16 +795,42 @@ public class Part02Step17Controller extends StepController {
                                }
 
                            });
-                // FIXME:
-                // 6.2.17.18.e. Fail each response where the number of labels received are not
-                // @Joe this is clarified in the email from Eric the same as the number of labels received for the
-                // lifetime technology response.
-                // FIXME:
-                // 6.2.17.18.f. Fail each response where the set of labels received is not a
-                // subset of the set of labels received for the lifetime active technology
-                // response.
 
             }
+        }
+
+        var lifetimeLabels = lifetimeGhgPackets.stream()
+                .flatMap(p -> p.getSpns().stream())
+                .filter(spn -> spn.getId() == 12691)
+                .map(Spn::getValue)
+                .collect(Collectors.toCollection(HashSet::new));
+        var activeLabels = ghg100HrPackets.stream()
+                .flatMap(p -> p.getSpns().stream())
+                .filter(spn -> spn.getId() == 12697)
+                .map(Spn::getValue)
+                .collect(Collectors.toCollection(HashSet::new));
+        var storedLabels = ghg100HrPackets.stream()
+                .flatMap(p -> p.getSpns().stream())
+                .filter(spn -> spn.getId() == 12694)
+                .map(Spn::getValue)
+                .collect(Collectors.toCollection(HashSet::new));
+
+        // 6.2.17.18.e. Fail each response where the set of labels received is not a subset of the set of labels
+        // received for the lifetime active technology response
+        if (lifetimeLabels.size() != activeLabels.size()) {
+            addFailure("6.2.17.18.e - Number of active labels received differs from the number of lifetime labels");
+        }
+        if (lifetimeLabels.size() != storedLabels.size()) {
+            addFailure("6.2.17.18.e - Number of stored labels received differs from the number of lifetime labels");
+        }
+
+        // 6.2.17.18.f. Fail all values where the corresponding value received in part 1 is greater than the part 2
+        // value. (Where supported)
+        if (!lifetimeLabels.containsAll(activeLabels)) {
+            addFailure("6.2.17.18.f - Active labels received is not a subset of lifetime labels");
+        }
+        if (!lifetimeLabels.containsAll(storedLabels)) {
+            addFailure("6.2.17.18.f - Stored labels received is not a subset of lifetime labels");
         }
     }
 
@@ -886,11 +914,13 @@ public class Part02Step17Controller extends StepController {
                 }
             } else {
                 packetForPg.getSpns().forEach(spn -> {
-                    if (spn.getRawValue() > 0xFAFFFFFFL) {
+                    var checkValue =  spn.getSlot().getLength() == 2 ? 0xFAFFL : 0xFAFFFFFFL;
+                    var checkValueString = spn.getSlot().getLength() == 2 ? String.format("0x%04X", checkValue) : String.format("0x%08X", checkValue);
+                    if (spn.getRawValue() > checkValue) {
                         // 6.2.17.10.c. Fail each PG query where any bin value received is greater than FAFFh. (Use
                         // FAFFFFFFh for NOx values)
-                        addFailure("6.2.17.10.c - Bin value received is greater than 0xFAFFFFFF(h) from "
-                                + module.getModuleName() + " for " + spn);
+                         addFailure("6.2.17.10.c - Bin value received is greater than " + checkValueString + "(h) from "
+                                           + module.getModuleName() + " for " + spn);
 
                     }
                     // 6.2.17.10.e. Fail each active 100 hr array value that is greater than zero. (where supported)

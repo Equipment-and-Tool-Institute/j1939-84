@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part09;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -245,7 +246,7 @@ public class Part09Step05ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        FAIL,
+                                        WARN,
                                         "6.9.5.3.a - More than one ECU reported time SCC > 0 and times reported differ by > 1 minute");
     }
 }

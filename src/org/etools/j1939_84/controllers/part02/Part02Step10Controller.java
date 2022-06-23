@@ -15,7 +15,10 @@ import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.DM58RationalityFaultSpData;
 import org.etools.j1939tools.j1939.packets.ScaledTestResult;
+import org.etools.j1939tools.j1939.packets.SupportedSPN;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -118,8 +121,91 @@ public class Part02Step10Controller extends StepController {
                     addWarning("6.2.10.3.a - All test results from " + moduleName + " are still initialized");
                 }
             }
-        }
 
+            obdModule.getSupportedSPNs()
+                    .stream()
+                    .filter(SupportedSPN::supportsRationalityFaultData)
+                    .forEach(spn -> {
+                        getCommunicationsModule().requestDM58(getListener(),
+                                                              obdModule.getSourceAddress(),
+                                                              spn.getSpn())
+                                .requestResult()
+                                .getEither()
+                                .stream()
+                                .findFirst()
+                                .ifPresentOrElse(response -> {
+                                                     // // 6.2.10.5.a - Fail if NACK received for DM7 PG
+                                                     // from OBD ECU
+                                                     if (response.right.isPresent()) {
+                                                         addFailure("6.2.10.5.a - NACK received for DM7 PG from OBD ECU from "
+                                                                            + obdModule.getModuleName() + " for SP " + spn);
+                                                     } else {
+                                                         DM58RationalityFaultSpData packet = response.left.orElse(null);
+                                                         // 6.2.10.5.c. Fail, if expected unused bytes in DM58 are
+                                                         // not padded with FFh
+                                                         if (packet != null && !areUnusedBytesPaddedWithFFh(packet)) {
+                                                             addFailure(
+                                                                     "6.2.10.5.c - Unused bytes in DM58 are not padded with FFh in the response from "
+                                                                             + obdModule.getModuleName()
+                                                                             + " for SP " + spn);
+                                                         }
+                                                         // 6.2.10.5.d. Fail, if data returned is greater than FBh
+                                                         // (for 1 byte SP), FBFFh (for 2 byte SP), or FBFFFFFFh (for 4 byte SP)
+                                                         if (packet != null && isGreaterThanFb(packet)) {
+                                                             addFailure(
+                                                                     "6.2.10.5.d - Data returned is greater than 0xFB... threshold from "
+                                                                             + obdModule.getModuleName()
+                                                                             + " for " + spn);
+                                                         }
+                                                     }
+                                                 },
+                                                 () -> {
+                                                     // 6.2.10.5.b. Fail, if DM58 not received
+                                                     addFailure("6.2.10.5.b. DM58 not received from "
+                                                                        + obdModule.getModuleName()
+                                                                        + " for SP " + spn);
+                                                 });
+                    });
+            getDm58AndVerifyData(obdModule.getSourceAddress());
+        }
+    }
+    private void getDm58AndVerifyData(int moduleAddress) {
+
+        // 6.2.10.6 Actions2:
+        // a. DS DM7 with TID 245 (for DM58) using FMI 31 for each SP identified as supporting DM58 in a DM24 response
+        // In step 6.1.4.1 to the SP’s respective OBD ECU.
+        // b. Display the scaled engineering value for the requested SP.
+        var nonRatFaultSps = getDataRepository().getObdModules()
+                .stream()
+                .filter(module -> module.getSourceAddress() == moduleAddress)
+                .flatMap(m -> m.getSupportedSPNs().stream())
+                .filter(supported -> !supported.supportsRationalityFaultData())
+                .collect(Collectors.toList());
+
+        if (nonRatFaultSps.isEmpty()) {
+            getListener().onResult("6.2.10.6.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from "
+                                           + Lookup.getAddressName(moduleAddress));
+        } else {
+            int requestSpn = nonRatFaultSps.stream()
+                    .filter(SupportedSPN::supportsScaledTestResults)
+                    .findFirst()
+                    .orElseGet(() -> nonRatFaultSps.get(0))
+                    .getSpn();
+
+            var packet = getCommunicationsModule().requestDM58(getListener(), moduleAddress, requestSpn)
+                    .requestResult()
+                    .getAcks()
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+
+            // 6.2.10.7 Fail/Warn criteria3:
+            // a. Fail if a NACK is not received
+            if (packet == null || packet.getResponse() != AcknowledgmentPacket.Response.NACK) {
+                addFailure("6.2.10.7.a - NACK not received for DM7 PG from OBD ECU "
+                                   + Lookup.getAddressName(moduleAddress) + " for spn " + requestSpn);
+            }
+        }
     }
 
 }
