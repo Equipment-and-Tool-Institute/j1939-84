@@ -139,8 +139,8 @@ public class Part02Step07Controller extends StepController {
     }
 
     private List<ComponentIdentificationPacket> requestComponentIds() {
-        return request(ComponentIdentificationPacket.class)
-                                                           .stream()
+        return request(ComponentIdentificationPacket.PGN)
+                                                           .toPacketStream()
                                                            .map(p -> new ComponentIdentificationPacket(p.getPacket()))
                                                            .collect(Collectors.toList());
     }
@@ -157,6 +157,6 @@ public class Part02Step07Controller extends StepController {
     }
 
     private BusResult<ComponentIdentificationPacket> requestComponentId(int address) {
-        return (BusResult<ComponentIdentificationPacket>) request(ComponentIdentificationPacket.class, address);
+        return request(ComponentIdentificationPacket.PGN, address);
     }
 }

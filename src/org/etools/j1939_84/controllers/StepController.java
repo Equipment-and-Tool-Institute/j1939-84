@@ -155,7 +155,8 @@ public abstract class StepController extends Controller {
 
                 incrementProgress("Requesting " + pgnDef.getLabel() + " (" + pgnDef.getAcronym() + ") from "
                         + moduleName);
-                var response = getCommunicationsModule().request(pgn, address, getListener());
+                var response = getCommunicationsModule().request(pgn, address, getListener()).toPacketStream().collect(
+                        Collectors.toList());
                 packets.addAll(response);
             }
             return packets;

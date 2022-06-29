@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import java.util.stream.Collectors;
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
 import org.etools.j1939_84.model.Outcome;
@@ -23,6 +24,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.j1939.J1939;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
@@ -112,16 +114,12 @@ public abstract class Controller {
         return getCommunicationsModule().read(clazz, timeout, timeUnit, getListener());
     }
 
-    protected List<? extends GenericPacket> request(int pg) {
+    protected <T extends GenericPacket> RequestResult<T> request(int pg) {
         return getCommunicationsModule().request(pg, getListener());
     }
 
-    protected <T extends GenericPacket> List<T> request(Class<T> clazz) {
-        return getCommunicationsModule().request(clazz, getListener());
-    }
-
-    protected <T extends GenericPacket> BusResult<T> request(Class<T> clazz, int address) {
-        return getCommunicationsModule().request(clazz, address, getListener());
+    protected <T extends GenericPacket> BusResult<T> request(int pg, int address) {
+        return getCommunicationsModule().request(pg, address, getListener());
     }
 
     /**
