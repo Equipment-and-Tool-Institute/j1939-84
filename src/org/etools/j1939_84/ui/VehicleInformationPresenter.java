@@ -199,10 +199,9 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
             view.setEmissionUnits(obdModules.size());
 
             obdModules.stream().peek(address -> {
-                emissionUnitsFound.addAll(communicationsModule.request(ComponentIdentificationPacket.class,
+                emissionUnitsFound.addAll(communicationsModule.request(ComponentIdentificationPacket.PGN,
                                                                        address,
-                                                                       NOOP)
-                                                              .toPacketStream()
+                                                                       NOOP).toPacketStream()
                                                               .map(p -> new ComponentIdentificationPacket(p.getPacket()))
                                                               .collect(Collectors.toList()));
             });

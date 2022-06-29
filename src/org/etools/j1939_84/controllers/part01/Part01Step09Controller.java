@@ -18,6 +18,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.j1939.Lookup;
 import org.etools.j1939tools.j1939.packets.ComponentIdentificationPacket;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
@@ -68,7 +69,7 @@ public class Part01Step09Controller extends StepController {
         // 6.1.9.1.b Display each positive return in the log.
         var dsPackets = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> request(ComponentIdentificationPacket.class, a))
+                                           .map(a -> request(ComponentIdentificationPacket.PGN, a))
                                            .map(BusResult::requestResult)
                                            .flatMap(r -> r.getPackets().stream())
                                            .collect(Collectors.toList());
@@ -191,9 +192,7 @@ public class Part01Step09Controller extends StepController {
 
         // 6.1.9.4.a. Global Component ID request (PG 59904) for PG 65259 (SPs 586, 587, and 588).
         // 6.1.9.4.b. Display each positive return in the log.
-        var globalPackets = request(ComponentIdentificationPacket.class)
-                                                                        .stream()
-                                                                        .collect(Collectors.toList());
+        var globalPackets = request(ComponentIdentificationPacket.PGN).getPackets();
 
         // 6.1.9.5 Fail Criteria2 for function 0:
         var globalFunction0Packet = globalPackets.stream()

@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.etools.j1939tools.CommunicationsListener;
+import org.etools.j1939tools.bus.Bus;
 import org.etools.j1939tools.bus.BusException;
 import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.bus.Packet;
@@ -430,8 +431,6 @@ public class CommunicationsModuleTest {
     public void testRequestDM11() throws BusException {
         final int pgn = DM11ClearActiveDTCsPacket.PGN;
 
-        // DataRepository.getInstance().putObdModule(new OBDModuleInformation(0));
-
         Packet requestPacket1 = Packet.create(REQUEST_PGN | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket1).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
@@ -469,8 +468,6 @@ public class CommunicationsModuleTest {
     public void testRequestDM11DS() throws BusException {
         final int pgn = DM11ClearActiveDTCsPacket.PGN;
 
-        // DataRepository.getInstance().putObdModule(new OBDModuleInformation(0));
-
         Packet requestPacket1 = Packet.create(REQUEST_PGN, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket1).when(j1939).createRequestPacket(pgn, 0);
 
@@ -506,7 +503,6 @@ public class CommunicationsModuleTest {
     @Test
     public void testRequestDM12DestinationSpecific() throws BusException {
         final int pgn = DM12MILOnEmissionDTCPacket.PGN;
-        // DataRepository.getInstance().putObdModule(new OBDModuleInformation(0));
 
         Packet requestPacket = Packet.create(REQUEST_PGN, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0);
@@ -543,7 +539,6 @@ public class CommunicationsModuleTest {
     @Test
     public void testRequestDM12DestinationSpecificWithDTCs() throws BusException {
         final int pgn = DM12MILOnEmissionDTCPacket.PGN;
-        // DataRepository.getInstance().putObdModule(new OBDModuleInformation(0));
 
         Packet requestPacket = Packet.create(REQUEST_PGN, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0);
@@ -612,7 +607,6 @@ public class CommunicationsModuleTest {
     @Test
     public void testRequestDM12Global() throws BusException {
         final int pgn = DM12MILOnEmissionDTCPacket.PGN;
-        // DataRepository.getInstance().putObdModule(new OBDModuleInformation(0));
 
         DM12MILOnEmissionDTCPacket packet1 = new DM12MILOnEmissionDTCPacket(
                                                                             Packet.create(pgn,
@@ -3453,9 +3447,9 @@ public class CommunicationsModuleTest {
                                                                                                              .read(anyLong(),
                                                                                                                    any());
 
-        List<? extends GenericPacket> actual = instance.requestDM57(listener, moduleAddress);
+        BusResult<? extends GenericPacket> actual = instance.requestDM57(listener, moduleAddress);
 
-        assertEquals(List.of(packet), actual);
+        assertEquals(BusResult.of(packet), actual);
 
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM57 Request to Instrument Cluster #1 (23)" + NL;

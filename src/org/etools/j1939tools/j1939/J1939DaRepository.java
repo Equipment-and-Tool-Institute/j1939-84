@@ -167,7 +167,10 @@ public class J1939DaRepository {
                                                                   PgnDefinition pgnDef = null;
                                                                   // we don't care about the PGN that have no
                                                                   // SPNs.
-                                                                  if (spnDef != null && !pgnIdStr.isBlank()) {
+                                                                  if ( !pgnIdStr.isBlank()) {
+                                                                      if(spnDef == null){
+                                                                          spnDef = new SpnDefinition(-1, "Unknown", 0, 0, -1);
+                                                                      }
                                                                       int transmissionRate = parseTransmissionRate(line[3]);
                                                                       String label = shortenLabel(line[1]).trim();
                                                                       pgnDef = new PgnDefinition(parseInt(pgnIdStr),
