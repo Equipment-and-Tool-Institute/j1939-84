@@ -21,8 +21,6 @@ import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
-;
-
 /**
  * 6.7.2 DM23: Emission Related Previously Active DTCs
  */
@@ -92,7 +90,7 @@ public class Part07Step02Controller extends StepController {
         // 6.7.2.2.c. Fail if any ECU does not report MIL off and not flashing.
         packets.forEach(p -> {
             if (p.getMalfunctionIndicatorLampStatus() != OFF) {
-                addFailure("6.7.2.2.c - OBD ECU " + p.getModuleName() + " reported MIL off and not flashing");
+                addFailure("6.7.2.2.c - OBD ECU " + p.getModuleName() + " did not report MIL off and not flashing");
             }
         });
 
