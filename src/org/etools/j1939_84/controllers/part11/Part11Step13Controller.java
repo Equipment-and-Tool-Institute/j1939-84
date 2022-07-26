@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part11;
 
+import static java.lang.Double.sum;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939tools.j1939.packets.ParsedPacket.NOT_AVAILABLE;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_100_HR;
@@ -588,15 +589,9 @@ public class Part11Step13Controller extends StepController {
         // subset of the set of labels received for the lifetime’ active technology
         // response.
         if (!CollectionUtils.areTwoCollectionsEqual(lifetimeIndexes, activeIndexes)) {
-            System.out.println("lifetimeLabels are: " + NL + Arrays.toString(lifetimeIndexes.toArray()));
-            System.out.println("activeIndexes are: " + NL + Arrays.toString(activeIndexes.toArray()));
-
             addFailure("6.11.13.12.e - Active labels received is not a subset of lifetime labels");
         }
         if (!CollectionUtils.areTwoCollectionsEqual(lifetimeIndexes, storedIndexes)) {
-            System.out.println("lifetimeLabels are: " + NL + Arrays.toString(lifetimeIndexes.toArray()));
-            System.out.println("storedIndexes are: " + NL + Arrays.toString(storedIndexes.toArray()));
-
             addFailure("6.11.13.12.e - Stored labels received is not a subset of lifetime labels");
         }
     }
@@ -627,7 +622,11 @@ public class Part11Step13Controller extends StepController {
                             }
                             // 6.11.13.2.c Fail all values where the corresponding value received in part 2 is
                             // greater than the part 12 value.
-                            var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                            var partTwoValue = partTwoPacket.getSpns().stream()
+                                    .filter(sp -> sp.getId() == spn.getId())
+                                    .findFirst()
+                                    .map(Spn::getValue)
+                                    .orElse(NOT_AVAILABLE);
                             if (spn.getValue() != null && partTwoValue > spn.getValue()) {
                                 addFailure("6.11.13.2.c - Value received from " + module.getModuleName()
                                                    + " for " + spn
@@ -636,7 +635,8 @@ public class Part11Step13Controller extends StepController {
                             // 6.11.13.2.d Info if lifetime engine hours bin 1 (total) SPN 12593 < part 2 value +
                             // 60 seconds.
                             if (spn.getId() == 12593) {
-                                if (spn.getValue() < partTwoValue + 60) {
+                                double expectedValue = sum(partTwoValue, 60.0);
+                                if (spn.getValue() < expectedValue) {
                                     addInfo("6.11.13.2.d - Lifetime engine hours bin 1 (total) SP " + spn.getId()
                                                     + " value is < part 2 value + 60 seconds");
                                 }
@@ -751,9 +751,8 @@ public class Part11Step13Controller extends StepController {
                         }
                     }
 
-                    // 6.11.13.4.h. Warn for any active 100 hr active technology vehicle distance SPN 12696 => 0.25 km.
-                    // (Where supported).
-                    if (spn.getId() == 12696) {
+                    // 6.11.13.4.h. Warn for all active 100 hr vehicle distance bins  => 0.25 km. (Where supported)
+                    if (genericPacket.getPgnDefinition().getId() == 64276) {
                         if (spn.getValue() != null && spn.getValue() >= 0.25) {
                             addWarning(
                                     "6.11.13.4.h - Active 100 hr vehicle distance bins received is => 0.25 km from "
