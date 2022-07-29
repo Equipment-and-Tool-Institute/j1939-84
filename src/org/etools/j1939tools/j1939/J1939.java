@@ -99,12 +99,12 @@ public class J1939 {
      * The time to wait for a response from a global request. This time come
      * from Eric. It is based on 200 ms + a delay due to a scheduled DM1.
      */
-    private static final int DS_TIMEOUT = 600; // milliseconds
+    private static final int DS_TIMEOUT = 750; // milliseconds
     /**
      * The time to wait for a response from a global request. This time come
      * from Eric. It is based on 200 ms + a delay due to a scheduled DM1.
      */
-    public static final long GLOBAL_TIMEOUT = 600; // milliseconds
+    public static final long GLOBAL_TIMEOUT = 750; // milliseconds
 
     /**
      * The time to wait for a response from a global request without issuing a
