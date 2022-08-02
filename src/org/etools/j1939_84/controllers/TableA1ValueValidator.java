@@ -65,7 +65,7 @@ public class TableA1ValueValidator {
                     return value < 15;
                 }
             case 543:
-                return value >= 100;
+                return value > 100;
             case 544:
                 if (isEngineRunning) {
                     return value < 200 || value > 4000 || value != dataRepository.getKoeoEngineReferenceTorque();

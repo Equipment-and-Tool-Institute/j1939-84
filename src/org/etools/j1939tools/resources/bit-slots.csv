@@ -315,6 +315,7 @@
 -12691, 247, Mfg Defined Active Technology 4, 8
 -12691, 248, Mfg Defined Active Technology 3, 8
 -12691, 249, Mfg Defined Active Technology 2, 8
+-12691, 250, Mfg Defined Active Technology 1, 8
 -12691, 254, Error, 8
 -12691, 255, Not Available, 8
 
@@ -334,6 +335,7 @@
 -12694, 247, Mfg Defined Active Technology 4, 8
 -12694, 248, Mfg Defined Active Technology 3, 8
 -12694, 249, Mfg Defined Active Technology 2, 8
+-12694, 250, Mfg Defined Active Technology 1, 8
 -12694, 254, Error, 8
 -12694, 255, Not Available, 8
 
@@ -353,5 +355,6 @@
 -12697, 247, Mfg Defined Active Technology 4, 8
 -12697, 248, Mfg Defined Active Technology 3, 8
 -12697, 249, Mfg Defined Active Technology 2, 8
+-12697, 250, Mfg Defined Active Technology 1, 8
 -12697, 254, Error, 8
 -12697, 255, Not Available, 8

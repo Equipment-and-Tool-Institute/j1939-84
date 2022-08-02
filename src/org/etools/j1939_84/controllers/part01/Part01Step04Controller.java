@@ -169,7 +169,7 @@ public class Part01Step04Controller extends StepController {
             // 6.1.4.2.e. For all MY2022+ engines, Fail if SP 12730 (GHG Tracking Engine Run Time) is not included
             // in DM24 response
             if (modelYearIs2022Plus && !obdModule.supportsSpn(12730)) {
-                addWarning("6.1.4.2.e - SP 12730 is not included in DM24 response from " + obdModule.getModuleName());
+                addFailure("6.1.4.2.e - SP 12730 is not included in DM24 response from " + obdModule.getModuleName());
             }
 
             // 6.1.4.2.f. For all MY2022+ engines, Warn if SP 12691 (GHG Tracking Lifetime Active Technology Index)
