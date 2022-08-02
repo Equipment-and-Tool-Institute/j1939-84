@@ -517,8 +517,7 @@ public class Part11Step13Controller extends StepController {
                                                + module.getModuleName() + " for " + spn);
                         }
                     }
-                    // 6.11.13.12.f. Fail all values where the corresponding value received in
-                    // part 2 is greater than the part 11 value. (Where supported)
+                    // 6.11.13.12.f. Fail each response where the set of labels received is not a subset of the set of labels received for the lifetime active technology response
                     var partTwoPacket = get(packet.getPgnDefinition().getId(), module.getSourceAddress(), 2);
                     var partTwoSpn = partTwoPacket.getSpn(spn.getId())
                                                   .orElse(Spn.create(module.getSourceAddress(), NOT_AVAILABLE));
@@ -526,14 +525,20 @@ public class Part11Step13Controller extends StepController {
                         addFailure("6.11.13.12.f - Value received from " + module.getModuleName()
                                 + " for " + spn + " in part 2 was greater than part 11 value");
                     }
-                    // 6.11.13.12.g. Warn if any active 100 hrs active technology engine hours SPN 12695 > part 2 value
-                    // + 600 seconds (where supported)
+                    // 6.11.13.12.g. - Fail all values where the corresponding value received in part 2 is greater than the part 11 value. (Where supported)
                     if (spn.getId() == 12695) {
                         if (spn.hasValue() && (spn.getValue() > (partTwoSpn.getValue() + 600))){
                             addWarning("6.11.13.12.g - Active Tech time received is > part 2 value + 600 seconds");
                         }
                     }
-                    // 6.11.13.12.h. Warn for any active 100 hr active technology vehicle distance SPN 12696 => 0.25 km.
+                    // 6.11.13.12.h. Warn if any active 100 hrs active technology time SPN 12695 > part 2 value + 600 seconds (where supported)
+                    if (spn.getId() == 12695) {
+                        if (spn.hasValue()  && spn.getValue() >= 0.25) {
+                            addWarning("6.11.13.12.h - Active Tech vehicle distance received is => 0.25km from "
+                                               + module.getModuleName() + " for " + spn);
+                        }
+                    }
+                    // 6.11.13.12.i. Warn for active 100 hr active technology vehicle distance SPN 12696 => 0.25 km.
                     // (Where supported).
                     if (spn.getId() == 12696) {
                         if (spn.hasValue()  && spn.getValue() >= 0.25) {
@@ -541,6 +546,7 @@ public class Part11Step13Controller extends StepController {
                                     + module.getModuleName() + " for " + spn);
                         }
                     }
+
                 });
             });
         }
