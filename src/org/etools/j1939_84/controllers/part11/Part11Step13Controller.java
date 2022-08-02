@@ -137,11 +137,10 @@ public class Part11Step13Controller extends StepController {
                     + GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG);
         } else {
             lifetimeHybridChgDepletingPkgs.forEach(genericPacket -> {
+                var partTwoPacket = get(genericPacket.getPgnDefinition().getId(),
+                                        module.getSourceAddress(),
+                                        2);
                 genericPacket.getSpns().forEach(spn -> {
-                    var partTwoPacket = get(genericPacket.getPgnDefinition().getId(),
-                                            module.getSourceAddress(),
-                                            2);
-
                     // 6.11.13.18.b - Fail PG query where any accumulator value
                     // received is greater than FAFFFFFFh.
                     if (spn.getRawValue() > 0xFAFFFFFFL) {
@@ -330,13 +329,13 @@ public class Part11Step13Controller extends StepController {
                     // 6.11.13.6.b. Fail PG query where any bin value received is greater than FAFFFFFFh and less than
                     // FFFFFFFFh.
                     if (spn.getRawValue() > 0xFAFFFFFFL && spn.getRawValue() < 0xFFFFFFFFL) {
-                        addFailure("6.11.13.6.b - Bin value received is greater than 0xFAFF(h) from "
+                        addFailure("6.11.13.6.b - Bin value received is greater than 0xFAFFFFFF(h) and less than 0xFFFFFFFF(h)from "
                                 + module.getModuleName() + " for " + spn);
                     }
                     // 6.11.13.6.c - Fail all values where the corresponding value received in part 2 is
                     // greater than the part 11 value
                     var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                    if (spn.hasValue() &&partTwoValue > spn.getValue()) {
+                    if (spn.hasValue() && partTwoValue > spn.getValue()) {
                         addFailure("6.11.13.6.c - Value received from " + module.getModuleName()
                                 + " for " + spn + " in part 2 was greater than part 11 value");
                     }
@@ -517,23 +516,18 @@ public class Part11Step13Controller extends StepController {
                                                + module.getModuleName() + " for " + spn);
                         }
                     }
-                    // 6.11.13.12.f. Fail each response where the set of labels received is not a subset of the set of labels received for the lifetime active technology response
+                    // 6.11.13.12.g. - Fail all values where the corresponding value received in part 2 is greater than the part 11 value. (Where supported)
                     var partTwoPacket = get(packet.getPgnDefinition().getId(), module.getSourceAddress(), 2);
                     var partTwoSpn = partTwoPacket.getSpn(spn.getId())
-                                                  .orElse(Spn.create(module.getSourceAddress(), NOT_AVAILABLE));
-                    if (spn.hasValue() && partTwoSpn.getValue() > spn.getValue()) {
-                        addFailure("6.11.13.12.f - Value received from " + module.getModuleName()
-                                + " for " + spn + " in part 2 was greater than part 11 value");
-                    }
-                    // 6.11.13.12.g. - Fail all values where the corresponding value received in part 2 is greater than the part 11 value. (Where supported)
+                            .orElse(Spn.create(module.getSourceAddress(), NOT_AVAILABLE));
                     if (spn.getId() == 12695) {
-                        if (spn.hasValue() && (spn.getValue() > (partTwoSpn.getValue() + 600))){
+                        if (spn.hasValue() && (partTwoSpn.getValue() > spn.getValue())){
                             addWarning("6.11.13.12.g - Active Tech time received is > part 2 value + 600 seconds");
                         }
                     }
                     // 6.11.13.12.h. Warn if any active 100 hrs active technology time SPN 12695 > part 2 value + 600 seconds (where supported)
                     if (spn.getId() == 12695) {
-                        if (spn.hasValue()  && spn.getValue() >= 0.25) {
+                        if (spn.hasValue()  && spn.getValue() >= (partTwoSpn.getValue()+ 600)){
                             addWarning("6.11.13.12.h - Active Tech vehicle distance received is => 0.25km from "
                                                + module.getModuleName() + " for " + spn);
                         }
@@ -572,7 +566,7 @@ public class Part11Step13Controller extends StepController {
                                            .map(ActiveTechnology::getIndex)
                                            .collect(Collectors.toList());
 
-        // 6.11.13.12.d. Fail each response where the number of labels received are not
+        // 6.11.13.12.e. Fail each response where the number of labels received are not
         // the same as the number of labels received for the lifetime technology response.
         if (lifetimeIndexes.size() != activeIndexes.size()) {
             addFailure("6.11.13.12.d - Number of active labels received differs from the number of lifetime labels");
@@ -581,7 +575,7 @@ public class Part11Step13Controller extends StepController {
             addFailure("6.11.13.12.d - Number of stored labels received differs from the number of lifetime labels");
         }
 
-        // 6.11.13.12.e. Fail each response where the set of labels received is not a
+        // 6.11.13.12.f. Fail each response where the set of labels received is not a
         // subset of the set of labels received for the lifetime’ active technology
         // response.
         if (!CollectionUtils.areTwoCollectionsEqual(lifetimeIndexes, activeIndexes)) {
@@ -618,9 +612,7 @@ public class Part11Step13Controller extends StepController {
                             }
                             // 6.11.13.2.c Fail all values where the corresponding value received in part 2 is
                             // greater than the part 12 value.
-                            var partTwoValue = partTwoPacket.getSpns().stream()
-                                    .filter(sp -> sp.getId() == spn.getId())
-                                    .findFirst()
+                            var partTwoValue = partTwoPacket.getSpn(spn.getId())
                                     .map(Spn::getValue)
                                     .orElse(NOT_AVAILABLE);
                             if (spn.getValue() != null && partTwoValue > spn.getValue()) {

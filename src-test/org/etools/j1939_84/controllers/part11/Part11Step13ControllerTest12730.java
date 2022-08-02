@@ -1132,7 +1132,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(11),
                                         eq(13),
                                         eq(FAIL),
-                                        eq("6.11.13.6.b - Bin value received is greater than 0xFAFF(h) from Engine #1 (0) for SPN 12734, GHG Tracking Lifetime Engine Output Energy: Not Available"));
+                                        eq("6.11.13.6.b - Bin value received is greater than 0xFAFFFFFF(h) and less than 0xFFFFFFFF(h)from Engine #1 (0) for SPN 12734, GHG Tracking Lifetime Engine Output Energy: Not Available"));
 
         // @formatter:off
         String expected = "10:15:30.0000 GHG Tracking Arrays from Engine #1 (0)" + NL;
