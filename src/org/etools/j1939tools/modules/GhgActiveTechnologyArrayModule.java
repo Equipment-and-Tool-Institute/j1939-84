@@ -57,7 +57,7 @@ public class GhgActiveTechnologyArrayModule {
         String spacer1 = "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|";
         String header1 = "|                                     |    Active   |    Active   |    Stored   |    Stored   |             |             |";
         String header2 = "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |";
-        String header3 = "| Description                         |    Time, s  |   Dist, km  |    Time, s  |   Dist, km  |    Time, s  |   Dist, km  |";
+        String header3 = "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |";
 
         StringBuilder sb = new StringBuilder();
         sb.append(spacer1).append(NL);
