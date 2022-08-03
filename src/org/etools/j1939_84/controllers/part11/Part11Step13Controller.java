@@ -502,33 +502,40 @@ public class Part11Step13Controller extends StepController {
                                                                              .collect(Collectors.toList())));
 
             ghg100HrPackets.forEach(packet -> {
+                var partTwoPacket = get(packet.getPgnDefinition().getId(), module.getSourceAddress(), 2);
                 packet.getSpns().forEach(spn -> {
-                    // 6.11.13.12.c. Fail each PG query where any active technology label or
-                    // accumulator value received is greater than FAh, or FAFFh, respectively.
-                    if (spn.getId() == 12691 || spn.getId() == 12694 || spn.getId() == 12697) {
+                    // 6.11.13.12.c. Fail each PG query where any 100-hr active technology label value
+                    // (SPNs 12694 and 12697) received is greater than FAh
+                    if (spn.getId() == 12694 || spn.getId() == 12697) {
                         if (spn.getRawValue() > 0xFAL) {
                             addFailure("6.11.13.12.c - Active Technology value received is greater than 0xFA(h) from "
                                                + module.getModuleName() + " for " + spn);
                         }
-                    } else {
-                        if (spn.getRawValue() > 0xFAFFL) {
-                            addFailure("6.11.13.12.c - Active Technology value received is greater than 0xFAFF(h) from "
-                                               + module.getModuleName() + " for " + spn);
+                    }
+                    // 6.11.13.12.d Fail each PG query where any 100-hr active technology accumulator value (SPNs 12698,
+                    // 12699, 12695, 12696) received is greater than FAFFh, and less than FFFFh.
+                    if(spn.getId() == 12695 || spn.getId() == 12696 || spn.getId() == 12698 || spn.getId() == 12699) {
+                        if (spn.getRawValue() > 0xFAFFL && spn.getRawValue() < 0xFFFFL) {
+                            addFailure(
+                                    "6.11.13.12.d - Active Technology value received is greater than 0xFAFF(h) and less than 0xFFFF(h) from "
+                                            + module.getModuleName() + " for " + spn);
                         }
                     }
-                    // 6.11.13.12.g. - Fail all values where the corresponding value received in part 2 is greater than the part 11 value. (Where supported)
-                    var partTwoPacket = get(packet.getPgnDefinition().getId(), module.getSourceAddress(), 2);
-                    var partTwoSpn = partTwoPacket.getSpn(spn.getId())
-                            .orElse(Spn.create(module.getSourceAddress(), NOT_AVAILABLE));
-                    if (spn.getId() == 12695) {
-                        if (spn.hasValue() && (partTwoSpn.getValue() > spn.getValue())){
-                            addWarning("6.11.13.12.g - Active Tech time received is > part 2 value + 600 seconds");
-                        }
+                    var partTwoValue = partTwoPacket.getSpn(spn.getId())
+                                                    .map(Spn::getValue)
+                                                    .orElse(NOT_AVAILABLE);
+                    // 6.11.13.12.g. - Fail all values where the corresponding value received in part 2 is greater
+                    // than the part 11 value. (Where supported)
+                    if (spn.hasValue() && (partTwoValue > spn.getValue())) {
+                        addWarning("6.11.13.12.g - Active Tech time received is greater than part 2 value from "
+                                + module.getModuleName() + " for " + spn);
                     }
-                    // 6.11.13.12.h. Warn if any active 100 hrs active technology time SPN 12695 > part 2 value + 600 seconds (where supported)
+
+                    // 6.11.13.12.h. Warn if any active 100 hrs active technology time SPN 12695 > part 2
+                    // value + 600 seconds (where supported)
                     if (spn.getId() == 12695) {
-                        if (spn.hasValue()  && spn.getValue() >= (partTwoSpn.getValue()+ 600)){
-                            addWarning("6.11.13.12.h - Active Tech vehicle distance received is => 0.25km from "
+                        if (spn.hasValue()  && spn.getValue() >= (partTwoValue + 600)){
+                            addWarning("6.11.13.12.h - Active Tech time received is > part 2 value + 600 seconds from "
                                                + module.getModuleName() + " for " + spn);
                         }
                     }
@@ -536,7 +543,7 @@ public class Part11Step13Controller extends StepController {
                     // (Where supported).
                     if (spn.getId() == 12696) {
                         if (spn.hasValue()  && spn.getValue() >= 0.25) {
-                            addWarning("6.11.13.12.h - Active Tech vehicle distance received is => 0.25km from "
+                            addWarning("6.11.13.12.i - Active Tech vehicle distance received is => 0.25km from "
                                     + module.getModuleName() + " for " + spn);
                         }
                     }
@@ -569,20 +576,20 @@ public class Part11Step13Controller extends StepController {
         // 6.11.13.12.e. Fail each response where the number of labels received are not
         // the same as the number of labels received for the lifetime technology response.
         if (lifetimeIndexes.size() != activeIndexes.size()) {
-            addFailure("6.11.13.12.d - Number of active labels received differs from the number of lifetime labels");
+            addFailure("6.11.13.12.e - Number of active labels received differs from the number of lifetime labels");
         }
         if (lifetimeIndexes.size() != storedIndexes.size()) {
-            addFailure("6.11.13.12.d - Number of stored labels received differs from the number of lifetime labels");
+            addFailure("6.11.13.12.e - Number of stored labels received differs from the number of lifetime labels");
         }
 
         // 6.11.13.12.f. Fail each response where the set of labels received is not a
         // subset of the set of labels received for the lifetime’ active technology
         // response.
-        if (!CollectionUtils.areTwoCollectionsEqual(lifetimeIndexes, activeIndexes)) {
-            addFailure("6.11.13.12.e - Active labels received is not a subset of lifetime labels");
+        if (!lifetimeIndexes.containsAll(activeIndexes)) {
+            addFailure("6.11.13.12.f - Active labels received is not a subset of lifetime labels");
         }
-        if (!CollectionUtils.areTwoCollectionsEqual(lifetimeIndexes, storedIndexes)) {
-            addFailure("6.11.13.12.e - Stored labels received is not a subset of lifetime labels");
+        if (!lifetimeIndexes.containsAll(storedIndexes)) {
+            addFailure("6.11.13.12.f - Stored labels received is not a subset of lifetime labels");
         }
     }
 
@@ -673,8 +680,7 @@ public class Part11Step13Controller extends StepController {
                             0xFAFFL :
                             0xFAFFFFFFL;
                     var checkValueString = spn.getSlot().getByteLength() == 2 ?
-                            String.format("0x%04X", checkValue)
-                            :
+                            String.format("0x%04X", checkValue) :
                             String.format("0x%08X", checkValue);
                     if (spn.getRawValue() > checkValue) {
                         // 6.11.13.4.c. Fail each PG query where any bin value received is greater than FAFFh. (Use
