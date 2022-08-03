@@ -1432,7 +1432,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
         expected += "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |  58,903,757 |           0 |" + NL;
         expected += "| Unknown C0                          |         245 |         256 |         245 |         256 |   1,118,506 |           0 |" + NL;
         expected += "| Unknown CE                          |          94 |         128 |          94 |         128 |     559,250 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 6     |          42 |           0 |           0 |           0 |   1,319,462 |           0 |" + NL;
+        expected += "| Mfg Defined Active Technology 6     |          42 |           0 |         N/A |         N/A |   1,319,462 |           0 |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on
@@ -2062,7 +2062,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
         expected += "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |  58,903,757 |           0 |" + NL;
         expected += "| Unknown C0                          |         245 |         256 |         245 |         256 |   1,118,506 |           0 |" + NL;
         expected += "| Unknown CE                          |          94 |         128 |          94 |         128 |     559,250 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |           0 |           0 |" + NL;
+        expected += "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |         N/A |         N/A |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on

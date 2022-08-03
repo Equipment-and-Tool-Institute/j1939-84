@@ -199,10 +199,10 @@ public class Part11Step13Controller extends StepController {
                 genericPacket.getSpns().forEach(spn -> {
                     var lowerLimit = spn.getSlot().getByteLength() == 1 ? 0xFAL : 0xFAFFL;
                     var upperLimit = spn.getSlot().getByteLength() == 1 ? 0xFFL : 0xFFFFL;
-                    var lowerLimitString = spn.getSlot().getByteLength() == 2 ? String.format("0x%04X", lowerLimit)
-                            : String.format("0x%08X", lowerLimit);
-                    var upperLimitString = spn.getSlot().getByteLength() == 2 ? String.format("0x%04X", upperLimit)
-                            : String.format("0x%08X", upperLimit);
+                    var lowerLimitString = spn.getSlot().getByteLength() == 1 ? String.format("0x%02X", lowerLimit)
+                            : String.format("0x%04X", lowerLimit);
+                    var upperLimitString = spn.getSlot().getByteLength() == 1 ? String.format("0x%02X", upperLimit)
+                            : String.format("0x%04X", upperLimit);
                     if (spn.getRawValue() > lowerLimit && spn.getRawValue() < upperLimit) {
                         // 6.11.13.20.c - Fail each PG query where any active technology label or accumulator value
                         // received is greater than FAFFh, respectively.

@@ -141,7 +141,7 @@ public class GhgActiveTechnologyArrayModule {
     }
 
     private String writeTechnology(ActiveTechnology technology) {
-        if (technology != null) {
+        if (technology != null && technology.getTimeSpn().hasValue() && technology.getDistanceSpn().hasValue()) {
             return format(technology.getTimeSpn()) + " |" + format(technology.getDistanceSpn()) + " |";
         } else {
             return format("N/A") + " |" + format("N/A") + " |";
@@ -153,10 +153,7 @@ public class GhgActiveTechnologyArrayModule {
     }
 
     private String format(Spn spn) {
-        Double value = 0.0;
-        if(spn.hasValue()) {
-            value = Double.parseDouble(spn.getStringValueNoUnit());
-        }
+        Double value = Double.parseDouble(spn.getStringValueNoUnit());
         String unit = spn.getSlot().getUnit();
         if ("s".equals(unit)) {
             value = value / 60; //Convert seconds to minutes
