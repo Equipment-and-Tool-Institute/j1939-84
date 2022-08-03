@@ -705,7 +705,7 @@ public class Part11Step13Controller extends StepController {
                     }
 
                     // 6.11.13.4.f. Info, if stored 100 hrs engine hours > 0 seconds (where supported)
-                    if (genericPacket.getPgnDefinition().getId() == 64269 && spn.getValue() > 0) {
+                    if (genericPacket.getPgnDefinition().getId() == 64269 && spn.hasValue() && spn.getValue() > 0) {
                         addInfo("6.11.13.4.f - Active Tech stored engine hours received is > 0 seconds from "
                                         + module.getModuleName() + " for " + spn.getLabel());
                     }
