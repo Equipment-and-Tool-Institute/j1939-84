@@ -723,13 +723,13 @@ public class Part11Step13ControllerTest12783 extends AbstractControllerTest {
                                              eq(0x00),
                                              any(ResultsListener.class));
         verify(communicationsModule).request(eq(64245),
-                                             eq(0),
+                                             eq(0x00),
                                              any(ResultsListener.class));
         verify(communicationsModule).request(eq(64246),
-                                             eq(0),
+                                             eq(0x00),
                                              any(ResultsListener.class));
 
-        verify(mockListener).addOutcome(eq(11), eq(13), eq(FAIL), eq("6.11.13.20.c - Bin value received is greater than 0xFAFF(h) from Engine #1 (0) for SPN 12771, Hybrid Active 100 Hour Fuel Consumed in Driver-Selectable Charge Increasing Operation : Not Available"));
+        verify(mockListener).addOutcome(eq(11), eq(13), eq(FAIL), eq("6.11.13.8.c - Bin value received is greater than 0xFAFF(h) and less than 0xFFFF(h) from Engine #1 (0) for SPN 12771, Hybrid Active 100 Hour Fuel Consumed in Driver-Selectable Charge Increasing Operation : Not Available"));
 
         // @formatter:off
         String expected = "10:15:30.0000 GHG Tracking Arrays from Engine #1 (0)" + NL;
