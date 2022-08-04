@@ -274,7 +274,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
-        ActionOutcome outcome = new ActionOutcome(FAIL, "6.2.10.7.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for spn 27");
+        ActionOutcome outcome = new ActionOutcome(FAIL, "6.2.10.7.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for SPN 27");
         assertEquals(List.of(outcome), listener.getOutcomes());
     }
 
