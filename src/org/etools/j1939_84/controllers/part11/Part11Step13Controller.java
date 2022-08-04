@@ -430,7 +430,7 @@ public class Part11Step13Controller extends StepController {
                     // 6.11.13.8.g. Warn for active 100 hr EOE SPN 12704 <= 1.0 kW-hr (where supported)
                     if (spn.getId() == 12704) {
                         if (spn.hasValue() && spn.getValue() <= 1.0) {
-                            addWarning("6.11.13.8.g - Active Tech EOE received is <= 0.5 kW-hr from "
+                            addWarning("6.11.13.8.g - Active Tech EOE received is <= 1.0 kW-hr from "
                                     + module.getModuleName() + " for " + spn);
                         }
                     }
@@ -702,7 +702,7 @@ public class Part11Step13Controller extends StepController {
 
                     // 6.11.13.4.e. Info if active 100 hrs engine hours bin 1 SP 12389 < 60 seconds (where supported)
                     if (spn.getId() == 12389) {
-                        if (spn.getValue() < 60) {
+                        if (spn.hasValue() && spn.getValue() < 60) {
                             addInfo("6.11.13.4.e - Active 100 hrs engine hours bin 1 SP " + spn.getId()
                                     + " value received is < 60 seconds from "
                                     + module.getModuleName() + " for " + spn.getLabel());

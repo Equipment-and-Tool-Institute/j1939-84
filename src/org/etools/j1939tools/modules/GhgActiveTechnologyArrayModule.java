@@ -141,8 +141,19 @@ public class GhgActiveTechnologyArrayModule {
     }
 
     private String writeTechnology(ActiveTechnology technology) {
-        if (technology != null && technology.getTimeSpn().hasValue() && technology.getDistanceSpn().hasValue()) {
-            return format(technology.getTimeSpn()) + " |" + format(technology.getDistanceSpn()) + " |";
+        if (technology != null ) {
+            String message = "";
+            if(!technology.getTimeSpn().hasValue()) {
+                message += format("N/A") + " |";
+            } else {
+                message += format(technology.getTimeSpn()) + " |";
+            }
+            if(!technology.getDistanceSpn().hasValue()) {
+                message += format("N/A") + " |";
+            } else {
+                message += format(technology.getDistanceSpn()) + " |";
+            }
+            return message;
         } else {
             return format("N/A") + " |" + format("N/A") + " |";
         }

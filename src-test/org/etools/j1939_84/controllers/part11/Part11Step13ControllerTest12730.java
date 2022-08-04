@@ -316,7 +316,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
                                              eq(0x00),
                                              any(ResultsListener.class));
 
-        verify(mockListener).addOutcome(eq(11), eq(13), eq(WARN), eq("6.11.13.8.g - Active Tech EOE received is <= 0.5 kW-hr from Engine #1 (0) for SPN 12704, GHG Tracking Active 100 Hour Engine Output Energy: 0.000 kWh"));
+        verify(mockListener).addOutcome(eq(11), eq(13), eq(WARN), eq("6.11.13.8.g - Active Tech EOE received is <= 1.0 kW-hr from Engine #1 (0) for SPN 12704, GHG Tracking Active 100 Hour Engine Output Energy: 0.000 kWh"));
 
 
         // @formatter:off
