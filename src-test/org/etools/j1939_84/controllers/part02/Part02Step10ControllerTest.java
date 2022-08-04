@@ -264,7 +264,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(mockListener).addOutcome(eq(2), eq(10), eq(FAIL), eq("6.2.10.7.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for spn 27"));
+        verify(mockListener).addOutcome(eq(2), eq(10), eq(FAIL), eq("6.2.10.7.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for SPN 27"));
 
         verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), eq(91));
         verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), eq(4145));
