@@ -381,10 +381,11 @@ public class Part11Step13Controller extends StepController {
                         + module.getModuleName());
             }
         } else {
-            getListener().onResult(ghgTrackingModule.formatTrackingTable(Stream.concat(ghgTrackingLifetimePackets.stream(),
-                                                                                       ghgTrackingPackets.stream())
-                                                                               .collect(Collectors.toList())));
-
+            if(!ghgTrackingLifetimePackets.isEmpty() || !ghgTrackingPackets.isEmpty()) {
+                getListener().onResult(ghgTrackingModule.formatTrackingTable(Stream.concat(ghgTrackingLifetimePackets.stream(),
+                                                                                           ghgTrackingPackets.stream())
+                                                                                     .collect(Collectors.toList())));
+            }
             ghgTrackingPackets.forEach(packet -> {
                 var partTwoPacket = get(packet.getPgnDefinition().getId(), module.getSourceAddress(), 2);
 
