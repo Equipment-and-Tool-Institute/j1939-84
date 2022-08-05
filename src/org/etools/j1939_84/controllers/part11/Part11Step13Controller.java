@@ -427,10 +427,10 @@ public class Part11Step13Controller extends StepController {
                                     + module.getModuleName() + " for " + spn);
                         }
                     }
-                    // 6.11.13.8.g. Warn for active 100 hr EOE SPN 12704 <= 1.0 kW-hr (where supported)
+                    // 6.11.13.8.g. Info for active 100 hr EOE SPN 12704 greater than 1.0 kW-hr (where supported)
                     if (spn.getId() == 12704) {
-                        if (spn.hasValue() && spn.getValue() <= 1.0) {
-                            addWarning("6.11.13.8.g - Active Tech EOE received is <= 1.0 kW-hr from "
+                        if (spn.hasValue() && spn.getValue() > 1.0) {
+                            addInfo("6.11.13.8.g - Active Tech EOE received is > 1.0 kW-hr from "
                                     + module.getModuleName() + " for " + spn);
                         }
                     }
