@@ -125,7 +125,7 @@ public class GhgActiveTechnologyArrayModuleTest {
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += "|                                     |    Active   |    Active   |    Stored   |    Stored   |             |             |" + NL;
         expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
-        expected += "| Description                         |    Time, s  |   Dist, km  |    Time, s  |   Dist, km  |    Time, s  |   Dist, km  |" + NL;
+        expected += "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += "| SAE/ISO Reserved                    |         N/A |         N/A |         N/A |         N/A |  48,521,732 |           0 |" + NL;
         expected += "| Cylinder Deactivation               |           6 |           7 |          18 |          22 |         N/A |         N/A |" + NL;

@@ -23,6 +23,7 @@ import org.etools.j1939tools.CommunicationsListener;
 import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
 import org.etools.j1939tools.j1939.J1939DaRepository;
 import org.etools.j1939tools.j1939.model.PgnDefinition;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
@@ -128,7 +129,7 @@ public class CommunicationsModule extends FunctionalModule {
      */
     @Deprecated
     public List<AcknowledgmentPacket> requestDM11(CommunicationsListener listener) {
-        return requestDM11(listener, 600, MILLISECONDS);
+        return requestDM11(listener, J1939.GLOBAL_TIMEOUT, MILLISECONDS);
     }
 
     public List<AcknowledgmentPacket> requestDM11(CommunicationsListener listener, int address) {

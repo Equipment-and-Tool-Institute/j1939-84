@@ -1,6 +1,7 @@
 package org.etools.j1939tools.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939tools.j1939.packets.ParsedPacket.NOT_AVAILABLE;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -57,7 +58,7 @@ public class GhgActiveTechnologyArrayModule {
         String spacer1 = "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|";
         String header1 = "|                                     |    Active   |    Active   |    Stored   |    Stored   |             |             |";
         String header2 = "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |";
-        String header3 = "| Description                         |    Time, s  |   Dist, km  |    Time, s  |   Dist, km  |    Time, s  |   Dist, km  |";
+        String header3 = "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |";
 
         StringBuilder sb = new StringBuilder();
         sb.append(spacer1).append(NL);
@@ -140,8 +141,19 @@ public class GhgActiveTechnologyArrayModule {
     }
 
     private String writeTechnology(ActiveTechnology technology) {
-        if (technology != null) {
-            return format(technology.getTimeSpn()) + " |" + format(technology.getDistanceSpn()) + " |";
+        if (technology != null ) {
+            String message = "";
+            if(!technology.getTimeSpn().hasValue()) {
+                message += format("N/A") + " |";
+            } else {
+                message += format(technology.getTimeSpn()) + " |";
+            }
+            if(!technology.getDistanceSpn().hasValue()) {
+                message += format("N/A") + " |";
+            } else {
+                message += format(technology.getDistanceSpn()) + " |";
+            }
+            return message;
         } else {
             return format("N/A") + " |" + format("N/A") + " |";
         }
@@ -152,8 +164,7 @@ public class GhgActiveTechnologyArrayModule {
     }
 
     private String format(Spn spn) {
-        double value = Double.parseDouble(spn.getStringValueNoUnit());
-
+        Double value = Double.parseDouble(spn.getStringValueNoUnit());
         String unit = spn.getSlot().getUnit();
         if ("s".equals(unit)) {
             value = value / 60; //Convert seconds to minutes

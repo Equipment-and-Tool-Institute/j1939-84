@@ -99,6 +99,8 @@ public class CommunicationsModuleTest {
     private static final CommunicationsListener NOOP = x -> {
     };
 
+    private static final long TIMEOUT = 750;
+
     private TestResultsListener listener;
 
     @Spy
@@ -139,14 +141,14 @@ public class CommunicationsModuleTest {
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket()),
                  Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket()),
                  Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
-                                                                                          .read(eq(600L),
+                                                                                          .read(eq(TIMEOUT),
                                                                                                 eq(MILLISECONDS));
 
         RequestResult<DM19CalibrationInformationPacket> expected = RequestResult.of(packet1, packet2, packet3);
         RequestResult<DM19CalibrationInformationPacket> actual = instance.requestDM19(NOOP);
         assertEquals(expected, actual);
 
-        verify(j1939).read(eq(600L), eq(MILLISECONDS));
+        verify(j1939).read(eq(TIMEOUT), eq(MILLISECONDS));
     }
 
     @Test
@@ -291,13 +293,13 @@ public class CommunicationsModuleTest {
         doReturn(Stream.of(packet1.getPacket()),
                  Stream.of((packet1.getPacket()),
                            Stream.of(packet1.getPacket()))).when(j1939)
-                                                           .read(eq(600L), eq(MILLISECONDS));
+                                                           .read(eq(TIMEOUT), eq(MILLISECONDS));
 
         BusResult<DM19CalibrationInformationPacket> expected = new BusResult<>(false, packet1);
         BusResult<DM19CalibrationInformationPacket> actual = instance.requestDM19(NOOP, 0x00);
         assertEquals(expected, actual);
 
-        verify(j1939).read(eq(600L), eq(MILLISECONDS));
+        verify(j1939).read(eq(TIMEOUT), eq(MILLISECONDS));
     }
 
     @Test
@@ -305,13 +307,13 @@ public class CommunicationsModuleTest {
         doReturn(Stream.empty(),
                  Stream.empty(),
                  Stream.empty()).when(j1939)
-                                .read(eq(600L), eq(MILLISECONDS));
+                                .read(eq(TIMEOUT), eq(MILLISECONDS));
 
         BusResult<DM19CalibrationInformationPacket> expected = new BusResult<>(false);
         BusResult<DM19CalibrationInformationPacket> actual = instance.requestDM19(NOOP, 0x00);
         assertEquals(expected, actual);
 
-        verify(j1939).read(eq(600L),
+        verify(j1939).read(eq(TIMEOUT),
                            eq(MILLISECONDS));
     }
 
@@ -320,13 +322,13 @@ public class CommunicationsModuleTest {
         doReturn(Stream.empty(),
                  Stream.empty(),
                  Stream.empty()).when(j1939)
-                                .read(eq(600L), eq(MILLISECONDS));
+                                .read(eq(TIMEOUT), eq(MILLISECONDS));
 
         RequestResult<DM19CalibrationInformationPacket> expected = new RequestResult<>(false);
         RequestResult<DM19CalibrationInformationPacket> actual = instance.requestDM19(NOOP);
         assertEquals(expected, actual);
 
-        verify(j1939).read(eq(600L),
+        verify(j1939).read(eq(TIMEOUT),
                            eq(MILLISECONDS));
     }
 
@@ -389,14 +391,14 @@ public class CommunicationsModuleTest {
 
     @Test
     public void testReportComponentIdentificationWithNoResponse() throws BusException {
-        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(eq(600L), eq(MILLISECONDS));
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(eq(TIMEOUT), eq(MILLISECONDS));
 
         List<ComponentIdentificationPacket> expected = Collections.emptyList();
         List<? extends ComponentIdentificationPacket> actual = instance.request(ComponentIdentificationPacket.class,
                                                                                 NOOP);
         assertEquals(expected, actual);
 
-        verify(j1939).read(eq(600L), eq(MILLISECONDS));
+        verify(j1939).read(eq(TIMEOUT), eq(MILLISECONDS));
     }
 
     @Test
@@ -2701,7 +2703,7 @@ public class CommunicationsModuleTest {
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket()),
                  Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket()),
                  Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
-                                                                                          .read(eq(600L),
+                                                                                          .read(eq(TIMEOUT),
                                                                                                 eq(MILLISECONDS));
 
         List<DM56EngineFamilyPacket> packets = instance.requestDM56(listener);
@@ -2735,7 +2737,7 @@ public class CommunicationsModuleTest {
         String actualResults = listener.getResults();
         assertEquals(expectedResults, actualResults);
 
-        verify(j1939).read(eq(600L), eq(MILLISECONDS));
+        verify(j1939).read(eq(TIMEOUT), eq(MILLISECONDS));
     }
 
     @Test
@@ -2790,7 +2792,7 @@ public class CommunicationsModuleTest {
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty())
                                                                 .when(j1939)
-                                                                .read(eq(600L),
+                                                                .read(eq(TIMEOUT),
                                                                       eq(MILLISECONDS));
 
         TestResultsListener listener = new TestResultsListener();
@@ -2804,7 +2806,7 @@ public class CommunicationsModuleTest {
         String actualResults = listener.getResults();
         assertEquals(expectedResults, actualResults);
 
-        verify(j1939).read(eq(600L), eq(MILLISECONDS));
+        verify(j1939).read(eq(TIMEOUT), eq(MILLISECONDS));
     }
 
     @Test

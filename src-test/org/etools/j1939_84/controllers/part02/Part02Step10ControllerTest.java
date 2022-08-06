@@ -264,7 +264,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(mockListener).addOutcome(eq(2), eq(10), eq(FAIL), eq("6.2.10.7.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for spn 27"));
+        verify(mockListener).addOutcome(eq(2), eq(10), eq(FAIL), eq("6.2.10.7.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for SPN 27"));
 
         verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), eq(91));
         verify(communicationsModule).requestDM58(any(CommunicationsListener.class), eq(0x00), eq(4145));
@@ -274,7 +274,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
-        ActionOutcome outcome = new ActionOutcome(FAIL, "6.2.10.7.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for spn 27");
+        ActionOutcome outcome = new ActionOutcome(FAIL, "6.2.10.7.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for SPN 27");
         assertEquals(List.of(outcome), listener.getOutcomes());
     }
 
@@ -619,7 +619,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
                 .thenReturn(List.of(DM30ScaledTestResultsPacket.create(source, 0, testResult4)));
 
         obdModule0.setScaledTestResults(List.of(testResult4));
-        obdModule0.set(getDm24SPNSupportPacket(0x00), 1);//DM24SPNSupportPacket.create(source, spn1, spn2, spn3), 1);
+        obdModule0.set(getDm24SPNSupportPacket(0x00), 1);
         dataRepository.putObdModule(obdModule0);
 
         var dm58PacketSpn1 = DM58RationalityFaultSpData.create(source,
@@ -634,7 +634,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
         var dm58PacketSpn2 = DM58RationalityFaultSpData.create(source,
                                                                245,
                                                                spn2.getSpn(),
-                                                               new int[] { 0xFF, 0xFF, 0xFF, 0xFF });
+                                                               new int[] { 0xF0, 0xFF, 0xFF, 0xFF });
         when(communicationsModule.requestDM58(any(CommunicationsListener.class),
                                               eq(source),
                                               eq(spn2.getSpn()))).thenReturn(new BusResult<>(false, dm58PacketSpn2));
@@ -642,7 +642,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
         var dm58PacketSpn3 = DM58RationalityFaultSpData.create(source,
                                                                245,
                                                                spn3.getSpn(),
-                                                               new int[] { 0xFF, 0xFA, 0xFF, 0xFF });
+                                                               new int[] { 0xFF, 0xF0, 0xFF, 0xFF });
         when(communicationsModule.requestDM58(any(CommunicationsListener.class),
                                               eq(source),
                                               eq(spn3.getSpn()))).thenReturn(new BusResult<>(false, dm58PacketSpn3));

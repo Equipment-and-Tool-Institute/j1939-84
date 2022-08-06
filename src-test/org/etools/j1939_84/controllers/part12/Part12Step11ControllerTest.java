@@ -396,12 +396,12 @@ public class Part12Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(PART_NUMBER),
                                         eq(STEP_NUMBER),
                                         eq(FAIL),
-                                        eq("6.12.11.5.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for spn 27"));
+                                        eq("6.12.11.5.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for SPN 27"));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
         ActionOutcome expectedActionOutcome = new ActionOutcome(FAIL,
-                                                                "6.12.11.5.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for spn 27");
+                                                                "6.12.11.5.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for SPN 27");
 
         assertEquals(List.of(expectedActionOutcome), listener.getOutcomes());
     }
@@ -879,12 +879,12 @@ public class Part12Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(PART_NUMBER),
                                         eq(STEP_NUMBER),
                                         eq(FAIL),
-                                        eq("6.12.11.5.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for spn 27"));
+                                        eq("6.12.11.5.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for SPN 27"));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
         ActionOutcome expectedActionOutcome = new ActionOutcome(FAIL,
-                                                                "6.12.11.5.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for spn 27");
+                                                                "6.12.11.5.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for SPN 27");
 
         assertEquals(List.of(expectedActionOutcome), listener.getOutcomes());
     }
@@ -993,12 +993,12 @@ public class Part12Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(PART_NUMBER),
                                         eq(STEP_NUMBER),
                                         eq(FAIL),
-                                        eq("6.12.11.5.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for spn 27"));
+                                        eq("6.12.11.5.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for SPN 27"));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
         ActionOutcome expectedActionOutcome = new ActionOutcome(FAIL,
-                                                                "6.12.11.5.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for spn 27");
+                                                                "6.12.11.5.a - NACK not received for DM7 PG from OBD ECU Engine #1 (0) for SPN 27");
 
         assertEquals(List.of(expectedActionOutcome), listener.getOutcomes());
     }
