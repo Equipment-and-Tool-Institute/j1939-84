@@ -3,6 +3,11 @@
  */
 package org.etools.j1939tools.bus;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Spliterator;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
@@ -23,9 +28,40 @@ import java.util.stream.StreamSupport;
  * @param <T> type of MultiQueue to be implemented
  */
 public class MultiQueue<T> implements AutoCloseable {
-
+    // list of weak references to all queues ever allocated to check for abondonded streams.
+    static List<MultiQueue<?>> queues = Collections.synchronizedList(new ArrayList<>());
+    {
+        queues.add(this);
+    }
     private final WeakHashMap<Stream<T>, SpliteratorImplementation<T>> spliterators = new WeakHashMap<>();
     private Item<T> list = new Item<>(null);
+
+    static {
+        // monitor for stream leaks greater than 10,000 items.
+        new Thread(() -> {
+            try {
+                while (true) {
+                    // only check every 30 s
+                    Thread.sleep(30 * 1000);
+                    for (MultiQueue<?> q : queues) {
+                        List<SpliteratorImplementation<?>> list;
+                        synchronized (q.spliterators) {
+                            list = new ArrayList<>(q.spliterators.values());
+                        }
+                        list.forEach(sp -> {
+                            long es = sp.estimateSize();
+                            if (es > 10_000) {
+                                System.err.println(sp + " size:" + es + " end:" + sp.end);
+                                sp.stack.printStackTrace();
+                            }
+                        });
+                    }
+                }
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
+        }).start();
+    }
 
     synchronized public void add(T v) {
         list = list.add(v);
@@ -34,7 +70,10 @@ public class MultiQueue<T> implements AutoCloseable {
     @Override
     public void close() {
         // close all of the spliterators.
-        spliterators.values().forEach(SpliteratorImplementation<T>::close);
+        synchronized (spliterators) {
+            spliterators.values().forEach(SpliteratorImplementation<T>::close);
+        }
+        queues.remove(this);
     }
 
     /**
@@ -48,16 +87,18 @@ public class MultiQueue<T> implements AutoCloseable {
      *                location the original is right now.
      */
     public Stream<T> duplicate(Stream<T> stream, int time, TimeUnit unit) {
-        SpliteratorImplementation<T> oldSpliterator = spliterators.get(stream);
-        if (oldSpliterator.item == null) {
-            throw new IllegalStateException("stream has already been closed.");
+        synchronized (spliterators) {
+            SpliteratorImplementation<T> oldSpliterator = spliterators.get(stream);
+            if (oldSpliterator.item == null) {
+                throw new IllegalStateException("stream has already been closed.");
+            }
+            SpliteratorImplementation<T> newSpliterator = new SpliteratorImplementation<>(oldSpliterator);
+            Stream<T> newStream = StreamSupport.stream(newSpliterator, false);
+            spliterators.put(newStream, newSpliterator);
+            newSpliterator.setTimeout(time, unit);
+            newStream.onClose(newSpliterator::close);
+            return newStream;
         }
-        SpliteratorImplementation<T> newSpliterator = new SpliteratorImplementation<>(oldSpliterator);
-        Stream<T> newStream = StreamSupport.stream(newSpliterator, false);
-        spliterators.put(newStream, newSpliterator);
-        newSpliterator.setTimeout(time, unit);
-        newStream.onClose(newSpliterator::close);
-        return newStream;
     }
 
     /**
@@ -70,11 +111,13 @@ public class MultiQueue<T> implements AutoCloseable {
      * @param unit
      */
     public void resetTimeout(Stream<T> stream, int time, TimeUnit unit) {
-        SpliteratorImplementation<T> spliterator = spliterators.get(stream);
-        if (spliterator == null) {
-            throw new IllegalArgumentException("Invalid stream.");
+        synchronized (spliterators) {
+            SpliteratorImplementation<T> spliterator = spliterators.get(stream);
+            if (spliterator == null) {
+                throw new IllegalArgumentException("Invalid stream.");
+            }
+            spliterator.setTimeout(time, unit);
         }
-        spliterator.setTimeout(time, unit);
     }
 
     /**
@@ -89,7 +132,9 @@ public class MultiQueue<T> implements AutoCloseable {
     synchronized public Stream<T> stream(long timeout, TimeUnit unit) {
         SpliteratorImplementation<T> spliterator = new SpliteratorImplementation<>(list, timeout, unit);
         Stream<T> stream = StreamSupport.stream(spliterator, false);
-        spliterators.put(stream, spliterator);
+        synchronized (spliterators) {
+            spliterators.put(stream, spliterator);
+        }
         stream.onClose(spliterator::close);
         return stream;
     }
@@ -127,10 +172,12 @@ public class MultiQueue<T> implements AutoCloseable {
         private long end;
         // reference to tail
         private Item<T> item;
+        final private Error stack;
 
         private SpliteratorImplementation(Item<T> list, long timeout, TimeUnit unit) {
             item = list;
             setTimeout(timeout, unit);
+            stack = new Error();
         }
 
         public void close() {
@@ -141,6 +188,7 @@ public class MultiQueue<T> implements AutoCloseable {
         public SpliteratorImplementation(SpliteratorImplementation<T> that) {
             item = that.item;
             end = that.end;
+            stack = new Error();
         }
 
         public void setTimeout(long timeout, TimeUnit unit) {
@@ -174,7 +222,13 @@ public class MultiQueue<T> implements AutoCloseable {
 
         @Override
         public long estimateSize() {
-            return Long.MAX_VALUE;
+            int count = 0;
+            Item<T> item = this.item;
+            while (item != null) {
+                item = item.next;
+                count++;
+            }
+            return count;
         }
 
         @Override

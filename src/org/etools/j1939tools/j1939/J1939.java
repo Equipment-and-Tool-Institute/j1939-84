@@ -99,12 +99,12 @@ public class J1939 {
      * The time to wait for a response from a global request. This time come
      * from Eric. It is based on 200 ms + a delay due to a scheduled DM1.
      */
-    private static final int DS_TIMEOUT = 600; // milliseconds
+    private static final int DS_TIMEOUT = 750; // milliseconds
     /**
      * The time to wait for a response from a global request. This time come
      * from Eric. It is based on 200 ms + a delay due to a scheduled DM1.
      */
-    public static final long GLOBAL_TIMEOUT = 600; // milliseconds
+    public static final long GLOBAL_TIMEOUT = 750; // milliseconds
 
     /**
      * The time to wait for a response from a global request without issuing a
@@ -141,8 +141,8 @@ public class J1939 {
      * Reads the static field PGN from the given class. Returns null if the PGN
      * can't be read.
      *
-     * @param cls the class of interest
-     * @return PGN number based on ParsedPacket class
+     * @param  cls the class of interest
+     * @return     PGN number based on ParsedPacket class
      */
     public static <T extends ParsedPacket> int getPgn(Class<T> cls) {
         try {
@@ -188,18 +188,18 @@ public class J1939 {
     /**
      * Filter to find acknowledgement/nack packets
      *
-     * @param pgn the pgn that's being requested
-     * @return true if the message is an Acknowledgement/Nack for the given pgn
+     * @param  pgn the pgn that's being requested
+     * @return     true if the message is an Acknowledgement/Nack for the given pgn
      */
     private Predicate<Packet> ackNackFilter(int pgn) {
         return response -> {
             return // ID is Acknowledgment
-                    response.getPgn() == 0xE800
+            response.getPgn() == 0xE800
                     // There are enough bytes
                     && response.getLength() == 8
-                    // Accepting 0xFF as "Address Acknowledged" is to handle Cummins
+            // Accepting 0xFF as "Address Acknowledged" is to handle Cummins
                     && (response.get(4) == getBusAddress() || response.get(4) == 0xFF)
-                    // The Acknowledged PGN matches
+            // The Acknowledged PGN matches
                     && response.get24(5) == pgn;
         };
     }
@@ -208,9 +208,9 @@ public class J1939 {
      * Helper to create a packet to request a packet with the given PGN be sent
      * by modules on the bus that support it
      *
-     * @param pgn  the PGN of the packet that's being request
-     * @param addr the address the request is being directed at
-     * @return a {@link Packet}
+     * @param  pgn  the PGN of the packet that's being request
+     * @param  addr the address the request is being directed at
+     * @return      a {@link Packet}
      */
     public Packet createRequestPacket(int pgn, int addr) {
         return Packet.create(0xEA00 | addr, getBusAddress(), true, pgn, pgn >> 8, pgn >> 16);
@@ -221,8 +221,8 @@ public class J1939 {
             throw new IllegalArgumentException("Invalid use of global.");
         }
         return globalFilter(pgn)
-                // did it come from the right module or any if addressed to all
-                .and(sourceFilter(requestDestination));
+                                // did it come from the right module or any if addressed to all
+                                .and(sourceFilter(requestDestination));
     }
 
     /**
@@ -265,21 +265,21 @@ public class J1939 {
 
     private Predicate<Packet> globalFilter(int pgn) {
         return
-                // does the packet have the right ID
-                (pgnFilter(pgn).or(ackNackFilter(pgn)))
-                        // is it addressed to us or all
-                        .and((p -> p.getDestination() == bus.getAddress()
-                                   || p.getDestination() == GLOBAL_ADDR
-                                   // A TP message to global will have a destination of 0
-                                   || (p.getDestination() == 0 && p.getLength() > 8)));
+        // does the packet have the right ID
+        (pgnFilter(pgn).or(ackNackFilter(pgn)))
+                                               // is it addressed to us or all
+                                               .and((p -> p.getDestination() == bus.getAddress()
+                                                       || p.getDestination() == GLOBAL_ADDR
+                                                       // A TP message to global will have a destination of 0
+                                                       || (p.getDestination() == 0 && p.getLength() > 8)));
     }
 
     /**
      * Returns a Subclass of {@link ParsedPacket} that corresponds to the given
      * {@link Packet}
      *
-     * @param packet the {@link Packet} to process
-     * @return a subclass of {@link ParsedPacket}
+     * @param  packet the {@link Packet} to process
+     * @return        a subclass of {@link ParsedPacket}
      */
     @SuppressWarnings("unchecked")
     private <T extends GenericPacket> Either<T, AcknowledgmentPacket> process(Packet packet) {
@@ -416,9 +416,9 @@ public class J1939 {
     public Stream<GenericPacket> readGenericPacket(Predicate<Either<GenericPacket, AcknowledgmentPacket>> predicate) {
         try {
             return read()
-                    .takeWhile(predicate)
-                    .filter(e -> e.left.isPresent())
-                    .flatMap(e -> e.left.stream());
+                         .takeWhile(predicate)
+                         .filter(e -> e.left.isPresent())
+                         .flatMap(e -> e.left.stream());
         } catch (BusException e) {
             J1939_84.getLogger().log(Level.SEVERE, "Error while reading bus", e);
         }
@@ -428,7 +428,7 @@ public class J1939 {
     /**
      * Reads the bus indefinitely
      *
-     * @return {@link Stream} of {@link ParsedPacket} s
+     * @return              {@link Stream} of {@link ParsedPacket} s
      * @throws BusException if there is a problem reading the bus
      */
     public <T extends GenericPacket> Stream<Either<T, AcknowledgmentPacket>> read() throws BusException {
@@ -439,13 +439,13 @@ public class J1939 {
      * Watches the bus for up to the timeout for the first packet that matches
      * the PGN in the given class
      *
-     * @param <T>     the Type of Packet to expect back
-     * @param T       the class of interest
-     * @param addr    the source address the packet should come from. NOTE do not
-     *                use the Global Address (0xFF) here
-     * @param timeout the maximum time to wait for a message
-     * @param unit    the {@link TimeUnit} for the timeout
-     * @return the resulting packet
+     * @param  <T>     the Type of Packet to expect back
+     * @param  T       the class of interest
+     * @param  addr    the source address the packet should come from. NOTE do not
+     *                     use the Global Address (0xFF) here
+     * @param  timeout the maximum time to wait for a message
+     * @param  unit    the {@link TimeUnit} for the timeout
+     * @return         the resulting packet
      */
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "There are no null checks back up the line")
     public <T extends GenericPacket> Optional<Either<T, AcknowledgmentPacket>> read(Class<T> T,
@@ -459,9 +459,9 @@ public class J1939 {
         int pgn = getPgn(T);
         try (Stream<Packet> stream = read(timeout, unit)) {
             return stream
-                    .filter(sourceFilter(addr).and(pgnFilter(pgn)))
-                    .findFirst()
-                    .map(this::process);
+                         .filter(sourceFilter(addr).and(pgnFilter(pgn)))
+                         .findFirst()
+                         .map(this::process);
         } catch (BusException e) {
             severe("Error reading packets", e);
         }
@@ -472,11 +472,11 @@ public class J1939 {
      * Watches the bus for up to the timeout for all the packets that match the
      * PGN in the given class
      *
-     * @param pg      the Type of Packet to expect back
-     *                the class of interest
-     * @param timeout the maximum time to wait for a message
-     * @param unit    the {@link TimeUnit} for the timeout
-     * @return the resulting packets in a Stream
+     * @param  pg      the Type of Packet to expect back
+     *                     the class of interest
+     * @param  timeout the maximum time to wait for a message
+     * @param  unit    the {@link TimeUnit} for the timeout
+     * @return         the resulting packets in a Stream
      */
     public <T extends GenericPacket> Stream<Either<T, AcknowledgmentPacket>> read(int pg,
                                                                                   long timeout,
@@ -498,11 +498,11 @@ public class J1939 {
      * Watches the bus for up to the timeout for all the packets that match the
      * PGN in the given class
      *
-     * @param <T>     the Type of Packet to expect back
-     * @param T       the class of interest
-     * @param timeout the maximum time to wait for a message
-     * @param unit    the {@link TimeUnit} for the timeout
-     * @return the resulting packets in a Stream
+     * @param  <T>     the Type of Packet to expect back
+     * @param  T       the class of interest
+     * @param  timeout the maximum time to wait for a message
+     * @param  unit    the {@link TimeUnit} for the timeout
+     * @return         the resulting packets in a Stream
      */
     public <T extends GenericPacket> Stream<Either<T, AcknowledgmentPacket>> read(Class<T> T,
                                                                                   long timeout,
@@ -542,7 +542,7 @@ public class J1939 {
                                                             CommunicationsListener listener) {
         if (title != null) {
             listener.onResult(getDateTimeModule().getTime() + " Destination Specific " + title + " Request to "
-                              + Lookup.getAddressName(request.getDestination()));
+                    + Lookup.getAddressName(request.getDestination()));
         }
 
         // FIXME verify and make a constant.
@@ -579,10 +579,10 @@ public class J1939 {
 
         try {
             Stream<Either<T, AcknowledgmentPacket>> stream = read(DS_TIMEOUT, MILLISECONDS)
-                    .filter(dsFilter(pgn,
-                                     request.getDestination(),
-                                     getBusAddress()))
-                    .map(this::process);
+                                                                                           .filter(dsFilter(pgn,
+                                                                                                            request.getDestination(),
+                                                                                                            getBusAddress()))
+                                                                                           .map(this::process);
             Packet sent = bus.send(request);
             LocalDateTime lateTime;
             if (sent != null) {
@@ -594,14 +594,14 @@ public class J1939 {
             }
             Optional<Either<T, AcknowledgmentPacket>> result = stream.findFirst();
             result.ifPresentOrElse(p -> {
-                                       ParsedPacket pp = p.resolve();
-                                       logResponse(listener, sent, pp.getPacket());
-                                       listener.onResult(pp.toString());
+                ParsedPacket pp = p.resolve();
+                logResponse(listener, sent, pp.getPacket());
+                listener.onResult(pp.toString());
 
-                                       if (lateTime != null && pp.getPacket().getFragments().get(0).getTimestamp().isAfter(lateTime)) {
-                                           logTiming(listener, LATE_RESPONSE + " " + pp.getPacket().getFragments().get(0).toTimeString());
-                                       }
-                                   },
+                if (lateTime != null && pp.getPacket().getFragments().get(0).getTimestamp().isAfter(lateTime)) {
+                    logTiming(listener, LATE_RESPONSE + " " + pp.getPacket().getFragments().get(0).toTimeString());
+                }
+            },
                                    () -> listener.onResult(getDateTimeModule().getTime() + " " + TIMEOUT_MESSAGE));
 
             return result;
@@ -630,28 +630,28 @@ public class J1939 {
      * Make a single Global request with wait bus read time specified.
      */
     public List<AcknowledgmentPacket>
-    requestForAcks(CommunicationsListener listener, String title, int pgn, long timeOut, TimeUnit timeUnit) {
+           requestForAcks(CommunicationsListener listener, String title, int pgn, long timeOut, TimeUnit timeUnit) {
         listener.onResult("");
         listener.onResult(getDateTimeModule().getTime() + " " + title);
         Packet requestPacket = createRequestPacket(pgn, GLOBAL_ADDR);
         return requestGlobalOnce(pgn, requestPacket, listener, timeOut, timeUnit)
-                .stream()
-                .flatMap(e -> e.right.stream())
-                .collect(Collectors.toList());
+                                                                                 .stream()
+                                                                                 .flatMap(e -> e.right.stream())
+                                                                                 .collect(Collectors.toList());
     }
 
     /**
      * Make a single DS request with no retries.
      */
     public List<AcknowledgmentPacket>
-    requestForAcks(CommunicationsListener listener, String title, int pgn, int address) {
+           requestForAcks(CommunicationsListener listener, String title, int pgn, int address) {
         listener.onResult("");
         listener.onResult(getDateTimeModule().getTime() + " " + title);
         Packet requestPacket = createRequestPacket(pgn, address);
         return requestDSOnce(pgn, requestPacket, listener)
-                .stream()
-                .flatMap(e -> e.right.stream())
-                .collect(Collectors.toList());
+                                                          .stream()
+                                                          .flatMap(e -> e.right.stream())
+                                                          .collect(Collectors.toList());
     }
 
     public <T extends GenericPacket> RequestResult<T> requestGlobal(String title,
@@ -698,10 +698,11 @@ public class J1939 {
                                    // don't overwrite with busy responses, but do add them if
                                    // not already in map
                                    .filter(e -> !isBusy(e)
-                                                || !map.containsKey(((ParsedPacket) e.resolve()).getSourceAddress()))
+                                           || !map.containsKey(((ParsedPacket) e.resolve()).getSourceAddress()))
                                    .collect(Collectors.toMap(r1 -> ((ParsedPacket) r1.resolve()).getSourceAddress(),
                                                              r1 -> r1,
-                                                             // if there are two responses, take the first.  This should only happen if there are rogue tools on the bus.
+                                                             // if there are two responses, take the first. This should
+                                                             // only happen if there are rogue tools on the bus.
                                                              (a, b) -> a)));
             results = map.values();
         }
@@ -720,12 +721,12 @@ public class J1939 {
                                      // still busy, try one last time
                                      logInfo(
                                              "first DS request after global busy NACK: " + dsRequest + " -> "
-                                             + response);
+                                                     + response);
                                      response = requestDSOnce(pgn, dsRequest, listener);
                                      if (response.map(J1939::isBusy).orElse(true)) {
                                          logInfo(
                                                  "second DS request after global busy NACK: " + dsRequest + " -> "
-                                                 + response);
+                                                         + response);
                                      }
                                  }
                                  return response.orElse(e);
@@ -783,7 +784,7 @@ public class J1939 {
                                 * is late.
                                 */
                                if (lateTime != null && p.getFragments().size() > 0
-                                   && p.getFragments().get(0).getTimestamp().isAfter(lateTime)) {
+                                       && p.getFragments().get(0).getTimestamp().isAfter(lateTime)) {
                                    lateBam.add(p);
                                }
                            })
@@ -841,10 +842,10 @@ public class J1939 {
             for (int i = 0; true; i++) {
                 Stream<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> stream = read(DS_TIMEOUT,
                                                                                                 MILLISECONDS)
-                        .filter(dsFilter(DM30ScaledTestResultsPacket.PGN,
-                                         request.getDestination(),
-                                         getBusAddress()))
-                        .map(this::process);
+                                                                                                             .filter(dsFilter(DM30ScaledTestResultsPacket.PGN,
+                                                                                                                              request.getDestination(),
+                                                                                                                              getBusAddress()))
+                                                                                                             .map(this::process);
                 Packet sent = bus.send(request);
                 if (sent != null) {
                     listener.onResult(sent.toTimeString());
@@ -854,12 +855,12 @@ public class J1939 {
                 Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> first = stream.findFirst();
                 result = new BusResult<>(i > 0, first);
                 result.getPacket().ifPresentOrElse(p -> {
-                                                       GenericPacket response = p.resolve();
-                                                       logResponse(listener, sent, response.getPacket());
-                                                       listener.onResult(response.toString());
-                                                   },
+                    GenericPacket response = p.resolve();
+                    logResponse(listener, sent, response.getPacket());
+                    listener.onResult(response.toString());
+                },
                                                    () -> listener.onResult(getDateTimeModule().getTime() + " "
-                                                                           + TIMEOUT_MESSAGE));
+                                                           + TIMEOUT_MESSAGE));
                 // if there is a valid response or a non-busy NACK, return it.
                 if (i == 2 || result.getPacket()
                                     // valid packet
@@ -898,10 +899,10 @@ public class J1939 {
             for (int i = 0; true; i++) {
                 Stream<Either<DM58RationalityFaultSpData, AcknowledgmentPacket>> stream = read(DS_TIMEOUT,
                                                                                                MILLISECONDS)
-                        .filter(dsFilter(DM58RationalityFaultSpData.PGN,
-                                         request.getDestination(),
-                                         getBusAddress()))
-                        .map(this::process);
+                                                                                                            .filter(dsFilter(DM58RationalityFaultSpData.PGN,
+                                                                                                                             request.getDestination(),
+                                                                                                                             getBusAddress()))
+                                                                                                            .map(this::process);
                 Packet sent = bus.send(request);
                 if (sent != null) {
                     listener.onResult(sent.toTimeString());
@@ -912,12 +913,12 @@ public class J1939 {
                 Optional<Either<DM58RationalityFaultSpData, AcknowledgmentPacket>> first = stream.findFirst();
                 result = new BusResult<>(i > 0, first);
                 result.getPacket().ifPresentOrElse(p -> {
-                                                       GenericPacket response = p.resolve();
-                                                       logResponse(listener, sent, response.getPacket());
-                                                       listener.onResult(response.toString());
-                                                   },
+                    GenericPacket response = p.resolve();
+                    logResponse(listener, sent, response.getPacket());
+                    listener.onResult(response.toString());
+                },
                                                    () -> listener.onResult(getDateTimeModule().getTime() + " "
-                                                                           + TIMEOUT_MESSAGE));
+                                                           + TIMEOUT_MESSAGE));
                 // if there is a valid response or a non-busy NACK, return it.
                 if (i == 2 || result.getPacket()
                                     // valid packet
@@ -966,6 +967,7 @@ public class J1939 {
                       .skip(10)
                       .forEach(f -> f.delete());
                 try (PrintWriter out = new PrintWriter(new FileWriter(file))) {
+                    out.println("base hex timestamps absolute");
                     loggerStream.forEach(p -> {
                         try {
                             out.println(p.toVectorString(start));

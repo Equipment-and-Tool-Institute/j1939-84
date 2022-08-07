@@ -23,6 +23,7 @@ import org.etools.j1939tools.CommunicationsListener;
 import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.J1939;
 import org.etools.j1939tools.j1939.J1939DaRepository;
 import org.etools.j1939tools.j1939.model.PgnDefinition;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
@@ -89,11 +90,11 @@ public class CommunicationsModule extends FunctionalModule {
     }
 
     public RequestResult<DM2PreviouslyActiveDTC> requestDM2(CommunicationsListener listener) {
-        return requestDMPackets("DM2", DM2PreviouslyActiveDTC.class, GLOBAL_ADDR, listener);
+        return requestDMPackets(getPgDefinition(DM2PreviouslyActiveDTC.PGN).getAcronym(), DM2PreviouslyActiveDTC.class, GLOBAL_ADDR, listener);
     }
 
     public BusResult<DM2PreviouslyActiveDTC> requestDM2(CommunicationsListener listener, int address) {
-        return requestDMPackets("DM2", DM2PreviouslyActiveDTC.class, address, listener).busResult();
+        return requestDMPackets(getPgDefinition(DM2PreviouslyActiveDTC.PGN).getAcronym(), DM2PreviouslyActiveDTC.class, address, listener).busResult();
     }
 
     public List<AcknowledgmentPacket> requestDM3(CommunicationsListener listener) {
@@ -108,19 +109,19 @@ public class CommunicationsModule extends FunctionalModule {
     }
 
     public RequestResult<DM5DiagnosticReadinessPacket> requestDM5(CommunicationsListener listener) {
-        return requestDMPackets("DM5", DM5DiagnosticReadinessPacket.class, GLOBAL_ADDR, listener);
+        return requestDMPackets(getPgDefinition(DM5DiagnosticReadinessPacket.PGN).getAcronym(), DM5DiagnosticReadinessPacket.class, GLOBAL_ADDR, listener);
     }
 
     public BusResult<DM5DiagnosticReadinessPacket> requestDM5(CommunicationsListener listener, int address) {
-        return requestDMPackets("DM5", DM5DiagnosticReadinessPacket.class, address, listener).busResult();
+        return requestDMPackets(getPgDefinition(DM5DiagnosticReadinessPacket.PGN).getAcronym(), DM5DiagnosticReadinessPacket.class, address, listener).busResult();
     }
 
     public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(CommunicationsListener listener) {
-        return requestDMPackets("DM6", DM6PendingEmissionDTCPacket.class, GLOBAL_ADDR, listener);
+        return requestDMPackets(getPgDefinition(DM6PendingEmissionDTCPacket.PGN).getAcronym(), DM6PendingEmissionDTCPacket.class, GLOBAL_ADDR, listener);
     }
 
     public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(CommunicationsListener listener, int address) {
-        return requestDMPackets("DM6", DM6PendingEmissionDTCPacket.class, address, listener);
+        return requestDMPackets(getPgDefinition(DM6PendingEmissionDTCPacket.PGN).getAcronym(), DM6PendingEmissionDTCPacket.class, address, listener);
     }
 
     /*
@@ -128,44 +129,46 @@ public class CommunicationsModule extends FunctionalModule {
      */
     @Deprecated
     public List<AcknowledgmentPacket> requestDM11(CommunicationsListener listener) {
-        return requestDM11(listener, 600, MILLISECONDS);
+        return requestDM11(listener, J1939.GLOBAL_TIMEOUT, MILLISECONDS);
     }
 
     public List<AcknowledgmentPacket> requestDM11(CommunicationsListener listener, int address) {
-        String title = "Destination Specific DM11 Request to " + getAddressName(address);
+        String title = "Destination Specific " + getPgDefinition(DM11ClearActiveDTCsPacket.PGN).getAcronym() + " Request to " + getAddressName(address);
         return getJ1939().requestForAcks(listener, title, DM11ClearActiveDTCsPacket.PGN, address);
     }
 
     public List<AcknowledgmentPacket> requestDM11(CommunicationsListener listener, long timeOut, TimeUnit timeUnit) {
+
+        String title = "Global " + J1939DaRepository.getInstance().findPgnDefinition(DM11ClearActiveDTCsPacket.PGN).getAcronym() + " Request";
         return getJ1939().requestForAcks(listener,
-                                         "Global DM11 Request",
+                                         title,
                                          DM11ClearActiveDTCsPacket.PGN,
                                          timeOut,
                                          timeUnit);
     }
 
     public RequestResult<DM12MILOnEmissionDTCPacket> requestDM12(CommunicationsListener listener) {
-        return requestDMPackets("DM12", DM12MILOnEmissionDTCPacket.class, GLOBAL_ADDR, listener);
+        return requestDMPackets(getPgDefinition(DM12MILOnEmissionDTCPacket.PGN).getAcronym(), DM12MILOnEmissionDTCPacket.class, GLOBAL_ADDR, listener);
     }
 
     public BusResult<DM12MILOnEmissionDTCPacket> requestDM12(CommunicationsListener listener, int address) {
-        return requestDMPackets("DM12", DM12MILOnEmissionDTCPacket.class, address, listener).busResult();
+        return requestDMPackets(getPgDefinition(DM12MILOnEmissionDTCPacket.PGN).getAcronym(), DM12MILOnEmissionDTCPacket.class, address, listener).busResult();
     }
 
     public RequestResult<DM20MonitorPerformanceRatioPacket> requestDM20(CommunicationsListener listener) {
-        return requestDMPackets("DM20", DM20MonitorPerformanceRatioPacket.class, GLOBAL_ADDR, listener);
+        return requestDMPackets(getPgDefinition(DM20MonitorPerformanceRatioPacket.PGN).getAcronym(), DM20MonitorPerformanceRatioPacket.class, GLOBAL_ADDR, listener);
     }
 
     public BusResult<DM20MonitorPerformanceRatioPacket> requestDM20(CommunicationsListener listener, int address) {
-        return requestDMPackets("DM20", DM20MonitorPerformanceRatioPacket.class, address, listener).busResult();
+        return requestDMPackets(getPgDefinition(DM20MonitorPerformanceRatioPacket.PGN).getAcronym(), DM20MonitorPerformanceRatioPacket.class, address, listener).busResult();
     }
 
     public RequestResult<DM21DiagnosticReadinessPacket> requestDM21(CommunicationsListener listener) {
-        return requestDMPackets("DM21", DM21DiagnosticReadinessPacket.class, GLOBAL_ADDR, listener);
+        return requestDMPackets(getPgDefinition(DM21DiagnosticReadinessPacket.PGN).getAcronym(), DM21DiagnosticReadinessPacket.class, GLOBAL_ADDR, listener);
     }
 
     public BusResult<DM21DiagnosticReadinessPacket> requestDM21(CommunicationsListener listener, int address) {
-        return requestDMPackets("DM21", DM21DiagnosticReadinessPacket.class, address, listener).busResult();
+        return requestDMPackets(getPgDefinition(DM21DiagnosticReadinessPacket.PGN).getAcronym(), DM21DiagnosticReadinessPacket.class, address, listener).busResult();
     }
 
     public BusResult<DM22IndividualClearPacket> requestDM22(CommunicationsListener listener,
@@ -173,74 +176,72 @@ public class CommunicationsModule extends FunctionalModule {
                                                             ControlByte controlByte,
                                                             int spn,
                                                             int fmi) {
-        String title = "DM22";
         var requestPacket = DM22IndividualClearPacket.createRequest(getJ1939().getBus().getAddress(),
                                                                     address,
                                                                     controlByte,
                                                                     spn,
                                                                     fmi);
-        return getJ1939().requestDS(title, DM22IndividualClearPacket.PGN, requestPacket, listener);
+        return getJ1939().requestDS(getPgDefinition(DM22IndividualClearPacket.PGN).getAcronym(), DM22IndividualClearPacket.PGN, requestPacket, listener);
     }
 
     public RequestResult<DM22IndividualClearPacket> requestDM22(CommunicationsListener listener,
                                                                 ControlByte controlByte,
                                                                 int spn,
                                                                 int fmi) {
-        String title = "DM22";
         var requestPacket = DM22IndividualClearPacket.createRequest(getJ1939().getBus().getAddress(),
                                                                     GLOBAL_ADDR,
                                                                     controlByte,
                                                                     spn,
                                                                     fmi);
-        return getJ1939().requestGlobal(title, DM22IndividualClearPacket.PGN, requestPacket, listener);
+        return getJ1939().requestGlobal(getPgDefinition(DM22IndividualClearPacket.PGN).getAcronym(), DM22IndividualClearPacket.PGN, requestPacket, listener);
     }
 
     public RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(CommunicationsListener listener) {
-        return requestDMPackets("DM23", DM23PreviouslyMILOnEmissionDTCPacket.class, GLOBAL_ADDR, listener);
+        return requestDMPackets(getPgDefinition(DM23PreviouslyMILOnEmissionDTCPacket.PGN).getAcronym(), DM23PreviouslyMILOnEmissionDTCPacket.class, GLOBAL_ADDR, listener);
     }
 
     public BusResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(CommunicationsListener listener, int address) {
-        return requestDMPackets("DM23", DM23PreviouslyMILOnEmissionDTCPacket.class, address, listener).busResult();
+        return requestDMPackets(getPgDefinition(DM23PreviouslyMILOnEmissionDTCPacket.PGN).getAcronym(), DM23PreviouslyMILOnEmissionDTCPacket.class, address, listener).busResult();
     }
 
     public BusResult<DM24SPNSupportPacket> requestDM24(CommunicationsListener listener, int obdModuleAddress) {
-        return requestDMPackets("DM24", DM24SPNSupportPacket.class, obdModuleAddress, listener).busResult();
+        return requestDMPackets(getPgDefinition(DM24SPNSupportPacket.PGN).getAcronym(), DM24SPNSupportPacket.class, obdModuleAddress, listener).busResult();
     }
 
     public BusResult<DM25ExpandedFreezeFrame> requestDM25(CommunicationsListener listener, int address) {
-        return requestDMPackets("DM25", DM25ExpandedFreezeFrame.class, address, listener).busResult();
+        return requestDMPackets(getPgDefinition(DM25ExpandedFreezeFrame.PGN).getAcronym(), DM25ExpandedFreezeFrame.class, address, listener).busResult();
     }
 
     public RequestResult<DM26TripDiagnosticReadinessPacket> requestDM26(CommunicationsListener listener) {
-        return requestDMPackets("DM26", DM26TripDiagnosticReadinessPacket.class, GLOBAL_ADDR, listener);
+        return requestDMPackets(getPgDefinition(DM26TripDiagnosticReadinessPacket.PGN).getAcronym(), DM26TripDiagnosticReadinessPacket.class, GLOBAL_ADDR, listener);
     }
 
     public RequestResult<DM26TripDiagnosticReadinessPacket> requestDM26(CommunicationsListener listener, int address) {
-        return requestDMPackets("DM26", DM26TripDiagnosticReadinessPacket.class, address, listener);
+        return requestDMPackets(getPgDefinition(DM26TripDiagnosticReadinessPacket.PGN).getAcronym(), DM26TripDiagnosticReadinessPacket.class, address, listener);
     }
 
     public RequestResult<DM27AllPendingDTCsPacket> requestDM27(CommunicationsListener listener) {
-        return requestDMPackets("DM27", DM27AllPendingDTCsPacket.class, GLOBAL_ADDR, listener);
+        return requestDMPackets(getPgDefinition(DM27AllPendingDTCsPacket.PGN).getAcronym(), DM27AllPendingDTCsPacket.class, GLOBAL_ADDR, listener);
     }
 
     public BusResult<DM27AllPendingDTCsPacket> requestDM27(CommunicationsListener listener, int address) {
-        return requestDMPackets("DM27", DM27AllPendingDTCsPacket.class, address, listener).busResult();
+        return requestDMPackets(getPgDefinition(DM27AllPendingDTCsPacket.PGN).getAcronym(), DM27AllPendingDTCsPacket.class, address, listener).busResult();
     }
 
     public RequestResult<DM28PermanentEmissionDTCPacket> requestDM28(CommunicationsListener listener) {
-        return requestDMPackets("DM28", DM28PermanentEmissionDTCPacket.class, GLOBAL_ADDR, listener);
+        return requestDMPackets(getPgDefinition(DM28PermanentEmissionDTCPacket.PGN).getAcronym(), DM28PermanentEmissionDTCPacket.class, GLOBAL_ADDR, listener);
     }
 
     public BusResult<DM28PermanentEmissionDTCPacket> requestDM28(CommunicationsListener listener, int address) {
-        return requestDMPackets("DM28", DM28PermanentEmissionDTCPacket.class, address, listener).busResult();
+        return requestDMPackets(getPgDefinition(DM28PermanentEmissionDTCPacket.PGN).getAcronym(), DM28PermanentEmissionDTCPacket.class, address, listener).busResult();
     }
 
     public RequestResult<DM29DtcCounts> requestDM29(CommunicationsListener listener) {
-        return requestDMPackets("DM29", DM29DtcCounts.class, GLOBAL_ADDR, listener);
+        return requestDMPackets(getPgDefinition(DM29DtcCounts.PGN).getAcronym(), DM29DtcCounts.class, GLOBAL_ADDR, listener);
     }
 
     public BusResult<DM29DtcCounts> requestDM29(CommunicationsListener listener, int address) {
-        return requestDMPackets("DM29", DM29DtcCounts.class, address, listener).busResult();
+        return requestDMPackets(getPgDefinition(DM29DtcCounts.PGN).getAcronym(), DM29DtcCounts.class, address, listener).busResult();
     }
 
     public List<DM30ScaledTestResultsPacket> requestTestResults(CommunicationsListener listener,
@@ -260,39 +261,39 @@ public class CommunicationsModule extends FunctionalModule {
     }
 
     public RequestResult<DM31DtcToLampAssociation> requestDM31(CommunicationsListener listener) {
-        return requestDMPackets("DM31", DM31DtcToLampAssociation.class, GLOBAL_ADDR, listener);
+        return requestDMPackets(getPgDefinition(DM31DtcToLampAssociation.PGN).getAcronym(), DM31DtcToLampAssociation.class, GLOBAL_ADDR, listener);
     }
 
     public RequestResult<DM31DtcToLampAssociation> requestDM31(CommunicationsListener listener, int address) {
-        return requestDMPackets("DM31", DM31DtcToLampAssociation.class, address, listener);
+        return requestDMPackets(getPgDefinition(DM31DtcToLampAssociation.PGN).getAcronym(), DM31DtcToLampAssociation.class, address, listener);
     }
 
     public RequestResult<DM33EmissionIncreasingAECDActiveTime> requestDM33(CommunicationsListener listener) {
-        return requestDMPackets("DM33", DM33EmissionIncreasingAECDActiveTime.class, GLOBAL_ADDR, listener);
+        return requestDMPackets(getPgDefinition(DM33EmissionIncreasingAECDActiveTime.PGN).getAcronym(), DM33EmissionIncreasingAECDActiveTime.class, GLOBAL_ADDR, listener);
     }
 
     public RequestResult<DM33EmissionIncreasingAECDActiveTime> requestDM33(CommunicationsListener listener,
                                                                            int address) {
-        return requestDMPackets("DM33", DM33EmissionIncreasingAECDActiveTime.class, address, listener);
+        return requestDMPackets(getPgDefinition(DM33EmissionIncreasingAECDActiveTime.PGN).getAcronym(), DM33EmissionIncreasingAECDActiveTime.class, address, listener);
     }
 
     public RequestResult<DM34NTEStatus> requestDM34(CommunicationsListener listener) {
-        return requestDMPackets("DM34", DM34NTEStatus.class, GLOBAL_ADDR, listener);
+        return requestDMPackets(getPgDefinition(DM34NTEStatus.PGN).getAcronym(), DM34NTEStatus.class, GLOBAL_ADDR, listener);
     }
 
     public RequestResult<DM34NTEStatus> requestDM34(CommunicationsListener listener, int address) {
-        return requestDMPackets("DM34", DM34NTEStatus.class, address, listener);
+        return requestDMPackets(getPgDefinition(DM34NTEStatus.PGN).getAcronym(), DM34NTEStatus.class, address, listener);
     }
 
     public List<DM56EngineFamilyPacket> requestDM56(CommunicationsListener listener, int address) {
-        return requestDMPackets("DM56", DM56EngineFamilyPacket.class, address, listener).getPackets();
+        return requestDMPackets(getPgDefinition(DM56EngineFamilyPacket.PGN).getAcronym(), DM56EngineFamilyPacket.class, address, listener).getPackets();
     }
 
     public List<DM56EngineFamilyPacket> requestDM56(CommunicationsListener listener) {
-        return requestDMPackets("DM56", DM56EngineFamilyPacket.class, GLOBAL_ADDR, listener).getPackets();
+        return requestDMPackets(getPgDefinition(DM56EngineFamilyPacket.PGN).getAcronym(), DM56EngineFamilyPacket.class, GLOBAL_ADDR, listener).getPackets();
     }
 
-    public List<? extends GenericPacket> requestDM57(CommunicationsListener listener,
+    public <T extends GenericPacket> BusResult<T> requestDM57(CommunicationsListener listener,
                                                      int address) {
         return request(64710, address, listener);
     }
@@ -374,7 +375,7 @@ public class CommunicationsModule extends FunctionalModule {
      */
     @SuppressWarnings("unchecked")
     public <T extends GenericPacket> List<T> request(Class<T> clazz, CommunicationsListener listener) {
-        return (List<T>) request(getPg(clazz, listener), listener).stream()
+        return (List<T>) request(getPg(clazz, listener), listener).getPackets().stream()
                                                                   .sorted(Comparator.comparing((o) -> o.getPacket()
                                                                                                        .getTimestamp()))
                                                                   .collect(Collectors.toList());
@@ -388,30 +389,10 @@ public class CommunicationsModule extends FunctionalModule {
      * @param listener
      *                     the {@link CommunicationsListener} that will be given the report
      */
-    public List<? extends GenericPacket> request(int pg, CommunicationsListener listener) {
+    public <T extends GenericPacket> RequestResult<T>  request(int pg, CommunicationsListener listener) {
         Packet requestPacket = getJ1939().createRequestPacket(pg, GLOBAL_ADDR);
-        return getJ1939().requestGlobal(getPgDefinition(pg).getLabel(), pg, requestPacket, listener)
-                         .getPackets()
-                         .stream()
-                         .sorted(Comparator.comparing((p) -> p.getPacket().getTimestamp()))
-                         .collect(Collectors.toList());
+        return getJ1939().requestGlobal(getPgDefinition(pg).getLabel(), pg, requestPacket, listener);
 
-    }
-
-    /**
-     * Request for List<? extends GenericPacket> and return the latest message
-     *
-     * @param clazz
-     *                     The class name of the packet to read from the bus
-     * @param listener
-     *                     the {@link CommunicationsListener} that will be given the report
-     */
-    public <T extends GenericPacket> BusResult<T> request(Class<T> clazz,
-                                                          int address,
-                                                          CommunicationsListener listener) {
-        int pg = getPg(clazz, listener);
-        Packet requestPacket = getJ1939().createRequestPacket(pg, address);
-        return getJ1939().requestDS(clazz.getName(), pg, requestPacket, listener);
     }
 
     /**
@@ -422,12 +403,10 @@ public class CommunicationsModule extends FunctionalModule {
      * @param listener
      *                     the {@link CommunicationsListener} that will be given the report
      */
-    public List<? extends GenericPacket> request(int pg, int address, CommunicationsListener listener) {
+    public <T extends GenericPacket> BusResult<T> request(int pg, int address, CommunicationsListener listener) {
         Packet requestPacket = getJ1939().createRequestPacket(pg, address);
 
-        return getJ1939().requestDS(getPgDefinition(pg).getAcronym(), pg, requestPacket, listener)
-                         .toPacketStream()
-                         .collect(Collectors.toList());
+        return getJ1939().requestDS(getPgDefinition(pg).getAcronym(), pg, requestPacket, listener);
     }
 
     /**
@@ -443,10 +422,10 @@ public class CommunicationsModule extends FunctionalModule {
     }
 
     public RequestResult<DM19CalibrationInformationPacket> requestDM19(CommunicationsListener listener) {
-        return requestDMPackets("DM19", DM19CalibrationInformationPacket.class, GLOBAL_ADDR, listener);
+        return requestDMPackets(getPgDefinition(DM19CalibrationInformationPacket.PGN).getAcronym(), DM19CalibrationInformationPacket.class, GLOBAL_ADDR, listener);
     }
 
     public BusResult<DM19CalibrationInformationPacket> requestDM19(CommunicationsListener listener, int address) {
-        return requestDMPackets("DM19", DM19CalibrationInformationPacket.class, address, listener).busResult();
+        return requestDMPackets(getPgDefinition(DM19CalibrationInformationPacket.PGN).getAcronym(), DM19CalibrationInformationPacket.class, address, listener).busResult();
     }
 }

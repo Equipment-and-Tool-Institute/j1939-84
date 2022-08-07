@@ -53,6 +53,7 @@ import org.etools.j1939_84.model.KeyState;
 import org.etools.j1939tools.bus.Bus;
 import org.etools.j1939tools.bus.BusException;
 import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.j1939.J1939DaRepository;
 import org.etools.j1939tools.j1939.model.SpnFmi;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.CompositeSystem;
@@ -226,7 +227,7 @@ public class Engine implements AutoCloseable {
                              }
                              return Packet.create(EngineSpeedPacket.PGN,
                                                   ADDR,
-                                                  combine(new byte[] { NA, 0, 0 }, engineSpeed, NA3));
+                                                  combine(new byte[] { NA, (byte) 0xFF, (byte) 0xFF }, engineSpeed, NA3));
                          }
                      });
 
@@ -1190,7 +1191,7 @@ public class Engine implements AutoCloseable {
                          return DM58RationalityFaultSpData.create(ADDR,
                                                                   dm7.getTestId(),
                                                                   dm7.getSpn(),
-                                                                  new int[] { 0xDD, 0xCC, 0xBB, 0xAA })
+                                                                  new int[] { 0xF0, 0xFF, 0xFF, 0xFF })
                                                           .getPacket();
                      });
 

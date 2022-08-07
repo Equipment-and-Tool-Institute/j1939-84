@@ -27,7 +27,9 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.etools.j1939_84.utils.VinDecoder;
 import org.etools.j1939tools.CommunicationsListener;
+import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
@@ -178,8 +180,8 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         obdModule1.set(packet, 0x01);
         dataRepository.putObdModule(obdModule1);
 
-        when(communicationsModule.request(eq(VehicleIdentificationPacket.class),
-                                          any(CommunicationsListener.class))).thenReturn(List.of(packet));
+        when(communicationsModule.request(eq(VehicleIdentificationPacket.PGN),
+                                          any(CommunicationsListener.class))).thenReturn(RequestResult.of(packet));
         VehicleInformation vehicleInformation = new VehicleInformation();
 
         vehicleInformation.setVin(vin);
@@ -189,7 +191,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(communicationsModule).setJ1939(eq(j1939));
-        verify(communicationsModule).request(eq(VehicleIdentificationPacket.class), any(CommunicationsListener.class));
+        verify(communicationsModule).request(eq(VehicleIdentificationPacket.PGN), any(CommunicationsListener.class));
 
         verify(engineSpeedModule).setJ1939(j1939);
     }
@@ -245,8 +247,8 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule2 = new OBDModuleInformation((1));
         obdModule2.set(packet2, 1);
         dataRepository.putObdModule(obdModule2);
-        when(communicationsModule.request(eq(VehicleIdentificationPacket.class),
-                                          any(CommunicationsListener.class))).thenReturn(List.of(packet1, packet2));
+        when(communicationsModule.request(eq(VehicleIdentificationPacket.PGN),
+                                          any(CommunicationsListener.class))).thenReturn(RequestResult.of(packet1, packet2));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin(vin);
@@ -255,7 +257,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(communicationsModule).request(eq(VehicleIdentificationPacket.class), any(ResultsListener.class));
+        verify(communicationsModule).request(eq(VehicleIdentificationPacket.PGN), any(ResultsListener.class));
 
         verify(engineSpeedModule).setJ1939(j1939);
 
@@ -325,8 +327,8 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule2 = new OBDModuleInformation((0x00));
         obdModule2.set(packet2, 1);
 
-        when(communicationsModule.request(eq(VehicleIdentificationPacket.class),
-                                          any(ResultsListener.class))).thenReturn(List.of(packet1, packet2));
+        when(communicationsModule.request(eq(VehicleIdentificationPacket.PGN),
+                                          any(ResultsListener.class))).thenReturn(RequestResult.of(packet1, packet2));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin(vin);
@@ -336,7 +338,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(communicationsModule).setJ1939(j1939);
-        verify(communicationsModule).request(any(), any(ResultsListener.class));
+        verify(communicationsModule).request(eq(VehicleIdentificationPacket.PGN), any(ResultsListener.class));
 
         verify(engineSpeedModule).setJ1939(j1939);
 
@@ -396,12 +398,12 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         vehicleInformation.setVehicleModelYear(2014);
         dataRepository.setVehicleInformation(vehicleInformation);
 
-        when(communicationsModule.request(eq(VehicleIdentificationPacket.class),
-                                          any(CommunicationsListener.class))).thenReturn(List.of(packet));
+        when(communicationsModule.request(eq(VehicleIdentificationPacket.PGN),
+                                          any(CommunicationsListener.class))).thenReturn(RequestResult.of(packet));
 
         runTest();
 
-        verify(communicationsModule).request(eq(VehicleIdentificationPacket.class),
+        verify(communicationsModule).request(eq(VehicleIdentificationPacket.PGN),
                                              any(ResultsListener.class));
 
         verify(engineSpeedModule).setJ1939(j1939);
@@ -454,8 +456,8 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule1 = new OBDModuleInformation((0x01));
         obdModule1.set(packet, 1);
         dataRepository.putObdModule(obdModule1);
-        when(communicationsModule.request(eq(VehicleIdentificationPacket.class),
-                                          any(CommunicationsListener.class))).thenReturn((List.of(packet)));
+        when(communicationsModule.request(eq(VehicleIdentificationPacket.PGN),
+                                          any(CommunicationsListener.class))).thenReturn(RequestResult.of(packet));
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin(vin);
         vehicleInformation.setVehicleModelYear(2019);
@@ -463,7 +465,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(communicationsModule).request(eq(VehicleIdentificationPacket.class), any(CommunicationsListener.class));
+        verify(communicationsModule).request(eq(VehicleIdentificationPacket.PGN), any(CommunicationsListener.class));
 
         verify(engineSpeedModule).setJ1939(j1939);
 
@@ -518,8 +520,8 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         obdModule1.set(packet, 1);
         dataRepository.putObdModule(obdModule1);
 
-        when(communicationsModule.request(eq(VehicleIdentificationPacket.class),
-                                          any(ResultsListener.class))).thenReturn((List.of(packet)));
+        when(communicationsModule.request(eq(VehicleIdentificationPacket.PGN),
+                                          any(ResultsListener.class))).thenReturn(RequestResult.of(packet));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin(vin);
@@ -528,7 +530,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(communicationsModule).request(eq(VehicleIdentificationPacket.class), any(ResultsListener.class));
+        verify(communicationsModule).request(eq(VehicleIdentificationPacket.PGN), any(ResultsListener.class));
 
         verify(engineSpeedModule).setJ1939(j1939);
 
@@ -600,8 +602,8 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule2 = new OBDModuleInformation((0x00));
         obdModule2.set(packet2, 1);
         dataRepository.putObdModule(obdModule2);
-        when(communicationsModule.request(eq(VehicleIdentificationPacket.class),
-                                          any(ResultsListener.class))).thenReturn(List.of(packet1, packet2));
+        when(communicationsModule.request(eq(VehicleIdentificationPacket.PGN),
+                                          any(ResultsListener.class))).thenReturn(RequestResult.of(packet1, packet2));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin(vin);
@@ -610,7 +612,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(communicationsModule).request(eq(VehicleIdentificationPacket.class), any(ResultsListener.class));
+        verify(communicationsModule).request(eq(VehicleIdentificationPacket.PGN), any(ResultsListener.class));
 
         verify(engineSpeedModule).setJ1939(j1939);
 
@@ -661,8 +663,8 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule1 = new OBDModuleInformation((0x01));
         obdModule1.set(packet, 1);
         dataRepository.putObdModule(obdModule1);
-        when(communicationsModule.request(eq(VehicleIdentificationPacket.class),
-                                          any(ResultsListener.class))).thenReturn((List.of(packet)));
+        when(communicationsModule.request(eq(VehicleIdentificationPacket.PGN),
+                                          any(ResultsListener.class))).thenReturn(RequestResult.of(packet));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin("1XPBDK9X1LD708195");
@@ -672,7 +674,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(communicationsModule).setJ1939(j1939);
-        verify(communicationsModule).request(eq(VehicleIdentificationPacket.class), any(ResultsListener.class));
+        verify(communicationsModule).request(eq(VehicleIdentificationPacket.PGN), any(ResultsListener.class));
 
         verify(engineSpeedModule).setJ1939(j1939);
 
@@ -723,8 +725,8 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule1 = new OBDModuleInformation((0x01));
         obdModule1.set(packet, 1);
         dataRepository.putObdModule(obdModule1);
-        when(communicationsModule.request(eq(VehicleIdentificationPacket.class),
-                                          any(ResultsListener.class))).thenReturn((List.of(packet)));
+        when(communicationsModule.request(eq(VehicleIdentificationPacket.PGN),
+                                          any(ResultsListener.class))).thenReturn((RequestResult.of(packet)));
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin(vin);
         dataRepository.setVehicleInformation(vehicleInformation);
@@ -733,7 +735,7 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
 
-        verify(communicationsModule).request(eq(VehicleIdentificationPacket.class), any(ResultsListener.class));
+        verify(communicationsModule).request(eq(VehicleIdentificationPacket.PGN), any(ResultsListener.class));
 
         verify(mockListener).addOutcome(1,
                                         5,
@@ -775,12 +777,12 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
     @TestDoc(@TestItem(verifies = "6.1.5.2.a", description = "Fail if no VIN is provided by any ECU"))
     public void testPacketsEmptyFailure() {
 
-        when(communicationsModule.request(eq(VehicleIdentificationPacket.class),
-                                          any(ResultsListener.class))).thenReturn((List.of()));
+        when(communicationsModule.request(eq(VehicleIdentificationPacket.PGN),
+                                          any(ResultsListener.class))).thenReturn((RequestResult.of()));
 
         runTest();
 
-        verify(communicationsModule).request(eq(VehicleIdentificationPacket.class), any(ResultsListener.class));
+        verify(communicationsModule).request(eq(VehicleIdentificationPacket.PGN), any(ResultsListener.class));
 
         verify(mockListener).addOutcome(1, 5, FAIL, "6.1.5.2.a - No VIN was provided by any ECU");
     }

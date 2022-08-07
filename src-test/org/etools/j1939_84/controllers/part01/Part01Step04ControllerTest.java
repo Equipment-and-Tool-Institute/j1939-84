@@ -2431,11 +2431,11 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(eq(1),
                                         eq(4),
-                                        eq(WARN),
+                                        eq(FAIL),
                                         eq("6.1.4.2.e - SP 12730 is not included in DM24 response from Engine #1 (0)"));
         verify(mockListener).addOutcome(eq(1),
                                         eq(4),
-                                        eq(WARN),
+                                        eq(FAIL),
                                         eq("6.1.4.2.e - SP 12730 is not included in DM24 response from Engine #2 (1)"));
     }
 

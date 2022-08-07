@@ -77,6 +77,7 @@ public class J1939Test {
 
     private static final CommunicationsListener NOOP = x -> {
     };
+    private static final int TIMEOUT = 750;
 
     private static void sleep(double d) throws InterruptedException {
         Thread.sleep((long) (d * 1000));
@@ -568,7 +569,7 @@ public class J1939Test {
         assertEquals(2L, all.count());
     }
 
-    @Test(timeout = 2000)
+    @Test(timeout = 4000)
     @TestDoc(description = "6.1.4.1.b retry on timeout of 220 ms")
     public void test6141bRetry() {
         // verify 3 trys in 3*220ms
@@ -577,7 +578,7 @@ public class J1939Test {
         long start = System.currentTimeMillis();
         var result = j1939.requestTestResults(247, 123, 31, 0, NOOP).getPacket();
         assertFalse(result.isPresent());
-        assertEquals(600 * 3, System.currentTimeMillis() - start, 40);
+        assertEquals(TIMEOUT * 3, System.currentTimeMillis() - start, 40);
     }
 
     /**
@@ -611,7 +612,7 @@ public class J1939Test {
                     // wait for request
                     requestStream.findAny();
                     // wait to cause warning
-                    Thread.sleep(650);
+                    Thread.sleep(TIMEOUT+50);
                     bus.send(Packet.create(VehicleIdentificationPacket.PGN,
                                            0xFF,
                                            1,
@@ -842,7 +843,7 @@ public class J1939Test {
     public void testRequestDM7WillTryThreeTimes() throws Exception {
         Packet packet1 = Packet.create(DM30ScaledTestResultsPacket.PGN
                 | BUS_ADDR, 0x00, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0x0A, 0x0B, 0x0C, 0x0D);
-        when(bus.read(600, MILLISECONDS)).thenReturn(Stream.of())
+        when(bus.read(TIMEOUT, MILLISECONDS)).thenReturn(Stream.of())
                                          .thenReturn(Stream.of())
                                          .thenReturn(Stream.of(packet1));
 

@@ -313,38 +313,37 @@ public class J1939TP implements Bus {
                 if (packetCount > maxResponsePackets) {
                     packetCount = maxResponsePackets;
                 }
-                Stream<Packet> dataStream = bus.read(T2, TimeUnit.MILLISECONDS);
-                Stream<Packet> stream = dataStream
-                                                  .filter(p -> p.getSource() == source)
-                                                  .peek(p -> {
-                                                      if (p.getId(0xFFFF) == (CM | rts.getId(0xFF))) {
-                                                          if (p.get(0) == CM_ConnAbort) {
-                                                              warn(getAbortError(p.get(1)), p);
+                try (Stream<Packet> dataStream = bus.read(T2, TimeUnit.MILLISECONDS);) {
+                    Stream<Packet> stream = dataStream
+                                                      .filter(p -> p.getSource() == source)
+                                                      .peek(p -> {
+                                                          if (p.getId(0xFFFF) == (CM | rts.getId(0xFF))) {
+                                                              if (p.get(0) == CM_ConnAbort) {
+                                                                  warn(getAbortError(p.get(1)), p);
+                                                              }
+                                                              warn("TP canceled", p);
+                                                              packet.fail();
+                                                              throw new PacketException("TP canceled");
                                                           }
-                                                          warn("TP canceled", p);
-                                                          packet.fail();
-                                                          throw new PacketException("TP canceled");
-                                                      }
-                                                  })
-                                                  // only consider DT packet that are part of this
-                                                  // connection
-                                                  .filter(p -> p.getId(0xFFFF) == (DT | rts.getId(0xFF)))
-                                                  // After every TP.DT, reset timeout to T1 from now.
-                                                  .peek(p -> bus.resetTimeout(dataStream, T1, TimeUnit.MILLISECONDS))
-                                                  .limit(packetCount);
-                Packet cts = createPacket(CM | source,
-                                          getAddress(),
-                                          CM_CTS,
-                                          packetCount,
-                                          nextPacket,
-                                          0xFF,
-                                          0xFF,
-                                          rts.get(5),
-                                          rts.get(6),
-                                          rts.get(7));
-                fine("tx CTS", cts);
-                packet.getFragments().add(bus.send(cts));
-                try {
+                                                      })
+                                                      // only consider DT packet that are part of this
+                                                      // connection
+                                                      .filter(p -> p.getId(0xFFFF) == (DT | rts.getId(0xFF)))
+                                                      // After every TP.DT, reset timeout to T1 from now.
+                                                      .peek(p -> bus.resetTimeout(dataStream, T1, TimeUnit.MILLISECONDS))
+                                                      .limit(packetCount);
+                    Packet cts = createPacket(CM | source,
+                                              getAddress(),
+                                              CM_CTS,
+                                              packetCount,
+                                              nextPacket,
+                                              0xFF,
+                                              0xFF,
+                                              rts.get(5),
+                                              rts.get(6),
+                                              rts.get(7));
+                    fine("tx CTS", cts);
+                    packet.getFragments().add(bus.send(cts));
                     stream.forEach(p -> {
                         packet.getFragments().add(p);
                         fine("rx DT", rts);

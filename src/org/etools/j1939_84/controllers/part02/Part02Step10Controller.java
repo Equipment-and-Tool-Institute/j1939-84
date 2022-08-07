@@ -203,7 +203,7 @@ public class Part02Step10Controller extends StepController {
             // a. Fail if a NACK is not received
             if (packet == null || packet.getResponse() != AcknowledgmentPacket.Response.NACK) {
                 addFailure("6.2.10.7.a - NACK not received for DM7 PG from OBD ECU "
-                                   + Lookup.getAddressName(moduleAddress) + " for spn " + requestSpn);
+                                   + Lookup.getAddressName(moduleAddress) + " for SPN " + requestSpn);
             }
         }
     }

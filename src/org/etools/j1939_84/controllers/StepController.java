@@ -35,6 +35,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939_84.utils.CollectionUtils;
 import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.j1939.J1939DaRepository;
@@ -155,7 +156,8 @@ public abstract class StepController extends Controller {
 
                 incrementProgress("Requesting " + pgnDef.getLabel() + " (" + pgnDef.getAcronym() + ") from "
                         + moduleName);
-                var response = getCommunicationsModule().request(pgn, address, getListener());
+                var response = getCommunicationsModule().request(pgn, address, getListener()).toPacketStream().collect(
+                        Collectors.toList());
                 packets.addAll(response);
             }
             return packets;
@@ -470,13 +472,14 @@ public abstract class StepController extends Controller {
 
     protected boolean isGreaterThanFb(DM58RationalityFaultSpData packet) {
         Spn spn = packet.getSpn();
-        long rawValue = spn.getRawValue();
+        Slot slot = J1939DaRepository.getInstance().findSLOT(DM58RationalityFaultSpData.PGN, spn.getId());
+        long rawValue = slot.toValue(packet.getSpnDataBytes());
 
         switch (spn.getSlot().getByteLength()) {
             case 1:
-                return rawValue > 0xFB;
+                return rawValue > 0xFBL;
             case 2:
-                return rawValue > 0xFBFF;
+                return rawValue > 0xFBFFL;
             case 4:
                 return rawValue > 0xFBFFFFFFL;
             default:
