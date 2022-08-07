@@ -114,7 +114,7 @@
     </target>
 
     <target name="compile" depends="init" description="Compiles the source code">
-        <javac destdir="${build}" includeantruntime="false" debug="true">
+        <javac encoding="UTF-8" destdir="${build}" includeantruntime="false" debug="true">
             <src path="${src}"/>
             <classpath refid="compile.path"/>
         </javac>
@@ -127,7 +127,7 @@
     </target>
 
     <target name="compile.tests" depends="compile" description="Compiles the code to run unit tests">
-        <javac srcdir="${src-test}" destdir="${build}" includeantruntime="false" debug="true" target="11" source="11">
+        <javac encoding="UTF-8" srcdir="${src-test}" destdir="${build}" includeantruntime="false" debug="true" target="11" source="11">
             <classpath refid="unit.test.path"/>
             <compilerarg line="-s dist"/>
         </javac>
@@ -259,7 +259,7 @@
     </target>
 
     <target name="testdoc.jar" depends="init">
-        <javac srcdir="${src-test}" destdir="${build}" includeantruntime="false" debug="true" target="11" source="11"
+        <javac encoding="UTF-8" srcdir="${src-test}" destdir="${build}" includeantruntime="false" debug="true" target="11" source="11"
                classpath="${src-test}" includes="**/TestDoc*.java,**/TestItem*.java">
             <classpath>
                 <fileset dir="${lib-test}">
