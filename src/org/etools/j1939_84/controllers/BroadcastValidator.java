@@ -6,7 +6,9 @@ package org.etools.j1939_84.controllers;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
+import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939tools.j1939.Lookup.getAddressName;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -22,11 +24,15 @@ import java.util.stream.Stream;
 
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.j1939.J1939DaRepository;
+import org.etools.j1939tools.j1939.Lookup;
 import org.etools.j1939tools.j1939.model.PgnDefinition;
 import org.etools.j1939tools.j1939.model.Spn;
 import org.etools.j1939tools.j1939.model.SpnDefinition;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.j1939.packets.SupportedSPN;
 
 public class BroadcastValidator {
@@ -46,6 +52,14 @@ public class BroadcastValidator {
                                    String message) {
         String msg = "6." + partNumber + "." + stepNumber + " - " + message;
         listener.addOutcome(partNumber, stepNumber, outcome, msg);
+    }
+
+    private static void addWarning(ResultsListener listener,
+                                   int partNumber,
+                                   int stepNumber,
+                                   String section,
+                                   String message) {
+        listener.addOutcome(partNumber, stepNumber, WARN, section + " - " + message);
     }
 
     private static void addFailure(ResultsListener listener,
@@ -243,6 +257,13 @@ public class BroadcastValidator {
                                                          int partNumber,
                                                          int stepNumber,
                                                          String section) {
+        var nacks = packets.stream()
+                .filter(p -> p instanceof AcknowledgmentPacket)
+                .collect(Collectors.toList());
+        if(!nacks.isEmpty()){
+            addWarning(listener, partNumber, stepNumber, section, "NACK received for SP indicated as supported by the OBD ECU in DM24");
+        }
+
         Set<Integer> spns;
 
         if (packets.isEmpty()) {
@@ -263,7 +284,6 @@ public class BroadcastValidator {
         } else {
             spns = collectNotAvailableSPNs(supportedSPNs, packets.stream());
         }
-
         return spns.stream().sorted().map(Object::toString).collect(Collectors.toList());
     }
 
