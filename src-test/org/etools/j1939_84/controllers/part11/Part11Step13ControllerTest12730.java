@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part11;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -175,7 +176,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         GenericPacket response64253 = new GenericPacket(Packet.create(0xFAFD, 0x00,
                                                                       // @formatter:off
                                                                       0x78, 0x69, 0x34, 0x6E, 0x12, 0x0B, 0xFE, 0x0A,
-                                                                      0x5A, 0x37, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
+                                                                      0x00, 0x00, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
                                                                       0xA3, 0x02, 0x0C, 0x00, 0x5E, 0x1A, 0x76, 0x00,
                                                                       0x05, 0x00, 0x46, 0x05));
         // @formatter:on
@@ -187,7 +188,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         GenericPacket response64254 = new GenericPacket(Packet.create(0xFAFE, 0x00,
         // @formatter:off
                                                                       0x78, 0x69, 0x00, 0x00, 0x12, 0x0B, 0xFE, 0x0A,
-                                                                      0x5A, 0x37, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
+                                                                      0x00, 0x00, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
                                                                       0xA3, 0x02, 0x0C, 0x00, 0x5E, 0x1A, 0x76, 0x00,
                                                                       0x05, 0x00, 0x46, 0x05));
         // @formatter:on
@@ -221,7 +222,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         expected += "| Vehicle Dist., km       |           0 |       7,053 |   1,229,474 |" + NL;
         expected += "| Vehicle Fuel, l         |       1,417 |       1,417 | 145,399,114 |" + NL;
         expected += "| Engine Fuel, l          |       1,407 |       1,407 |  44,236,800 |" + NL;
-        expected += "| Eng.Out.Energy, kW-hr   |      14,170 |      14,170 |   1,049,476 |" + NL;
+        expected += "| Eng.Out.Energy, kW-hr   |           0 |           0 |   1,049,476 |" + NL;
         expected += "| PKE Numerator           |     180,735 |     180,735 |  51,163,080 |" + NL;
         expected += "| Urban Speed Run Time, s |       1,688 |       1,688 |   1,966,080 |" + NL;
         expected += "| Idle Run Time, s        |         112 |         112 |           0 |" + NL;
@@ -293,7 +294,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         GenericPacket response64254 = new GenericPacket(Packet.create(0xFAFE, 0x00,
                                                                       // @formatter:off
                                                                       0x78, 0x69, 0x00, 0x00, 0x12, 0x0B, 0xFE, 0x0A,
-                                                                      0x00, 0x00, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
+                                                                      0x5A, 0x37, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
                                                                       0xA3, 0x02, 0x0C, 0x00, 0x5E, 0x1A, 0x76, 0x00,
                                                                       0x05, 0x00, 0x46, 0x05));
         // @formatter:on
@@ -316,8 +317,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
                                              eq(0x00),
                                              any(ResultsListener.class));
 
-        verify(mockListener).addOutcome(eq(11), eq(13), eq(WARN), eq("6.11.13.8.g - Active Tech EOE received is <= 1.0 kW-hr from Engine #1 (0) for SPN 12704, GHG Tracking Active 100 Hour Engine Output Energy: 0.000 kWh"));
-
+        verify(mockListener).addOutcome(eq(11), eq(13), eq(INFO), eq("6.11.13.8.g - Active Tech EOE received is > 1.0 kW-hr from Engine #1 (0) for SPN 12704, GHG Tracking Active 100 Hour Engine Output Energy: 14170.000 kWh"));
 
         // @formatter:off
         String expected = "10:15:30.0000 GHG Tracking Arrays from Engine #1 (0)" + NL;
@@ -329,7 +329,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         expected += "| Vehicle Dist., km       |           0 |       7,053 |   1,229,474 |" + NL;
         expected += "| Vehicle Fuel, l         |       1,417 |       1,417 | 145,399,114 |" + NL;
         expected += "| Engine Fuel, l          |       1,407 |       1,407 |  44,236,800 |" + NL;
-        expected += "| Eng.Out.Energy, kW-hr   |           0 |      14,170 |   1,049,476 |" + NL;
+        expected += "| Eng.Out.Energy, kW-hr   |      14,170 |      14,170 |   1,049,476 |" + NL;
         expected += "| PKE Numerator           |     180,735 |     180,735 |  51,163,080 |" + NL;
         expected += "| Urban Speed Run Time, s |       1,688 |       1,688 |   1,966,080 |" + NL;
         expected += "| Idle Run Time, s        |         112 |         112 |           0 |" + NL;
@@ -399,7 +399,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         GenericPacket response64254 = new GenericPacket(Packet.create(0xFAFE, 0x00,
                                                                       // @formatter:off
                                                                       0x08, 0x00, 0x00, 0x00, 0x12, 0x0B, 0xFE, 0x0A,
-                                                                      0x5A, 0x37, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
+                                                                      0x00, 0x00, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
                                                                       0xA3, 0x02, 0x0C, 0x00, 0x5E, 0x1A, 0x76, 0x00,
                                                                       0x05, 0x00, 0x46, 0x05));
         // @formatter:on
@@ -434,7 +434,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         expected += "| Vehicle Dist., km       |           0 |       7,053 |   1,229,474 |" + NL;
         expected += "| Vehicle Fuel, l         |       1,417 |       1,417 | 145,399,114 |" + NL;
         expected += "| Engine Fuel, l          |       1,407 |       1,407 |  44,236,800 |" + NL;
-        expected += "| Eng.Out.Energy, kW-hr   |      14,170 |      14,170 |   1,049,476 |" + NL;
+        expected += "| Eng.Out.Energy, kW-hr   |           0 |      14,170 |   1,049,476 |" + NL;
         expected += "| PKE Numerator           |     180,735 |     180,735 |  51,163,080 |" + NL;
         expected += "| Urban Speed Run Time, s |       1,688 |       1,688 |   1,966,080 |" + NL;
         expected += "| Idle Run Time, s        |         112 |         112 |           0 |" + NL;
@@ -504,7 +504,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         GenericPacket response64254 = new GenericPacket(Packet.create(0xFAFE, 0x00,
                                                                       // @formatter:off
                                                                       0xFF, 0xFF, 0x00, 0x00, 0x12, 0x0B, 0xFE, 0x0A,
-                                                                      0x5A, 0x37, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
+                                                                      0x00, 0x00, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
                                                                       0xFD, 0xFF, 0xFF, 0xFF, 0x5E, 0x1A, 0x76, 0x00,
                                                                       0x05, 0x00, 0x46, 0x05));
         // @formatter:on
@@ -539,7 +539,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         expected += "| Vehicle Dist., km       |           0 |           0 |   1,229,474 |" + NL;
         expected += "| Vehicle Fuel, l         |       1,417 |       1,417 | 145,399,114 |" + NL;
         expected += "| Engine Fuel, l          |       1,407 |       1,407 |  44,236,800 |" + NL;
-        expected += "| Eng.Out.Energy, kW-hr   |      14,170 |      14,170 |   1,049,476 |" + NL;
+        expected += "| Eng.Out.Energy, kW-hr   |           0 |      14,170 |   1,049,476 |" + NL;
         expected += "| PKE Numerator           |     180,735 |     180,735 |  51,163,080 |" + NL;
         expected += "| Urban Speed Run Time, s |       1,688 |       1,688 |   1,966,080 |" + NL;
         expected += "| Idle Run Time, s        |         N/A |         112 |           0 |" + NL;
@@ -773,7 +773,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         GenericPacket response64254 = new GenericPacket(Packet.create(0xFAFE, 0x00,
                                                                       // @formatter:off
                                                                       0x78, 0x69, 0x00, 0x00, 0x12, 0x0B, 0xFE, 0x0A,
-                                                                      0x5A, 0x37, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
+                                                                      0x00, 0x00, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
                                                                       0xA3, 0x02, 0x0C, 0x00, 0x5E, 0x1A, 0x76, 0x00,
                                                                       0x05, 0x00, 0x46, 0x05));
         // @formatter:on
@@ -808,7 +808,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         expected += "| Vehicle Dist., km       |           0 |       7,053 |   1,229,474 |" + NL;
         expected += "| Vehicle Fuel, l         |       1,417 |       1,417 | 145,399,114 |" + NL;
         expected += "| Engine Fuel, l          |       1,407 |       1,407 |  44,236,800 |" + NL;
-        expected += "| Eng.Out.Energy, kW-hr   |      14,170 |      14,170 |   1,049,476 |" + NL;
+        expected += "| Eng.Out.Energy, kW-hr   |           0 |      14,170 |   1,049,476 |" + NL;
         expected += "| PKE Numerator           |     180,735 |     180,735 |  51,163,080 |" + NL;
         expected += "| Urban Speed Run Time, s |       1,688 |       1,688 |   1,966,080 |" + NL;
         expected += "| Idle Run Time, s        |         112 |         112 |           0 |" + NL;
@@ -886,7 +886,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         GenericPacket response64254 = new GenericPacket(Packet.create(0xFAFE, 0x00,
                                                                       // @formatter:off
                                                                       0x78, 0x69, 0x00, 0x00, 0x12, 0x0B, 0xFE, 0x0A,
-                                                                      0x5A, 0x37, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
+                                                                      0x00, 0x00, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
                                                                       0xA3, 0x02, 0x0C, 0x00, 0x5E, 0x1A, 0x76, 0x00,
                                                                       0x05, 0x00, 0x46, 0x05));
         // @formatter:on
@@ -924,7 +924,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         expected += "| Vehicle Dist., km       |           0 |       7,053 |   1,229,474 |" + NL;
         expected += "| Vehicle Fuel, l         |       1,417 |       1,417 | 145,399,114 |" + NL;
         expected += "| Engine Fuel, l          |       1,407 |       1,407 |  44,236,800 |" + NL;
-        expected += "| Eng.Out.Energy, kW-hr   |      14,170 |      14,170 |   1,049,476 |" + NL;
+        expected += "| Eng.Out.Energy, kW-hr   |           0 |      14,170 |   1,049,476 |" + NL;
         expected += "| PKE Numerator           |     180,735 |     180,735 |  51,163,080 |" + NL;
         expected += "| Urban Speed Run Time, s |       1,688 |       1,688 |   1,966,080 |" + NL;
         expected += "| Idle Run Time, s        |         112 |         112 |           0 |" + NL;
@@ -989,7 +989,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         GenericPacket response64253Part2 = new GenericPacket(Packet.create(0xFAFD, 0x00,
                                                                       // @formatter:off
                                                                       0x78, 0x69, 0x34, 0x6E, 0x12, 0x0B, 0xFE, 0x0A,
-                                                                      0x5A, 0x37, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
+                                                                      0x00, 0x00, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
                                                                       0xA3, 0x02, 0x0C, 0x00, 0x5E, 0x1B, 0x76, 0x00,
                                                                       0x05, 0x00, 0x46, 0x05));
         // @formatter:on
@@ -1001,7 +1001,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         GenericPacket response64254 = new GenericPacket(Packet.create(0xFAFE, 0x00,
                                                                       // @formatter:off
                                                                       0x78, 0x69, 0x00, 0x00, 0x12, 0x0B, 0xFE, 0x0A,
-                                                                      0x5A, 0x37, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
+                                                                      0x00, 0x00, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
                                                                       0xA3, 0x02, 0x0C, 0x00, 0x5E, 0x1A, 0x76, 0x00,
                                                                       0x05, 0x00, 0x46, 0x05));
         // @formatter:on
@@ -1036,7 +1036,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         expected += "| Vehicle Dist., km       |           0 |       7,053 |   1,229,474 |" + NL;
         expected += "| Vehicle Fuel, l         |       1,417 |       1,417 | 145,399,114 |" + NL;
         expected += "| Engine Fuel, l          |       1,407 |       1,407 |  44,236,800 |" + NL;
-        expected += "| Eng.Out.Energy, kW-hr   |      14,170 |      14,170 |   1,049,476 |" + NL;
+        expected += "| Eng.Out.Energy, kW-hr   |           0 |      14,170 |   1,049,476 |" + NL;
         expected += "| PKE Numerator           |     180,735 |     180,735 |  51,163,080 |" + NL;
         expected += "| Urban Speed Run Time, s |       1,688 |       1,688 |   1,966,080 |" + NL;
         expected += "| Idle Run Time, s        |         112 |         112 |           0 |" + NL;
@@ -1106,7 +1106,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         GenericPacket response64254 = new GenericPacket(Packet.create(0xFAFE, 0x00,
                                                                       // @formatter:off
                                                                       0x78, 0x69, 0x00, 0x00, 0x12, 0x0B, 0xFE, 0x0A,
-                                                                      0x5A, 0x37, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
+                                                                      0x00, 0x00, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
                                                                       0xA3, 0x02, 0x0C, 0x00, 0x5E, 0x1A, 0x76, 0x00,
                                                                       0x05, 0x00, 0x46, 0x05));
         // @formatter:on
@@ -1144,7 +1144,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         expected += "| Vehicle Dist., km       |           0 |       7,053 |   1,229,474 |" + NL;
         expected += "| Vehicle Fuel, l         |       1,417 |       1,417 | 145,399,114 |" + NL;
         expected += "| Engine Fuel, l          |       1,407 |       1,407 |  44,236,800 |" + NL;
-        expected += "| Eng.Out.Energy, kW-hr   |      14,170 |      14,170 |         N/A |" + NL;
+        expected += "| Eng.Out.Energy, kW-hr   |           0 |      14,170 |         N/A |" + NL;
         expected += "| PKE Numerator           |     180,735 |     180,735 |  51,163,080 |" + NL;
         expected += "| Urban Speed Run Time, s |       1,688 |       1,688 |   1,966,080 |" + NL;
         expected += "| Idle Run Time, s        |         112 |         112 |           0 |" + NL;
@@ -1214,7 +1214,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         GenericPacket response64254 = new GenericPacket(Packet.create(0xFAFE, 0x00,
                                                                       // @formatter:off
                                                                       0x78, 0x69, 0x00, 0x00, 0x12, 0x0B, 0xFE, 0x0A,
-                                                                      0x5A, 0x37, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
+                                                                      0x00, 0x00, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
                                                                       0xA3, 0x02, 0x0C, 0x00, 0x5E, 0x1A, 0x76, 0x00,
                                                                       0x05, 0x00, 0x46, 0x05));
         // @formatter:on
@@ -1249,7 +1249,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         expected += "| Vehicle Dist., km       |           0 |       7,053 |             |" + NL;
         expected += "| Vehicle Fuel, l         |       1,417 |       1,417 |             |" + NL;
         expected += "| Engine Fuel, l          |       1,407 |       1,407 |             |" + NL;
-        expected += "| Eng.Out.Energy, kW-hr   |      14,170 |      14,170 |             |" + NL;
+        expected += "| Eng.Out.Energy, kW-hr   |           0 |      14,170 |             |" + NL;
         expected += "| PKE Numerator           |     180,735 |     180,735 |             |" + NL;
         expected += "| Urban Speed Run Time, s |       1,688 |       1,688 |             |" + NL;
         expected += "| Idle Run Time, s        |         112 |         112 |             |" + NL;
@@ -1314,7 +1314,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         GenericPacket response64253 = new GenericPacket(Packet.create(0xFAFD, 0x00,
         // @formatter:off
                                                                       0x78, 0x69, 0x34, 0x6E, 0x12, 0x0B, 0xFE, 0x0A,
-                                                                      0x5A, 0x37, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
+                                                                      0x00, 0x00, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
                                                                       0xA3, 0x02, 0x0C, 0x00, 0x5E, 0x1A, 0x76, 0x00,
                                                                       0x05, 0x00, 0x46, 0x05));
         // @formatter:on
@@ -1328,14 +1328,14 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         GenericPacket response64254 = new GenericPacket(Packet.create(0xFAFE, 0x00,
         // @formatter:off
                                                                       0x58, 0x00, 0x34, 0x6E, 0x12, 0x0B, 0xFE, 0x0A,
-                                                                      0x5A, 0x37, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
+                                                                      0x00, 0x00, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
                                                                       0xA3, 0x02, 0x0C, 0x00, 0x5E, 0x1A, 0x76, 0x00,
                                                                       0x05, 0x00, 0x46, 0x05));
         // @formatter:on
         GenericPacket response64254Part2 = new GenericPacket(Packet.create(0xFAFE, 0x00,
         // @formatter:off
                                                                       0x08, 0x00, 0x34, 0x6E, 0x12, 0x0B, 0xFE, 0x0A,
-                                                                      0x5A, 0x37, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
+                                                                      0x00, 0x00, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
                                                                       0xA3, 0x02, 0x0C, 0x00, 0x5E, 0x1A, 0x76, 0x00,
                                                                       0x05, 0x00, 0x46, 0x05));
         // @formatter:on
@@ -1375,7 +1375,7 @@ public class Part11Step13ControllerTest12730 extends AbstractControllerTest {
         expected += "| Vehicle Dist., km       |       7,053 |       7,053 |   1,229,474 |" + NL;
         expected += "| Vehicle Fuel, l         |       1,417 |       1,417 | 145,399,114 |" + NL;
         expected += "| Engine Fuel, l          |       1,407 |       1,407 |  44,236,800 |" + NL;
-        expected += "| Eng.Out.Energy, kW-hr   |      14,170 |      14,170 |   1,049,476 |" + NL;
+        expected += "| Eng.Out.Energy, kW-hr   |           0 |           0 |   1,049,476 |" + NL;
         expected += "| PKE Numerator           |     180,735 |     180,735 |  51,163,080 |" + NL;
         expected += "| Urban Speed Run Time, s |       1,688 |       1,688 |   1,966,080 |" + NL;
         expected += "| Idle Run Time, s        |         112 |         112 |           0 |" + NL;
