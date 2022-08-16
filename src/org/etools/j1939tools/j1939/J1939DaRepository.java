@@ -152,14 +152,14 @@ public class J1939DaRepository {
 
                                                                   SpnDefinition spnDef = null;
                                                                   String spnIdStr = line[5];
-                                                                  if (!spnIdStr.isBlank()) {
+                                                                  if (!isBlankOrNA(spnIdStr)) {
                                                                       String label = shortenLabel(line[6]);
                                                                       int spnId = parseInt(spnIdStr);
                                                                       spnDef = new SpnDefinition(spnId,
                                                                                                  label,
                                                                                                  startByte,
                                                                                                  startBit,
-                                                                                                 line[7].isBlank()
+                                                                                                 isBlankOrNA(line[7])
                                                                                                          ? -1
                                                                                                          : parseInt(line[7]));
                                                                   }
@@ -167,7 +167,7 @@ public class J1939DaRepository {
                                                                   PgnDefinition pgnDef = null;
                                                                   // we don't care about the PGN that have no
                                                                   // SPNs.
-                                                                  if ( !pgnIdStr.isBlank()) {
+                                                                  if ( !isBlankOrNA(pgnIdStr)) {
                                                                       if(spnDef == null){
                                                                           spnDef = new SpnDefinition(-1, "Unknown", 0, 0, -1);
                                                                       }
@@ -240,6 +240,10 @@ public class J1939DaRepository {
                 throw new RuntimeException("Unable to load J1939DA", e);
             }
         }
+    }
+
+    static private boolean isBlankOrNA(String str) {
+        return str.isBlank() || "N/A".equals(str.toUpperCase());
     }
 
     /**

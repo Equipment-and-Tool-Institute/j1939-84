@@ -64,7 +64,7 @@ public class Part01Step03Controller extends StepController {
         // 6.1.3.1.a. Global5 DM5 (send Request (PGN 59904) for PGN 65230 (SPN 1220)).
         RequestResult<DM5DiagnosticReadinessPacket> response = getCommunicationsModule().requestDM5(getListener());
 
-        // 6.1.3.1.b. Fail if any ECU responds with a NACK (for PGN 65230).
+        // 6.1.3.2.b. Fail if any ECU responds with a NACK (for PGN 65230).
         boolean nacked = response.getAcks().stream().anyMatch(packet -> packet.getResponse() == Response.NACK);
         if (nacked) {
             addFailure("6.1.3.2.b - The request for DM5 was NACK'ed");
@@ -78,8 +78,9 @@ public class Part01Step03Controller extends StepController {
             getCompositeSystems(parsedPackets, true).forEach(s -> getListener().onResult(s.toString()));
         }
 
-        // 6.1.3.1.b. Create “'OBD ECU”' list (comprised of all ECUs that indicate 0x13, 0x14, 0x22, or 0x23 for
-        // OBD compliance) for use later in the test as the “OBD ECUs.”.
+        // 6.1.3.1.b. Create “OBD ECU” list (comprised of all ECUs that indicate OBD compliance values other than 0, 5,
+        // FBh, FCh, FDh, FEh, or FFh that indicate 13h, 14h, 22h, or 23h for OBD compliance) for use later in the test
+        // as the “OBD ECUs.”
         response.getPackets()
                 .stream()
                 .filter(DM5DiagnosticReadinessPacket::isObd)
