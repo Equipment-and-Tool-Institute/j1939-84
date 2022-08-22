@@ -833,10 +833,6 @@ public class Part01Step26Controller extends StepController {
                     // 6.1.26.8.b. Fail each PG query where any bin value received
                     // is greater than FAFFFFFFh.
                     isSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.8.b");
-                    // if (spn.getRawValue() > 0xFAFFFFFFL) {
-                    // addFailure("6.1.26.8.b - Bin value received is greater than 0xFAFFFFFF(h) "
-                    // + module.getModuleName() + " for " + spn + " " + Arrays.toString(spn.getBytes()));
-                    // }
                 });
             });
         }
