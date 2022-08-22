@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.ERROR;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_100_HR;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_GREEN_HOUSE_100_HR;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_HYBRID_100_HR;
@@ -27,11 +28,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.etools.j1939_84.controllers.BroadcastValidator;
@@ -44,12 +45,10 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.j1939.J1939DaRepository;
 import org.etools.j1939tools.j1939.Lookup;
 import org.etools.j1939tools.j1939.model.Spn;
 import org.etools.j1939tools.j1939.model.SpnDefinition;
-import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.SupportedSPN;
 import org.etools.j1939tools.modules.CommunicationsModule;
@@ -326,16 +325,8 @@ public class Part01Step26Controller extends StepController {
                                                                   .collect(Collectors.toList());
 
                     // Map of PGN to (Map of Source Address to List of Packets)
-                    Map<Integer, Map<Integer, List<GenericPacket>>> foundGlobalPackets = broadcastValidator.buildPGNPacketsMap(globalPackets);
-
-                    // FIXME: verify with Eric really to be removed
-                    // 6.1.26.6.? - Fail if any parameter in a fixed period message, upon request, is not broadcast
-                    // within ± 10% of the specified broadcast period.
-                    broadcastValidator.reportBroadcastPeriod(foundGlobalPackets,
-                                                             supportedSPNs,
-                                                             getListener(),
-                                                             getPartNumber(),
-                                                             getStepNumber());
+                    Map<Integer, Map<Integer, List<GenericPacket>>> foundGlobalPackets = broadcastValidator.buildPGNPacketsMap(
+                                                                                                                               globalPackets);
 
                     onRequestPackets.addAll(globalPackets);
                 }
@@ -658,8 +649,6 @@ public class Part01Step26Controller extends StepController {
                             ? String.format("0x%04X", upperLimit)
                             : String.format("0x%08X", upperLimit);
                     if (spn.getRawValue() > lowerLimit && spn.getRawValue() < upperLimit) {
-                        // FIXME check with Eric on this Joe his document isn't updated based on
-                        // what he told me; so, this is actually copied from 6.11.13.8.c
                         // 6.1.26.14.c. Fail each PG query where any bin value received is greater
                         // than FAFFh and less than FFFFh (Use FAFFFFFFh and less than FFFFFFFFh
                         // for 32-bit SPNs 12705 and 12720).
@@ -777,8 +766,9 @@ public class Part01Step26Controller extends StepController {
                                           if (GHG_ACTIVE_GREEN_HOUSE_100_HR == spn.getId() && spn.getValue() > 0) {
                                               // 6.1.26.18.g. Fail each active 100 hr array value that is greater than
                                               // zero
-                                              addFailure("6.1.26.18.g - Active 100 hr array value received was greater than zero from  "
-                                                      + module.getModuleName());
+                                              addFailure(
+                                                         "6.1.26.18.g - Active 100 hr array value received was greater than zero from  "
+                                                                 + module.getModuleName());
                                           }
                                       });
             }
@@ -830,29 +820,21 @@ public class Part01Step26Controller extends StepController {
                                                                                         // in Part 2.
                                                                                         .peek(this::save)
                                                                                         .collect(Collectors.toList());
-        if (!nOxPackets.isEmpty()) {
+
+        if (nOxPackets.isEmpty()) {
+            // 6.1.26.8.a. Fail each PG query where no response was received.
+            addFailure("6.1.26.8.a - No response was received from "
+                    + module.getModuleName());
+        } else {
             // 6.1.26.7.c. List data received in a table using bin numbers for rows.
             getListener().onResult(nOxBinningModule.format(nOxPackets));
-        }
-        for (int pg : CollectionUtils.join(NOx_LIFETIME_SPs,
-                                           NOx_LIFETIME_ACTIVITY_SPs)) {
-            GenericPacket packetForPg = haveResponseWithPg(nOxPackets, pg);
-            if (packetForPg == null) {
-                // 6.1.26.8.a. Fail each PG query where no response was received.
-                addFailure("6.1.26.8.a - No response was received from "
-                        + module.getModuleName() + " for PG "
-                        + pg);
-            } else {
-                packetForPg.getSpns()
-                           .forEach(spn -> {
-                               // 6.1.26.8.b. Fail each PG query where any bin value received
-                               // is greater than FAFFFFFFh.
-                               if (spn.getRawValue() > 0xFAFFFFFFL) {
-                                   addFailure("6.1.26.8.b - Bin value received is greater than 0xFAFFFFFF(h) "
-                                           + module.getModuleName() + " for " + spn);
-                               }
-                           });
-            }
+            nOxPackets.forEach(packet -> {
+                packet.getSpns().forEach(spn -> {
+                    // 6.1.26.8.b. Fail each PG query where any bin value received
+                    // is greater than FAFFFFFFh.
+                    isSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.8.b");
+                });
+            });
         }
 
         // 6.1.26.9.a - DS request message to ECU that indicated support in DM24 for upon
@@ -876,46 +858,36 @@ public class Part01Step26Controller extends StepController {
                                                                                                                        .peek(this::save)
                                                                                                                        .collect(Collectors.toList());
 
-        if (!nOx100HourPackets.isEmpty()) {
+        if (nOx100HourPackets.isEmpty()) {
+            // 6.1.26.10.a. For all MY2024+ Diesel engines, Fail each PG query where no response was received.
+            if (getEngineModelYear() >= 2024) {
+                addFailure("6.1.26.10.a - No response was received from "
+                        + module.getModuleName());
+            }
+            // 6.1.26.10.b. For all MY2022-23 Diesel engines, Warn each PG query where no response was received.
+            if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
+                addWarning("6.1.26.10.b - No response was received from "
+                        + module.getModuleName());
+            }
+        } else {
             // 6.1.26.9.c - List data received in a table using bin numbers for rows.
             getListener().onResult(nOxBinningModule.format(nOx100HourPackets));
-        }
-        for (int pg : CollectionUtils.join(NOx_TRACKING_ACTIVE_100_HOURS_SPs,
-                                           NOx_TRACKING_STORED_100_HOURS_SPs)) {
-            GenericPacket packetForPg = haveResponseWithPg(nOx100HourPackets, pg);
-            if (packetForPg == null) {
-                // 6.1.26.10.a. For all MY2024+ Diesel engines, Fail each PG query where no response was received.
-                if (getEngineModelYear() >= 2024) {
-                    addFailure("6.1.26.10.a - No response was received from "
-                            + module.getModuleName() + " for PG "
-                            + pg);
-                }
-                // 6.1.26.10.b. For all MY2022-23 Diesel engines, Warn each PG query where no response was received.
-                if (getEngineModelYear() >= 2022 && getEngineModelYear() <= 2023) {
-                    addWarning("6.1.26.10.b - No response was received from "
-                            + module.getModuleName() + " for PG "
-                            + pg);
-                }
-            } else {
-                packetForPg.getSpns().forEach(spn -> {
-                    var checkValue = spn.getSlot().getLength() == 2 ? 0xFAFFL : 0xFAFFFFFFL;
-                    var checkValueString = spn.getSlot().getLength() == 2 ? String.format("0x%04X", checkValue)
-                            : String.format("0x%08X", checkValue);
-                    if (spn.getRawValue() > checkValue) {
-                        // 6.1.26.10.c. Fail each PG query where any bin value received is greater than FAFFh. (Use
-                        // FAFFFFFFh for NOx values)
-                        addFailure("6.1.26.10.c - Bin value received is greater than " + checkValueString + "(h) from "
-                                + module.getModuleName() + " for " + spn);
 
-                    }
+            nOx100HourPackets.forEach(packet -> {
+                packet.getSpns().forEach(spn -> {
+                    // 6.1.26.10.c. Fail each PG query where any bin value received is greater than FAFFh. (Use
+                    // FAFFFFFFh for NOx values)
+                    isSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.10.c");
                     // 6.1.26.10.d. Fail each active 100 hr array value that is greater than zero. (where supported)
-                    if (Arrays.asList(NOx_TRACKING_ACTIVE_100_HOURS_SPs).contains(spn) && spn.getValue() > 0) {
-                        // 6.1.26.10.d. Fail each active 100 hr array value that is greater than zero. (where supported)
+                    List<Integer> active100HrSps = Arrays.stream(NOx_TRACKING_ACTIVE_100_HOURS_SPs).boxed().collect(Collectors.toList());
+                    if (active100HrSps.contains(packet.getPgnDefinition().getId()) && spn.getValue() > 0) {
+                        // 6.1.26.10.d. Fail each active 100 hr array value that is greater than zero. (where
+                        // supported)
                         addFailure("6.1.26.10.d - Active 100 hr array value received is greater than zero (where supported) from "
-                                + module.getModuleName() + " for " + spn);
+                                           + module.getModuleName() + " for " + spn);
                     }
                 });
-            }
+            });
         }
 
     }
