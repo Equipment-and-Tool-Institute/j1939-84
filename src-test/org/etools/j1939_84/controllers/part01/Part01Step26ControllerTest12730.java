@@ -265,7 +265,7 @@ public class Part01Step26ControllerTest12730 extends AbstractControllerTest {
         verify(broadcastValidator, times(4)).buildPGNPacketsMap(List.of());
         verify(broadcastValidator).buildPGNPacketsMap(List.of(packet2));
 
-        verify(broadcastValidator, times(5)).reportBroadcastPeriod(eq(Map.of()),
+        verify(broadcastValidator).reportBroadcastPeriod(eq(Map.of()),
                                                                    eq(List.of(111,
                                                                               222,
                                                                               333,
