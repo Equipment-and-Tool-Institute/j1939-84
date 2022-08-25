@@ -182,7 +182,7 @@ public class Part08Step08Controller extends StepController {
                .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 1)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
-                   addWarning("6.8.8.3.c - " + moduleName + " reported > 1 for permanent");
+                   addWarning("6.8.8.3.e - " + moduleName + " reported > 1 for permanent");
                });
 
         // 6.8.8.3.f. Warn if more than one ECU reports > 0 for permanent.
