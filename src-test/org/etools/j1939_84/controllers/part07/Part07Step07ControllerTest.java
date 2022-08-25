@@ -195,7 +195,7 @@ public class Part07Step07ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.7.7.2.a - Engine #1 (0) did not report MIL 'off'");
+                                        "6.7.7.2.b - Engine #1 (0) did not report MIL 'off'");
     }
 
     @Test
