@@ -234,7 +234,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.2.4.2.a - Engine #1 (0) reported value for ignition cycle is not one cycle greater than the value reported in part 1");
+                                        "6.2.4.2.c - Engine #1 (0) reported value for ignition cycle is not one cycle greater than the value reported in part 1");
     }
 
     @Test

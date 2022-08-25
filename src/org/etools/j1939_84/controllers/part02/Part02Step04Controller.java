@@ -98,7 +98,7 @@ public class Part02Step04Controller extends StepController {
                      .filter(p -> p.getIgnitionCycles() != getPart1IgnitionCycles(p.getSourceAddress()) + 1)
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> {
-                         addFailure("6.2.4.2.a - " + moduleName
+                         addFailure("6.2.4.2.c - " + moduleName
                                  + " reported value for ignition cycle is not one cycle greater than the value reported in part 1");
                      });
 
