@@ -76,7 +76,7 @@ public class Part03Step09Controller extends StepController {
                      .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF
                              && p.getMalfunctionIndicatorLampStatus() != ALTERNATE_OFF)
                      .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.3.9.2.a - " + moduleName + " did not report MIL 'off'"));
+                     .forEach(moduleName -> addFailure("6.3.9.2.b - " + moduleName + " did not report MIL 'off'"));
 
         // 6.3.9.2.c Fail if any non-OBD ECU does not report MIL off or not supported.
         globalPackets.stream()
@@ -84,7 +84,7 @@ public class Part03Step09Controller extends StepController {
                      .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF
                              && p.getMalfunctionIndicatorLampStatus() != NOT_SUPPORTED)
                      .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.3.9.2.a - Non-OBD ECU " + moduleName
+                     .forEach(moduleName -> addFailure("6.3.9.2.c - Non-OBD ECU " + moduleName
                              + " did not report MIL off or not supported"));
 
         // 6.3.9.2.d Fail if no OBD ECU provides DM12

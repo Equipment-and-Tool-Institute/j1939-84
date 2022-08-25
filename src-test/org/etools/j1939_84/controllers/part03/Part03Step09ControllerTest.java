@@ -215,7 +215,7 @@ public class Part03Step09ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.9.2.a - Engine #1 (0) did not report MIL 'off'");
+                                        "6.3.9.2.b - Engine #1 (0) did not report MIL 'off'");
     }
 
     @Test
@@ -235,7 +235,7 @@ public class Part03Step09ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.9.2.a - Non-OBD ECU Engine #2 (1) did not report MIL off or not supported");
+                                        "6.3.9.2.c - Non-OBD ECU Engine #2 (1) did not report MIL off or not supported");
     }
 
     @Test
