@@ -37,6 +37,7 @@ import org.etools.j1939_84.ui.widgets.TextChangeListener;
 import org.etools.j1939_84.ui.widgets.VinSanitizingDocumentFilter;
 import org.etools.j1939tools.j1939.J1939;
 import org.etools.j1939tools.j1939.model.FuelType;
+
 /**
  * Dialog used to collect information about the vehicle
  *
@@ -68,6 +69,7 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     private JSpinner vehicleModelYearSpinner;
     private JLabel vehicleModelYearValidationLabel;
     private JLabel vinLabel;
+    private JCheckBox usCarbCheckBox;
     private JTextField vinTextField;
     private JLabel vinValidationLabel;
 
@@ -332,7 +334,10 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
             mainPanel.add(getVehicleModelYearValidationLabel(), vehicleMyValidationGbc);
 
             mainPanel.add(getEngineModelYearLabel(), getLabelGbc(4));
-            mainPanel.add(getEngineModelYearSpinner(), getValueGbc(4));
+            JPanel panel = new JPanel();
+            panel.add(getEngineModelYearSpinner());
+            panel.add(getUsCarbCheckBox());
+            mainPanel.add(panel, getValueGbc(4));
 
             mainPanel.add(getFuelTypeLabel(), getLabelGbc(5));
             GridBagConstraints fuelTypeGbc = getValueGbc(5);
@@ -431,6 +436,15 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
             vehicleModelYearValidationLabel.setForeground(Color.RED);
         }
         return vehicleModelYearValidationLabel;
+    }
+
+    private JCheckBox getUsCarbCheckBox() {
+        if (usCarbCheckBox == null) {
+            usCarbCheckBox = new JCheckBox("US/CARB");
+            usCarbCheckBox.addActionListener(e -> presenter.onUsCarb(usCarbCheckBox.isSelected()));
+            usCarbCheckBox.setSelected(true);
+        }
+        return usCarbCheckBox;
     }
 
     private JLabel getVinLabel() {
