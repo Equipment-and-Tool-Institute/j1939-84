@@ -76,7 +76,7 @@ public class Part07Step08Controller extends StepController {
                      .filter(p -> isObdModule(p.getSourceAddress()))
                      .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF)
                      .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.7.8.2.a - " + moduleName + " did not report MIL off"));
+                     .forEach(moduleName -> addFailure("6.7.8.2.b - " + moduleName + " did not report MIL off"));
 
         // 6.7.8.3.a DS DM27 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
