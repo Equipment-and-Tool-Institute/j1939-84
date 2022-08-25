@@ -78,7 +78,7 @@ public class Part07Step09Controller extends StepController {
                .filter(p -> isObdModule(p.getSourceAddress()))
                .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF)
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.7.9.2.a - " + moduleName + " did not report MIL off"));
+               .forEach(moduleName -> addFailure("6.7.9.2.b - " + moduleName + " did not report MIL off"));
 
         // 6.7.9.2.c Fail if NACK not received from OBD ECUs that did not provide DM28 message.
         checkForNACKsDS(packets, filterAcks(dsResults), "6.7.9.2.c");
