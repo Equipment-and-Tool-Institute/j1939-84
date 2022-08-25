@@ -207,7 +207,7 @@ public class Part07Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.7.2.3.c - OBD ECU Engine #1 (0) reported > 1 previously active DTCs");
+                                        "6.7.2.3.a - OBD ECU Engine #1 (0) reported > 1 previously active DTCs");
     }
 
     @Test
