@@ -207,7 +207,7 @@ public class Part01Step07Controller extends StepController {
                     if (isObdModule(packet.getSourceAddress())) {
                         addFailure("6.1.7.2.b.iv - Received CVN is all 0x00 from " + moduleName);
                     } else {
-                        addFailure("6.1.7.3.d.v Received CVN that is all 0x00 from " + moduleName);
+                        addWarning("6.1.7.3.d.v Received CVN that is all 0x00 from " + moduleName);
                     }
                 }
             }
