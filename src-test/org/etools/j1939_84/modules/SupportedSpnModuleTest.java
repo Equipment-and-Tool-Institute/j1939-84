@@ -46,7 +46,7 @@ public class SupportedSpnModuleTest extends TestCase {
 
     @Test
     public void testValidateDataStreamSpns2013CIFailures() {
-        assertFalse(instance.validateDataStreamSpns(listener, List.of(), FuelType.DSL, 2013));
+        assertFalse(instance.validateRequiredDataStreamSpns(listener, List.of(), FuelType.DSL, 2013));
         String expected = "";
         expected += "Required Data Stream SPNs are not supported. SPNs: 27" + NL;
         expected += "Required Data Stream SPNs are not supported. SPNs: 84" + NL;
@@ -117,14 +117,14 @@ public class SupportedSpnModuleTest extends TestCase {
                                      513,
                                      539,
                                      92);
-        assertTrue(instance.validateDataStreamSpns(listener, spns, FuelType.DSL, 2013));
+        assertTrue(instance.validateRequiredDataStreamSpns(listener, spns, FuelType.DSL, 2013));
         String expected = "";
         assertEquals(expected, listener.getResults());
     }
 
     @Test
     public void testValidateDataStreamSpns2016CIFailures() {
-        assertFalse(instance.validateDataStreamSpns(listener, List.of(), FuelType.DSL, 2016));
+        assertFalse(instance.validateRequiredDataStreamSpns(listener, List.of(), FuelType.DSL, 2016));
         String expected = "";
         expected += "Required Data Stream SPNs are not supported. SPNs: 27" + NL;
         expected += "Required Data Stream SPNs are not supported. SPNs: 84" + NL;
@@ -205,13 +205,13 @@ public class SupportedSpnModuleTest extends TestCase {
                            5827,
                            3516,
                            94);
-        assertTrue(instance.validateDataStreamSpns(listener, spns, FuelType.DSL, 2016));
+        assertTrue(instance.validateRequiredDataStreamSpns(listener, spns, FuelType.DSL, 2016));
         assertEquals("", listener.getResults());
     }
 
     @Test
     public void testValidateDataStreamSpns2022CIFailures() {
-        assertFalse(instance.validateDataStreamSpns(listener, List.of(), FuelType.DSL, 2022));
+        assertFalse(instance.validateRequiredDataStreamSpns(listener, List.of(), FuelType.DSL, 2022));
         String expected = "";
         expected += "Required Data Stream SPNs are not supported. SPNs: 27" + NL;
         expected += "Required Data Stream SPNs are not supported. SPNs: 84" + NL;
@@ -294,14 +294,14 @@ public class SupportedSpnModuleTest extends TestCase {
                            5827,
                            3516,
                            94);
-        assertTrue(instance.validateDataStreamSpns(listener, spns, FuelType.DSL, 2022));
+        assertTrue(instance.validateRequiredDataStreamSpns(listener, spns, FuelType.DSL, 2022));
         String expected = "";
         assertEquals(expected, listener.getResults());
     }
 
     @Test
     public void testValidateDataStreamSpns2024CIFailures() {
-        assertFalse(instance.validateDataStreamSpns(listener, List.of(), FuelType.DSL, 2024));
+        assertFalse(instance.validateRequiredDataStreamSpns(listener, List.of(), FuelType.DSL, 2024));
         String expected = "";
         expected += "Required Data Stream SPNs are not supported. SPNs: 27" + NL;
         expected += "Required Data Stream SPNs are not supported. SPNs: 84" + NL;
@@ -388,14 +388,14 @@ public class SupportedSpnModuleTest extends TestCase {
                            94,
                            6894,
                            12748);
-        assertTrue(instance.validateDataStreamSpns(listener, spns, FuelType.DSL, 2024));
+        assertTrue(instance.validateRequiredDataStreamSpns(listener, spns, FuelType.DSL, 2024));
         String expected = "";
         assertEquals(expected, listener.getResults());
     }
 
     @Test
     public void testValidateDataStreamSpns2013SIFailures() {
-        assertFalse(instance.validateDataStreamSpns(listener, List.of(), FuelType.GAS, 2013));
+        assertFalse(instance.validateRequiredDataStreamSpns(listener, List.of(), FuelType.GAS, 2013));
         String expected = "";
         expected += "Required Data Stream SPNs are not supported. SPNs: 27" + NL;
         expected += "Required Data Stream SPNs are not supported. SPNs: 51" + NL;
@@ -472,14 +472,14 @@ public class SupportedSpnModuleTest extends TestCase {
                                      190,
                                      110,
                                      94);
-        assertTrue(instance.validateDataStreamSpns(listener, spns, FuelType.GAS, 2013));
+        assertTrue(instance.validateRequiredDataStreamSpns(listener, spns, FuelType.GAS, 2013));
         String expected = "";
         assertEquals(expected, listener.getResults());
     }
 
     @Test
     public void testValidateDataStreamSpns2016SIFailures() {
-        assertFalse(instance.validateDataStreamSpns(listener, List.of(), FuelType.GAS, 2016));
+        assertFalse(instance.validateRequiredDataStreamSpns(listener, List.of(), FuelType.GAS, 2016));
         String expected = "";
         expected += "Required Data Stream SPNs are not supported. SPNs: 27" + NL;
         expected += "Required Data Stream SPNs are not supported. SPNs: 51" + NL;
@@ -564,7 +564,7 @@ public class SupportedSpnModuleTest extends TestCase {
                                      190,
                                      110,
                                      94);
-        assertTrue(instance.validateDataStreamSpns(listener, spns, FuelType.GAS, 2016));
+        assertTrue(instance.validateRequiredDataStreamSpns(listener, spns, FuelType.GAS, 2016));
 
         String expected = "";
         assertEquals(expected, listener.getResults());
@@ -572,7 +572,7 @@ public class SupportedSpnModuleTest extends TestCase {
 
     @Test
     public void testValidateDataStreamSpns2022SIFailures() {
-        assertFalse(instance.validateDataStreamSpns(listener, List.of(), FuelType.GAS, 2022));
+        assertFalse(instance.validateRequiredDataStreamSpns(listener, List.of(), FuelType.GAS, 2022));
         String expected = "";
         expected += "Required Data Stream SPNs are not supported. SPNs: 27" + NL;
         expected += "Required Data Stream SPNs are not supported. SPNs: 51" + NL;
@@ -661,14 +661,14 @@ public class SupportedSpnModuleTest extends TestCase {
                                      110,
                                      94);
 
-        assertTrue(instance.validateDataStreamSpns(listener, spns, FuelType.GAS, 2022));
+        assertTrue(instance.validateRequiredDataStreamSpns(listener, spns, FuelType.GAS, 2022));
         String expected = "";
         assertEquals(expected, listener.getResults());
     }
 
     @Test
     public void testValidateDataStreamSpns2024SIFailures() {
-        assertFalse(instance.validateDataStreamSpns(listener, List.of(), FuelType.GAS, 2024));
+        assertFalse(instance.validateRequiredDataStreamSpns(listener, List.of(), FuelType.GAS, 2024));
         String expected = "";
         expected += "Required Data Stream SPNs are not supported. SPNs: 27" + NL;
         expected += "Required Data Stream SPNs are not supported. SPNs: 51" + NL;
@@ -715,7 +715,50 @@ public class SupportedSpnModuleTest extends TestCase {
     }
 
     @Test
-    public void testValidateDataStreamSpns2024SIPassing() {
+    public void testValidateDesiredDataStreamSpns2024CIPassing() {
+        var spns = List.of(190,
+                           5827,
+                           132,
+                           157,
+                           5313,
+                           175,
+                           12744,
+                           4348,
+                           6593,
+                           12749,
+                           4363,
+                           3230,
+                           3220,
+                           3481,
+                           5503,
+                           12743,
+                           3479,
+                           3480,
+                           4334,
+                           2630,
+                           12758,
+                           5444,
+                           3516,
+                           3518,
+                           7346,
+                           96,
+                           166,
+                           12750,
+                           12751,
+                           4360,
+                           6595,
+                           12752,
+                           12753,
+                           245,
+                           917,
+                           2659);
+        assertTrue(instance.validateDesiredDataStreamSpns(listener, spns, FuelType.DSL, 2024));
+        String expected = "";
+        assertEquals(expected, listener.getResults());
+    }
+
+    @Test
+    public void testValidateRequiredDataStreamSpns2024SIPassing() {
         List<Integer> spns = List.of(27,
                                      51,
                                      84,
@@ -757,7 +800,7 @@ public class SupportedSpnModuleTest extends TestCase {
                                      6894,
                                      6895,
                                      7333);
-        assertTrue(instance.validateDataStreamSpns(listener, spns, FuelType.GAS, 2024));
+        assertTrue(instance.validateRequiredDataStreamSpns(listener, spns, FuelType.GAS, 2024));
         String expected = "";
         assertEquals(expected, listener.getResults());
     }
@@ -781,5 +824,138 @@ public class SupportedSpnModuleTest extends TestCase {
         List<Integer> spns = List.of(92, 110, 190, 512, 513, 3301);
         assertTrue(instance.validateFreezeFrameSpns(listener, spns));
         assertEquals("", listener.getResults());
+    }
+    @Test
+    public void testValidateDesiredfDataStreamSpns2024SIPassing() {
+        List<Integer> spns = List.of(190,
+                                     5827,
+                                     132,
+                                     157,
+                                     5313,
+                                     175,
+                                     3516,
+                                     3518,
+                                     7346,
+                                     96,
+                                     166,
+                                     12750,
+                                     12751,
+                                     4360,
+                                     4331,
+                                     6595,
+                                     12752,
+                                     12753,
+                                     245,
+                                     917,
+                                     2659);
+        assertTrue(instance.validateDesiredDataStreamSpns(listener, spns, FuelType.GAS, 2024));
+        String expected = "";
+        assertEquals(expected, listener.getResults());
+    }
+
+    @Test
+    public void testValidateDesiredfDataStreamSpns2024XevPassing() {
+        List<Integer> spns = List.of(190,
+                                     5827,
+                                     132,
+                                     157,
+                                     5313,
+                                     175,
+                                     7315,
+                                     8086,
+                                     5919,
+                                     5920,
+                                     3516,
+                                     3518,
+                                     7346,
+                                     96,
+                                     166,
+                                     12750,
+                                     12751,
+                                     4360,
+                                     4331,
+                                     6595,
+                                     12752,
+                                     12753,
+                                     245,
+                                     917,
+                                     2659);
+        assertTrue(instance.validateDesiredDataStreamSpns(listener, spns, FuelType.BATT_ELEC, 2024));
+        String expected = "";
+        assertEquals(expected, listener.getResults());
+    }
+
+    @Test
+    public void testValidateDesiredfDataStreamSpns2024HevPassing() {
+        List<Integer> spns = List.of(190,
+                                     5827,
+                                     132,
+                                     157,
+                                     5313,
+                                     175,
+                                     7896,
+                                     3516,
+                                     3518,
+                                     7346,
+                                     96,
+                                     166,
+                                     12750,
+                                     12751,
+                                     4360,
+                                     4331,
+                                     6595,
+                                     12752,
+                                     12753,
+                                     245,
+                                     917,
+                                     2659);
+        assertTrue(instance.validateDesiredDataStreamSpns(listener, spns, FuelType.HYB_GAS, 2024));
+        String expected = "";
+        assertEquals(expected, listener.getResults());
+    }
+
+    @Test
+    public void testValidateDesiredfDataStreamSpns2024HevFailing() {
+        List<Integer> spns = List.of(190,
+                                     5827,
+                                     132,
+                                     157,
+                                     5313,
+                                     175,
+                                     3518,
+                                     7346,
+                                     96,
+                                     166,
+                                     12750,
+                                     12751,
+                                     4360,
+                                     4331,
+                                     12752,
+                                     12753,
+                                     245,
+                                     917,
+                                     2659);
+        assertTrue(instance.validateDesiredDataStreamSpns(listener, spns, FuelType.HYB_GAS, 2024));
+        String expected = "";
+        assertEquals(expected, listener.getResults());
+    }
+
+    @Test
+    public void testValidateNoticedDataStreamSpns2024SIFailing() {
+        List<Integer> spns = List.of(101,
+                                     74);
+        assertFalse(instance.validateNoticedDataStreamSpns(listener, spns, FuelType.DSL, 2024));
+        String expected = "Required Data Stream SPNs are not supported. SPNs: 110" + NL;
+        assertEquals(expected, listener.getResults());
+    }
+
+    @Test
+    public void testValidateNoticedDataStreamSpns2024SIPassing() {
+        List<Integer> spns = List.of(110,
+                                     101,
+                                     74);
+        assertTrue(instance.validateNoticedDataStreamSpns(listener, spns, FuelType.DSL, 2024));
+        String expected = "";
+        assertEquals(expected, listener.getResults());
     }
 }
