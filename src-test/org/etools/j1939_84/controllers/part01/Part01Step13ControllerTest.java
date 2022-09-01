@@ -628,51 +628,6 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(
                                         1,
                                         13,
-                                        WARN,
-                                        "6.1.13.2.d - Required monitor Boost pressure control sys is supported by more than one OBD ECU");
-        verify(mockListener).addOutcome(
-                                        1,
-                                        13,
-                                        WARN,
-                                        "6.1.13.2.d - Required monitor Diesel Particulate Filter is supported by more than one OBD ECU");
-        verify(mockListener).addOutcome(
-                                        1,
-                                        13,
-                                        WARN,
-                                        "6.1.13.2.d - Required monitor EGR/VVT system is supported by more than one OBD ECU");
-        verify(mockListener).addOutcome(
-                                        1,
-                                        13,
-                                        WARN,
-                                        "6.1.13.2.d - Required monitor Exhaust Gas Sensor is supported by more than one OBD ECU");
-        verify(mockListener).addOutcome(
-                                        1,
-                                        13,
-                                        WARN,
-                                        "6.1.13.2.d - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU");
-        verify(mockListener).addOutcome(
-                                        1,
-                                        13,
-                                        WARN,
-                                        "6.1.13.2.d - Required monitor Fuel System is supported by more than one OBD ECU");
-        verify(mockListener).addOutcome(
-                                        1,
-                                        13,
-                                        WARN,
-                                        "6.1.13.2.d - Required monitor Misfire is supported by more than one OBD ECU");
-        verify(mockListener).addOutcome(
-                                        1,
-                                        13,
-                                        WARN,
-                                        "6.1.13.2.d - Required monitor NMHC converting catalyst is supported by more than one OBD ECU");
-        verify(mockListener).addOutcome(
-                                        1,
-                                        13,
-                                        WARN,
-                                        "6.1.13.2.d - Required monitor NOx catalyst/adsorber is supported by more than one OBD ECU");
-        verify(mockListener).addOutcome(
-                                        1,
-                                        13,
                                         FAIL,
                                         "6.1.13.4.a - Difference compared to data received during global request from Body Controller (33)");
         verify(mockListener).addOutcome(

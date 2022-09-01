@@ -101,7 +101,7 @@ public class Part01Step07Controller extends StepController {
                      .flatMap(p -> p.getCalibrationInformation().stream())
                      .filter(calInfo -> calInfo.getRawCvn()[0] == 0x00 || calInfo.getRawCvn()[3] == 0x0)
                      .forEach(caInfo -> {
-                         addWarning("6.1.7.3.c CAL ID " + caInfo.getCalibrationIdentification() + " has 00h is in either the first or fourth bytes.");
+                         addWarning("6.1.7.3.c - CAL ID " + caInfo.getCalibrationIdentification() + " has 00h is in either the first or fourth bytes");
                      });
 
         // 6.1.7.3.d.i. For responses from non-OBD ECUs: Warn if any non-OBD ECU provides CAL ID.
@@ -128,9 +128,9 @@ public class Part01Step07Controller extends StepController {
                      })
                      .forEach(p -> {
                          if (isObdModule(p.getSourceAddress())) {
-                             addFailure("6.1.7.2.b.i - " + p.getModuleName() + " <> 1 CVN for every CAL ID");
+                             addFailure("6.1.7.2.b.i - OBD ECU " + p.getModuleName() + " <> 1 CVN for every CAL ID");
                          } else {
-                             addWarning("6.1.7.3.d.ii - " + p.getModuleName() + " <> 1 CVN for every CAL ID");
+                             addWarning("6.1.7.3.d.ii - Non-OBD ECU " + p.getModuleName() + " <> 1 CVN for every CAL ID");
                          }
                      });
 
@@ -146,10 +146,10 @@ public class Part01Step07Controller extends StepController {
                 if (calId != null && calId.length > 0 && StringUtils.containsNonPrintableAsciiCharacter(calId)) {
                     String moduleName = packet.getModuleName();
                     if (isObdModule) {
-                        addFailure("6.1.7.2.b.ii - " + moduleName
+                        addFailure("6.1.7.2.b.ii - OBD ECU " + moduleName
                                 + " CAL ID not formatted correctly (contains non-printable ASCII)");
                     } else {
-                        addWarning("6.1.7.3.d.iii - " + moduleName
+                        addWarning("6.1.7.3.d.iii - Non-OBD ECU " + moduleName
                                 + " CAL ID not formatted correctly (contains non-printable ASCII)");
                     }
                 }
@@ -158,10 +158,10 @@ public class Part01Step07Controller extends StepController {
                 if (rawCalId != null && rawCalId.length > 0 && rawCalId[0] == (byte) 0x00) {
                     String moduleName = packet.getModuleName();
                     if (isObdModule(packet.getSourceAddress())) {
-                        addFailure("6.1.7.2.b.ii - " + moduleName
+                        addFailure("6.1.7.2.b.ii - OBD ECU " + moduleName
                                 + " CAL ID not formatted correctly (padded incorrectly)");
                     } else {
-                        addWarning("6.1.7.3.d.iii - " + moduleName
+                        addWarning("6.1.7.3.d.iii - Non-OBD ECU " + moduleName
                                 + " CAL ID not formatted correctly (padded incorrectly)");
                     }
                 }
@@ -184,9 +184,9 @@ public class Part01Step07Controller extends StepController {
                 if (allFF) {
                     String moduleName = packet.getModuleName();
                     if (isObdModule(packet.getSourceAddress())) {
-                        addFailure("6.1.7.2.b.iii - Received CAL ID is all 0xFF from " + moduleName);
+                        addFailure("6.1.7.2.b.iii - OBD ECU Received CAL ID is all 0xFF from " + moduleName);
                     } else {
-                        addWarning("6.1.7.3.d.iv - Received CAL ID is all 0xFF from " + moduleName);
+                        addWarning("6.1.7.3.d.iv - Non-OBD ECU Received CAL ID is all 0xFF from " + moduleName);
                     }
                 }
             }
@@ -205,9 +205,9 @@ public class Part01Step07Controller extends StepController {
                 if (allZeros) {
                     String moduleName = packet.getModuleName();
                     if (isObdModule(packet.getSourceAddress())) {
-                        addFailure("6.1.7.2.b.iv - Received CVN is all 0x00 from " + moduleName);
+                        addFailure("6.1.7.2.b.iv - OBD ECU Received CVN is all 0x00 from " + moduleName);
                     } else {
-                        addFailure("6.1.7.3.d.v Received CVN that is all 0x00 from " + moduleName);
+                        addWarning("6.1.7.3.d.v - Non-OBD ECU Received CVN that is all 0x00 from " + moduleName);
                     }
                 }
             }

@@ -63,6 +63,11 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      */
     private String certificationIntent;
     /**
+     * The value the user selected to indicate the intent of this test run.
+     */
+    private boolean usCarb;
+
+    /**
      * The communications module for talking to bus
      */
     private final CommunicationsModule communicationsModule;
@@ -201,7 +206,8 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
             obdModules.stream().peek(address -> {
                 emissionUnitsFound.addAll(communicationsModule.request(ComponentIdentificationPacket.PGN,
                                                                        address,
-                                                                       NOOP).toPacketStream()
+                                                                       NOOP)
+                                                              .toPacketStream()
                                                               .map(p -> new ComponentIdentificationPacket(p.getPacket()))
                                                               .collect(Collectors.toList()));
             });
@@ -276,7 +282,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         vehicleInformation.setEmissionUnits(emissionUnits);
         vehicleInformation.setCalIds(calIds);
         vehicleInformation.setCertificationIntent(certificationIntent);
-
+        vehicleInformation.setUsCarb(usCarb);
         vehicleInformation.setNumberOfTripsForFaultBImplant(numberOfTripsForFaultBImplant);
 
         vehicleInformation.setCalIdsFound(calIdsFound);
@@ -332,5 +338,10 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         view.setOverrideControlVisible(!enabled);
 
         view.setOkButtonEnabled(enabled || isOverridden);
+    }
+
+    @Override
+    public void onUsCarb(boolean usCarb) {
+        this.usCarb = usCarb;
     }
 }

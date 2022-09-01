@@ -41,6 +41,8 @@ public class VehicleInformation implements Cloneable {
     private int engineModelYear;
 
     private FuelType fuelType;
+    
+    private boolean usCarb;
 
     private int numberOfTripsForFaultBImplant;
 
@@ -193,6 +195,7 @@ public class VehicleInformation implements Cloneable {
         vehInfo.setNumberOfTripsForFaultBImplant(getNumberOfTripsForFaultBImplant());
         vehInfo.setVehicleModelYear(getVehicleModelYear());
         vehInfo.setVin(getVin());
+        vehInfo.setUsCarb(isUsCarb());
 
         return vehInfo;
     }
@@ -228,4 +231,11 @@ public class VehicleInformation implements Cloneable {
                 + NL;
     }
 
+    public boolean isUsCarb() {
+        return usCarb;
+    }
+
+    public void setUsCarb(boolean usCarb) {
+        this.usCarb = usCarb;
+    }
 }

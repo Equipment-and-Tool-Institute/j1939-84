@@ -202,7 +202,7 @@ public class DM24SPNSupportPacketTest {
         expected += "  D F     1  SPN 1081 - Engine Wait to Start Lamp" + NL;
         expected += "  D F T   2  SPN 1173 - Engine Turbocharger 2 Compressor Intake Temperature" + NL;
         expected += "  D F     1  SPN 1189 - Engine Turbocharger Wastegate Actuator 2 Position" + NL;
-        expected += "  D F     2  SPN 1209 - Engine Exhaust Pressure 1" + NL;
+        expected += "  D F     2  SPN 1209 - Engine Exhaust Bank 1 Pressure 1" + NL;
         expected += "  D       1  SPN 1213 - Malfunction Indicator Lamp" + NL;
         expected += "  D       1  SPN 1216 - Occurrence Count" + NL;
         expected += "  D       1  SPN 1220 - OBD Compliance" + NL;
@@ -310,7 +310,7 @@ public class DM24SPNSupportPacketTest {
         expectedSPNString += "SPN 5466 - AFT 1 DPF Soot Load Regeneration Threshold" + NL;
         expectedSPNString += "SPN 5323 - Engine Fuel Control Mode" + NL;
         expectedSPNString += "SPN 3464 - Engine Throttle Actuator 1 Control Command" + NL;
-        expectedSPNString += "SPN 1209 - Engine Exhaust Pressure 1" + NL;
+        expectedSPNString += "SPN 1209 - Engine Exhaust Bank 1 Pressure 1" + NL;
         expectedSPNString += "SPN 5541 - Engine Turbocharger 1 Turbine Outlet Pressure" + NL;
         expectedSPNString += "SPN 164 - Engine Fuel Injection Control Pressure" + NL;
         expectedSPNString += "SPN 2791 - Engine EGR 1 Valve 1 Control 1" + NL;
@@ -376,7 +376,7 @@ public class DM24SPNSupportPacketTest {
         expectedFreezeFrame += "   2  SPN 5466 - AFT 1 DPF Soot Load Regeneration Threshold" + NL;
         expectedFreezeFrame += "   1  SPN 5323 - Engine Fuel Control Mode" + NL;
         expectedFreezeFrame += "   2  SPN 3464 - Engine Throttle Actuator 1 Control Command" + NL;
-        expectedFreezeFrame += "   2  SPN 1209 - Engine Exhaust Pressure 1" + NL;
+        expectedFreezeFrame += "   2  SPN 1209 - Engine Exhaust Bank 1 Pressure 1" + NL;
         expectedFreezeFrame += "   1  SPN 5541 - Engine Turbocharger 1 Turbine Outlet Pressure" + NL;
         expectedFreezeFrame += "   2  SPN 164 - Engine Fuel Injection Control Pressure" + NL;
         expectedFreezeFrame += "   2  SPN 2791 - Engine EGR 1 Valve 1 Control 1" + NL;

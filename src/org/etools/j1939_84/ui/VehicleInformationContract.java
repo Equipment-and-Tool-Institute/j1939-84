@@ -43,6 +43,15 @@ public interface VehicleInformationContract {
          */
         void onCertificationChanged(String certification);
 
+
+        /**
+         * Called when the state of US CARB selection changes
+         *
+         * @param usCarb
+         *                          The intent of the test run.
+         */
+        void onUsCarb(boolean usCarb);
+
         /**
          * Called when the dialog has been closed
          */

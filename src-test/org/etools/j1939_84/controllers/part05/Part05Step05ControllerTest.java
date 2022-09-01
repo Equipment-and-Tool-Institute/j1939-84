@@ -281,7 +281,7 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.5.5.2.c - Engine #1 (0) reported a different number of permanent DTCs than what it reported in DM28 earlier in this part");
+                                        "6.5.5.2.d - Engine #1 (0) reported a different number of permanent DTCs than what it reported in DM28 earlier in this part");
     }
 
     @Test

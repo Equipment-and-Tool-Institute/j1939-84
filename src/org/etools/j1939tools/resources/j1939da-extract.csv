@@ -1367,7 +1367,7 @@ The time between each message shall be 100 ms or greater.",5,9774,On Board Progr
 61444,Electronic Engine Controller 1,EEC1,Fixed rate of 10 to 50 ms or engine speed dependent,4-5,190,Engine Speed,76
 61444,Electronic Engine Controller 1,EEC1,Fixed rate of 10 to 50 ms or engine speed dependent,6,1483,Source Address of Controlling Device for Engine Control,35
 61444,Electronic Engine Controller 1,EEC1,Fixed rate of 10 to 50 ms or engine speed dependent,7.1,1675,Engine Starter Mode,89
-61444,Electronic Engine Controller 1,EEC1,Fixed rate of 10 to 50 ms or engine speed dependent,8,2432,Engine Demand – Percent Torque,45
+61444,Electronic Engine Controller 1,EEC1,Fixed rate of 10 to 50 ms or engine speed dependent,8,2432,Engine Demand - Percent Torque,45
 61445,Electronic Transmission Controller 2,ETC2,100 ms,1,524,Transmission Selected Gear,24
 61445,Electronic Transmission Controller 2,ETC2,100 ms,2-3,526,Transmission Actual Gear Ratio,32
 61445,Electronic Transmission Controller 2,ETC2,100 ms,4,523,Transmission Current Gear,24
