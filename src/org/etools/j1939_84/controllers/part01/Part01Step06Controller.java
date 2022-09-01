@@ -3,7 +3,9 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -54,6 +56,39 @@ public class Part01Step06Controller extends StepController {
               TOTAL_STEPS);
     }
 
+    Map<String, Integer> myCodes = new HashMap<>();
+    {
+        myCodes.put("1", 2001);
+        myCodes.put("2", 2002);
+        myCodes.put("3", 2003);
+        myCodes.put("4", 2004);
+        myCodes.put("5", 2005);
+        myCodes.put("6", 2006);
+        myCodes.put("7", 2007);
+        myCodes.put("8", 2008);
+        myCodes.put("9", 2009);
+
+        myCodes.put("A", 2010);
+        myCodes.put("B", 2011);
+        myCodes.put("C", 2012);
+        myCodes.put("D", 2013);
+        myCodes.put("E", 2014);
+        myCodes.put("F", 2015);
+        myCodes.put("G", 2016);
+        myCodes.put("H", 2017);
+        myCodes.put("J", 2018);
+
+        myCodes.put("K", 2019);
+        myCodes.put("L", 2020);
+        myCodes.put("M", 2021);
+        myCodes.put("N", 2022);
+        myCodes.put("P", 2023);
+        myCodes.put("R", 2024);
+        myCodes.put("S", 2025);
+        myCodes.put("T", 2026);
+        myCodes.put("V", 2027);
+    }
+
     @Override
     protected void run() throws Throwable {
 
@@ -78,7 +113,7 @@ public class Part01Step06Controller extends StepController {
                 break;
             }
         }
-
+        
         for (DM56EngineFamilyPacket packet : packets) {
             String type = packet.getModelYearField().substring(4, 5);
             if ("V".equals(type)) {
@@ -98,13 +133,15 @@ public class Part01Step06Controller extends StepController {
         }
 
         for (DM56EngineFamilyPacket packet : packets) {
-            // TODO: See the citation for Karl Simon’s manufacturer guidance in 2.1.3.
-            // The description of the coding for engine model year is defined in CSID-07-03,
-            // a manufacturer letter that is available from US EPA at
-            // http://iaspub.epa.gov/otaqpub/publist_gl.jsp?guideyear=2007
-            //
-            // d. Fail if MY designation in engine family (1st digit) does not match user MY input
+            String firstCharacter = packet.getFamilyName().substring(0, 1);
+            Integer myCode = myCodes.get(firstCharacter);
+            if (myCode == null || myCode != engineModelYear) {
+                addFailure("6.1.6.2.d - MY designation in engine family (1st digit) does not match user MY input");
+                break;
+            }
+        }
 
+        for (DM56EngineFamilyPacket packet : packets) {
             String familyName = packet.getFamilyName();
             char char13 = familyName.length() >= 14 ? familyName.charAt(13) : Character.MIN_VALUE;
 
@@ -113,10 +150,10 @@ public class Part01Step06Controller extends StepController {
             if ((-1 < asteriskIndex && asteriskIndex <= 12)
                     || (char13 != Character.MIN_VALUE && char13 != '*' && familyName.contains("*"))) {
                 addFailure(
-                           "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
+                           "6.1.6.2.e - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
                 break;
             } else if (familyName.length() < 13 || !familyName.contains("*") && char13 != Character.MIN_VALUE) {
-                addFailure("6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
+                addFailure("6.1.6.2.e - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
                 break;
             }
         }
