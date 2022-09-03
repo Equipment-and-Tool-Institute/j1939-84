@@ -20,6 +20,31 @@ import org.etools.j1939tools.j1939.model.FuelType;
 public class SupportedSpnModule {
 
     /*
+     * The Data Stream SPNs that are not (causes INFO) to be supported by the vehicle regardless of engine fuel type
+     */
+    private static final Collection<SpnGroup> NOTICED_NON_DUP_DATA_STREAM_SPNS = List.of(new SpnGroup(110,
+                                                                                                      1637,
+                                                                                                      4076,
+                                                                                                      4193),
+                                                                                         new SpnGroup(190,
+                                                                                                      4201,
+                                                                                                      723,
+                                                                                                      4202));
+
+    /*
+     * The Data Stream SPNs that are not (causes INFO) to be supported by the vehicle regardless of engine fuel type
+     */
+    private static final Collection<SpnGroup> NOTICED_NON_DUP_2024_DATA_STREAM_SPNS = List.of(new SpnGroup(4348,
+                                                                                                      6593));
+
+    /*
+     * The Data Stream SPNs that are not (causes WARN) to be supported by the vehicle regardless of engine fuel type
+     */
+    private static final Collection<SpnGroup> DESIRED_NON_DUP_DATA_STREAM_SPNS = List.of(new SpnGroup(132,
+                                                                                                      6393));
+
+
+    /*
      * The Data Stream SPNs that are desired (cause INFO) to be supported by the vehicle regardless of engine fuel type
      */
     private static final Collection<SpnGroup> NOTICED_DATA_STREAM_SPNS = List.of(new SpnGroup(110));
@@ -336,6 +361,45 @@ public class SupportedSpnModule {
             if (!spnGroup.isSatisfied(spns)) {
                 listener.onResult("Required Freeze Frame SPNs are not supported. " + spnGroup);
                 result = false;
+            }
+        }
+        return result;
+    }
+
+    private static Collection<SpnGroup> getNoticedNoDupDataStreamSpns(FuelType fuelType, int engineModelYear) {
+        Collection<SpnGroup> requiredSpns = new HashSet<>(NOTICED_NON_DUP_DATA_STREAM_SPNS);
+
+        if (engineModelYear >= 2024) {
+            requiredSpns.addAll(NOTICED_NON_DUP_2024_DATA_STREAM_SPNS);
+        }
+
+        return requiredSpns.stream().sorted().collect(Collectors.toList());
+    }
+
+    private static Collection<SpnGroup> getDesiredNoDupDataStreamSpns(FuelType fuelType, int engineModelYear) {
+        Collection<SpnGroup> requiredSpns = new HashSet<>(DESIRED_NON_DUP_DATA_STREAM_SPNS);
+
+        return requiredSpns.stream().sorted().collect(Collectors.toList());
+    }
+
+
+    public boolean isMoreThanOneSpnReportedInfo(ResultsListener listener, Collection<Integer> spns, FuelType fuelType, int engineModelYear){
+        boolean result = false;
+        for (SpnGroup spnGroup : getNoticedNoDupDataStreamSpns(fuelType, engineModelYear)) {
+            if (spnGroup.containsMultiple(spns)) {
+                listener.onResult("More than one of the SPNs are reported as supported. " + spnGroup);
+                result = true;
+            }
+        }
+        return result;
+    }
+
+    public boolean isMoreThanOneSpnReportedWarning(ResultsListener listener, Collection<Integer> spns, FuelType fuelType, int engineModelYear){
+        boolean result = false;
+        for (SpnGroup spnGroup : getDesiredNoDupDataStreamSpns(fuelType, engineModelYear)) {
+            if (spnGroup.containsMultiple(spns)) {
+                listener.onResult("More than one of the SPNs are reported as supported. " + spnGroup);
+                result = true;
             }
         }
         return result;
