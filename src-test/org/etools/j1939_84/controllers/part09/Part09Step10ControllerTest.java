@@ -25,7 +25,10 @@ import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939tools.j1939.packets.ScaledTestResult;
 import org.etools.j1939tools.modules.CommunicationsModule;
@@ -138,26 +141,70 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
 
         var str123 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
         var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str123);
-        when(communicationsModule.requestTestResults(any(),
-                                                     eq(0),
-                                                     eq(250),
-                                                     eq(123),
-                                                     eq(14))).thenReturn(List.of(dm30_123));
+        when(communicationsModule.requestTestResult(any(),
+                                                    eq(0),
+                                                    eq(250),
+                                                    eq(123),
+                                                    eq(14))).thenReturn(BusResult.of(dm30_123));
 
         var str456 = ScaledTestResult.create(250, 456, 9, 0, 0, 0, 0);
         var dm30_456 = DM30ScaledTestResultsPacket.create(0, 0, str456, str456);
-        when(communicationsModule.requestTestResults(any(),
-                                                     eq(0),
-                                                     eq(250),
-                                                     eq(456),
-                                                     eq(9))).thenReturn(List.of(dm30_456));
+        when(communicationsModule.requestTestResult(any(),
+                                                    eq(0),
+                                                    eq(250),
+                                                    eq(456),
+                                                    eq(9))).thenReturn(BusResult.of(dm30_456));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
         runTest();
 
-        verify(communicationsModule).requestTestResults(any(), eq(0), eq(250), eq(123), eq(14));
-        verify(communicationsModule).requestTestResults(any(), eq(0), eq(250), eq(456), eq(9));
+        verify(communicationsModule).requestTestResult(any(), eq(0), eq(250), eq(123), eq(14));
+        verify(communicationsModule).requestTestResult(any(), eq(0), eq(250), eq(456), eq(9));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        assertEquals(List.of(), listener.getOutcomes());
+    }
+
+    @Test
+    public void testTid250Nack() {
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+
+        ScaledTestResult str1 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
+        ScaledTestResult str2 = ScaledTestResult.create(250, 456, 9, 0, 0, 0, 0);
+        ScaledTestResult str3 = ScaledTestResult.create(250, 456, 9, 0, 0, 0, 0);
+        obdModuleInformation.setScaledTestResults(List.of(str1, str2, str3));
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var str123 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
+        var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str123);
+        when(communicationsModule.requestTestResult(any(),
+                                                    eq(0),
+                                                    eq(250),
+                                                    eq(123),
+                                                    eq(14))).thenReturn(BusResult.of(AcknowledgmentPacket.create(0, Response.NACK)));
+        when(communicationsModule.requestTestResult(any(),
+                                                    eq(0),
+                                                    eq(247),
+                                                    eq(123),
+                                                    eq(31))).thenReturn(BusResult.of(dm30_123));
+
+        var str456 = ScaledTestResult.create(250, 456, 9, 0, 0, 0, 0);
+        var dm30_456 = DM30ScaledTestResultsPacket.create(0, 0, str456, str456);
+        when(communicationsModule.requestTestResult(any(),
+                                                    eq(0),
+                                                    eq(250),
+                                                    eq(456),
+                                                    eq(9))).thenReturn(BusResult.of(dm30_456));
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+
+        runTest();
+
+        verify(communicationsModule).requestTestResult(any(), eq(0), eq(250), eq(123), eq(14));
+        verify(communicationsModule).requestTestResult(any(), eq(0), eq(247), eq(123), eq(31));
+        verify(communicationsModule).requestTestResult(any(), eq(0), eq(250), eq(456), eq(9));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -174,24 +221,24 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
 
         var str123 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
         var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str123);
-        when(communicationsModule.requestTestResults(any(),
-                                                     eq(0),
-                                                     eq(250),
-                                                     eq(123),
-                                                     eq(14))).thenReturn(List.of(dm30_123));
+        when(communicationsModule.requestTestResult(any(),
+                                                    eq(0),
+                                                    eq(250),
+                                                    eq(123),
+                                                    eq(14))).thenReturn(BusResult.of(dm30_123));
 
         var str456 = ScaledTestResult.create(250, 456, 9, 0, 5, 10, 0);
         var dm30_456 = DM30ScaledTestResultsPacket.create(0, 0, str456);
-        when(communicationsModule.requestTestResults(any(),
-                                                     eq(0),
-                                                     eq(250),
-                                                     eq(456),
-                                                     eq(9))).thenReturn(List.of(dm30_456));
+        when(communicationsModule.requestTestResult(any(),
+                                                    eq(0),
+                                                    eq(250),
+                                                    eq(456),
+                                                    eq(9))).thenReturn(BusResult.of(dm30_456));
 
         runTest();
 
-        verify(communicationsModule).requestTestResults(any(), eq(0), eq(250), eq(123), eq(14));
-        verify(communicationsModule).requestTestResults(any(), eq(0), eq(250), eq(456), eq(9));
+        verify(communicationsModule).requestTestResult(any(), eq(0), eq(250), eq(123), eq(14));
+        verify(communicationsModule).requestTestResult(any(), eq(0), eq(250), eq(456), eq(9));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -212,25 +259,25 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
 
         var str123 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
         var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str123);
-        when(communicationsModule.requestTestResults(any(),
-                                                     eq(0),
-                                                     eq(250),
-                                                     eq(123),
-                                                     eq(14))).thenReturn(List.of(dm30_123));
+        when(communicationsModule.requestTestResult(any(),
+                                                    eq(0),
+                                                    eq(250),
+                                                    eq(123),
+                                                    eq(14))).thenReturn(BusResult.of(dm30_123));
 
         var str456_1 = ScaledTestResult.create(250, 456, 9, 0, 0, 0, 0);
         var str456_2 = ScaledTestResult.create(250, 456, 1, 0, 0, 0, 0);
         var dm30_456 = DM30ScaledTestResultsPacket.create(0, 0, str456_1, str456_2);
-        when(communicationsModule.requestTestResults(any(),
-                                                     eq(0),
-                                                     eq(250),
-                                                     eq(456),
-                                                     eq(9))).thenReturn(List.of(dm30_456));
+        when(communicationsModule.requestTestResult(any(),
+                                                    eq(0),
+                                                    eq(250),
+                                                    eq(456),
+                                                    eq(9))).thenReturn(BusResult.of(dm30_456));
 
         runTest();
 
-        verify(communicationsModule).requestTestResults(any(), eq(0), eq(250), eq(123), eq(14));
-        verify(communicationsModule).requestTestResults(any(), eq(0), eq(250), eq(456), eq(9));
+        verify(communicationsModule).requestTestResult(any(), eq(0), eq(250), eq(123), eq(14));
+        verify(communicationsModule).requestTestResult(any(), eq(0), eq(250), eq(456), eq(9));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -251,22 +298,22 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
 
         var str123 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
         var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str123);
-        when(communicationsModule.requestTestResults(any(),
-                                                     eq(0),
-                                                     eq(250),
-                                                     eq(123),
-                                                     eq(14))).thenReturn(List.of(dm30_123));
+        when(communicationsModule.requestTestResult(any(),
+                                                    eq(0),
+                                                    eq(250),
+                                                    eq(123),
+                                                    eq(14))).thenReturn(BusResult.of(dm30_123));
 
-        when(communicationsModule.requestTestResults(any(),
-                                                     eq(0),
-                                                     eq(250),
-                                                     eq(456),
-                                                     eq(9))).thenReturn(List.of());
+        when(communicationsModule.requestTestResult(any(),
+                                                    eq(0),
+                                                    eq(250),
+                                                    eq(456),
+                                                    eq(9))).thenReturn(BusResult.empty());
 
         runTest();
 
-        verify(communicationsModule).requestTestResults(any(), eq(0), eq(250), eq(123), eq(14));
-        verify(communicationsModule).requestTestResults(any(), eq(0), eq(250), eq(456), eq(9));
+        verify(communicationsModule).requestTestResult(any(), eq(0), eq(250), eq(123), eq(14));
+        verify(communicationsModule).requestTestResult(any(), eq(0), eq(250), eq(456), eq(9));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

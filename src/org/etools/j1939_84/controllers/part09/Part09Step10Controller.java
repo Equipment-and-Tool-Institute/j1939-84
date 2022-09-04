@@ -5,8 +5,10 @@ package org.etools.j1939_84.controllers.part09;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.controllers.DataRepository;
@@ -15,7 +17,11 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.bus.Either;
 import org.etools.j1939tools.j1939.model.SpnFmi;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939tools.j1939.packets.ScaledTestResult;
 import org.etools.j1939tools.modules.CommunicationsModule;
@@ -98,7 +104,30 @@ public class Part09Step10Controller extends StepController {
     }
 
     private List<DM30ScaledTestResultsPacket> requestTestResults(int address, int spn, int fmi) {
-        return getCommunicationsModule().requestTestResults(getListener(), address, 250, spn, fmi);
+        return getCommunicationsModule()
+                                        .requestTestResult(getListener(), address, 250, spn, fmi)
+                                        .getPacket()
+                                        .map(o -> {
+                                            return o.resolve(results -> results,// just return the results as requested
+                                                             ack -> dm7Tid247(address, spn, ack));
+                                        })
+                                        .stream()
+                                        .collect(Collectors.toList());
+    }
+
+    private DM30ScaledTestResultsPacket dm7Tid247(int address, int spn, AcknowledgmentPacket ack) {
+        // 6.9.10.1.b If the response for the TID 250 query is NACK (control byte = 1), then send DS DM7, for the SP
+        // using TID 247 and FMI 31 to obtain all test results for the SPN. [Item b. will be performed for all SPs where
+        // TID 250 is not supported by the OBD ECU.]
+        if (ack.getResponse() == Response.NACK) {
+            return getCommunicationsModule().requestTestResult(getListener(), address, 247, spn, 31)
+                                            .getPacket()
+                                            // ignore any [N]ACK
+                                            .flatMap(e -> e.left)
+                                            .orElse(null);
+        } else {
+            return null;
+        }
     }
 
     private static String toString(List<ScaledTestResult> testResults) {
