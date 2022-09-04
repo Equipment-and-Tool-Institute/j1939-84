@@ -14,6 +14,7 @@ import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939tools.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
@@ -89,17 +90,25 @@ public class Part09Step08Controller extends StepController {
                            .stream()
                            .map(OBDModuleInformation::getSourceAddress)
                            .filter(a -> !getDTCs(DM12MILOnEmissionDTCPacket.class, a, 9).isEmpty())
+                           .flatMap(a -> {
+                               return getCommunicationsModule().requestDM11(getListener(), a).stream();
+                           })
+                           .filter(a -> {
+                               return a.getResponse() == Response.ACK;
+                           })
                            .forEach(a -> {
-                               getCommunicationsModule().requestDM11(getListener(), a);
+                               // 6.9.8.4.a Fail if ACK received in response OBD ECU to DS DM11 query.
+                               addFailure("6.9.8.4.a - ACK received from " + a.getModuleName()
+                                       + " in response OBD ECU to DS DM11 query");
                            });
 
         // 6.9.8.3.b Wait 5 seconds before checking for erased data.
         pause("Step 6.9.8.3.b - Waiting %1$d seconds before checking for erased data", 5);
 
-        // 6.9.8.4.a Fail if any ECU partially erases diagnostic information (pass if it erases either all or none).
-        // 6.9.8.4.b For systems with multiple ECU’s, fail if one ECU or more than one ECU erases diagnostic information
+        // 6.9.8.4.b Fail if any ECU partially erases diagnostic information (pass if it erases either all or none).
+        // 6.9.8.4.c For systems with multiple ECU’s, fail if one ECU or more than one ECU erases diagnostic information
         // and one or more other ECUs do not erase diagnostic information.
-        verifier.verifyDataNotPartialErased(getListener(), "6.9.8.4.a", "6.9.8.4.b", false);
+        verifier.verifyDataNotPartialErased(getListener(), "6.9.8.4.b", "6.9.8.4.c", false);
 
         // 6.9.8.5.a Global DM11 ([send Request (PGN 59904) for PGN 65235]).
         var packets = getCommunicationsModule().requestDM11(getListener());
@@ -124,7 +133,7 @@ public class Part09Step08Controller extends StepController {
                .filter(p -> p.getResponse() == AcknowledgmentPacket.Response.ACK)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
-                   addWarning("6.9.8.6.b - " + moduleName + " provided an ACK to the global DM11 request");
+                   addInfo("6.9.8.6.b - " + moduleName + " provided an ACK to the global DM11 request");
                });
 
         // 6.9.8.6.c Fail if any diagnostic information was not erased from any OBD ECUs.
