@@ -178,7 +178,8 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation);
 
         var str123 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
-        var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str123);
+        var str234 = ScaledTestResult.create(250, 234, 9, 0, 0, 0, 0);
+        var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str123, str234);
         when(communicationsModule.requestTestResult(any(),
                                                     eq(0),
                                                     eq(250),
@@ -209,6 +210,56 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
         assertEquals(List.of(), listener.getOutcomes());
+    }
+
+    @Test
+    public void testTid247Nack() {
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+
+        ScaledTestResult str1 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
+        ScaledTestResult str2 = ScaledTestResult.create(250, 456, 9, 0, 0, 0, 0);
+        ScaledTestResult str3 = ScaledTestResult.create(250, 456, 9, 0, 0, 0, 0);
+        obdModuleInformation.setScaledTestResults(List.of(str1, str2, str3));
+        dataRepository.putObdModule(obdModuleInformation);
+
+        when(communicationsModule.requestTestResult(any(),
+                                                    eq(0),
+                                                    eq(250),
+                                                    eq(123),
+                                                    eq(14))).thenReturn(BusResult.of(AcknowledgmentPacket.create(0, Response.NACK)));
+        when(communicationsModule.requestTestResult(any(),
+                                                    eq(0),
+                                                    eq(247),
+                                                    eq(123),
+                                                    eq(31))).thenReturn(BusResult.of(AcknowledgmentPacket.create(0, Response.NACK)));
+
+        var str456 = ScaledTestResult.create(250, 456, 9, 0, 0, 0, 0);
+        var dm30_456 = DM30ScaledTestResultsPacket.create(0, 0, str456, str456);
+        when(communicationsModule.requestTestResult(any(),
+                                                    eq(0),
+                                                    eq(250),
+                                                    eq(456),
+                                                    eq(9))).thenReturn(BusResult.of(dm30_456));
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+
+        runTest();
+
+        verify(communicationsModule).requestTestResult(any(), eq(0), eq(250), eq(123), eq(14));
+        verify(communicationsModule).requestTestResult(any(), eq(0), eq(247), eq(123), eq(31));
+        verify(communicationsModule).requestTestResult(any(), eq(0), eq(250), eq(456), eq(9));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.10.2.c - No response for address 0 SPN 123 TID 250 and TID 247 queries");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.10.2.b - Engine #1 (0) reported different SPN+FMI combinations for tests results compared to the combinations in part 1");
+
     }
 
     @Test
@@ -321,6 +372,10 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.9.10.2.b - Engine #1 (0) reported different SPN+FMI combinations for tests results compared to the combinations in part 1");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.10.2.c - No response for address 0 SPN 456 TID 250 and TID 247 queries");
     }
 
 }

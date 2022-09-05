@@ -76,8 +76,22 @@ public class Part09Step10Controller extends StepController {
                                                      .stream()
                                                      .map(SpnFmi::of)
                                                      .distinct()
-                                                     .map(k -> requestTestResults(address, k.spn, k.fmi))
-                                                     .flatMap(Collection::stream)
+                                                     .map(k -> {
+                                                         Optional<DM30ScaledTestResultsPacket> o = requestTestResults(address,
+                                                                                                                      k.spn,
+                                                                                                                      k.fmi);
+                                                         // 6.9.10.2.c Fail each SP exercised, where there is no
+                                                         // response for
+                                                         // TID 250 and TID 247 queries.
+                                                         if (o.isEmpty()) {
+                                                             addFailure("6.9.10.2.c - No response for address "
+                                                                     + address
+                                                                     + " SPN "
+                                                                     + k.spn + " TID 250 and TID 247 queries");
+                                                         }
+                                                         return o;
+                                                     })
+                                                     .flatMap(Optional::stream)
                                                      .map(DM30ScaledTestResultsPacket::getTestResults)
                                                      .flatMap(Collection::stream)
                                                      .peek(str -> {
@@ -103,31 +117,43 @@ public class Part09Step10Controller extends StepController {
 
     }
 
-    private List<DM30ScaledTestResultsPacket> requestTestResults(int address, int spn, int fmi) {
-        return getCommunicationsModule()
-                                        .requestTestResult(getListener(), address, 250, spn, fmi)
-                                        .getPacket()
-                                        .map(o -> {
-                                            return o.resolve(results -> results,// just return the results as requested
-                                                             ack -> dm7Tid247(address, spn, ack));
-                                        })
-                                        .stream()
-                                        .collect(Collectors.toList());
+    private Optional<DM30ScaledTestResultsPacket> requestTestResults(int address, int spn, int fmi) {
+        var packet = getCommunicationsModule().requestTestResult(getListener(), address, 250, spn, fmi)
+                                              .getPacket();
+        if (packet.flatMap(p -> p.left).isEmpty()) {
+            // 6.9.10.1.b If the response for the TID 250 query is NACK (control byte = 1), then send DS DM7, for the SP
+            // using TID 247 and FMI 31 to obtain all test results for the SPN. [Item b. will be performed for all SPs
+            // where TID 250 is not supported by the OBD ECU.]
+            return packet.flatMap(o -> o.resolve(t -> Optional.of(t),
+                                                 ack -> {
+                                                     if (ack.getResponse() == Response.NACK) {
+                                                         return secondTryTid247(address, spn);
+                                                     }
+                                                     return Optional.empty();
+                                                 }));
+        }
+        return packet.flatMap(o -> o.left);
     }
 
-    private DM30ScaledTestResultsPacket dm7Tid247(int address, int spn, AcknowledgmentPacket ack) {
-        // 6.9.10.1.b If the response for the TID 250 query is NACK (control byte = 1), then send DS DM7, for the SP
-        // using TID 247 and FMI 31 to obtain all test results for the SPN. [Item b. will be performed for all SPs where
-        // TID 250 is not supported by the OBD ECU.]
-        if (ack.getResponse() == Response.NACK) {
-            return getCommunicationsModule().requestTestResult(getListener(), address, 247, spn, 31)
-                                            .getPacket()
-                                            // ignore any [N]ACK
-                                            .flatMap(e -> e.left)
-                                            .orElse(null);
-        } else {
-            return null;
+    protected Optional<DM30ScaledTestResultsPacket> secondTryTid247(int address, int spn) {
+        var packet = getCommunicationsModule().requestTestResult(getListener(),
+                                                                 address,
+                                                                 247,
+                                                                 spn,
+                                                                 31)
+                                              .getPacket();
+        if (!packet.flatMap(p -> p.left).isEmpty()) {
+            return Optional.of(DM30ScaledTestResultsPacket.create(address,
+                                                                  0xf9,
+                                                                  packet.flatMap(e -> e.left)
+                                                                        .get()
+                                                                        .getTestResults()
+                                                                        .stream()
+                                                                        .filter(t -> t.getSpn() == spn
+                                                                                && t.getFmi() == t.getFmi())
+                                                                        .toArray(ScaledTestResult[]::new)));
         }
+        return Optional.empty();
     }
 
     private static String toString(List<ScaledTestResult> testResults) {
