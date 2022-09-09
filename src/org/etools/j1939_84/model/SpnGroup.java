@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -21,6 +22,15 @@ public class SpnGroup implements Comparable<SpnGroup> {
 
     public boolean isSatisfied(Collection<Integer> supportedSpnValues) {
         return supportedSpnValues.stream().anyMatch(spns::contains);
+    }
+
+    public boolean containsMultiple(Collection<Integer> supportedSpnValues) {
+        Collection<Integer> matchingSpns = new ArrayList<>();
+        if (spns.isEmpty()) {
+            return false;
+        } else {
+            return supportedSpnValues.stream().filter(spns::contains).collect(Collectors.toList()).size() > 1;
+        }
     }
 
     @Override
