@@ -14,7 +14,9 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.controllers.TableA1Validator;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.SupportedSpnModule;
@@ -37,12 +39,13 @@ public class Part01Step04Controller extends StepController {
     private static final int TOTAL_STEPS = 0;
 
     private final SupportedSpnModule supportedSpnModule;
+    private final TableA1Validator tableA1Validator;
 
     Part01Step04Controller(DataRepository dataRepository) {
-        this(dataRepository, DateTimeModule.getInstance());
+        this(dataRepository, DateTimeModule.getInstance(), new TableA1Validator(1, 4));
     }
 
-    Part01Step04Controller(DataRepository dataRepository, DateTimeModule dateTimeModule) {
+    Part01Step04Controller(DataRepository dataRepository, DateTimeModule dateTimeModule, TableA1Validator tableA1Validator) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
              new BannerModule(),
@@ -50,7 +53,8 @@ public class Part01Step04Controller extends StepController {
              new CommunicationsModule(),
              new SupportedSpnModule(),
              dataRepository,
-             dateTimeModule);
+             dateTimeModule,
+             tableA1Validator);
     }
 
     Part01Step04Controller(Executor executor,
@@ -60,7 +64,8 @@ public class Part01Step04Controller extends StepController {
                            CommunicationsModule communicationsModule,
                            SupportedSpnModule supportedSpnModule,
                            DataRepository dataRepository,
-                           DateTimeModule dateTimeModule) {
+                           DateTimeModule dateTimeModule,
+                           TableA1Validator tableA1Validator) {
         super(executor,
               bannerModule,
               dateTimeModule,
@@ -72,6 +77,7 @@ public class Part01Step04Controller extends StepController {
               STEP_NUMBER,
               TOTAL_STEPS);
         this.supportedSpnModule = supportedSpnModule;
+        this.tableA1Validator = tableA1Validator;
     }
 
     @Override
@@ -133,10 +139,10 @@ public class Part01Step04Controller extends StepController {
                                                           .sorted()
                                                           .collect(Collectors.toList());
 
-        boolean dataStreamOk = supportedSpnModule.validateDataStreamSpns(getListener(),
-                                                                         dataStreamSPNs,
-                                                                         getFuelType(),
-                                                                         getEngineModelYear());
+        boolean dataStreamOk = supportedSpnModule.validateRequiredDataStreamSpns(getListener(),
+                                                                                 dataStreamSPNs,
+                                                                                 getFuelType(),
+                                                                                 getEngineModelYear());
         if (!dataStreamOk) {
             addFailure("6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
         }
@@ -157,50 +163,55 @@ public class Part01Step04Controller extends StepController {
             addFailure("6.1.4.2.c - One or more SPNs for freeze frame are not supported");
         }
 
-        var spns = getDataRepository().getObdModules()
-                                      .stream()
-                                      .flatMap(m -> m.getDataStreamSPNs().stream())
-                                      .map(s -> s.getSpn())
-                                      .collect(Collectors.toList());
-        // For MY2022+ diesel engines
-        boolean modelYearIs2022Plus = getEngineModelYear() >= 2022;
+        for (OBDModuleInformation obdModule : getDataRepository().getObdModules()) {
+            // For MY2022+ diesel engines
+            boolean modelYearIs2022Plus = getEngineModelYear() >= 2022;
 
-        // 6.1.4.2.d. For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel
-        // Consumption Bin 1 - Total) is not included in DM24 response
-        if (modelYearIs2022Plus && getFuelType().isCompressionIgnition() && !spns.contains(12675)) {
-            addFailure("6.1.4.2.d - SP 12675 is not included in DM24 responses");
+            // 6.1.4.2.d. For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel
+            // Consumption Bin 1 - Total) is not included in DM24 response
+            if (modelYearIs2022Plus && getFuelType().isCompressionIgnition() && !obdModule.supportsSpn(12675)) {
+                addFailure("6.1.4.2.d - SP 12675 is not included in DM24 response from " + obdModule.getModuleName());
+            }
+            // 6.1.4.2.e. For all MY2022+ engines, Fail if SP 12730 (GHG Tracking Engine Run Time) is not included
+            // in DM24 response
+            if (modelYearIs2022Plus && !obdModule.supportsSpn(12730)) {
+                addFailure("6.1.4.2.e - SP 12730 is not included in DM24 response from " + obdModule.getModuleName());
+            }
+
+            // 6.1.4.2.f. For all MY2022+ engines, Warn if SP 12691 (GHG Tracking Lifetime Active Technology Index)
+            // is not included in DM24 response
+            if (modelYearIs2022Plus && !obdModule.supportsSpn(12691)) {
+                addWarning("6.1.4.2.f - SP 12691 is not included in DM24 response from " + obdModule.getModuleName());
+            }
+
+            // 6.1.4.2.g. For all MY2022+ HEV and BEV drives, Fail if SP 12797 (Hybrid Lifetime Propulsion System
+            // Active Time), is not included in DM24 response. (SP 12797 is Lifetime EV Tracking Byte 1 SP)
+            if (modelYearIs2022Plus && (getFuelType().isHybrid() || getFuelType().isElectric())
+                    && !obdModule.supportsSpn(12797)) {
+                addFailure("6.1.4.2.g - SP 12797 is not included in DM24 response from " + obdModule.getModuleName());
+            }
+
+            // 6.1.4.2.h. For all MY2022+ Plug-in HEV drives, Fail if SP 12783 (Hybrid Lifetime Distance Traveled in
+            // Charge Depleting Operation with Engine off), is not included in DM24 response
+            if (modelYearIs2022Plus && getFuelType() == BATT_ELEC && !obdModule.supportsSpn(12783)) {
+                addFailure("6.1.4.2.h - SP 12783 is not included in DM24 response from " + obdModule.getModuleName());
+            }
         }
-        // 6.1.4.2.e. For all MY2022+ engines, Fail if SP 12730 (GHG Tracking Engine Run Time) is not included
-        // in DM24 response
-        if (modelYearIs2022Plus && !spns.contains(12730)) {
-            addFailure("6.1.4.2.e - SP 12730 is not included in DM24 responses");
+        // 6.1.4.3.a. Warn/Info as described by Table A-1 column “Warn/Info if SP not supported in DM24
+        if(!supportedSpnModule.validateDesiredDataStreamSpns(getListener(), dataStreamSPNs, getFuelType(), getEngineModelYear())) {
+            getListener().addOutcome(getPartNumber(), getStepNumber(), Outcome.WARN, "6.1.4.3.a - SPN not supported in DM24");
+        }
+        if(!supportedSpnModule.validateNoticedDataStreamSpns(getListener(), dataStreamSPNs, getFuelType(), getEngineModelYear())){
+            getListener().addOutcome(getPartNumber(), getStepNumber(), Outcome.INFO, "6.1.4.3.a - SPN not supported in DM24");
         }
 
-        // 6.1.4.2.f. For all MY2022+ engines, Warn if SP 12691 (GHG Tracking Lifetime Active Technology Index)
-        // is not included in DM24 response
-        if (modelYearIs2022Plus && !spns.contains(12691)) {
-            addWarning("6.1.4.2.f - SP 12691 is not included in DM24 responses");
+        // 6.1.4.3.b. Warn/Info as described by Table A-1 column “Warn/Info if more than 1 SP supported” in DM24
+        if(supportedSpnModule.isMoreThanOneSpnReportedWarning(getListener(), dataStreamSPNs, getFuelType(), getEngineModelYear())){
+            getListener().addOutcome(getPartNumber(), getStepNumber(), Outcome.WARN, "6.1.4.3.b - More than SPN supported");
         }
-
-        // 6.1.4.2.g. For all MY2022+ HEV and BEV drives, Fail if SP 12797 (Hybrid Lifetime Propulsion System
-        // Active Time), is not included in DM24 response. (SP 12797 is Lifetime EV Tracking Byte 1 SP)
-        if (modelYearIs2022Plus && (getFuelType().isHybrid() || getFuelType().isElectric())
-                && !spns.contains(12797)) {
-            addFailure("6.1.4.2.g - SP 12797 is not included in DM24 responses");
+        if(supportedSpnModule.isMoreThanOneSpnReportedInfo(getListener(), dataStreamSPNs, getFuelType(), getEngineModelYear())){
+            getListener().addOutcome(getPartNumber(), getStepNumber(), Outcome.INFO, "6.1.4.3.b - More than 1 SPN supported");
         }
-
-        // 6.1.4.2.h. For all MY2022+ Plug-in HEV drives, Fail if SP 12783 (Hybrid Lifetime Distance Traveled in
-        // Charge Depleting Operation with Engine off), is not included in DM24 response
-        if (modelYearIs2022Plus && getFuelType() == BATT_ELEC && !spns.contains(12783)) {
-            addFailure("6.1.4.2.h - SP 12783 is not included in DM24 responses");
-        }
-
-        // 6.1.4.3.a Warn/Info as described by Table A-1 column “Warn/Info if SP not supported in DM24”
-        // FIXME A-1 update
-
-        // 6.1.4.3.b Warn/Info as described by Table A-1 column “Warn/Info if more than 1 SP supported” in DM24
-        // FIXME A-1 update
-
     }
 
 }
