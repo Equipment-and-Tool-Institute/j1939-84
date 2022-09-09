@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part09;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.ACK;
 import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
@@ -166,7 +167,7 @@ public class Part09Step08ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestDM11(any());
 
         verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.2.a"), eq("6.9.8.2.b"), eq(false));
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.4.a"), eq("6.9.8.4.b"), eq(false));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.4.b"), eq("6.9.8.4.c"), eq(false));
         verify(verifier).verifyDataErased(any(), eq("6.9.8.6.c"));
 
         String expected = getExpectedMessages();
@@ -196,7 +197,7 @@ public class Part09Step08ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestDM11(any());
 
         verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.2.a"), eq("6.9.8.2.b"), eq(false));
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.4.a"), eq("6.9.8.4.b"), eq(false));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.4.b"), eq("6.9.8.4.c"), eq(false));
         verify(verifier).verifyDataErased(any(), eq("6.9.8.6.c"));
 
         assertEquals(getExpectedMessages(), listener.getMessages());
@@ -228,7 +229,7 @@ public class Part09Step08ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestDM11(any());
 
         verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.2.a"), eq("6.9.8.2.b"), eq(false));
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.4.a"), eq("6.9.8.4.b"), eq(false));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.9.8.4.b"), eq("6.9.8.4.c"), eq(false));
         verify(verifier).verifyDataErased(any(), eq("6.9.8.6.c"));
 
         assertEquals(getExpectedMessages(), listener.getMessages());
@@ -236,7 +237,7 @@ public class Part09Step08ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.9.8.6.b - Engine #1 (0) provided an ACK to the global DM11 request");
 
         assertEquals(15000, dateTimeModule.getTimeAsLong());

@@ -89,16 +89,12 @@ public class Part02Step16Controller extends StepController {
                          addFailure("6.2.16.2.b - " + moduleName + " reported PM control area != 0b00");
                      });
 
-        // 6.2.16.2.c. Fail if any ECU response is not = 0b00 (Outside Area) or 0b11 (not available) for NOx carve-out
-        // area.
+        // 6.2.16.2.c. Fail if any ECU response is = 10b (error) for NOx/PM carve-out/deficiency areas (byte 1 bits 5-6 and byte 2 bits 5-6)
         globalPackets.stream()
-                     .filter(p -> {
-                         AreaStatus area = p.getNoxNTECarveOutAreaStatus();
-                         return area != OUTSIDE && area != NOT_AVAILABLE;
-                     })
+                     .filter(p -> p.getNoxNTECarveOutAreaStatus() == AreaStatus.RESERVED)
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> {
-                         addFailure("6.2.16.2.c - " + moduleName + " reported NOx carve-out area != 0b00 or 0b11");
+                         addFailure("6.2.16.2.c - " + moduleName + " reported NOx carve-out area is 10b");
                      });
 
         // 6.2.16.2.c. Fail if any ECU response is not = 0b00 (Outside Area) or 0b11 (not available) for NOx deficiency
@@ -110,7 +106,7 @@ public class Part02Step16Controller extends StepController {
                      })
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> {
-                         addFailure("6.2.16.2.c - " + moduleName + " reported NOx deficiency area != 0b00 or 0b11");
+                         addFailure("6.2.16.2.c - " + moduleName + " reported NOx deficiency area is 10b");
                      });
 
         // 6.2.16.2.c. Fail if any ECU response is not = 0b00 (Outside Area) or 0b11 (not available) for PM carve-out
@@ -122,7 +118,7 @@ public class Part02Step16Controller extends StepController {
                      })
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> {
-                         addFailure("6.2.16.2.c - " + moduleName + " reported PM carve-out area != 0b00 or 0b11");
+                         addFailure("6.2.16.2.c - " + moduleName + " reported PM carve-out area is 10b");
                      });
 
         // 6.2.16.2.c. Fail if any ECU response is not = 0b00 (Outside Area) or 0b11 (not available) for PM deficiency
@@ -134,7 +130,7 @@ public class Part02Step16Controller extends StepController {
                      })
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> {
-                         addFailure("6.2.16.2.c - " + moduleName + " reported PM deficiency area != 0b00 or 0b11");
+                         addFailure("6.2.16.2.c - " + moduleName + " reported PM deficiency area is 10b");
                      });
 
         // 6.2.16.2.d. Fail if any ECU response is not = 0b11 for byte 1 bits 1-2 and for byte 2 bits 1-2.

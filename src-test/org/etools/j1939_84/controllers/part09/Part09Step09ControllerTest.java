@@ -168,7 +168,7 @@ public class Part09Step09ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.9.9.2.a - Engine #1 (0) reported time with MIL on > 0 minutes");
+                                        "6.9.9.2.b - Engine #1 (0) reported time with MIL on > 0 minutes");
     }
 
     @Test
@@ -186,7 +186,7 @@ public class Part09Step09ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.9.9.2.b - Engine #1 (0) reported time SCC is > 0 minutes");
+                                        "6.9.9.2.a - Engine #1 (0) reported time SCC is > 0 minutes");
     }
 
     @Test

@@ -116,7 +116,7 @@ public class Part12Step10Controller extends StepController {
 
         // 6.12.10.4.c. Check diagnostic information and fail if any ECU partially erases diagnostic information
         // (pass if it erases either all or none).
-        verifier.verifyDataNotPartialErased(getListener(), "6.12.10.4.c", "6.12.10.4.d", true);
+        verifier.verifyDataNotPartialErased(getListener(), "6.12.10.4.c", "6.12.10.4.c", true);
     }
 
 }

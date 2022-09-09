@@ -11,6 +11,7 @@ import static org.etools.j1939tools.j1939.packets.DM34NTEStatus.create;
 import static org.etools.j1939tools.j1939.packets.DM34NTEStatus.AreaStatus.INSIDE;
 import static org.etools.j1939tools.j1939.packets.DM34NTEStatus.AreaStatus.NOT_AVAILABLE;
 import static org.etools.j1939tools.j1939.packets.DM34NTEStatus.AreaStatus.OUTSIDE;
+import static org.etools.j1939tools.j1939.packets.DM34NTEStatus.AreaStatus.RESERVED;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -192,7 +193,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailNotOutsideControlAreas() {
-        var packet = create(0, 0, INSIDE, INSIDE, INSIDE, INSIDE, INSIDE, INSIDE);
+        var packet = create(0, 0, RESERVED, RESERVED, RESERVED, RESERVED, RESERVED, RESERVED);
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         moduleInfo.set(packet, 1);
@@ -225,19 +226,19 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
-                                        "6.2.16.2.c - Engine #1 (0) reported NOx carve-out area != 0b00 or 0b11");
+                                        "6.2.16.2.c - Engine #1 (0) reported NOx carve-out area is 10b");
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
-                                        "6.2.16.2.c - Engine #1 (0) reported NOx deficiency area != 0b00 or 0b11");
+                                        "6.2.16.2.c - Engine #1 (0) reported NOx deficiency area is 10b");
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
-                                        "6.2.16.2.c - Engine #1 (0) reported PM carve-out area != 0b00 or 0b11");
+                                        "6.2.16.2.c - Engine #1 (0) reported PM carve-out area is 10b");
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
-                                        "6.2.16.2.c - Engine #1 (0) reported PM deficiency area != 0b00 or 0b11");
+                                        "6.2.16.2.c - Engine #1 (0) reported PM deficiency area is 10b");
     }
 
     @Test
@@ -271,7 +272,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailForNoxControl() {
-        var globalPacket = create(0, 0, INSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
+        var globalPacket = create(0, 0, RESERVED, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
         var dsPacket = AcknowledgmentPacket.create(0, NACK, 0, 0xF9, DM34NTEStatus.PGN);
 
         when(communicationsModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
@@ -300,7 +301,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailForCarveOut() {
-        var globalPacket = create(0, 0, OUTSIDE, INSIDE, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
+        var globalPacket = create(0, 0, OUTSIDE, RESERVED, OUTSIDE, OUTSIDE, OUTSIDE, OUTSIDE);
         var dsPacket = AcknowledgmentPacket.create(0, NACK, 0, 0xF9, DM34NTEStatus.PGN);
 
         when(communicationsModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
@@ -324,7 +325,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
-                                        "6.2.16.2.c - Engine #1 (0) reported NOx carve-out area != 0b00 or 0b11");
+                                        "6.2.16.2.c - Engine #1 (0) reported NOx carve-out area is 10b");
     }
 
     @Test
@@ -411,11 +412,11 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
-                                        "6.2.16.2.c - Engine #2 (1) reported NOx deficiency area != 0b00 or 0b11");
+                                        "6.2.16.2.c - Engine #2 (1) reported NOx deficiency area is 10b");
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
-                                        "6.2.16.2.c - Engine #2 (1) reported PM deficiency area != 0b00 or 0b11");
+                                        "6.2.16.2.c - Engine #2 (1) reported PM deficiency area is 10b");
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
