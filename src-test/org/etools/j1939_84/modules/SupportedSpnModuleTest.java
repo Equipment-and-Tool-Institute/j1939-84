@@ -958,4 +958,14 @@ public class SupportedSpnModuleTest extends TestCase {
         String expected = "";
         assertEquals(expected, listener.getResults());
     }
+
+    @Test
+    public void testIsMoreThanOneSpnReportedInfoPassing() {
+        List<Integer> spns = List.of(110,
+                                     101,
+                                     74);
+        assertFalse(instance.isMoreThanOneSpnReportedInfo(listener, spns, FuelType.DSL, 2024));
+        String expected = "";
+        assertEquals(expected, listener.getResults());
+    }
 }
