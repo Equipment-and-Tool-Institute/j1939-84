@@ -207,7 +207,7 @@ public class Part01Step04Controller extends StepController {
 
         // 6.1.4.3.b. Warn/Info as described by Table A-1 column “Warn/Info if more than 1 SP supported” in DM24
         if(supportedSpnModule.isMoreThanOneSpnReportedWarning(getListener(), dataStreamSPNs, getFuelType(), getEngineModelYear())){
-            getListener().addOutcome(getPartNumber(), getStepNumber(), Outcome.WARN, "6.1.4.3.b - More than SPN supported");
+            getListener().addOutcome(getPartNumber(), getStepNumber(), Outcome.WARN, "6.1.4.3.b - More than 1 SPN supported");
         }
         if(supportedSpnModule.isMoreThanOneSpnReportedInfo(getListener(), dataStreamSPNs, getFuelType(), getEngineModelYear())){
             getListener().addOutcome(getPartNumber(), getStepNumber(), Outcome.INFO, "6.1.4.3.b - More than 1 SPN supported");
