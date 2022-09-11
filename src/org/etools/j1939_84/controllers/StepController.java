@@ -434,10 +434,10 @@ public abstract class StepController extends Controller {
         return pg;
     }
 
-    protected void isSpnValueGreaterThanFaBasedSlotLength(OBDModuleInformation module,
-                                                          Spn spn,
-                                                          Outcome outcome,
-                                                          String section) {
+    protected void validateSpnValueGreaterThanFaBasedSlotLength(OBDModuleInformation module,
+                                                                Spn spn,
+                                                                Outcome outcome,
+                                                                String section) {
         long lowerLimit = 0xFFL;
         long upperLimit = 0xFFL;
         String lowerLimitString = "";

@@ -395,7 +395,7 @@ public class Part01Step26Controller extends StepController {
                       .forEach(spn -> {
                           // 6.1.26.24.b - Fail PG query where any accumulator value
                           // received is greater than FAFFFFFFh.
-                          isSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.24.b");
+                          validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.24.b");
                       });
             });
         }
@@ -446,7 +446,7 @@ public class Part01Step26Controller extends StepController {
                           /// 6.1.26.26.c - Fail each PG query where any active
                           /// technology label or accumulator value
                           // received is greater than FAFFh, respectively.
-                          isSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.26.c");
+                          validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.26.c");
                       });
             });
         }
@@ -480,7 +480,7 @@ public class Part01Step26Controller extends StepController {
                            // 6.1.26.20.b - Fail PG query where any accumulator value
                            // received is greater than FAFFFFFFh.
                            if(spn.hasValue()) {
-                               isSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.20.b");
+                               validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.20.b");
                            }
                        });
 
@@ -533,7 +533,7 @@ public class Part01Step26Controller extends StepController {
                           // 6.1.26.22.c. Fail each PG query where any accumulator
                           // value received is greater than FAFFh.
                           if(spn.hasValue()){
-                              isSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.22.c");
+                              validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.22.c");
                           }
                       });
             });
@@ -561,7 +561,7 @@ public class Part01Step26Controller extends StepController {
             ghgTrackingLifetimePackets.forEach(packet -> {
                 packet.getSpns().forEach(spn -> {
                     // 6.1.26.12.b. Fail PG query where any bin value received is greater than FAFFFFFFh.
-                    isSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.12.b");
+                    validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.12.b");
                 });
             });
         }
@@ -608,7 +608,7 @@ public class Part01Step26Controller extends StepController {
                         // 6.1.26.14.c. Fail each PG query where any bin value received is greater
                         // than FAFFh and less than FFFFh (Use FAFFFFFFh and less than FFFFFFFFh
                         // for 32-bit SPNs 12705 and 12720).
-                        isSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.14.c");
+                        validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.14.c");
                         if (GHG_ACTIVE_100_HR == packet.getPgnDefinition()
                                 .getId() && spn.hasValue() && spn.getValue() > 0) {
                             // 6.1.26.14.d - Fail each active 100 hr array value that is greater than zero
@@ -646,11 +646,11 @@ public class Part01Step26Controller extends StepController {
                         if (spn.getId() != 12691) {
                             // 6.1.26.16.b. Fail any accumulator value received that is greater
                             // than FAFFFFFFh.
-                            isSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.16.b");
+                            validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.16.b");
                         } else {
                             // 6.1.26.16.c. Fail PG query where any index value received is
                             // greater than FAh.
-                            isSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.16.c");
+                            validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.16.c");
                         }
                     }
                 });
@@ -700,10 +700,10 @@ public class Part01Step26Controller extends StepController {
                     if (spn.hasValue()) {
                         if (spn.getId() != 12691 && spn.getId() != 12694 && spn.getId() != 12697) {
                             // 6.1.26.18.c. Fail PG query where any bin value received is greater than FAFFh.
-                            isSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.18.c");
+                            validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.18.c");
                         } else {
                             // 6.1.26.18.d. Fail PG query where any index value received is greater than FAh.
-                            isSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.18.d");
+                            validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.18.d");
                         }
                     }
                     if (GHG_ACTIVE_GREEN_HOUSE_100_HR == packet.getPgnDefinition().getId() && spn.getValue() > 0) {
@@ -774,7 +774,7 @@ public class Part01Step26Controller extends StepController {
                 packet.getSpns().forEach(spn -> {
                     // 6.1.26.8.b. Fail each PG query where any bin value received
                     // is greater than FAFFFFFFh.
-                    isSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.8.b");
+                    validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.8.b");
                 });
             });
         }
@@ -819,7 +819,7 @@ public class Part01Step26Controller extends StepController {
                 packet.getSpns().forEach(spn -> {
                     // 6.1.26.10.c. Fail each PG query where any bin value received is greater than FAFFh. (Use
                     // FAFFFFFFh for NOx values)
-                    isSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.10.c");
+                    validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.10.c");
                     // 6.1.26.10.d. Fail each active 100 hr array value that is greater than zero. (where supported)
                     List<Integer> active100HrSps = Arrays.stream(NOx_TRACKING_ACTIVE_100_HOURS_SPs)
                                                          .boxed()
