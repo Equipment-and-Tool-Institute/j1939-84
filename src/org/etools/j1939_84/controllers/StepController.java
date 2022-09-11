@@ -506,8 +506,8 @@ public abstract class StepController extends Controller {
         }
         if (spn.getRawValue() > lowerLimit && spn.getRawValue() < upperLimit) {
             addFailure(section + " - Bin value received is greater than "
-                    + lowerLimitString + "(h) and less than " + upperLimitString
-                    + "h from " + module.getModuleName() + " for " + spn + " " + bytesToHex(spn.getBytes()));
+                    + lowerLimitString + "h and less than " + upperLimitString
+                    + "h from " + module.getModuleName() + " for " + spn);
         }
     }
 
