@@ -563,7 +563,7 @@ public class Part01Step26ControllerTest12675 extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(instance.getPartNumber()),
                                         eq(instance.getStepNumber()),
                                         eq(FAIL),
-                                        eq("6.1.26.8.b - Bin value received is greater than 0xFAFFFFFF(h) and less than 0xFFFFFFFFh from Engine #1 (0) for SPN 12679, NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 5: Not Available [0xFB, 0xFF, 0xFF, 0xFF]"));
+                                        eq("6.1.26.8.b - Bin value received is greater than 0xFAFFFFFFh and less than 0xFFFFFFFFh from Engine #1 (0) for SPN 12679, NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 5: Not Available"));
 
         verify(tableA1Validator).reportExpectedMessages(any(ResultsListener.class));
         packets.forEach(packet -> {
