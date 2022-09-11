@@ -126,7 +126,7 @@ public class SupportedSPNTest {
         assertEquals(expected, instance.toString());
     }
 
-    // FIXME: add tests for validateDataStreamSpns & validateFreezeFrameSpns
+    // FIXME: add tests for validateRequiredDataStreamSpns & validateFreezeFrameSpns
     // will need this stuff:
 
     // verify(vehicleInformationModule).setJ1939(j1939tools);
