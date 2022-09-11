@@ -1231,7 +1231,7 @@ public class Part01Step26ControllerTest12783 extends AbstractControllerTest {
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns.subList(1, supportedSpns.size())));
         verify(busService).getPGNsForDSRequest(any(), any());
 
-        verify(mockListener).addOutcome(eq(1), eq(26), eq(FAIL), eq("6.1.26.25.a - No response was received from Engine #1 (0)"));
+        verify(mockListener).addOutcome(eq(1), eq(26), eq(FAIL), eq("6.1.26.26.a - No response was received from Engine #1 (0)"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -1385,7 +1385,7 @@ public class Part01Step26ControllerTest12783 extends AbstractControllerTest {
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns.subList(1, supportedSpns.size())));
         verify(busService).getPGNsForDSRequest(any(), any());
 
-        verify(mockListener).addOutcome(eq(1), eq(26), eq(WARN), eq("6.1.26.25.b - No response was received from Engine #1 (0)"));
+        verify(mockListener).addOutcome(eq(1), eq(26), eq(WARN), eq("6.1.26.26.b - No response was received from Engine #1 (0)"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),

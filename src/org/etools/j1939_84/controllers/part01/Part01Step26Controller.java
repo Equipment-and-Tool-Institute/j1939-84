@@ -611,8 +611,7 @@ public class Part01Step26Controller extends StepController {
                         isSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.14.c");
                         if (GHG_ACTIVE_100_HR == packet.getPgnDefinition()
                                 .getId() && spn.hasValue() && spn.getValue() > 0) {
-                            // 6.1.26.14.d - Fail each active 100 hr array value that is greater than
-                            // zero
+                            // 6.1.26.14.d - Fail each active 100 hr array value that is greater than zero
                             addFailure("6.1.26.14.d - Active 100 hr array value received is greater than zero from "
                                                + module.getModuleName() + " for " + spn);
                         }

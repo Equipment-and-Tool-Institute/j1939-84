@@ -1482,6 +1482,336 @@ public class Part01Step26ControllerTest12730 extends AbstractControllerTest {
     }
 
     @Test
+    public void testRunObdPgnSupports12730FourteenB() {
+        // SPNs
+        // 111 - Broadcast with value
+        // 222 - Not Broadcast not found
+        // 333 - Broadcast found with N/A
+        // 444 - DS with value
+        // 555 - DS No Response
+        // 666 - DS found with n/a
+        // 222 - Global Request with value
+        // 555 - Global Request no response
+        // 666 - Global Request with n/a
+        var vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2022);
+        vehInfo.setFuelType(FuelType.DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+
+        OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
+        SupportedSPN supportedSPN = SupportedSPN.create(12730,
+                                                        false,
+                                                        true,
+                                                        false,
+                                                        false,
+                                                        1);
+        obdModule0.set(DM24SPNSupportPacket.create(0,
+                                                   supportedSPN),
+                       1);
+        dataRepository.putObdModule(obdModule0);
+
+        when(broadcastValidator.getMaximumBroadcastPeriod()).thenReturn(3);
+
+        List<GenericPacket> packets = new ArrayList<>();
+
+        GenericPacket packet3 = packet(333, true, 0);
+        packets.add(packet3);
+        GenericPacket packet8 = packet(888, true, 0);
+        packets.add(packet8);
+        when(busService.readBus(eq(12), eq("6.1.26.2.c"))).thenReturn(packets.stream());
+
+        GenericPacket packet1 = packet(12730, false, 0);
+        packets.add(packet1);
+
+        var response64252 = new GenericPacket(Packet.create(0xFAFC, 0x00,
+                                                            // @formatter:off
+                                                            0xA0, 0x8C, 0xA8, 0x52, 0xC2, 0x0E, 0xA8, 0x0E,
+                                                            0xCD, 0x49, 0x54, 0xAD, 0x03, 0x00, 0xBC, 0x34,
+                                                            0x84, 0x03, 0x10, 0x00, 0x28, 0x23, 0x9C, 0x00,
+                                                            0x07, 0x00, 0x08, 0x07));
+        // @formatter:on
+        when(communicationsModule.request(eq(64252),
+                                          eq(0x00),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64252));
+        packets.add(response64252);
+
+        GenericPacket response64253 = new GenericPacket(Packet.create(0xFAFD, 0x00,
+                                                                      // @formatter:off
+                                                                      0x78, 0x69, 0x34, 0x6E, 0x12, 0x0B, 0xFE, 0x0A,
+                                                                      0x5A, 0x37, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
+                                                                      0xA3, 0x02, 0x0C, 0x00, 0x5E, 0x1A, 0x76, 0x00,
+                                                                      0x05, 0x00, 0x46, 0x05));
+        // @formatter:on
+
+        when(communicationsModule.request(eq(64253),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.empty());
+        packets.add(response64253);
+
+        GenericPacket response64254 = new GenericPacket(Packet.create(0xFAFE, 0x00,
+                                                                      // @formatter:off
+                                                                      0x78, 0x69, 0x00, 0x00, 0x12, 0x0B, 0xFE, 0x0A,
+                                                                      0x5A, 0x37, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
+                                                                      0xA3, 0x02, 0x0C, 0x00, 0x5E, 0x1A, 0x76, 0x00,
+                                                                      0x05, 0x00, 0x46, 0x05));
+        // @formatter:on
+        when(communicationsModule.request(eq(64254),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.empty());
+        packets.add(response64254);
+
+        Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = new HashMap<>();
+        packetMap.put(11111, Map.of(0, List.of(packet1)));
+        packetMap.put(33333, Map.of(0, List.of(packet3)));
+        when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
+
+        Bus busMock = mock(Bus.class);
+        when(j1939.getBus()).thenReturn(busMock);
+        when(busMock.imposterDetected()).thenReturn(false);
+
+        runTest();
+
+        verify(broadcastValidator).getMaximumBroadcastPeriod();
+        verify(broadcastValidator).buildPGNPacketsMap(any());
+        verify(broadcastValidator).reportBroadcastPeriod(any(),
+                                                         any(),
+                                                         any(),
+                                                         eq(1),
+                                                         eq(26));
+        packets.forEach(packet -> {
+            verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(packet.getSourceAddress()),
+                                                                        any(),
+                                                                        any(),
+                                                                        any(),
+                                                                        any(),
+                                                                        eq(1),
+                                                                        eq(26),
+                                                                        eq("6.1.26.5.a"));
+        });
+        verify(busService).setup(eq(j1939), any(ResultsListener.class));
+        verify(busService).readBus(12, "6.1.26.2.c");
+        verify(busService, atLeastOnce()).collectNonOnRequestPGNs(any());
+        verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
+        verify(busService, atLeastOnce()).getPGNsForDSRequest(any(), any());
+
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(26),
+                                        eq(WARN),
+                                        eq("6.1.26.14.b - No response was received from Engine #1 (0)"));
+
+        verify(tableA1Validator).reportExpectedMessages(any(ResultsListener.class));
+        verify(tableA1Validator).reportDuplicateSPNs(eq(packets), any(ResultsListener.class), eq("6.1.26.3.e"));
+        verify(tableA1Validator).reportDuplicateSPNs(eq(List.of()), any(ResultsListener.class), eq("6.1.26.6.d"));
+        packets.forEach(packet -> {
+            verify(tableA1Validator).reportImplausibleSPNValues(eq(packet),
+                                                                any(ResultsListener.class),
+                                                                eq(false),
+                                                                eq("6.1.26.3.c"));
+            verify(tableA1Validator).reportNotAvailableSPNs(eq(packet), any(ResultsListener.class), eq("6.1.26.3.a"));
+            verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet),
+                                                                    any(ResultsListener.class),
+                                                                    eq("6.1.26.3.d"));
+            verify(tableA1Validator).reportPacketIfNotReported(eq(packet), any(ResultsListener.class), eq(false));
+            verify(tableA1Validator).reportProvidedButNotSupportedSPNs(eq(packet),
+                                                                       any(ResultsListener.class),
+                                                                       eq("6.1.26.3.f"));
+        });
+
+        String expected = "10:15:30.0000 GHG Tracking Arrays from Engine #1 (0)" + NL;
+        expected += "|-------------------------+-------------+-------------+-------------|" + NL;
+        expected += "|                         |    Active   |    Stored   |             |" + NL;
+        expected += "|                         |   100 Hour  |   100 Hour  |   Lifetime  |" + NL;
+        expected += "|-------------------------+-------------+-------------+-------------|" + NL;
+        expected += "| Engine Run Time, s      |             |             |  23,112,963 |" + NL;
+        expected += "| Vehicle Dist., km       |             |             |   1,229,474 |" + NL;
+        expected += "| Vehicle Fuel, l         |             |             | 145,399,114 |" + NL;
+        expected += "| Engine Fuel, l          |             |             |  44,236,800 |" + NL;
+        expected += "| Eng.Out.Energy, kW-hr   |             |             |   1,049,476 |" + NL;
+        expected += "| PKE Numerator           |             |             |  51,163,080 |" + NL;
+        expected += "| Urban Speed Run Time, s |             |             |   1,966,080 |" + NL;
+        expected += "| Idle Run Time, s        |             |             |           0 |" + NL;
+        expected += "| Engine Idle Fuel, l     |             |             |           0 |" + NL;
+        expected += "| PTO Run Time, s         |             |             |           0 |" + NL;
+        expected += "| PTO Fuel Consumption, l |             |             |           0 |" + NL;
+        expected += "| AES Shutdown Count      |             |             |           0 |" + NL;
+        expected += "| Stop-Start Run Time, s  |             |             |           0 |" + NL;
+        expected += "|-------------------------+-------------+-------------+-------------|" + NL;
+        expected += NL;
+
+        assertEquals(expected, listener.getResults());
+
+        String expectedMsg = "Requesting GHG Tracking Lifetime Array Data (GHGTL) from Engine #1 (0)" + NL;
+        expectedMsg += "Requesting GHG Tracking Active 100 Hour Array Data (GHGTA) from Engine #1 (0)" + NL;
+        expectedMsg += "Requesting GHG Tracking Stored 100 Hour Array Data (GHGTS) from Engine #1 (0)";
+        assertEquals(expectedMsg, listener.getMessages());
+    }
+
+    @Test
+    public void testRunObdPgnSupports12730FourteenD() {
+        // SPNs
+        // 111 - Broadcast with value
+        // 222 - Not Broadcast not found
+        // 333 - Broadcast found with N/A
+        // 444 - DS with value
+        // 555 - DS No Response
+        // 666 - DS found with n/a
+        // 222 - Global Request with value
+        // 555 - Global Request no response
+        // 666 - Global Request with n/a
+        var vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2025);
+        vehInfo.setFuelType(FuelType.DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+
+        OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
+        SupportedSPN supportedSPN = SupportedSPN.create(12730,
+                                                        false,
+                                                        true,
+                                                        false,
+                                                        false,
+                                                        1);
+        obdModule0.set(DM24SPNSupportPacket.create(0,
+                                                   supportedSPN),
+                       1);
+        dataRepository.putObdModule(obdModule0);
+
+        when(broadcastValidator.getMaximumBroadcastPeriod()).thenReturn(3);
+
+        List<GenericPacket> packets = new ArrayList<>();
+
+        GenericPacket packet3 = packet(333, true, 0);
+        packets.add(packet3);
+        GenericPacket packet8 = packet(888, true, 0);
+        packets.add(packet8);
+        when(busService.readBus(eq(12), eq("6.1.26.2.c"))).thenReturn(packets.stream());
+
+        GenericPacket packet1 = packet(12730, false, 0);
+        packets.add(packet1);
+
+        var response64252 = new GenericPacket(Packet.create(0xFAFC, 0x00,
+                                                            // @formatter:off
+                                                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                            0x00, 0x00, 0x00, 0x00));
+        // @formatter:on
+        when(communicationsModule.request(eq(64252),
+                                          eq(0x00),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64252));
+        packets.add(response64252);
+
+        GenericPacket response64253 = new GenericPacket(Packet.create(0xFAFD, 0x00,
+                                                                      // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
+        // @formatter:on
+
+        when(communicationsModule.request(eq(64253),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64253));
+        packets.add(response64253);
+
+        GenericPacket response64254 = new GenericPacket(Packet.create(0xFAFE, 0x00,
+                                                                      // @formatter:off
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x5A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00));
+        // @formatter:on
+        when(communicationsModule.request(eq(64254),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64254));
+        packets.add(response64254);
+
+        Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = new HashMap<>();
+        packetMap.put(11111, Map.of(0, List.of(packet1)));
+        packetMap.put(33333, Map.of(0, List.of(packet3)));
+        when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
+
+        Bus busMock = mock(Bus.class);
+        when(j1939.getBus()).thenReturn(busMock);
+        when(busMock.imposterDetected()).thenReturn(false);
+
+        runTest();
+
+        verify(broadcastValidator).getMaximumBroadcastPeriod();
+        verify(broadcastValidator).buildPGNPacketsMap(any());
+        verify(broadcastValidator).reportBroadcastPeriod(any(),
+                                                         any(),
+                                                         any(),
+                                                         eq(1),
+                                                         eq(26));
+        packets.forEach(packet -> {
+            verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(packet.getSourceAddress()),
+                                                                        any(),
+                                                                        any(),
+                                                                        any(),
+                                                                        any(),
+                                                                        eq(1),
+                                                                        eq(26),
+                                                                        eq("6.1.26.5.a"));
+        });
+        verify(busService).setup(eq(j1939), any(ResultsListener.class));
+        verify(busService).readBus(12, "6.1.26.2.c");
+        verify(busService, atLeastOnce()).collectNonOnRequestPGNs(any());
+        verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
+        verify(busService, atLeastOnce()).getPGNsForDSRequest(any(), any());
+
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(26),
+                                        eq(FAIL),
+                                        eq("6.1.26.14.d - Active 100 hr array value received is greater than zero from Engine #1 (0) for SPN 12704, GHG Tracking Active 100 Hour Engine Output Energy: 90.000 kWh"));
+
+        verify(tableA1Validator).reportExpectedMessages(any(ResultsListener.class));
+        verify(tableA1Validator).reportDuplicateSPNs(eq(packets), any(ResultsListener.class), eq("6.1.26.3.e"));
+        verify(tableA1Validator).reportDuplicateSPNs(eq(List.of()), any(ResultsListener.class), eq("6.1.26.6.d"));
+        packets.forEach(packet -> {
+            verify(tableA1Validator).reportImplausibleSPNValues(eq(packet),
+                                                                any(ResultsListener.class),
+                                                                eq(false),
+                                                                eq("6.1.26.3.c"));
+            verify(tableA1Validator).reportNotAvailableSPNs(eq(packet), any(ResultsListener.class), eq("6.1.26.3.a"));
+            verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet),
+                                                                    any(ResultsListener.class),
+                                                                    eq("6.1.26.3.d"));
+            verify(tableA1Validator).reportPacketIfNotReported(eq(packet), any(ResultsListener.class), eq(false));
+            verify(tableA1Validator).reportProvidedButNotSupportedSPNs(eq(packet),
+                                                                       any(ResultsListener.class),
+                                                                       eq("6.1.26.3.f"));
+        });
+
+        String expected = "10:15:30.0000 GHG Tracking Arrays from Engine #1 (0)" + NL;
+        expected += "|-------------------------+-------------+-------------+-------------|" + NL;
+        expected += "|                         |    Active   |    Stored   |             |" + NL;
+        expected += "|                         |   100 Hour  |   100 Hour  |   Lifetime  |" + NL;
+        expected += "|-------------------------+-------------+-------------+-------------|" + NL;
+        expected += "| Engine Run Time, s      |           0 |           0 |           0 |" + NL;
+        expected += "| Vehicle Dist., km       |           0 |           0 |           0 |" + NL;
+        expected += "| Vehicle Fuel, l         |           0 |           0 |           0 |" + NL;
+        expected += "| Engine Fuel, l          |           0 |           0 |           0 |" + NL;
+        expected += "| Eng.Out.Energy, kW-hr   |          90 |           0 |           0 |" + NL;
+        expected += "| PKE Numerator           |           0 |           0 |           0 |" + NL;
+        expected += "| Urban Speed Run Time, s |           0 |           0 |           0 |" + NL;
+        expected += "| Idle Run Time, s        |           0 |           0 |           0 |" + NL;
+        expected += "| Engine Idle Fuel, l     |           0 |           0 |           0 |" + NL;
+        expected += "| PTO Run Time, s         |           0 |           0 |           0 |" + NL;
+        expected += "| PTO Fuel Consumption, l |           0 |           0 |           0 |" + NL;
+        expected += "| AES Shutdown Count      |           0 |           0 |           0 |" + NL;
+        expected += "| Stop-Start Run Time, s  |           0 |           0 |           0 |" + NL;
+        expected += "|-------------------------+-------------+-------------+-------------|" + NL;
+        expected += NL;
+
+        assertEquals(expected, listener.getResults());
+
+        String expectedMsg = "Requesting GHG Tracking Lifetime Array Data (GHGTL) from Engine #1 (0)" + NL;
+        expectedMsg += "Requesting GHG Tracking Active 100 Hour Array Data (GHGTA) from Engine #1 (0)" + NL;
+        expectedMsg += "Requesting GHG Tracking Stored 100 Hour Array Data (GHGTS) from Engine #1 (0)";
+        assertEquals(expectedMsg, listener.getMessages());
+    }
+
+    @Test
     public void testUiInterruptionFailure() {
         // SPNs
         // 111 - Broadcast with value
