@@ -2100,6 +2100,53 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
     }
 
+      public void testNonObdModuleCalIdNullPadded() {
+        Packet packet = Packet.create(DM19CalibrationInformationPacket.PGN,
+                                      0x0D,
+                                      // Cal #1
+                                      0x51,
+                                      0xBA,
+                                      0xFE,
+                                      0xBD,
+                                      0x63,
+                                      0x61,
+                                      0x6C,
+                                      0x69,
+                                      0x63,
+                                      0x61,
+                                      0x6C,
+                                      0x69,
+                                      0x64,
+                                      0x73,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00);
+
+        DM19CalibrationInformationPacket dm190D = new DM19CalibrationInformationPacket(packet);
+        when(communicationsModule.requestDM19(any(), eq(0x0D))).thenReturn(BusResult.of(dm190D));
+        when(communicationsModule.requestDM19(any(ResultsListener.class))).thenReturn(RequestResult.of(dm190D));
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setEmissionUnits(1);
+        vehicleInformation.setCalIds(dm190D.getCalibrationInformation().size());
+        dataRepository.setVehicleInformation(vehicleInformation);
+
+        runTest();
+
+        verify(communicationsModule).requestDM19(any(ResultsListener.class));
+        verify(communicationsModule).requestDM19(any(), eq(0x0D));
+
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(7),
+                                        eq(WARN),
+                                        eq("6.1.7.3.d.i - Non-OBD ECU Brakes - Drive axle #1 (13) provided CAL ID"));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+    }
     /**
      * Test method for {@link Part01Step07Controller#run()}.
      * Test one module responding:<br>
