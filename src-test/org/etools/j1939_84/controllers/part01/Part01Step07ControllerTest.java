@@ -440,6 +440,10 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                         eq(STEP_NUMBER),
                                         eq(FAIL),
                                         eq("6.1.7.2.b.iv - OBD ECU Received CVN is all 0x00 from Engine #1 (0)"));
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(7),
+                                        eq(FAIL),
+                                        eq("6.1.7.2.b.v - OBD ECU Received CVN with incorrect padding from Engine #1 (0)"));
         verify(mockListener).addOutcome(eq(PART_NUMBER),
                                         eq(STEP_NUMBER),
                                         eq(FAIL),
@@ -1081,6 +1085,10 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                         eq(7),
                                         eq(WARN),
                                         eq("6.1.7.3.d.v - Non-OBD ECU Received CVN that is all 0x00 from Electrical System (30)"));
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(7),
+                                        eq(WARN),
+                                        eq("6.1.7.3.d.vi - Non-OBD ECU Received CVN with incorrect padding from Electrical System (30)"));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -1172,6 +1180,10 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                         eq(7),
                                         eq(WARN),
                                         eq("6.1.7.3.c - CAL ID QaD;QaD;QaD;QaD; has 00h is in either the first or fourth bytes"));
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(7),
+                                        eq(FAIL),
+                                        eq("6.1.7.2.b.v - OBD ECU Received CVN with incorrect padding from Electrical System (30)"));
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
     }
@@ -2100,7 +2112,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
     }
 
-      public void testNonObdModuleCalIdNullPadded() {
+    public void testNonObdModuleCalIdNullPadded() {
         Packet packet = Packet.create(DM19CalibrationInformationPacket.PGN,
                                       0x0D,
                                       // Cal #1
@@ -2147,6 +2159,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
     }
+
     /**
      * Test method for {@link Part01Step07Controller#run()}.
      * Test one module responding:<br>

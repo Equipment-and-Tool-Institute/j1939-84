@@ -101,7 +101,8 @@ public class Part01Step07Controller extends StepController {
                      .flatMap(p -> p.getCalibrationInformation().stream())
                      .filter(calInfo -> calInfo.getRawCvn()[0] == 0x00 || calInfo.getRawCvn()[3] == 0x0)
                      .forEach(caInfo -> {
-                         addWarning("6.1.7.3.c - CAL ID " + caInfo.getCalibrationIdentification() + " has 00h is in either the first or fourth bytes");
+                         addWarning("6.1.7.3.c - CAL ID " + caInfo.getCalibrationIdentification()
+                                 + " has 00h is in either the first or fourth bytes");
                      });
 
         // 6.1.7.3.d.i. For responses from non-OBD ECUs: Warn if any non-OBD ECU provides CAL ID.
@@ -130,7 +131,8 @@ public class Part01Step07Controller extends StepController {
                          if (isObdModule(p.getSourceAddress())) {
                              addFailure("6.1.7.2.b.i - OBD ECU " + p.getModuleName() + " <> 1 CVN for every CAL ID");
                          } else {
-                             addWarning("6.1.7.3.d.ii - Non-OBD ECU " + p.getModuleName() + " <> 1 CVN for every CAL ID");
+                             addWarning("6.1.7.3.d.ii - Non-OBD ECU " + p.getModuleName()
+                                     + " <> 1 CVN for every CAL ID");
                          }
                      });
 
@@ -208,6 +210,17 @@ public class Part01Step07Controller extends StepController {
                         addFailure("6.1.7.2.b.iv - OBD ECU Received CVN is all 0x00 from " + moduleName);
                     } else {
                         addWarning("6.1.7.3.d.v - Non-OBD ECU Received CVN that is all 0x00 from " + moduleName);
+                    }
+                }
+                // 6.1.7.2 Fail if CVN padded with 16-binary zeros (where either the 1st two bytes are both 00h or the
+                // last two bytes both 00h). Note HD OBD CVNs are required to be 32-bits
+                if (rawCvn[0] == 0 && rawCvn[1] == 0 || rawCvn[2] == 0 && rawCvn[3] == 0) {
+                    String moduleName = packet.getModuleName();
+                    if (isObdModule(packet.getSourceAddress())) {
+                        addFailure("6.1.7.2.b.v - OBD ECU Received CVN with incorrect padding from " + moduleName);
+                    } else {
+                        addWarning("6.1.7.3.d.vi - Non-OBD ECU Received CVN with incorrect padding from "
+                                + moduleName);
                     }
                 }
             }
