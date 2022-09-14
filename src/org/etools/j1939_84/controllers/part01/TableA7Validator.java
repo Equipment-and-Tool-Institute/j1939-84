@@ -43,23 +43,41 @@ public class TableA7Validator {
         rows.add(new Row("Fuel system pressure control high", 1, etr(157, 16), etr(164, 16), etr(3055, 16)));
         rows.add(new Row("Injector Quantity (High Flow) or Injector Timing",
                          1,
+                         etr(651,3),
                          etr(651, 7),
                          etr(651, 16),
                          etr(5358, 16),
                          etr(1413, 16)));
         rows.add(new Row("Injector Quantity (Low Flow) or Injector Timing",
                          1,
+                         etr(651, 4),
                          etr(651, 7),
                          etr(651, 18),
                          etr(5358, 18),
                          etr(1413, 18)));
-        rows.add(new Row("% of misfire", 1, etr(1323, 31)));
-        rows.add(new Row("% of misfire", 1, etr(1324, 31)));
-        rows.add(new Row("% of misfire", 1, etr(1325, 31)));
-        rows.add(new Row("% of misfire", 1, etr(1326, 31)));
+        rows.add(new Row("% of misfire",
+                         1,
+                         etr(1323, 31),
+                         etr(1323, 10),
+                         etr(1323, 11)));
+        rows.add(new Row("% of misfire",
+                         1,
+                         etr(1324, 31),
+                         etr(1324, 10),
+                         etr(1324, 11)));
+        rows.add(new Row("% of misfire",
+                         1,
+                         etr(1325, 31),
+                         etr(1325, 10),
+                         etr(1325, 11)));
+        rows.add(new Row("% of misfire",
+                         1,
+                         etr(1326, 31),
+                         etr(1326, 10),
+                         etr(1326, 11)));
         rows.add(new Row("Low Flow", 1, etr(3058, 18), etr(2659, 18), etr(411, 18)));
         rows.add(new Row("High Flow", 1, etr(3058, 16), etr(2659, 0), etr(2659, 16), etr(411, 16)));
-        rows.add(new Row("Cooler performance", 1, etr(4752, 1), etr(4752, 18)));
+        rows.add(new Row("Cooler performance", 1, etr(4752, 1), etr(4752, 17), etr(4752, 18)));
         rows.add(new Row("Under Boost", 1, etr(102, 17), etr(102, 18), etr(1127, 18), etr(3563, 18), etr(4817, 18)));
         rows.add(new Row("Over Boost", 1, etr(102, 16), etr(1127, 16), etr(3563, 16), etr(4817, 16)));
         rows.add(new Row("Charge Air Undercooling", 1, etr(2630, 16), etr(105, 16), etr(1636, 16), etr(5285, 18)));
@@ -75,7 +93,8 @@ public class TableA7Validator {
                          etr(3361, 7),
                          etr(4331, 15),
                          etr(4331, 18),
-                         etr(4334, 18)));
+                         etr(4334, 18),
+                         etr(4334, 21)));
         rows.add(new Row("Filtering Performance", 1, etr(3251, 2), etr(3936, 2), etr(3936, 16), etr(3936, 18)));
         rows.add(new Row("Incomplete regeneration", 1, etr(3713, 31), etr(5319, 7), etr(5319, 31)));
         rows.add(new Row("NOx Sensor Performance Monitoring Capability", 1, etr(3226, 16), etr(3226, 20)));
@@ -107,7 +126,7 @@ public class TableA7Validator {
         rows.add(new Row("Engine Exhaust Sensor Heater", 1, etr(3222, 1), etr(3222, 2)));
         rows.add(new Row("Engine Exhaust Sensor Heater", 1, etr(3232, 1), etr(3232, 2)));
         rows.add(new Row("Fuel System Monitor", 1, etr(651, 3), etr(651, 4), etr(651, 5), etr(6575, 2)));
-        rows.add(new Row("EVAP Monitor", 1, etr(7835, 7), etr(7835, 20), etr(7835, 21), etr(3053, 1), etr(3053, 2)));
+        rows.add(new Row("EVAP Monitor", 1, etr(7835, 7), etr(7835, 20), etr(7835, 21)));
         return rows;
     }
 
