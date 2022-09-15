@@ -23,6 +23,7 @@ import org.etools.j1939_84.controllers.SectionA5Verifier;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -31,6 +32,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.etools.j1939tools.j1939.J1939;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
@@ -141,10 +143,9 @@ public class Part07Step16ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        var nackPacket = AcknowledgmentPacket.create(0, NACK);
+        var nackPacket = AcknowledgmentPacket.create(0, Response.DENIED);
         when(communicationsModule.requestDM3(any())).thenReturn(List.of(nackPacket));
-        when(communicationsModule.requestDM3(any(), eq(0)))
-                                                              .thenReturn(List.of(nackPacket));
+        when(communicationsModule.requestDM3(any(), eq(0))).thenReturn(List.of(nackPacket));
 
         runTest();
 
@@ -153,7 +154,7 @@ public class Part07Step16ControllerTest extends AbstractControllerTest {
 
         verify(verifier).setJ1939(any());
         verify(verifier).verifyDataNotErased(any(), eq("6.7.16.2.a"));
-        verify(verifier).verifyDataNotErased(any(), eq("6.7.16.4.a"));
+        verify(verifier).verifyDataNotErased(any(), eq("6.7.16.4.b"));
 
         String expected = "";
         expected += "Step 6.7.16.1.b - Waiting 5 seconds before checking for erased information" + NL;
@@ -171,13 +172,51 @@ public class Part07Step16ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void test6_7_16_4_c() {
+
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        var nackPacket = AcknowledgmentPacket.create(0, Response.NACK);
+        when(communicationsModule.requestDM3(any())).thenReturn(List.of(nackPacket));
+        when(communicationsModule.requestDM3(any(), eq(0))).thenReturn(List.of(nackPacket));
+
+        runTest();
+
+        verify(communicationsModule).requestDM3(any());
+        verify(communicationsModule).requestDM3(any(), eq(0));
+
+        verify(verifier).setJ1939(any());
+        verify(verifier).verifyDataNotErased(any(), eq("6.7.16.2.a"));
+        verify(verifier).verifyDataNotErased(any(), eq("6.7.16.4.b"));
+
+        String expected = "";
+        expected += "Step 6.7.16.1.b - Waiting 5 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.1.b - Waiting 4 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.1.b - Waiting 3 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.1.b - Waiting 2 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.1.b - Waiting 1 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.3.b - Waiting 5 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.3.b - Waiting 4 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.3.b - Waiting 3 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.3.b - Waiting 2 seconds before checking for erased information" + NL;
+        expected += "Step 6.7.16.3.b - Waiting 1 seconds before checking for erased information";
+        assertEquals(expected, listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        Outcome.WARN,
+                                        "6.7.16.4.c - OBD ECU Engine #1 (0) did provide a NACK with control byte = 3 for the DS query");
+    }
+
+    @Test
     public void testFailureForWrongResponse() {
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
         when(communicationsModule.requestDM3(any(), eq(0)))
-                                                              .thenReturn(List.of(AcknowledgmentPacket.create(0,
-                                                                                                              ACK)));
+                                                           .thenReturn(List.of(AcknowledgmentPacket.create(0,
+                                                                                                           ACK)));
 
         runTest();
 
@@ -186,7 +225,7 @@ public class Part07Step16ControllerTest extends AbstractControllerTest {
 
         verify(verifier).setJ1939(any());
         verify(verifier).verifyDataNotErased(any(), eq("6.7.16.2.a"));
-        verify(verifier).verifyDataNotErased(any(), eq("6.7.16.4.a"));
+        verify(verifier).verifyDataNotErased(any(), eq("6.7.16.4.b"));
 
         String expected = "";
         expected += "Step 6.7.16.1.b - Waiting 5 seconds before checking for erased information" + NL;
