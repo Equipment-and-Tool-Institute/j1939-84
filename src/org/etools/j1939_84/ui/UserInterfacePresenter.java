@@ -297,6 +297,10 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
             setSelectedAdapter(selectedAdapter, selectedConnectionString, 0xF9);
             ResultsListener resultsListener = getResultsListener();
             try {
+                if (bus == null) {
+                    // User already notified
+                    return;
+                }
                 if (bus.imposterDetected()) {
                     throw new IOException("Unexpected Service Tool Message from SA 0xF9 observed. " + NL
                             + "Please disconnect the other ECU using SA 0xF9." + NL
