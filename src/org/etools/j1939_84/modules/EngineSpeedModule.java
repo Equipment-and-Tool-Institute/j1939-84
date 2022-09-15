@@ -48,7 +48,8 @@ public class EngineSpeedModule extends FunctionalModule {
     private EngineSpeedPacket getEngineSpeedPacket() {
         // The transmission rate changes based upon the engine speed. 100 ms is
         // the longest period between messages when the engine is off
-        return getJ1939().read(EngineSpeedPacket.class, ENGINE_ADDR, 300, TimeUnit.MILLISECONDS)
+        // BUT BAM may block bus, so increase timeout to 1.2 s to avoid BAM being mistaken for KEY_OFF
+        return getJ1939().read(EngineSpeedPacket.class, ENGINE_ADDR, 1200, TimeUnit.MILLISECONDS)
                          .flatMap(e -> e.left)
                          .orElse(null);
     }

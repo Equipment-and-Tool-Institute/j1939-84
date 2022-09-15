@@ -50,6 +50,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 @TestDoc(@TestItem(description = "Verify correct interpretation of PGN 61444."))
 public class EngineSpeedModuleTest {
 
+    private static final int TIMEOUT = 1200;
+
     private EngineSpeedModule instance;
 
     @Mock
@@ -99,79 +101,79 @@ public class EngineSpeedModuleTest {
     @Test
     @TestDoc(@TestItem(description = "Verify KOEO is identified when PGN 61444 speed 0 is on the bus."))
     public void testEngineKOEO_0() {
-        when(j1939.read(EngineSpeedPacket.class, 0x00, 300, MILLISECONDS)).thenReturn(optionalSpeedOf(0));
+        when(j1939.read(EngineSpeedPacket.class, 0x00, TIMEOUT, MILLISECONDS)).thenReturn(optionalSpeedOf(0));
         assertEquals(KEY_ON_ENGINE_OFF, instance.getKeyState());
         assertEquals("0.0 RPMs", instance.getEngineSpeedAsString());
-        verify(j1939, atLeastOnce()).read(EngineSpeedPacket.class, 0x00, 300, MILLISECONDS);
+        verify(j1939, atLeastOnce()).read(EngineSpeedPacket.class, 0x00, TIMEOUT, MILLISECONDS);
     }
 
     @Test
     @TestDoc(@TestItem(description = "Verify KOEO is identified when PGN 61444 speed 300 is on the bus."))
     public void testEngineKOEO_300() {
-        when(j1939.read(EngineSpeedPacket.class, 0x00, 300, MILLISECONDS)).thenReturn(optionalSpeedOf(300));
+        when(j1939.read(EngineSpeedPacket.class, 0x00, TIMEOUT, MILLISECONDS)).thenReturn(optionalSpeedOf(300));
         assertEquals(KEY_ON_ENGINE_OFF, instance.getKeyState());
         assertEquals("300.0 RPMs", instance.getEngineSpeedAsString());
-        verify(j1939, atLeastOnce()).read(EngineSpeedPacket.class, 0x00, 300, MILLISECONDS);
+        verify(j1939, atLeastOnce()).read(EngineSpeedPacket.class, 0x00, TIMEOUT, MILLISECONDS);
     }
 
     @Test
     @TestDoc(@TestItem(description = "Verify KOER is identified when PGN 61444 speed 301 is on the bus."))
     public void testEngineKOER_301() {
-        when(j1939.read(EngineSpeedPacket.class, 0x00, 300, MILLISECONDS)).thenReturn(optionalSpeedOf(301));
+        when(j1939.read(EngineSpeedPacket.class, 0x00, TIMEOUT, MILLISECONDS)).thenReturn(optionalSpeedOf(301));
         assertEquals(KEY_ON_ENGINE_RUNNING, instance.getKeyState());
         assertEquals("301.0 RPMs", instance.getEngineSpeedAsString());
-        verify(j1939, atLeastOnce()).read(EngineSpeedPacket.class, 0x00, 300, MILLISECONDS);
+        verify(j1939, atLeastOnce()).read(EngineSpeedPacket.class, 0x00, TIMEOUT, MILLISECONDS);
     }
 
     @Test
     @TestDoc(@TestItem(description = "Verify key off (no communication, but engine may be running) identified when there is no traffic on the bus."))
     public void testEngineNotCommunicating() {
-        when(j1939.read(EngineSpeedPacket.class, 0x00, 300, MILLISECONDS)).thenReturn(Optional.empty());
+        when(j1939.read(EngineSpeedPacket.class, 0x00, TIMEOUT, MILLISECONDS)).thenReturn(Optional.empty());
         assertEquals(KEY_OFF, instance.getKeyState());
         assertEquals("Key Off", instance.getEngineSpeedAsString());
-        verify(j1939, atLeastOnce()).read(EngineSpeedPacket.class, 0x00, 300, MILLISECONDS);
+        verify(j1939, atLeastOnce()).read(EngineSpeedPacket.class, 0x00, TIMEOUT, MILLISECONDS);
     }
 
     @Test
     public void testIsEngineRunning() {
-        when(j1939.read(EngineSpeedPacket.class, 0x00, 300, MILLISECONDS)).thenReturn(optionalSpeedOf(1500));
+        when(j1939.read(EngineSpeedPacket.class, 0x00, TIMEOUT, MILLISECONDS)).thenReturn(optionalSpeedOf(1500));
         assertEquals(KEY_ON_ENGINE_RUNNING, instance.getKeyState());
         assertEquals("1500.0 RPMs", instance.getEngineSpeedAsString());
-        verify(j1939, atLeastOnce()).read(EngineSpeedPacket.class, 0x00, 300, MILLISECONDS);
+        verify(j1939, atLeastOnce()).read(EngineSpeedPacket.class, 0x00, TIMEOUT, MILLISECONDS);
     }
 
     @Test
     @TestDoc(@TestItem(description = "Verify KOER is identified when PGN 61444 speed (0xFE00-1)/8 RPM is on the bus."))
     public void testKOER_2500() {
-        when(j1939.read(EngineSpeedPacket.class, 0x00, 300, MILLISECONDS)).thenReturn(optionalSpeedOf(0xFE00 - 1));
+        when(j1939.read(EngineSpeedPacket.class, 0x00, TIMEOUT, MILLISECONDS)).thenReturn(optionalSpeedOf(0xFE00 - 1));
         assertEquals(KEY_ON_ENGINE_RUNNING, instance.getKeyState());
         assertEquals("7679.0 RPMs", instance.getEngineSpeedAsString());
-        verify(j1939, atLeastOnce()).read(EngineSpeedPacket.class, 0x00, 300, MILLISECONDS);
+        verify(j1939, atLeastOnce()).read(EngineSpeedPacket.class, 0x00, TIMEOUT, MILLISECONDS);
     }
 
     @Test
     @TestDoc(@TestItem(description = "Verify KOER is identified when PGN 61444 speed error is on the bus."))
     public void testKOER_error() {
-        when(j1939.read(EngineSpeedPacket.class, 0x00, 300, MILLISECONDS)).thenReturn(optionalSpeedOf(0xFEFF / 8));
+        when(j1939.read(EngineSpeedPacket.class, 0x00, TIMEOUT, MILLISECONDS)).thenReturn(optionalSpeedOf(0xFEFF / 8));
         assertEquals(UNKNOWN, instance.getKeyState());
         assertEquals("Error RPMs", instance.getEngineSpeedAsString());
-        verify(j1939, atLeastOnce()).read(EngineSpeedPacket.class, 0x00, 300, MILLISECONDS);
+        verify(j1939, atLeastOnce()).read(EngineSpeedPacket.class, 0x00, TIMEOUT, MILLISECONDS);
     }
 
     @Test
     @TestDoc(@TestItem(description = "Verify KOER is identified when PGN 61444 speed 'not available' is on the bus."))
     public void testKOER_not_available() {
-        when(j1939.read(EngineSpeedPacket.class, 0x00, 300, MILLISECONDS)).thenReturn(optionalSpeedOf(0xFFFF / 8));
+        when(j1939.read(EngineSpeedPacket.class, 0x00, TIMEOUT, MILLISECONDS)).thenReturn(optionalSpeedOf(0xFFFF / 8));
         assertEquals(UNKNOWN, instance.getKeyState());
         assertEquals("N/A RPMs", instance.getEngineSpeedAsString());
-        verify(j1939, atLeastOnce()).read(EngineSpeedPacket.class, 0x00, 300, MILLISECONDS);
+        verify(j1939, atLeastOnce()).read(EngineSpeedPacket.class, 0x00, TIMEOUT, MILLISECONDS);
     }
 
     @Test
     public void testWeightedAverageEngineSpeed() throws InterruptedException {
 
         // Set the initial engine speed
-        when(j1939.read(EngineSpeedPacket.class, 0, 300, MILLISECONDS)).thenReturn(optionalSpeedOf(650));
+        when(j1939.read(EngineSpeedPacket.class, 0, TIMEOUT, MILLISECONDS)).thenReturn(optionalSpeedOf(650));
 
         List<GenericPacket> packets = new ArrayList<>();
 
@@ -231,7 +233,7 @@ public class EngineSpeedModuleTest {
         }
 
         verify(j1939).readGenericPacket(any());
-        verify(j1939).read(EngineSpeedPacket.class, 0, 300, MILLISECONDS);
+        verify(j1939).read(EngineSpeedPacket.class, 0, TIMEOUT, MILLISECONDS);
 
         // Check final values
         assertEquals(17, instance.secondsAtSpeed());
