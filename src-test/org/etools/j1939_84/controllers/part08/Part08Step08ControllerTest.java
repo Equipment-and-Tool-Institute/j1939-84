@@ -544,7 +544,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.8.8.3.c - Engine #1 (0) reported > 1 for permanent");
+                                        "6.8.8.3.e - Engine #1 (0) reported > 1 for permanent");
     }
 
     @Test

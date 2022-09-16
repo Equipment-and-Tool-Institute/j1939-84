@@ -104,7 +104,7 @@ public class Part05Step05Controller extends StepController {
                .filter(p -> p.getEmissionRelatedPermanentDTCCount() != getDM28DTCs(p.getSourceAddress()).size())
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
-                   addFailure("6.5.5.2.c - " + moduleName
+                   addFailure("6.5.5.2.d - " + moduleName
                            + " reported a different number of permanent DTCs than what it reported in DM28 earlier in this part");
                });
 

@@ -18,7 +18,6 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.j1939.Lookup;
 import org.etools.j1939tools.j1939.packets.ComponentIdentificationPacket;
-import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
@@ -107,10 +106,10 @@ public class Part01Step09Controller extends StepController {
                         + " does not end in five numeric characters");
             }
 
-            // 6.1.9.3.a. INFO if the serial number field (SP 588) from any function 0 device is
+            // 6.1.9.3.a. Warn if the serial number field (SP 588) from any function 0 device is
             // less than eight characters long.
             if (length < 8) {
-                addInfo("6.1.9.3.a - Serial number field (SP 588) from " + function0Name
+                addWarning("6.1.9.3.a - Serial number field (SP 588) from " + function0Name
                         + " is less than eight characters long");
             }
         }
@@ -218,7 +217,7 @@ public class Part01Step09Controller extends StepController {
                  .filter(packet -> packet.getSourceAddress() != function0SourceAddress)
                  .forEach(packet -> {
                      if (!globalPackets.contains(packet)) {
-                         addFailure("6.1.9.6.a - " + packet.getModuleName()
+                         addWarning("6.1.9.6.a - " + packet.getModuleName()
                                  + " did not supported the Component ID for the global query, but supported it in the destination specific query");
                      }
                  });

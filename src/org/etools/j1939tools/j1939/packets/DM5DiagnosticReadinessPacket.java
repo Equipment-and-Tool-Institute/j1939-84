@@ -22,7 +22,8 @@ import org.etools.j1939tools.j1939.model.ObdCompliance;
 public class DM5DiagnosticReadinessPacket extends DiagnosticReadinessPacket {
 
     public static final int PGN = 65230; // 0xFECE
-    private static final List<Byte> obdValues = Arrays.asList(new Byte[] { 0x13, 0x14, 0x22, 0x23 });
+    private static final List<Byte> notObdValues = Arrays.asList(new Byte[] { 0, 5, (byte) 0xFB, (byte) 0xFC,
+            (byte) 0xFD, (byte) 0xFE, (byte) 0xFF });
     private final byte activeCount;
     private final byte obdCompliance;
     private final byte previousCount;
@@ -150,7 +151,7 @@ public class DM5DiagnosticReadinessPacket extends DiagnosticReadinessPacket {
     }
 
     public boolean isObd() {
-        return obdValues.contains(getOBDCompliance());
+        return !notObdValues.contains(getOBDCompliance());
     }
 
     @Override

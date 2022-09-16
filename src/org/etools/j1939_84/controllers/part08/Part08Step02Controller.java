@@ -162,7 +162,7 @@ public class Part08Step02Controller extends StepController {
                  .filter(p -> p.getMalfunctionIndicatorLampStatus() == ON)
                  .map(ParsedPacket::getModuleName)
                  .forEach(moduleName -> {
-                     addWarning("6.8.2.5.a - " + moduleName + " did not report an active DTC and did report MIL on");
+                     addWarning("6.8.2.5.b - " + moduleName + " did not report an active DTC and did report MIL on");
                  });
     }
 

@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part01;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.etools.j1939tools.j1939.packets.LampStatus.ALTERNATE_OFF;
 import static org.etools.j1939tools.j1939.packets.LampStatus.NOT_SUPPORTED;
 import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 
@@ -100,7 +101,7 @@ public class Part01Step15Controller extends StepController {
                .filter(p -> !isObdModule(p.getSourceAddress()))
                .filter(p -> {
                    LampStatus mil = p.getMalfunctionIndicatorLampStatus();
-                   return mil != OFF && mil != NOT_SUPPORTED;
+                   return mil != OFF && mil != ALTERNATE_OFF && mil != NOT_SUPPORTED;
                })
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {

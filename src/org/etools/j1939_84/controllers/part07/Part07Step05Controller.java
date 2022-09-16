@@ -78,7 +78,7 @@ public class Part07Step05Controller extends StepController {
         packets.stream()
                .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF)
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.7.5.2.a - " + moduleName + " did not report MIL off"));
+               .forEach(moduleName -> addFailure("6.7.5.2.b - " + moduleName + " did not report MIL off"));
 
         // 6.7.5.2.c Fail if no OBD ECU provides DM1.
         if (packets.isEmpty()) {

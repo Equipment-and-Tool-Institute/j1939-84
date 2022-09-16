@@ -10,7 +10,6 @@ import static org.etools.j1939_84.J1939_84.isTesting;
 import static org.etools.j1939_84.controllers.Controller.Ending.STOPPED;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
-import static org.etools.j1939_84.controllers.ResultsListener.MessageType.ERROR;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.etools.j1939_84.model.Outcome.FAIL;
@@ -32,10 +31,10 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
 import org.etools.j1939_84.model.KeyState;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-import org.etools.j1939_84.utils.CollectionUtils;
 import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.j1939.J1939DaRepository;
@@ -156,8 +155,10 @@ public abstract class StepController extends Controller {
 
                 incrementProgress("Requesting " + pgnDef.getLabel() + " (" + pgnDef.getAcronym() + ") from "
                         + moduleName);
-                var response = getCommunicationsModule().request(pgn, address, getListener()).toPacketStream().collect(
-                        Collectors.toList());
+                var response = getCommunicationsModule().request(pgn, address, getListener())
+                                                        .toPacketStream()
+                                                        .collect(
+                                                                 Collectors.toList());
                 packets.addAll(response);
             }
             return packets;
@@ -174,6 +175,7 @@ public abstract class StepController extends Controller {
     private static PgnDefinition getPgnDef(int pg) {
         return J1939DaRepository.getInstance().findPgnDefinition(pg);
     }
+
     protected void ensureKeyStateIs(KeyState requestedKeyState, String section) throws InterruptedException {
         getListener().onResult("Initial Engine Speed = " + getEngineSpeedAsString());
 
@@ -432,6 +434,83 @@ public abstract class StepController extends Controller {
         return pg;
     }
 
+    protected void validateSpnValueGreaterThanFaBasedSlotLength(OBDModuleInformation module,
+                                                                Spn spn,
+                                                                Outcome outcome,
+                                                                String section) {
+        long lowerLimit = 0xFFL;
+        long upperLimit = 0xFFL;
+        String lowerLimitString = "";
+        String upperLimitString = "";
+        String spnValueInHex = "";
+        switch (spn.getSlot().getByteLength()) {
+            case 1:
+                lowerLimit = 0xFAL;
+                upperLimit = 0xFFL;
+                lowerLimitString = String.format("0x%01X", lowerLimit);
+                upperLimitString = String.format("0x%01X", upperLimit);
+                break;
+
+            case 2:
+                lowerLimit = 0xFAFFL;
+                upperLimit = 0xFFFFL;
+                lowerLimitString = String.format("0x%02X", lowerLimit);
+                lowerLimitString = String.format("0x%02X", upperLimit);
+                break;
+
+            case 3:
+                lowerLimit = 0xFAFFFFL;
+                upperLimit = 0xFAFFFFL;
+                lowerLimitString = String.format("0x%03X", lowerLimit);
+                upperLimitString = String.format("0x%03X", upperLimit);
+                break;
+
+            case 4:
+                lowerLimit = 0xFAFFFFFFL;
+                upperLimit = 0xFFFFFFFFL;
+                lowerLimitString = String.format("0x%04X", lowerLimit);
+                upperLimitString = String.format("0x%04X", upperLimit);
+                break;
+
+            case 5:
+                lowerLimit = 0xFAFFFFFFFFL;
+                upperLimit = 0xFFFFFFFFFFL;
+                lowerLimitString = String.format("0x%05X", lowerLimit);
+                upperLimitString = String.format("0x%05X", upperLimit);
+                break;
+
+            case 6:
+                lowerLimit = 0xFAFFFFFFFFFFL;
+                upperLimit = 0xFFFFFFFFFFFFL;
+                lowerLimitString = String.format("0x%06X", lowerLimit);
+                upperLimitString = String.format("0x%06X", upperLimit);
+                break;
+
+            case 7:
+                lowerLimit = 0xFAFFFFFFFFFFFFL;
+                upperLimit = 0xFFFFFFFFFFFFFFL;
+                lowerLimitString = String.format("0x%07X", lowerLimit);
+                upperLimitString = String.format("0x%07X", upperLimit);
+                break;
+
+            case 8:
+                lowerLimit = 0xFAFFFFFFFFFFFFFFL;
+                upperLimit = 0xFFFFFFFFFFFFFFFFL;
+                lowerLimitString = String.format("0x%08X", lowerLimit);
+                upperLimitString = String.format("0x%08X", upperLimit);
+                break;
+
+            default:
+                break;
+
+        }
+        if (spn.getRawValue() > lowerLimit && spn.getRawValue() < upperLimit) {
+            addFailure(section + " - Bin value received is greater than "
+                    + lowerLimitString + "h and less than " + upperLimitString
+                    + "h from " + module.getModuleName() + " for " + spn);
+        }
+    }
+
     protected boolean areUnusedBytesPaddedWithFFh(DM58RationalityFaultSpData packet) {
         Slot slot = J1939DaRepository.findSlot(packet.getSpn().getSlot().getId(), packet.getSpn().getId());
 
@@ -486,5 +565,19 @@ public abstract class StepController extends Controller {
                 break;
         }
         return false;
+    }
+
+    public String bytesToHex(byte[] bytes) {
+        if (bytes.length == 0) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (byte b : bytes) {
+            sb.append("0x").append(String.format("%02X, ", b));
+        }
+        sb.delete(sb.length() - 2, sb.length());
+        sb.append("]");
+        return sb.toString();
     }
 }

@@ -53,7 +53,6 @@ import org.etools.j1939_84.model.KeyState;
 import org.etools.j1939tools.bus.Bus;
 import org.etools.j1939tools.bus.BusException;
 import org.etools.j1939tools.bus.Packet;
-import org.etools.j1939tools.j1939.J1939DaRepository;
 import org.etools.j1939tools.j1939.model.SpnFmi;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.CompositeSystem;

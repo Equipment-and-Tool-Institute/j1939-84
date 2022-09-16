@@ -5,7 +5,6 @@ package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
-import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939tools.j1939.packets.ComponentIdentificationPacket.create;
 import static org.junit.Assert.assertEquals;
@@ -273,7 +272,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                              eq(0x01),
                                              any(CommunicationsListener.class));
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_6_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_FAIL_MESSAGE_6_A);
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -512,7 +511,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                         "6.1.9.2.c - Serial number field (SP 588) from Engine #1 (0) does not end in five numeric characters");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        INFO,
+                                        WARN,
                                         "6.1.9.3.a - Serial number field (SP 588) from Engine #1 (0) is less than eight characters long");
     }
 
@@ -950,7 +949,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                              eq(0x00),
                                              any(CommunicationsListener.class));
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, INFO, EXPECTED_INFO_MESSAGE_3_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_INFO_MESSAGE_3_A);
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());

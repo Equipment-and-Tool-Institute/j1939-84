@@ -76,7 +76,7 @@ public class Part07Step07Controller extends StepController {
                          return mil != OFF && mil != LampStatus.ALTERNATE_OFF;
                      })
                      .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.7.7.2.a - " + moduleName + " did not report MIL 'off'"));
+                     .forEach(moduleName -> addFailure("6.7.7.2.b - " + moduleName + " did not report MIL 'off'"));
 
         // 6.7.7.3.a DS DM6 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()

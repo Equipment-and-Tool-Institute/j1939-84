@@ -3,6 +3,11 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.BUSY;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.DENIED;
+import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -15,6 +20,8 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -83,10 +90,33 @@ public class Part07Step16Controller extends StepController {
         // 6.7.16.3.b. Wait 5 seconds before checking for erased information.
         pause("Step 6.7.16.3.b - Waiting %1$d seconds before checking for erased information", 5L);
 
-        // 6.7.16.4.a. Fail if any ECU does not NACK
-        checkForNACKsDS(List.of(), dsPackets, "6.7.16.4.a");
+        // 6.7.16.4.a. Fail if any ECU does not NACK with control byte = 1 or 2 or 3.
+        List<Integer> addresses1 = new ArrayList<>(getDataRepository().getObdModuleAddresses());
+        dsPackets.stream()
+                 .filter(a2 -> a2.getResponse() == NACK || a2.getResponse() == BUSY || a2.getResponse() == DENIED)
+                 .map(ParsedPacket::getSourceAddress)
+                 .forEach(addresses1::remove);
 
-        // 6.7.16.4.a. Fail if any OBD ECU erases any diagnostic information. See Section A.5 for more information.
-        verifier.verifyDataNotErased(getListener(), "6.7.16.4.a");
+        addresses1.stream()
+                  .distinct()
+                  .sorted()
+                  .map(Lookup::getAddressName)
+                  .map(moduleName1 -> "6.7.16.4.a" + " - OBD ECU " + moduleName1
+                          + " did not provide a NACK for the DS query")
+                  .forEach(this::addFailure);
+
+        // 6.7.16.4.b. Fail if any OBD ECU erases any diagnostic information. See Section A.5 for more information.
+        verifier.verifyDataNotErased(getListener(), "6.7.16.4.b");
+
+        // 6.7.2.16.4.c Warn if any OBD ECU NACKs with control byte = 3
+        dsPackets.stream()
+                 .filter(a1 -> a1.getResponse() == NACK)
+                 .map(ParsedPacket::getSourceAddress)
+                 .distinct()
+                 .sorted()
+                 .map(Lookup::getAddressName)
+                 .map(moduleName -> "6.7.16.4.c" + " - OBD ECU " + moduleName
+                         + " did provide a NACK with control byte = 3 for the DS query")
+                 .forEach(this::addWarning);
     }
 }

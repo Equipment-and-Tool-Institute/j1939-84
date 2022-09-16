@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.etools.j1939tools.CommunicationsListener;
-import org.etools.j1939tools.bus.Bus;
 import org.etools.j1939tools.bus.BusException;
 import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.bus.Packet;

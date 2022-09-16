@@ -14,7 +14,9 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.controllers.TableA1Validator;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.SupportedSpnModule;
@@ -37,12 +39,13 @@ public class Part01Step04Controller extends StepController {
     private static final int TOTAL_STEPS = 0;
 
     private final SupportedSpnModule supportedSpnModule;
+    private final TableA1Validator tableA1Validator;
 
     Part01Step04Controller(DataRepository dataRepository) {
-        this(dataRepository, DateTimeModule.getInstance());
+        this(dataRepository, DateTimeModule.getInstance(), new TableA1Validator(1, 4));
     }
 
-    Part01Step04Controller(DataRepository dataRepository, DateTimeModule dateTimeModule) {
+    Part01Step04Controller(DataRepository dataRepository, DateTimeModule dateTimeModule, TableA1Validator tableA1Validator) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
              new BannerModule(),
@@ -50,7 +53,8 @@ public class Part01Step04Controller extends StepController {
              new CommunicationsModule(),
              new SupportedSpnModule(),
              dataRepository,
-             dateTimeModule);
+             dateTimeModule,
+             tableA1Validator);
     }
 
     Part01Step04Controller(Executor executor,
@@ -60,7 +64,8 @@ public class Part01Step04Controller extends StepController {
                            CommunicationsModule communicationsModule,
                            SupportedSpnModule supportedSpnModule,
                            DataRepository dataRepository,
-                           DateTimeModule dateTimeModule) {
+                           DateTimeModule dateTimeModule,
+                           TableA1Validator tableA1Validator) {
         super(executor,
               bannerModule,
               dateTimeModule,
@@ -72,6 +77,7 @@ public class Part01Step04Controller extends StepController {
               STEP_NUMBER,
               TOTAL_STEPS);
         this.supportedSpnModule = supportedSpnModule;
+        this.tableA1Validator = tableA1Validator;
     }
 
     @Override
@@ -122,8 +128,8 @@ public class Part01Step04Controller extends StepController {
         // 6.1.4.1.e. Create ECU specific list of supported freeze frame SPNs.
         dm24s.forEach(this::save);
 
-        // 6.1.4.2.b. Fail if one or more minimum expected SPNs for data stream
-        // not supported per section A.1, Minimum Support Table, from the OBD ECU(s).
+        // 6.1.4.2.b. Fail the expected SPs for data stream support, that are not supported by the OBD ECUs DM24
+        // responses as described by Table A-1 column “Fail if SPN not supported in DM24”.
         List<Integer> dataStreamSPNs = getDataRepository().getObdModules()
                                                           .stream()
                                                           .map(OBDModuleInformation::getDataStreamSPNs)
@@ -133,10 +139,10 @@ public class Part01Step04Controller extends StepController {
                                                           .sorted()
                                                           .collect(Collectors.toList());
 
-        boolean dataStreamOk = supportedSpnModule.validateDataStreamSpns(getListener(),
-                                                                         dataStreamSPNs,
-                                                                         getFuelType(),
-                                                                         getEngineModelYear());
+        boolean dataStreamOk = supportedSpnModule.validateRequiredDataStreamSpns(getListener(),
+                                                                                 dataStreamSPNs,
+                                                                                 getFuelType(),
+                                                                                 getEngineModelYear());
         if (!dataStreamOk) {
             addFailure("6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
         }
@@ -190,6 +196,21 @@ public class Part01Step04Controller extends StepController {
             if (modelYearIs2022Plus && getFuelType() == BATT_ELEC && !obdModule.supportsSpn(12783)) {
                 addFailure("6.1.4.2.h - SP 12783 is not included in DM24 response from " + obdModule.getModuleName());
             }
+        }
+        // 6.1.4.3.a. Warn/Info as described by Table A-1 column “Warn/Info if SP not supported in DM24
+        if(!supportedSpnModule.validateDesiredDataStreamSpns(getListener(), dataStreamSPNs, getFuelType(), getEngineModelYear())) {
+            getListener().addOutcome(getPartNumber(), getStepNumber(), Outcome.WARN, "6.1.4.3.a - SPN not supported in DM24");
+        }
+        if(!supportedSpnModule.validateNoticedDataStreamSpns(getListener(), dataStreamSPNs, getFuelType(), getEngineModelYear())){
+            getListener().addOutcome(getPartNumber(), getStepNumber(), Outcome.INFO, "6.1.4.3.a - SPN not supported in DM24");
+        }
+
+        // 6.1.4.3.b. Warn/Info as described by Table A-1 column “Warn/Info if more than 1 SP supported” in DM24
+        if(supportedSpnModule.isMoreThanOneSpnReportedWarning(getListener(), dataStreamSPNs, getFuelType(), getEngineModelYear())){
+            getListener().addOutcome(getPartNumber(), getStepNumber(), Outcome.WARN, "6.1.4.3.b - More than 1 SPN supported");
+        }
+        if(supportedSpnModule.isMoreThanOneSpnReportedInfo(getListener(), dataStreamSPNs, getFuelType(), getEngineModelYear())){
+            getListener().addOutcome(getPartNumber(), getStepNumber(), Outcome.INFO, "6.1.4.3.b - More than 1 SPN supported");
         }
     }
 

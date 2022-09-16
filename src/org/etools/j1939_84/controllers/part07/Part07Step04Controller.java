@@ -79,7 +79,7 @@ public class Part07Step04Controller extends StepController {
         packets.stream()
                .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF)
                .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.7.4.2.a - " + moduleName + " reported an active DTC"));
+               .forEach(moduleName -> addFailure("6.7.4.2.b - " + moduleName + " did not report MIL off."));
 
         // 6.7.4.2.c Fail if no OBD ECU supports DM12.
         if (packets.isEmpty()) {

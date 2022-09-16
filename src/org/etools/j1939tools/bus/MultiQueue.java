@@ -3,10 +3,8 @@
  */
 package org.etools.j1939tools.bus;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.WeakHashMap;

@@ -97,7 +97,10 @@
         </copy>
         <!--Generates the EXE File -->
         <property file="${build.info.filename}"/>
-        <launch4j configFile="${basedir}/etc/launch4j.xml"/>
+    	<echo message="tmpdir=${java.io.tmpdir}"/>
+    	<echo message="TEMP=${env.TEMP}"/>
+    	<echo message="JAVA_HOME=${env.JAVA_HOME}"/>
+        <launch4j tmpdir="c:/temp" configFile="${basedir}/etc/launch4j.xml"/>
         <exec executable="${lib-test}\NSIS\makensis.exe" failonerror="true">
             <!-- providing some nsis definitions -->
             <arg value="/DVERSIONMAJOR=${build.major.number}"/>

@@ -96,15 +96,15 @@ public class Part04Step13Controller extends StepController {
                              + " did not NACK with control byte 1 or 2 or 3");
                  });
 
-        // 6.4.13.2.a. Fail if any ECU erases any diagnostic information. See Section A.5 for more information.
-        verifier.verifyDataNotErased(getListener(), "6.4.13.2.a");
+        // 6.4.13.2.b. Fail if any ECU erases any diagnostic information. See Section A.5 for more information.
+        verifier.verifyDataNotErased(getListener(), "6.4.13.2.b");
 
-        // 6.4.13.2.b. Warn if any OBD ECU NACKs with control byte = 3.
+        // 6.4.13.2.c. Warn if any OBD ECU NACKs with control byte = 3.
         dsPackets.stream()
                  .filter(p -> p.getResponse() == BUSY)
                  .map(ParsedPacket::getModuleName)
                  .forEach(moduleName -> {
-                     addWarning("6.4.13.2.b - " + moduleName + " NACKs with control = 3");
+                     addWarning("6.4.13.2.c - " + moduleName + " NACKs with control = 3");
                  });
 
         // 6.4.13.3.a. Global DM3

@@ -159,7 +159,7 @@ public class Part12Step10ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestDM11(any());
 
         verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.10.2.b"), eq("6.12.10.2.c"), eq(false));
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.10.4.c"), eq("6.12.10.4.d"), eq(true));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.10.4.c"), eq("6.12.10.4.c"), eq(true));
 
         String expected = getExpectedMessages();
         assertEquals(expected, listener.getMessages());
@@ -185,7 +185,7 @@ public class Part12Step10ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestDM11(any());
 
         verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.10.2.b"), eq("6.12.10.2.c"), eq(false));
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.10.4.c"), eq("6.12.10.4.d"), eq(true));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.10.4.c"), eq("6.12.10.4.c"), eq(true));
 
         String expected = getExpectedMessages();
         assertEquals(expected, listener.getMessages());
@@ -215,7 +215,7 @@ public class Part12Step10ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestDM11(any());
 
         verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.10.2.b"), eq("6.12.10.2.c"), eq(false));
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.10.4.c"), eq("6.12.10.4.d"), eq(true));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.10.4.c"), eq("6.12.10.4.c"), eq(true));
 
         String expected = getExpectedMessages();
         assertEquals(expected, listener.getMessages());
@@ -246,7 +246,7 @@ public class Part12Step10ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestDM11(any());
 
         verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.10.2.b"), eq("6.12.10.2.c"), eq(false));
-        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.10.4.c"), eq("6.12.10.4.d"), eq(true));
+        verify(verifier).verifyDataNotPartialErased(any(), eq("6.12.10.4.c"), eq("6.12.10.4.c"), eq(true));
 
         String expected = getExpectedMessages();
         assertEquals(expected, listener.getMessages());

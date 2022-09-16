@@ -97,7 +97,7 @@ public class Part07Step02Controller extends StepController {
         // 6.7.2.3.a Warn if any ECU reports > 1 previously active DTC.
         packets.forEach(p -> {
             if (p.getDtcs().size() > 1) {
-                addWarning("6.7.2.3.c - OBD ECU " + p.getModuleName() + " reported > 1 previously active DTCs");
+                addWarning("6.7.2.3.a - OBD ECU " + p.getModuleName() + " reported > 1 previously active DTCs");
             }
         });
 

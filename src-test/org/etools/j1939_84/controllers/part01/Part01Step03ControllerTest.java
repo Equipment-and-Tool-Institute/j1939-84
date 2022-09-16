@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,6 +28,7 @@ import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.model.FuelType;
 import org.etools.j1939tools.j1939.model.PgnDefinition;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response;
@@ -165,6 +167,7 @@ public class Part01Step03ControllerTest {
         dataRepository.putObdModule(obdInfo2);
 
         VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setUsCarb(true);
         dataRepository.setVehicleInformation(vehicleInformation);
 
         instance.execute(listener, j1939, reportFileModule);
@@ -182,6 +185,18 @@ public class Part01Step03ControllerTest {
                                         3,
                                         WARN,
                                         "6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
+        verify(mockListener).addOutcome(1,
+                                        3,
+                                        WARN,
+                                        "6.1.3.3.b - Response received from a non-OBD ECU provided OBD Compliance values of 0h");
+        verify(mockListener).addOutcome(1,
+                                        3,
+                                        INFO,
+                                        "6.1.3.3.c - Response received from a non-OBD ECU provided OBD Compliance values of 0h");
+        verify(mockListener).addOutcome(1,
+                                        3,
+                                        FAIL,
+                                        "6.1.3.2.e - US/CARB vehicle does not provide OBD Compliance values of 13h, 14h, 22h, or 23h");
     }
 
     @Test
@@ -211,6 +226,9 @@ public class Part01Step03ControllerTest {
         acks.add(packet2);
 
         when(communicationsModule.requestDM5(any())).thenReturn(requestResult);
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(FuelType.DSL);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         instance.execute(listener, j1939, reportFileModule);
         ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
@@ -223,7 +241,14 @@ public class Part01Step03ControllerTest {
         verify(engineSpeedModule).setJ1939(j1939);
 
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.a - No ECU reported as an OBD ECU");
-
+        verify(mockListener).addOutcome(1,
+                                        3,
+                                        WARN,
+                                        "6.1.3.3.b - Response received from a non-OBD ECU provided OBD Compliance values of 0h");
+        verify(mockListener).addOutcome(1,
+                                        3,
+                                        INFO,
+                                        "6.1.3.3.c - Response received from a non-OBD ECU provided OBD Compliance values of 0h");
         verify(vehicleInformationModule).setJ1939(j1939);
     }
 
@@ -287,7 +312,14 @@ public class Part01Step03ControllerTest {
         verify(engineSpeedModule).setJ1939(j1939);
 
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-
+        verify(mockListener).addOutcome(1,
+                                        3,
+                                        FAIL,
+                                        "6.1.3.2.d - Fail if any response from a function 0 device provides OBD Compliance values of 0, 5, FBh, FCh, FDh, FEh, or FFh");
+        verify(mockListener).addOutcome(1,
+                                        3,
+                                        INFO,
+                                        "6.1.3.3.c - Response received from a non-OBD ECU provided OBD Compliance values of 4h");
         verify(vehicleInformationModule).setJ1939(j1939);
     }
 

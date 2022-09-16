@@ -185,7 +185,7 @@ public class Part07Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.7.4.2.a - Engine #1 (0) reported an active DTC");
+                                        "6.7.4.2.b - Engine #1 (0) did not report MIL off.");
     }
 
     @Test

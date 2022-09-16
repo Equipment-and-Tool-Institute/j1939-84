@@ -66,17 +66,6 @@ public class Part09Step09Controller extends StepController {
 
         var packets = filterPackets(dsResults);
 
-        // 6.9.9.2.b. Fail if any report time with MIL on (SPN 3295) > 0 (if supported).
-        packets.stream()
-               .filter(p -> {
-                   double minWithMIL = p.getMinutesWhileMILIsActivated();
-                   return minWithMIL > 0 && minWithMIL != NOT_AVAILABLE;
-               })
-               .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> {
-                   addFailure("6.9.9.2.a - " + moduleName + " reported time with MIL on > 0 minutes");
-               });
-
         // 6.9.9.2.a. Fail if any report time SCC (SPN 3296) > 0 (if supported).
         packets.stream()
                .filter(p -> {
@@ -85,7 +74,18 @@ public class Part09Step09Controller extends StepController {
                })
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
-                   addFailure("6.9.9.2.b - " + moduleName + " reported time SCC is > 0 minutes");
+                   addFailure("6.9.9.2.a - " + moduleName + " reported time SCC is > 0 minutes");
+               });
+
+        // 6.9.9.2.b. Fail if any report time with MIL on (SPN 3295) > 0 (if supported).
+        packets.stream()
+               .filter(p -> {
+                   double minWithMIL = p.getMinutesWhileMILIsActivated();
+                   return minWithMIL > 0 && minWithMIL != NOT_AVAILABLE;
+               })
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> {
+                   addFailure("6.9.9.2.b - " + moduleName + " reported time with MIL on > 0 minutes");
                });
 
         // 6.9.9.2.c. Fail if no OBD ECU supports DM21.
@@ -96,6 +96,5 @@ public class Part09Step09Controller extends StepController {
         // 6.9.9.2.d. Fail if NACK not received from OBD ECUs that did not provide DM21 message.
         checkForNACKsGlobal(packets, filterAcks(dsResults), "6.9.9.2.d");
     }
-
 
 }

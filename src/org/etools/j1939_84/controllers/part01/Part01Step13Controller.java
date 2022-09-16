@@ -122,11 +122,6 @@ public class Part01Step13Controller extends StepController {
             addFailure("6.1.13.2.c - No OBD ECU provided DM5 with readiness bits showing monitor support");
         }
 
-        // 6.1.13.2.d. Warn if any individual required monitor, except Continuous
-        // Component Monitoring (CCM) is supported by more than one OBD ECU.
-        // Get the list of duplicate composite systems
-        reportDuplicateCompositeSystems(obdGlobalPackets, "6.1.13.2.d");
-
         // 6.1.13.3.a. DS DM5 to each OBD ECU.
         var dsPackets = getDataRepository().getObdModuleAddresses()
                                            .stream()

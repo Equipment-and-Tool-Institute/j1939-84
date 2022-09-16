@@ -213,7 +213,7 @@ public class Part08Step12Controller extends StepController {
                            + " provided CLR_ACT_NACK with an acknowledgement code greater than 0");
                });
 
-        // 6.8.12.6.a. Warn if DM22 (PGN 49920) [CLR]_PA_NACK or [CLR]_ACT_NACK is not received with an acknowledgement
+        // 6.8.12.6.a. Info if DM22 (PGN 49920) [CLR]_PA_NACK or [CLR]_ACT_NACK is not received with an acknowledgement
         // code of 0.
         for (int address : addresses) {
             boolean found = packets.stream()
@@ -221,7 +221,7 @@ public class Part08Step12Controller extends StepController {
                                    .anyMatch(p -> (p.getControlByte() == CLR_PA_NACK
                                            || p.getControlByte() == CLR_ACT_NACK) && p.getAcknowledgementCode() == 0);
             if (!found) {
-                addWarning("6.8.12.6.a - " + Lookup.getAddressName(address)
+                addInfo("6.8.12.6.a - " + Lookup.getAddressName(address)
                         + " did not provide DM22 CLR_PA_NACK or CLR_ACT_NACK with acknowledgement code of 0");
             }
         }

@@ -1,8 +1,6 @@
 package org.etools.j1939tools.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939tools.j1939.packets.ParsedPacket.NOT_AVAILABLE;
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;

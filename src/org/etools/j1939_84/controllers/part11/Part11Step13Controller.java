@@ -23,7 +23,6 @@ import static org.etools.j1939tools.modules.NOxBinningModule.NOx_TRACKING_ACTIVE
 import static org.etools.j1939tools.modules.NOxBinningModule.NOx_TRACKING_STORED_100_HOURS_SPs;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
