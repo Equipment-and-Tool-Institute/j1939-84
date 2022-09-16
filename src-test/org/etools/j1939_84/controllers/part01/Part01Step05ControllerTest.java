@@ -28,7 +28,6 @@ import org.etools.j1939_84.utils.VinDecoder;
 import org.etools.j1939tools.CommunicationsListener;
 import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.j1939.J1939;
-import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
