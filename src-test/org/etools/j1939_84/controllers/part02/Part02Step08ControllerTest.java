@@ -10,10 +10,12 @@ import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -27,6 +29,7 @@ import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.etools.j1939tools.CommunicationsListener;
+import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.j1939.J1939;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
@@ -195,7 +198,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
                                               eq(0))).thenReturn(new RequestResult<>(false,
                                                                                      dm26));
 
-        // Module 1 has the same both times and will not report an error
         var enabledSystemsObd1 = List.of(
                                          CompositeSystem.COMPREHENSIVE_COMPONENT,
                                          CompositeSystem.NMHC_CONVERTING_CATALYST);
@@ -227,7 +229,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         when(communicationsModule.requestDM26(any(CommunicationsListener.class),
                                               eq(0x01))).thenReturn(new RequestResult<>(false, packet1));
 
-        // Module 2 will not respond from the first time, but will respond this time
         OBDModuleInformation obdModule2 = new OBDModuleInformation(2);
         var enabledSystemsObd2 = List.of(
                                          CompositeSystem.COMPREHENSIVE_COMPONENT,
@@ -260,7 +261,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         when(communicationsModule.requestDM26(any(CommunicationsListener.class),
                                               eq(0x02))).thenReturn(RequestResult.of(packet2));
 
-        // Module 3 will respond
         OBDModuleInformation obdModule3 = new OBDModuleInformation(0x03);
         var enabledSystemsObd3 = List.of(
                                          CompositeSystem.COMPREHENSIVE_COMPONENT,
@@ -450,14 +450,23 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         obdModule3.set(DM5DiagnosticReadinessPacket.create(0x03, 0, 0, 0x22, enabledSystemsObd3, completedSystemsObd3),
                        2);
         dataRepository.putObdModule(obdModule3);
+        DM26TripDiagnosticReadinessPacket packet3Ds = mock(DM26TripDiagnosticReadinessPacket.class);
+        when(packet3Ds.getSourceAddress()).thenReturn(0x03);
+        when(packet3Ds.getWarmUpsSinceClear()).thenReturn((byte) 0x00);
+        when(packet3Ds.getTimeSinceEngineStart()).thenReturn(Double.valueOf(30));
+        Packet packet = mock(Packet.class);
+        when(packet.getTimestamp()).thenReturn(LocalDateTime.now());
+        when(packet3Ds.getPacket()).thenReturn(packet);
+
+        when(communicationsModule.requestDM26(any(CommunicationsListener.class),
+                                              eq(0x03))).thenReturn(RequestResult.of(packet3Ds));
+
         DM26TripDiagnosticReadinessPacket packet3 = DM26TripDiagnosticReadinessPacket.create(
                 0x03,
                 0x00,
                 0x00,
                 enabledSystemsObd3,
                 completedSystemsObd3);
-        when(communicationsModule.requestDM26(any(CommunicationsListener.class),
-                                              eq(0x03))).thenReturn(RequestResult.of(packet3));
 
         when(communicationsModule.requestDM26(any(CommunicationsListener.class))).thenReturn(RequestResult.of(dm26,
                                                                                                               packet1,
@@ -472,6 +481,10 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestDM26(any(CommunicationsListener.class), eq(0x02));
         verify(communicationsModule).requestDM26(any(CommunicationsListener.class), eq(0x03));
 
+        verify(mockListener).addOutcome(eq(2), eq(8), eq(FAIL), eq("6.2.8.2.a - DM5 message in 6.2.2.3 from Transmission #1 (3) monitor reported not supported and DM26 message reported not complete"));
+        verify(mockListener).addOutcome(eq(2), eq(8), eq(FAIL), eq("6.2.8.2.c - DM5 message in 6.2.2.3 from Transmission #1 (3) monitor reported CCM supported and DM26 message reported disabled"));
+        verify(mockListener).addOutcome(eq(2), eq(8), eq(FAIL), eq("6.2.8.5.a - Difference in data between DS and global responses from Transmission #1 (3)"));
+
         String expectedResults = "" + NL;
         expectedResults += "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant         enabled, not complete" + NL;
@@ -480,7 +493,7 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         expectedResults += "    Cold start aid system      not enabled,     complete" + NL;
         expectedResults += "    Comprehensive component        enabled, not complete" + NL;
         expectedResults += "    Diesel Particulate Filter  not enabled,     complete" + NL;
-        expectedResults += "    EGR/VVT system                 enabled, not complete" + NL;
+        expectedResults += "    EGR/VVT system             not enabled,     complete" + NL;
         expectedResults += "    Evaporative system             enabled, not complete" + NL;
         expectedResults += "    Exhaust Gas Sensor         not enabled,     complete" + NL;
         expectedResults += "    Exhaust Gas Sensor heater      enabled, not complete" + NL;
@@ -724,7 +737,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
                                               eq(0))).thenReturn(new RequestResult<>(false,
                                                                                      dm26));
 
-        // Module 1 has the same both times and will not report an error
         var enabledSystemsObd1 = List.of(
                                          CompositeSystem.COMPREHENSIVE_COMPONENT,
                                          CompositeSystem.NMHC_CONVERTING_CATALYST);
@@ -756,7 +768,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         when(communicationsModule.requestDM26(any(CommunicationsListener.class),
                                               eq(0x01))).thenReturn(new RequestResult<>(false, packet1));
 
-        // Module 2 will not respond from the first time, but will respond this time
         OBDModuleInformation obdModule2 = new OBDModuleInformation(2);
         var enabledSystemsObd2 = List.of(
                                          CompositeSystem.COMPREHENSIVE_COMPONENT,
@@ -789,7 +800,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         when(communicationsModule.requestDM26(any(CommunicationsListener.class),
                                               eq(0x02))).thenReturn(RequestResult.of(packet2));
 
-        // Module 3 will respond
         OBDModuleInformation obdModule3 = new OBDModuleInformation(0x03);
         var enabledSystemsObd3 = List.of(
                                          CompositeSystem.COMPREHENSIVE_COMPONENT,
@@ -899,7 +909,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
                                                                                      dm26));
         var ack = AcknowledgmentPacket.create(0x00, AcknowledgmentPacket.Response.BUSY);
 
-        // Module 1 has the same both times and will not report an error
         var enabledSystemsObd1 = List.of(
                                          CompositeSystem.COMPREHENSIVE_COMPONENT,
                                          CompositeSystem.NMHC_CONVERTING_CATALYST);
@@ -931,7 +940,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         when(communicationsModule.requestDM26(any(CommunicationsListener.class),
                                               eq(0x01))).thenReturn(new RequestResult<>(false, packet1));
 
-        // Module 2 will not respond from the first time, but will respond this time
         OBDModuleInformation obdModule2 = new OBDModuleInformation(2);
         var enabledSystemsObd2 = List.of(
                                          CompositeSystem.COMPREHENSIVE_COMPONENT,
@@ -964,7 +972,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         when(communicationsModule.requestDM26(any(CommunicationsListener.class),
                                               eq(0x02))).thenReturn(RequestResult.of(packet2));
 
-        // Module 3 will respond
         OBDModuleInformation obdModule3 = new OBDModuleInformation(0x03);
         var enabledSystemsObd3 = List.of(
                                          CompositeSystem.COMPREHENSIVE_COMPONENT,
@@ -1044,7 +1051,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureEightTwoC() {
-        // Module 0 has a different packet from the first time
         var enabledSystems = List.of(
                                      CompositeSystem.AC_SYSTEM_REFRIGERANT,
                                      CompositeSystem.BOOST_PRESSURE_CONTROL_SYS,
@@ -1089,7 +1095,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         when(communicationsModule.requestDM26(any(ResultsListener.class), eq(0))).thenReturn(new RequestResult<>(false,
                                                                                                                  dm26));
 
-        // Module 1 has the same both times and will not report an error
         var enabledSystemsObd1 = List.of(
                                          CompositeSystem.COMPREHENSIVE_COMPONENT,
                                          CompositeSystem.NMHC_CONVERTING_CATALYST);
@@ -1121,7 +1126,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         when(communicationsModule.requestDM26(any(CommunicationsListener.class),
                                               eq(0x01))).thenReturn(new RequestResult<>(false, packet1));
 
-        // Module 2 will not respond from the first time, but will respond this time
         OBDModuleInformation obdModule2 = new OBDModuleInformation(2);
         var enabledSystemsObd2 = List.of(
                                          CompositeSystem.COMPREHENSIVE_COMPONENT,
@@ -1155,7 +1159,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         when(communicationsModule.requestDM26(any(CommunicationsListener.class),
                                               eq(0x02))).thenReturn(RequestResult.of(packet2));
 
-        // Module 3 will respond
         OBDModuleInformation obdModule3 = new OBDModuleInformation(0x03);
         var enabledSystemsObd3 = List.of(
                                          CompositeSystem.COMPREHENSIVE_COMPONENT,
@@ -1266,7 +1269,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
                                               eq(0))).thenReturn(new RequestResult<>(false,
                                                                                      dm26));
 
-        // Module 1 has the same both times and will not report an error
         var enabledSystemsObd1 = List.of(
                                          CompositeSystem.COMPREHENSIVE_COMPONENT,
                                          CompositeSystem.NMHC_CONVERTING_CATALYST);
@@ -1298,7 +1300,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         when(communicationsModule.requestDM26(any(CommunicationsListener.class),
                                               eq(0x01))).thenReturn(new RequestResult<>(false, packet1));
 
-        // Module 2 will not respond from the first time, but will respond this time
         OBDModuleInformation obdModule2 = new OBDModuleInformation(2);
         var enabledSystemsObd2 = List.of(
                                          CompositeSystem.COMPREHENSIVE_COMPONENT,
@@ -1331,7 +1332,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         when(communicationsModule.requestDM26(any(CommunicationsListener.class),
                                               eq(0x02))).thenReturn(RequestResult.of(packet2));
 
-        // Module 3 will respond
         OBDModuleInformation obdModule3 = new OBDModuleInformation(0x03);
         var enabledSystemsObd3 = List.of(
                                          CompositeSystem.COMPREHENSIVE_COMPONENT,
