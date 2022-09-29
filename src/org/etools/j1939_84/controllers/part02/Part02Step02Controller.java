@@ -136,6 +136,8 @@ public class Part02Step02Controller extends StepController {
         for (DM5DiagnosticReadinessPacket responsePacket : globalDM5Packets) {
             DM5DiagnosticReadinessPacket dsPacketResponse = null;
             for (DM5DiagnosticReadinessPacket dsPacket : destinationSpecificPackets) {
+                //FIXME - need document updated @Joe
+                save(dsPacket);
                 if (dsPacket.getSourceAddress() == responsePacket.getSourceAddress()) {
                     dsPacketResponse = dsPacket;
                     break;
