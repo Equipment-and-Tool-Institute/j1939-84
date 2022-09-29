@@ -3,11 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part12;
 
-import static org.etools.j1939tools.j1939.packets.CompositeSystem.COMPREHENSIVE_COMPONENT;
-import static org.etools.j1939tools.j1939.packets.CompositeSystem.MISFIRE;
-
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -21,7 +17,6 @@ import org.etools.j1939tools.j1939.Lookup;
 import org.etools.j1939tools.j1939.packets.CompositeSystem;
 import org.etools.j1939tools.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
-import org.etools.j1939tools.j1939.packets.MonitoredSystem;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -81,7 +76,8 @@ public class Part12Step02Controller extends StepController {
             // CCM) that was “0 = monitor complete this cycle or not supported” ” in SP 3303 bits 1-4 and SP 3305
             // [except comprehensive
             if (isDm5SupportedAndDm26Complete(packet)) {
-                addInfo("6.12.2.2.b - DM5 message in 6.11.10.1.a from " + Lookup.getAddressName(packet.getSourceAddress())
+                addInfo("6.12.2.2.b - DM5 message in 6.11.10.1.a from "
+                        + Lookup.getAddressName(packet.getSourceAddress())
                         + " monitor reported supported and DM26 message reported complete or not supported");
             }
         });
@@ -89,6 +85,7 @@ public class Part12Step02Controller extends StepController {
         // 6.12.2.2.c. Fail if NACK not received from OBD ECUs that did not provide a DM26 message
         checkForNACKsDS(packets, filterRequestResultAcks(dsResults), "6.12.2.2.c");
     }
+
     private boolean isDm5SupportedAndDm26Complete(DM26TripDiagnosticReadinessPacket dm26) {
         return Arrays.stream(CompositeSystem.values())
                      .anyMatch(sys -> sys != CompositeSystem.COMPREHENSIVE_COMPONENT

@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part12;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
@@ -235,7 +234,7 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
 
         OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
 
-        obdModule0.set(DM5DiagnosticReadinessPacket.create(0x00, 0, 0, 0x22, enabledSystems, completeSystems),11);
+        obdModule0.set(DM5DiagnosticReadinessPacket.create(0x00, 0, 0, 0x22, enabledSystems, completeSystems), 11);
         dataRepository.putObdModule(obdModule0);
         when(communicationsModule.requestDM26(any(CommunicationsListener.class),
                                               eq(0))).thenReturn(new RequestResult<>(false,
@@ -383,6 +382,7 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
 
     }
+
     @Test
     public void testFailureForChangingCompletion() {
         // Module 0 responds and doesn't change complete state and has no completions
