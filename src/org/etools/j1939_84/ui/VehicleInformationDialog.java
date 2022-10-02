@@ -481,10 +481,11 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
 
     private void initialize() {
         getContentPane().add(getMainPanel());
+        UserInterfaceView.scaleFont(getContentPane(), 2.0);
         pack();
         setLocationRelativeTo(getOwner());
         setResizable(false);
-        setTitle("Step 6.1.1.1.e");
+        setTitle(UserInterfaceView.getTitle() + ": Step 6.1.1.1.e");
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {

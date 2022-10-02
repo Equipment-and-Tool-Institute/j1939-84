@@ -42,8 +42,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class UserInterfaceViewTest {
 
-    @Mock
-    private BuildNumber buildNumber;
+    private BuildNumber buildNumber = new BuildNumber();
 
     @Mock
     private UserInterfacePresenter controller;
@@ -61,8 +60,7 @@ public class UserInterfaceViewTest {
         adapters.add(adapter2 = new Adapter("Adapter2", "SD", (short) 2));
         when(controller.getAdapters()).thenReturn(adapters);
 
-        when(buildNumber.getVersionNumber()).thenReturn("12.34");
-        instance = new UserInterfaceView(controller, buildNumber, r -> {
+        instance = new UserInterfaceView(controller, r -> {
             try {
                 SwingUtilities.invokeAndWait(r);
             } catch (InvocationTargetException | InterruptedException e) {
@@ -74,8 +72,7 @@ public class UserInterfaceViewTest {
     @After
     public void tearDown() throws Exception {
         verify(controller).getAdapters();
-        verify(buildNumber).getVersionNumber();
-        verifyNoMoreInteractions(controller, buildNumber);
+        verifyNoMoreInteractions(controller);
     }
 
     @Test
@@ -217,7 +214,9 @@ public class UserInterfaceViewTest {
 
     @Test
     public void testTitle() {
-        assertEquals("J1939-84 Tool v12.34", instance.getFrame().getTitle());
+        String title = instance.getFrame().getTitle();
+        assertTrue(title.matches("J1939-84 Tool v[\\d\\.]+ - \\d{4}/\\d\\d/\\d\\d \\d\\d:\\d\\d"));
+        assertEquals("J1939-84 Tool " + UserInterfaceView.getTitle(), title);
     }
 
 }
