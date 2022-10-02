@@ -58,7 +58,7 @@ public class Part01Step08Controller extends StepController {
     }
 
     private static String spToString(List<Integer> sps) {
-        return sps.stream().map(i -> "" + i).sorted().collect(Collectors.joining(", "));
+        return sps.stream().sorted().map(i -> "" + i).collect(Collectors.joining(", "));
     }
 
     @Override
