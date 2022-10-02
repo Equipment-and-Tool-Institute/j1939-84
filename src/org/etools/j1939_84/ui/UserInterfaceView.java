@@ -19,6 +19,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
@@ -40,6 +42,7 @@ import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
@@ -158,12 +161,39 @@ public class UserInterfaceView implements UserInterfaceContract.View {
                               boolean modal,
                               QuestionListener questionListener) {
         String title = getTitle() + ":  " + subTitle;
+        Toolkit.getDefaultToolkit().beep();
         if (modal) {
             try {
                 SwingUtilities.invokeAndWait(() -> {
-                    int result = JOptionPane.showOptionDialog(getFrame(), message, title, type, type, null, null, null);
-                    if (questionListener != null) {
-                        questionListener.answered(QuestionListener.AnswerType.getType(result));
+                    JLabel label = new JLabel();
+                    String htmlMessage = message.replaceAll("\n", "<br/>");
+                    label.setText("<html>" + htmlMessage + "<center>00:00:00<center><html>");
+                    scaleFont(label, 2.0);
+                    Instant start = Instant.now();
+                    Timer t = new Timer(0, e -> {
+                        Duration d = Duration.between(start, Instant.now());
+                        label.setText(String.format("<html>%s<center>%02d:%02d:%02d<center><html>",
+                                                    htmlMessage,
+                                                    d.toHours(),
+                                                    d.toMinutesPart(),
+                                                    d.toSecondsPart()));
+                    });
+                    t.setRepeats(true);
+                    t.start();
+                    try {
+                        int result = JOptionPane.showOptionDialog(getFrame(),
+                                                                  label,
+                                                                  title,
+                                                                  type,
+                                                                  type,
+                                                                  null,
+                                                                  null,
+                                                                  null);
+                        if (questionListener != null) {
+                            questionListener.answered(QuestionListener.AnswerType.getType(result));
+                        }
+                    } finally {
+                        t.stop();
                     }
                 });
             } catch (InvocationTargetException | InterruptedException e) {
@@ -175,7 +205,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
     }
 
     static {
-    	// scale the fonts for JOptionPanes
+        // scale the fonts for JOptionPanes
         float FONT_SCALE = 2.0f;
         Font font = new JOptionPane().getFont();
         font = font.deriveFont(font.getSize() * FONT_SCALE);
