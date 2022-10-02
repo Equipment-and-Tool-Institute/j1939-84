@@ -87,7 +87,7 @@ public class TableA7Validator {
                          etr(5018, 18),
                          etr(5298, 18),
                          etr(5300, 31)));
-        rows.add(new Row("Conversion Efficiency", 1, etr(4364, 17), etr(4364, 18), etr(4364, 31)));
+        rows.add(new Row("Conversion Efficiency", 1, etr(4364, 17), etr(4364, 18), etr(4364, 21), etr(4364, 31)));
         rows.add(new Row("SCR or Other Reductant delivery performance",
                          1,
                          etr(3361, 7),
