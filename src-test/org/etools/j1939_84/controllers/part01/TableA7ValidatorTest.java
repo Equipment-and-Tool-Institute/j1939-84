@@ -103,6 +103,26 @@ public class TableA7ValidatorTest {
         return testResults;
     }
 
+    private static Collection<ScaledTestResult> getSparkIgnitionTestResults() {
+        List<ScaledTestResult> testResults = new ArrayList<>();
+        testResults.add(scaledTestResult(1323, 31));
+        testResults.add(scaledTestResult(1324, 31));
+        testResults.add(scaledTestResult(1325, 31));
+        testResults.add(scaledTestResult(1326, 31));
+        testResults.add(scaledTestResult(6652, 18));
+        testResults.add(scaledTestResult(3217, 18));
+        testResults.add(scaledTestResult(3217, 31));
+        testResults.add(scaledTestResult(3227, 1));
+        testResults.add(scaledTestResult(3227, 16));
+        testResults.add(scaledTestResult(3222, 1));
+        testResults.add(scaledTestResult(3222, 2));
+        testResults.add(scaledTestResult(3232, 2));
+        testResults.add(scaledTestResult(4364, 31));
+        testResults.add(scaledTestResult(6575, 2));
+        testResults.add(scaledTestResult(7835, 20));
+        return testResults;
+    }
+
     @SuppressWarnings("SameParameterValue")
     private static void remove(Collection<ScaledTestResult> testResults, int spn, int fmi) {
         for (ScaledTestResult testResult : testResults) {
@@ -142,6 +162,24 @@ public class TableA7ValidatorTest {
                                     STEP_NUMBER,
                                     FAIL,
                                     "6.1.12.2.a (A7.2.a) - Fuel system pressure control low is missing required Test Result, 1 of: 157:18, 164:18, 3055:18");
+    }
+
+    @Test
+    public void testValidateForSparkIgnitionValid() {
+        Collection<ScaledTestResult> testResults = getSparkIgnitionTestResults();
+        instance.validateForSparkIgnition(testResults, new TestResultsListener(listener));
+    }
+
+    @Test
+    public void testValidateForSparkIgnitionMisfire() {
+        Collection<ScaledTestResult> testResults = getSparkIgnitionTestResults();
+        remove(testResults, 1323, 31);
+        instance.validateForSparkIgnition(testResults, new TestResultsListener(listener));
+
+        verify(listener).addOutcome(PART_NUMBER,
+                                    STEP_NUMBER,
+                                    FAIL,
+                                    "6.1.12.2.a (A7.2.a) - % of misfire is missing required Test Result, 1 of: 1323:16, 1323:31");
     }
 
     @Test

@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part12;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -27,6 +28,7 @@ import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.CommunicationsListener;
 import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.j1939.J1939;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
@@ -205,6 +207,183 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testInfoTwelveTwoB() {
+        var enabledSystems = List.of(
+                                     CompositeSystem.AC_SYSTEM_REFRIGERANT,
+                                     CompositeSystem.BOOST_PRESSURE_CONTROL_SYS,
+                                     CompositeSystem.CATALYST,
+                                     CompositeSystem.COMPREHENSIVE_COMPONENT,
+                                     CompositeSystem.EVAPORATIVE_SYSTEM,
+                                     CompositeSystem.EXHAUST_GAS_SENSOR_HEATER);
+        var completeSystems = List.of(
+                                      CompositeSystem.COLD_START_AID_SYSTEM,
+                                      CompositeSystem.DIESEL_PARTICULATE_FILTER,
+                                      CompositeSystem.EGR_VVT_SYSTEM,
+                                      CompositeSystem.EXHAUST_GAS_SENSOR,
+                                      CompositeSystem.FUEL_SYSTEM,
+                                      CompositeSystem.HEATED_CATALYST,
+                                      CompositeSystem.MISFIRE,
+                                      CompositeSystem.NMHC_CONVERTING_CATALYST,
+                                      CompositeSystem.NOX_CATALYST_ABSORBER,
+                                      CompositeSystem.SECONDARY_AIR_SYSTEM);
+        var dm26 = DM26TripDiagnosticReadinessPacket.create(0x00,
+                                                            0,
+                                                            0,
+                                                            enabledSystems,
+                                                            completeSystems);
+
+        OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
+
+        obdModule0.set(DM5DiagnosticReadinessPacket.create(0x00, 0, 0, 0x22, enabledSystems, completeSystems), 11);
+        dataRepository.putObdModule(obdModule0);
+        when(communicationsModule.requestDM26(any(CommunicationsListener.class),
+                                              eq(0))).thenReturn(new RequestResult<>(false,
+                                                                                     dm26));
+
+        var enabledSystemsObd1 = List.of(
+                                         CompositeSystem.COMPREHENSIVE_COMPONENT,
+                                         CompositeSystem.NMHC_CONVERTING_CATALYST);
+        var completedSystemsObd1 = List.of(
+                                           CompositeSystem.AC_SYSTEM_REFRIGERANT,
+                                           CompositeSystem.BOOST_PRESSURE_CONTROL_SYS,
+                                           CompositeSystem.CATALYST,
+                                           CompositeSystem.COLD_START_AID_SYSTEM,
+                                           CompositeSystem.DIESEL_PARTICULATE_FILTER,
+                                           CompositeSystem.EGR_VVT_SYSTEM,
+                                           CompositeSystem.EVAPORATIVE_SYSTEM,
+                                           CompositeSystem.EXHAUST_GAS_SENSOR,
+                                           CompositeSystem.EXHAUST_GAS_SENSOR_HEATER,
+                                           CompositeSystem.FUEL_SYSTEM,
+                                           CompositeSystem.HEATED_CATALYST,
+                                           CompositeSystem.MISFIRE,
+                                           CompositeSystem.NOX_CATALYST_ABSORBER,
+                                           CompositeSystem.SECONDARY_AIR_SYSTEM);
+
+        DM26TripDiagnosticReadinessPacket packet1 = DM26TripDiagnosticReadinessPacket.create(0x01,
+                                                                                             0,
+                                                                                             0,
+                                                                                             enabledSystemsObd1,
+                                                                                             completedSystemsObd1);
+        OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
+        obdModule1.set(DM5DiagnosticReadinessPacket.create(0x01, 0, 0, 0x22, enabledSystemsObd1, completedSystemsObd1),
+                       2);
+        dataRepository.putObdModule(obdModule1);
+        when(communicationsModule.requestDM26(any(CommunicationsListener.class),
+                                              eq(0x01))).thenReturn(new RequestResult<>(false, packet1));
+
+        OBDModuleInformation obdModule2 = new OBDModuleInformation(2);
+        var enabledSystemsObd2Dm5 = List.of(
+                                            CompositeSystem.COMPREHENSIVE_COMPONENT,
+                                            CompositeSystem.NOX_CATALYST_ABSORBER);
+        var completedSystemsObd2Dm5 = List.of(
+                                              CompositeSystem.AC_SYSTEM_REFRIGERANT,
+                                              CompositeSystem.BOOST_PRESSURE_CONTROL_SYS,
+                                              CompositeSystem.CATALYST,
+                                              CompositeSystem.COLD_START_AID_SYSTEM,
+                                              CompositeSystem.DIESEL_PARTICULATE_FILTER,
+                                              CompositeSystem.EGR_VVT_SYSTEM,
+                                              CompositeSystem.EVAPORATIVE_SYSTEM,
+                                              CompositeSystem.EXHAUST_GAS_SENSOR,
+                                              CompositeSystem.EXHAUST_GAS_SENSOR_HEATER,
+                                              CompositeSystem.FUEL_SYSTEM,
+                                              CompositeSystem.HEATED_CATALYST,
+                                              CompositeSystem.MISFIRE,
+                                              CompositeSystem.NMHC_CONVERTING_CATALYST,
+                                              CompositeSystem.SECONDARY_AIR_SYSTEM);
+
+        obdModule2.set(DM5DiagnosticReadinessPacket.create(0x02,
+                                                           0,
+                                                           0,
+                                                           0x22,
+                                                           enabledSystemsObd2Dm5,
+                                                           completedSystemsObd2Dm5),
+                       11);
+        dataRepository.putObdModule(obdModule2);
+
+        var enabledSystemsObd2 = List.of(
+                                         CompositeSystem.COMPREHENSIVE_COMPONENT,
+                                         CompositeSystem.NOX_CATALYST_ABSORBER);
+        var completedSystemsObd2 = List.of(
+                                           CompositeSystem.AC_SYSTEM_REFRIGERANT,
+                                           CompositeSystem.BOOST_PRESSURE_CONTROL_SYS,
+                                           CompositeSystem.CATALYST,
+                                           CompositeSystem.COLD_START_AID_SYSTEM,
+                                           CompositeSystem.DIESEL_PARTICULATE_FILTER,
+                                           CompositeSystem.EGR_VVT_SYSTEM,
+                                           CompositeSystem.EVAPORATIVE_SYSTEM,
+                                           CompositeSystem.EXHAUST_GAS_SENSOR,
+                                           CompositeSystem.EXHAUST_GAS_SENSOR_HEATER,
+                                           CompositeSystem.FUEL_SYSTEM,
+                                           CompositeSystem.HEATED_CATALYST,
+                                           CompositeSystem.MISFIRE,
+                                           CompositeSystem.NMHC_CONVERTING_CATALYST,
+                                           CompositeSystem.NOX_CATALYST_ABSORBER,
+                                           CompositeSystem.SECONDARY_AIR_SYSTEM);
+        DM26TripDiagnosticReadinessPacket packet2 = DM26TripDiagnosticReadinessPacket.create(
+                                                                                             0x02,
+                                                                                             0,
+                                                                                             0,
+                                                                                             enabledSystemsObd2,
+                                                                                             completedSystemsObd2);
+        when(communicationsModule.requestDM26(any(CommunicationsListener.class),
+                                              eq(0x02))).thenReturn(RequestResult.of(packet2));
+
+        OBDModuleInformation obdModule3 = new OBDModuleInformation(0x03);
+        var enabledSystemsObd3 = List.of(
+                                         CompositeSystem.COMPREHENSIVE_COMPONENT,
+                                         CompositeSystem.EGR_VVT_SYSTEM);
+        var completedSystemsObd3 = List.of(
+                                           CompositeSystem.AC_SYSTEM_REFRIGERANT,
+                                           CompositeSystem.BOOST_PRESSURE_CONTROL_SYS,
+                                           CompositeSystem.CATALYST,
+                                           CompositeSystem.COLD_START_AID_SYSTEM,
+                                           CompositeSystem.DIESEL_PARTICULATE_FILTER,
+                                           CompositeSystem.EVAPORATIVE_SYSTEM,
+                                           CompositeSystem.EXHAUST_GAS_SENSOR,
+                                           CompositeSystem.EXHAUST_GAS_SENSOR_HEATER,
+                                           CompositeSystem.FUEL_SYSTEM,
+                                           CompositeSystem.HEATED_CATALYST,
+                                           CompositeSystem.MISFIRE,
+                                           CompositeSystem.NMHC_CONVERTING_CATALYST,
+                                           CompositeSystem.NOX_CATALYST_ABSORBER,
+                                           CompositeSystem.SECONDARY_AIR_SYSTEM);
+        obdModule3.set(DM5DiagnosticReadinessPacket.create(0x03, 0, 0, 0x22, enabledSystemsObd3, completedSystemsObd3),
+                       11);
+        dataRepository.putObdModule(obdModule3);
+        DM26TripDiagnosticReadinessPacket packet3 = DM26TripDiagnosticReadinessPacket.create(
+                                                                                             0x03,
+                                                                                             0x00,
+                                                                                             0x00,
+                                                                                             enabledSystemsObd3,
+                                                                                             completedSystemsObd3);
+        when(communicationsModule.requestDM26(any(CommunicationsListener.class),
+                                              eq(0x03))).thenReturn(RequestResult.of(packet3));
+
+        when(communicationsModule.requestDM26(any(CommunicationsListener.class))).thenReturn(RequestResult.of(dm26,
+                                                                                                              packet1,
+                                                                                                              packet2,
+                                                                                                              packet3));
+
+        runTest();
+
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM26(any(CommunicationsListener.class), eq(0x00));
+        verify(communicationsModule).requestDM26(any(CommunicationsListener.class), eq(0x01));
+        verify(communicationsModule).requestDM26(any(CommunicationsListener.class), eq(0x02));
+        verify(communicationsModule).requestDM26(any(CommunicationsListener.class), eq(0x03));
+
+        verify(mockListener).addOutcome(eq(12),
+                                        eq(2),
+                                        eq(INFO),
+                                        eq("6.12.2.2.b - DM5 message in 6.11.10.1.a from Turbocharger (2) monitor reported supported and DM26 message reported complete or not supported"));
+
+        assertEquals("", listener.getResults());
+
+        assertEquals("", listener.getMessages());
+
+    }
+
+    @Test
     public void testFailureForChangingCompletion() {
         // Module 0 responds and doesn't change complete state and has no completions
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
@@ -304,6 +483,6 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.12.2.2.b - OBD ECU Engine #1 (0) did not provide a NACK for the DS query");
+                                        "6.12.2.2.c - OBD ECU Engine #1 (0) did not provide a NACK for the DS query");
     }
 }

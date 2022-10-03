@@ -23,6 +23,7 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.controllers.part01.SectionA6Validator;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -56,7 +57,6 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
     @Mock
     private BannerModule bannerModule;
 
-    @Mock
     private DataRepository dataRepository;
 
     @Mock
@@ -91,6 +91,7 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
+        dataRepository = DataRepository.newInstance();
 
         instance = new Part02Step02Controller(
                                               executor,
@@ -119,7 +120,6 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  vehicleInformationModule,
                                  communicationsModule,
-                                 dataRepository,
                                  mockListener,
                                  sectionA6Validator);
     }
@@ -190,11 +190,11 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                                                                 packet21);
         when(communicationsModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x21));
+        dataRepository.putObdModule(new OBDModuleInformation(0x00));
+        dataRepository.putObdModule(new OBDModuleInformation(0x17));
+        dataRepository.putObdModule(new OBDModuleInformation(0x21));
 
         runTest();
-
-        verify(dataRepository).getObdModuleAddresses();
 
         verify(communicationsModule).setJ1939(j1939);
         verify(communicationsModule).requestDM5(any());
@@ -275,11 +275,11 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         BusResult<DM5DiagnosticReadinessPacket> busResult0x21 = new BusResult<>(false, packet21V2);
         when(communicationsModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x21));
+        dataRepository.putObdModule(new OBDModuleInformation(0x00));
+        dataRepository.putObdModule(new OBDModuleInformation(0x17));
+        dataRepository.putObdModule(new OBDModuleInformation(0x21));
 
         runTest();
-
-        verify(dataRepository).getObdModuleAddresses();
 
         verify(communicationsModule).setJ1939(j1939);
         verify(communicationsModule).requestDM5(any());
@@ -291,6 +291,10 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.2.2.2.b - OBD ECU Engine #1 (0) reported active DTC count not = 0");
+        verify(mockListener).addOutcome(eq(2),
+                                        eq(2),
+                                        eq(FAIL),
+                                        eq("6.2.2.2.b - OBD ECU Body Controller (33) reported previously active DTC count not = 0"));
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
@@ -305,11 +309,11 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
 
         String expectedResults = NL + "Vehicle Composite of DM5:" + NL +
-                "    A/C system refrigerant     not supported,     complete" + NL +
+                "    A/C system refrigerant         supported, not complete" + NL +
                 "    Boost pressure control sys     supported, not complete" + NL +
                 "    Catalyst                   not supported,     complete" + NL +
                 "    Cold start aid system      not supported,     complete" + NL +
-                "    Comprehensive component        supported,     complete" + NL +
+                "    Comprehensive component        supported, not complete" + NL +
                 "    Diesel Particulate Filter      supported, not complete" + NL +
                 "    EGR/VVT system                 supported, not complete" + NL +
                 "    Evaporative system         not supported,     complete" + NL +
@@ -377,11 +381,11 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                                                                 packet21);
         when(communicationsModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x21));
+        dataRepository.putObdModule(new OBDModuleInformation(0x00));
+        dataRepository.putObdModule(new OBDModuleInformation(0x17));
+        dataRepository.putObdModule(new OBDModuleInformation(0x21));
 
         runTest();
-
-        verify(dataRepository).getObdModuleAddresses();
 
         verify(communicationsModule).setJ1939(j1939);
         verify(communicationsModule).requestDM5(any());
@@ -452,11 +456,11 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                                                                 packet21);
         when(communicationsModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x21));
+        dataRepository.putObdModule(new OBDModuleInformation(0x00));
+        dataRepository.putObdModule(new OBDModuleInformation(0x17));
+        dataRepository.putObdModule(new OBDModuleInformation(0x21));
 
         runTest();
-
-        verify(dataRepository).getObdModuleAddresses();
 
         verify(communicationsModule).setJ1939(j1939);
         verify(communicationsModule).requestDM5(any());
@@ -464,6 +468,14 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestDM5(any(), eq(0x17));
         verify(communicationsModule).requestDM5(any(), eq(0x21));
 
+        verify(mockListener).addOutcome(eq(2),
+                                        eq(2),
+                                        eq(FAIL),
+                                        eq("6.2.2.2.b - OBD ECU Body Controller (33) reported active DTC count not = 0"));
+        verify(mockListener).addOutcome(eq(2),
+                                        eq(2),
+                                        eq(FAIL),
+                                        eq("6.2.2.2.b - OBD ECU Body Controller (33) reported previously active DTC count not = 0"));
         verify(mockListener).addOutcome(
                                         PART_NUMBER,
                                         STEP_NUMBER,
@@ -483,11 +495,11 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
 
         String expectedResults = NL + "Vehicle Composite of DM5:" + NL +
-                "    A/C system refrigerant     not supported,     complete" + NL +
+                "    A/C system refrigerant         supported, not complete" + NL +
                 "    Boost pressure control sys     supported, not complete" + NL +
                 "    Catalyst                   not supported,     complete" + NL +
                 "    Cold start aid system      not supported,     complete" + NL +
-                "    Comprehensive component        supported,     complete" + NL +
+                "    Comprehensive component        supported, not complete" + NL +
                 "    Diesel Particulate Filter      supported, not complete" + NL +
                 "    EGR/VVT system                 supported, not complete" + NL +
                 "    Evaporative system         not supported,     complete" + NL +
@@ -552,11 +564,11 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         BusResult<DM5DiagnosticReadinessPacket> busResult0x23 = new BusResult<>(false, packet23);
         when(communicationsModule.requestDM5(any(), eq(0x23))).thenReturn(busResult0x23);
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x23));
+        dataRepository.putObdModule(new OBDModuleInformation(0x00));
+        dataRepository.putObdModule(new OBDModuleInformation(0x17));
+        dataRepository.putObdModule(new OBDModuleInformation(0x23));
 
         runTest();
-
-        verify(dataRepository).getObdModuleAddresses();
 
         verify(communicationsModule).setJ1939(j1939);
         verify(communicationsModule).requestDM5(any());

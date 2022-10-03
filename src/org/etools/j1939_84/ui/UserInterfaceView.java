@@ -6,6 +6,8 @@ package org.etools.j1939_84.ui;
 import static org.etools.j1939_84.J1939_84.isAutoMode;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -17,6 +19,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
@@ -38,6 +42,8 @@ import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -63,7 +69,7 @@ import org.etools.j1939tools.j1939.J1939;
 public class UserInterfaceView implements UserInterfaceContract.View {
 
     private static final String SELECT_FILE = "Select File...";
-    private final BuildNumber buildNumber;
+    private static final BuildNumber buildNumber = new BuildNumber();
     /**
      * The controller for the behavior of this view
      */
@@ -106,7 +112,6 @@ public class UserInterfaceView implements UserInterfaceContract.View {
     public UserInterfaceView() {
         swingExecutor = SwingUtilities::invokeLater;
         controller = new UserInterfacePresenter(this);
-        buildNumber = new BuildNumber();
         initialize();
     }
 
@@ -121,9 +126,8 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      *                          The {@link Executor} used to make updates to the UI on the
      *                          Swing Thread
      */
-    UserInterfaceView(Presenter controller, BuildNumber buildNumber, Executor swingExecutor) {
+    UserInterfaceView(Presenter controller, Executor swingExecutor) {
         this.controller = controller;
-        this.buildNumber = buildNumber;
         this.swingExecutor = swingExecutor;
         initialize();
     }
@@ -152,16 +156,44 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      */
     @Override
     public void displayDialog(String message,
-                              String title,
+                              String subTitle,
                               int type,
                               boolean modal,
                               QuestionListener questionListener) {
+        String title = getTitle() + ":  " + subTitle;
+        Toolkit.getDefaultToolkit().beep();
         if (modal) {
             try {
                 SwingUtilities.invokeAndWait(() -> {
-                    int result = JOptionPane.showOptionDialog(null, message, title, type, type, null, null, null);
-                    if (questionListener != null) {
-                        questionListener.answered(QuestionListener.AnswerType.getType(result));
+                    JLabel label = new JLabel();
+                    String htmlMessage = message.replaceAll("\n", "<br/>");
+                    label.setText("<html>" + htmlMessage + "<center>00:00:00<center><html>");
+                    scaleFont(label, 2.0);
+                    Instant start = Instant.now();
+                    Timer t = new Timer(0, e -> {
+                        Duration d = Duration.between(start, Instant.now());
+                        label.setText(String.format("<html>%s<center>%02d:%02d:%02d<center><html>",
+                                                    htmlMessage,
+                                                    d.toHours(),
+                                                    d.toMinutesPart(),
+                                                    d.toSecondsPart()));
+                    });
+                    t.setRepeats(true);
+                    t.start();
+                    try {
+                        int result = JOptionPane.showOptionDialog(getFrame(),
+                                                                  label,
+                                                                  title,
+                                                                  type,
+                                                                  type,
+                                                                  null,
+                                                                  null,
+                                                                  null);
+                        if (questionListener != null) {
+                            questionListener.answered(QuestionListener.AnswerType.getType(result));
+                        }
+                    } finally {
+                        t.stop();
                     }
                 });
             } catch (InvocationTargetException | InterruptedException e) {
@@ -170,6 +202,15 @@ public class UserInterfaceView implements UserInterfaceContract.View {
         } else {
             refreshUI(() -> JOptionPane.showMessageDialog(getFrame(), message, title, type));
         }
+    }
+
+    static {
+        // scale the fonts for JOptionPanes
+        float FONT_SCALE = 2.0f;
+        Font font = new JOptionPane().getFont();
+        font = font.deriveFont(font.getSize() * FONT_SCALE);
+        UIManager.put("OptionPane.messageFont", font);
+        UIManager.put("OptionPane.buttonFont", font);
     }
 
     /*
@@ -372,7 +413,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      *
      * @return the instance of the {@link BuildNumber}
      */
-    private BuildNumber getBuildNumber() {
+    private static BuildNumber getBuildNumber() {
         return buildNumber;
     }
 
@@ -442,6 +483,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             final String KEY = "directory";
             String dir = Preferences.userNodeForPackage(getClass()).get(KEY, "");
             fileChooser = new JFileChooser(dir);
+            scaleFont(fileChooser, 1.5);
             FileNameExtensionFilter filter = new FileNameExtensionFilter("J1939-84 Data Files",
                                                                          UserInterfacePresenter.FILE_SUFFIX);
             fileChooser.setFileFilter(filter);
@@ -467,13 +509,17 @@ public class UserInterfaceView implements UserInterfaceContract.View {
     public JFrame getFrame() {
         if (frame == null) {
             frame = new JFrame();
-            frame.setTitle("J1939-84 Tool v" + getBuildNumber().getVersionNumber());
+            frame.setTitle("J1939-84 Tool " + getTitle());
             int hundred = (int) (100 * Toolkit.getDefaultToolkit().getScreenResolution() / 72.0);
             frame.setBounds(hundred, hundred, 5 * hundred, 5 * hundred);
             frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             frame.setIconImages(J193984Resources.getLogoImages());
         }
         return frame;
+    }
+
+    static String getTitle() {
+        return "v" + getBuildNumber().getVersionNumber();
     }
 
     /**
@@ -499,6 +545,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             progressBar = new JProgressBar();
             progressBar.setStringPainted(true);
             progressBar.setString("Select Vehicle Adapter");
+            scaleFont(progressBar, 1.5);
         }
         return progressBar;
     }
@@ -864,14 +911,28 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      */
     private void initialize() {
         getFrame().getContentPane().add(getSplitPane());
+        scaleFont(getFrame(), 1.5);
         getFrame().revalidate();
         getFrame().setLocationRelativeTo(null);
+        getFrame().setSize(1000, 800);
         getFrame().addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
                 getController().disconnect();
             }
         });
+    }
+
+    static public void scaleFont(Component c, double scale) {
+        Font font = c.getFont();
+        if (font != null) {
+            c.setFont(font.deriveFont((float) (font.getSize() * scale)));
+        }
+        if (c instanceof Container) {
+            for (var d : ((Container) c).getComponents()) {
+                scaleFont(d, scale);
+            }
+        }
     }
 
     /**

@@ -183,7 +183,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     @TestDoc(value = @TestItem(verifies = "6.1.8.2.a", description = "Minimum expected SPs are not supported. Not Supported SPs: 3054"))
     public void minimumExpectedSPsSparkIgnition() {
 
-        List<Integer> SPs = List.of(3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057);
+        List<Integer> SPs = List.of(3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057,21227,21228);
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPs);
 
         when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
@@ -307,7 +307,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         8,
                                         FAIL,
-                                        "6.1.8.2.a - Minimum expected SPs are not supported. Not Supported SPs: 3050, 3051, 3053, 3054, 3055, 3056, 3057, 3058, 3306");
+                                        "6.1.8.2.a - Minimum expected SPs are not supported. Not Supported SPs: 3050, 3051, 3053, 3054, 3055, 3056, 3057, 3058, 3306, 21227, 21228");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -360,7 +360,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     @TestDoc(value = @TestItem(verifies = "6.1.8.2.a", description = "A.4 - Spark Ignition Engine Minimum SPs Verified: Expected SPs"))
     public void testSparkIgnition() {
 
-        List<Integer> SPs = List.of(3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057);
+        List<Integer> SPs = List.of(3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057, 21227, 21228);
 
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(0x00, SPs);
 
@@ -428,6 +428,14 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
                                                                                                                1,
                                                                                                                0x00),
                                                                                           new PerformanceRatio(3306,
+                                                                                                               0,
+                                                                                                               1,
+                                                                                                               0x00),
+                                                                                          new PerformanceRatio(21227,
+                                                                                                               0,
+                                                                                                               1,
+                                                                                                               0x00),
+                                                                                          new PerformanceRatio(21228,
                                                                                                                0,
                                                                                                                1,
                                                                                                                0x00));

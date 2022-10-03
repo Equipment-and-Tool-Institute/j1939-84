@@ -58,7 +58,7 @@ public class Part01Step08Controller extends StepController {
     }
 
     private static String spToString(List<Integer> sps) {
-        return sps.stream().map(i -> "" + i).sorted().collect(Collectors.joining(", "));
+        return sps.stream().sorted().map(i -> "" + i).collect(Collectors.joining(", "));
     }
 
     @Override
@@ -74,13 +74,13 @@ public class Part01Step08Controller extends StepController {
         // per section A.4. When a numerator and denominator are provided as FFFF(h) and FFFF(h), the monitor identified
         // in the label SP shall be considered to be unsupported.
         Set<Integer> dm20Sps = globalDM20s.stream()
-                                           .flatMap(dm20 -> dm20.getRatios().stream())
-                                           .filter(p -> {
-                                               return p.getNumerator() != 0xFFFF ||
-                                                       p.getDenominator() != 0xFFFF;
-                                           })
-                                           .map(PerformanceRatio::getSpn)
-                                           .collect(Collectors.toSet());
+                                          .flatMap(dm20 -> dm20.getRatios().stream())
+                                          .filter(p -> {
+                                              return p.getNumerator() != 0xFFFF ||
+                                                      p.getDenominator() != 0xFFFF;
+                                          })
+                                          .map(PerformanceRatio::getSpn)
+                                          .collect(Collectors.toSet());
 
         boolean failure = false;
 
@@ -101,7 +101,17 @@ public class Part01Step08Controller extends StepController {
                 failure = true;
             }
         } else if (getFuelType().isSparkIgnition()) {
-            List<Integer> SPNsi = new ArrayList<>(List.of(3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057));
+            List<Integer> SPNsi = new ArrayList<>(List.of(3054,
+                                                          3058,
+                                                          3306,
+                                                          3053,
+                                                          3050,
+                                                          3051,
+                                                          3055,
+                                                          3056,
+                                                          3057,
+                                                          21227,
+                                                          21228));
             SPNsi.removeAll(dm20Sps);
             if (!SPNsi.isEmpty()) {
                 msg += " Not Supported SPs: " + spToString(SPNsi);
