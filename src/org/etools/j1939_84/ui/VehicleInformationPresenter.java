@@ -143,6 +143,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         this.communicationsModule.setJ1939(j1939);
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T swingProxy(T o, Class<T> cls) {
         return (T) Proxy.newProxyInstance(cls.getClassLoader(),
                                           new Class<?>[] { cls },
@@ -203,7 +204,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
             List<Integer> obdModules = vehicleInformationModule.getOBDModules(NOOP);
             view.setEmissionUnits(obdModules.size());
 
-            obdModules.stream().peek(address -> {
+            obdModules.stream().forEach(address -> {
                 emissionUnitsFound.addAll(communicationsModule.request(ComponentIdentificationPacket.PGN,
                                                                        address,
                                                                        NOOP)
