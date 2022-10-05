@@ -8,6 +8,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
 public class StringUtilsTest {
@@ -98,6 +100,33 @@ public class StringUtilsTest {
                 0x45,
                 0x7A };
         assertTrue(StringUtils.containsNonPrintableAsciiCharacter(inputBytesWithNonPrintableChar));
+
+        byte[] realTest = { (byte) 0xE2, (byte) 0x58, (byte) 0x7B, (byte) 0xB4, (byte) 0x45, (byte) 0x43, (byte) 0x55,
+                (byte) 0x2D, (byte) 0x53, (byte) 0x57, (byte) 0x20, (byte) 0x6E, (byte) 0x75, (byte) 0x6D, (byte) 0x62,
+                (byte) 0x65, (byte) 0x72, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x3F, (byte) 0x6C, (byte) 0x00,
+                (byte) 0x00, (byte) 0x35, (byte) 0x38, (byte) 0x34, (byte) 0x33, (byte) 0x53, (byte) 0x30, (byte) 0x30,
+                (byte) 0x36, (byte) 0x2E, (byte) 0x30, (byte) 0x30, (byte) 0x35, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x15, (byte) 0x2B, (byte) 0xDF, (byte) 0x8C, (byte) 0x53, (byte) 0x43, (byte) 0x41,
+                (byte) 0x4E, (byte) 0x4F, (byte) 0x78, (byte) 0x4E, (byte) 0x2D, (byte) 0x30, (byte) 0x34, (byte) 0x34,
+                (byte) 0x30, (byte) 0x41, (byte) 0x54, (byte) 0x49, (byte) 0/*x32*/, (byte) 0x61, (byte) 0x59, (byte) 0xD4,
+                (byte) 0xFB, (byte) 0x53, (byte) 0x43, (byte) 0x41, (byte) 0x4E, (byte) 0x4F, (byte) 0x78, (byte) 0x4E,
+                (byte) 0x2D, (byte) 0x30, (byte) 0x34, (byte) 0x34, (byte) 0x30, (byte) 0x41, (byte) 0x54, (byte) 0x4F,
+                (byte) 0/*x32*/, (byte) 0x15, (byte) 0x2B, (byte) 0xDF, (byte) 0x8C, (byte) 0x53, (byte) 0x43, (byte) 0x41,
+                (byte) 0x4E, (byte) 0x4F, (byte) 0x78, (byte) 0x4E, (byte) 0x2D, (byte) 0x30, (byte) 0x34, (byte) 0x34,
+                (byte) 0x30, (byte) 0x41, (byte) 0x54, (byte) 0x49, (byte) 0/*x32*/, (byte) 0x8A, (byte) 0xFC, (byte) 0x90,
+                (byte) 0x37, (byte) 0x50, (byte) 0x4D, (byte) 0x53, (byte) 0x50, (byte) 0x2A, (byte) 0x31, (byte) 0x32,
+                (byte) 0x2A, (byte) 0x33, (byte) 0x35, (byte) 0x30, (byte) 0x2A, (byte) 0x41, (byte) 0x31, (byte) 0x30,
+                (byte) 0/*x30*/, (byte) 0xC2, (byte) 0x90, (byte) 0x45, (byte) 0xC4, (byte) 0x30, (byte) 0x31, (byte) 0x38,
+                (byte) 0x38, (byte) 0x30, (byte) 0x30, (byte) 0x36, (byte) 0x31, (byte) 0x30, (byte) 0x51, (byte) 0x20,
+                (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x20, (byte) 0x00 };
+        for (int i = 4; i < realTest.length; i += 20) {
+
+            byte[] buf = Arrays.copyOfRange(realTest, i, i + 16);
+            assertTrue("i=" + i + ": " + new String(buf), StringUtils.containsNonPrintableAsciiCharacter(buf));
+
+            buf = new String(buf).trim().getBytes();
+            assertFalse("i=" + i + ": " + new String(buf), StringUtils.containsNonPrintableAsciiCharacter(buf));
+        }
     }
 
     @Test
