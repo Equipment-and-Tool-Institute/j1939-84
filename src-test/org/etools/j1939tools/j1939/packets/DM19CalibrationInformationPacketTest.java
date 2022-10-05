@@ -10,11 +10,20 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.etools.j1939tools.bus.BusException;
+import org.etools.j1939tools.bus.EchoBus;
 import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.J1939DaRepository;
+import org.etools.j1939tools.j1939.J1939TP;
 import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.junit.Test;
 
@@ -911,6 +920,45 @@ public class DM19CalibrationInformationPacketTest {
         assertEquals(expected, instance.toString());
     }
 
+    @Test
+    public void testNullCalId() {
+        Packet packet = Packet.create(0,
+                                      0,
+                                      0x00, // CVN
+                                      0xAC,
+                                      0xFF,
+                                      0x33,
+                                      0x00, // Cal Id
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00);
+        DM19CalibrationInformationPacket instance = new DM19CalibrationInformationPacket(packet);
+        List<CalibrationInformation> calInfos = instance.getCalibrationInformation();
+        assertNotNull(calInfos);
+        assertEquals(1, calInfos.size());
+        CalibrationInformation calInfo = calInfos.get(0);
+        assertEquals("                ", calInfo.getCalibrationIdentification());
+        assertEquals("0x33FFAC00", calInfo.getCalibrationVerificationNumber());
+        assertArrayEquals(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                          calInfo.getRawCalId());
+        assertArrayEquals(new byte[] { 0, -84, -1, 51 }, calInfo.getRawCvn());
+
+        String expected = "DM19 from Engine #1 (0): CAL ID of  and CVN of 0x33FFAC00";
+        assertEquals(expected, instance.toString());
+    }
+
     /**
      * Test method for {@link DM19CalibrationInformationPacket#getCalibrationInformation()}
      * Test one module responding:<br>
@@ -1194,6 +1242,99 @@ public class DM19CalibrationInformationPacketTest {
     @Test
     public void testPGN() {
         assertEquals(54016, DM19CalibrationInformationPacket.PGN);
+    }
+
+    /**
+     * real data test demonstrating missing DM19
+     * 
+     * @throws BusException
+     */
+    @Test
+    public void testRawTraffic() throws BusException {
+        // preload db
+        J1939DaRepository.getInstance().getPgnDefinitions();
+        try (EchoBus bus = new EchoBus(0xF9);
+             J1939TP tp = new J1939TP(bus, 0xF9)) {
+            var stream = new J1939(tp).processedStream(700, TimeUnit.MILLISECONDS);
+            new Thread(() -> {
+                try {
+                    double start = 64.711482;// 1 18EAFFF9x Tx d 3 00 D3 00
+                    this.start = System.currentTimeMillis();
+                    waitUntil(64.722482, start);
+                    bus.send(Packet.parse("18ECFF27 20 14 00 03 FF 00 D3 00"));
+                    waitUntil(64.724482, start);
+                    bus.send(Packet.parse("18ECFF00 20 8C 00 14 FF 00 D3 00"));
+                    waitUntil(64.729982, start);
+                    bus.send(Packet.parse("18ECFF3D 20 14 00 03 FF 00 D3 00"));
+                    waitUntil(64.777482, start);
+                    bus.send(Packet.parse("18EBFF27 01 23 66 70 E6 49 31 33"));
+                    waitUntil(64.783982, start);
+                    bus.send(Packet.parse("18EBFF00 01 E2 58 7B B4 45 43 55"));
+                    waitUntil(64.789982, start);
+                    bus.send(Packet.parse("18EBFF3D 01 4C 1C BE 7E 00 00 00"));
+                    waitUntil(64.832482, start);
+                    bus.send(Packet.parse("18EBFF27 02 58 58 58 58 5F 47 31"));
+                    waitUntil(64.834482, start);
+                    bus.send(Packet.parse("18EBFF00 02 2D 53 57 20 6E 75 6D"));
+                    waitUntil(64.839982, start);
+                    bus.send(Packet.parse("18EBFF3D 02 00 00 00 00 00 00 00"));
+                    waitUntil(64.883982, start);
+                    bus.send(Packet.parse("18EBFF00 03 62 65 72 00 00 00 3F"));
+                    waitUntil(64.887482, start);
+                    bus.send(Packet.parse("18EBFF27 03 30 30 30 47 31 30 FF"));
+                    waitUntil(64.889982, start);
+                    bus.send(Packet.parse("18EBFF3D 03 00 00 00 00 00 00 FF"));
+                    waitUntil(64.934482, start);
+                    bus.send(Packet.parse("18EBFF00 04 6C 00 00 35 38 34 33"));
+                    waitUntil(64.983982, start);
+                    bus.send(Packet.parse("18EBFF00 05 53 30 30 36 2E 30 30"));
+                    waitUntil(65.034482, start);
+                    bus.send(Packet.parse("18EBFF00 06 35 00 00 00 00 15 2B"));
+                    waitUntil(65.083982, start);
+                    bus.send(Packet.parse("18EBFF00 07 DF 8C 53 43 41 4E 4F"));
+                    waitUntil(65.134482, start);
+                    bus.send(Packet.parse("18EBFF00 08 78 4E 2D 30 34 34 30"));
+                    waitUntil(65.183982, start);
+                    bus.send(Packet.parse("18EBFF00 09 41 54 49 32 61 59 D4"));
+                    waitUntil(65.234482, start);
+                    bus.send(Packet.parse("18EBFF00 0A FB 53 43 41 4E 4F 78"));
+                    waitUntil(65.283982, start);
+                    bus.send(Packet.parse("18EBFF00 0B 4E 2D 30 34 34 30 41"));
+                    waitUntil(65.334482, start);
+                    bus.send(Packet.parse("18EBFF00 0C 54 4F 32 15 2B DF 8C"));
+                    waitUntil(65.383982, start);
+                    bus.send(Packet.parse("18EBFF00 0D 53 43 41 4E 4F 78 4E"));
+                    waitUntil(65.434482, start);
+                    bus.send(Packet.parse("18EBFF00 0E 2D 30 34 34 30 41 54"));
+                    waitUntil(65.483982, start);
+                    bus.send(Packet.parse("18EBFF00 0F 49 32 8A FC 90 37 50"));
+                    waitUntil(65.534482, start);
+                    bus.send(Packet.parse("18EBFF00 10 4D 53 50 2A 31 32 2A"));
+                    waitUntil(65.583982, start);
+                    bus.send(Packet.parse("18EBFF00 11 33 35 30 2A 41 31 30"));
+                    waitUntil(65.634482, start);
+                    bus.send(Packet.parse("18EBFF00 12 30 C2 90 45 C4 30 31"));
+                    waitUntil(65.683982, start);
+                    bus.send(Packet.parse("18EBFF00 13 38 38 30 30 36 31 30"));
+                    waitUntil(65.734482, start);
+                    bus.send(Packet.parse("18EBFF00 14 51 20 20 20 20 20 00"));
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
+            }).start();
+            var rx = stream.collect(Collectors.toList());
+            assertEquals(rx.toString(), 3, rx.size());
+        }
+    }
+
+    long start;
+
+    private void waitUntil(double a, double b) throws InterruptedException {
+        long c = System.currentTimeMillis() - start;
+        long d = (long) (1000 * (a - b));
+        long w = d - c;
+        if (w > 0)
+            Thread.sleep(w);
     }
 
 }

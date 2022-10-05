@@ -520,10 +520,10 @@ public class J1939Test {
                               System.currentTimeMillis() - start,
                               response.getEither()
                                       .stream()
-                                      .map(r -> r.left.map(ComponentIdentificationPacket::getPacket))
+                                      .map(r -> r.left.map(p -> p.getPacket().toString() + "\n").orElse("ERROR"))
                                       .collect(Collectors.toList()));
-            // only 3 complete messages are receive.
-            assertEquals(3, response.getEither().size());
+            // only 4 complete messages are receive. (some duplicates)
+            assertEquals(4, response.getEither().size());
         }
     }
 
@@ -612,7 +612,7 @@ public class J1939Test {
                     // wait for request
                     requestStream.findAny();
                     // wait to cause warning
-                    Thread.sleep(TIMEOUT+50);
+                    Thread.sleep(TIMEOUT + 50);
                     bus.send(Packet.create(VehicleIdentificationPacket.PGN,
                                            0xFF,
                                            1,
@@ -844,8 +844,8 @@ public class J1939Test {
         Packet packet1 = Packet.create(DM30ScaledTestResultsPacket.PGN
                 | BUS_ADDR, 0x00, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0x0A, 0x0B, 0x0C, 0x0D);
         when(bus.read(TIMEOUT, MILLISECONDS)).thenReturn(Stream.of())
-                                         .thenReturn(Stream.of())
-                                         .thenReturn(Stream.of(packet1));
+                                             .thenReturn(Stream.of())
+                                             .thenReturn(Stream.of(packet1));
 
         Object packet = instance.requestTestResults(247, 1024, 31, 0, NOOP).getPacket().orElse(null);
         assertNotNull(packet);

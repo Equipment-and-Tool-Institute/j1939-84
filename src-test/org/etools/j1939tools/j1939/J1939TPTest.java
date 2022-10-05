@@ -455,6 +455,27 @@ public class J1939TPTest {
         }
     }
 
+    /** Verify that multiple BAM messages are received without corruption. */
+    @Test
+    @TestDoc(description = "Verify that multiple BAM messages are received without corruption.")
+    public void testMultipleBamPackets() throws BusException, InterruptedException {
+        try (EchoBus bus = new EchoBus(0);
+             Bus tp = new J1939TP(bus, 0xF9)) {
+            Stream<Packet> tpStream = tp.read(50 * 10, TimeUnit.MILLISECONDS);
+            Packet p1 = Packet.parse("1CFFFF00 01 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D");
+            Packet p2 = Packet.parse("1CFFFF00 02 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D");
+            Packet p3 = Packet.parse("1CFFFF00 03 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D");
+            try (J1939TP tpOut = new J1939TP(bus)) {
+                tpOut.send(p1);
+                tpOut.send(p2);
+                tpOut.send(p3);
+            }
+            // verify that all the packets are received.
+            List<Packet> results = tpStream.filter(VALID_FILTER).collect(Collectors.toList());
+            assertPacketsEquals(List.of(p1, p2, p3), results);
+        }
+    }
+
     /**
      * Due to the implementation that creates a new thread for each RTS, this
      * test verifies that only a single TP packet is reconstructed when two RTSs

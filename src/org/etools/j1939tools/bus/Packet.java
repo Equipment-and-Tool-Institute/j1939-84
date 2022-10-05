@@ -243,7 +243,8 @@ public class Packet {
      * @return   int
      */
     public int get16(int i) {
-        return (getData()[i + 1] << 8) | getData()[i];
+        int[] d = getData();
+        return (d[i + 1] << 8) | d[i];
     }
 
     /**
@@ -255,7 +256,8 @@ public class Packet {
      * @return   int
      */
     public int get16Big(int i) {
-        return (getData()[i] << 8) | getData()[i + 1];
+        int[] d = getData();
+        return (d[i] << 8) | d[i + 1];
     }
 
     /**
@@ -267,7 +269,8 @@ public class Packet {
      * @return   int
      */
     public int get24(int i) {
-        return (getData()[i + 2] << 16) | (getData()[i + 1] << 8) | getData()[i];
+        int[] d = getData();
+        return (d[i + 2] << 16) | (d[i + 1] << 8) | d[i];
     }
 
     /**
@@ -279,7 +282,8 @@ public class Packet {
      * @return   int
      */
     public int get24Big(int i) {
-        return (getData()[i] << 16) | (getData()[i + 1] << 8) | getData()[i + 2];
+        int[] d = getData();
+        return (d[i] << 16) | (d[i + 1] << 8) | d[i + 2];
     }
 
     /**
@@ -291,8 +295,9 @@ public class Packet {
      * @return   int
      */
     public long get32(int i) {
-        return ((long) (getData()[i + 3] & 0xFF) << 24) | ((getData()[i + 2] & 0xFF) << 16)
-                | ((getData()[i + 1] & 0xFF) << 8) | (getData()[i] & 0xFF);
+        int[] d = getData();
+        return ((long) (d[i + 3] & 0xFF) << 24) | ((d[i + 2] & 0xFF) << 16)
+                | ((d[i + 1] & 0xFF) << 8) | (d[i] & 0xFF);
     }
 
     /**
@@ -304,8 +309,9 @@ public class Packet {
      * @return   int
      */
     public long get32Big(int i) {
-        return ((long) getData()[i] << 24) | ((long) getData()[i + 1] << 16) | ((long) getData()[i + 2] << 8)
-                | getData()[i + 3];
+        int[] d = getData();
+        return ((long) d[i] << 24) | ((long) d[i + 1] << 16) | ((long) d[i + 2] << 8)
+                | d[i + 3];
     }
 
     public long get64() {
@@ -318,9 +324,10 @@ public class Packet {
      * @return byte[]
      */
     public byte[] getBytes() {
-        byte[] bytes = new byte[getData().length];
+        int[] d = getData();
+        byte[] bytes = new byte[d.length];
         for (int i = 0; i < bytes.length; i++) {
-            bytes[i] = (byte) getData()[i];
+            bytes[i] = (byte) d[i];
         }
         return bytes;
     }
