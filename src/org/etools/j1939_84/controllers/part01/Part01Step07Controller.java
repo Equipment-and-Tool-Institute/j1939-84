@@ -142,7 +142,8 @@ public class Part01Step07Controller extends StepController {
         for (DM19CalibrationInformationPacket packet : globalPackets.getPackets()) {
             List<CalibrationInformation> calInfoList = packet.getCalibrationInformation();
             for (CalibrationInformation calInfo : calInfoList) {
-                byte[] calId = calInfo.getRawCalId();
+                // trimmed to verify calId, not raw cal Id
+                byte[] calId = new String(calInfo.getRawCalId()).getBytes();
                 boolean isObdModule = isObdModule(packet.getSourceAddress());
 
                 if (calId != null && calId.length > 0 && StringUtils.containsNonPrintableAsciiCharacter(calId)) {

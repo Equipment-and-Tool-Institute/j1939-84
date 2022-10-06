@@ -58,7 +58,7 @@ public class MultiQueue<T> implements AutoCloseable {
             } catch (Throwable t) {
                 t.printStackTrace();
             }
-        }).start();
+        }, "MultiQueue Monitor").start();
     }
 
     synchronized public void add(T v) {
@@ -161,11 +161,13 @@ public class MultiQueue<T> implements AutoCloseable {
             }
             return next;
         }
+
+        synchronized public boolean isReady() {
+            return next != null;
+        }
     }
 
     private final static class SpliteratorImplementation<T> implements Spliterator<T> {
-        // how often to check for new items
-        private static final int POLLING_PERIOD = 2;
         // end time of stream
         private long end;
         // reference to tail
@@ -196,11 +198,13 @@ public class MultiQueue<T> implements AutoCloseable {
         @Override
         public boolean tryAdvance(Consumer<? super T> action) {
             /*
-             * While not timed out, wait up to POLLING_PERIOD ms for next packet, then loop.
-             * This allows us to check for timeout and next packet in same thread.
+             * While not timed out, wait next packet.
+             * 
+             * Include isReady, because this is based on wall clock and there is no indication when item.next was added,
+             * except that it is added now.
              */
-            while (System.currentTimeMillis() < end) {
-                Item<T> n = item.next(POLLING_PERIOD);
+            while (item != null && (item.isReady() || System.currentTimeMillis() < end)) {
+                Item<T> n = item.next(end - System.currentTimeMillis());
                 if (n != null) {
                     item = n;
                     action.accept(n.value);
