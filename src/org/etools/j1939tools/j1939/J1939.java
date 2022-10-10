@@ -267,7 +267,9 @@ public class J1939 {
         return
         // does the packet have the right ID
         (pgnFilter(pgn).or(ackNackFilter(pgn)))
-                                               // is it addressed to us or all
+                                               // not something tool sent
+                                               .and(p -> !p.isTransmitted())
+                                               // is it addressed to tool or all
                                                .and((p -> p.getDestination() == bus.getAddress()
                                                        || p.getDestination() == GLOBAL_ADDR
                                                        // A TP message to global will have a destination of 0
