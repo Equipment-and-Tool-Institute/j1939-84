@@ -37,7 +37,7 @@ public class VehicleIdentificationPacket extends GenericPacket {
      */
     public String getManufacturerData() {
         byte[] data = getPacket().getBytes();
-        int index = getAsteriskIndex(data);
+        int index = getAsteriskOrNullIndex(data);
         return index == -1 || index == data.length - 1 ? ""
                 : format(Arrays.copyOfRange(data, index + 1, data.length));
     }
