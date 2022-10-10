@@ -113,7 +113,7 @@ public class Part01Step06Controller extends StepController {
                 break;
             }
         }
-        
+
         for (DM56EngineFamilyPacket packet : packets) {
             String type = packet.getModelYearField().substring(4, 5);
             if ("V".equals(type)) {
@@ -143,18 +143,8 @@ public class Part01Step06Controller extends StepController {
 
         for (DM56EngineFamilyPacket packet : packets) {
             String familyName = packet.getFamilyName();
-            char char13 = familyName.length() >= 14 ? familyName.charAt(13) : Character.MIN_VALUE;
-
-            int asteriskIndex = familyName.indexOf('*');
-
-            if ((-1 < asteriskIndex && asteriskIndex <= 12)
-                    || (char13 != Character.MIN_VALUE && char13 != '*' && familyName.contains("*"))) {
-                addFailure(
-                           "6.1.6.2.e - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
-                break;
-            } else if (familyName.length() < 13 || !familyName.contains("*") && char13 != Character.MIN_VALUE) {
-                addFailure("6.1.6.2.e - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
-                break;
+            if (familyName.length() != 12) {
+                addFailure("6.1.6.2.e - Engine family has " + familyName.length() + " characters, which is not 12.");
             }
         }
     }

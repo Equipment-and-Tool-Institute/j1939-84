@@ -21,10 +21,6 @@ public class ParsedPacket {
     public static final double NOT_AVAILABLE = Double.MAX_VALUE;
     protected static final double KM_TO_MILES_FACTOR = 0.62137119;
     /**
-     * The ASCII code for a *. It denotes the end of a field
-     */
-    private static final byte ASTERISK = 42;
-    /**
      * The wrapped packet
      */
     private final Packet packet;
@@ -90,10 +86,10 @@ public class ParsedPacket {
      *                  the data of interest
      * @return      the index of the asterisk, -1 if there is no asterisk
      */
-    protected static int getAsteriskIndex(byte[] data) {
+    protected static int getAsteriskOrNullIndex(byte[] data) {
         int index = -1;
         for (int i = 0; i < data.length; i++) {
-            if (data[i] == ASTERISK) {
+            if (data[i] == '*' || data[i] == '\0') {
                 index = i;
                 break;
             }
@@ -205,9 +201,9 @@ public class ParsedPacket {
      */
     protected static String parseField(byte[] data, boolean trim) {
         // Find the location of the *
-        int index = getAsteriskIndex(data);
+        int index = getAsteriskOrNullIndex(data);
         if (index >= 0) {
-            // It has a *, return just the field
+            // It has a * or \0, return just the field
             data = Arrays.copyOf(data, index);
         }
         if (trim) {
