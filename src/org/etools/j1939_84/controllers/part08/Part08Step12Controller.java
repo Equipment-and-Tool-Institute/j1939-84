@@ -236,10 +236,21 @@ public class Part08Step12Controller extends StepController {
 
         // 6.8.12.7.a. Global DM22 using DM12 MIL On DTC SPN and FMI with control byte = 1, Request to Clear/Reset
         // Previously Active DTC.
-        var globalResults = getCommunicationsModule().requestDM22(getListener(), CLR_PA_REQ, 0x7FFFF, 31);
+        var dtc = getDataRepository().getObdModules()
+                                     .stream()
+                                     .flatMap(m -> getDTCs(m.getSourceAddress()).stream())
+                                     .findFirst();
+        if (dtc.isEmpty()) {
+            addInfo("6.8.12.7.a No DTC found to clear.");
+        }
+        var globalResults = getCommunicationsModule().requestDM22(getListener(),
+                                                                  CLR_PA_REQ,
+                                                                  dtc.map(d -> d.getSuspectParameterNumber())
+                                                                     .orElse(0x7FFFF),
+                                                                  dtc.map(d -> d.getFailureModeIndicator())
+                                                                     .orElse(31));
         packets = globalResults.getPackets();
         acks = globalResults.getAcks();
-
         // 6.8.12.8.a. Fail if any ECU provides DM22 with CLR_PA_ACK.
         packets.stream()
                .filter(p -> p.getControlByte() == CLR_PA_ACK)

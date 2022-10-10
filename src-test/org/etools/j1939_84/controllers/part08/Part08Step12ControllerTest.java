@@ -177,8 +177,8 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_PA_REQ),
-                                              eq(0x7FFFF),
-                                              eq(31))).thenReturn(RequestResult.empty());
+                                              eq(123),
+                                              eq(10))).thenReturn(RequestResult.empty());
 
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_ACT_REQ),
@@ -190,7 +190,7 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
         verify(verifier).setJ1939(j1939);
         verify(communicationsModule).requestDM22(any(), eq(1), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
         verify(communicationsModule).requestDM22(any(), eq(0), eq(CLR_PA_REQ), eq(123), eq(10));
-        verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(123), eq(10));
         verify(communicationsModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
@@ -233,6 +233,10 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.8.12.7.a No DTC found to clear.");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -278,6 +282,10 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
+                                        INFO,
+                                        "6.8.12.7.a No DTC found to clear.");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
                                         FAIL,
                                         "6.8.12.2.a - Engine #2 (1) provided CLR_ACT_ACK");
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -319,6 +327,10 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.8.12.7.a No DTC found to clear.");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -364,6 +376,10 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
+                                        INFO,
+                                        "6.8.12.7.a No DTC found to clear.");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
                                         FAIL,
                                         "6.8.12.2.c - Engine #2 (1) provided CLR_ACT_NACK with an acknowledgement code greater than 0");
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -405,6 +421,10 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.8.12.7.a No DTC found to clear.");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -451,6 +471,10 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         INFO,
+                                        "6.8.12.7.a No DTC found to clear.");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
                                         "6.8.12.3.b - Engine #2 (1) provided J1939-21 NACK for PGN 49920");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -474,8 +498,8 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_PA_REQ),
-                                              eq(0x7FFFF),
-                                              eq(31))).thenReturn(RequestResult.empty());
+                                              eq(123),
+                                              eq(10))).thenReturn(RequestResult.empty());
 
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_ACT_REQ),
@@ -486,7 +510,7 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         verify(verifier).setJ1939(j1939);
         verify(communicationsModule).requestDM22(any(), eq(0), eq(CLR_PA_REQ), eq(123), eq(10));
-        verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(123), eq(10));
         verify(communicationsModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
@@ -520,8 +544,8 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_PA_REQ),
-                                              eq(0x7FFFF),
-                                              eq(31))).thenReturn(RequestResult.empty());
+                                              eq(123),
+                                              eq(10))).thenReturn(RequestResult.empty());
 
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_ACT_REQ),
@@ -532,7 +556,7 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         verify(verifier).setJ1939(j1939);
         verify(communicationsModule).requestDM22(any(), eq(0), eq(CLR_PA_REQ), eq(123), eq(10));
-        verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(123), eq(10));
         verify(communicationsModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
@@ -566,8 +590,8 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_PA_REQ),
-                                              eq(0x7FFFF),
-                                              eq(31))).thenReturn(RequestResult.empty());
+                                              eq(123),
+                                              eq(10))).thenReturn(RequestResult.empty());
 
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_ACT_REQ),
@@ -578,7 +602,7 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         verify(verifier).setJ1939(j1939);
         verify(communicationsModule).requestDM22(any(), eq(0), eq(CLR_PA_REQ), eq(123), eq(10));
-        verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(123), eq(10));
         verify(communicationsModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
@@ -612,8 +636,8 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_PA_REQ),
-                                              eq(0x7FFFF),
-                                              eq(31))).thenReturn(RequestResult.empty());
+                                              eq(123),
+                                              eq(10))).thenReturn(RequestResult.empty());
 
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_ACT_REQ),
@@ -624,7 +648,7 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         verify(verifier).setJ1939(j1939);
         verify(communicationsModule).requestDM22(any(), eq(0), eq(CLR_PA_REQ), eq(123), eq(10));
-        verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(123), eq(10));
         verify(communicationsModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
@@ -658,8 +682,8 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_PA_REQ),
-                                              eq(0x7FFFF),
-                                              eq(31))).thenReturn(RequestResult.empty());
+                                              eq(123),
+                                              eq(10))).thenReturn(RequestResult.empty());
 
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_ACT_REQ),
@@ -670,7 +694,7 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         verify(verifier).setJ1939(j1939);
         verify(communicationsModule).requestDM22(any(), eq(0), eq(CLR_PA_REQ), eq(123), eq(10));
-        verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
+        verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(123), eq(10));
         verify(communicationsModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
         verify(verifier).verifyDataNotErased(any(), eq("6.8.12.10.d"));
@@ -716,6 +740,10 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
+                                        INFO,
+                                        "6.8.12.7.a No DTC found to clear.");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
                                         FAIL,
                                         "6.8.12.8.a - Engine #1 (0) provided DM22 with CLR_PA_ACK");
     }
@@ -748,6 +776,10 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
+                                        INFO,
+                                        "6.8.12.7.a No DTC found to clear.");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
                                         FAIL,
                                         "6.8.12.8.a - Engine #1 (0) provided DM22 with CLR_ACT_ACK");
     }
@@ -776,6 +808,10 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.8.12.7.a No DTC found to clear.");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -810,6 +846,10 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
+                                        INFO,
+                                        "6.8.12.7.a No DTC found to clear.");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
                                         FAIL,
                                         "6.8.12.8.c - Engine #1 (0) provided CLR_ACT_NACK with an acknowledgement code greater than 0");
     }
@@ -840,6 +880,10 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.8.12.7.a No DTC found to clear.");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -874,6 +918,10 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
+                                        INFO,
+                                        "6.8.12.7.a No DTC found to clear.");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
                                         FAIL,
                                         "6.8.12.10.a - Engine #1 (0) provided DM22 with CLR_PA_ACK");
     }
@@ -906,6 +954,10 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
+                                        INFO,
+                                        "6.8.12.7.a No DTC found to clear.");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
                                         FAIL,
                                         "6.8.12.10.a - Engine #1 (0) provided DM22 with CLR_ACT_ACK");
     }
@@ -935,6 +987,10 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.8.12.7.a No DTC found to clear.");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -969,6 +1025,10 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
+                                        INFO,
+                                        "6.8.12.7.a No DTC found to clear.");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
                                         FAIL,
                                         "6.8.12.10.c - Engine #1 (0) provided CLR_ACT_NACK with an acknowledgement code greater than 0");
     }
@@ -999,6 +1059,10 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
 
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.8.12.7.a No DTC found to clear.");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
