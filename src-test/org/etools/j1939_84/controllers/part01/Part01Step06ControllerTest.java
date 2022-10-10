@@ -47,7 +47,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 @TestDoc(value = @TestItem(verifies = "Part 1 Step 6", description = "DM56: Model year and certification engine family"))
 public class Part01Step06ControllerTest extends AbstractControllerTest {
 
-    private static final String familyName = "6CALIF HD OBD*";
+    private static final String familyName = "6CALI0000OBD*";
     @Mock
     private BannerModule bannerModule;
     private DataRepository dataRepository;
@@ -152,7 +152,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
     @TestDoc(value = @TestItem(verifies = "6.1.6.2.d", description = "MY designation in engine family (1st digit) does not match user MY input."))
     @Test
     public void testMyDesignation() {
-        String famName = "5CALIF HD OBD*";
+        String famName = "523456789012";
 
         List<DM56EngineFamilyPacket> parsedPackets = List.of(createDM56(2006, famName));
         when(communicationsModule.requestDM56(any())).thenReturn(parsedPackets);
@@ -245,7 +245,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.6.2.e", description = "Engine family has > 12 characters before first asterisk character"))
     public void testFamilyNameLessThan13Characters() {
-        String famName = familyName.replace(" OBD*", "");
+        String famName = familyName.replace("0OBD*", "");
 
         List<DM56EngineFamilyPacket> parsedPackets = List.of(createDM56(2006, famName));
         when(communicationsModule.requestDM56(any())).thenReturn(parsedPackets);
@@ -255,7 +255,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         6,
                                         FAIL,
-                                        "6.1.6.2.e - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
+                                        "6.1.6.2.e - Engine family has 8 characters, which is not 12.");
 
         verify(communicationsModule).requestDM56(any());
 
@@ -302,7 +302,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         6,
                                         FAIL,
-                                        "6.1.6.2.e - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
+                                        "6.1.6.2.e - Engine family has 13 characters, which is not 12.");
 
         verify(communicationsModule).requestDM56(any());
 
