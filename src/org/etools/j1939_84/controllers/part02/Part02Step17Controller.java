@@ -384,26 +384,24 @@ public class Part02Step17Controller extends StepController {
         if (ghgChgDepletingLifeTimePackets.isEmpty()) {
             // 6.2.17.24.a. Fail PG query where no response was received
             addFailure("6.2.17.24.a - No response was received from "
-                    + module.getModuleName() + " for PG "
-                    + GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG);
+                    + module.getModuleName());
         } else {
             ghgChgDepletingLifeTimePackets.forEach(packet -> {
                 var partOnePacket = get(packet.getPgnDefinition().getId(), module.getSourceAddress(), 1);
+                if (partOnePacket == null) {
+                    addInfo("6.2.17.24.c - Message from part 1 is missing so verification of values skipped");
+                }
                 packet.getSpns()
                       .forEach(spn -> {
                           // 6.2.17.24.b - Fail PG query where any accumulator value
                           // received is greater than FAFFFFFFh.
-                          if (spn.getRawValue() > 0xFAFFFFFFL) {
-                              addFailure("6.2.17.24.b - Bin value received is greater than 0xFAFFFFFF(h) from "
-                                      + module.getModuleName() + " for " + spn);
-                          }
+                          validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.2.17.24.b");
+
                           // 6.2.17.24.c Fail all values where the corresponding value received is part 1 is
                           // greater than the part 2 value
-                          if (partOnePacket == null) {
-                              addInfo("6.2.17.24.c - Message from part 1 is missing so verification of values skipped");
-                          } else {
+                          if (spn.hasValue() && partOnePacket != null) {
                               var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                              if (spn.hasValue() && partOneValue != NOT_AVAILABLE && partOneValue > spn.getValue()) {
+                              if (partOneValue > spn.getValue()) {
                                   addFailure("6.2.17.24.c - Value received from " + module.getModuleName() + " for "
                                           + spn
                                           + "  in part 1 was greater than part 2 value");
@@ -452,25 +450,25 @@ public class Part02Step17Controller extends StepController {
         } else {
             hybridChargeOpsPackets.forEach(packet -> {
                 var partOnePacket = get(packet.getPgnDefinition().getId(), module.getSourceAddress(), 1);
+                if (partOnePacket == null) {
+                    addInfo("6.2.17.26.d - Message from part 1 is missing so verification of values skipped");
+                }
                 packet.getSpns()
                       .forEach(spn -> {
                           /// 6.2.17.26.c - Fail each PG query where any active
                           /// technology label or accumulator value
                           // received is greater than FAFFh, respectively.
-                          if (spn.getRawValue() > 0xFAFFL) {
-                              addFailure("6.2.17.26.c - Bin value received is greater than 0xFAFF(h) from "
-                                      + module.getModuleName() + " for " + spn);
+                          validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.2.17.26.c");
+                          if (spn.hasValue() && partOnePacket != null) {
+                              var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                              // 6.2.17.26.d - Fail all values where the corresponding value received in part 1
+                              // is greater than the part 2 value
+                              if (partOneValue > spn.getValue())
+                                  addFailure("6.2.17.26.d - Value received from " + module.getModuleName()
+                                          + " for " + spn
+                                          + "  in part 1 was greater than part 2 value");
                           }
-                          var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                          // 6.2.17.26.d - Fail all values where the corresponding value received in part 1
-                          // is greater than the part 2 valueif(partOneValue != null && partOneValue > spn.getValue())
-                          addFailure("6.2.17.26.d - Value received from " + module.getModuleName()
-                                  + " for " + spn
-                                  + "  in part 1 was greater than part 2 value");
                       });
-                if (partOnePacket == null) {
-                    addInfo("6.2.17.26.d - Message from part 1 is missing so verification of values skipped");
-                }
             });
         }
     }
@@ -492,24 +490,21 @@ public class Part02Step17Controller extends StepController {
         if (ghgTrackingPackets.isEmpty()) {
             // 6.2.17.20.a - Fail PG query where no response was received.
             addWarning("6.2.17.20.a - No response was received from "
-                    + module.getModuleName() + " for PG "
-                    + GHG_TRACKING_LIFETIME_HYBRID_PG);
+                    + module.getModuleName());
         } else {
             ghgTrackingPackets.forEach(packet -> {
                 var partOnePacket = get(packet.getPgnDefinition().getId(), module.getSourceAddress(), 1);
+                if (partOnePacket == null) {
+                    addInfo("6.2.17.20.c - Message from part 1 is missing so verification of values skipped");
+                }
                 packet.getSpns()
                       .forEach(spn -> {
                           // 6.2.17.20.b - Fail PG query where any accumulator value
                           // received is greater than FAFFFFFFh.
-                          if (spn.getRawValue() > 0xFAFFFFFFL) {
-                              addFailure("6.2.17.20.b - Bin value received is greater than 0xFAFFFFFF(h) from "
-                                      + module.getModuleName() + " for " + spn);
-                          }
+                          validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.2.17.20.b");
                           // 6.2.17.20.c - Fail all values where the corresponding value received in part 1 is greater
                           // than the part 2 value
-                          if (partOnePacket == null) {
-                              addInfo("6.2.17.20.c - Message from part 1 is missing so verification of values skipped");
-                          } else {
+                          if (spn.hasValue() && partOnePacket != null) {
                               var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
                               if (partOneValue > spn.getValue()) {
                                   addFailure("6.2.17.20.c - Value received from " + module.getModuleName() + " for "
@@ -568,19 +563,18 @@ public class Part02Step17Controller extends StepController {
         } else {
             ghgPackets.forEach(packet -> {
                 var partOnePacket = get(packet.getPgnDefinition().getId(), module.getSourceAddress(), 1);
+                if (partOnePacket == null) {
+                    addInfo("6.2.17.22.d - Message from part 1 is missing so verification of values skipped");
+                }
                 packet.getSpns()
                       .forEach(spn -> {
                           // 6.2.17.22.c - Fail each PG query where any accumulator
                           // value received is greater than FAFFh.
-                          if (spn.getRawValue() > 0xFAFFL) {
-                              addFailure("6.2.17.22.c - Bin value received is greater than 0xFAFF(h) from "
-                                      + module.getModuleName() + " for " + spn);
-                          }
+                          validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.2.17.22.c");
+
                           // 6.2.17.22.d - Fail all values where the corresponding value received in part 1
                           // is greater than the part 2 values. (where supported)
-                          if (partOnePacket == null) {
-                              addInfo("6.2.17.22.d - Message from part 1 is missing so verification of values skipped");
-                          } else {
+                          if (spn.hasValue() && partOnePacket != null) {
                               var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
                               if (partOneValue > spn.getValue()) {
                                   addFailure("6.2.17.22.d - Value received from " + module.getModuleName()
@@ -600,7 +594,7 @@ public class Part02Step17Controller extends StepController {
         var ghgTrackingLifetimePackets = requestPackets(module.getSourceAddress(),
                                                         GHG_TRACKING_LIFETIME_PG)
                                                                                  .stream()
-                                                                                 // 6.2.17.11.b - Record each value
+                                                                                 // 6.2.17.9.b - Record each value
                                                                                  // for use in Part 12.
                                                                                  .peek(this::save)
                                                                                  .collect(Collectors.toList());
@@ -611,18 +605,17 @@ public class Part02Step17Controller extends StepController {
                     + module.getModuleName());
         } else {
             ghgTrackingLifetimePackets.forEach(packet -> {
-                var partOnePacket = get(GHG_TRACKING_LIFETIME_PG, module.getSourceAddress(), 1);
+                var partOnePacket = get(packet.getPgnDefinition().getId(), module.getSourceAddress(), 1);
+                if (partOnePacket == null) {
+                    addInfo("6.1.17.12.c - Message from part 1 is missing so verification of values skipped");
+                }
                 packet.getSpns()
                       .forEach(spn -> {
                           // 6.2.17.12.b. Fail PG query where any bin value received is greater than FAFFh.
-                          if (spn.hasValue()) {
-                              validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.2.17.12.b");
-                          }
+                          validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.2.17.12.b");
                           // 6.2.17.12.c - Fail all values where the corresponding value received in part 1 is
                           // greater than the part 2 value (where supported)
-                          if (partOnePacket == null) {
-                              addInfo("6.1.17.12.c - Message from part 1 is missing so verification of values skipped");
-                          } else {
+                          if (spn.hasValue() && partOnePacket != null) {
                               var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
                               if (partOneValue > spn.getValue()) {
                                   addFailure("6.2.17.12.c - Value received from " + module.getModuleName()
@@ -644,7 +637,7 @@ public class Part02Step17Controller extends StepController {
                                                 GHG_ACTIVE_100_HR,
                                                 GHG_STORED_100_HR)
                                                                   .stream()
-                                                                  // 6.2.17.13.b.
+                                                                  // 6.2.17.11.b.
                                                                   // Record
                                                                   // each value
                                                                   // for use
@@ -674,21 +667,17 @@ public class Part02Step17Controller extends StepController {
         } else {
             ghgTrackingPackets.forEach(packet -> {
                 var partOnePacket = get(packet.getPgnDefinition().getId(), module.getSourceAddress(), 1);
+                if (partOnePacket == null) {
+                    addInfo("6.2.17.14.d - Message from part 1 is missing so verification of values skipped");
+                }
                 packet.getSpns()
                       .forEach(spn -> {
-                          if (spn.getRawValue() > 0xFAFFL) {
-                              // 6.2.17.14.c - Fail each PG query where any value received is greater than
-                              // FAFFh.
-                              addFailure("6.2.17.14.c - Bin value received is greater than 0xFAFF from "
-                                      + module.getModuleName() + " for " + spn);
-                          }
+                          validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.2.17.14.c");
                           // 6.2.17.14.d - Fail all values where the corresponding value received in part 1 is
                           // greater than the part 2 value
-                          if (partOnePacket == null) {
-                              addInfo("6.2.17.14.d - Message from part 1 is missing so verification of values skipped");
-                          } else {
+                          if (spn.hasValue() && partOnePacket != null) {
                               var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                              if (spn.hasValue() && partOneValue > spn.getValue()) {
+                              if (partOneValue > spn.getValue()) {
                                   addFailure("6.2.17.14.d - Value received from " + module.getModuleName()
                                           + " for " + spn
                                           + "  in part 1 was greater than part 2 value");
@@ -731,9 +720,9 @@ public class Part02Step17Controller extends StepController {
                           validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.2.17.16.b");
                           // 6.2.17.16.c. Fail all values where the corresponding value received in part 1 is
                           // greater than the part 2 value.
-                          if (partOnePacket != null) {
+                          if (spn.hasValue() && partOnePacket != null) {
                               var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                              if (spn.hasValue() && partOneValue > spn.getValue()) {
+                              if (partOneValue > spn.getValue()) {
                                   addFailure("6.2.17.16.c - Value received from " + module.getModuleName()
                                           + " for " + spn
                                           + "  in part 1 was greater than part 2 value");
@@ -846,6 +835,11 @@ public class Part02Step17Controller extends StepController {
             getListener().onResult(nOxBinningModule.format(nOxPackets));
             nOxPackets.forEach(packet -> {
                 var partOnePacket = get(packet.getPgnDefinition().getId(), module.getSourceAddress(), 1);
+                if (partOnePacket == null) {
+                    addInfo("6.2.17.8.c - Message from part 1 for PG " + packet.getPgnDefinition()
+                                                                               .getId()
+                            + " is missing so verification of values skipped");
+                }
                 packet.getSpns().forEach(spn -> {
                     // 6.2.17.8.b. Fail each PG query where any bin value received
                     // is greater than FAFFFFFFh.
@@ -853,19 +847,15 @@ public class Part02Step17Controller extends StepController {
 
                     // 6.2.17.8.c Fail all values where the corresponding value received in part 1 is greater
                     // than the part 2 value
-                    if(partOnePacket != null) {
+                    if (spn.hasValue() && partOnePacket != null) {
                         var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                        if (spn.hasValue() && partOneValue != NOT_AVAILABLE && partOneValue > spn.getValue()) {
+                        if (partOneValue > spn.getValue()) {
                             addFailure("6.2.17.8.c - Value received from " + module.getModuleName()
-                                               + " for " + spn + " in part 1 was greater than part 2 value");
+                                    + " for " + spn + " in part 1 was greater than part 2 value");
                         }
                     }
                 });
-                if(partOnePacket == null){
-                    addInfo("6.2.17.8.c - Message from part 1 for PG " + packet.getPgnDefinition()
-                            .getId()
-                                    + " is missing so verification of values skipped");
-                }
+
             });
 
         }
