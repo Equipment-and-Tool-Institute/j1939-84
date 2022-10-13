@@ -103,15 +103,14 @@ public class Part01Step14Controller extends StepController {
                                  && dm26System.getStatus().isComplete();
 
                      })
+                     .filter(dm26System -> {
+                         return getEngineModelYear() < 2019 && dm26System.getId() != CompositeSystem.MISFIRE;
+                     })
                      .forEach(dm26System -> {
-                         if (getEngineModelYear() >= 2019 && dm26System.getId() == CompositeSystem.MISFIRE) {
-                             // Do Nothing
-                         } else {
-                             String moduleName = Lookup.getAddressName(dm26System.getSourceAddress());
-                             String systemName = dm26System.getName().trim();
-                             addFailure("6.1.14.2.a - " + moduleName + " response for a monitor " + systemName
-                                     + " in DM5 is reported as supported and is reported as complete/not supported DM26 response");
-                         }
+                         String moduleName = Lookup.getAddressName(dm26System.getSourceAddress());
+                         String systemName = dm26System.getName().trim();
+                         addFailure("6.1.14.2.a - " + moduleName + " response for a monitor " + systemName
+                                 + " in DM5 is reported as supported and is reported as complete/not supported DM26 response");
                      });
 
         // 6.1.14.2.b Fail if any response for each monitor not supported in DM5 by a given ECU is also reported in DM26
