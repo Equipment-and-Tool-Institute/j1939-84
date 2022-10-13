@@ -380,7 +380,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
             @TestItem(verifies = "6.1.14.2.a", description = "Fail if any response for any monitor supported in DM5 by a given ECU is reported as “0=monitor complete this cycle or not supported” in SP 3303 bits 1-4 and SP 3305 [except comprehensive components monitor (CCM)]") })
     public void testMonitorSupportedCompleteFailure() {
         VehicleInformation vehInfo = new VehicleInformation();
-        vehInfo.setVehicleModelYear(2025);
+        vehInfo.setEngineModelYear(2025);
         vehInfo.setFuelType(DSL);
         dataRepository.setVehicleInformation(vehInfo);
         var enabledSystems = List.of(
@@ -412,7 +412,8 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
                                         CompositeSystem.DIESEL_PARTICULATE_FILTER,
                                         CompositeSystem.EGR_VVT_SYSTEM,
                                         CompositeSystem.EVAPORATIVE_SYSTEM,
-                                        CompositeSystem.EXHAUST_GAS_SENSOR_HEATER);
+                                        CompositeSystem.EXHAUST_GAS_SENSOR_HEATER,
+                                        CompositeSystem.MISFIRE);
         var dm5CompleteSystems = List.of(
                                          CompositeSystem.EGR_VVT_SYSTEM,
                                          CompositeSystem.EXHAUST_GAS_SENSOR,
@@ -459,6 +460,179 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.14.2.a - Engine #1 (0) response for a monitor Boost pressure control sys in DM5 is reported as supported and is reported as complete/not supported DM26 response");
     }
+
+    @Test
+    public void testMonitorSupportedCompleteFailureWithMisfireOn2019() {
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2019);
+        vehInfo.setFuelType(DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+        var enabledSystems = List.of(
+                CompositeSystem.AC_SYSTEM_REFRIGERANT,
+                CompositeSystem.CATALYST,
+                CompositeSystem.COMPREHENSIVE_COMPONENT,
+                CompositeSystem.DIESEL_PARTICULATE_FILTER,
+                CompositeSystem.EVAPORATIVE_SYSTEM,
+                CompositeSystem.EXHAUST_GAS_SENSOR_HEATER);
+        var completeSystems = List.of(
+                CompositeSystem.BOOST_PRESSURE_CONTROL_SYS,
+                CompositeSystem.EXHAUST_GAS_SENSOR,
+                CompositeSystem.FUEL_SYSTEM,
+                CompositeSystem.HEATED_CATALYST,
+                CompositeSystem.MISFIRE,
+                CompositeSystem.NMHC_CONVERTING_CATALYST,
+                CompositeSystem.NOX_CATALYST_ABSORBER,
+                CompositeSystem.SECONDARY_AIR_SYSTEM);
+
+        var dm26 = DM26TripDiagnosticReadinessPacket.create(0x00, 0, 0, enabledSystems, completeSystems);
+
+        OBDModuleInformation obdModule = new OBDModuleInformation(0x00);
+        var dm5EnabledSystems = List.of(
+                CompositeSystem.AC_SYSTEM_REFRIGERANT,
+                CompositeSystem.BOOST_PRESSURE_CONTROL_SYS,
+                CompositeSystem.CATALYST,
+                CompositeSystem.COLD_START_AID_SYSTEM,
+                CompositeSystem.COMPREHENSIVE_COMPONENT,
+                CompositeSystem.DIESEL_PARTICULATE_FILTER,
+                CompositeSystem.EGR_VVT_SYSTEM,
+                CompositeSystem.EVAPORATIVE_SYSTEM,
+                CompositeSystem.EXHAUST_GAS_SENSOR_HEATER,
+                CompositeSystem.MISFIRE);
+        var dm5CompleteSystems = List.of(
+                CompositeSystem.EGR_VVT_SYSTEM,
+                CompositeSystem.EXHAUST_GAS_SENSOR,
+                CompositeSystem.FUEL_SYSTEM,
+                CompositeSystem.HEATED_CATALYST,
+                CompositeSystem.MISFIRE,
+                CompositeSystem.NMHC_CONVERTING_CATALYST,
+                CompositeSystem.NOX_CATALYST_ABSORBER,
+                CompositeSystem.SECONDARY_AIR_SYSTEM);
+        obdModule.set(DM5DiagnosticReadinessPacket.create(0x00, 0, 0, 0x22, dm5EnabledSystems, dm5CompleteSystems), 1);
+        dataRepository.putObdModule(obdModule);
+
+        when(communicationsModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
+        when(communicationsModule.requestDM26(any(), eq(0x00))).thenReturn(RequestResult.of(dm26));
+
+        runTest();
+
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM26(any(ResultsListener.class));
+        verify(communicationsModule).requestDM26(any(ResultsListener.class), eq(0x00));
+
+        String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
+        expectedResults += "    A/C system refrigerant         enabled, not complete" + NL;
+        expectedResults += "    Boost pressure control sys not enabled,     complete" + NL;
+        expectedResults += "    Catalyst                       enabled, not complete" + NL;
+        expectedResults += "    Cold start aid system      not enabled, not complete" + NL;
+        expectedResults += "    Comprehensive component        enabled, not complete" + NL;
+        expectedResults += "    Diesel Particulate Filter      enabled, not complete" + NL;
+        expectedResults += "    EGR/VVT system             not enabled, not complete" + NL;
+        expectedResults += "    Evaporative system             enabled, not complete" + NL;
+        expectedResults += "    Exhaust Gas Sensor         not enabled,     complete" + NL;
+        expectedResults += "    Exhaust Gas Sensor heater      enabled, not complete" + NL;
+        expectedResults += "    Fuel System                not enabled,     complete" + NL;
+        expectedResults += "    Heated catalyst            not enabled,     complete" + NL;
+        expectedResults += "    Misfire                    not enabled,     complete" + NL;
+        expectedResults += "    NMHC converting catalyst   not enabled,     complete" + NL;
+        expectedResults += "    NOx catalyst/adsorber      not enabled,     complete" + NL;
+        expectedResults += "    Secondary air system       not enabled,     complete" + NL;
+        expectedResults += NL;
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.14.2.a - Engine #1 (0) response for a monitor Boost pressure control sys in DM5 is reported as supported and is reported as complete/not supported DM26 response");
+    }
+
+    @Test
+    public void testMonitorSupportedCompleteFailureWithMisfireOn2018() {
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setVehicleModelYear(2018);
+        vehInfo.setFuelType(DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+        var enabledSystems = List.of(
+                CompositeSystem.AC_SYSTEM_REFRIGERANT,
+                CompositeSystem.CATALYST,
+                CompositeSystem.COMPREHENSIVE_COMPONENT,
+                CompositeSystem.DIESEL_PARTICULATE_FILTER,
+                CompositeSystem.EVAPORATIVE_SYSTEM,
+                CompositeSystem.EXHAUST_GAS_SENSOR_HEATER);
+        var completeSystems = List.of(
+                CompositeSystem.BOOST_PRESSURE_CONTROL_SYS,
+                CompositeSystem.EXHAUST_GAS_SENSOR,
+                CompositeSystem.FUEL_SYSTEM,
+                CompositeSystem.HEATED_CATALYST,
+                CompositeSystem.MISFIRE,
+                CompositeSystem.NMHC_CONVERTING_CATALYST,
+                CompositeSystem.NOX_CATALYST_ABSORBER,
+                CompositeSystem.SECONDARY_AIR_SYSTEM);
+
+        var dm26 = DM26TripDiagnosticReadinessPacket.create(0x00, 0, 0, enabledSystems, completeSystems);
+
+        OBDModuleInformation obdModule = new OBDModuleInformation(0x00);
+        var dm5EnabledSystems = List.of(
+                CompositeSystem.AC_SYSTEM_REFRIGERANT,
+                CompositeSystem.BOOST_PRESSURE_CONTROL_SYS,
+                CompositeSystem.CATALYST,
+                CompositeSystem.COLD_START_AID_SYSTEM,
+                CompositeSystem.COMPREHENSIVE_COMPONENT,
+                CompositeSystem.DIESEL_PARTICULATE_FILTER,
+                CompositeSystem.EGR_VVT_SYSTEM,
+                CompositeSystem.EVAPORATIVE_SYSTEM,
+                CompositeSystem.EXHAUST_GAS_SENSOR_HEATER,
+                CompositeSystem.MISFIRE);
+        var dm5CompleteSystems = List.of(
+                CompositeSystem.EGR_VVT_SYSTEM,
+                CompositeSystem.EXHAUST_GAS_SENSOR,
+                CompositeSystem.FUEL_SYSTEM,
+                CompositeSystem.HEATED_CATALYST,
+                CompositeSystem.MISFIRE,
+                CompositeSystem.NMHC_CONVERTING_CATALYST,
+                CompositeSystem.NOX_CATALYST_ABSORBER,
+                CompositeSystem.SECONDARY_AIR_SYSTEM);
+        obdModule.set(DM5DiagnosticReadinessPacket.create(0x00, 0, 0, 0x22, dm5EnabledSystems, dm5CompleteSystems), 1);
+        dataRepository.putObdModule(obdModule);
+
+        when(communicationsModule.requestDM26(any())).thenReturn(RequestResult.of(dm26));
+        when(communicationsModule.requestDM26(any(), eq(0x00))).thenReturn(RequestResult.of(dm26));
+
+        runTest();
+
+        verify(communicationsModule).setJ1939(j1939);
+        verify(communicationsModule).requestDM26(any(ResultsListener.class));
+        verify(communicationsModule).requestDM26(any(ResultsListener.class), eq(0x00));
+
+        String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
+        expectedResults += "    A/C system refrigerant         enabled, not complete" + NL;
+        expectedResults += "    Boost pressure control sys not enabled,     complete" + NL;
+        expectedResults += "    Catalyst                       enabled, not complete" + NL;
+        expectedResults += "    Cold start aid system      not enabled, not complete" + NL;
+        expectedResults += "    Comprehensive component        enabled, not complete" + NL;
+        expectedResults += "    Diesel Particulate Filter      enabled, not complete" + NL;
+        expectedResults += "    EGR/VVT system             not enabled, not complete" + NL;
+        expectedResults += "    Evaporative system             enabled, not complete" + NL;
+        expectedResults += "    Exhaust Gas Sensor         not enabled,     complete" + NL;
+        expectedResults += "    Exhaust Gas Sensor heater      enabled, not complete" + NL;
+        expectedResults += "    Fuel System                not enabled,     complete" + NL;
+        expectedResults += "    Heated catalyst            not enabled,     complete" + NL;
+        expectedResults += "    Misfire                    not enabled,     complete" + NL;
+        expectedResults += "    NMHC converting catalyst   not enabled,     complete" + NL;
+        expectedResults += "    NOx catalyst/adsorber      not enabled,     complete" + NL;
+        expectedResults += "    Secondary air system       not enabled,     complete" + NL;
+        expectedResults += NL;
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.14.2.a - Engine #1 (0) response for a monitor Boost pressure control sys in DM5 is reported as supported and is reported as complete/not supported DM26 response");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.14.2.a - Engine #1 (0) response for a monitor Misfire in DM5 is reported as supported and is reported as complete/not supported DM26 response");
+    }
+
 
     /**
      * Test method for {@link Part01Step14Controller#run()}.
