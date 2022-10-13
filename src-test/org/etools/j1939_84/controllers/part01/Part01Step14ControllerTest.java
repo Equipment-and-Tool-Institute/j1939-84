@@ -6,6 +6,7 @@ package org.etools.j1939_84.controllers.part01;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.etools.j1939tools.j1939.model.FuelType.DSL;
 import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,6 +22,7 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -377,6 +379,10 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
     @TestDoc(value = {
             @TestItem(verifies = "6.1.14.2.a", description = "Fail if any response for any monitor supported in DM5 by a given ECU is reported as “0=monitor complete this cycle or not supported” in SP 3303 bits 1-4 and SP 3305 [except comprehensive components monitor (CCM)]") })
     public void testMonitorSupportedCompleteFailure() {
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setVehicleModelYear(2025);
+        vehInfo.setFuelType(DSL);
+        dataRepository.setVehicleInformation(vehInfo);
         var enabledSystems = List.of(
                                      CompositeSystem.AC_SYSTEM_REFRIGERANT,
                                      CompositeSystem.CATALYST,
