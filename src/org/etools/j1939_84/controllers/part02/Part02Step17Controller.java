@@ -721,6 +721,9 @@ public class Part02Step17Controller extends StepController {
         } else {
             lifetimeGhgPackets.forEach(packet -> {
                 var partOnePacket = get(packet.getPgnDefinition().getId(), module.getSourceAddress(), 1);
+                if (partOnePacket == null) {
+                    addInfo("6.2.17.16.c - Message from part 1 is missing so verification of values skipped");
+                }
                 packet.getSpns()
                       .forEach(spn -> {
                           // 6.2.17.16.b. Fail any accumulator value received that is greater
@@ -728,9 +731,7 @@ public class Part02Step17Controller extends StepController {
                           validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.2.17.16.b");
                           // 6.2.17.16.c. Fail all values where the corresponding value received in part 1 is
                           // greater than the part 2 value.
-                          if (partOnePacket == null) {
-                              addInfo("6.2.17.16.c - Message from part 1 is missing so verification of values skipped");
-                          } else {
+                          if (partOnePacket != null) {
                               var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
                               if (spn.hasValue() && partOneValue > spn.getValue()) {
                                   addFailure("6.2.17.16.c - Value received from " + module.getModuleName()
@@ -781,20 +782,7 @@ public class Part02Step17Controller extends StepController {
             ghg100HrPackets.forEach(packet -> {
                 packet.getSpns().forEach(spn -> {
                     // 6.2.17.18.c. Fail PG query where any bin value received is greater than FAFFh.
-                    if (spn.getRawValue() > 0xFAFFL) {
-                        addFailure("6.2.17.18.c - Bin value received is greater than 0xFAFF(h) from "
-                                + module.getModuleName() + " for " + spn);
-                    }
-                    // 6.2.17.18.d. Fail PG query where any index value received is greater than FAh.
-                    if (spn.getId() == 12691 && spn.getRawValue() > 0xFAL) {
-                        addFailure("6.2.17.18.d - PG query index received was greater than FA(h) from "
-                                + module.getModuleName() + " for " + spn);
-                    }
-                    if (GHG_ACTIVE_GREEN_HOUSE_100_HR == spn.getId() && spn.getValue() > 0) {
-                        // 6.2.17.18.g. Fail each active 100 hr array value that is greater than zero
-                        addFailure("6.2.17.18.g - Active 100 hr array value received was greater than zero from  "
-                                + module.getModuleName() + " for " + spn);
-                    }
+                    validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.2.17.18.c");
 
                 });
             });
@@ -827,11 +815,11 @@ public class Part02Step17Controller extends StepController {
 
         // 6.2.17.18.f. Fail all values where the corresponding value received in part 1 is greater than the part 2
         // value. (Where supported)
-        if (!lifetimeLabels.containsAll(activeLabels)) {
-            addFailure("6.2.17.18.f - Active labels received is not a subset of lifetime labels");
+        if (!lifetimeLabels.equals(activeLabels)) {
+            addFailure("6.2.17.18.f - Active labels received is not an equivalent set of lifetime labels");
         }
-        if (!lifetimeLabels.containsAll(storedLabels)) {
-            addFailure("6.2.17.18.f - Stored labels received is not a subset of lifetime labels");
+        if (!lifetimeLabels.equals(storedLabels)) {
+            addFailure("6.2.17.18.f - Stored labels received is not an equivalent set of lifetime labels");
         }
     }
 
