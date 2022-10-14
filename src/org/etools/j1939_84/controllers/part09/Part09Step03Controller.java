@@ -151,7 +151,7 @@ public class Part09Step03Controller extends StepController {
             }
         }
 
-        // 6.9.3.3.b. Info: if J1939-21 NACK for PGN 49920 is received.
+        // 6.9.3.3.b. WARN: if J1939-21 NACK for PGN 49920 is received.
         acks.stream()
             .filter(p -> p.getResponse() == NACK)
             .map(ParsedPacket::getModuleName)
