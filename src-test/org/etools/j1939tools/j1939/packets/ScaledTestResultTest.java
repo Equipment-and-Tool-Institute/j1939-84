@@ -52,6 +52,22 @@ public class ScaledTestResultTest {
     }
 
     @Test
+    public void testReal() {
+        int[] data = new int[] { 0xF7, 0xC1, 0x0D, 0x12, 0x00, 0x01, 0x00, 0xFB, 0xFF, 0xFF, 0xFF, 0xFF };
+        ScaledTestResult instance = new ScaledTestResult(data);
+        assertEquals(0x0dC1, instance.getSpn());
+        assertEquals(0x12, instance.getFmi());
+        assertEquals(256, instance.getSlot().getId());
+        assertEquals(247, instance.getTestIdentifier());
+        assertEquals(0xFB00, instance.getTestValue());
+        assertEquals(0xFFFF, instance.getTestMaximum());
+        assertEquals(0xFFFF, instance.getTestMinimum());
+        assertEquals(TestResult.NOT_COMPLETE, instance.getTestResult());
+        String expected = "SPN 3521 FMI 18 (SLOT 256) Result: Test Not Complete.";
+        assertEquals(expected, instance.toString());
+    }
+
+    @Test
     public void testFailedLow() {
         int[] data = new int[] { 0xF7, 0xBB, 0x12, 0x0C, 0x8A, 0x01, 0x00, 0x0C, 0xFF, 0xEF, 0xFF, 0xAF };
         ScaledTestResult instance = new ScaledTestResult(data);

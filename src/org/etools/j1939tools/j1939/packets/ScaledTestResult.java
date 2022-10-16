@@ -11,7 +11,6 @@ import java.util.Objects;
 import org.etools.j1939tools.j1939.J1939DaRepository;
 import org.etools.j1939tools.utils.NumberFormatter;
 
-
 /**
  * Represents a Scaled Test Result from a {@link DM30ScaledTestResultsPacket}
  *
@@ -115,7 +114,7 @@ public class ScaledTestResult implements Comparable<ScaledTestResult> {
      */
     public Slot getSlot() {
         if (slot == null) {
-            slot = J1939DaRepository.findSlot(slotNumber, spn);
+            slot = J1939DaRepository.getInstance().findSLOT(slotNumber);
         }
         return slot;
     }

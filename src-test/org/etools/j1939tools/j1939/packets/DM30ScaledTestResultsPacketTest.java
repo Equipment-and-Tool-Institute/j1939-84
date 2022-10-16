@@ -40,6 +40,23 @@ public class DM30ScaledTestResultsPacketTest {
     }
 
     @Test
+    public void testReal() {
+        // 12:37:55.0508 1CA4F900 [12] F7 C1 0D 12 00 01 00 FB FF FF FF FF
+        ScaledTestResult testResult0 = ScaledTestResult.create(0xF7, 0x0DC1, 0x12, 0x100, 0xFB00, 0xFFFF, 0xFFFF);
+        DM30ScaledTestResultsPacket instance = DM30ScaledTestResultsPacket.create(0, 0, testResult0);
+        List<ScaledTestResult> testResults = instance.getTestResults();
+        assertEquals(1, testResults.size());
+        {
+            ScaledTestResult testResult = testResults.get(0);
+            String expected = "SPN 3521 FMI 18 (SLOT 256) Result: Test Not Complete.";
+            assertEquals(expected, testResult.toString());
+        }
+
+        String expected = "DM30 from 0: SPN 3521 FMI 18 (SLOT 256) Result: Test Not Complete.";
+        assertEquals(expected, instance.toString());
+    }
+
+    @Test
     public void testWithThree() {
         int[] data = new int[] { 0xF7, 0xD4, 0x02, 0x14, 0x3E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF7, 0xD4,
                 0x02, 0x15, 0x3E, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF7, 0xD4, 0x02, 0x02, 0x84, 0x00, 0x00,

@@ -175,7 +175,7 @@ public class Part07Step16ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        var nackPacket = AcknowledgmentPacket.create(0, Response.NACK);
+        var nackPacket = AcknowledgmentPacket.create(0, Response.BUSY);
         when(communicationsModule.requestDM3(any())).thenReturn(List.of(nackPacket));
         when(communicationsModule.requestDM3(any(), eq(0))).thenReturn(List.of(nackPacket));
 
