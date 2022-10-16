@@ -547,7 +547,7 @@ public class J1939 {
                     + Lookup.getAddressName(request.getDestination()));
         }
 
-        // FIXME verify and make a constant.
+        // 6.II.B
         long end = getDateTimeModule().getTimeAsLong() + 1200;
         boolean retry = false;
         for (int noResponse = 0; getDateTimeModule().getTimeAsLong() < end; noResponse++) {
@@ -786,11 +786,13 @@ public class J1939 {
                                 * is late.
                                 */
                                if (lateTime != null && p.getFragments().size() > 0
-                                       && p.getFragments().get(0).getTimestamp().isAfter(lateTime)) {
+                                       && p.getFragments().get(0).getTimestamp().isAfter(lateTime)
+                               // only record first one
+                                       && !lateBam.contains(p)) {
                                    lateBam.add(p);
                                }
                            })
-                           // Collect all of the packet, even though they are not
+                           // Collect all of the packets, even though they are not
                            // complete. They were all announced in time.
                            .collect(Collectors.toList())
                            .stream()

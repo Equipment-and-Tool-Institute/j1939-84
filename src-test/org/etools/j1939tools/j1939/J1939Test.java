@@ -727,6 +727,25 @@ public class J1939Test {
                                            15,
                                            16,
                                            17));
+                    bus.send(Packet.create(VehicleIdentificationPacket.PGN,
+                                           0xFF,
+                                           1,
+                                           2,
+                                           3,
+                                           4,
+                                           5,
+                                           6,
+                                           7,
+                                           8,
+                                           9,
+                                           10,
+                                           11,
+                                           12,
+                                           13,
+                                           14,
+                                           15,
+                                           16,
+                                           17));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -736,11 +755,12 @@ public class J1939Test {
                                                                                                     .requestGlobal("VIN",
                                                                                                                    VehicleIdentificationPacket.class,
                                                                                                                    listener);
-            assertEquals(1, response.getPackets().size());
+            assertEquals(2, response.getPackets().size());
             /* verify there is a warning */
-            assertTrue(listener.getResults()
-                               .matches(
-                                        "(?s).*TIMING: Late response -  [\\d:.]+ 1CECFF00 \\[8] 20 11 00 03 FF EC FE 00.*"));
+            String results = listener.getResults();
+            assertTrue(results.matches("(?s).*TIMING: Late response -  [\\d:.]+ 1CECFF00 \\[8] 20 11 00 03 FF EC FE 00.*"));
+            /* and only a single warning */
+            assertFalse(results.matches("(?s).*TIMING.*TIMING.*"));
         }
     }
 
