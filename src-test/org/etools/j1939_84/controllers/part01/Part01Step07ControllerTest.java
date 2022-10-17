@@ -432,7 +432,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                         eq(STEP_NUMBER),
                                         eq(WARN),
                                         eq("6.1.7.3.c - CAL ID ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ has 00h is in either the first or fourth bytes"));
-        verify(mockListener, times(4)).addOutcome(eq(PART_NUMBER),
+        verify(mockListener, times(1)).addOutcome(eq(PART_NUMBER),
                                                   eq(STEP_NUMBER),
                                                   eq(FAIL),
                                                   eq("6.1.7.2.b.ii - OBD ECU Engine #1 (0) CAL ID not formatted correctly (contains non-printable ASCII)"));
@@ -2003,10 +2003,6 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(7),
                                         eq(FAIL),
-                                        eq("6.1.7.2.b.ii - OBD ECU Brakes - Drive axle #1 (13) CAL ID not formatted correctly (contains non-printable ASCII)"));
-        verify(mockListener).addOutcome(eq(1),
-                                        eq(7),
-                                        eq(FAIL),
                                         eq("6.1.7.2.b.ii - OBD ECU Brakes - Drive axle #1 (13) CAL ID not formatted correctly (padded incorrectly)"));
         verify(mockListener).addOutcome(eq(1),
                                         eq(7),
@@ -2099,10 +2095,6 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                         eq(7),
                                         eq(WARN),
                                         eq("6.1.7.3.d.i - Non-OBD ECU Brakes - Drive axle #1 (13) provided CAL ID"));
-        verify(mockListener).addOutcome(eq(1),
-                                        eq(7),
-                                        eq(WARN),
-                                        eq("6.1.7.3.d.iii - Non-OBD ECU Brakes - Drive axle #1 (13) CAL ID not formatted correctly (contains non-printable ASCII)"));
         verify(mockListener).addOutcome(eq(1),
                                         eq(7),
                                         eq(WARN),
@@ -2247,5 +2239,142 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testRealDataFromTruck2() {
+
+        DM19CalibrationInformationPacket dm19 = new DM19CalibrationInformationPacket(Packet.create(DM19CalibrationInformationPacket.PGN,
+                                                                                                   0,
+                                                                                                   0x76,
+                                                                                                   0xA4,
+                                                                                                   0xC2,
+                                                                                                   0xC8,
+                                                                                                   0x52,
+                                                                                                   0x41,
+                                                                                                   0x44,
+                                                                                                   0x58,
+                                                                                                   0x53,
+                                                                                                   0x55,
+                                                                                                   0x41,
+                                                                                                   0x41,
+                                                                                                   0x00,
+                                                                                                   0x00,
+                                                                                                   0x00,
+                                                                                                   0x00,
+                                                                                                   0x00,
+                                                                                                   0x00,
+                                                                                                   0x00,
+                                                                                                   0x00,
+                                                                                                   0xA8,
+                                                                                                   0x73,
+                                                                                                   0x89,
+                                                                                                   0x13,
+                                                                                                   0x4E,
+                                                                                                   0x4F,
+                                                                                                   0x78,
+                                                                                                   0x2D,
+                                                                                                   0x53,
+                                                                                                   0x41,
+                                                                                                   0x45,
+                                                                                                   0x31,
+                                                                                                   0x34,
+                                                                                                   0x61,
+                                                                                                   0x20,
+                                                                                                   0x41,
+                                                                                                   0x54,
+                                                                                                   0x49,
+                                                                                                   0x31,
+                                                                                                   0x00,
+                                                                                                   0x8C,
+                                                                                                   0x4B,
+                                                                                                   0xF9,
+                                                                                                   0xC9,
+                                                                                                   0x4E,
+                                                                                                   0x4F,
+                                                                                                   0x78,
+                                                                                                   0x2D,
+                                                                                                   0x53,
+                                                                                                   0x41,
+                                                                                                   0x45,
+                                                                                                   0x31,
+                                                                                                   0x34,
+                                                                                                   0x61,
+                                                                                                   0x20,
+                                                                                                   0x41,
+                                                                                                   0x54,
+                                                                                                   0x4F,
+                                                                                                   0x31,
+                                                                                                   0x00,
+                                                                                                   0xFB,
+                                                                                                   0x1B,
+                                                                                                   0xB5,
+                                                                                                   0x8C,
+                                                                                                   0x30,
+                                                                                                   0x32,
+                                                                                                   0x30,
+                                                                                                   0x31,
+                                                                                                   0x30,
+                                                                                                   0x31,
+                                                                                                   0x30,
+                                                                                                   0x30,
+                                                                                                   0x30,
+                                                                                                   0x35,
+                                                                                                   0x00,
+                                                                                                   0x00,
+                                                                                                   0x00,
+                                                                                                   0x00,
+                                                                                                   0x00,
+                                                                                                   0x00,
+                                                                                                   0xD2,
+                                                                                                   0xBF,
+                                                                                                   0x0F,
+                                                                                                   0xA9,
+                                                                                                   0x50,
+                                                                                                   0x4D,
+                                                                                                   0x53,
+                                                                                                   0x31,
+                                                                                                   0x32,
+                                                                                                   0x33,
+                                                                                                   0x34,
+                                                                                                   0x31,
+                                                                                                   0x41,
+                                                                                                   0x31,
+                                                                                                   0x30,
+                                                                                                   0x31,
+                                                                                                   0x00,
+                                                                                                   0x00,
+                                                                                                   0x00,
+                                                                                                   0x00));
+
+        when(communicationsModule.requestDM19(any())).thenReturn(RequestResult.of(dm19));
+
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setEmissionUnits(1);
+        dataRepository.setVehicleInformation(vehicleInformation);
+
+        when(communicationsModule.requestDM19(any(), eq(0)))
+                                                            .thenReturn(BusResult.of(
+                                                                                     dm19));
+
+        runTest();
+
+        verify(mockListener).addOutcome(eq(PART_NUMBER),
+                                        eq(STEP_NUMBER),
+                                        eq(WARN),
+                                        eq("6.1.7.3.a - Total number of reported CAL IDs is > user entered value for number of emission or diagnostic critical control units"));
+        verify(mockListener).addOutcome(eq(PART_NUMBER),
+                                        eq(STEP_NUMBER),
+                                        eq(INFO),
+                                        eq("6.1.7.3.b - Engine #1 (0) provided more than one CAL ID and CVN pair in a single DM19 message"));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(communicationsModule).requestDM19(any());
+        verify(communicationsModule).requestDM19(any(), eq(0));
+
     }
 }

@@ -107,10 +107,10 @@ public class Part01Step09Controller extends StepController {
             }
 
             // 6.1.9.3.a. Warn if the serial number field (SP 588) from any function 0 device is
-            // less than eight characters long.
-            if (length < 8) {
+            // less than six characters long.
+            if (length < 6) {
                 addWarning("6.1.9.3.a - Serial number field (SP 588) from " + function0Name
-                        + " is less than eight characters long");
+                        + " is less than six characters long");
             }
         }
 

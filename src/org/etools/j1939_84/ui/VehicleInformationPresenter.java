@@ -8,6 +8,7 @@ import static org.etools.j1939_84.J1939_84.getLogger;
 import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -80,7 +81,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     /**
      * The component Id for the emissions units on the vehicle
      */
-    private final List<ComponentIdentificationPacket> emissionUnitsFound = Collections.emptyList();
+    private final List<ComponentIdentificationPacket> emissionUnitsFound = new ArrayList<>();
     /**
      * The value the user has entered for the engine model year
      */

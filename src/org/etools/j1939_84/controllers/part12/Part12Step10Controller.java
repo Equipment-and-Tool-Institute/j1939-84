@@ -105,7 +105,7 @@ public class Part12Step10Controller extends StepController {
                       addFailure("6.12.10.4.a - " + moduleName + " responded with a NACK");
                   });
 
-        // 6.12.10.4.b. Warn if any OBD ECU responds with an ACK.
+        // 6.12.10.4.b. Info if any OBD ECU responds with an ACK.
         obdPackets.stream()
                   .map(p -> new DM11ClearActiveDTCsPacket(p.getPacket()))
                   .filter(p -> p.getResponse() == ACK)

@@ -3432,7 +3432,7 @@ public class CommunicationsModuleTest {
 
         GenericPacket packet = new GenericPacket(Packet.create(pgn,
                                                                moduleAddress,
-                                                               true,
+                                                               false,
                                                                0xFD,
                                                                0xFF,
                                                                0xFF,
@@ -3455,7 +3455,7 @@ public class CommunicationsModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM57 Request to Instrument Cluster #1 (23)" + NL;
         expected += "10:15:30.0000 18EA17A5 [3] C6 FC 00 (TX)" + NL;
-        expected += "10:15:30.0000 18FCC617 [9] FD FF FF FF FF FF FF FF FF (TX)" + NL;
+        expected += "10:15:30.0000 18FCC617 [9] FD FF FF FF FF FF FF FF FF" + NL;
         expected += "OBD Information from Instrument Cluster #1 (23): " + NL;
         expected += "  SPN  5843, Engine Warm-up Sequence: A warm-up cycle has occurred on this engine start"
                 + NL + NL;

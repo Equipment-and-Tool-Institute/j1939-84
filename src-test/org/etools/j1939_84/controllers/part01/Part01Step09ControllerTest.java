@@ -72,7 +72,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
     private static final String EXPECTED_FAIL_MESSAGE_6_A = "6.1.9.6.a - Engine #2 (1) did not supported the Component ID for the global query, but supported it in the destination specific query";
 
-    private static final String EXPECTED_INFO_MESSAGE_3_A = "6.1.9.3.a - Serial number field (SP 588) from Engine #1 (0) is less than eight characters long";
+    private static final String EXPECTED_INFO_MESSAGE_3_A = "6.1.9.3.a - Serial number field (SP 588) from Engine #1 (0) is less than six characters long";
 
     private static final String EXPECTED_WARN_MESSAGE_3_B = "6.1.9.3.b - The make field (SP 586) from Engine #1 (0) is longer than five ASCII characters";
 
@@ -512,7 +512,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.1.9.3.a - Serial number field (SP 588) from Engine #1 (0) is less than eight characters long");
+                                        "6.1.9.3.a - Serial number field (SP 588) from Engine #1 (0) is less than six characters long");
     }
 
     /**
@@ -916,12 +916,12 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
      */
     @Test
     @TestDoc(value = {
-            @TestItem(verifies = "6.1.9.3.a", description = "Warn if the serial number field (SP 588) from any function 0 device is less than eight(8) characters long.") })
-    public void testSerialNumberEightCharactersWarning() {
+            @TestItem(verifies = "6.1.9.3.a", description = "Warn if the serial number field (SP 588) from any function 0 device is less than six characters long.") })
+    public void testSerialNumberSixCharactersWarning() {
         ComponentIdentificationPacket packet = create(0,
                                                       "Bat",
                                                       "TheBatCave",
-                                                      "S123456",
+                                                      "12345",
                                                       "");
 
         OBDModuleInformation obdModule0x00 = createOBDModuleInformation(0x00,

@@ -101,7 +101,7 @@ public class Part08Step13Controller extends StepController {
 
         // 6.8.13.2.c Warn if any OBD ECU NACKs with control byte = 3
         dsPackets.stream()
-                 .filter(a1 -> a1.getResponse() == NACK)
+                 .filter(a1 -> a1.getResponse() == BUSY)
                  .map(ParsedPacket::getSourceAddress)
                  .distinct()
                  .sorted()

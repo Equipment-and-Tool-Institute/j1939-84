@@ -64,4 +64,44 @@ public class DM56EngineFamilyPacketTest {
         assertNull(instance.getEngineModelYear());
         assertEquals(Integer.valueOf(2039), instance.getVehicleModelYear());
     }
+
+    @Test
+    public void testReal1() {
+        String bytes = "2024E-MYRPCRH12.9.21*000";
+        Packet packet = Packet.create(0, 0, bytes.getBytes(StandardCharsets.UTF_8));
+        DM56EngineFamilyPacket instance = new DM56EngineFamilyPacket(packet);
+        assertEquals("2024E-MY", instance.getModelYearField());
+        assertEquals("RPCRH12.9.21", instance.getFamilyName());
+        assertEquals(12, instance.getFamilyName().length());
+    }
+
+    @Test
+    public void testReal2() {
+        String bytes = "2024E-MYRPCRH12.9.21";
+        Packet packet = Packet.create(0, 0, bytes.getBytes(StandardCharsets.UTF_8));
+        DM56EngineFamilyPacket instance = new DM56EngineFamilyPacket(packet);
+        assertEquals("2024E-MY", instance.getModelYearField());
+        assertEquals("RPCRH12.9.21", instance.getFamilyName());
+        assertEquals(12, instance.getFamilyName().length());
+    }
+
+    @Test
+    public void testReal4() {
+        String bytes = "2024E-MYRPCRH12.9.21XXX*\0";
+        Packet packet = Packet.create(0, 0, bytes.getBytes(StandardCharsets.UTF_8));
+        DM56EngineFamilyPacket instance = new DM56EngineFamilyPacket(packet);
+        assertEquals("2024E-MY", instance.getModelYearField());
+        assertEquals("RPCRH12.9.21XXX", instance.getFamilyName());
+        assertEquals(15, instance.getFamilyName().length());
+    }
+
+    @Test
+    public void testReal3() {
+        String bytes = "2024E-MYRPCRH12.9.21\0\0\0";
+        Packet packet = Packet.create(0, 0, bytes.getBytes(StandardCharsets.UTF_8));
+        DM56EngineFamilyPacket instance = new DM56EngineFamilyPacket(packet);
+        assertEquals("2024E-MY", instance.getModelYearField());
+        assertEquals("RPCRH12.9.21", instance.getFamilyName());
+        assertEquals(12, instance.getFamilyName().length());
+    }
 }

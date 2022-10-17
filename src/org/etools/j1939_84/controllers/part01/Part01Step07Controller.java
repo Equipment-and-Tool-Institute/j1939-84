@@ -143,13 +143,13 @@ public class Part01Step07Controller extends StepController {
             List<CalibrationInformation> calInfoList = packet.getCalibrationInformation();
             for (CalibrationInformation calInfo : calInfoList) {
                 // trimmed to verify calId, not raw cal Id
-                byte[] calId = new String(calInfo.getRawCalId()).getBytes();
+                byte[] calId = new String(calInfo.getRawCalId()).trim().getBytes();
                 boolean isObdModule = isObdModule(packet.getSourceAddress());
 
                 if (calId != null && calId.length > 0 && StringUtils.containsNonPrintableAsciiCharacter(calId)) {
                     String moduleName = packet.getModuleName();
                     if (isObdModule) {
-                        addFailure("6.1.7.2.b.ii - OBD ECU " + moduleName
+                         addFailure("6.1.7.2.b.ii - OBD ECU " + moduleName
                                 + " CAL ID not formatted correctly (contains non-printable ASCII)");
                     } else {
                         addWarning("6.1.7.3.d.iii - Non-OBD ECU " + moduleName
