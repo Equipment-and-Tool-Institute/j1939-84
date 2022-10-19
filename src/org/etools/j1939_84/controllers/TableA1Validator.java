@@ -104,7 +104,7 @@ public class TableA1Validator {
     }
 
     private Collection<Integer> getAllSupportedSPNs() {
-        return getModuleSupportedSPNs(null);
+        return dataRepository.getModuleSupportedSPNs(null);
     }
 
     private Map<Integer, List<Integer>> getMessages(int moduleAddress, ResultsListener listener) {
@@ -154,31 +154,6 @@ public class TableA1Validator {
             pgnMap.put(key, spns);
         }
         return pgnMap;
-    }
-
-    private Collection<OBDModuleInformation> getModules(Integer moduleAddress) {
-        Collection<OBDModuleInformation> modules;
-        if (moduleAddress == null) {
-            modules = dataRepository.getObdModules();
-        } else {
-            OBDModuleInformation obdModule = dataRepository.getObdModule(moduleAddress);
-            if (obdModule == null) {
-                modules = List.of(); // Don't return Supported SPNs for non-OBD Modules
-            } else {
-                modules = List.of(obdModule);
-            }
-        }
-        return modules;
-    }
-
-    private List<Integer> getModuleSupportedSPNs(Integer moduleAddress) {
-        return getModules(moduleAddress)
-                                        .stream()
-                                        .flatMap(m -> m.getFilteredDataStreamSPNs().stream())
-                                        .map(SupportedSPN::getSpn)
-                                        .distinct()
-                                        .sorted()
-                                        .collect(Collectors.toList());
     }
 
     private Set<Integer> getReportedPGNs(int moduleAddress) {
@@ -273,8 +248,9 @@ public class TableA1Validator {
             return;
         }
 
-        Collection<Integer> moduleSPNs = getModuleSupportedSPNs(moduleAddress);
+        Collection<Integer> moduleSPNs = dataRepository.getModuleSupportedSPNs(moduleAddress);
 
+        // FIXME, why copy and sort?
         List<Spn> toSort = new ArrayList<>(packet.getSpns());
         toSort.sort(Comparator.comparingInt(Spn::getId));
         for (Spn spn : toSort) {
@@ -353,7 +329,7 @@ public class TableA1Validator {
             return;
         }
 
-        Collection<Integer> moduleSPNs = getModuleSupportedSPNs(moduleAddress);
+        Collection<Integer> moduleSPNs = dataRepository.getModuleSupportedSPNs(moduleAddress);
 
         // Find any Supported SPNs which has a value of Not Available
         packet.getSpns()
@@ -388,7 +364,7 @@ public class TableA1Validator {
             int moduleAddress = packet.getSourceAddress();
             int pgn = packet.getPacket().getPgn();
 
-            Collection<Integer> spns = dataRepository.isObdModule(moduleAddress) ? getModuleSupportedSPNs(moduleAddress)
+            Collection<Integer> spns = dataRepository.isObdModule(moduleAddress) ? dataRepository.getModuleSupportedSPNs(moduleAddress)
                     : getAllSupportedSPNs();
             List<String> supportedSPNs = getSupportedSPNs(spns, packet);
             if (forceReporting || !supportedSPNs.isEmpty()) {
@@ -419,7 +395,7 @@ public class TableA1Validator {
                                                  .stream()
                                                  .filter(s -> !s.isNotAvailable())
                                                  .map(Spn::getId)
-                                                 .filter(s -> !getModuleSupportedSPNs(sourceAddress).contains(s))
+                                                 .filter(s -> !dataRepository.getModuleSupportedSPNs(sourceAddress).contains(s))
                                                  .collect(Collectors.toSet());
 
         Map<Integer, Outcome> outcomes = new HashMap<>();
