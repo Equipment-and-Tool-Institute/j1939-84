@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
+import org.etools.j1939tools.j1939.packets.SupportedSPN;
 
 public class DataRepository {
 
@@ -101,5 +102,34 @@ public class DataRepository {
 
     public void setPart11StartTime(long part11StartTime) {
         this.part11StartTime = part11StartTime;
+    }
+
+    private Collection<OBDModuleInformation> getOBDModules(Integer moduleAddress) {
+        Collection<OBDModuleInformation> modules;
+        if (moduleAddress == null) {
+            modules = getObdModules();
+        } else {
+            OBDModuleInformation obdModule = getObdModule(moduleAddress);
+            if (obdModule == null) {
+                modules = List.of(); // Don't return Supported SPNs for non-OBD Modules
+            } else {
+                modules = List.of(obdModule);
+            }
+        }
+        return modules;
+    }
+
+    private final Map<Integer, List<Integer>> supportedSpnsByAddress = new HashMap<>();
+
+    public List<Integer> getModuleSupportedSPNs(Integer moduleAddress) {
+        return supportedSpnsByAddress.computeIfAbsent(moduleAddress,
+                                                      // this is expensive
+                                                      a -> getOBDModules(a).stream()
+                                                                           .flatMap(m -> m.getFilteredDataStreamSPNs()
+                                                                                          .stream())
+                                                                           .map(SupportedSPN::getSpn)
+                                                                           .distinct()
+                                                                           .sorted()
+                                                                           .collect(Collectors.toList()));
     }
 }

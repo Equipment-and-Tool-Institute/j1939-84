@@ -5,6 +5,9 @@
 package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.util.List;
@@ -19,10 +22,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import junit.framework.TestCase;
-
 @RunWith(MockitoJUnitRunner.class)
-public class SupportedSpnModuleTest extends TestCase {
+public class SupportedSpnModuleTest {
     @Mock
     private ResultsListener mockListener;
 
@@ -30,7 +31,6 @@ public class SupportedSpnModuleTest extends TestCase {
 
     private SupportedSpnModule instance;
 
-    @Override
     @Before
     public void setUp() {
         listener = new TestResultsListener(mockListener);
@@ -38,7 +38,6 @@ public class SupportedSpnModuleTest extends TestCase {
         instance = new SupportedSpnModule();
     }
 
-    @Override
     @After
     public void tearDown() {
         verifyNoMoreInteractions(mockListener);
@@ -825,6 +824,7 @@ public class SupportedSpnModuleTest extends TestCase {
         assertTrue(instance.validateFreezeFrameSpns(listener, spns));
         assertEquals("", listener.getResults());
     }
+
     @Test
     public void testValidateDesiredfDataStreamSpns2024SIPassing() {
         List<Integer> spns = List.of(190,
@@ -970,6 +970,7 @@ public class SupportedSpnModuleTest extends TestCase {
         String expected = "";
         assertEquals(expected, listener.getResults());
     }
+
     @Test
     public void testIsMoreThanOneSpnReportedInfoFailing() {
         List<Integer> spns = List.of(110,

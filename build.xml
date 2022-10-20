@@ -139,7 +139,7 @@
     <target name="run.tests" depends="clean, compile.tests" description="Runs the unit tests">
         <mkdir dir="${build}/tests"/>
         <jacoco:coverage destfile="${build}/jacoco/jacoco.exec">
-            <junit printsummary="yes" haltonfailure="no" fork="yes">
+            <junit printsummary="yes" haltonfailure="no" fork="yes" forkmode="once">
                 <jvmarg value="-Dfile.encoding=UTF-8"/>
                 <classpath refid="unit.test.path"/>
 
