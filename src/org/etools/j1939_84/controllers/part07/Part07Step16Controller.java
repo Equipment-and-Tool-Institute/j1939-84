@@ -105,18 +105,18 @@ public class Part07Step16Controller extends StepController {
                           + " did not provide a NACK for the DS query")
                   .forEach(this::addFailure);
 
-        // 6.7.16.4.b. Fail if any OBD ECU erases any diagnostic information. See Section A.5 for more information.
-        verifier.verifyDataNotErased(getListener(), "6.7.16.4.b");
-
-        // 6.7.2.16.4.c Warn if any OBD ECU NACKs with control byte = 3
+        // 6.7.16.4.b Warn if any OBD ECU NACKs with control byte = 3
         dsPackets.stream()
                  .filter(a1 -> a1.getResponse() == BUSY)
                  .map(ParsedPacket::getSourceAddress)
                  .distinct()
                  .sorted()
                  .map(Lookup::getAddressName)
-                 .map(moduleName -> "6.7.16.4.c" + " - OBD ECU " + moduleName
+                 .map(moduleName -> "6.7.16.4.b" + " - OBD ECU " + moduleName
                          + " did provide a NACK with control byte = 3 for the DS query")
                  .forEach(this::addWarning);
+
+        // 6.7.16.4.c. Fail if any OBD ECU erases any diagnostic information. See Section A.5 for more information.
+        verifier.verifyDataNotErased(getListener(), "6.7.16.4.c");
     }
 }

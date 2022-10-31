@@ -208,6 +208,12 @@ public class CommunicationsModule extends FunctionalModule {
         return requestDMPackets(getPgDefinition(DM24SPNSupportPacket.PGN).getAcronym(), DM24SPNSupportPacket.class, obdModuleAddress, listener).busResult();
     }
 
+    public BusResult<DM25ExpandedFreezeFrame> requestDM25(CommunicationsListener listener, int address, DM24SPNSupportPacket dm24) {
+        BusResult<DM25ExpandedFreezeFrame> busResult = requestDM25(listener, address);
+        busResult.requestResult().getPackets().forEach(dm25 -> dm25.setSupportedSpns(dm24.getFreezeFrameSPNsInOrder()));
+        return busResult;
+    }
+
     public BusResult<DM25ExpandedFreezeFrame> requestDM25(CommunicationsListener listener, int address) {
         return requestDMPackets(getPgDefinition(DM25ExpandedFreezeFrame.PGN).getAcronym(), DM25ExpandedFreezeFrame.class, address, listener).busResult();
     }

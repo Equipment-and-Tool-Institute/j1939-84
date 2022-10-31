@@ -194,7 +194,7 @@ public class Part06Step07ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.6.7.2.b - The DTC (12:14) provided by Engine #1 (0) does not match DM12 active DTC");
+                                        "6.6.7.2.b - Engine #1 (0) DM28 does not include the DM12 active DTC that the SA reported from earlier in this part.");
     }
 
     @Test

@@ -88,15 +88,14 @@ public class Part09Step12Controller extends StepController {
         // 6.9.12.2.c. Fail if NACK not received from OBD ECUs that did not provide a DM28 message.
         checkForNACKsDS(dsPackets, filterRequestResultAcks(dsResults), "6.9.12.2.c");
 
-        // 6.9.12.3.a. Warn if permanent DTC is different than DM12 DTC earlier in this part.
-        dsPackets.stream()
-                 .filter(p -> !p.getDtcs().equals(getDTCs(p.getSourceAddress())))
-                 .map(ParsedPacket::getModuleName)
-                 .forEach(moduleName -> {
-                     addWarning("6.9.12.3.a - " + moduleName
-                             + " reported different DTC than DM12 response earlier in step 6.9.2.1.b");
-                 });
-
+        // 6.9.12.3.a. Warn if permanent DTC response from the SA reporting a DM12 active DTC does not include the DM12
+        // active DTC that the SA reported earlier in this part in test 6.9.2.
+        dsPackets.forEach(p -> {
+            if (!p.getDtcs().containsAll(getDTCs(p.getSourceAddress()))) {
+                addWarning("6.9.12.3.a - " + p.getModuleName()
+                        + " DM28 does not include the DM12 active DTC that the SA reported earlier in this part in test 6.9.2.1.b");
+            }
+        });
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int address) {

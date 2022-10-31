@@ -73,13 +73,11 @@ public class Part08Step07Controller extends StepController {
         }
 
         // 6.8.7.2.b. Fail if permanent DTC does not match DM12 DTC from earlier in test 6.8.2.
-        globalPackets.stream()
-                     .filter(p -> !p.getDtcs().equals(getDTCs(p.getSourceAddress())))
-                     .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> {
-                         addFailure("6.8.7.2.b - " + moduleName
-                                 + " permanent DTC does not match DM12 DTC from earlier in test 6.8.2");
-                     });
+        globalPackets.forEach(p -> {
+            if (!p.getDtcs().containsAll(getDTCs(p.getSourceAddress()))) {
+                         addFailure("6.8.7.2.b - " + p.getModuleName()
+                                 + " DM28 does not include the DM12 active DTC that the SA reported from earlier in this part.");
+                     }});
 
         // 6.8.7.2.c. Fail if any ECU reporting different MIL status than DM12 response earlier in test 6.8.2.
         globalPackets.stream()

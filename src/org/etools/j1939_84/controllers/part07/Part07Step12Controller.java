@@ -15,6 +15,7 @@ import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939tools.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
@@ -63,7 +64,11 @@ public class Part07Step12Controller extends StepController {
         // 6.7.12.1.a. DS DM25 ([send Request (PGN 59904) for PGN 64951 (SPNs 3300, 1214-1215)]) to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getCommunicationsModule().requestDM25(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM25(getListener(),
+                                                                                           a,
+                                                                                           get(DM24SPNSupportPacket.class,
+                                                                                               a,
+                                                                                               1)))
                                            .collect(Collectors.toList());
 
         var packets = filterPackets(dsResults);
@@ -82,12 +87,13 @@ public class Part07Step12Controller extends StepController {
         // 6.7.12.2.b. Fail if DTC in reported Freeze Frame data does not include the DTC provided by DM23 earlier in
         // this part.
         for (DM25ExpandedFreezeFrame dm25 : packets) {
-            int address = dm25.getSourceAddress();
-            for (DiagnosticTroubleCode dtc : getDTCs(address)) {
-                if (dm25.getFreezeFrameWithDTC(dtc) == null) {
-                    addFailure("6.7.12.2.b - " + dm25.getModuleName()
-                            + " did not reported DTC in Freeze Frame data which included the DTC provided by DM23 earlier in this part");
-                }
+            List<DiagnosticTroubleCode> ffDTCs = dm25.getFreezeFrames()
+                                                     .stream()
+                                                     .map(ff -> ff.getDtc())
+                                                     .collect(Collectors.toList());
+            if (!ffDTCs.containsAll(getDTCs(dm25.getSourceAddress()))) {
+                addFailure("6.7.12.2.b - " + dm25.getModuleName()
+                        + " did not reported DTC in Freeze Frame data which included the DTC provided by DM23 earlier in this part");
             }
         }
 

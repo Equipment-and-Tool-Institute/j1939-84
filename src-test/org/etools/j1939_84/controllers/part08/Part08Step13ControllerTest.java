@@ -152,7 +152,7 @@ public class Part08Step13ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestDM3(any(), eq(0));
         verify(communicationsModule).requestDM3(any());
 
-        verify(verifier).verifyDataNotErased(any(), eq("6.8.13.2.b"));
+        verify(verifier).verifyDataNotErased(any(), eq("6.8.13.2.c"));
         verify(verifier).verifyDataNotErased(any(), eq("6.8.13.4.a"));
 
         assertEquals(10000, dateTimeModule.getTimeAsLong());
@@ -186,7 +186,7 @@ public class Part08Step13ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestDM3(any(), eq(0));
         verify(communicationsModule).requestDM3(any());
 
-        verify(verifier).verifyDataNotErased(any(), eq("6.8.13.2.b"));
+        verify(verifier).verifyDataNotErased(any(), eq("6.8.13.2.c"));
         verify(verifier).verifyDataNotErased(any(), eq("6.8.13.4.a"));
 
         assertEquals(10000, dateTimeModule.getTimeAsLong());
@@ -205,7 +205,7 @@ public class Part08Step13ControllerTest extends AbstractControllerTest {
         assertEquals(expected, listener.getMessages());
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, Outcome.WARN,
-                                        "6.8.13.2.c - OBD ECU Engine #1 (0) did provide a NACK with control byte = 3 for the DS query");
+                                        "6.8.13.2.b - OBD ECU Engine #1 (0) did provide a NACK with control byte = 3 for the DS query");
   }
 
     @Test
@@ -225,7 +225,7 @@ public class Part08Step13ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestDM3(any(), eq(1));
         verify(communicationsModule).requestDM3(any());
 
-        verify(verifier).verifyDataNotErased(any(), eq("6.8.13.2.b"));
+        verify(verifier).verifyDataNotErased(any(), eq("6.8.13.2.c"));
         verify(verifier).verifyDataNotErased(any(), eq("6.8.13.4.a"));
 
         assertEquals(10000, dateTimeModule.getTimeAsLong());

@@ -15,6 +15,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
@@ -70,7 +71,11 @@ public class Part01Step24Controller extends StepController {
                            .stream()
                            .filter(module -> !module.getFreezeFrameSPNs().isEmpty())
                            .map(OBDModuleInformation::getSourceAddress)
-                           .map(address -> getCommunicationsModule().requestDM25(getListener(), address))
+                           .map(address -> getCommunicationsModule().requestDM25(getListener(),
+                                                                                 address,
+                                                                                 get(DM24SPNSupportPacket.class,
+                                                                                     address,
+                                                                                     1)))
                            .map(BusResult::requestResult)
                            .map(RequestResult::getPackets)
                            .flatMap(Collection::stream)

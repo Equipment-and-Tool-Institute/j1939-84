@@ -16,7 +16,6 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
-import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -75,14 +74,13 @@ public class Part11Step09Controller extends StepController {
             addFailure("6.11.9.2.a - No ECU reported a permanent DTC");
         }
 
-        // 6.11.9.2.b. Fail if the permanent DTC reported is not the same DTC as reported in DM28 in part 10.
-        packets.stream()
-               .filter(p -> !p.getDtcs().equals(getDTCs(p.getSourceAddress())))
-               .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> {
-                   addFailure("6.11.9.2.b - " + moduleName
-                           + " reported a different DTC than as reported in DM28 in part 10");
-               });
+        // 6.11.9.2.b. Fail if the permanent DTCs reported are not the same DTCs that were reported in DM28 in part 10.
+        packets.forEach(p -> {
+            if (!p.getDtcs().equals(getDTCs(p.getSourceAddress()))) {
+                addFailure("6.11.9.2.b - " + p.getModuleName()
+                        + " reported a different DTCs than as reported in DM28 in part 10");
+            }
+        });
 
         // 6.11.9.2.c. Fail if NACK not received from OBD ECUs that did not provide a DM28 message.
         checkForNACKsDS(packets, filterAcks(dsResults), "6.11.9.2.c");

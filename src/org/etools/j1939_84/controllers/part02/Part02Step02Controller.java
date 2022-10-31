@@ -93,7 +93,7 @@ public class Part02Step02Controller extends StepController {
             addFailure("6.2.2.1.a - Global DM5 request did not receive any response packets");
         }
         // 6.2.2.2.a. Fail/warn per the section A.6 Criteria for Readiness 1 Evaluation.27
-        sectionA6Validator.verify(getListener(), "6.2.2.2.a", globalDM5Result);
+        sectionA6Validator.verify(getListener(), "6.2.2.2.a", globalDM5Result,true);
 
         // 6.2.2.2.b. Fail if any OBD ECU reports active DTC count not = 0.
         obdGlobalPackets.stream()
@@ -109,10 +109,6 @@ public class Part02Step02Controller extends StepController {
                         .map(ParsedPacket::getModuleName)
                         .forEach(moduleName -> addFailure("6.2.2.2.b - OBD ECU " + moduleName
                                 + " reported previously active DTC count not = 0"));
-
-        // 6.2.2.2.c. Warn if any individual required monitor, except Continuous Component Monitoring (CCM) is supported
-        // by more than one OBD ECU.
-        reportDuplicateCompositeSystems(globalDM5Packets, "6.2.2.2.c");
 
         // 6.2.2.3.a. DS DM5 to each OBD ECU.
         List<DM5DiagnosticReadinessPacket> destinationSpecificPackets = new ArrayList<>();

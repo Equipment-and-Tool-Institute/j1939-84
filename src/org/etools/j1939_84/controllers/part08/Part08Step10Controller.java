@@ -16,6 +16,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939tools.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939tools.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
@@ -66,7 +67,11 @@ public class Part08Step10Controller extends StepController {
         // 6.8.10.1.a. DS DM25 [(send Request (PGN 59904) for PGN 64951 (SPNs 3300, 1214, 1215)]) to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getCommunicationsModule().requestDM25(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM25(getListener(),
+                                                                                           a,
+                                                                                           get(DM24SPNSupportPacket.class,
+                                                                                               a,
+                                                                                               1)))
                                            .collect(Collectors.toList());
 
         var packets = filterPackets(dsResults);
@@ -74,13 +79,14 @@ public class Part08Step10Controller extends StepController {
 
         // 6.8.10.2.a. Fail if DTC(s) reported in the freeze frame does not include either the DTC reported in DM12 or
         // the DTC reported in DM23 earlier in this part
-        packets.stream()
-               .filter(this::hasFreezeFrameWithoutDM12orDM23DTC)
-               .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> {
-                   addFailure("6.8.10.2.a - DTC(s) reported in the freeze frame by " + moduleName
-                           + " did not include either the DTC reported in DM12 or DM23 earlier in this part");
-               });
+        packets.forEach(pp -> {
+            var ffDTCs = pp.getFreezeFrames().stream().map(ff -> ff.getDtc()).collect(Collectors.toList());
+            if (!ffDTCs.containsAll(getDM12DTCs(pp.getSourceAddress()))
+                    || !ffDTCs.containsAll(getDM23DTCs(pp.getSourceAddress()))) {
+                addFailure("6.8.10.2.a - DTC(s) reported in the freeze frame by " + pp.getModuleName()
+                        + " did not include either the DTC reported in DM12 or DM23 earlier in this part");
+            }
+        });
 
         // 6.8.10.2.b. Fail if no ECU provides freeze frame data
         boolean noFreezeFrames = packets.stream().allMatch(p -> p.getFreezeFrames().isEmpty());
@@ -92,27 +98,23 @@ public class Part08Step10Controller extends StepController {
         checkForNACKsDS(packets, filterAcks(dsResults), "6.8.10.2.c");
 
         // 6.8.10.3.a. Warn if DTC reported by DM23 earlier in this part is not present in the freeze frame data.
-        packets.stream()
-               .filter(p -> dm25DoesNotContainDTCs(p, getDM23DTCs(p.getSourceAddress())))
-               .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> {
-                   addWarning("6.8.10.3.a - DTC(s) reported by DM23 earlier in this part is/are not present in the freeze frame data from "
-                           + moduleName);
-               });
-    }
-
-    private boolean hasFreezeFrameWithoutDM12orDM23DTC(DM25ExpandedFreezeFrame p) {
-        return p.getFreezeFrames()
-                .stream()
-                .anyMatch(f -> !getDTCs(p.getSourceAddress()).contains(f.getDtc()));
-    }
-
-    private static boolean dm25DoesNotContainDTCs(DM25ExpandedFreezeFrame dm25, List<DiagnosticTroubleCode> dtcs) {
-        return !dtcs.stream().allMatch(dtc -> dm25.getFreezeFrameWithDTC(dtc) != null);
+        packets.forEach(p -> {
+            List<DiagnosticTroubleCode> ffDTCs = p.getFreezeFrames()
+                                                  .stream()
+                                                  .map(ff -> ff.getDtc())
+                                                  .collect(Collectors.toList());
+            if (!ffDTCs.containsAll(getDM23DTCs(p.getSourceAddress())))
+                addWarning("6.8.10.3.a - DTC(s) reported by DM23 earlier in this part is/are not present in the freeze frame data from "
+                        + p.getModuleName());
+        });
     }
 
     private List<DiagnosticTroubleCode> getDM23DTCs(int address) {
         return getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class, address, 8);
+    }
+
+    private List<DiagnosticTroubleCode> getDM12DTCs(int address) {
+        return getDTCs(DM12MILOnEmissionDTCPacket.class, address, 8);
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int address) {

@@ -431,7 +431,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(PART_NUMBER),
                                         eq(STEP_NUMBER),
                                         eq(WARN),
-                                        eq("6.1.7.3.c - CAL ID ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ has 00h is in either the first or fourth bytes"));
+                                        eq("6.1.7.3.c - CAL ID ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ has CVN 0x00000000 which has 00h in either the first or fourth bytes"));
         verify(mockListener, times(1)).addOutcome(eq(PART_NUMBER),
                                                   eq(STEP_NUMBER),
                                                   eq(FAIL),
@@ -1179,7 +1179,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(7),
                                         eq(WARN),
-                                        eq("6.1.7.3.c - CAL ID QaD;QaD;QaD;QaD; has 00h is in either the first or fourth bytes"));
+                                        eq("6.1.7.3.c - CAL ID QaD;QaD;QaD;QaD; has CVN 0x00000000 which has 00h in either the first or fourth bytes"));
         verify(mockListener).addOutcome(eq(1),
                                         eq(7),
                                         eq(FAIL),
@@ -2007,7 +2007,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(7),
                                         eq(WARN),
-                                        eq("6.1.7.3.c - CAL ID     calids       has 00h is in either the first or fourth bytes"));
+                                        eq("6.1.7.3.c - CAL ID     calids       has CVN 0xBD51BA00 which has 00h in either the first or fourth bytes"));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

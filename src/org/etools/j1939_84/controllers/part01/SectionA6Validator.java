@@ -54,7 +54,8 @@ public class SectionA6Validator {
 
     public void verify(ResultsListener listener,
                        String section,
-                       RequestResult<DM5DiagnosticReadinessPacket> response) {
+                       RequestResult<DM5DiagnosticReadinessPacket> response,
+                       boolean engineHasRun) {
 
         // A6.1. The response from each responding device shall be evaluated
         // separately using a through d below:
@@ -156,7 +157,7 @@ public class SectionA6Validator {
         var compositeSystems = CommunicationsModule.getCompositeSystems(obdPackets, true);
 
         // A6.2.c. Fail if composite vehicle readiness does not meet any of the criteria in Table A-6.
-        tableA6Validator.verify(listener, compositeSystems, section + " (A6.2.c)");
+        tableA6Validator.verify(listener, compositeSystems, section + " (A6.2.c)", engineHasRun);
 
         // A6.2.d. Warn if any individual required monitor, except Continuous Component Monitoring (CCM)
         // is supported by more than one OBD ECU.

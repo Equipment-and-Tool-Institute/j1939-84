@@ -89,7 +89,7 @@ public class TableA6ValidatorTest {
     }
 
     @Test
-    public void testVerifyCompression() {
+    public void testVerifyCompressionNotRun() {
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.DSL);
@@ -160,7 +160,7 @@ public class TableA6ValidatorTest {
                               system15,
                               system16);
 
-        instance.verify(listener, getCompositeSystems(systems, true), "6.1.2.3.a");
+        instance.verify(listener, getCompositeSystems(systems, true), "6.1.2.3.a", false);
 
         verify(mockListener).addOutcome(
                                         1,
@@ -212,6 +212,148 @@ public class TableA6ValidatorTest {
                                         2,
                                         FAIL,
                                         "6.1.2.3.a - Composite vehicle readiness for Fuel System did not meet the criteria of Table A4");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a - Composite vehicle readiness for Heated catalyst did not meet the criteria of Table A4");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a - Composite vehicle readiness for Misfire did not meet the criteria of Table A4");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a - Composite vehicle readiness for Secondary air system did not meet the criteria of Table A4");
+
+    }
+
+    @Test
+    public void testVerifyCompressionHasRun() {
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(FuelType.DSL);
+        dataRepository.setVehicleInformation(vehicleInformation);
+
+        MonitoredSystemStatus status1 = findStatus(true, false, false);
+        MonitoredSystem system1 = new MonitoredSystem(AC_SYSTEM_REFRIGERANT, status1, 0, true);
+
+        MonitoredSystemStatus status2 = findStatus(true, true, true);
+        MonitoredSystem system2 = new MonitoredSystem(BOOST_PRESSURE_CONTROL_SYS, status2, 0x00, true);
+
+        MonitoredSystemStatus status3 = findStatus(true, false, false);
+        MonitoredSystem system3 = new MonitoredSystem(CATALYST, status3, 0x00, true);
+
+        MonitoredSystemStatus status4 = findStatus(true, true, true);
+        MonitoredSystem system4 = new MonitoredSystem(COLD_START_AID_SYSTEM, status4, 0x00, true);
+
+        MonitoredSystemStatus status5 = findStatus(true, true, true);
+        MonitoredSystem system5 = new MonitoredSystem(COMPREHENSIVE_COMPONENT, status5, 0x00, true);
+
+        MonitoredSystemStatus status6 = findStatus(true, true, true);
+        MonitoredSystem system6 = new MonitoredSystem(DIESEL_PARTICULATE_FILTER, status6, 0x00, true);
+
+        MonitoredSystemStatus status7 = findStatus(true, true, true);
+        MonitoredSystem system7 = new MonitoredSystem(EGR_VVT_SYSTEM, status7, 0x00, true);
+
+        MonitoredSystemStatus status8 = findStatus(true, false, false);
+        MonitoredSystem system8 = new MonitoredSystem(EVAPORATIVE_SYSTEM, status8, 0x00, true);
+
+        MonitoredSystemStatus status9 = findStatus(true, true, true);
+        MonitoredSystem system9 = new MonitoredSystem(EXHAUST_GAS_SENSOR, status9, 0x00, true);
+
+        MonitoredSystemStatus status10 = findStatus(true, true, true);
+        MonitoredSystem system10 = new MonitoredSystem(EXHAUST_GAS_SENSOR_HEATER, status10, 0x00, true);
+
+        MonitoredSystemStatus status11 = findStatus(true, true, true);
+        MonitoredSystem system11 = new MonitoredSystem(FUEL_SYSTEM, status11, 0x00, true);
+
+        MonitoredSystemStatus status12 = findStatus(true, false, false);
+        MonitoredSystem system12 = new MonitoredSystem(HEATED_CATALYST, status12, 0x00, true);
+
+        MonitoredSystemStatus status13 = findStatus(true, true, true);
+        MonitoredSystem system13 = new MonitoredSystem(MISFIRE, status13, 0x00, true);
+
+        MonitoredSystemStatus status14 = findStatus(true, true, false);
+        MonitoredSystem system14 = new MonitoredSystem(NMHC_CONVERTING_CATALYST, status14, 0x00, true);
+
+        MonitoredSystemStatus status15 = findStatus(true, true, false);
+        MonitoredSystem system15 = new MonitoredSystem(NOX_CATALYST_ABSORBER, status15, 0x00, true);
+
+        MonitoredSystemStatus status16 = findStatus(true, false, false);
+        MonitoredSystem system16 = new MonitoredSystem(SECONDARY_AIR_SYSTEM, status16, 0x00, true);
+
+        var systems = List.of(system1,
+                              system2,
+                              system3,
+                              system4,
+                              system5,
+                              system6,
+                              system7,
+                              system8,
+                              system9,
+                              system10,
+                              system11,
+                              system12,
+                              system13,
+                              system14,
+                              system15,
+                              system16);
+
+        instance.verify(listener, getCompositeSystems(systems, true), "6.1.2.3.a", true);
+
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a - Composite vehicle readiness for A/C system refrigerant did not meet the criteria of Table A4");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a - Composite vehicle readiness for Boost pressure control sys did not meet the criteria of Table A4");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a - Composite vehicle readiness for Catalyst did not meet the criteria of Table A4");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a - Composite vehicle readiness for Cold start aid system did not meet the criteria of Table A4");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a - Composite vehicle readiness for Diesel Particulate Filter did not meet the criteria of Table A4");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a - Composite vehicle readiness for EGR/VVT system did not meet the criteria of Table A4");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a - Composite vehicle readiness for Evaporative system did not meet the criteria of Table A4");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a - Composite vehicle readiness for Exhaust Gas Sensor did not meet the criteria of Table A4");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        FAIL,
+                                        "6.1.2.3.a - Composite vehicle readiness for Exhaust Gas Sensor heater did not meet the criteria of Table A4");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        INFO,
+                                        "6.1.2.3.a - Fuel System is supported, complete");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
@@ -305,7 +447,7 @@ public class TableA6ValidatorTest {
         vehicleInformation.setEngineModelYear(2013);
         dataRepository.setVehicleInformation(vehicleInformation);
 
-        instance.verify(listener, getCompositeSystems(systems, true), "6.1.2.3.a");
+        instance.verify(listener, getCompositeSystems(systems, true), "6.1.2.3.a", false);
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -456,7 +598,7 @@ public class TableA6ValidatorTest {
         systems.add(system15);
         systems.add(system16);
 
-        instance.verify(listener, getCompositeSystems(systems, true), "6.1.2.3.a");
+        instance.verify(listener, getCompositeSystems(systems, true), "6.1.2.3.a", false);
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -582,7 +724,7 @@ public class TableA6ValidatorTest {
         vehicleInformation.setFuelType(FuelType.GAS);
         dataRepository.setVehicleInformation(vehicleInformation);
 
-        instance.verify(listener, getCompositeSystems(systems, true), "6.1.2.3.a");
+        instance.verify(listener, getCompositeSystems(systems, true), "6.1.2.3.a", false);
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -737,7 +879,7 @@ public class TableA6ValidatorTest {
         systems.add(system15);
         systems.add(system16);
 
-        instance.verify(listener, getCompositeSystems(systems, true), "6.1.2.3.a");
+        instance.verify(listener, getCompositeSystems(systems, true), "6.1.2.3.a", false);
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

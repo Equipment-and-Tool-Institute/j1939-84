@@ -253,7 +253,7 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
 
         verify(communicationsModule).requestDM5(any());
 
-        verify(sectionA6Validator).verify(any(), eq("6.1.13.2.a"), eq(globalRequestResponse));
+        verify(sectionA6Validator).verify(any(), eq("6.1.13.2.a"), eq(globalRequestResponse),eq(false));
 
         assertEquals("", listener.getMessages());
         String expectedVehicleComposite = NL + "Vehicle Composite of DM5:" + NL +
@@ -350,7 +350,7 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.13.2.c - No OBD ECU provided DM5 with readiness bits showing monitor support");
 
-        verify(sectionA6Validator).verify(any(), eq("6.1.13.2.a"), eq(globalRequestResponse));
+        verify(sectionA6Validator).verify(any(), eq("6.1.13.2.a"), eq(globalRequestResponse),eq(false));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -478,7 +478,7 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.13.4.b. - OBD ECU Instrument Cluster #1 (23) did not provide a response to Global query and did not provide a NACK for the DS query");
 
-        verify(sectionA6Validator).verify(any(ResultsListener.class), eq("6.1.13.2.a"), eq(globalRequestResponse));
+        verify(sectionA6Validator).verify(any(ResultsListener.class), eq("6.1.13.2.a"), eq(globalRequestResponse),eq(false));
 
         assertEquals("", listener.getMessages());
 
@@ -640,7 +640,7 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.13.4.b. - OBD ECU Hitch Control (35) did not provide a response to Global query and did not provide a NACK for the DS query");
 
-        verify(sectionA6Validator).verify(any(), eq("6.1.13.2.a"), eq(globalResponse));
+        verify(sectionA6Validator).verify(any(), eq("6.1.13.2.a"), eq(globalResponse),eq(false));
 
         assertEquals("", listener.getMessages());
         String expectedVehicleComposite = NL + "Vehicle Composite of DM5:" + NL +
@@ -771,7 +771,7 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.13.4.a - Difference compared to data received during global request from Instrument Cluster #1 (23)");
 
-        verify(sectionA6Validator).verify(any(), eq("6.1.13.2.a"), eq(globalRequestResponse));
+        verify(sectionA6Validator).verify(any(), eq("6.1.13.2.a"), eq(globalRequestResponse),eq(false));
 
         assertEquals("", listener.getMessages());
         String expectedVehicleComposite = NL + "Vehicle Composite of DM5:" + NL +

@@ -76,18 +76,12 @@ public class Part06Step07Controller extends StepController {
             addFailure("6.6.7.2.a - No ECU reported permanent DTC");
         }
 
-        // 6.6.7.2.b. Fail if permanent DTC provided does not match DM12 active DTC.
+        // 6.6.7.2.b. Fail if permanent DTC response from the SA reporting a DM12 active DTC does not include the DM12
+        // active DTC that the SA reported earlier in this part.
         packets.forEach(p -> {
-            List<DiagnosticTroubleCode> dm12DTCs = getDTCs(p.getSourceAddress());
-            List<DiagnosticTroubleCode> dm28DTCs = p.getDtcs();
-
-            for (DiagnosticTroubleCode dtc : dm12DTCs) {
-                if (!dm28DTCs.contains(dtc)) {
-                    int spn = dtc.getSuspectParameterNumber();
-                    int fmi = dtc.getFailureModeIndicator();
-                    addFailure("6.6.7.2.b - The DTC (" + spn + ":" + fmi + ") provided by " + p.getModuleName()
-                            + " does not match DM12 active DTC");
-                }
+            if (!p.getDtcs().containsAll(getDTCs(p.getSourceAddress()))) {
+                addFailure("6.6.7.2.b - " + p.getModuleName()
+                        + " DM28 does not include the DM12 active DTC that the SA reported from earlier in this part.");
             }
         });
 

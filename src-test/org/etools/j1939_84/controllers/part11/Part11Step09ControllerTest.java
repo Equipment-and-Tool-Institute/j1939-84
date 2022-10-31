@@ -191,7 +191,7 @@ public class Part11Step09ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.11.9.2.b - Engine #1 (0) reported a different DTC than as reported in DM28 in part 10");
+                                        "6.11.9.2.b - Engine #1 (0) reported a different DTCs than as reported in DM28 in part 10");
     }
 
     @Test

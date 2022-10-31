@@ -12,6 +12,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939tools.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
@@ -61,7 +62,7 @@ public class Part09Step17Controller extends StepController {
         // 6.9.17.1.a. DS DM25 [(send Request (PGN 59904) for PGN 64951 (SPNs 3300, 1214-1215)]) to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
-                                           .map(a -> getCommunicationsModule().requestDM25(getListener(), a))
+                                           .map(a -> getCommunicationsModule().requestDM25(getListener(), a, get(DM24SPNSupportPacket.class, a, 1)))
                                            .collect(Collectors.toList());
         var packets = filterPackets(dsResults);
         packets.forEach(this::save);

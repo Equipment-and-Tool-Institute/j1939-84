@@ -18,7 +18,6 @@ import static org.mockito.Mockito.when;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.controllers.DataRepository;
-import org.etools.j1939_84.controllers.FreezeFrameDataTranslator;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TableA2ValueValidator;
@@ -154,7 +153,6 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
         dataRepository = DataRepository.newInstance();
 
         listener = new TestResultsListener(mockListener);
-        FreezeFrameDataTranslator translator = new FreezeFrameDataTranslator();
         instance = new Part03Step13Controller(executor,
                                               bannerModule,
                                               dateTimeModule,
@@ -162,7 +160,6 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               vehicleInformationModule,
                                               communicationsModule,
-                                              translator,
                                               validator);
 
         setup(instance,
@@ -217,91 +214,92 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
         moduleInfo.set(createDM24(), 1);
         dataRepository.putObdModule(moduleInfo);
 
-        when(communicationsModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(createDM25()));
+        when(communicationsModule.requestDM25(any(), eq(0), any())).thenReturn(BusResult.of(createDM25()));
 
         runTest();
 
-        verify(communicationsModule).requestDM25(any(), eq(0));
+        verify(communicationsModule).requestDM25(any(), eq(0), any());
         verify(validator).reportWarnings(any(), any(), eq("6.3.13.2.e"));
 
         String expected = "";
         expected += "6.3.13.1.c - Received from Engine #1 (0): " + NL;
         expected += "  Freeze Frame: {" + NL;
+        expected += "    Length: 120" + NL;
         expected += "    DTC 102:4 - Engine Intake Manifold #1 Pressure, Voltage Below Normal, Or Shorted To Low Source - 1 times"
                 + NL;
         expected += "    SPN Data: 19 F8 4D 84 82 02 31 A7 C6 24 CB 00 0A 20 4E B3 3B E0 01 04 73 A2 04 7D A5 09 15 01 62 A9 25 7C 29 54 14 B6 2D A0 64 0F 3C 00 00 56 00 FF FF A0 0F 01 00 04 00 D6 2C 02 00 40 2E 1F 1A 00 C6 02 00 00 C0 AF 80 25 96 25 73 2B B9 2D 76 09 0B 00 86 29 AF 30 00 00 00 D7 52 09 58 34 C0 2B 20 1C 3A 41 D3 E1 DF 8C C1 E5 61 00 00 00 9E 15 01 FF FF FF FF FF FF 1F 50 14"
                 + NL;
-        expected += "    SPN    27, Engine EGR 1 Valve Position: 49.900 %" + NL;
-        expected += "    SPN    84, Wheel-Based Vehicle Speed: 0.000 km/h" + NL;
         expected += "    SPN    91, Accelerator Pedal Position 1: 10.000 %" + NL;
-        expected += "    SPN    92, Engine Percent Load At Current Speed: 10.000 %" + NL;
-        expected += "    SPN    94, Engine Fuel Delivery Pressure: 700.000 kPa" + NL;
-        expected += "    SPN    96, Fuel Level 1: 63.200 %" + NL;
-        expected += "    SPN   102, Engine Intake Manifold #1 Pressure: 0.000 kPa" + NL;
-        expected += "    SPN   103, Engine Turbocharger 1 Speed: 9688.000 rpm" + NL;
-        expected += "    SPN   105, Engine Intake Manifold 1 Temperature: 46.000 °C" + NL;
-        expected += "    SPN   106, Engine Intake Air Pressure: 62.000 kPa" + NL;
-        expected += "    SPN   108, Barometric Pressure: 101.500 kPa" + NL;
-        expected += "    SPN   110, Engine Coolant Temperature: 58.000 °C" + NL;
-        expected += "    SPN   132, Engine Intake Air Mass Flow Rate: 32.100 kg/h" + NL;
-        expected += "    SPN   157, Engine Fuel 1 Injector Metering Rail 1 Pressure: 60.059 MPa" + NL;
-        expected += "    SPN   158, Key Switch Battery Potential: 13.850 V" + NL;
-        expected += "    SPN   168, Battery Potential / Power Input 1: 13.850 V" + NL;
-        expected += "    SPN   171, Ambient Air Temperature: 21.188 °C" + NL;
-        expected += "    SPN   173, Engine Exhaust Temperature: 92.688 °C" + NL;
-        expected += "    SPN   175, Engine Oil Temperature 1: 58.875 °C" + NL;
-        expected += "    SPN   183, Engine Fuel Rate: 2.400 l/h" + NL;
-        expected += "    SPN   188, Engine Speed At Idle, Point 1: 650.000 rpm" + NL;
-        expected += "    SPN   190, Engine Speed: 650.500 rpm" + NL;
-        expected += "    SPN   247, Engine Total Hours of Operation: 35.500 h" + NL;
-        expected += "    SPN   412, Engine EGR 1 Temperature: 59.188 °C" + NL;
-        expected += "    SPN   512, Driver's Demand Engine - Percent Torque: 0.000 %" + NL;
+        expected += "    SPN    27, Engine EGR 1 Valve Position: 49.900 %" + NL;
         expected += "    SPN   513, Actual Engine - Percent Torque: 7.000 %" + NL;
-        expected += "    SPN   528, Engine Speed At Point 2: 2087.250 rpm" + NL;
-        expected += "    SPN   529, Engine Speed At Point 3: 900.000 rpm" + NL;
-        expected += "    SPN   530, Engine Speed At Point 4: 1400.000 rpm" + NL;
-        expected += "    SPN   531, Engine Speed At Point 5: 1675.000 rpm" + NL;
-        expected += "    SPN   539, Engine Percent Torque At Idle, Point 1: 68.000 %" + NL;
-        expected += "    SPN   540, Engine Percent Torque At Point 2: 15.000 %" + NL;
-        expected += "    SPN   541, Engine Percent Torque At Point 3: 98.000 %" + NL;
-        expected += "    SPN   542, Engine Percent Torque At Point 4: 100.000 %" + NL;
-        expected += "    SPN   543, Engine Percent Torque At Point 5: 86.000 %" + NL;
-        expected += "    SPN   544, Engine Reference Torque: 2386.000 Nm" + NL;
-        expected += "    SPN   641, Engine Variable Geometry Turbocharger Actuator #1: 46.000 %" + NL;
-        expected += "    SPN   976, PTO Governor State: Not available" + NL;
-        expected += "    SPN  1081, Engine Wait to Start Lamp: Off" + NL;
-        expected += "    SPN  1172, Engine Turbocharger 1 Compressor Intake Temperature: 27.000 °C" + NL;
-        expected += "    SPN  1176, Engine Turbocharger 1 Compressor Intake Pressure: 101.500 kPa" + NL;
-        expected += "    SPN  1180, Engine Turbocharger 1 Turbine Intake Temperature: 74.594 °C" + NL;
-        expected += "    SPN  1184, Engine Turbocharger 1 Turbine Outlet Temperature: 92.781 °C" + NL;
-        expected += "    SPN  1436, Engine Actual Ignition Timing: 1.250 deg" + NL;
-        expected += "    SPN  1440, Engine Fuel Flow Rate 1: 0.000 m³/h" + NL;
-        expected += "    SPN  1692, Engine Intake Manifold Desired Absolute Pressure: 118.600 kPa" + NL;
-        expected += "    SPN  1761, AFT 1 DEF Tank Volume: 86.000 %" + NL;
-        expected += "    SPN  2629, Engine Turbocharger 1 Compressor Outlet Temperature: 27.688 °C" + NL;
-        expected += "    SPN  2630, Engine Charge Air Cooler 1 Outlet Temperature: 28.281 °C" + NL;
-        expected += "    SPN  2659, Engine EGR 1 Mass Flow Rate: 123.450 kg/h" + NL;
-        expected += "    SPN  2791, Engine EGR 1 Valve 1 Control 1: 50.000 %" + NL;
-        expected += "    SPN  2795, Engine Variable Geometry Turbocharger (VGT) 1 Actuator Position: 4.400 %" + NL;
-        expected += "    SPN  3216, Engine Exhaust 1 NOx 1: 0.000 ppm" + NL;
+        expected += "    SPN   132, Engine Intake Air Mass Flow Rate: 32.100 kg/h" + NL;
         expected += "    SPN  3217, Engine Exhaust 1 Percent Oxygen 1: 10.000 %" + NL;
-        expected += "    SPN  3226, AFT 1 Outlet NOx 1: Not Available" + NL;
-        expected += "    SPN  3246, AFT 1 DPF Outlet Temperature: 97.000 °C" + NL;
-        expected += "    SPN  3251, AFT 1 DPF Differential Pressure: 0.100 kPa" + NL;
-        expected += "    SPN  3301, Time Since Engine Start: 26.000 seconds" + NL;
-        expected += "    SPN  3490, AFT 1 Purge Air Actuator: not active" + NL;
-        expected += "    SPN  3523, AFT 1 Total Regeneration Time: Not Available" + NL;
-        expected += "    SPN  3563, Engine Intake Manifold #1 Absolute Pressure: 0.000 kPa" + NL;
-        expected += "    SPN  3609, AFT 1 DPF Intake Pressure: 0.400 kPa" + NL;
-        expected += "    SPN  3610, AFT 1 DPF Outlet Pressure: 0.200 kPa" + NL;
-        expected += "    SPN  3700, AFT DPF Active Regeneration Status: not active" + NL;
-        expected += "    SPN  4766, AFT 1 Diesel Oxidation Catalyst Outlet Temperature: 85.688 °C" + NL;
+        expected += "    SPN   171, Ambient Air Temperature: 21.188 °C" + NL;
+        expected += "    SPN   108, Barometric Pressure: 101.500 kPa" + NL;
+        expected += "    SPN   102, Engine Intake Manifold #1 Pressure: 0.000 kPa" + NL;
+        expected += "    SPN    92, Engine Percent Load At Current Speed: 10.000 %" + NL;
+        expected += "    SPN  2791, Engine EGR 1 Valve 1 Control 1: 50.000 %" + NL;
         expected += "    SPN  5313, Commanded Engine Fuel Rail Pressure: 59.699 MPa" + NL;
-        expected += "    SPN  5457, Engine Variable Geometry Turbocharger 1 Control Mode: open loop" + NL;
-        expected += "    SPN  5466, AFT 1 DPF Soot Load Regeneration Threshold: 62.653 %" + NL;
         expected += "    SPN  5833, Engine Fuel Mass Flow Rate: 2.400 g/s" + NL;
         expected += "    SPN  5837, Fuel Type: Diesel - DSL" + NL;
+        expected += "    SPN   641, Engine Variable Geometry Turbocharger Actuator #1: 46.000 %" + NL;
+        expected += "    SPN  1692, Engine Intake Manifold Desired Absolute Pressure: 118.600 kPa" + NL;
+        expected += "    SPN   512, Driver's Demand Engine - Percent Torque: 0.000 %" + NL;
+        expected += "    SPN  2659, Engine EGR 1 Mass Flow Rate: 123.450 kg/h" + NL;
+        expected += "    SPN   168, Battery Potential / Power Input 1: 13.850 V" + NL;
+        expected += "    SPN   110, Engine Coolant Temperature: 58.000 °C" + NL;
+        expected += "    SPN  2630, Engine Charge Air Cooler 1 Outlet Temperature: 28.281 °C" + NL;
+        expected += "    SPN   175, Engine Oil Temperature 1: 58.875 °C" + NL;
+        expected += "    SPN   190, Engine Speed: 650.500 rpm" + NL;
+        expected += "    SPN   173, Engine Exhaust Temperature: 92.688 °C" + NL;
+        expected += "    SPN  1436, Engine Actual Ignition Timing: 1.250 deg" + NL;
+        expected += "    SPN   157, Engine Fuel 1 Injector Metering Rail 1 Pressure: 60.059 MPa" + NL;
+        expected += "    SPN  1440, Engine Fuel Flow Rate 1: 0.000 m³/h" + NL;
+        expected += "    SPN   105, Engine Intake Manifold 1 Temperature: 46.000 °C" + NL;
+        expected += "    SPN  3563, Engine Intake Manifold #1 Absolute Pressure: 0.000 kPa" + NL;
+        expected += "    SPN  3226, AFT 1 Outlet NOx 1: Not Available" + NL;
+        expected += "    SPN  3216, Engine Exhaust 1 NOx 1: 0.000 ppm" + NL;
+        expected += "    SPN  3251, AFT 1 DPF Differential Pressure: 0.100 kPa" + NL;
+        expected += "    SPN  3609, AFT 1 DPF Intake Pressure: 0.400 kPa" + NL;
+        expected += "    SPN  4766, AFT 1 Diesel Oxidation Catalyst Outlet Temperature: 85.688 °C" + NL;
+        expected += "    SPN  3610, AFT 1 DPF Outlet Pressure: 0.200 kPa" + NL;
+        expected += "    SPN  3246, AFT 1 DPF Outlet Temperature: 97.000 °C" + NL;
+        expected += "    SPN   976, PTO Governor State: Not available" + NL;
+        expected += "    SPN  3301, Time Since Engine Start: 26.000 seconds" + NL;
+        expected += "    SPN   247, Engine Total Hours of Operation: 35.500 h" + NL;
+        expected += "    SPN  1176, Engine Turbocharger 1 Compressor Intake Pressure: 101.500 kPa" + NL;
+        expected += "    SPN  1172, Engine Turbocharger 1 Compressor Intake Temperature: 27.000 °C" + NL;
+        expected += "    SPN  2629, Engine Turbocharger 1 Compressor Outlet Temperature: 27.688 °C" + NL;
+        expected += "    SPN  1180, Engine Turbocharger 1 Turbine Intake Temperature: 74.594 °C" + NL;
+        expected += "    SPN  1184, Engine Turbocharger 1 Turbine Outlet Temperature: 92.781 °C" + NL;
+        expected += "    SPN   103, Engine Turbocharger 1 Speed: 9688.000 rpm" + NL;
+        expected += "    SPN  2795, Engine Variable Geometry Turbocharger (VGT) 1 Actuator Position: 4.400 %" + NL;
+        expected += "    SPN  3490, AFT 1 Purge Air Actuator: not active" + NL;
+        expected += "    SPN   412, Engine EGR 1 Temperature: 59.188 °C" + NL;
+        expected += "    SPN    94, Engine Fuel Delivery Pressure: 700.000 kPa" + NL;
+        expected += "    SPN   183, Engine Fuel Rate: 2.400 l/h" + NL;
+        expected += "    SPN  1081, Engine Wait to Start Lamp: Off" + NL;
+        expected += "    SPN  3700, AFT DPF Active Regeneration Status: not active" + NL;
+        expected += "    SPN  1761, AFT 1 DEF Tank Volume: 86.000 %" + NL;
+        expected += "    SPN   544, Engine Reference Torque: 2386.000 Nm" + NL;
+        expected += "    SPN   531, Engine Speed At Point 5: 1675.000 rpm" + NL;
+        expected += "    SPN   530, Engine Speed At Point 4: 1400.000 rpm" + NL;
+        expected += "    SPN   529, Engine Speed At Point 3: 900.000 rpm" + NL;
+        expected += "    SPN   528, Engine Speed At Point 2: 2087.250 rpm" + NL;
+        expected += "    SPN   543, Engine Percent Torque At Point 5: 86.000 %" + NL;
+        expected += "    SPN   542, Engine Percent Torque At Point 4: 100.000 %" + NL;
+        expected += "    SPN   541, Engine Percent Torque At Point 3: 98.000 %" + NL;
+        expected += "    SPN   540, Engine Percent Torque At Point 2: 15.000 %" + NL;
+        expected += "    SPN   539, Engine Percent Torque At Idle, Point 1: 68.000 %" + NL;
+        expected += "    SPN  5466, AFT 1 DPF Soot Load Regeneration Threshold: 62.653 %" + NL;
+        expected += "    SPN    84, Wheel-Based Vehicle Speed: 0.000 km/h" + NL;
+        expected += "    SPN  5457, Engine Variable Geometry Turbocharger 1 Control Mode: open loop" + NL;
+        expected += "    SPN    96, Fuel Level 1: 63.200 %" + NL;
+        expected += "    SPN   158, Key Switch Battery Potential: 13.850 V" + NL;
+        expected += "    SPN  3523, AFT 1 Total Regeneration Time: Not Available" + NL;
         expected += "    SPN  7351, AFT 1 Outlet Corrected NOx: Not Available" + NL;
+        expected += "    SPN   106, Engine Intake Air Pressure: 62.000 kPa" + NL;
+        expected += "    SPN   188, Engine Speed At Idle, Point 1: 650.000 rpm" + NL;
         expected += "  }" + NL;
         expected += NL;
         assertEquals(expected, listener.getResults());
@@ -316,18 +314,19 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(moduleInfo);
 
         DM25ExpandedFreezeFrame dm25 = DM25ExpandedFreezeFrame.create(0, new FreezeFrame(dtc, Spn.create(91, 10)));
-        when(communicationsModule.requestDM25(any(), eq(0)))
+        when(communicationsModule.requestDM25(any(), eq(0), any()))
                                                                .thenReturn(new BusResult<>(true))
                                                                .thenReturn(BusResult.of(dm25));
 
         runTest();
 
-        verify(communicationsModule, times(2)).requestDM25(any(), eq(0));
+        verify(communicationsModule, times(2)).requestDM25(any(), eq(0), any());
         verify(validator).reportWarnings(any(), any(), eq("6.3.13.2.e"));
 
         String expected = "";
         expected += "6.3.13.1.c - Received from Engine #1 (0): " + NL;
         expected += "  Freeze Frame: {" + NL;
+        expected += "    Length: 1" + NL;
         expected += "    DTC 102:4 - Engine Intake Manifold #1 Pressure, Voltage Below Normal, Or Shorted To Low Source - 1 times"
                 + NL;
         expected += "    SPN Data: 19" + NL;
@@ -353,16 +352,17 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
 
         DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(102, 4, 0, 1);
         DM25ExpandedFreezeFrame dm25 = DM25ExpandedFreezeFrame.create(0, new FreezeFrame(dtc, Spn.create(91, 10)));
-        when(communicationsModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(dm25));
+        when(communicationsModule.requestDM25(any(), eq(0), any())).thenReturn(BusResult.of(dm25));
 
         runTest();
 
-        verify(communicationsModule).requestDM25(any(), eq(0));
+        verify(communicationsModule).requestDM25(any(), eq(0), any());
         verify(validator).reportWarnings(any(), any(), eq("6.3.13.2.e"));
 
         String expected = "";
         expected += "6.3.13.1.c - Received from Engine #1 (0): " + NL;
         expected += "  Freeze Frame: {" + NL;
+        expected += "    Length: 1" + NL;
         expected += "    DTC 102:4 - Engine Intake Manifold #1 Pressure, Voltage Below Normal, Or Shorted To Low Source - 1 times"
                 + NL;
         expected += "    SPN Data: 19" + NL;
@@ -390,16 +390,17 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
         DM25ExpandedFreezeFrame dm25 = DM25ExpandedFreezeFrame.create(0,
                                                                       new FreezeFrame(dtc1, Spn.create(91, 10)),
                                                                       new FreezeFrame(dtc2, Spn.create(91, 100)));
-        when(communicationsModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(dm25));
+        when(communicationsModule.requestDM25(any(), eq(0), any())).thenReturn(BusResult.of(dm25));
 
         runTest();
 
-        verify(communicationsModule).requestDM25(any(), eq(0));
+        verify(communicationsModule).requestDM25(any(), eq(0), any());
         verify(validator, times(2)).reportWarnings(any(), any(), eq("6.3.13.2.e"));
 
         String expected = "";
         expected += "6.3.13.1.c - Received from Engine #1 (0): " + NL;
         expected += "  Freeze Frame: {" + NL;
+        expected += "    Length: 1" + NL;
         expected += "    DTC 102:4 - Engine Intake Manifold #1 Pressure, Voltage Below Normal, Or Shorted To Low Source - 1 times"
                 + NL;
         expected += "    SPN Data: 19" + NL;
@@ -408,6 +409,7 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
         expected += NL;
         expected += "6.3.13.1.c - Received from Engine #1 (0): " + NL;
         expected += "  Freeze Frame: {" + NL;
+        expected += "    Length: 1" + NL;
         expected += "    DTC 999:4 - Trip Gear Down Distance, Voltage Below Normal, Or Shorted To Low Source - 2 times"
                 + NL;
         expected += "    SPN Data: FA" + NL;
@@ -434,16 +436,17 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(moduleInfo);
 
         DM25ExpandedFreezeFrame dm25 = DM25ExpandedFreezeFrame.create(0, new FreezeFrame(dtc, Spn.create(91, 10)));
-        when(communicationsModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(dm25));
+        when(communicationsModule.requestDM25(any(), eq(0), any())).thenReturn(BusResult.of(dm25));
 
         runTest();
 
-        verify(communicationsModule).requestDM25(any(), eq(0));
+        verify(communicationsModule).requestDM25(any(), eq(0), any());
         verify(validator).reportWarnings(any(), any(), eq("6.3.13.2.e"));
 
         String expected = "";
         expected += "6.3.13.1.c - Received from Engine #1 (0): " + NL;
         expected += "  Freeze Frame: {" + NL;
+        expected += "    Length: 1" + NL;
         expected += "    DTC 102:4 - Engine Intake Manifold #1 Pressure, Voltage Below Normal, Or Shorted To Low Source - 1 times"
                 + NL;
         expected += "    SPN Data: 19" + NL;
@@ -462,13 +465,13 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         dataRepository.putObdModule(moduleInfo);
 
-        when(communicationsModule.requestDM25(any(), eq(0)))
+        when(communicationsModule.requestDM25(any(), eq(0), any()))
                                                                .thenReturn(new BusResult<>(true))
                                                                .thenReturn(new BusResult<>(true));
 
         runTest();
 
-        verify(communicationsModule, times(2)).requestDM25(any(), eq(0));
+        verify(communicationsModule, times(2)).requestDM25(any(), eq(0), any());
 
         assertEquals("", listener.getResults());
 

@@ -71,9 +71,9 @@ public class SectionA6ValidatorTest {
         var dm_17 = new DM5DiagnosticReadinessPacket(Packet.create(PGN, 0x17, 1, 0x14, 0x22, 0, 0, 0, 0, 0));
         var dm5_21 = new DM5DiagnosticReadinessPacket(Packet.create(PGN, 0x21, 0x10, 0x23, 0x13, 0, 0, 0, 0, 0));
 
-        instance.verify(listener, "6.1.2.3.a", RequestResult.of(dm5_0, dm_17, dm5_21));
+        instance.verify(listener, "6.1.2.3.a", RequestResult.of(dm5_0, dm_17, dm5_21), false);
 
-        verify(tableA6Validator).verify(eq(listener), any(), eq("6.1.2.3.a (A6.2.c)"));
+        verify(tableA6Validator).verify(eq(listener), any(), eq("6.1.2.3.a (A6.2.c)"), eq(false));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -95,9 +95,9 @@ public class SectionA6ValidatorTest {
     public void testNoObdResponse() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        instance.verify(listener, "6.1.2.3.a", RequestResult.of());
+        instance.verify(listener, "6.1.2.3.a", RequestResult.of(), false);
 
-        verify(tableA6Validator).verify(eq(listener), any(), eq("6.1.2.3.a (A6.2.c)"));
+        verify(tableA6Validator).verify(eq(listener), any(), eq("6.1.2.3.a (A6.2.c)"), eq(false));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -127,9 +127,9 @@ public class SectionA6ValidatorTest {
         Packet packet22 = Packet.create(PGN, 0x22, 0x10, 0x23, 0x23, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         var dm5_22 = new DM5DiagnosticReadinessPacket(packet22);
 
-        instance.verify(listener, "6.1.2.3.a", RequestResult.of(dm5_0, dm5_17, dm5_21, dm5_22));
+        instance.verify(listener, "6.1.2.3.a", RequestResult.of(dm5_0, dm5_17, dm5_21, dm5_22), false);
 
-        verify(tableA6Validator).verify(eq(listener), any(), eq("6.1.2.3.a (A6.2.c)"));
+        verify(tableA6Validator).verify(eq(listener), any(), eq("6.1.2.3.a (A6.2.c)"), eq(false));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -265,9 +265,9 @@ public class SectionA6ValidatorTest {
         Packet packet21 = Packet.create(PGN, 0x21, 0x10, 0x23, 0x23, 0, 0, 0, 0, 0);
         var dm5_21 = new DM5DiagnosticReadinessPacket(packet21);
 
-        instance.verify(listener, "6.1.2.3.a", RequestResult.of(dm5_0, dm5_17, dm5_21));
+        instance.verify(listener, "6.1.2.3.a", RequestResult.of(dm5_0, dm5_17, dm5_21), false);
 
-        verify(tableA6Validator).verify(eq(listener), any(), eq("6.1.2.3.a (A6.2.c)"));
+        verify(tableA6Validator).verify(eq(listener), any(), eq("6.1.2.3.a (A6.2.c)"), eq(false));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -299,9 +299,9 @@ public class SectionA6ValidatorTest {
         dataRepository.putObdModule(new OBDModuleInformation(0x17));
         dataRepository.putObdModule(new OBDModuleInformation(0x21));
 
-        instance.verify(listener, "6.1.2.3.a", response);
+        instance.verify(listener, "6.1.2.3.a", response, false);
 
-        verify(tableA6Validator).verify(eq(listener), any(), eq("6.1.2.3.a (A6.2.c)"));
+        verify(tableA6Validator).verify(eq(listener), any(), eq("6.1.2.3.a (A6.2.c)"), eq(false));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

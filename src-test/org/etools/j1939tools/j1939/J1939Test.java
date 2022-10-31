@@ -581,6 +581,23 @@ public class J1939Test {
         assertEquals(TIMEOUT * 3, System.currentTimeMillis() - start, 40);
     }
 
+    @Test(timeout = 4000)
+    public void testDM7NACK() throws BusException {
+        Bus bus = new EchoBus(0xF9);
+        J1939 j1939 = new J1939(bus);
+        Stream<Packet> stream = bus.read(200, TimeUnit.SECONDS);
+        new Thread(() -> {
+            try {
+                stream.findFirst();
+                bus.send(Packet.parsePacket("18E8F900 01 FF FF FF FF 00 E3 00"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+        var result = j1939.requestTestResults(247, 123, 31, 0, NOOP).getPacket();
+        assertEquals(AcknowledgmentPacket.Response.NACK, result.get().right.get().getResponse());
+    }
+
     /**
      * The purpose of this test is to verify that processing doesn't hang on any
      * possible PGN

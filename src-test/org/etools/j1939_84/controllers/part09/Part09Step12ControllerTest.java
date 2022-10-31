@@ -182,7 +182,10 @@ public class Part09Step12ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForDifferentFromDM12() {
-        dataRepository.putObdModule(new OBDModuleInformation(0));
+        OBDModuleInformation module = new OBDModuleInformation(0);
+        module.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, DiagnosticTroubleCode.create(456, 1, 0, 3)),
+                   9);
+        dataRepository.putObdModule(module);
         var dtc = DiagnosticTroubleCode.create(123, 1, 0, 3);
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
         when(communicationsModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
@@ -196,7 +199,7 @@ public class Part09Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.9.12.3.a - Engine #1 (0) reported different DTC than DM12 response earlier in step 6.9.2.1.b");
+                                        "6.9.12.3.a - Engine #1 (0) DM28 does not include the DM12 active DTC that the SA reported earlier in this part in test 6.9.2.1.b");
     }
 
     @Test

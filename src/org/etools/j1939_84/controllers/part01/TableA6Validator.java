@@ -36,12 +36,16 @@ public class TableA6Validator {
         this.stepNumber = stepNumber;
     }
 
-    public void verify(ResultsListener listener, List<CompositeMonitoredSystem> systems, String section) {
-        systems.forEach(system -> validateSystem(system, listener, section));
+    public void verify(ResultsListener listener,
+                       List<CompositeMonitoredSystem> systems,
+                       String section,
+                       boolean engineHasRun) {
+        systems.forEach(system -> validateSystem(system, listener, section, engineHasRun));
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    private boolean validateSystem(MonitoredSystem system, ResultsListener listener, String section) {
+    private boolean
+            validateSystem(MonitoredSystem system, ResultsListener listener, String section, boolean engineHasRun) {
 
         switch (system.getId()) {
             case AC_SYSTEM_REFRIGERANT:
@@ -65,11 +69,11 @@ public class TableA6Validator {
             case EXHAUST_GAS_SENSOR_HEATER:
                 return validateExhaustGasSensorHeater(system, listener, section);
             case FUEL_SYSTEM:
-                return validateFuelSystem(system, listener, section);
+                return validateFuelSystem(system, listener, section, engineHasRun);
             case HEATED_CATALYST:
                 return validateHeatedCatalyst(system, listener, section);
             case MISFIRE:
-                return validateMisfire(system, listener, section);
+                return validateMisfire(system, listener, section, engineHasRun);
             case NMHC_CONVERTING_CATALYST:
                 return validateNmhcConvertingCatalyst(system, listener, section);
             case NOX_CATALYST_ABSORBER:
@@ -188,9 +192,16 @@ public class TableA6Validator {
         return validate(system, listener, acceptableStatuses, section);
     }
 
-    private boolean validateFuelSystem(MonitoredSystem system, ResultsListener listener, String section) {
+    private boolean
+            validateFuelSystem(MonitoredSystem system, ResultsListener listener, String section, boolean engineHasRun) {
         // Compression and spark ignition shall have the system enabled
-        return validate(system, listener, findStatus(1, 1), section);
+        List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>();
+        acceptableStatuses.addAll(findStatus(1, 1));
+        if (isCompressionIgnition() && engineHasRun && system.getStatus().isComplete()) {
+            acceptableStatuses.addAll(findStatus(1, 0));
+            addOutcome(system, listener, section, INFO);
+        }
+        return validate(system, listener, acceptableStatuses, section);
     }
 
     private boolean validateHeatedCatalyst(MonitoredSystem system, ResultsListener listener, String section) {
@@ -207,13 +218,20 @@ public class TableA6Validator {
         return validate(system, listener, acceptableStatuses, section);
     }
 
-    private boolean validateMisfire(MonitoredSystem system, ResultsListener listener, String section) {
+    private boolean
+            validateMisfire(MonitoredSystem system, ResultsListener listener, String section, boolean engineHasRun) {
         List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>();
         if (isCompressionIgnition()) {
             acceptableStatuses.addAll(findStatus(1, 1));
-            acceptableStatuses.addAll(findStatus(1, 0));
             if (system.getStatus().isComplete()) {
-                addOutcome(system, listener, section, INFO);
+                if (getModelYear() == 2019) {
+                    addOutcome(system, listener, section, WARN);
+                    acceptableStatuses.addAll(findStatus(1, 0));
+                }
+                if (engineHasRun && getModelYear() != 2013) {
+                    addOutcome(system, listener, section, INFO);
+                    acceptableStatuses.addAll(findStatus(1, 0));
+                }
             }
         } else if (isSparkIgnition()) {
             acceptableStatuses.addAll(findStatus(1, 0));

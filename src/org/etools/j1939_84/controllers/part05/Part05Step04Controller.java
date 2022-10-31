@@ -79,7 +79,7 @@ public class Part05Step04Controller extends StepController {
             addFailure("6.5.4.2.a - No ECU reported a permanent DTC");
         }
 
-        // 6.5.4.2.b Fail if any ECU reports a different MIL status than it did for DM12 response earlier in this part.
+        // 6.5.4.2.b Fail if permanent DTC response from the SA reporting a DM12 active DTC does not include the DM12 active DTC that the SA reported from earlier in this part.
         packets.stream()
                .filter(p -> p.getMalfunctionIndicatorLampStatus() != getDM12MilStatus(p.getSourceAddress()))
                .map(ParsedPacket::getModuleName)
@@ -90,14 +90,9 @@ public class Part05Step04Controller extends StepController {
 
         // 6.5.4.2.c Fail if permanent DTC does not match DM12 active DTC from earlier in this part.
         packets.forEach(p -> {
-            var dm12DTCs = getDTCs(p.getSourceAddress());
-            for (DiagnosticTroubleCode dtc : p.getDtcs()) {
-                if (!dm12DTCs.contains(dtc)) {
-                    int spn = dtc.getSuspectParameterNumber();
-                    int fmi = dtc.getFailureModeIndicator();
-                    addFailure("6.5.4.2.c - " + p.getModuleName() + " permanent DTC (" + spn + ":" + fmi
-                            + ") does not match DM12 active DTC from earlier in this part");
-                }
+            if (!p.getDtcs().containsAll(getDTCs(p.getSourceAddress()))) {
+                addFailure("6.5.4.2.c - " + p.getModuleName()
+                        + " DM28 does not include the DM12 active DTC that the SA reported from earlier in this part.");
             }
         });
 

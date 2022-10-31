@@ -73,10 +73,10 @@ public class Part08Step13Controller extends StepController {
 
         // 6.8.13.1.a. DS DM3 [(send Request (PGN 59904) for PGN 65228]) to each OBD ECU.
         var dsPackets = getDataRepository().getObdModuleAddresses()
-                .stream()
-                .map(a -> getCommunicationsModule().requestDM3(getListener(), a))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                                           .stream()
+                                           .map(a -> getCommunicationsModule().requestDM3(getListener(), a))
+                                           .flatMap(Collection::stream)
+                                           .collect(Collectors.toList());
 
         // 6.8.13.1.b. Wait 5 seconds before checking for erased information.
         pause("Step 6.8.13.1.b - Waiting %1$d seconds before checking for erased information", 5);
@@ -96,19 +96,19 @@ public class Part08Step13Controller extends StepController {
                           + " did not provide a NACK for the DS query")
                   .forEach(this::addFailure);
 
-        // 6.8.13.2.b. Fail if any diagnostic information erased.
-        verifier.verifyDataNotErased(getListener(), "6.8.13.2.b");
-
-        // 6.8.13.2.c Warn if any OBD ECU NACKs with control byte = 3
+        // 6.8.13.2.b Warn if any OBD ECU NACKs with control byte = 3
         dsPackets.stream()
                  .filter(a1 -> a1.getResponse() == BUSY)
                  .map(ParsedPacket::getSourceAddress)
                  .distinct()
                  .sorted()
                  .map(Lookup::getAddressName)
-                 .map(moduleName -> "6.8.13.2.c" + " - OBD ECU " + moduleName
+                 .map(moduleName -> "6.8.13.2.b" + " - OBD ECU " + moduleName
                          + " did provide a NACK with control byte = 3 for the DS query")
                  .forEach(this::addWarning);
+
+        // 6.8.13.2.c. Fail if any diagnostic information erased.
+        verifier.verifyDataNotErased(getListener(), "6.8.13.2.c");
 
         // 6.8.13.3.a. Global DM3.
         getCommunicationsModule().requestDM3(getListener());

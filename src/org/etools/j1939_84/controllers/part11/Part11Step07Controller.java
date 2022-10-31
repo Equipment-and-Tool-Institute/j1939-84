@@ -225,7 +225,8 @@ public class Part11Step07Controller extends StepController {
     }
 
     private boolean isPart11DM28Provided(int address) {
-        return getDM28(address) != null;
+        DM28PermanentEmissionDTCPacket dm28 = getDM28(address);
+        return dm28 != null && dm28.hasDTCs();
     }
 
     private Stream<DM20MonitorPerformanceRatioPacket> requestDM20(boolean logPackets, int address) {

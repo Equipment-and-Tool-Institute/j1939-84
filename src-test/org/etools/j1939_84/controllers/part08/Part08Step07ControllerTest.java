@@ -203,7 +203,7 @@ public class Part08Step07ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.8.7.2.b - Engine #1 (0) permanent DTC does not match DM12 DTC from earlier in test 6.8.2");
+                                        "6.8.7.2.b - Engine #1 (0) DM28 does not include the DM12 active DTC that the SA reported from earlier in this part.");
     }
 
     @Test

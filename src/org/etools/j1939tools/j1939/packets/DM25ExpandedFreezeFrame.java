@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.etools.j1939_84.controllers.FreezeFrameDataTranslator;
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.utils.CollectionUtils;
 
@@ -60,6 +61,7 @@ public class DM25ExpandedFreezeFrame extends GenericPacket {
     public int hashCode() {
         return super.hashCode();
     }
+
     public FreezeFrame getFreezeFrameWithDTC(DiagnosticTroubleCode dtc) {
         return getFreezeFrames().stream().filter(f -> f.getDtc().equals(dtc)).findFirst().orElse(null);
     }
@@ -90,7 +92,6 @@ public class DM25ExpandedFreezeFrame extends GenericPacket {
         int index = 0;
         boolean done = false;
         while (!done) {
-
             int[] bytes = getPacket().getData(index + 1, index + chunkLength + 1);
             if (bytes.length == 0) {
                 done = true;
@@ -126,6 +127,11 @@ public class DM25ExpandedFreezeFrame extends GenericPacket {
             chunkLength = 8; // The data doesn't match spec
         }
         parseChunk(chunkLength);
+    }
+
+    public void setSupportedSpns(List<SupportedSPN> spns) {
+        FreezeFrameDataTranslator translator = new FreezeFrameDataTranslator();
+        getFreezeFrames().forEach(ff -> ff.setSPNs(translator.getFreezeFrameSPNs(ff, spns)));
     }
 
 }

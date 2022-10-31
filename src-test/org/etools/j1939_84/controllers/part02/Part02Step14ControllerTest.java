@@ -141,7 +141,7 @@ public class Part02Step14ControllerTest extends AbstractControllerTest {
         };
         DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN, 0x00, data));
 
-        when(communicationsModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
+        when(communicationsModule.requestDM25(any(), eq(0x00), any())).thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
         obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, false, 1)), 1);
@@ -149,7 +149,7 @@ public class Part02Step14ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(communicationsModule).requestDM25(any(), eq(0x00));
+        verify(communicationsModule).requestDM25(any(), eq(0x00), any());
 
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
@@ -167,11 +167,11 @@ public class Part02Step14ControllerTest extends AbstractControllerTest {
         obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, false, 1)), 1);
         dataRepository.putObdModule(obdInfo);
 
-        when(communicationsModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(true));
+        when(communicationsModule.requestDM25(any(), eq(0x00), any())).thenReturn(new BusResult<>(true));
 
         runTest();
 
-        verify(communicationsModule).requestDM25(any(), eq(0x00));
+        verify(communicationsModule).requestDM25(any(), eq(0x00), any());
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -191,7 +191,7 @@ public class Part02Step14ControllerTest extends AbstractControllerTest {
                                                                                    0xFF,
                                                                                    0xFF));
 
-        when(communicationsModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
+        when(communicationsModule.requestDM25(any(), eq(0x00), any())).thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
         obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, false, 1)), 1);
@@ -199,7 +199,7 @@ public class Part02Step14ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(communicationsModule).requestDM25(any(), eq(0x00));
+        verify(communicationsModule).requestDM25(any(), eq(0x00), any());
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

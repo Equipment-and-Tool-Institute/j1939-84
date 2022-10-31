@@ -137,24 +137,24 @@ public class Part09Step17ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM25ExpandedFreezeFrame.create(0), 8);
         dataRepository.putObdModule(obdModuleInformation0);
         var dm25 = DM25ExpandedFreezeFrame.create(0);
-        when(communicationsModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(dm25));
+        when(communicationsModule.requestDM25(any(), eq(0), any())).thenReturn(BusResult.of(dm25));
 
         // Module 1 - NACKs
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
         obdModuleInformation1.set(DM25ExpandedFreezeFrame.create(1), 8);
         dataRepository.putObdModule(obdModuleInformation1);
         var nack = AcknowledgmentPacket.create(1, NACK);
-        when(communicationsModule.requestDM25(any(), eq(1))).thenReturn(BusResult.of(nack));
+        when(communicationsModule.requestDM25(any(), eq(1), any())).thenReturn(BusResult.of(nack));
 
         // Module 2 - No Previous DM25 and no NACK
         dataRepository.putObdModule(new OBDModuleInformation(2));
-        when(communicationsModule.requestDM25(any(), eq(2))).thenReturn(BusResult.empty());
+        when(communicationsModule.requestDM25(any(), eq(2), any())).thenReturn(BusResult.empty());
 
         runTest();
 
-        verify(communicationsModule).requestDM25(any(), eq(0));
-        verify(communicationsModule).requestDM25(any(), eq(1));
-        verify(communicationsModule).requestDM25(any(), eq(2));
+        verify(communicationsModule).requestDM25(any(), eq(0), any());
+        verify(communicationsModule).requestDM25(any(), eq(1), any());
+        verify(communicationsModule).requestDM25(any(), eq(2), any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -169,11 +169,11 @@ public class Part09Step17ControllerTest extends AbstractControllerTest {
         var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
         var freezeFrame = new FreezeFrame(dtc, new int[10]);
         var dm25 = DM25ExpandedFreezeFrame.create(0, freezeFrame);
-        when(communicationsModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(dm25));
+        when(communicationsModule.requestDM25(any(), eq(0), any())).thenReturn(BusResult.of(dm25));
 
         runTest();
 
-        verify(communicationsModule).requestDM25(any(), eq(0));
+        verify(communicationsModule).requestDM25(any(), eq(0), any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -189,11 +189,11 @@ public class Part09Step17ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
         obdModuleInformation1.set(DM25ExpandedFreezeFrame.create(1), 8);
         dataRepository.putObdModule(obdModuleInformation1);
-        when(communicationsModule.requestDM25(any(), eq(1))).thenReturn(BusResult.empty());
+        when(communicationsModule.requestDM25(any(), eq(1), any())).thenReturn(BusResult.empty());
 
         runTest();
 
-        verify(communicationsModule).requestDM25(any(), eq(1));
+        verify(communicationsModule).requestDM25(any(), eq(1), any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

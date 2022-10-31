@@ -161,7 +161,7 @@ public class Part04Step13ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestDM3(any());
 
         verify(verifier).setJ1939(any());
-        verify(verifier).verifyDataNotErased(any(), eq("6.4.13.2.b"));
+        verify(verifier).verifyDataNotErased(any(), eq("6.4.13.2.c"));
         verify(verifier).verifyDataNotErased(any(), eq("6.4.13.4.a"));
 
         String expected = "";
@@ -194,7 +194,7 @@ public class Part04Step13ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestDM3(any());
 
         verify(verifier).setJ1939(any());
-        verify(verifier).verifyDataNotErased(any(), eq("6.4.13.2.b"));
+        verify(verifier).verifyDataNotErased(any(), eq("6.4.13.2.c"));
         verify(verifier).verifyDataNotErased(any(), eq("6.4.13.4.a"));
 
         String expected = "";
@@ -232,7 +232,7 @@ public class Part04Step13ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestDM3(any());
 
         verify(verifier).setJ1939(any());
-        verify(verifier).verifyDataNotErased(any(), eq("6.4.13.2.b"));
+        verify(verifier).verifyDataNotErased(any(), eq("6.4.13.2.c"));
         verify(verifier).verifyDataNotErased(any(), eq("6.4.13.4.a"));
 
         String expected = "";
@@ -252,7 +252,7 @@ public class Part04Step13ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.4.13.2.c - Engine #1 (0) NACKs with control = 3");
+                                        "6.4.13.2.b - Engine #1 (0) NACKs with control = 3");
     }
 
 }

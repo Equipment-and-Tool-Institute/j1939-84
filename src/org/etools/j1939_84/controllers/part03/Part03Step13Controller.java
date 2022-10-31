@@ -12,7 +12,6 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.controllers.DataRepository;
-import org.etools.j1939_84.controllers.FreezeFrameDataTranslator;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TableA2ValueValidator;
 import org.etools.j1939_84.model.OBDModuleInformation;
@@ -20,6 +19,7 @@ import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.j1939.Lookup;
 import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939tools.j1939.packets.DM25ExpandedFreezeFrame;
@@ -40,7 +40,6 @@ public class Part03Step13Controller extends StepController {
     private static final int STEP_NUMBER = 13;
     private static final int TOTAL_STEPS = 0;
 
-    private final FreezeFrameDataTranslator translator;
     private final TableA2ValueValidator validator;
 
     Part03Step13Controller() {
@@ -51,7 +50,6 @@ public class Part03Step13Controller extends StepController {
              new EngineSpeedModule(),
              new VehicleInformationModule(),
              new CommunicationsModule(),
-             new FreezeFrameDataTranslator(),
              new TableA2ValueValidator(PART_NUMBER, STEP_NUMBER));
     }
 
@@ -62,7 +60,6 @@ public class Part03Step13Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
                            CommunicationsModule communicationsModule,
-                           FreezeFrameDataTranslator translator,
                            TableA2ValueValidator validator) {
         super(executor,
               bannerModule,
@@ -74,19 +71,20 @@ public class Part03Step13Controller extends StepController {
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.translator = translator;
         this.validator = validator;
     }
 
     @Override
     protected void run() throws Throwable {
         // 6.3.13.1.a. DS DM25 (send Request (PGN 59904) for PGN 64951 (SPNs 3300, 1214-1215)) to each OBD ECU.
-        var responses = getDataRepository().getObdModuleAddresses()
-                                           .stream()
-                                           .map(address -> getCommunicationsModule().requestDM25(getListener(),
-                                                                                                 address))
-                                           .map(BusResult::requestResult)
-                                           .collect(Collectors.toList());
+        List<RequestResult<DM25ExpandedFreezeFrame>> responses = getDataRepository().getObdModuleAddresses()
+                                                                                    .stream()
+                                                                                    .map(address -> getCommunicationsModule()
+                                                                                                                             .requestDM25(getListener(),
+                                                                                                                                          address,
+                                                                                                                                          get(DM24SPNSupportPacket.class, address, 1)))
+                                                                                    .map(BusResult::requestResult)
+                                                                                    .collect(Collectors.toList());
 
         // 6.3.13.1.b. If no response (transport protocol RTS or NACK(Busy) in 220 ms), then retry DS DM25 request to
         // the OBD ECU.
@@ -105,25 +103,21 @@ public class Part03Step13Controller extends StepController {
         List<Integer> missingAddresses = getDataRepository().getObdModuleAddresses();
         missingAddresses.removeAll(responseAddresses);
         missingAddresses.removeAll(nackAddresses);
-
+        // DS request for missing DM25s
         missingAddresses.stream()
-                        .map(address -> getCommunicationsModule().requestDM25(getListener(), address))
+                        .map(address -> getCommunicationsModule().requestDM25(getListener(), address, get(DM24SPNSupportPacket.class, address, 1)))
                         .map(BusResult::requestResult)
                         .forEach(responses::add);
 
-        // 6.3.13.2.a. Fail if retry was required to obtain DM25 response.
-        missingAddresses.stream()
-                        .map(Lookup::getAddressName)
-                        .forEach(moduleName -> addFailure("6.3.13.2.a - Retry was required to obtain DM25 response from "
-                                + moduleName));
-
+        // capture results with global and DS responses.
         List<DM25ExpandedFreezeFrame> packets = filterRequestResultPackets(responses);
 
         // 6.3.13.1.c. Translate and print in log file all received freeze frame data with data labels assuming data
         // received in order expected by DM24 response for visual check by test log reviewer.
         for (OBDModuleInformation moduleInformation : getDataRepository().getObdModules()) {
-            DM24SPNSupportPacket dm24 = moduleInformation.get(DM24SPNSupportPacket.class, 1);
+            DM24SPNSupportPacket dm24 = moduleInformation.get(DM24SPNSupportPacket.PGN, 1);
             if (dm24 == null) {
+                // skip any modules that did not respond to DM24
                 continue;
             }
 
@@ -131,12 +125,13 @@ public class Part03Step13Controller extends StepController {
             int moduleAddress = moduleInformation.getSourceAddress();
             String moduleName = Lookup.getAddressName(moduleAddress);
 
+            // for DM25 for this module
             packets.stream()
                    .filter(p -> p.getSourceAddress() == moduleAddress)
                    .findFirst()
                    .ifPresent(p -> {
+                       p.setSupportedSpns(supportedSPNs);
                        for (FreezeFrame freezeFrame : p.getFreezeFrames()) {
-                           freezeFrame.setSPNs(translator.getFreezeFrameSPNs(freezeFrame, supportedSPNs));
                            getListener().onResult("6.3.13.1.c - Received from " + moduleName + ": ");
                            getListener().onResult(freezeFrame.toString());
                            getListener().onResult("");
@@ -146,6 +141,12 @@ public class Part03Step13Controller extends StepController {
                        }
                    });
         }
+
+        // 6.3.13.2.a. Fail if retry was required to obtain DM25 response.
+        missingAddresses.stream()
+                        .map(Lookup::getAddressName)
+                        .forEach(moduleName -> addFailure("6.3.13.2.a - Retry was required to obtain DM25 response from "
+                                + moduleName));
 
         // 6.3.13.2.b. Fail if no ECU has freeze frame data to report.
         boolean freezeFrameReceived = packets.stream().anyMatch(p -> !p.getFreezeFrames().isEmpty());

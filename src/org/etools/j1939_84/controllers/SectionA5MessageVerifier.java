@@ -232,6 +232,7 @@ public class SectionA5MessageVerifier {
     boolean checkDM25(ResultsListener listener, String section, int address, boolean verifyIsErased) {
         // 2.a. DM25 expanded freeze frame shall report no data and DTC causing freeze frame
         // with bytes 1-5 = 0 and bytes 6-8 = 255.
+        // In this case, we do not care to parse the SPN data, so pass a null DM24.
         return communicationsModule.requestDM25(listener, address)
                             .toPacketStream()
                             .filter(p -> {

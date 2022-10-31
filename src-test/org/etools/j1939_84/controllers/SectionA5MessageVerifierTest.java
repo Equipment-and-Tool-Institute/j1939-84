@@ -582,11 +582,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM25ExpandedFreezeFrame.create(0);
-        when(communicationsModule.requestDM25(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM25(listener, 0 )).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM25(listener, SECTION, 0, true));
 
-        verify(communicationsModule).requestDM25(listener, 0);
+        verify(communicationsModule).requestDM25(listener, 0 );
     }
 
     @Test
@@ -601,7 +601,7 @@ public class SectionA5MessageVerifierTest {
 
         assertFalse(instance.checkDM25(listener, SECTION, 0, true));
 
-        verify(communicationsModule).requestDM25(listener, 0);
+        verify(communicationsModule).requestDM25(listener, 0 );
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -616,11 +616,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM25ExpandedFreezeFrame.create(0, freezeFrame);
-        when(communicationsModule.requestDM25(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM25(listener, 0 )).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM25(listener, SECTION, 0, false));
 
-        verify(communicationsModule).requestDM25(listener, 0);
+        verify(communicationsModule).requestDM25(listener, 0 );
     }
 
     @Test
@@ -631,11 +631,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM25ExpandedFreezeFrame.create(0);
-        when(communicationsModule.requestDM25(listener, 0)).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM25(listener, 0 )).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM25(listener, SECTION, 0, false));
 
-        verify(communicationsModule).requestDM25(listener, 0);
+        verify(communicationsModule).requestDM25(listener, 0 );
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.2.3.4.a - Engine #1 (0) erased DM25 data");
     }
 

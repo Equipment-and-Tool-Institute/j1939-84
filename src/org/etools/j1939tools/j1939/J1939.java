@@ -225,6 +225,28 @@ public class J1939 {
                                 .and(sourceFilter(requestDestination));
     }
 
+    private Predicate<Packet> dsCommandFilter(int command, int pgn, int requestDestination, int requestSource) {
+        if (requestDestination == GLOBAL_ADDR || requestSource == GLOBAL_ADDR) {
+            throw new IllegalArgumentException("Invalid use of global.");
+        }
+        return // does the packet have the right ID
+        (pgnFilter(pgn)
+                       .or(ackNackFilter(pgn))
+                       .or(ackNackFilter(command)))
+                                                   // not something tool sent
+                                                   .and(p -> !p.isTransmitted())
+                                                   // is it addressed to tool or all
+                                                   .and((p -> p.getDestination() == bus.getAddress()
+                                                           || p.getDestination() == GLOBAL_ADDR
+                                                           // A TP message to global will have a
+                                                           // destination of 0
+                                                           || (p.getDestination() == 0
+                                                                   && p.getLength() > 8)))
+                                                   // did it come from the right module or any if
+                                                   // addressed to all
+                                                   .and(sourceFilter(requestDestination));
+    }
+
     /**
      * Exposed for system testing purposes. Calling classes should interact
      * directly with the bus
@@ -846,9 +868,10 @@ public class J1939 {
             for (int i = 0; true; i++) {
                 Stream<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> stream = read(DS_TIMEOUT,
                                                                                                 MILLISECONDS)
-                                                                                                             .filter(dsFilter(DM30ScaledTestResultsPacket.PGN,
-                                                                                                                              request.getDestination(),
-                                                                                                                              getBusAddress()))
+                                                                                                             .filter(dsCommandFilter(DM7CommandTestsPacket.PGN,
+                                                                                                                                     DM30ScaledTestResultsPacket.PGN,
+                                                                                                                                     request.getDestination(),
+                                                                                                                                     getBusAddress()))
                                                                                                              .map(this::process);
                 Packet sent = bus.send(request);
                 if (sent != null) {
@@ -903,9 +926,10 @@ public class J1939 {
             for (int i = 0; true; i++) {
                 Stream<Either<DM58RationalityFaultSpData, AcknowledgmentPacket>> stream = read(DS_TIMEOUT,
                                                                                                MILLISECONDS)
-                                                                                                            .filter(dsFilter(DM58RationalityFaultSpData.PGN,
-                                                                                                                             request.getDestination(),
-                                                                                                                             getBusAddress()))
+                                                                                                            .filter(dsCommandFilter(DM7CommandTestsPacket.PGN,
+                                                                                                                                    DM58RationalityFaultSpData.PGN,
+                                                                                                                                    request.getDestination(),
+                                                                                                                                    getBusAddress()))
                                                                                                             .map(this::process);
                 Packet sent = bus.send(request);
                 if (sent != null) {

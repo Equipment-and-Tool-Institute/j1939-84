@@ -47,7 +47,6 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.etools.j1939tools.CommunicationsListener;
 import org.etools.j1939tools.bus.Bus;
-import org.etools.j1939tools.bus.BusException;
 import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.j1939.J1939;

@@ -153,7 +153,7 @@ public class Part07Step16ControllerTest extends AbstractControllerTest {
 
         verify(verifier).setJ1939(any());
         verify(verifier).verifyDataNotErased(any(), eq("6.7.16.2.a"));
-        verify(verifier).verifyDataNotErased(any(), eq("6.7.16.4.b"));
+        verify(verifier).verifyDataNotErased(any(), eq("6.7.16.4.c"));
 
         String expected = "";
         expected += "Step 6.7.16.1.b - Waiting 5 seconds before checking for erased information" + NL;
@@ -186,7 +186,7 @@ public class Part07Step16ControllerTest extends AbstractControllerTest {
 
         verify(verifier).setJ1939(any());
         verify(verifier).verifyDataNotErased(any(), eq("6.7.16.2.a"));
-        verify(verifier).verifyDataNotErased(any(), eq("6.7.16.4.b"));
+        verify(verifier).verifyDataNotErased(any(), eq("6.7.16.4.c"));
 
         String expected = "";
         expected += "Step 6.7.16.1.b - Waiting 5 seconds before checking for erased information" + NL;
@@ -205,7 +205,7 @@ public class Part07Step16ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         Outcome.WARN,
-                                        "6.7.16.4.c - OBD ECU Engine #1 (0) did provide a NACK with control byte = 3 for the DS query");
+                                        "6.7.16.4.b - OBD ECU Engine #1 (0) did provide a NACK with control byte = 3 for the DS query");
     }
 
     @Test
@@ -224,7 +224,7 @@ public class Part07Step16ControllerTest extends AbstractControllerTest {
 
         verify(verifier).setJ1939(any());
         verify(verifier).verifyDataNotErased(any(), eq("6.7.16.2.a"));
-        verify(verifier).verifyDataNotErased(any(), eq("6.7.16.4.b"));
+        verify(verifier).verifyDataNotErased(any(), eq("6.7.16.4.c"));
 
         String expected = "";
         expected += "Step 6.7.16.1.b - Waiting 5 seconds before checking for erased information" + NL;
