@@ -228,15 +228,16 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
         expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
         expected += "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
-        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |     196,407 |           0 |" + NL;
-        expected += "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |  54,608,926 |           0 |" + NL;
-        expected += "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |      17,888 |           0 |" + NL;
-        expected += "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |  62,634,940 |           0 |" + NL;
-        expected += "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |  37,741,090 |           0 |" + NL;
-        expected += "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |  58,903,757 |           0 |" + NL;
-        expected += "| Unknown C0                          |         245 |         256 |         245 |         256 |   1,118,506 |           0 |" + NL;
-        expected += "| Unknown CE                          |         N/A |         N/A |          94 |         128 |     559,250 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |   1,319,462 |           0 |" + NL;
+        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |       6,267 |     184,092 |" + NL
+                + "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |         N/A |         N/A |" + NL
+                + "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |         N/A |         N/A |" + NL
+                + "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |         N/A |         N/A |" + NL
+                + "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |         N/A |         N/A |" + NL
+                + "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |         N/A |         N/A |" + NL
+                + "| Unknown C0                          |         245 |         256 |         245 |         256 |         N/A |         N/A |" + NL
+                + "| Unknown CE                          |         N/A |         N/A |          94 |         128 |         N/A |         N/A |" + NL
+                + "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |   1,319,462 |   1,373,795 |" + NL
+               ;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on
@@ -362,15 +363,15 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
         expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
         expected += "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
-        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |     196,407 |           0 |" + NL;
-        expected += "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |  54,608,926 |           0 |" + NL;
-        expected += "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |      17,888 |           0 |" + NL;
-        expected += "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |  62,634,940 |           0 |" + NL;
-        expected += "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |         N/A |         N/A |" + NL;
-        expected += "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |  58,903,757 |           0 |" + NL;
-        expected += "| Unknown C0                          |         245 |         256 |         245 |         256 |   1,118,506 |           0 |" + NL;
-        expected += "| Unknown CE                          |          94 |         128 |          94 |         128 |     559,250 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |   1,319,462 |           0 |" + NL;
+        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |       6,267 |     184,092 |" + NL
+                + "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |         N/A |         N/A |" + NL
+                + "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |         N/A |         N/A |" + NL
+                + "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |         N/A |         N/A |" + NL
+                + "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |         N/A |         N/A |" + NL
+                + "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |         N/A |         N/A |" + NL
+                + "| Unknown C0                          |         245 |         256 |         245 |         256 |         N/A |         N/A |" + NL
+                + "| Unknown CE                          |          94 |         128 |          94 |         128 |         N/A |         N/A |" + NL
+                + "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |   1,319,462 |   1,373,795 |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on
@@ -488,17 +489,18 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
         expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
         expected += "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
-        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |     196,407 |           0 |" + NL;
-        expected += "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |  54,608,926 |           0 |" + NL;
-        expected += "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |      17,888 |           0 |" + NL;
-        expected += "| Unknown 44                          |         N/A |         N/A |           5 |      14,336 |         N/A |         N/A |" + NL;
-        expected += "| Unknown 49                          |           5 |      14,336 |         N/A |         N/A |  62,634,940 |           0 |" + NL;
-        expected += "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |  37,741,090 |           0 |" + NL;
-        expected += "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |  58,903,757 |           0 |" + NL;
-        expected += "| Unknown C0                          |         245 |         256 |         245 |         256 |   1,118,506 |           0 |" + NL;
-        expected += "| Unknown CE                          |          94 |         128 |          94 |         128 |     559,250 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |   1,319,462 |           0 |" + NL;
-        expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
+        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |       6,267 |     184,092 |" + NL
+                + "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |         N/A |         N/A |" + NL
+                + "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |         N/A |         N/A |" + NL
+                + "| Unknown 44                          |         N/A |         N/A |           5 |      14,336 |         N/A |         N/A |" + NL
+                + "| Unknown 49                          |           5 |      14,336 |         N/A |         N/A |         N/A |         N/A |" + NL
+                + "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |         N/A |         N/A |" + NL
+                + "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |         N/A |         N/A |" + NL
+                + "| Unknown C0                          |         245 |         256 |         245 |         256 |         N/A |         N/A |" + NL
+                + "| Unknown CE                          |          94 |         128 |          94 |         128 |         N/A |         N/A |" + NL
+                + "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |   1,319,462 |   1,373,795 |" + NL
+                + "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL               
+                ;
         expected += NL;
         // @formatter:on
         assertEquals(expected, listener.getResults());
@@ -535,15 +537,11 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
         GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
-                                                                      0xF5, 0xDB, 0x00, 0xB8, 0x04,
-                                                                      0x06, 0x7D, 0x60, 0x10, 0x00,
-                                                                      0xC0, 0xBC, 0x05, 0x00, 0x04,
-                                                                      0xCE, 0x31, 0x02, 0x00, 0x02,
-                                                                      0x49, 0x1D, 0x00, 0x00, 0xE0,
-                                                                      0x79, 0x00, 0x00, 0xF9, 0x86,
-                                                                      0xAD, 0x00, 0x00, 0xA8, 0xD2,
-                                                                      0x02, 0x00, 0xF7, 0x4B, 0xC3,
-                                                                      0x00, 0xF5, 0xD0, 0xB3, 0x00
+                                                                      0xF5, 0xDB, 0x00, 0xB8, 0x04, 0x06, 0x7D, 0x60, 0x10, 
+                                                                      0x00, 0xC0, 0xBC, 0x05, 0x00, 0x04, 0xCE, 0x31, 0x02, 
+                                                                      0x00, 0x02, 0x49, 0x1D, 0x00, 0x00, 0xE0, 0x79, 0x00, 
+                                                                      0x00, 0xF9, 0x86, 0xAD, 0x00, 0x00, 0xA8, 0xD2, 0x02, 
+                                                                      0x00, 0xF7, 0x4B, 0xC3, 0x00, 0xF5, 0xD0, 0xB3, 0x00
 
         ));
         // @formatter:on
@@ -616,16 +614,16 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
         expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
         expected += "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
-        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |     196,407 |           0 |" + NL;
-        expected += "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |  54,608,926 |           0 |" + NL;
-        expected += "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |      17,888 |           0 |" + NL;
-        expected += "| Unknown 29                          |           0 |       8,638 |         N/A |         N/A |         N/A |         N/A |" + NL;
-        expected += "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |  62,634,940 |           0 |" + NL;
-        expected += "| Unknown 79                          |         N/A |         N/A |           0 |       8,638 |  37,741,090 |           0 |" + NL;
-        expected += "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |  58,903,757 |           0 |" + NL;
-        expected += "| Unknown C0                          |         245 |         256 |         245 |         256 |   1,118,506 |           0 |" + NL;
-        expected += "| Unknown CE                          |          94 |         128 |          94 |         128 |     559,250 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |   1,319,462 |           0 |" + NL;
+        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |       6,267 |     184,092 |" + NL
+                + "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |         N/A |         N/A |" + NL
+                + "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |         N/A |         N/A |" + NL
+                + "| Unknown 29                          |           0 |       8,638 |         N/A |         N/A |         N/A |         N/A |" + NL
+                + "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |         N/A |         N/A |" + NL
+                + "| Unknown 79                          |         N/A |         N/A |           0 |       8,638 |         N/A |         N/A |" + NL
+                + "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |         N/A |         N/A |" + NL
+                + "| Unknown C0                          |         245 |         256 |         245 |         256 |         N/A |         N/A |" + NL
+                + "| Unknown CE                          |          94 |         128 |          94 |         128 |         N/A |         N/A |" + NL
+                + "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |   1,319,462 |   1,373,795 |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on
@@ -740,16 +738,16 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
         expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
         expected += "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
-        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |     196,407 |           0 |" + NL;
-        expected += "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |  54,608,926 |           0 |" + NL;
-        expected += "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |      17,888 |           0 |" + NL;
-        expected += "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |  62,634,940 |           0 |" + NL;
-        expected += "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |  37,741,090 |           0 |" + NL;
-        expected += "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |  58,903,757 |           0 |" + NL;
-        expected += "| Unknown C0                          |         245 |         256 |         245 |         256 |   1,118,506 |           0 |" + NL;
-        expected += "| Unknown CE                          |          94 |         128 |          94 |         128 |     559,250 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |   1,319,462 |           0 |" + NL;
-        expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
+        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |       6,267 |     184,092 |" + NL
+                + "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |         N/A |         N/A |" + NL
+                + "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |         N/A |         N/A |" + NL
+                + "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |         N/A |         N/A |" + NL
+                + "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |         N/A |         N/A |" + NL
+                + "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |         N/A |         N/A |" + NL
+                + "| Unknown C0                          |         245 |         256 |         245 |         256 |         N/A |         N/A |" + NL
+                + "| Unknown CE                          |          94 |         128 |          94 |         128 |         N/A |         N/A |" + NL
+                + "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |   1,319,462 |   1,373,795 |" + NL
+                + "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on
         assertEquals(expected, listener.getResults());
@@ -856,7 +854,10 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                              eq(0),
                                              any(ResultsListener.class));
 
-        verify(mockListener).addOutcome(eq(11), eq(13), eq(WARN), eq("6.11.13.12.i - Active Tech vehicle distance received is => 0.25km from Engine #1 (0) for SPN 12696, GHG Tracking Active 100 Hour Active Technology Vehicle Distance: 1.000 km"));
+        verify(mockListener).addOutcome(eq(11),
+                                        eq(13),
+                                        eq(WARN),
+                                        eq("6.11.13.12.i - Active Tech vehicle distance received is => 0.25km from Engine #1 (0) for SPN 12696, GHG Tracking Active 100 Hour Active Technology Vehicle Distance: 1.000 km"));
 
         // @formatter:off
         String expected = "10:15:30.0000 GHG Active Technology Arrays from Engine #1 (0)" + NL;
@@ -865,15 +866,16 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
         expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
         expected += "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
-        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |     196,407 |           0 |" + NL;
-        expected += "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |  54,608,926 |           0 |" + NL;
-        expected += "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |      17,888 |           0 |" + NL;
-        expected += "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |  62,634,940 |           0 |" + NL;
-        expected += "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |  37,741,090 |           0 |" + NL;
-        expected += "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |  58,903,757 |           0 |" + NL;
-        expected += "| Unknown C0                          |         245 |         256 |         245 |         256 |   1,118,506 |           0 |" + NL;
-        expected += "| Unknown CE                          |          94 |         128 |          94 |         128 |     559,250 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 6     |         207 |           0 |          36 |          46 |   1,319,462 |           0 |" + NL;
+        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |       6,267 |     184,092 |" + NL
+                + "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |         N/A |         N/A |" + NL
+                + "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |         N/A |         N/A |" + NL
+                + "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |         N/A |         N/A |" + NL
+                + "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |         N/A |         N/A |" + NL
+                + "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |         N/A |         N/A |" + NL
+                + "| Unknown C0                          |         245 |         256 |         245 |         256 |         N/A |         N/A |" + NL
+                + "| Unknown CE                          |          94 |         128 |          94 |         128 |         N/A |         N/A |" + NL
+                + "| Mfg Defined Active Technology 6     |         207 |           0 |          36 |          46 |   1,319,462 |   1,373,795 |" + NL
+                ;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on
@@ -963,8 +965,8 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
         ));
         // @formatter:on
         GenericPacket response64256Part2 = new GenericPacket(Packet.create(0xFB00,
-                                                                      0x00,
-                                                                      // @formatter:off
+                                                                           0x00,
+                                                                           // @formatter:off
                                                                       0xF5, 0x0B, 0x00, 0x00, 0x00,
                                                                       0x06, 0x7D, 0x60, 0x10, 0x00,
                                                                       0xC0, 0xBC, 0x05, 0x00, 0x04,
@@ -995,7 +997,10 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                              eq(0),
                                              any(ResultsListener.class));
 
-        verify(mockListener).addOutcome(eq(11), eq(13), eq(WARN), eq("6.11.13.12.h - Active Tech time received is > part 2 value + 600 seconds from Engine #1 (0) for SPN 12695, GHG Tracking Active 100 Hour Active Technology Time: 2420.000 s"));
+        verify(mockListener).addOutcome(eq(11),
+                                        eq(13),
+                                        eq(WARN),
+                                        eq("6.11.13.12.h - Active Tech time received is > part 2 value + 600 seconds from Engine #1 (0) for SPN 12695, GHG Tracking Active 100 Hour Active Technology Time: 2420.000 s"));
 
         // @formatter:off
         String expected = "10:15:30.0000 GHG Active Technology Arrays from Engine #1 (0)" + NL;
@@ -1004,15 +1009,16 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
         expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
         expected += "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
-        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |     196,407 |           0 |" + NL;
-        expected += "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |  54,608,926 |           0 |" + NL;
-        expected += "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |      17,888 |           0 |" + NL;
-        expected += "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |  62,634,940 |           0 |" + NL;
-        expected += "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |  37,741,090 |           0 |" + NL;
-        expected += "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |  58,903,757 |           0 |" + NL;
-        expected += "| Unknown C0                          |         245 |         256 |         245 |         256 |   1,118,506 |           0 |" + NL;
-        expected += "| Unknown CE                          |          94 |         128 |          94 |         128 |     559,250 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 6     |          40 |           0 |          36 |          46 |   1,319,462 |           0 |" + NL;
+        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |       6,267 |     184,092 |" + NL
+                + "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |         N/A |         N/A |" + NL
+                + "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |         N/A |         N/A |" + NL
+                + "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |         N/A |         N/A |" + NL
+                + "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |         N/A |         N/A |" + NL
+                + "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |         N/A |         N/A |" + NL
+                + "| Unknown C0                          |         245 |         256 |         245 |         256 |         N/A |         N/A |" + NL
+                + "| Unknown CE                          |          94 |         128 |          94 |         128 |         N/A |         N/A |" + NL
+                + "| Mfg Defined Active Technology 6     |          40 |           0 |          36 |          46 |   1,319,462 |   1,373,795 |" + NL
+                ;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on
@@ -1150,15 +1156,16 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
         expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
         expected += "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
-        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |     196,407 |           0 |" + NL;
-        expected += "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |  54,608,926 |           0 |" + NL;
-        expected += "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |      17,888 |           0 |" + NL;
-        expected += "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |  62,634,940 |           0 |" + NL;
-        expected += "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |  37,741,090 |           0 |" + NL;
-        expected += "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |  58,903,757 |           0 |" + NL;
-        expected += "| Unknown C0                          |         245 |         256 |         245 |         256 |   1,118,506 |           0 |" + NL;
-        expected += "| Unknown CE                          |          94 |         128 |          94 |         128 |     559,250 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |   1,319,462 |           0 |" + NL;
+        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |       6,267 |     184,092 |" + NL
+                + "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |         N/A |         N/A |" + NL
+                + "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |         N/A |         N/A |" + NL
+                + "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |         N/A |         N/A |" + NL
+                + "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |         N/A |         N/A |" + NL
+                + "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |         N/A |         N/A |" + NL
+                + "| Unknown C0                          |         245 |         256 |         245 |         256 |         N/A |         N/A |" + NL
+                + "| Unknown CE                          |          94 |         128 |          94 |         128 |         N/A |         N/A |" + NL
+                + "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |   1,319,462 |   1,373,795 |" + NL
+                ;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on
@@ -1292,15 +1299,16 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
         expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
         expected += "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
-        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |     196,407 |           0 |" + NL;
-        expected += "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |  54,608,926 |           0 |" + NL;
-        expected += "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |      17,888 |           0 |" + NL;
-        expected += "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |  62,634,940 |           0 |" + NL;
-        expected += "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |  37,741,090 |           0 |" + NL;
-        expected += "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |  58,903,757 |           0 |" + NL;
-        expected += "| Unknown C0                          |         245 |         256 |         245 |         256 |   1,118,506 |           0 |" + NL;
-        expected += "| Unknown CE                          |          94 |         128 |          94 |         128 |     559,250 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |   1,319,462 |           0 |" + NL;
+        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |       6,267 |     184,092 |" + NL
+                + "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |         N/A |         N/A |" + NL
+                + "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |         N/A |         N/A |" + NL
+                + "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |         N/A |         N/A |" + NL
+                + "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |         N/A |         N/A |" + NL
+                + "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |         N/A |         N/A |" + NL
+                + "| Unknown C0                          |         245 |         256 |         245 |         256 |         N/A |         N/A |" + NL
+                + "| Unknown CE                          |          94 |         128 |          94 |         128 |         N/A |         N/A |" + NL
+                + "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |   1,319,462 |   1,373,795 |" + NL
+                ;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on
@@ -1420,15 +1428,16 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
         expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
         expected += "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
-        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |     196,407 |           0 |" + NL;
-        expected += "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |  54,608,926 |           0 |" + NL;
-        expected += "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |      17,888 |           0 |" + NL;
-        expected += "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |  62,634,940 |           0 |" + NL;
-        expected += "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |  37,741,090 |           0 |" + NL;
-        expected += "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |  58,903,757 |           0 |" + NL;
-        expected += "| Unknown C0                          |         245 |         256 |         245 |         256 |   1,118,506 |           0 |" + NL;
-        expected += "| Unknown CE                          |          94 |         128 |          94 |         128 |     559,250 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 6     |          42 |           0 |         N/A |           0 |   1,319,462 |           0 |" + NL;
+        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |       6,267 |     184,092 |" + NL
+                + "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |         N/A |         N/A |" + NL
+                + "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |         N/A |         N/A |" + NL
+                + "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |         N/A |         N/A |" + NL
+                + "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |         N/A |         N/A |" + NL
+                + "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |         N/A |         N/A |" + NL
+                + "| Unknown C0                          |         245 |         256 |         245 |         256 |         N/A |         N/A |" + NL
+                + "| Unknown CE                          |          94 |         128 |          94 |         128 |         N/A |         N/A |" + NL
+                + "| Mfg Defined Active Technology 6     |          42 |           0 |         N/A |           0 |   1,319,462 |   1,373,795 |" + NL
+                ;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on
@@ -1552,15 +1561,16 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
         expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
         expected += "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
-        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |     196,407 |           0 |" + NL;
-        expected += "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |  54,608,926 |           0 |" + NL;
-        expected += "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |      17,888 |           0 |" + NL;
-        expected += "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |  62,634,940 |           0 |" + NL;
-        expected += "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |  37,741,090 |           0 |" + NL;
-        expected += "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |  58,903,757 |           0 |" + NL;
-        expected += "| Unknown C0                          |         245 |         256 |         245 |         256 |   1,118,506 |           0 |" + NL;
-        expected += "| Unknown CE                          |          94 |         128 |          94 |         128 |     559,250 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 6     |         N/A |         N/A |          36 |          46 |   1,319,462 |           0 |" + NL;
+        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |       6,267 |     184,092 |" + NL
+                + "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |         N/A |         N/A |" + NL
+                + "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |         N/A |         N/A |" + NL
+                + "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |         N/A |         N/A |" + NL
+                + "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |         N/A |         N/A |" + NL
+                + "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |         N/A |         N/A |" + NL
+                + "| Unknown C0                          |         245 |         256 |         245 |         256 |         N/A |         N/A |" + NL
+                + "| Unknown CE                          |          94 |         128 |          94 |         128 |         N/A |         N/A |" + NL
+                + "| Mfg Defined Active Technology 6     |         N/A |         N/A |          36 |          46 |   1,319,462 |   1,373,795 |" + NL
+                ;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on
@@ -1922,15 +1932,16 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
         expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
         expected += "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
-        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |     196,407 |           0 |" + NL;
-        expected += "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |  54,608,926 |           0 |" + NL;
-        expected += "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |      17,888 |           0 |" + NL;
-        expected += "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |  62,634,940 |           0 |" + NL;
-        expected += "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |  37,741,090 |           0 |" + NL;
-        expected += "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |  58,903,757 |           0 |" + NL;
-        expected += "| Unknown C0                          |         245 |         256 |         245 |         256 |   1,118,506 |           0 |" + NL;
-        expected += "| Unknown CE                          |          94 |         128 |          94 |         128 |     559,250 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |         N/A |         N/A |" + NL;
+        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |       6,267 |     184,092 |" + NL
+                + "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |         N/A |         N/A |" + NL
+                + "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |         N/A |         N/A |" + NL
+                + "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |         N/A |         N/A |" + NL
+                + "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |         N/A |         N/A |" + NL
+                + "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |         N/A |         N/A |" + NL
+                + "| Unknown C0                          |         245 |         256 |         245 |         256 |         N/A |         N/A |" + NL
+                + "| Unknown CE                          |          94 |         128 |          94 |         128 |         N/A |         N/A |" + NL
+                + "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |         N/A |         N/A |" + NL
+               ;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on
@@ -2050,15 +2061,16 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
         expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
         expected += "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
-        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |     196,407 |           0 |" + NL;
-        expected += "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |  54,608,926 |           0 |" + NL;
-        expected += "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |      17,888 |           0 |" + NL;
-        expected += "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |  62,634,940 |           0 |" + NL;
-        expected += "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |  37,741,090 |           0 |" + NL;
-        expected += "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |  58,903,757 |           0 |" + NL;
-        expected += "| Unknown C0                          |         245 |         256 |         245 |         256 |   1,118,506 |           0 |" + NL;
-        expected += "| Unknown CE                          |          94 |         128 |          94 |         128 |     559,250 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |         N/A |           0 |" + NL;
+        expected += "| SAE/ISO Reserved                    |       8,916 |          45 |       8,916 |          45 |       6,267 |     184,092 |" + NL
+                + "| Cylinder Deactivation               |      10,539 |      12,499 |      10,539 |      12,499 |         N/A |         N/A |" + NL
+                + "| Predictive Cruise Control           |       4,117 |           4 |       4,117 |           4 |         N/A |         N/A |" + NL
+                + "| Unknown 49                          |           5 |      14,336 |           5 |      14,336 |         N/A |         N/A |" + NL
+                + "| Unknown 79                          |           0 |       8,638 |           0 |       8,638 |         N/A |         N/A |" + NL
+                + "| Unknown AD                          |           0 |      13,482 |           0 |      13,482 |         N/A |         N/A |" + NL
+                + "| Unknown C0                          |         245 |         256 |         245 |         256 |         N/A |         N/A |" + NL
+                + "| Unknown CE                          |          94 |         128 |          94 |         128 |         N/A |         N/A |" + NL
+                + "| Mfg Defined Active Technology 6     |          36 |           0 |          36 |          46 |         N/A |   1,373,795 |" + NL
+                ;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on

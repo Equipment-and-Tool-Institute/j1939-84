@@ -30,6 +30,7 @@ import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.j1939.J1939;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
@@ -252,6 +253,38 @@ public class Part08Step07ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         WARN,
                                         "6.8.7.3.b - Engine #1 (0) reported more than one permanent DTC");
+    }
+
+    @Test
+    public void testWarningForMoreThanOneDTCModuleReal() {
+        // 14:25:20.5285 18FD803D [8] 03 FF 00 00 00 00 FF FF
+        // 14:25:20.5320 18FD8001 [8] 47 FF EB 0D 04 01 FF FF
+
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0x3d);
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0x3D, OFF, OFF, OFF, OFF), 8);
+        dataRepository.putObdModule(obdModuleInformation0);
+        var dm28_0 = new DM28PermanentEmissionDTCPacket(Packet.parse("18FD803D [8] 03 FF 00 00 00 00 FF FF"));
+        when(communicationsModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28_0));
+
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        var dtc_1 = DiagnosticTroubleCode.create(0x0DEB, 4, 0, 1);
+        obdModuleInformation1.set(DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc_1), 8);
+        dataRepository.putObdModule(obdModuleInformation1);
+        var dm28_1 = new DM28PermanentEmissionDTCPacket(Packet.parse("18FD8001 [8] 47 FF EB 0D 04 01 FF FF"));
+
+        when(communicationsModule.requestDM28(any(), eq(0x3d))).thenReturn(BusResult.of(dm28_0));
+        when(communicationsModule.requestDM28(any(), eq(1))).thenReturn(BusResult.of(dm28_1));
+
+        when(communicationsModule.requestDM28(any())).thenReturn(RequestResult.of(dm28_0, dm28_1));
+
+        runTest();
+
+        verify(communicationsModule).requestDM28(any());
+        verify(communicationsModule).requestDM28(any(), eq(0x3d));
+        verify(communicationsModule).requestDM28(any(), eq(1));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
     }
 
     @Test

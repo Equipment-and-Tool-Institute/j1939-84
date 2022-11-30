@@ -159,22 +159,22 @@ public class Part11Step11ControllerTest extends AbstractControllerTest {
 
         String expected = "" + NL;
         expected += "Vehicle Composite of DM26:" + NL;
-        expected += "    A/C system refrigerant     not enabled, not complete" + NL;
-        expected += "    Boost pressure control sys not enabled, not complete" + NL;
-        expected += "    Catalyst                   not enabled, not complete" + NL;
-        expected += "    Cold start aid system      not enabled, not complete" + NL;
-        expected += "    Comprehensive component    not enabled, not complete" + NL;
-        expected += "    Diesel Particulate Filter  not enabled, not complete" + NL;
-        expected += "    EGR/VVT system             not enabled, not complete" + NL;
-        expected += "    Evaporative system         not enabled, not complete" + NL;
-        expected += "    Exhaust Gas Sensor         not enabled, not complete" + NL;
-        expected += "    Exhaust Gas Sensor heater  not enabled, not complete" + NL;
-        expected += "    Fuel System                not enabled, not complete" + NL;
-        expected += "    Heated catalyst            not enabled, not complete" + NL;
-        expected += "    Misfire                    not enabled, not complete" + NL;
-        expected += "    NMHC converting catalyst   not enabled, not complete" + NL;
-        expected += "    NOx catalyst/adsorber      not enabled, not complete" + NL;
-        expected += "    Secondary air system       not enabled, not complete" + NL;
+        expected += "    Comprehensive component    not enabled, not complete" + NL
+                + "    Fuel System                not enabled, not complete" + NL
+                + "    Misfire                    not enabled, not complete" + NL
+                + "    EGR/VVT system             not enabled, not complete" + NL
+                + "    Exhaust Gas Sensor heater  not enabled, not complete" + NL
+                + "    Exhaust Gas Sensor         not enabled, not complete" + NL
+                + "    A/C system refrigerant     not enabled, not complete" + NL
+                + "    Secondary air system       not enabled, not complete" + NL
+                + "    Evaporative system         not enabled, not complete" + NL
+                + "    Heated catalyst            not enabled, not complete" + NL
+                + "    Catalyst                   not enabled, not complete" + NL
+                + "    NMHC converting catalyst   not enabled, not complete" + NL
+                + "    NOx catalyst/adsorber      not enabled, not complete" + NL
+                + "    Diesel Particulate Filter  not enabled, not complete" + NL
+                + "    Boost pressure control sys not enabled, not complete" + NL
+                + "    Cold start aid system      not enabled, not complete" + NL;
         assertEquals(expected, listener.getResults());
 
         assertEquals(List.of(), listener.getOutcomes());
@@ -195,22 +195,22 @@ public class Part11Step11ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         String expected = "" + NL;
         expected += "Vehicle Composite of DM26:" + NL;
-        expected += "    A/C system refrigerant     not enabled, not complete" + NL;
-        expected += "    Boost pressure control sys not enabled, not complete" + NL;
-        expected += "    Catalyst                   not enabled, not complete" + NL;
-        expected += "    Cold start aid system      not enabled, not complete" + NL;
-        expected += "    Comprehensive component    not enabled, not complete" + NL;
-        expected += "    Diesel Particulate Filter  not enabled, not complete" + NL;
-        expected += "    EGR/VVT system             not enabled, not complete" + NL;
-        expected += "    Evaporative system         not enabled, not complete" + NL;
-        expected += "    Exhaust Gas Sensor         not enabled, not complete" + NL;
-        expected += "    Exhaust Gas Sensor heater  not enabled, not complete" + NL;
-        expected += "    Fuel System                not enabled, not complete" + NL;
-        expected += "    Heated catalyst            not enabled, not complete" + NL;
-        expected += "    Misfire                    not enabled, not complete" + NL;
-        expected += "    NMHC converting catalyst   not enabled, not complete" + NL;
-        expected += "    NOx catalyst/adsorber      not enabled, not complete" + NL;
-        expected += "    Secondary air system       not enabled, not complete" + NL;
+        expected += "    Comprehensive component    not enabled, not complete" + NL
+                + "    Fuel System                not enabled, not complete" + NL
+                + "    Misfire                    not enabled, not complete" + NL
+                + "    EGR/VVT system             not enabled, not complete" + NL
+                + "    Exhaust Gas Sensor heater  not enabled, not complete" + NL
+                + "    Exhaust Gas Sensor         not enabled, not complete" + NL
+                + "    A/C system refrigerant     not enabled, not complete" + NL
+                + "    Secondary air system       not enabled, not complete" + NL
+                + "    Evaporative system         not enabled, not complete" + NL
+                + "    Heated catalyst            not enabled, not complete" + NL
+                + "    Catalyst                   not enabled, not complete" + NL
+                + "    NMHC converting catalyst   not enabled, not complete" + NL
+                + "    NOx catalyst/adsorber      not enabled, not complete" + NL
+                + "    Diesel Particulate Filter  not enabled, not complete" + NL
+                + "    Boost pressure control sys not enabled, not complete" + NL
+                + "    Cold start aid system      not enabled, not complete" + NL;
         assertEquals(expected, listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -238,22 +238,22 @@ public class Part11Step11ControllerTest extends AbstractControllerTest {
 
         String expected = "" + NL;
         expected += "Vehicle Composite of DM26:" + NL;
-        expected += "    A/C system refrigerant     not enabled, not complete" + NL;
-        expected += "    Boost pressure control sys not enabled, not complete" + NL;
-        expected += "    Catalyst                   not enabled, not complete" + NL;
-        expected += "    Cold start aid system      not enabled, not complete" + NL;
-        expected += "    Comprehensive component    not enabled, not complete" + NL;
-        expected += "    Diesel Particulate Filter  not enabled, not complete" + NL;
-        expected += "    EGR/VVT system             not enabled, not complete" + NL;
-        expected += "    Evaporative system         not enabled, not complete" + NL;
-        expected += "    Exhaust Gas Sensor         not enabled, not complete" + NL;
-        expected += "    Exhaust Gas Sensor heater  not enabled, not complete" + NL;
-        expected += "    Fuel System                not enabled, not complete" + NL;
-        expected += "    Heated catalyst            not enabled, not complete" + NL;
-        expected += "    Misfire                    not enabled, not complete" + NL;
-        expected += "    NMHC converting catalyst   not enabled, not complete" + NL;
-        expected += "    NOx catalyst/adsorber      not enabled, not complete" + NL;
-        expected += "    Secondary air system       not enabled, not complete" + NL;
+        expected += "    Comprehensive component    not enabled, not complete" + NL
+                + "    Fuel System                not enabled, not complete" + NL
+                + "    Misfire                    not enabled, not complete" + NL
+                + "    EGR/VVT system             not enabled, not complete" + NL
+                + "    Exhaust Gas Sensor heater  not enabled, not complete" + NL
+                + "    Exhaust Gas Sensor         not enabled, not complete" + NL
+                + "    A/C system refrigerant     not enabled, not complete" + NL
+                + "    Secondary air system       not enabled, not complete" + NL
+                + "    Evaporative system         not enabled, not complete" + NL
+                + "    Heated catalyst            not enabled, not complete" + NL
+                + "    Catalyst                   not enabled, not complete" + NL
+                + "    NMHC converting catalyst   not enabled, not complete" + NL
+                + "    NOx catalyst/adsorber      not enabled, not complete" + NL
+                + "    Diesel Particulate Filter  not enabled, not complete" + NL
+                + "    Boost pressure control sys not enabled, not complete" + NL
+                + "    Cold start aid system      not enabled, not complete" + NL;
         assertEquals(expected, listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,

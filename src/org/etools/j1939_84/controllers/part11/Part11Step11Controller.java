@@ -104,7 +104,6 @@ public class Part11Step11Controller extends StepController {
             getListener().onResult("");
             getListener().onResult("Vehicle Composite of DM26:");
             getCompositeSystems(packets, false).stream()
-                                               .sorted()
                                                .map(MonitoredSystem::toString)
                                                .forEach(s -> getListener().onResult(s));
         }

@@ -4,35 +4,10 @@
 
 package org.etools.j1939tools.utils;
 
-import java.util.Collection;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class CollectionUtils {
-
-    public static boolean areTwoCollectionsEqual(Collection<?> collectionA, Collection<?> collectionB) {
-
-        // verify null checks
-        if (collectionA == null && collectionB == null) {
-            return true;
-        }
-
-        if (collectionA == null || collectionB == null) {
-            return false;
-        }
-
-        // verify basic attributes
-        if (collectionA.size() != collectionB.size()) {
-            return false;
-        }
-
-        // ensure contents are the same
-        for (Object itemA : collectionA) {
-            if (!collectionB.contains(itemA)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
 
     public static byte[] join(byte[]... byteArrays) {
         byte[] bytes = new byte[0];
@@ -43,33 +18,16 @@ public class CollectionUtils {
     }
 
     public static int[] join(int[]... intArrays) {
-        int[] ints = new int[0];
-        for (int[] intArray : intArrays) {
-            ints = addAll(ints, intArray);
-        }
-        return ints;
+        return Stream.of(intArrays).flatMapToInt(x -> IntStream.of(x)).toArray();
     }
 
-    public static byte[] addAll(byte[] array1, byte... array2) {
+    private static byte[] addAll(byte[] array1, byte... array2) {
         if (array1 == null) {
             return array2 == null ? null : array2.clone();
         } else if (array2 == null) {
             return array1.clone();
         } else {
             byte[] joinedArray = new byte[array1.length + array2.length];
-            System.arraycopy(array1, 0, joinedArray, 0, array1.length);
-            System.arraycopy(array2, 0, joinedArray, array1.length, array2.length);
-            return joinedArray;
-        }
-    }
-
-    public static int[] addAll(int[] array1, int... array2) {
-        if (array1 == null) {
-            return array2 == null ? null : array2.clone();
-        } else if (array2 == null) {
-            return array1.clone();
-        } else {
-            int[] joinedArray = new int[array1.length + array2.length];
             System.arraycopy(array1, 0, joinedArray, 0, array1.length);
             System.arraycopy(array2, 0, joinedArray, array1.length, array2.length);
             return joinedArray;

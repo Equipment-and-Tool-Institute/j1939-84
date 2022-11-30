@@ -264,7 +264,7 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
 
         verify(broadcastValidator).getMaximumBroadcastPeriod();
         verify(broadcastValidator).buildPGNPacketsMap(List.of());
-//        verify(broadcastValidator).buildPGNPacketsMap(List.of(packet2));
+        // verify(broadcastValidator).buildPGNPacketsMap(List.of(packet2));
 
         verify(broadcastValidator).reportBroadcastPeriod(eq(Map.of()),
                                                          eq(List.of(111,
@@ -1108,19 +1108,13 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         String expected = "10:15:30.0000 GHG Active Technology Arrays from Engine #1 (0)" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += "|                                     |    Active   |    Active   |    Stored   |    Stored   |             |             |" + NL;
-        expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
-        expected += "| Description                         |    Time, s  |   Dist, km  |    Time, s  |   Dist, km  |    Time, s  |   Dist, km  |" + NL;
-        expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
-        expected += "| SAE/ISO Reserved                    |           0 |           0 |           0 |           0 |  48,521,732 |           0 |" + NL;
-        expected += "| Predictive Cruise Control           |         N/A |         N/A |         N/A |         N/A |      17,888 |           0 |" + NL;
-        expected += "| Unknown 49                          |         N/A |         N/A |         N/A |         N/A |       2,185 |           0 |" + NL;
-        expected += "| Unknown C0                          |         N/A |         N/A |         N/A |         N/A |   1,118,506 |           0 |" + NL;
-        expected += "| Unknown CE                          |         N/A |         N/A |         N/A |         N/A |     559,250 |           0 |" + NL;
-        expected += "| Unknown E0                          |         N/A |         N/A |         N/A |         N/A |           2 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 6     |         N/A |         N/A |         N/A |         N/A |         767 |           0 |" + NL;
+        expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL
+                + "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL
+                + "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL
+                + "| SAE/ISO Reserved                    |         N/A |         N/A |         N/A |         N/A |           0 |           0 |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += NL;
-        //        assertEquals(expected, listener.getResults());
+                assertEquals(expected, listener.getResults());
 
         String expectedMsg = "";
         expectedMsg += "Requesting Green House Gas Lifetime Active Technology Tracking (GHGTTL) from Engine #1 (0)" + NL;
@@ -1264,19 +1258,13 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         String expected = "10:15:30.0000 GHG Active Technology Arrays from Engine #1 (0)" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += "|                                     |    Active   |    Active   |    Stored   |    Stored   |             |             |" + NL;
-        expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
-        expected += "| Description                         |    Time, s  |   Dist, km  |    Time, s  |   Dist, km  |    Time, s  |   Dist, km  |" + NL;
-        expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
-        expected += "| SAE/ISO Reserved                    |           0 |           0 |           0 |           0 |  48,521,732 |           0 |" + NL;
-        expected += "| Predictive Cruise Control           |         N/A |         N/A |         N/A |         N/A |      17,888 |           0 |" + NL;
-        expected += "| Unknown 49                          |         N/A |         N/A |         N/A |         N/A |       2,185 |           0 |" + NL;
-        expected += "| Unknown C0                          |         N/A |         N/A |         N/A |         N/A |   1,118,506 |           0 |" + NL;
-        expected += "| Unknown CE                          |         N/A |         N/A |         N/A |         N/A |     559,250 |           0 |" + NL;
-        expected += "| Unknown E0                          |         N/A |         N/A |         N/A |         N/A |           2 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 6     |         N/A |         N/A |         N/A |         N/A |         767 |           0 |" + NL;
+        expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL
+                + "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL
+                + "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL
+                + "| SAE/ISO Reserved                    |         N/A |         N/A |         N/A |         N/A |           0 |           0 |" + NL ;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += NL;
-        //        assertEquals(expected, listener.getResults());
+                assertEquals(expected, listener.getResults());
 
         String expectedMsg = "";
         expectedMsg += "Requesting Green House Gas Lifetime Active Technology Tracking (GHGTTL) from Engine #1 (0)" + NL;
@@ -1591,18 +1579,12 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += "|                                     |    Active   |    Active   |    Stored   |    Stored   |             |             |" + NL;
         expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
-        expected += "| Description                         |    Time, s  |   Dist, km  |    Time, s  |   Dist, km  |    Time, s  |   Dist, km  |" + NL;
-        expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
-        expected += "| SAE/ISO Reserved                    |           0 |           0 |           0 |           0 |  48,521,732 |           0 |" + NL;
-        expected += "| Predictive Cruise Control           |         N/A |         N/A |         N/A |         N/A |      17,888 |           0 |" + NL;
-        expected += "| Unknown 49                          |         N/A |         N/A |         N/A |         N/A |       2,185 |           0 |" + NL;
-        expected += "| Unknown C0                          |         N/A |         N/A |         N/A |         N/A |   1,118,506 |           0 |" + NL;
-        expected += "| Unknown CE                          |         N/A |         N/A |         N/A |         N/A |     559,250 |           0 |" + NL;
-        expected += "| Unknown E0                          |         N/A |         N/A |         N/A |         N/A |           2 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 6     |         N/A |         N/A |         N/A |         N/A |         767 |           0 |" + NL;
+        expected += "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL
+                + "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL
+                + "| SAE/ISO Reserved                    |           0 |           0 |           0 |           0 |         N/A |         N/A |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += NL;
-        //        assertEquals(expected, listener.getResults());
+                assertEquals(expected, listener.getResults());
 
         String expectedMsg = "";
         expectedMsg += "Requesting Green House Gas Lifetime Active Technology Tracking (GHGTTL) from Engine #1 (0)" + NL;
@@ -1771,7 +1753,7 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         expected += "| Mfg Defined Active Technology 6     |         N/A |         N/A |         N/A |         N/A |         767 |           0 |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += NL;
-        //        assertEquals(expected, listener.getResults());
+                assertEquals(expected, listener.getResults());
 
         String expectedMsg = "";
         expectedMsg += "Requesting Green House Gas Lifetime Active Technology Tracking (GHGTTL) from Engine #1 (0)" + NL;
@@ -1895,7 +1877,10 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
                                         eq(26),
                                         eq(FAIL),
                                         eq("6.1.26.18.d - Bin value received is greater than 0xFAh and less than 0xFFh from Engine #1 (0) for SPN 12697, GHG Tracking Stored 100 Hour Active Technology Index: Unknown FB"));
-        verify(mockListener).addOutcome(eq(1), eq(26), eq(FAIL), eq("6.1.26.18.f - Stored labels received is not an equivalent set of lifetime labels"));
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(26),
+                                        eq(FAIL),
+                                        eq("6.1.26.18.f - Stored labels received is not an equivalent set of lifetime labels"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -2054,7 +2039,10 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
                                         eq(26),
                                         eq(FAIL),
                                         eq("6.1.26.18.g - Active 100 hr array value received was greater than zero from Engine #1 (0) for SPN SPN 12695, GHG Tracking Active 100 Hour Active Technology Time: 2190.000 s"));
-        verify(mockListener).addOutcome(eq(1), eq(26), eq(FAIL), eq("6.1.26.18.f - Active labels received is not an equivalent set of lifetime labels"));
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(26),
+                                        eq(FAIL),
+                                        eq("6.1.26.18.f - Active labels received is not an equivalent set of lifetime labels"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),

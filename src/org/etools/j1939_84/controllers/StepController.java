@@ -157,8 +157,7 @@ public abstract class StepController extends Controller {
                         + moduleName);
                 var response = getCommunicationsModule().request(pgn, address, getListener())
                                                         .toPacketStream()
-                                                        .collect(
-                                                                 Collectors.toList());
+                                                        .collect(Collectors.toList());
                 packets.addAll(response);
             }
             return packets;

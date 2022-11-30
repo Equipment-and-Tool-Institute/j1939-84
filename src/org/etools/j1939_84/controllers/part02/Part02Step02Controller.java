@@ -85,7 +85,6 @@ public class Part02Step02Controller extends StepController {
             getListener().onResult("");
             getListener().onResult("Vehicle Composite of DM5:");
             getListener().onResult(systems.stream()
-                                          .sorted()
                                           .map(MonitoredSystem::toString)
                                           .collect(Collectors.toList()));
             getListener().onResult("");

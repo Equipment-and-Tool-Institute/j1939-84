@@ -83,7 +83,6 @@ public class Part01Step14Controller extends StepController {
             getListener().onResult("");
             getListener().onResult("Vehicle Composite of DM26:");
             getCompositeSystems(globalPackets, false).stream()
-                                                     .sorted()
                                                      .map(MonitoredSystem::toString)
                                                      .forEach(s -> getListener().onResult(s));
             getListener().onResult("");
@@ -94,7 +93,6 @@ public class Part01Step14Controller extends StepController {
         // [except comprehensive components monitor (CCM)] and except misfire for MY 2019+ engines
         globalPackets.stream()
                      .flatMap(p -> p.getMonitoredSystems().stream())
-                     .sorted()
                      .filter(dm26System -> dm26System.getId() != CompositeSystem.COMPREHENSIVE_COMPONENT)
                      .filter(dm26System -> {
                          MonitoredSystem dm5System = getDM5System(dm26System.getId(), dm26System.getSourceAddress());
@@ -106,17 +104,16 @@ public class Part01Step14Controller extends StepController {
                          return getEngineModelYear() < 2019 || dm26System.getId() != CompositeSystem.MISFIRE;
                      })
                      .forEach(dm26System -> {
-                             String moduleName = Lookup.getAddressName(dm26System.getSourceAddress());
-                             String systemName = dm26System.getName().trim();
-                             addFailure("6.1.14.2.a - " + moduleName + " response for a monitor " + systemName
-                                                + " in DM5 is reported as supported and is reported as complete/not supported DM26 response");
+                         String moduleName = Lookup.getAddressName(dm26System.getSourceAddress());
+                         String systemName = dm26System.getName().trim();
+                         addFailure("6.1.14.2.a - " + moduleName + " response for a monitor " + systemName
+                                 + " in DM5 is reported as supported and is reported as complete/not supported DM26 response");
                      });
 
         // 6.1.14.2.b Fail if any response for each monitor not supported in DM5 by a given ECU is also reported in DM26
         // as “1=monitor not complete this monitoring cycle” in SP 3303 bits 5-7
         globalPackets.stream()
                      .flatMap(p -> p.getMonitoredSystems().stream())
-                     .sorted()
                      .filter(dm26System -> {
                          MonitoredSystem dm5System = getDM5System(dm26System.getId(), dm26System.getSourceAddress());
                          return dm5System != null
@@ -133,7 +130,6 @@ public class Part01Step14Controller extends StepController {
         // DM26 as “0=monitor enabled for this monitoring cycle” in SP 3303 bits 1 and 2 and SP 3304
         globalPackets.stream()
                      .flatMap(p -> p.getMonitoredSystems().stream())
-                     .sorted()
                      .filter(dm26System -> {
                          MonitoredSystem dm5System = getDM5System(dm26System.getId(), dm26System.getSourceAddress());
                          return dm5System != null

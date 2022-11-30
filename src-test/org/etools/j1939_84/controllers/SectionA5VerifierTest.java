@@ -14,8 +14,10 @@ import java.util.List;
 
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.TestDateTimeModule;
+import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
 import org.junit.Before;
@@ -49,7 +51,10 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     private ResultsListener mockListener;
 
     @Mock
-    private SectionA5MessageVerifier verifier;
+    private SectionA5MessageVerifier sectionA5MessageVerifier;
+
+    @Mock
+    private SectionA5NoxGhgVerifier sectionA5NoxGhgVerifier;
 
     @Before
     public void setUp() {
@@ -59,7 +64,10 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         listener = new TestResultsListener(mockListener);
 
         instance = new SectionA5Verifier(dataRepository,
-                                         verifier,
+                                         sectionA5MessageVerifier,
+                                         sectionA5NoxGhgVerifier,
+                                         new CommunicationsModule(),
+                                         new VehicleInformationModule(),
                                          PART_NUMBER,
                                          STEP_NUMBER);
     }
@@ -67,42 +75,42 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     @After
     public void tearDown() {
         DateTimeModule.setInstance(null);
-        verifyNoMoreInteractions(mockListener, verifier);
+        verifyNoMoreInteractions(mockListener, sectionA5MessageVerifier);
     }
 
     @Test
     public void testSetJ1939() {
         instance.setJ1939(j1939);
-        verify(verifier).setJ1939(j1939);
+        verify(sectionA5MessageVerifier).setJ1939(j1939);
     }
 
     @Test
     public void testVerifyDataErasedHappyPathNoFailures() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        when(verifier.checkDM6(listener, SECTION, 0, true)).thenReturn(true);
-        when(verifier.checkDM12(listener, SECTION, 0, true)).thenReturn(true);
-        when(verifier.checkDM23(listener, SECTION, 0, true)).thenReturn(true);
-        when(verifier.checkDM29(listener, SECTION, 0, true)).thenReturn(true);
-        when(verifier.checkDM5(listener, SECTION, 0, true)).thenReturn(true);
-        when(verifier.checkDM25(listener, SECTION, 0, true)).thenReturn(true);
-        when(verifier.checkDM31(listener, SECTION, 0, true)).thenReturn(true);
-        when(verifier.checkDM21(listener, SECTION, 0, true)).thenReturn(true);
-        when(verifier.checkDM26(listener, SECTION, 0, true)).thenReturn(true);
-        when(verifier.checkTestResults(listener, SECTION, 0, true)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM6(listener, SECTION, 0, true)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM12(listener, SECTION, 0, true)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM23(listener, SECTION, 0, true)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM29(listener, SECTION, 0, true)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM5(listener, SECTION, 0, true)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM25(listener, SECTION, 0, true)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM31(listener, SECTION, 0, true)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM21(listener, SECTION, 0, true)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM26(listener, SECTION, 0, true)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkTestResults(listener, SECTION, 0, true)).thenReturn(true);
 
         instance.verifyDataErased(listener, SECTION);
 
-        verify(verifier).checkDM6(listener, SECTION, 0, true);
-        verify(verifier).checkDM12(listener, SECTION, 0, true);
-        verify(verifier).checkDM23(listener, SECTION, 0, true);
-        verify(verifier).checkDM29(listener, SECTION, 0, true);
-        verify(verifier).checkDM5(listener, SECTION, 0, true);
-        verify(verifier).checkDM25(listener, SECTION, 0, true);
-        verify(verifier).checkDM31(listener, SECTION, 0, true);
-        verify(verifier).checkDM21(listener, SECTION, 0, true);
-        verify(verifier).checkDM26(listener, SECTION, 0, true);
-        verify(verifier).checkTestResults(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkDM6(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkDM12(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkDM23(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkDM29(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkDM5(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkDM25(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkDM31(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkDM21(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkDM26(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkTestResults(listener, SECTION, 0, true);
 
         assertEquals(List.of(), listener.getOutcomes());
     }
@@ -111,29 +119,29 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     public void testVerifyDataErasedWithFailure() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        when(verifier.checkDM6(listener, SECTION, 0, true)).thenReturn(false);
-        when(verifier.checkDM12(listener, SECTION, 0, true)).thenReturn(false);
-        when(verifier.checkDM23(listener, SECTION, 0, true)).thenReturn(false);
-        when(verifier.checkDM29(listener, SECTION, 0, true)).thenReturn(false);
-        when(verifier.checkDM5(listener, SECTION, 0, true)).thenReturn(false);
-        when(verifier.checkDM25(listener, SECTION, 0, true)).thenReturn(false);
-        when(verifier.checkDM31(listener, SECTION, 0, true)).thenReturn(false);
-        when(verifier.checkDM21(listener, SECTION, 0, true)).thenReturn(false);
-        when(verifier.checkDM26(listener, SECTION, 0, true)).thenReturn(false);
-        when(verifier.checkTestResults(listener, SECTION, 0, true)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM6(listener, SECTION, 0, true)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM12(listener, SECTION, 0, true)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM23(listener, SECTION, 0, true)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM29(listener, SECTION, 0, true)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM5(listener, SECTION, 0, true)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM25(listener, SECTION, 0, true)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM31(listener, SECTION, 0, true)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM21(listener, SECTION, 0, true)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM26(listener, SECTION, 0, true)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkTestResults(listener, SECTION, 0, true)).thenReturn(false);
 
         instance.verifyDataErased(listener, SECTION);
 
-        verify(verifier).checkDM6(listener, SECTION, 0, true);
-        verify(verifier).checkDM12(listener, SECTION, 0, true);
-        verify(verifier).checkDM23(listener, SECTION, 0, true);
-        verify(verifier).checkDM29(listener, SECTION, 0, true);
-        verify(verifier).checkDM5(listener, SECTION, 0, true);
-        verify(verifier).checkDM25(listener, SECTION, 0, true);
-        verify(verifier).checkDM31(listener, SECTION, 0, true);
-        verify(verifier).checkDM21(listener, SECTION, 0, true);
-        verify(verifier).checkDM26(listener, SECTION, 0, true);
-        verify(verifier).checkTestResults(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkDM6(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkDM12(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkDM23(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkDM29(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkDM5(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkDM25(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkDM31(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkDM21(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkDM26(listener, SECTION, 0, true);
+        verify(sectionA5MessageVerifier).checkTestResults(listener, SECTION, 0, true);
 
         assertEquals(NL + SECTION + " - Checking for erased diagnostic information" + NL, listener.getResults());
     }
@@ -142,39 +150,39 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     public void testVerifyDataNotErasedHappyPathNoFailures() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        when(verifier.checkDM6(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM12(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM23(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM29(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM5(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM25(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM31(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM21(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM26(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkTestResults(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM20(listener, SECTION, 0)).thenReturn(true);
-        when(verifier.checkDM28(listener, SECTION, 0)).thenReturn(true);
-        when(verifier.checkDM33(listener, SECTION, 0)).thenReturn(true);
-        when(verifier.checkEngineRunTime(listener, SECTION, 0)).thenReturn(true);
-        when(verifier.checkEngineIdleTime(listener, SECTION, 0)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM6(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM12(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM23(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM29(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM5(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM25(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM31(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM21(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM26(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkTestResults(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM20(listener, SECTION, 0)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM28(listener, SECTION, 0)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM33(listener, SECTION, 0)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkEngineRunTime(listener, SECTION, 0)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkEngineIdleTime(listener, SECTION, 0)).thenReturn(true);
 
         instance.verifyDataNotErased(listener, SECTION);
 
-        verify(verifier).checkDM6(listener, SECTION, 0, false);
-        verify(verifier).checkDM12(listener, SECTION, 0, false);
-        verify(verifier).checkDM23(listener, SECTION, 0, false);
-        verify(verifier).checkDM29(listener, SECTION, 0, false);
-        verify(verifier).checkDM5(listener, SECTION, 0, false);
-        verify(verifier).checkDM25(listener, SECTION, 0, false);
-        verify(verifier).checkDM31(listener, SECTION, 0, false);
-        verify(verifier).checkDM21(listener, SECTION, 0, false);
-        verify(verifier).checkDM26(listener, SECTION, 0, false);
-        verify(verifier).checkTestResults(listener, SECTION, 0, false);
-        verify(verifier).checkDM20(listener, SECTION, 0);
-        verify(verifier).checkDM28(listener, SECTION, 0);
-        verify(verifier).checkDM33(listener, SECTION, 0);
-        verify(verifier).checkEngineRunTime(listener, SECTION, 0);
-        verify(verifier).checkEngineIdleTime(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkDM6(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM12(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM23(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM29(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM5(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM25(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM31(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM21(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM26(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkTestResults(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM20(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkDM28(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkDM33(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkEngineRunTime(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkEngineIdleTime(listener, SECTION, 0);
 
         assertEquals(List.of(), listener.getOutcomes());
     }
@@ -183,39 +191,39 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     public void testVerifyDataNotErasedWithFailures() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        when(verifier.checkDM6(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM12(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM23(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM29(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM5(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM25(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM31(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM21(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM26(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkTestResults(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM20(listener, SECTION, 0)).thenReturn(false);
-        when(verifier.checkDM28(listener, SECTION, 0)).thenReturn(false);
-        when(verifier.checkDM33(listener, SECTION, 0)).thenReturn(false);
-        when(verifier.checkEngineRunTime(listener, SECTION, 0)).thenReturn(false);
-        when(verifier.checkEngineIdleTime(listener, SECTION, 0)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM6(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM12(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM23(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM29(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM5(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM25(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM31(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM21(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM26(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkTestResults(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM20(listener, SECTION, 0)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM28(listener, SECTION, 0)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM33(listener, SECTION, 0)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkEngineRunTime(listener, SECTION, 0)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkEngineIdleTime(listener, SECTION, 0)).thenReturn(false);
 
         instance.verifyDataNotErased(listener, SECTION);
 
-        verify(verifier).checkDM6(listener, SECTION, 0, false);
-        verify(verifier).checkDM12(listener, SECTION, 0, false);
-        verify(verifier).checkDM23(listener, SECTION, 0, false);
-        verify(verifier).checkDM29(listener, SECTION, 0, false);
-        verify(verifier).checkDM5(listener, SECTION, 0, false);
-        verify(verifier).checkDM25(listener, SECTION, 0, false);
-        verify(verifier).checkDM31(listener, SECTION, 0, false);
-        verify(verifier).checkDM21(listener, SECTION, 0, false);
-        verify(verifier).checkDM26(listener, SECTION, 0, false);
-        verify(verifier).checkTestResults(listener, SECTION, 0, false);
-        verify(verifier).checkDM20(listener, SECTION, 0);
-        verify(verifier).checkDM28(listener, SECTION, 0);
-        verify(verifier).checkDM33(listener, SECTION, 0);
-        verify(verifier).checkEngineRunTime(listener, SECTION, 0);
-        verify(verifier).checkEngineIdleTime(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkDM6(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM12(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM23(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM29(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM5(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM25(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM31(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM21(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM26(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkTestResults(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM20(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkDM28(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkDM33(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkEngineRunTime(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkEngineIdleTime(listener, SECTION, 0);
 
         assertEquals(NL + SECTION + " - Checking for erased diagnostic information" + NL, listener.getResults());
     }
@@ -225,71 +233,71 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0));
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(verifier.checkDM6(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM12(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM23(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM29(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM5(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM25(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM31(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM21(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM26(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkTestResults(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM20(listener, SECTION, 0)).thenReturn(true);
-        when(verifier.checkDM28(listener, SECTION, 0)).thenReturn(true);
-        when(verifier.checkDM33(listener, SECTION, 0)).thenReturn(true);
-        when(verifier.checkEngineRunTime(listener, SECTION, 0)).thenReturn(true);
-        when(verifier.checkEngineIdleTime(listener, SECTION, 0)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM6(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM12(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM23(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM29(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM5(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM25(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM31(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM21(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM26(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkTestResults(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM20(listener, SECTION, 0)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM28(listener, SECTION, 0)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM33(listener, SECTION, 0)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkEngineRunTime(listener, SECTION, 0)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkEngineIdleTime(listener, SECTION, 0)).thenReturn(true);
 
-        when(verifier.checkDM6(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkDM12(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkDM23(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkDM29(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkDM5(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkDM25(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkDM31(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkDM21(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkDM26(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkTestResults(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkDM20(listener, SECTION, 1)).thenReturn(true);
-        when(verifier.checkDM28(listener, SECTION, 1)).thenReturn(true);
-        when(verifier.checkDM33(listener, SECTION, 1)).thenReturn(true);
-        when(verifier.checkEngineRunTime(listener, SECTION, 1)).thenReturn(true);
-        when(verifier.checkEngineIdleTime(listener, SECTION, 1)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM6(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM12(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM23(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM29(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM5(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM25(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM31(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM21(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM26(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkTestResults(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM20(listener, SECTION, 1)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM28(listener, SECTION, 1)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM33(listener, SECTION, 1)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkEngineRunTime(listener, SECTION, 1)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkEngineIdleTime(listener, SECTION, 1)).thenReturn(true);
 
         instance.verifyDataNotPartialErased(listener, SECTION, "Section2", false);
 
-        verify(verifier).checkDM6(listener, SECTION, 0, false);
-        verify(verifier).checkDM12(listener, SECTION, 0, false);
-        verify(verifier).checkDM23(listener, SECTION, 0, false);
-        verify(verifier).checkDM29(listener, SECTION, 0, false);
-        verify(verifier).checkDM5(listener, SECTION, 0, false);
-        verify(verifier).checkDM25(listener, SECTION, 0, false);
-        verify(verifier).checkDM31(listener, SECTION, 0, false);
-        verify(verifier).checkDM21(listener, SECTION, 0, false);
-        verify(verifier).checkDM26(listener, SECTION, 0, false);
-        verify(verifier).checkTestResults(listener, SECTION, 0, false);
-        verify(verifier).checkDM20(listener, SECTION, 0);
-        verify(verifier).checkDM28(listener, SECTION, 0);
-        verify(verifier).checkDM33(listener, SECTION, 0);
-        verify(verifier).checkEngineRunTime(listener, SECTION, 0);
-        verify(verifier).checkEngineIdleTime(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkDM6(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM12(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM23(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM29(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM5(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM25(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM31(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM21(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM26(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkTestResults(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM20(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkDM28(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkDM33(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkEngineRunTime(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkEngineIdleTime(listener, SECTION, 0);
 
-        verify(verifier).checkDM6(listener, SECTION, 1, false);
-        verify(verifier).checkDM12(listener, SECTION, 1, false);
-        verify(verifier).checkDM23(listener, SECTION, 1, false);
-        verify(verifier).checkDM29(listener, SECTION, 1, false);
-        verify(verifier).checkDM5(listener, SECTION, 1, false);
-        verify(verifier).checkDM25(listener, SECTION, 1, false);
-        verify(verifier).checkDM31(listener, SECTION, 1, false);
-        verify(verifier).checkDM21(listener, SECTION, 1, false);
-        verify(verifier).checkDM26(listener, SECTION, 1, false);
-        verify(verifier).checkTestResults(listener, SECTION, 1, false);
-        verify(verifier).checkDM20(listener, SECTION, 1);
-        verify(verifier).checkDM28(listener, SECTION, 1);
-        verify(verifier).checkDM33(listener, SECTION, 1);
-        verify(verifier).checkEngineRunTime(listener, SECTION, 1);
-        verify(verifier).checkEngineIdleTime(listener, SECTION, 1);
+        verify(sectionA5MessageVerifier).checkDM6(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM12(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM23(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM29(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM5(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM25(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM31(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM21(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM26(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkTestResults(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM20(listener, SECTION, 1);
+        verify(sectionA5MessageVerifier).checkDM28(listener, SECTION, 1);
+        verify(sectionA5MessageVerifier).checkDM33(listener, SECTION, 1);
+        verify(sectionA5MessageVerifier).checkEngineRunTime(listener, SECTION, 1);
+        verify(sectionA5MessageVerifier).checkEngineIdleTime(listener, SECTION, 1);
 
         assertEquals(List.of(), listener.getOutcomes());
         assertEquals(NL + SECTION + " - Checking for erased diagnostic information" + NL, listener.getResults());
@@ -300,71 +308,71 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0));
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(verifier.checkDM6(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM12(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM23(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM29(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM5(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM25(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM31(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM21(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM26(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkTestResults(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM20(listener, SECTION, 0)).thenReturn(false);
-        when(verifier.checkDM28(listener, SECTION, 0)).thenReturn(false);
-        when(verifier.checkDM33(listener, SECTION, 0)).thenReturn(false);
-        when(verifier.checkEngineRunTime(listener, SECTION, 0)).thenReturn(false);
-        when(verifier.checkEngineIdleTime(listener, SECTION, 0)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM6(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM12(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM23(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM29(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM5(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM25(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM31(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM21(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM26(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkTestResults(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM20(listener, SECTION, 0)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM28(listener, SECTION, 0)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM33(listener, SECTION, 0)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkEngineRunTime(listener, SECTION, 0)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkEngineIdleTime(listener, SECTION, 0)).thenReturn(false);
 
-        when(verifier.checkDM6(listener, SECTION, 1, false)).thenReturn(false);
-        when(verifier.checkDM12(listener, SECTION, 1, false)).thenReturn(false);
-        when(verifier.checkDM23(listener, SECTION, 1, false)).thenReturn(false);
-        when(verifier.checkDM29(listener, SECTION, 1, false)).thenReturn(false);
-        when(verifier.checkDM5(listener, SECTION, 1, false)).thenReturn(false);
-        when(verifier.checkDM25(listener, SECTION, 1, false)).thenReturn(false);
-        when(verifier.checkDM31(listener, SECTION, 1, false)).thenReturn(false);
-        when(verifier.checkDM21(listener, SECTION, 1, false)).thenReturn(false);
-        when(verifier.checkDM26(listener, SECTION, 1, false)).thenReturn(false);
-        when(verifier.checkTestResults(listener, SECTION, 1, false)).thenReturn(false);
-        when(verifier.checkDM20(listener, SECTION, 1)).thenReturn(false);
-        when(verifier.checkDM28(listener, SECTION, 1)).thenReturn(false);
-        when(verifier.checkDM33(listener, SECTION, 1)).thenReturn(false);
-        when(verifier.checkEngineRunTime(listener, SECTION, 1)).thenReturn(false);
-        when(verifier.checkEngineIdleTime(listener, SECTION, 1)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM6(listener, SECTION, 1, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM12(listener, SECTION, 1, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM23(listener, SECTION, 1, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM29(listener, SECTION, 1, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM5(listener, SECTION, 1, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM25(listener, SECTION, 1, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM31(listener, SECTION, 1, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM21(listener, SECTION, 1, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM26(listener, SECTION, 1, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkTestResults(listener, SECTION, 1, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM20(listener, SECTION, 1)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM28(listener, SECTION, 1)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM33(listener, SECTION, 1)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkEngineRunTime(listener, SECTION, 1)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkEngineIdleTime(listener, SECTION, 1)).thenReturn(false);
 
         instance.verifyDataNotPartialErased(listener, SECTION, "Section2", false);
 
-        verify(verifier).checkDM6(listener, SECTION, 0, false);
-        verify(verifier).checkDM12(listener, SECTION, 0, false);
-        verify(verifier).checkDM23(listener, SECTION, 0, false);
-        verify(verifier).checkDM29(listener, SECTION, 0, false);
-        verify(verifier).checkDM5(listener, SECTION, 0, false);
-        verify(verifier).checkDM25(listener, SECTION, 0, false);
-        verify(verifier).checkDM31(listener, SECTION, 0, false);
-        verify(verifier).checkDM21(listener, SECTION, 0, false);
-        verify(verifier).checkDM26(listener, SECTION, 0, false);
-        verify(verifier).checkTestResults(listener, SECTION, 0, false);
-        verify(verifier).checkDM20(listener, SECTION, 0);
-        verify(verifier).checkDM28(listener, SECTION, 0);
-        verify(verifier).checkDM33(listener, SECTION, 0);
-        verify(verifier).checkEngineRunTime(listener, SECTION, 0);
-        verify(verifier).checkEngineIdleTime(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkDM6(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM12(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM23(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM29(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM5(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM25(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM31(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM21(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM26(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkTestResults(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM20(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkDM28(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkDM33(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkEngineRunTime(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkEngineIdleTime(listener, SECTION, 0);
 
-        verify(verifier).checkDM6(listener, SECTION, 1, false);
-        verify(verifier).checkDM12(listener, SECTION, 1, false);
-        verify(verifier).checkDM23(listener, SECTION, 1, false);
-        verify(verifier).checkDM29(listener, SECTION, 1, false);
-        verify(verifier).checkDM5(listener, SECTION, 1, false);
-        verify(verifier).checkDM25(listener, SECTION, 1, false);
-        verify(verifier).checkDM31(listener, SECTION, 1, false);
-        verify(verifier).checkDM21(listener, SECTION, 1, false);
-        verify(verifier).checkDM26(listener, SECTION, 1, false);
-        verify(verifier).checkTestResults(listener, SECTION, 1, false);
-        verify(verifier).checkDM20(listener, SECTION, 1);
-        verify(verifier).checkDM28(listener, SECTION, 1);
-        verify(verifier).checkDM33(listener, SECTION, 1);
-        verify(verifier).checkEngineRunTime(listener, SECTION, 1);
-        verify(verifier).checkEngineIdleTime(listener, SECTION, 1);
+        verify(sectionA5MessageVerifier).checkDM6(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM12(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM23(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM29(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM5(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM25(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM31(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM21(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM26(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkTestResults(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM20(listener, SECTION, 1);
+        verify(sectionA5MessageVerifier).checkDM28(listener, SECTION, 1);
+        verify(sectionA5MessageVerifier).checkDM33(listener, SECTION, 1);
+        verify(sectionA5MessageVerifier).checkEngineRunTime(listener, SECTION, 1);
+        verify(sectionA5MessageVerifier).checkEngineIdleTime(listener, SECTION, 1);
 
         assertEquals(List.of(), listener.getOutcomes());
         assertEquals(NL + SECTION + " - Checking for erased diagnostic information" + NL, listener.getResults());
@@ -374,39 +382,39 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     public void testVerifyDataNotPartialErasedFailureForMixedSingleModule() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        when(verifier.checkDM6(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM12(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM23(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM29(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM5(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM25(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM31(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM21(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM26(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkTestResults(listener, SECTION, 0, false)).thenReturn(true);
-        when(verifier.checkDM20(listener, SECTION, 0)).thenReturn(true);
-        when(verifier.checkDM28(listener, SECTION, 0)).thenReturn(true);
-        when(verifier.checkDM33(listener, SECTION, 0)).thenReturn(true);
-        when(verifier.checkEngineRunTime(listener, SECTION, 0)).thenReturn(true);
-        when(verifier.checkEngineIdleTime(listener, SECTION, 0)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM6(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM12(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM23(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM29(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM5(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM25(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM31(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM21(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM26(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkTestResults(listener, SECTION, 0, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM20(listener, SECTION, 0)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM28(listener, SECTION, 0)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM33(listener, SECTION, 0)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkEngineRunTime(listener, SECTION, 0)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkEngineIdleTime(listener, SECTION, 0)).thenReturn(true);
 
         instance.verifyDataNotPartialErased(listener, SECTION, "Section2", false);
 
-        verify(verifier).checkDM6(listener, SECTION, 0, false);
-        verify(verifier).checkDM12(listener, SECTION, 0, false);
-        verify(verifier).checkDM23(listener, SECTION, 0, false);
-        verify(verifier).checkDM29(listener, SECTION, 0, false);
-        verify(verifier).checkDM5(listener, SECTION, 0, false);
-        verify(verifier).checkDM25(listener, SECTION, 0, false);
-        verify(verifier).checkDM31(listener, SECTION, 0, false);
-        verify(verifier).checkDM21(listener, SECTION, 0, false);
-        verify(verifier).checkDM26(listener, SECTION, 0, false);
-        verify(verifier).checkTestResults(listener, SECTION, 0, false);
-        verify(verifier).checkDM20(listener, SECTION, 0);
-        verify(verifier).checkDM28(listener, SECTION, 0);
-        verify(verifier).checkDM33(listener, SECTION, 0);
-        verify(verifier).checkEngineRunTime(listener, SECTION, 0);
-        verify(verifier).checkEngineIdleTime(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkDM6(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM12(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM23(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM29(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM5(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM25(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM31(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM21(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM26(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkTestResults(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM20(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkDM28(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkDM33(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkEngineRunTime(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkEngineIdleTime(listener, SECTION, 0);
 
         assertEquals(NL + SECTION + " - Checking for erased diagnostic information" + NL, listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -420,71 +428,71 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0));
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(verifier.checkDM6(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM12(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM23(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM29(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM5(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM25(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM31(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM21(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM26(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkTestResults(listener, SECTION, 0, false)).thenReturn(false);
-        when(verifier.checkDM20(listener, SECTION, 0)).thenReturn(false);
-        when(verifier.checkDM28(listener, SECTION, 0)).thenReturn(false);
-        when(verifier.checkDM33(listener, SECTION, 0)).thenReturn(false);
-        when(verifier.checkEngineRunTime(listener, SECTION, 0)).thenReturn(false);
-        when(verifier.checkEngineIdleTime(listener, SECTION, 0)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM6(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM12(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM23(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM29(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM5(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM25(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM31(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM21(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM26(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkTestResults(listener, SECTION, 0, false)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM20(listener, SECTION, 0)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM28(listener, SECTION, 0)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkDM33(listener, SECTION, 0)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkEngineRunTime(listener, SECTION, 0)).thenReturn(false);
+        when(sectionA5MessageVerifier.checkEngineIdleTime(listener, SECTION, 0)).thenReturn(false);
 
-        when(verifier.checkDM6(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkDM12(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkDM23(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkDM29(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkDM5(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkDM25(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkDM31(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkDM21(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkDM26(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkTestResults(listener, SECTION, 1, false)).thenReturn(true);
-        when(verifier.checkDM20(listener, SECTION, 1)).thenReturn(true);
-        when(verifier.checkDM28(listener, SECTION, 1)).thenReturn(true);
-        when(verifier.checkDM33(listener, SECTION, 1)).thenReturn(true);
-        when(verifier.checkEngineRunTime(listener, SECTION, 1)).thenReturn(true);
-        when(verifier.checkEngineIdleTime(listener, SECTION, 1)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM6(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM12(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM23(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM29(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM5(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM25(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM31(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM21(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM26(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkTestResults(listener, SECTION, 1, false)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM20(listener, SECTION, 1)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM28(listener, SECTION, 1)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkDM33(listener, SECTION, 1)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkEngineRunTime(listener, SECTION, 1)).thenReturn(true);
+        when(sectionA5MessageVerifier.checkEngineIdleTime(listener, SECTION, 1)).thenReturn(true);
 
         instance.verifyDataNotPartialErased(listener, SECTION, "Section2", false);
 
-        verify(verifier).checkDM6(listener, SECTION, 0, false);
-        verify(verifier).checkDM12(listener, SECTION, 0, false);
-        verify(verifier).checkDM23(listener, SECTION, 0, false);
-        verify(verifier).checkDM29(listener, SECTION, 0, false);
-        verify(verifier).checkDM5(listener, SECTION, 0, false);
-        verify(verifier).checkDM25(listener, SECTION, 0, false);
-        verify(verifier).checkDM31(listener, SECTION, 0, false);
-        verify(verifier).checkDM21(listener, SECTION, 0, false);
-        verify(verifier).checkDM26(listener, SECTION, 0, false);
-        verify(verifier).checkTestResults(listener, SECTION, 0, false);
-        verify(verifier).checkDM20(listener, SECTION, 0);
-        verify(verifier).checkDM28(listener, SECTION, 0);
-        verify(verifier).checkDM33(listener, SECTION, 0);
-        verify(verifier).checkEngineRunTime(listener, SECTION, 0);
-        verify(verifier).checkEngineIdleTime(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkDM6(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM12(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM23(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM29(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM5(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM25(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM31(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM21(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM26(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkTestResults(listener, SECTION, 0, false);
+        verify(sectionA5MessageVerifier).checkDM20(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkDM28(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkDM33(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkEngineRunTime(listener, SECTION, 0);
+        verify(sectionA5MessageVerifier).checkEngineIdleTime(listener, SECTION, 0);
 
-        verify(verifier).checkDM6(listener, SECTION, 1, false);
-        verify(verifier).checkDM12(listener, SECTION, 1, false);
-        verify(verifier).checkDM23(listener, SECTION, 1, false);
-        verify(verifier).checkDM29(listener, SECTION, 1, false);
-        verify(verifier).checkDM5(listener, SECTION, 1, false);
-        verify(verifier).checkDM25(listener, SECTION, 1, false);
-        verify(verifier).checkDM31(listener, SECTION, 1, false);
-        verify(verifier).checkDM21(listener, SECTION, 1, false);
-        verify(verifier).checkDM26(listener, SECTION, 1, false);
-        verify(verifier).checkTestResults(listener, SECTION, 1, false);
-        verify(verifier).checkDM20(listener, SECTION, 1);
-        verify(verifier).checkDM28(listener, SECTION, 1);
-        verify(verifier).checkDM33(listener, SECTION, 1);
-        verify(verifier).checkEngineRunTime(listener, SECTION, 1);
-        verify(verifier).checkEngineIdleTime(listener, SECTION, 1);
+        verify(sectionA5MessageVerifier).checkDM6(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM12(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM23(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM29(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM5(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM25(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM31(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM21(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM26(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkTestResults(listener, SECTION, 1, false);
+        verify(sectionA5MessageVerifier).checkDM20(listener, SECTION, 1);
+        verify(sectionA5MessageVerifier).checkDM28(listener, SECTION, 1);
+        verify(sectionA5MessageVerifier).checkDM33(listener, SECTION, 1);
+        verify(sectionA5MessageVerifier).checkEngineRunTime(listener, SECTION, 1);
+        verify(sectionA5MessageVerifier).checkEngineIdleTime(listener, SECTION, 1);
 
         assertEquals(NL + SECTION + " - Checking for erased diagnostic information" + NL, listener.getResults());
 

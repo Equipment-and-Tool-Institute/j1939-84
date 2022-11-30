@@ -184,7 +184,8 @@ public class TableA6Validator {
 
         // Warning is required if the engine model year is 2013
         // and the system is not-enabled for compression ignition only
-        if (isCompressionIgnition() && !system.getStatus().isEnabled() && getModelYear() == 2013) {
+        if (isCompressionIgnition() && !system.getStatus().isEnabled()
+                && (getModelYear() >= 2013 && getModelYear() <= 2015)) {
             acceptableStatuses.addAll(findStatus(0, 0));
             addWarning(system, listener, section);
         }
@@ -206,14 +207,10 @@ public class TableA6Validator {
 
     private boolean validateHeatedCatalyst(MonitoredSystem system, ResultsListener listener, String section) {
         List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>();
-        if (isCompressionIgnition()) {
-            acceptableStatuses.addAll(findStatus(0, 0));
-        } else if (isSparkIgnition()) {
+        acceptableStatuses.addAll(findStatus(0, 0));
+        if (isSparkIgnition() && system.getStatus().isEnabled()) {
             acceptableStatuses.addAll(findStatus(1, 1));
-            if (!system.getStatus().isEnabled()) {
-                acceptableStatuses.addAll(findStatus(0, 0));
-                addWarning(system, listener, section);
-            }
+            addWarning(system, listener, section);
         }
         return validate(system, listener, acceptableStatuses, section);
     }
@@ -224,11 +221,10 @@ public class TableA6Validator {
         if (isCompressionIgnition()) {
             acceptableStatuses.addAll(findStatus(1, 1));
             if (system.getStatus().isComplete()) {
-                if (getModelYear() == 2019) {
+                if (getModelYear() >= 2019) {
                     addOutcome(system, listener, section, WARN);
                     acceptableStatuses.addAll(findStatus(1, 0));
-                }
-                if (engineHasRun && getModelYear() != 2013) {
+                } else if (engineHasRun && getModelYear() < 2013) {
                     addOutcome(system, listener, section, INFO);
                     acceptableStatuses.addAll(findStatus(1, 0));
                 }

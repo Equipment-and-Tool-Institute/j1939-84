@@ -106,6 +106,6 @@ public class BusResult<T extends ParsedPacket> {
     }
 
     public Stream<T> toPacketStream() {
-        return getPacket().stream().filter(e -> e.left.isPresent()).flatMap(e -> e.left.stream());
+        return getPacket().stream().flatMap(e -> e.left.stream());
     }
 }

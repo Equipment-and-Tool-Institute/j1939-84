@@ -83,7 +83,6 @@ public class Part01Step13Controller extends StepController {
             getListener().onResult("Vehicle Composite of DM5:");
             getListener().onResult(getCompositeSystems(obdGlobalPackets, true)
                                                                               .stream()
-                                                                              .sorted()
                                                                               .map(MonitoredSystem::toString)
                                                                               .collect(Collectors.toList()));
             getListener().onResult("");

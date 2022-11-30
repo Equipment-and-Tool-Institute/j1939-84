@@ -148,17 +148,12 @@ public class GhgTrackingModuleTest {
         expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
         expected += "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
-        expected += "| SAE/ISO Reserved                    |         N/A |         N/A |         N/A |         N/A |  48,521,732 |           0 |" + NL;
-        expected += "| Cylinder Deactivation               |           6 |           7 |          18 |          22 |         N/A |         N/A |" + NL;
-        expected += "| Intelligent Control                 |         171 |         214 |         342 |         428 |         N/A |         N/A |" + NL;
-        expected += "| Predictive Cruise Control           |          72 |          90 |       2,148 |         269 |      17,888 |           0 |" + NL;
-        expected += "| Unknown 49                          |         N/A |         N/A |         N/A |         N/A |       2,185 |           0 |" + NL;
-        expected += "| Unknown C0                          |         N/A |         N/A |         N/A |         N/A |   1,118,506 |           0 |" + NL;
-        expected += "| Unknown CE                          |         N/A |         N/A |         N/A |         N/A |     559,250 |           0 |" + NL;
-        expected += "| Unknown E0                          |         N/A |         N/A |         N/A |         N/A |           2 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 6     |          36 |          46 |         110 |         137 |         767 |           0 |" + NL;
-        expected += "| Mfg Defined Active Technology 4     |          12 |          15 |          37 |       2,205 |         N/A |         N/A |" + NL;
-        expected += "| Mfg Defined Active Technology 2     |          53 |          66 |         106 |         132 |         N/A |         N/A |" + NL;
+        expected += "| Cylinder Deactivation               |           6 |           7 |          18 |          22 |     133,120 |           0 |" + NL
+                  + "| Intelligent Control                 |         171 |         214 |         342 |         428 |       2,397 |       9,596 |" + NL
+                  + "| Predictive Cruise Control           |          72 |          90 |       2,148 |         269 |      17,888 |       1,880 |" + NL
+                  + "| Mfg Defined Active Technology 6     |          36 |          46 |         110 |         137 |         767 |         959 |" + NL
+                  + "| Mfg Defined Active Technology 4     |          12 |          15 |          37 |       2,205 |         833 |         322 |" + NL
+                  + "| Mfg Defined Active Technology 2     |          53 |          66 |         106 |         132 |         740 |         925 |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         assertEquals(expected, actual);
     }

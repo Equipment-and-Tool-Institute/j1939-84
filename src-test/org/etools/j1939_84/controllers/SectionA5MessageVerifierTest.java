@@ -5,6 +5,7 @@
 package org.etools.j1939_84.controllers;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939tools.j1939.model.FuelType.DSL;
 import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939tools.j1939.packets.LampStatus.ON;
 import static org.junit.Assert.assertFalse;
@@ -18,6 +19,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.CommunicationsListener;
@@ -62,7 +64,6 @@ public class SectionA5MessageVerifierTest {
     private static final int PART_NUMBER = 2;
     private static final int STEP_NUMBER = 3;
     private static final String SECTION = "6.2.3.4.a";
-
     private DataRepository dataRepository;
 
     @Mock
@@ -463,12 +464,18 @@ public class SectionA5MessageVerifierTest {
         moduleInfo.set(DM5DiagnosticReadinessPacket.create(0, 1, 1, 0x22), 1);
         dataRepository.putObdModule(moduleInfo);
 
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2018);
+        vehInfo.setFuelType(DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+
         var packet = DM5DiagnosticReadinessPacket.create(0,
                                                          0,
                                                          0,
                                                          0x22,
                                                          List.of(),
                                                          List.of(CompositeSystem.COMPREHENSIVE_COMPONENT));
+
         when(communicationsModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM5(listener, SECTION, 0, true));
@@ -481,6 +488,11 @@ public class SectionA5MessageVerifierTest {
         var moduleInfo = new OBDModuleInformation(0);
         moduleInfo.set(DM5DiagnosticReadinessPacket.create(0, 1, 0, 0x22), 1);
         dataRepository.putObdModule(moduleInfo);
+
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2018);
+        vehInfo.setFuelType(DSL);
+        dataRepository.setVehicleInformation(vehInfo);
 
         var packet = DM5DiagnosticReadinessPacket.create(0, 1, 0, 0x22);
         when(communicationsModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
@@ -499,6 +511,11 @@ public class SectionA5MessageVerifierTest {
         var moduleInfo = new OBDModuleInformation(0);
         moduleInfo.set(DM5DiagnosticReadinessPacket.create(0, 0, 1, 0x22), 1);
         dataRepository.putObdModule(moduleInfo);
+
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2018);
+        vehInfo.setFuelType(DSL);
+        dataRepository.setVehicleInformation(vehInfo);
 
         var packet = DM5DiagnosticReadinessPacket.create(0, 0, 1, 0x22);
         when(communicationsModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
@@ -519,6 +536,11 @@ public class SectionA5MessageVerifierTest {
                        1);
         dataRepository.putObdModule(moduleInfo);
 
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2018);
+        vehInfo.setFuelType(DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+
         var packet = DM5DiagnosticReadinessPacket.create(0, 1, 0, 0x22, List.of(), List.of(CompositeSystem.CATALYST));
         when(communicationsModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
 
@@ -537,6 +559,11 @@ public class SectionA5MessageVerifierTest {
         moduleInfo.set(DM5DiagnosticReadinessPacket.create(0, 1, 1, 0x22), 1);
         dataRepository.putObdModule(moduleInfo);
 
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2018);
+        vehInfo.setFuelType(DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+
         var packet = DM5DiagnosticReadinessPacket.create(0, 1, 1, 0x22);
         when(communicationsModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
 
@@ -550,6 +577,11 @@ public class SectionA5MessageVerifierTest {
         var moduleInfo = new OBDModuleInformation(0);
         moduleInfo.set(DM5DiagnosticReadinessPacket.create(0, 0xFF, 0xFF, 0x22), 1);
         dataRepository.putObdModule(moduleInfo);
+
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2018);
+        vehInfo.setFuelType(DSL);
+        dataRepository.setVehicleInformation(vehInfo);
 
         var packet = DM5DiagnosticReadinessPacket.create(0, 0xFF, 0xFF, 0x22);
         when(communicationsModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
@@ -568,6 +600,11 @@ public class SectionA5MessageVerifierTest {
         var packet = DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22);
         when(communicationsModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
 
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2018);
+        vehInfo.setFuelType(DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+
         assertFalse(instance.checkDM5(listener, SECTION, 0, false));
 
         verify(communicationsModule).requestDM5(listener, 0);
@@ -580,6 +617,11 @@ public class SectionA5MessageVerifierTest {
         var moduleInfo = new OBDModuleInformation(0);
         moduleInfo.set(DM25ExpandedFreezeFrame.create(0, freezeFrame), 1);
         dataRepository.putObdModule(moduleInfo);
+
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2018);
+        vehInfo.setFuelType(DSL);
+        dataRepository.setVehicleInformation(vehInfo);
 
         var packet = DM25ExpandedFreezeFrame.create(0);
         when(communicationsModule.requestDM25(listener, 0 )).thenReturn(BusResult.of(packet));

@@ -17,10 +17,10 @@ import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFET
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_HYBRID_PG;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_TRACKING_LIFETIME_PG;
-import static org.etools.j1939tools.modules.NOxBinningModule.NOx_LIFETIME_ACTIVITY_SPs;
-import static org.etools.j1939tools.modules.NOxBinningModule.NOx_LIFETIME_SPs;
-import static org.etools.j1939tools.modules.NOxBinningModule.NOx_TRACKING_ACTIVE_100_HOURS_SPs;
-import static org.etools.j1939tools.modules.NOxBinningModule.NOx_TRACKING_STORED_100_HOURS_SPs;
+import static org.etools.j1939tools.modules.NOxBinningModule.NOx_LIFETIME_ACTIVITY_PGs;
+import static org.etools.j1939tools.modules.NOxBinningModule.NOx_LIFETIME_PGs;
+import static org.etools.j1939tools.modules.NOxBinningModule.NOx_TRACKING_ACTIVE_100_HOURS_PGs;
+import static org.etools.j1939tools.modules.NOxBinningModule.NOx_TRACKING_STORED_100_HOURS_PGs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.etools.j1939_84.controllers.BroadcastValidator;
@@ -322,7 +323,6 @@ public class Part01Step26Controller extends StepController {
                                                                                                                   "6.1.26.6.c"))
                                                                   .collect(Collectors.toList());
 
-
                     onRequestPackets.addAll(globalPackets);
                 }
             }
@@ -475,16 +475,16 @@ public class Part01Step26Controller extends StepController {
                     + GHG_TRACKING_LIFETIME_HYBRID_PG);
         } else {
             ghgTrackingPackets.forEach(packet -> {
-                                               packet.getSpns()
-                       .forEach(spn -> {
-                           // 6.1.26.20.b - Fail PG query where any accumulator value
-                           // received is greater than FAFFFFFFh.
-                           if(spn.hasValue()) {
-                               validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.20.b");
-                           }
-                       });
+                packet.getSpns()
+                      .forEach(spn -> {
+                          // 6.1.26.20.b - Fail PG query where any accumulator value
+                          // received is greater than FAFFFFFFh.
+                          if (spn.hasValue()) {
+                              validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.20.b");
+                          }
+                      });
 
-        });
+            });
         }
 
         // 6.1.26.21 Actions11 for MY2022+ HEV and BEV drives
@@ -532,7 +532,7 @@ public class Part01Step26Controller extends StepController {
                       .forEach(spn -> {
                           // 6.1.26.22.c. Fail each PG query where any accumulator
                           // value received is greater than FAFFh.
-                          if(spn.hasValue()){
+                          if (spn.hasValue()) {
                               validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.22.c");
                           }
                       });
@@ -610,10 +610,11 @@ public class Part01Step26Controller extends StepController {
                         // for 32-bit SPNs 12705 and 12720).
                         validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.14.c");
                         if (GHG_ACTIVE_100_HR == packet.getPgnDefinition()
-                                .getId() && spn.hasValue() && spn.getValue() > 0) {
+                                                       .getId()
+                                && spn.hasValue() && spn.getValue() > 0) {
                             // 6.1.26.14.d - Fail each active 100 hr array value that is greater than zero
                             addFailure("6.1.26.14.d - Active 100 hr array value received is greater than zero from "
-                                               + module.getModuleName() + " for " + spn);
+                                    + module.getModuleName() + " for " + spn);
                         }
                     }
                 });
@@ -753,15 +754,18 @@ public class Part01Step26Controller extends StepController {
     private void testSp12675(OBDModuleInformation module) {
         // 6.1.26.7.a. DS request messages to ECU that indicated support in DM24 for upon
         // request SPN 12675 (NOx Tracking Engine
+        int[][] intArrays = { NOx_LIFETIME_PGs, NOx_LIFETIME_ACTIVITY_PGs };
         var nOxPackets = requestPackets(module.getSourceAddress(),
-                                        CollectionUtils.join(NOx_LIFETIME_SPs,
-                                                             NOx_LIFETIME_ACTIVITY_SPs))
-                                                                                        .stream()
-                                                                                        // 6.1.26.7.b. Record
-                                                                                        // each value for use
-                                                                                        // in Part 2.
-                                                                                        .peek(this::save)
-                                                                                        .collect(Collectors.toList());
+                                        Stream.of(intArrays)
+                                              .flatMapToInt(x -> IntStream.of(x))
+                                              .filter(x -> x != 0)
+                                              .toArray())
+                                                         .stream()
+                                                         // 6.1.26.7.b. Record
+                                                         // each value for use
+                                                         // in Part 2.
+                                                         .peek(this::save)
+                                                         .collect(Collectors.toList());
 
         if (nOxPackets.isEmpty()) {
             // 6.1.26.8.a. Fail each PG query where no response was received.
@@ -784,8 +788,8 @@ public class Part01Step26Controller extends StepController {
         // - Total) for each active 100hr NOx binning PG, followed by each Stored 100 hr PG
         // Label
         List<GenericPacket> nOx100HourPackets = requestPackets(module.getSourceAddress(),
-                                                               CollectionUtils.join(NOx_TRACKING_ACTIVE_100_HOURS_SPs,
-                                                                                    NOx_TRACKING_STORED_100_HOURS_SPs))
+                                                               CollectionUtils.join(NOx_TRACKING_ACTIVE_100_HOURS_PGs,
+                                                                                    NOx_TRACKING_STORED_100_HOURS_PGs))
                                                                                                                        .stream()
                                                                                                                        // 6.1.26.9.b
                                                                                                                        // -
@@ -821,7 +825,7 @@ public class Part01Step26Controller extends StepController {
                     // FAFFFFFFh for NOx values)
                     validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.10.c");
                     // 6.1.26.10.d. Fail each active 100 hr array value that is greater than zero. (where supported)
-                    List<Integer> active100HrSps = Arrays.stream(NOx_TRACKING_ACTIVE_100_HOURS_SPs)
+                    List<Integer> active100HrSps = Arrays.stream(NOx_TRACKING_ACTIVE_100_HOURS_PGs)
                                                          .boxed()
                                                          .collect(Collectors.toList());
                     if (active100HrSps.contains(packet.getPgnDefinition().getId()) && spn.getValue() > 0) {

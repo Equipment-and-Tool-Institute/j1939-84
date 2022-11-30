@@ -10,6 +10,7 @@ import org.etools.j1939tools.j1939.model.ActiveTechnology;
 import org.etools.j1939tools.j1939.model.Spn;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.GhgActiveTechnologyPacket;
+import org.etools.j1939tools.j1939.packets.GhgLifetimeActiveTechnologyPacket;
 import org.etools.j1939tools.utils.StringUtils;
 
 public class GhgActiveTechnologyArrayModule {
@@ -68,7 +69,7 @@ public class GhgActiveTechnologyArrayModule {
         for (int refIndex = 0; refIndex <= 250; refIndex++) {
             var active = getActiveTechnology(activeArrayPg, refIndex, packets);
             var stored = getActiveTechnology(storedArrayPg, refIndex, packets);
-            var lifetime = getActiveTechnology(lifetimeArrayPg, refIndex, packets);
+            var lifetime = lifetimeArrayPg == 0 ? null : getActiveTechnology(lifetimeArrayPg, refIndex, packets);
 
             String line = writeLine(active, stored, lifetime);
             if (line != null) {
@@ -132,21 +133,21 @@ public class GhgActiveTechnologyArrayModule {
         }
 
         return "| " + StringUtils.padRight(label, descriptionWidth) + " |" +
-               writeTechnology(active) +
-               writeTechnology(stored) +
-               writeTechnology(lifetime) +
-               NL;
+                writeTechnology(active) +
+                writeTechnology(stored) +
+                writeTechnology(lifetime) +
+                NL;
     }
 
     private String writeTechnology(ActiveTechnology technology) {
-        if (technology != null ) {
+        if (technology != null) {
             String message = "";
-            if(!technology.getTimeSpn().hasValue()) {
+            if (!technology.getTimeSpn().hasValue()) {
                 message += format("N/A") + " |";
             } else {
                 message += format(technology.getTimeSpn()) + " |";
             }
-            if(!technology.getDistanceSpn().hasValue()) {
+            if (!technology.getDistanceSpn().hasValue()) {
                 message += format("N/A") + " |";
             } else {
                 message += format(technology.getDistanceSpn()) + " |";
@@ -165,9 +166,9 @@ public class GhgActiveTechnologyArrayModule {
         Double value = Double.parseDouble(spn.getStringValueNoUnit());
         String unit = spn.getSlot().getUnit();
         if ("s".equals(unit)) {
-            value = value / 60; //Convert seconds to minutes
+            value = value / 60; // Convert seconds to minutes
         } else if ("m".equals(unit)) {
-            value = value / 1000; //Convert meters to kilometers
+            value = value / 1000; // Convert meters to kilometers
         }
 
         return format(decimalFormat.format(value));
@@ -176,10 +177,13 @@ public class GhgActiveTechnologyArrayModule {
     private ActiveTechnology getActiveTechnology(int pgn, int index, List<GenericPacket> packets) {
         return packets.stream()
                       .filter(p -> p.getPacket().getPgn() == pgn)
-                      .map(p -> new GhgActiveTechnologyPacket(p.getPacket()))
+                      .map(p -> pgn == 64257
+                              ? new GhgLifetimeActiveTechnologyPacket(p.getPacket())
+                              : new GhgActiveTechnologyPacket(p.getPacket()))
                       .flatMap(p -> p.getActiveTechnologies().stream())
                       .filter(t -> t.getIndex() == index)
-                      .findFirst().orElse(null);
+                      .findFirst()
+                      .orElse(null);
     }
 
     private String timeStamp() {

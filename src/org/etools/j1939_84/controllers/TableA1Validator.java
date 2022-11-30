@@ -242,7 +242,6 @@ public class TableA1Validator {
                                            ResultsListener listener,
                                            boolean isEngineRunning,
                                            String section) {
-
         int moduleAddress = packet.getSourceAddress();
         if (!dataRepository.isObdModule(moduleAddress)) {
             return;
@@ -265,7 +264,7 @@ public class TableA1Validator {
 
                     String message;
                     if (spn.isError()) {
-                        message = "N.8 " + moduleName + " reported value for SPN " + spnId
+                        message = "N.1 " + moduleName + " reported value for SPN " + spnId
                                 + " (ERROR) is implausible";
                     } else {
                         message = "N.8 " + moduleName + " reported value for SPN " + spnId + " (" + value
@@ -346,7 +345,7 @@ public class TableA1Validator {
                       addOutcome(listener,
                                  section,
                                  FAIL,
-                                 "SPN " + spn + " was received as NOT AVAILABLE from " + moduleName);
+                                 "N.1 SPN " + spn + " was received as NOT AVAILABLE from " + moduleName);
                       listener.onResult("");
                       naSPNs.add(spn);
                       notAvailableSPNs.put(moduleAddress, naSPNs);

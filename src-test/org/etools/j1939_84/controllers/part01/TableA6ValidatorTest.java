@@ -782,6 +782,11 @@ public class TableA6ValidatorTest {
         verify(mockListener).addOutcome(
                                         1,
                                         2,
+                                        WARN,
+                                        "6.1.2.3.a - Heated catalyst is supported, complete");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
                                         FAIL,
                                         "6.1.2.3.a - Composite vehicle readiness for Heated catalyst did not meet the criteria of Table A4");
         verify(mockListener).addOutcome(
@@ -805,7 +810,7 @@ public class TableA6ValidatorTest {
                                         FAIL,
                                         "6.1.2.3.a - Composite vehicle readiness for Secondary air system did not meet the criteria of Table A4");
     }
-
+ 
     @Test
     public void testVerifySparkFail() {
         VehicleInformation vehicleInformation = new VehicleInformation();
@@ -934,6 +939,11 @@ public class TableA6ValidatorTest {
                                         2,
                                         FAIL,
                                         "6.1.2.3.a - Composite vehicle readiness for Misfire did not meet the criteria of Table A4");
+        verify(mockListener).addOutcome(
+                                        1,
+                                        2,
+                                        WARN,
+                                        "6.1.2.3.a - Heated catalyst is supported, not complete");
         verify(mockListener).addOutcome(
                                         1,
                                         2,

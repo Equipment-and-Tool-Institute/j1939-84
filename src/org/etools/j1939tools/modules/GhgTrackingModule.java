@@ -39,6 +39,12 @@ public class GhgTrackingModule {
     // 64255 Green House Gas Stored 100 Hour Active Technology Tracking - PG Acronym GHGTTA
     public static final int GHG_STORED_GREEN_HOUSE_100_HR = 64255;
 
+    public static final int[] GHG_ALL_PG = new int[] { GHG_TRACKING_LIFETIME_PG, GHG_ACTIVE_100_HR, GHG_STORED_100_HR,
+            GHG_TRACKING_LIFETIME_HYBRID_PG, GHG_ACTIVE_HYBRID_100_HR, GHG_STORED_HYBRID_100_HR,
+            GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG, GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR,
+            GHG_STORED_HYBRID_CHG_DEPLETING_100_HR,
+            GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG, GHG_ACTIVE_GREEN_HOUSE_100_HR, GHG_STORED_GREEN_HOUSE_100_HR };
+
     private final GhgTrackingArrayModule ghgTrackingArrayModule;
     private final GhgActiveTechnologyArrayModule ghgActiveTechnologyArrayModule;
 
