@@ -41,6 +41,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
+
 /**
  * Unit tests for the {@link VehicleInformationModule} class
  *
@@ -355,7 +356,8 @@ public class VehicleInformationModuleTest {
                                                                                               0x60,
                                                                                               0x70,
                                                                                               0x80));
-        doReturn(Stream.of(packet1.getPacket(),
+        doReturn(Stream.of(null,
+                           packet1.getPacket(),
                            packet11.getPacket(),
                            packet2.getPacket(),
                            packet22.getPacket(),

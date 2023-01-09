@@ -30,6 +30,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * @author Joe Batt (joe@soliddesign.net)
  */
 public class Packet {
+    private static final int[] FAIL = new int[0];
     // FIXME, eventually change to (RX)
     public static final String RX = "";
     /**
@@ -220,7 +221,7 @@ public class Packet {
     }
 
     synchronized public void fail() {
-        data = new int[0];
+        data = FAIL;
         notifyAll();
     }
 
@@ -346,11 +347,16 @@ public class Packet {
     }
 
     synchronized public boolean isValid() {
+        long start = System.currentTimeMillis();
         while (data == null) {
             try {
-                wait();
+                wait(1000);
             } catch (InterruptedException e) {
                 // No worries
+            }
+            if (System.currentTimeMillis() - start > 30_000) {
+                fail();
+                break;
             }
         }
         return data.length > 0;

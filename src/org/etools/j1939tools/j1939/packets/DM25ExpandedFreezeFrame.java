@@ -75,6 +75,7 @@ public class DM25ExpandedFreezeFrame extends GenericPacket {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getStringPrefix()).append(NL);
+        sb.append("Packet Length: ").append(getPacket().getLength()).append(NL);
         sb.append("Freeze Frames: [").append(NL);
         if (getFreezeFrames().isEmpty()) {
             sb.append("  No Freeze Frames").append(NL);

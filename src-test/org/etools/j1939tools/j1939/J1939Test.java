@@ -332,10 +332,9 @@ public class J1939Test {
     public void feebBamTest() throws Exception {
         try (EchoBus echoBus = new EchoBus(0xF9)) {
             J1939TP tpBus = new J1939TP(echoBus);
-
+            // echoBus.log(p->p.toString());
             J1939 j1939 = new J1939(tpBus);
             Stream<Packet> reqStream = echoBus.read(1, TimeUnit.HOURS);
-            Stream<Packet> stream = tpBus.read(1, TimeUnit.HOURS);
             new Thread(() -> {
                 Optional<Packet> req = reqStream.findFirst();
                 assertEquals("18EAFFF9 [3] EB FE 00 (TX)", req.get().toString());
@@ -502,26 +501,9 @@ public class J1939Test {
                     throw new RuntimeException(e);
                 }
             }).start();
-            long start = System.currentTimeMillis();
-            new Thread(() -> {
-                try {
-                    Packet p = stream.findFirst().get();
-                    System.err.format("exists:  %d%n", System.currentTimeMillis() - start);
-                    String timeString = p.toTimeString();
-                    System.err.format("complete:  %d  %s%n", System.currentTimeMillis() - start, timeString);
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                }
-            }).start();
             RequestResult<ComponentIdentificationPacket> response = j1939.requestGlobal("test",
                                                                                         ComponentIdentificationPacket.class,
                                                                                         NOOP);
-            System.err.format("### post %d%n  %s%n",
-                              System.currentTimeMillis() - start,
-                              response.getEither()
-                                      .stream()
-                                      .map(r -> r.left.map(p -> p.getPacket().toString() + "\n").orElse("ERROR"))
-                                      .collect(Collectors.toList()));
             // only 4 complete messages are receive. (some duplicates)
             assertEquals(4, response.getEither().size());
         }
@@ -668,7 +650,7 @@ public class J1939Test {
     /** Request the VIN without a delay and verify no warning. */
     @Test
     public void testBamTimeoutNoWarn() throws Exception {
-        EchoBus bus2 = new EchoBus(0);
+        EchoBus bus2 = new EchoBus(1);
         try (Bus bus = new J1939TP(bus2, 0)) {
             Stream<Packet> requestStream = bus.read(1, TimeUnit.HOURS);
             new Thread(() -> {
@@ -715,7 +697,8 @@ public class J1939Test {
      */
     @Test
     public void testBamTimeoutWarn() throws Exception {
-        EchoBus bus2 = new EchoBus(0);
+        EchoBus bus2 = new EchoBus(1);
+        // bus2.log(p -> " " + p);
         try (Bus bus = new J1939TP(bus2, 0)) {
 
             Stream<Packet> requestStream = bus.read(1, TimeUnit.HOURS);
@@ -726,7 +709,7 @@ public class J1939Test {
                     // wait to cause warning
                     Thread.sleep(300);
                     bus.send(Packet.create(VehicleIdentificationPacket.PGN,
-                                           0xFF,
+                                           0x0,
                                            1,
                                            2,
                                            3,
@@ -745,7 +728,7 @@ public class J1939Test {
                                            16,
                                            17));
                     bus.send(Packet.create(VehicleIdentificationPacket.PGN,
-                                           0xFF,
+                                           0x0,
                                            1,
                                            2,
                                            3,

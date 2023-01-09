@@ -21,6 +21,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -46,7 +47,7 @@ public class RP1210Bus implements Bus {
     /**
      * The id of this client for the {@link RP1210Library}
      */
-    private final short clientId;
+    private short clientId;
 
     /**
      * The thread pool used for polling
@@ -79,11 +80,23 @@ public class RP1210Bus implements Bus {
     private long lastTimestamp = Long.MAX_VALUE;
 
     // from the .INI file.
-    final private long timestampWeight;
+    private long timestampWeight;
 
     private boolean imposterDetected;
 
-    public RP1210Bus(Adapter adapter, String connectionString, int address, boolean appPacketize) throws BusException {
+    private final Consumer<String> errorFn;
+
+    private final Adapter adapter;
+
+    private String connectionString;
+
+    private boolean appPacketize;
+
+    public RP1210Bus(Adapter adapter,
+                     String connectionString,
+                     int address,
+                     boolean appPacketize,
+                     Consumer<String> errorFn) throws BusException {
         this(RP1210Library.load(adapter),
              Executors.newSingleThreadExecutor(nameThreadFactory("RP1210 decoding")),
              Executors.newSingleThreadExecutor(nameThreadFactory("RP1210 processing")),
@@ -92,7 +105,8 @@ public class RP1210Bus implements Bus {
              connectionString,
              address,
              appPacketize,
-             J1939_84.getLogger());
+             J1939_84.getLogger(),
+             errorFn);
     }
 
     private static ThreadFactory nameThreadFactory(String name) {
@@ -114,26 +128,36 @@ public class RP1210Bus implements Bus {
                      String connectionString,
                      int address,
                      boolean appPacketize,
-                     Logger logger) throws BusException {
+                     Logger logger,
+                     Consumer<String> errorFn) throws BusException {
         this.rp1210Library = rp1210Library;
         this.decodingExecutor = decodingExecutor;
         this.rp1210Executor = rp1210Executor;
         this.queue = queue;
         this.address = address;
         this.logger = logger;
-        timestampWeight = adapter.getTimestampWeight() * 1000L;
+        this.errorFn = errorFn;
+        this.adapter = adapter;
+        this.connectionString = connectionString;
+        this.appPacketize = appPacketize;
+
+        start();
+    }
+
+    private void start() throws BusException {
+        timestampWeight = this.adapter.getTimestampWeight() * 1000L;
         timestampStartNanoseconds = 0;
 
-        clientId = rp1210Library.RP1210_ClientConnect(0,
-                                                      adapter.getDeviceId(),
-                                                      connectionString,
-                                                      0,
-                                                      0,
-                                                      (short) (appPacketize ? 1 : 0));
+        clientId = this.rp1210Library.RP1210_ClientConnect(0,
+                                                           this.adapter.getDeviceId(),
+                                                           this.connectionString,
+                                                           0,
+                                                           0,
+                                                           (short) (this.appPacketize ? 1 : 0));
         checkReturnCode(clientId);
         try {
             sendCommand(CMD_PROTECT_J1939_ADDRESS,
-                        new byte[] { (byte) address, 0, 0, (byte) 0xE0, (byte) 0xFF, 0,
+                        new byte[] { (byte) this.address, 0, 0, (byte) 0xE0, (byte) 0xFF, 0,
                                 (byte) 0x81, 0, 0, CLAIM_BLOCK_UNTIL_DONE });
             sendCommand(CMD_ECHO_TRANSMITTED_MESSAGES, ECHO_ON);
             sendCommand(CMD_SET_ALL_FILTERS_STATES_TO_PASS);
@@ -147,17 +171,18 @@ public class RP1210Bus implements Bus {
 
     @Override
     public void close() {
-        rp1210Executor.shutdownNow();
-        try {
-            rp1210Executor.awaitTermination(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            logger.warning("Unable to stop rp1210Executor.");
-        }
         if (clientId >= 0) {
             rp1210Library.RP1210_ClientDisconnect(clientId);
         }
-        decodingExecutor.shutdownNow();
-        queue.close();
+        // these can not be restarted, so do not close
+        // rp1210Executor.shutdownNow();
+        // try {
+        // rp1210Executor.awaitTermination(5, TimeUnit.SECONDS);
+        // } catch (InterruptedException e) {
+        // logger.warning("Unable to stop rp1210Executor.");
+        // }
+        // decodingExecutor.shutdownNow();
+        // queue.close();
     }
 
     @Override
@@ -331,10 +356,20 @@ public class RP1210Bus implements Bus {
             }
             // this allows the other calls to have a chance
             Thread.yield();
-            rp1210Executor.submit(this::poll);
         } catch (BusException e) {
             logger.log(Level.SEVERE, "Failed to read RP1210", e);
+            errorFn.accept("Failed to read RP1210, restarting: " + e.getMessage());
+            try {
+                close();
+            } catch (Exception e2) {
+            }
+            try {
+                start();
+            } catch (BusException e1) {
+                errorFn.accept("Failed to reconnect RP1210, restarting: " + e.getMessage());
+            }
         }
+        rp1210Executor.submit(this::poll);
     }
 
     private void decodeDataAndQueuePacket(byte[] data, short rtn) {
@@ -343,6 +378,8 @@ public class RP1210Bus implements Bus {
             // logger.log(Level.FINE, packet.toTimeString());
             if (packet.getSource() == getAddress() && !packet.isTransmitted()) {
                 logger.log(Level.WARNING, "Another ECU is using this address: " + packet);
+                errorFn.accept("Another ECU is using this address: " + packet);
+
                 imposterDetected = true;
             }
             queue.add(packet);

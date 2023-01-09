@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -26,6 +27,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -87,6 +89,9 @@ public class Part12Step11ControllerTest extends AbstractControllerTest {
     @Before
     public void setUp() throws Exception {
         dataRepository = DataRepository.newInstance();
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setEngineModelYear(2022);
+        dataRepository.setVehicleInformation(vehicleInformation);
         listener = new TestResultsListener(mockListener);
 
         instance = new Part12Step11Controller(executor,
@@ -302,7 +307,8 @@ public class Part12Step11ControllerTest extends AbstractControllerTest {
                                         eq("6.12.11.3.b. DM58 not received from Engine #1 (0) for SP SPN 4145 - System Cumulative Continuous MI Time"));
 
         assertEquals("", listener.getMessages());
-        assertEquals("6.12.11.4.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from Engine #1 (0)" + J1939_84.NL,
+        assertEquals("6.12.11.4.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from Engine #1 (0)"
+                + J1939_84.NL,
                      listener.getResults());
         ActionOutcome expectedActionOutcome = new ActionOutcome(FAIL,
                                                                 "6.12.11.3.b. DM58 not received from Engine #1 (0) for SP SPN 4145 - System Cumulative Continuous MI Time");
@@ -343,14 +349,16 @@ public class Part12Step11ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestTestResults(any(), eq(0), eq(250), eq(456), eq(9));
 
         assertEquals("", listener.getMessages());
-        String expectedResults = "6.12.11.4.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from Engine #1 (0)" + J1939_84.NL;
-        expectedResults += "6.12.11.4.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from Engine #2 (1)"+J1939_84.NL;
+        String expectedResults = "6.12.11.4.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from Engine #1 (0)"
+                + J1939_84.NL;
+        expectedResults += "6.12.11.4.a - No SPs found that do NOT indicate support for DM58 in the DM24 response from Engine #2 (1)"
+                + J1939_84.NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals(List.of(), listener.getOutcomes());
     }
 
     @Test
-    public void testObdNoResponseFailure() {
+    public void testObdNoResponseFailure() throws IOException {
 
         int source = 0x00;
         DM24SPNSupportPacket dm24Packet = getDm24SPNSupportPacket(source);
@@ -440,8 +448,8 @@ public class Part12Step11ControllerTest extends AbstractControllerTest {
         DataRepository.getInstance().putObdModule(obd0x00);
 
         var dm58Packet8205 = DM58RationalityFaultSpData.create(source,
-                                                              245,
-                                                              8205,
+                                                               245,
+                                                               8205,
                                                                new int[] { 0xFB, 0xFF, 0xFF, 0xFF });
         when(communicationsModule.requestDM58(any(CommunicationsListener.class),
                                               eq(source),

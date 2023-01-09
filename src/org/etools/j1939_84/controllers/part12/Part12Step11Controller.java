@@ -84,60 +84,62 @@ public class Part12Step11Controller extends StepController {
         // a. DS DM7 with TID 245 (for DM58) using FMI 31 for each SP identified as supporting DM58 in a DM24 response
         // In step 6.1.4.1 to the SP’s respective OBD ECU.
         // b. Display the scaled engineering value for the requested SP.
-        getDataRepository().getObdModules().stream().forEach(module -> {
-            module.getSupportedSPNs()
-                  .stream()
-                  .filter(SupportedSPN::supportsRationalityFaultData)
-                  .forEach(spn -> {
-                      getCommunicationsModule().requestDM58(getListener(),
-                                                            module.getSourceAddress(),
-                                                            spn.getSpn())
-                                               .requestResult()
-                                               .getEither()
-                                               .stream()
-                                               .findFirst()
-                                               .ifPresentOrElse(response -> {
-                                                   // // 6.12.11.3.a - Fail if NACK received for DM7 PG
-                                                   // from OBD ECU
-                                                   if (response.right.isPresent()) {
-                                                       addFailure("6.12.11.3.a - NACK received for DM7 PG from OBD ECU from "
-                                                               +
-                                                               module.getModuleName() + " for SP " + spn);
-                                                   } else {
-                                                       var dm58 = response.left;
+        if (getEngineModelYear() >= 2022) {
+            getDataRepository().getObdModules().stream().forEach(module -> {
+                module.getSupportedSPNs()
+                      .stream()
+                      .filter(SupportedSPN::supportsRationalityFaultData)
+                      .forEach(spn -> {
+                          getCommunicationsModule().requestDM58(getListener(),
+                                                                module.getSourceAddress(),
+                                                                spn.getSpn())
+                                                   .requestResult()
+                                                   .getEither()
+                                                   .stream()
+                                                   .findFirst()
+                                                   .ifPresentOrElse(response -> {
+                                                       // // 6.12.11.3.a - Fail if NACK received for DM7 PG
+                                                       // from OBD ECU
+                                                       if (response.right.isPresent()) {
+                                                           addFailure("6.12.11.3.a - NACK received for DM7 PG from OBD ECU from "
+                                                                   +
+                                                                   module.getModuleName() + " for SP " + spn);
+                                                       } else {
+                                                           var dm58 = response.left;
 
-                                                       DM58RationalityFaultSpData packet = dm58.get();
-                                                       // c. Fail, if expected unused bytes in DM58 are
-                                                       // not padded with FFh
-                                                       if (!areUnusedBytesPaddedWithFFh(packet)) {
-                                                           addFailure(
-                                                                      "6.12.12.3.c - Unused bytes in DM58 are not padded with FFh in the response from "
-                                                                              + module.getModuleName()
-                                                                              + " for SP " + spn);
-                                                       }
-                                                       // d. Fail, if data returned is greater than FBh
-                                                       // (for 1 byte SP), FBFFh (for 2 byte SP), or
-                                                       // FBFFFFFFh (for 4 byte SP)
-                                                       if (isGreaterThanFb(packet)) {
-                                                           addFailure(
-                                                                      "6.12.12.3.d - Data returned is greater than 0xFB... threshold from "
-                                                                              + module.getModuleName()
-                                                                              + " for " + spn);
+                                                           DM58RationalityFaultSpData packet = dm58.get();
+                                                           // c. Fail, if expected unused bytes in DM58 are
+                                                           // not padded with FFh
+                                                           if (!areUnusedBytesPaddedWithFFh(packet)) {
+                                                               addFailure(
+                                                                          "6.12.12.3.c - Unused bytes in DM58 are not padded with FFh in the response from "
+                                                                                  + module.getModuleName()
+                                                                                  + " for SP " + spn);
+                                                           }
+                                                           // d. Fail, if data returned is greater than FBh
+                                                           // (for 1 byte SP), FBFFh (for 2 byte SP), or
+                                                           // FBFFFFFFh (for 4 byte SP)
+                                                           if (isGreaterThanFb(packet)) {
+                                                               addFailure(
+                                                                          "6.12.12.3.d - Data returned is greater than 0xFB... threshold from "
+                                                                                  + module.getModuleName()
+                                                                                  + " for " + spn);
 
+                                                           }
                                                        }
-                                                   }
-                                               },
-                                                                () -> {
-                                                                    // 6.12.11.3.b. Fail, if DM58 not
-                                                                    // received
-                                                                    addFailure("6.12.11.3.b. DM58 not received from "
-                                                                            +
-                                                                            module.getModuleName()
-                                                                            + " for SP " + spn);
-                                                                });
-                  });
-            getDm58AndVerifyData(module.getSourceAddress());
-        });
+                                                   },
+                                                                    () -> {
+                                                                        // 6.12.11.3.b. Fail, if DM58 not
+                                                                        // received
+                                                                        addFailure("6.12.11.3.b. DM58 not received from "
+                                                                                +
+                                                                                module.getModuleName()
+                                                                                + " for SP " + spn);
+                                                                    });
+                      });
+                getDm58AndVerifyData(module.getSourceAddress());
+            });
+        }
     }
 
     private void getDm58AndVerifyData(int moduleAddress) {

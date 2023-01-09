@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -150,10 +151,11 @@ public class RP1210 {
      * @throws BusException
      *                          if there is a problem setting the adapter
      */
-    static public Bus createBus(Adapter adapter, String connectionString, int address) throws BusException {
-        J1939TP j1939tp = new J1939TP(new RP1210Bus(adapter, connectionString, address, true));
-        j1939tp.setPassAll(true);
-        return j1939tp;
+    static public Bus createBus(Adapter adapter,
+                                String connectionString,
+                                int address,
+                                Consumer<String> errorFn) throws BusException {
+        return new J1939TP(new RP1210Bus(adapter, connectionString, address, true, errorFn), address, true);
     }
 
     private Ini getDriverIni(String id) throws IOException {
@@ -187,9 +189,9 @@ public class RP1210 {
             timestampWeight = Long.parseLong(vendorSection.getOrDefault("TimeStampWeight", "1"));
         } catch (Throwable t) {
             J1939_84.getLogger()
-                      .log(Level.SEVERE,
-                           "Error Parsing TimeStampWeight from ini file.  Assuming 1000 (ms resolution).",
-                           t);
+                    .log(Level.SEVERE,
+                         "Error Parsing TimeStampWeight from ini file.  Assuming 1000 (ms resolution).",
+                         t);
             timestampWeight = 1000;
         }
         return timestampWeight;

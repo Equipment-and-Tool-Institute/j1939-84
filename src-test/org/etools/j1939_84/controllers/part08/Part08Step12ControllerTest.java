@@ -20,7 +20,7 @@ import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.Cont
 import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByteSpecificIndicator.GENERAL_NACK;
 import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByteSpecificIndicator.NOT_SUPPORTED;
 import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.ControlByteSpecificIndicator.UNKNOWN_DTC;
-import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939tools.j1939.packets.LampStatus.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -156,7 +156,7 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 10, 0, 1);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 8);
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation0);
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
@@ -486,7 +486,7 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
     public void testFailureForCLR_PA_ACK2() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 10, 0, 1);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 8);
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dm22_0 = create(0, 0, CLR_PA_ACK, NOT_SUPPORTED, 123, 10);
@@ -532,7 +532,7 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
     public void testFailureForCLR_ACT_ACK2() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 10, 0, 1);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 8);
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dm22_0 = create(0, 0, CLR_ACT_ACK, NOT_SUPPORTED, 123, 10);
@@ -578,7 +578,7 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
     public void testFailureForACK2() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 10, 0, 1);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 8);
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var ack = AcknowledgmentPacket.create(0, ACK);
@@ -624,7 +624,7 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
     public void testFailureForCLR_ACT_NACKWithNonZeroAck2() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 10, 0, 1);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 8);
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var dm22_0 = create(0, 0, CLR_ACT_NACK, ACCESS_DENIED, 123, 10);
@@ -670,7 +670,7 @@ public class Part08Step12ControllerTest extends AbstractControllerTest {
     public void testWarningForNACK() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 10, 0, 1);
-        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc), 8);
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation0);
 
         var nack = AcknowledgmentPacket.create(0, NACK);

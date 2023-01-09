@@ -14,6 +14,7 @@ import static org.etools.j1939tools.j1939.packets.DM22IndividualClearPacket.Cont
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -81,7 +82,12 @@ public class Part09Step03Controller extends StepController {
         // using the MIL On DTC SPN and FMI and control byte = 17, Request to Clear/Reset Active DTC.
         List<Integer> addresses = getDataRepository().getObdModuleAddresses()
                                                      .stream()
-                                                     .filter(a -> getDTCs(a).isEmpty())
+                                                     .filter(a -> Optional.ofNullable(get(DM12MILOnEmissionDTCPacket.class,
+                                                                                          a,
+                                                                                          9))
+                                                                          .map(p -> !p.getMalfunctionIndicatorLampStatus()
+                                                                                      .isActive())
+                                                                          .orElse(true))
                                                      .collect(Collectors.toList());
 
         var dsResults = addresses.stream()
@@ -163,7 +169,12 @@ public class Part09Step03Controller extends StepController {
         // control byte = 1, Request to Clear/Reset Previously Active DTC.
         addresses = getDataRepository().getObdModuleAddresses()
                                        .stream()
-                                       .filter(a -> !getDTCs(a).isEmpty())
+                                       .filter(a -> Optional.ofNullable(get(DM12MILOnEmissionDTCPacket.class,
+                                                                            a,
+                                                                            9))
+                                                            .map(p -> p.getMalfunctionIndicatorLampStatus()
+                                                                       .isActive())
+                                                            .orElse(false))
                                        .collect(Collectors.toList());
 
         dsResults = new ArrayList<>();

@@ -572,7 +572,8 @@ public class J1939TPTest {
                                       0xEA00,
                                       0xEA00 >> 8,
                                       0xEA00 >> 16));
-                stream.findFirst()
+                stream.skip(1)
+                      .findFirst()
                       .ifPresentOrElse(p -> result.complete(p),
                                        () -> result.completeExceptionally(success));
             });
@@ -622,7 +623,8 @@ public class J1939TPTest {
                                       0xEA00,
                                       0xEA00 >> 8,
                                       0xEA00 >> 16));
-                stream.findFirst()
+                stream.skip(1)
+                      .findFirst()
                       .ifPresentOrElse(p -> result.complete(p),
                                        () -> result.completeExceptionally(
                                                                           new RuntimeException("too late ("

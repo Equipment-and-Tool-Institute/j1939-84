@@ -137,11 +137,11 @@ public class CommunicationsModuleTest {
                                                                                                       0x21,
                                                                                                       calBytes3));
 
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket()),
-                 Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket()),
-                 Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
-                                                                                          .read(eq(TIMEOUT),
-                                                                                                eq(MILLISECONDS));
+        doReturn(Stream.of(null, packet1.getPacket(), packet2.getPacket(), packet3.getPacket()),
+                 Stream.of(null, packet1.getPacket(), packet2.getPacket(), packet3.getPacket()),
+                 Stream.of(null, packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                                .read(eq(TIMEOUT),
+                                                                                                      eq(MILLISECONDS));
 
         RequestResult<DM19CalibrationInformationPacket> expected = RequestResult.of(packet1, packet2, packet3);
         RequestResult<DM19CalibrationInformationPacket> actual = instance.requestDM19(NOOP);
@@ -289,8 +289,9 @@ public class CommunicationsModuleTest {
                                                                                                       0x00,
                                                                                                       calBytes1));
 
-        doReturn(Stream.of(packet1.getPacket()),
-                 Stream.of((packet1.getPacket()),
+        doReturn(Stream.of(null, packet1.getPacket()),
+                 Stream.of(null,
+                           packet1.getPacket(),
                            Stream.of(packet1.getPacket()))).when(j1939)
                                                            .read(eq(TIMEOUT), eq(MILLISECONDS));
 
@@ -447,7 +448,7 @@ public class CommunicationsModuleTest {
                                                                               0xFE,
                                                                               0x00));
 
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket1, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = NL;
         expected += "10:15:30.0000 Global DM11 Request" + NL;
@@ -484,7 +485,7 @@ public class CommunicationsModuleTest {
                                                                               0xFE,
                                                                               0x00));
 
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket1, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = NL;
         expected += "10:15:30.0000 Destination Specific DM11 Request to Engine #1 (0)" + NL;
@@ -519,7 +520,7 @@ public class CommunicationsModuleTest {
                                                                                           0x00,
                                                                                           0x00,
                                                                                           0x00));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM12 Request to Engine #1 (0)" + NL;
@@ -560,7 +561,7 @@ public class CommunicationsModuleTest {
                                                                                           0x10,
                                                                                           0x04,
                                                                                           0x00));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM12 Request to Engine #1 (0)" + NL;
@@ -643,9 +644,9 @@ public class CommunicationsModuleTest {
                                                                                           0x00,
                                                                                           0x00));
         TestResultsListener listener = new TestResultsListener();
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
-                                                                                          .read(anyLong(),
-                                                                                                any());
+        doReturn(Stream.of(null, packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                                .read(anyLong(),
+                                                                                                      any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM12 Request" + NL;
@@ -692,7 +693,7 @@ public class CommunicationsModuleTest {
                                                                                           0x04,
                                                                                           0x00));
         TestResultsListener listener = new TestResultsListener();
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(null, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM12 Request" + NL;
@@ -767,7 +768,7 @@ public class CommunicationsModuleTest {
         Packet packet = Packet.create(pgn | BUS_ADDR, 0, 0x10, 0x27, 0x20, 0x4E, 0x30, 0x75, 0x40, 0x9C);
         DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(packet);
 
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         TestResultsListener listener = new TestResultsListener();
         BusResult<DM21DiagnosticReadinessPacket> result = new BusResult<>(false, packet1);
@@ -797,7 +798,7 @@ public class CommunicationsModuleTest {
         Packet packet = Packet.create(pgn | BUS_ADDR, 0, 0x10, 0x27, 0x20, 0x4E, 0x30, 0x75, 0x40, 0x9C);
         DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(packet);
 
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(null, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM21DiagnosticReadinessPacket> result = new RequestResult<>(false,
@@ -831,7 +832,7 @@ public class CommunicationsModuleTest {
         Packet packet = Packet.create(pgn | BUS_ADDR, 0, 0x10, 0x27, 0x20, 0x4E, 0x30, 0x75, 0x40, 0x9C);
         DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(packet);
 
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM21DiagnosticReadinessPacket> result = new RequestResult<>(false,
@@ -875,7 +876,7 @@ public class CommunicationsModuleTest {
                                                                                                               0x00,
                                                                                                               0x00,
                                                                                                               0x00));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM23 Request to Body Controller (33)" + NL;
@@ -916,7 +917,7 @@ public class CommunicationsModuleTest {
                                                                                                               0x10,
                                                                                                               0x04,
                                                                                                               0x00));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM23 Request to Engine #1 (0)" + NL;
@@ -999,9 +1000,9 @@ public class CommunicationsModuleTest {
                                                                                                               0x00,
                                                                                                               0x00,
                                                                                                               0x00));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
-                                                                                          .read(anyLong(),
-                                                                                                any());
+        doReturn(Stream.of(null, packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                                .read(anyLong(),
+                                                                                                      any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM23 Request" + NL;
@@ -1046,7 +1047,7 @@ public class CommunicationsModuleTest {
                                                                                                               0x10,
                                                                                                               0x04,
                                                                                                               0x00));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(null, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM23 Request" + NL;
@@ -1110,7 +1111,7 @@ public class CommunicationsModuleTest {
                                                                               0xFD,
                                                                               0x00));
 
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
@@ -1171,7 +1172,7 @@ public class CommunicationsModuleTest {
                 0xD0, 0x07, 0x00, 0x7D, 0x04, 0xFF, 0xFA };
 
         DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(pgn, 0x00, realData));
-        doReturn(Stream.of(packet.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket, packet.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
@@ -1179,9 +1180,10 @@ public class CommunicationsModuleTest {
         expected += "10:15:30.0000 18FDB700 [87] 56 9D 00 07 7F 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF FA"
                 + NL;
         expected += "DM25 from Engine #1 (0): " + NL;
+        expected += "Packet Length: 87" + NL;
         expected += "Freeze Frames: [" + NL;
         expected += "  Freeze Frame: {" + NL;
-        expected += "    Length: 82" + NL;
+        expected += "    Data Length: 82" + NL;
         expected += "    DTC 157:7 - Engine Fuel 1 Injector Metering Rail 1 Pressure, Mechanical System Not Responding Or Out Of Adjustment"
                 + NL;
         expected += "    SPN Data: 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF FA"
@@ -1218,7 +1220,7 @@ public class CommunicationsModuleTest {
                                                                                                         0,
                                                                                                         0,
                                                                                                         0));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM26 Request to Body Controller (33)" + NL;
@@ -1279,7 +1281,7 @@ public class CommunicationsModuleTest {
                                                                                                         0x04,
                                                                                                         0x00));
 
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM26 Request to Engine #1 (0)" + NL;
@@ -1384,9 +1386,9 @@ public class CommunicationsModuleTest {
                                                                                                         0,
                                                                                                         0,
                                                                                                         0));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
-                                                                                          .read(anyLong(),
-                                                                                                any());
+        doReturn(Stream.of(null, packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                                .read(anyLong(),
+                                                                                                      any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
@@ -1487,10 +1489,12 @@ public class CommunicationsModuleTest {
                                                                                                         0x88,
                                                                                                         0xFF));
 
-        doReturn(Stream.of(packet1.getPacket()), Stream.of(packet1.getPacket()), Stream.of(packet1.getPacket())).when(
-                                                                                                                      j1939)
-                                                                                                                .read(anyLong(),
-                                                                                                                      any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket()),
+                 Stream.of(packet1.getPacket()),
+                 Stream.of(packet1.getPacket())).when(
+                                                      j1939)
+                                                .read(anyLong(),
+                                                      any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
@@ -1565,7 +1569,7 @@ public class CommunicationsModuleTest {
                                                                                       0x00,
                                                                                       0x00,
                                                                                       0x00));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM27 Request to Engine #1 (0)" + NL;
@@ -1607,7 +1611,7 @@ public class CommunicationsModuleTest {
                                                                                       0x10,
                                                                                       0x04,
                                                                                       0x00));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM27 Request to Engine #1 (0)" + NL;
@@ -1691,9 +1695,9 @@ public class CommunicationsModuleTest {
                                                                                       0x00,
                                                                                       0x00,
                                                                                       0x00));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
-                                                                                          .read(anyLong(),
-                                                                                                any());
+        doReturn(Stream.of(null, packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                                .read(anyLong(),
+                                                                                                      any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM27 Request" + NL;
@@ -1749,7 +1753,7 @@ public class CommunicationsModuleTest {
                                                                                       0x10,
                                                                                       0x04,
                                                                                       0x00));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(null, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM27 Request" + NL;
@@ -1820,7 +1824,7 @@ public class CommunicationsModuleTest {
                                                                                                   0x04,
                                                                                                   0x00));
 
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(null, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM28 Request" + NL;
@@ -1895,7 +1899,7 @@ public class CommunicationsModuleTest {
                                                                 0xFF,
                                                                 0xFF,
                                                                 0xFF));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         TestResultsListener listener = new TestResultsListener();
         BusResult<DM29DtcCounts> expectedResult = new BusResult<>(false, packet1);
@@ -1954,7 +1958,7 @@ public class CommunicationsModuleTest {
                                                                 0xFF,
                                                                 0xFF,
                                                                 0xFF));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(null, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM29DtcCounts> expectedResult = new RequestResult<>(false,
@@ -2010,7 +2014,7 @@ public class CommunicationsModuleTest {
                                                                                   0x66,
                                                                                   0x77,
                                                                                   0x88));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM2 Request to Engine #2 (1)" + NL;
@@ -2071,9 +2075,9 @@ public class CommunicationsModuleTest {
                                                                                   0x60,
                                                                                   0x70,
                                                                                   0x80));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
-                                                                                          .read(anyLong(),
-                                                                                                any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                                         .read(anyLong(),
+                                                                                                               any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM2 Request" + NL;
@@ -2124,7 +2128,7 @@ public class CommunicationsModuleTest {
                                                                                   0x10,
                                                                                   0x04,
                                                                                   0x00));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(null, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM2 Request" + NL;
@@ -2244,7 +2248,7 @@ public class CommunicationsModuleTest {
                                                                                       // Count
                                                                                       0xAA, // Lamp Status/Support
                                                                                       0x55));// Lamp Status/State
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM31DtcToLampAssociation> expectedResult = new RequestResult<>(false,
@@ -2321,7 +2325,7 @@ public class CommunicationsModuleTest {
                                                                                       0x00,
                                                                                       0xAA,
                                                                                       0x55));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(null, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM31DtcToLampAssociation> expectedResult = new RequestResult<>(false,
@@ -2350,7 +2354,7 @@ public class CommunicationsModuleTest {
                 (byte) 0xFF };
         var packet1 = new DM33EmissionIncreasingAECDActiveTime(Packet.create(pgn, 0x00, data));
 
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(null, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         TestResultsListener listener = new TestResultsListener();
         assertEquals(new RequestResult<>(false, packet1), instance.requestDM33(listener));
@@ -2413,7 +2417,7 @@ public class CommunicationsModuleTest {
                 0x04, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE,
                 (byte) 0xFF };
         var packet1 = new DM33EmissionIncreasingAECDActiveTime(Packet.create(pgn, 0, data));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(null, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM33 Request" + NL;
@@ -2477,7 +2481,7 @@ public class CommunicationsModuleTest {
                                                                                             0x00,
                                                                                             0x00,
                                                                                             0x00));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM6 Request to Engine #1 (0)" + NL;
@@ -2519,7 +2523,7 @@ public class CommunicationsModuleTest {
                                                                                             0x10,
                                                                                             0x04,
                                                                                             0x00));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM6 Request to Engine #1 (0)" + NL;
@@ -2600,9 +2604,9 @@ public class CommunicationsModuleTest {
                                                                                             0x00,
                                                                                             0x00,
                                                                                             0x00));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
-                                                                                          .read(anyLong(),
-                                                                                                any());
+        doReturn(Stream.of(null, packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                                .read(anyLong(),
+                                                                                                      any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM6 Request" + NL;
@@ -2646,7 +2650,7 @@ public class CommunicationsModuleTest {
                                                                                             0x10,
                                                                                             0x04,
                                                                                             0x00));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(null, packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM6 Request" + NL;
@@ -2700,11 +2704,11 @@ public class CommunicationsModuleTest {
         DM56EngineFamilyPacket packet2 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x17, bytes));
         DM56EngineFamilyPacket packet3 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x21, bytes));
 
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket()),
-                 Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket()),
-                 Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
-                                                                                          .read(eq(TIMEOUT),
-                                                                                                eq(MILLISECONDS));
+        doReturn(Stream.of(null, packet1.getPacket(), packet2.getPacket(), packet3.getPacket()),
+                 Stream.of(null, packet1.getPacket(), packet2.getPacket(), packet3.getPacket()),
+                 Stream.of(null, packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                                .read(eq(TIMEOUT),
+                                                                                                      eq(MILLISECONDS));
 
         List<DM56EngineFamilyPacket> packets = instance.requestDM56(listener);
         assertEquals(3, packets.size());
@@ -2762,11 +2766,11 @@ public class CommunicationsModuleTest {
                                                                                          moduleAddress,
                                                                                          data));
 
-        doReturn(Stream.of(packet.getPacket()),
-                 Stream.of(packet.getPacket()),
-                 Stream.of(packet.getPacket())).when(j1939)
-                                               .read(anyLong(),
-                                                     any());
+        doReturn(Stream.of(null, packet.getPacket()),
+                 Stream.of(null, packet.getPacket()),
+                 Stream.of(null, packet.getPacket())).when(j1939)
+                                                     .read(anyLong(),
+                                                           any());
 
         BusResult<DM58RationalityFaultSpData> expected = new BusResult<>(false, packet);
         BusResult<DM58RationalityFaultSpData> actual = instance.requestDM58(listener,
@@ -2924,9 +2928,9 @@ public class CommunicationsModuleTest {
                                                                                                         0x60,
                                                                                                         0x70,
                                                                                                         0x80));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
-                                                                                          .read(anyLong(),
-                                                                                                any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                                         .read(anyLong(),
+                                                                                                               any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
@@ -3001,9 +3005,9 @@ public class CommunicationsModuleTest {
                                                                                                         0x60,
                                                                                                         0x70,
                                                                                                         0x80));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
-                                                                                          .read(anyLong(),
-                                                                                                any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                                         .read(anyLong(),
+                                                                                                               any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
@@ -3077,7 +3081,7 @@ public class CommunicationsModuleTest {
                                                                                                 0x60,
                                                                                                 0x70,
                                                                                                 0x80));
-        doReturn(Stream.of(packet3.getPacket())).when(j1939).read(anyLong(), any());
+        doReturn(Stream.of(requestPacket, packet3.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM21 Request to Body Controller (33)" + NL;
@@ -3161,9 +3165,9 @@ public class CommunicationsModuleTest {
                                                                                                 0x60,
                                                                                                 0x70,
                                                                                                 0x80));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
-                                                                                          .read(anyLong(),
-                                                                                                any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                                         .read(anyLong(),
+                                                                                                               any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM21 Request" + NL;
@@ -3238,9 +3242,9 @@ public class CommunicationsModuleTest {
                                                                                                 0x60,
                                                                                                 0x70,
                                                                                                 0x80));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
-                                                                                          .read(anyLong(),
-                                                                                                any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                                         .read(anyLong(),
+                                                                                                               any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM21 Request" + NL;
@@ -3317,9 +3321,10 @@ public class CommunicationsModuleTest {
                                                                                               0x60,
                                                                                               0x70,
                                                                                               0x80));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket()))
-                                                                                          .when(j1939)
-                                                                                          .read(anyLong(), any());
+        doReturn(Stream.of(requestPacket, packet1.getPacket(), packet2.getPacket(), packet3.getPacket()))
+                                                                                                         .when(j1939)
+                                                                                                         .read(anyLong(),
+                                                                                                               any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
@@ -3444,10 +3449,12 @@ public class CommunicationsModuleTest {
                                                                0xFF,
                                                                0xFF));
 
-        doReturn(Stream.of(packet.getPacket()), Stream.of(packet.getPacket()), Stream.of(packet.getPacket()))
-                                                                                                             .when(j1939)
-                                                                                                             .read(anyLong(),
-                                                                                                                   any());
+        doReturn(Stream.of(requestPacket, packet.getPacket()),
+                 Stream.of(packet.getPacket()),
+                 Stream.of(packet.getPacket()))
+                                               .when(j1939)
+                                               .read(anyLong(),
+                                                     any());
 
         BusResult<? extends GenericPacket> actual = instance.requestDM57(listener, moduleAddress);
 

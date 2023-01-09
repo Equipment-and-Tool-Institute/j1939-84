@@ -9,18 +9,20 @@ package org.etools.j1939tools.j1939.packets;
  * @author Matt Gumbel (matt@soliddesign.net)
  */
 public enum LampStatus {
-    ALTERNATE_OFF("alternate off"),
-    FAST_FLASH("fast flash"),
-    NOT_SUPPORTED("not supported"),
-    OFF("off"),
-    ON("on"),
-    OTHER("other"),
-    SLOW_FLASH("slow flash");
+    ALTERNATE_OFF("alternate off", false),
+    FAST_FLASH("fast flash", true),
+    NOT_SUPPORTED("not supported", false),
+    OFF("off", false),
+    ON("on", true),
+    OTHER("other", false),
+    SLOW_FLASH("slow flash", true);
 
     private final String name;
+    private final boolean active;
 
-    LampStatus(String name) {
+    LampStatus(String name, boolean active) {
         this.name = name;
+        this.active = active;
     }
 
     /**
@@ -115,4 +117,7 @@ public enum LampStatus {
         return name;
     }
 
+    public boolean isActive() {
+        return active;
+    }
 }

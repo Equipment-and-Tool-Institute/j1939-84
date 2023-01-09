@@ -602,11 +602,7 @@ public class J1939 {
         }
 
         try {
-            Stream<Either<T, AcknowledgmentPacket>> stream = read(DS_TIMEOUT, MILLISECONDS)
-                                                                                           .filter(dsFilter(pgn,
-                                                                                                            request.getDestination(),
-                                                                                                            getBusAddress()))
-                                                                                           .map(this::process);
+            Stream<Packet> packetStream = read(DS_TIMEOUT, MILLISECONDS);
             Packet sent = bus.send(request);
             LocalDateTime lateTime;
             if (sent != null) {
@@ -616,6 +612,10 @@ public class J1939 {
                 logWarning(listener, FAILED_TO_SEND + request);
                 lateTime = null;
             }
+            Stream<Either<T, AcknowledgmentPacket>> stream = packetStream.filter(after(sent).and(dsFilter(pgn,
+                                                                                                          request.getDestination(),
+                                                                                                          getBusAddress())))
+                                                                         .map(this::process);
             Optional<Either<T, AcknowledgmentPacket>> result = stream.findFirst();
             result.ifPresentOrElse(p -> {
                 ParsedPacket pp = p.resolve();
@@ -633,6 +633,20 @@ public class J1939 {
             severe("Error requesting DS packet", e);
             return Optional.empty();
         }
+    }
+
+    static private Predicate<Packet> after(Packet sent) {
+        return new Predicate<Packet>() {
+        	// sent == null for TP requests and some tests
+            boolean pass = sent == null;
+
+            @Override
+            public boolean test(Packet p) {
+                // p == null comes from tests
+                pass |= (p == sent || p == null);
+                return pass && p != null;
+            }
+        };
     }
 
     private void logResponse(CommunicationsListener listener, Packet sent, Packet response) {
@@ -789,8 +803,7 @@ public class J1939 {
         }
 
         List<Either<T, AcknowledgmentPacket>> result;
-        try {
-            Stream<Packet> stream = read(timeOut, timeUnit);
+        try (Stream<Packet> stream = read(timeOut, timeUnit)) {
             Packet sent = bus.send(request);
             LocalDateTime lateTime;
             if (sent != null) {
@@ -801,7 +814,8 @@ public class J1939 {
                 lateTime = null;
             }
             List<Packet> lateBam = new ArrayList<>();
-            result = stream.filter(globalFilter(pgn))
+            result = stream.filter(after(sent))
+                           .filter(globalFilter(pgn))
                            .peek(p -> {
                                /*
                                 * If the first fragment arrived after lateBam, then it
@@ -866,19 +880,19 @@ public class J1939 {
         try {
             BusResult<DM30ScaledTestResultsPacket> result;
             for (int i = 0; true; i++) {
-                Stream<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> stream = read(DS_TIMEOUT,
-                                                                                                MILLISECONDS)
-                                                                                                             .filter(dsCommandFilter(DM7CommandTestsPacket.PGN,
-                                                                                                                                     DM30ScaledTestResultsPacket.PGN,
-                                                                                                                                     request.getDestination(),
-                                                                                                                                     getBusAddress()))
-                                                                                                             .map(this::process);
+                Stream<Packet> packetStream = read(DS_TIMEOUT, MILLISECONDS);
                 Packet sent = bus.send(request);
                 if (sent != null) {
                     listener.onResult(sent.toTimeString());
                 } else {
                     logWarning(listener, FAILED_TO_SEND + request);
                 }
+                Stream<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> stream = packetStream
+                                                                                                       .filter(after(sent).and(dsCommandFilter(DM7CommandTestsPacket.PGN,
+                                                                                                                                               DM30ScaledTestResultsPacket.PGN,
+                                                                                                                                               request.getDestination(),
+                                                                                                                                               getBusAddress())))
+                                                                                                       .map(this::process);
                 Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> first = stream.findFirst();
                 result = new BusResult<>(i > 0, first);
                 result.getPacket().ifPresentOrElse(p -> {
@@ -924,13 +938,7 @@ public class J1939 {
         try {
             BusResult<DM58RationalityFaultSpData> result;
             for (int i = 0; true; i++) {
-                Stream<Either<DM58RationalityFaultSpData, AcknowledgmentPacket>> stream = read(DS_TIMEOUT,
-                                                                                               MILLISECONDS)
-                                                                                                            .filter(dsCommandFilter(DM7CommandTestsPacket.PGN,
-                                                                                                                                    DM58RationalityFaultSpData.PGN,
-                                                                                                                                    request.getDestination(),
-                                                                                                                                    getBusAddress()))
-                                                                                                            .map(this::process);
+                Stream<Packet> packetStream = read(DS_TIMEOUT, MILLISECONDS);
                 Packet sent = bus.send(request);
                 if (sent != null) {
                     listener.onResult(sent.toTimeString());
@@ -938,6 +946,12 @@ public class J1939 {
                     logWarning(listener, FAILED_TO_SEND + request);
                 }
 
+                Stream<Either<DM58RationalityFaultSpData, AcknowledgmentPacket>> stream = packetStream
+                                                                                                      .filter(after(sent).and(dsCommandFilter(DM7CommandTestsPacket.PGN,
+                                                                                                                                              DM58RationalityFaultSpData.PGN,
+                                                                                                                                              request.getDestination(),
+                                                                                                                                              getBusAddress())))
+                                                                                                      .map(this::process);
                 Optional<Either<DM58RationalityFaultSpData, AcknowledgmentPacket>> first = stream.findFirst();
                 result = new BusResult<>(i > 0, first);
                 result.getPacket().ifPresentOrElse(p -> {

@@ -150,13 +150,17 @@ public class Part11Step13Controller extends StepController {
                     // 6.11.13.18.c Fail all values where the corresponding value received
                     // is part 2 is
                     // greater than the part 11 value
-                    var partTwoValue = partTwoPacket.getSpnValue(spn.getId())
-                                                    .orElse(NOT_AVAILABLE);
-                    if (partTwoValue > spn.getValue()) {
-                        addFailure("6.11.13.18.c - Value received from "
-                                + module.getModuleName()
-                                + " for " + spn
-                                + "  in part 2 was greater than part 11 value");
+                    if (partTwoPacket == null) {
+                        addInfo("6.11.13.18.c - Message from part 2 is missing so verification of values skipped");
+                    } else {
+                        var partTwoValue = partTwoPacket.getSpnValue(spn.getId())
+                                                        .orElse(NOT_AVAILABLE);
+                        if (partTwoValue > spn.getValue()) {
+                            addFailure("6.11.13.18.c - Value received from "
+                                    + module.getModuleName()
+                                    + " for " + spn
+                                    + "  in part 2 was greater than part 11 value");
+                        }
                     }
                 });
             });
@@ -212,13 +216,16 @@ public class Part11Step13Controller extends StepController {
                     }
                     // 6.11.13.20.d - Fail all values where the corresponding value received in part 2
                     // is greater than the part 11 value. (Where supported)
-                    var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                    if (spn.hasValue() && partTwoValue > spn.getValue()) {
-                        addFailure("6.11.13.20.d - Value received from " + module.getModuleName()
-                                + " for " + spn
-                                + " in part 2 was greater than part 11 value");
+                    if (partTwoPacket == null) {
+                        addInfo("6.11.13.20.d - Message from part 2 is missing so verification of values skipped");
+                    } else {
+                        var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                        if (spn.hasValue() && partTwoValue > spn.getValue()) {
+                            addFailure("6.11.13.20.d - Value received from " + module.getModuleName()
+                                    + " for " + spn
+                                    + " in part 2 was greater than part 11 value");
+                        }
                     }
-
                 });
             });
         }
@@ -251,11 +258,15 @@ public class Part11Step13Controller extends StepController {
                                   }
                                   // 6.11.13.14.c - Fail all values where the corresponding value received in part 2 is
                                   // greater than the part 11 value.
-                                  var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                                  if (spn.hasValue() && partTwoValue > spn.getValue()) {
-                                      addFailure("6.11.13.14.c - Value received from " + module.getModuleName()
-                                              + " for " + spn
-                                              + " in part 2 was greater than part 11 value");
+                                  if (partTwoPacket == null) {
+                                      addInfo("6.11.13.14.c - Message from part 2 is missing so verification of values skipped");
+                                  } else {
+                                      var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                                      if (spn.hasValue() && partTwoValue > spn.getValue()) {
+                                          addFailure("6.11.13.14.c - Value received from " + module.getModuleName()
+                                                  + " for " + spn
+                                                  + " in part 2 was greater than part 11 value");
+                                      }
                                   }
                               });
         }
@@ -305,11 +316,15 @@ public class Part11Step13Controller extends StepController {
                                  }
                                  // 6.11.13.16.d - Fail all values where the corresponding value received in part 2
                                  // is greater than the part 11 value. (Where supported)
-                                 var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                                 if (spn.hasValue() && partTwoValue > spn.getValue()) {
-                                     addFailure("6.11.13.16.d - Value received from " + module.getModuleName()
-                                             + " for " + spn
-                                             + " in part 2 was greater than part 11 value");
+                                 if (partTwoPacket == null) {
+                                     addInfo("6.11.13.16.d - Message from part 2 is missing so verification of values skipped");
+                                 } else {
+                                     var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                                     if (spn.hasValue() && partTwoValue > spn.getValue()) {
+                                         addFailure("6.11.13.16.d - Value received from " + module.getModuleName()
+                                                 + " for " + spn
+                                                 + " in part 2 was greater than part 11 value");
+                                     }
                                  }
                              });
             });
@@ -342,10 +357,14 @@ public class Part11Step13Controller extends StepController {
                     }
                     // 6.11.13.6.c - Fail all values where the corresponding value received in part 2 is
                     // greater than the part 11 value
-                    var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                    if (spn.hasValue() && partTwoValue > spn.getValue()) {
-                        addFailure("6.11.13.6.c - Value received from " + module.getModuleName()
-                                + " for " + spn + " in part 2 was greater than part 11 value");
+                    if (partTwoPacket == null) {
+                        addInfo("6.11.13.6.c - Message from part 2 is missing so verification of values skipped");
+                    } else {
+                        var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                        if (spn.hasValue() && partTwoValue > spn.getValue()) {
+                            addFailure("6.11.13.6.c - Value received from " + module.getModuleName()
+                                    + " for " + spn + " in part 2 was greater than part 11 value");
+                        }
                     }
                     // 6.11.13.6.d - Fail if lifetime engine hours SPN 12730 < 600 seconds. (Where supported)
                     if (spn.hasValue() && spn.getId() == 12730 && spn.getValue() < 600) {
@@ -404,16 +423,21 @@ public class Part11Step13Controller extends StepController {
                                 + lowerLimitString + "(h) and less than " + upperLimitString
                                 + "(h) from " + module.getModuleName() + " for " + spn);
                     }
-                    var partTwoSpn = partTwoPacket.getSpn(spn.getId())
-                                                  .orElse(Spn.create(module.getSourceAddress(), NOT_AVAILABLE));
-                    if (spn.getRawValue() < partTwoSpn.getRawValue()) {
-                        // 6.11.13.8.d - Fail all values where the corresponding value received in part 2 is greater
-                        // than the part 11 value. (Where supported)
-                        addFailure("6.11.13.8.d - Value received from " + module.getModuleName()
-                                + " for " + spn
-                                + " in part 2 was greater than part 11 value");
-                    }
-                    // 6.11.13.8.e - Fail if active 100 hrs engine hours SPN 12700 < 600 seconds. (where supported)
+
+                    if (partTwoPacket == null) {
+                        addInfo("6.11.13.8.d - Message from part 2 is missing so verification of values skipped");
+                    } else {
+                        var partTwoSpn = partTwoPacket.getSpn(spn.getId())
+                                                      .orElse(Spn.create(module.getSourceAddress(), NOT_AVAILABLE));
+                        if (spn.getRawValue() < partTwoSpn.getRawValue()) {
+                            // 6.11.13.8.d - Fail all values where the corresponding value received in part 2 is greater
+                            // than the part 11 value. (Where supported)
+                            addFailure("6.11.13.8.d - Value received from " + module.getModuleName()
+                                    + " for " + spn
+                                    + " in part 2 was greater than part 11 value");
+                        }
+                    }                    // 6.11.13.8.e - Fail if active 100 hrs engine hours SPN 12700 < 600 seconds.
+                                         // (where supported)
                     if (spn.getId() == 12700) {
                         if (spn.hasValue() && spn.getValue() < 600) {
                             addWarning("6.11.13.8.e - Active 100 hrs engine hours SPN " + spn.getId()
@@ -530,22 +554,26 @@ public class Part11Step13Controller extends StepController {
                                                + module.getModuleName() + " for " + spn);
                         }
                     }
-                    var partTwoValue = partTwoPacket.getSpn(spn.getId())
-                                                    .map(Spn::getValue)
-                                                    .orElse(NOT_AVAILABLE);
-                    // 6.11.13.12.g. - Fail all values where the corresponding value received in part 2 is greater
-                    // than the part 11 value. (Where supported)
-                    if (spn.hasValue() && (partTwoValue > spn.getValue())) {
-                        addWarning("6.11.13.12.g - Active Tech time received is greater than part 2 value from "
-                                + module.getModuleName() + " for " + spn);
-                    }
-
-                    // 6.11.13.12.h. Warn if any active 100 hrs active technology time SPN 12695 > part 2
-                    // value + 600 seconds (where supported)
-                    if (spn.getId() == 12695) {
-                        if (spn.hasValue() && spn.getValue() >= (partTwoValue + 600)) {
-                            addWarning("6.11.13.12.h - Active Tech time received is > part 2 value + 600 seconds from "
+                    if (partTwoPacket == null) {
+                        addInfo("6.11.13.12.g-h - Message from part 2 is missing so verification of values skipped");
+                    } else {
+                        var partTwoValue = partTwoPacket.getSpn(spn.getId())
+                                                        .map(Spn::getValue)
+                                                        .orElse(NOT_AVAILABLE);
+                        // 6.11.13.12.g. - Fail all values where the corresponding value received in part 2 is greater
+                        // than the part 11 value. (Where supported)
+                        if (spn.hasValue() && (partTwoValue > spn.getValue())) {
+                            addWarning("6.11.13.12.g - Active Tech time received is greater than part 2 value from "
                                     + module.getModuleName() + " for " + spn);
+                        }
+
+                        // 6.11.13.12.h. Warn if any active 100 hrs active technology time SPN 12695 > part 2
+                        // value + 600 seconds (where supported)
+                        if (spn.getId() == 12695) {
+                            if (spn.hasValue() && spn.getValue() >= (partTwoValue + 600)) {
+                                addWarning("6.11.13.12.h - Active Tech time received is > part 2 value + 600 seconds from "
+                                        + module.getModuleName() + " for " + spn);
+                            }
                         }
                     }
                     // 6.11.13.12.i. Warn for active 100 hr active technology vehicle distance SPN 12696 => 0.25 km.
@@ -632,29 +660,36 @@ public class Part11Step13Controller extends StepController {
                                  }
                                  // 6.11.13.2.c Fail all values where the corresponding value received in part 2 is
                                  // greater than the part 12 value.
-                                 var partTwoValue = partTwoPacket.getSpn(spn.getId())
-                                                                 .map(Spn::getValue)
-                                                                 .orElse(NOT_AVAILABLE);
-                                 if (spn.getValue() != null && partTwoValue > spn.getValue()) {
-                                     addFailure("6.11.13.2.c - Value received from " + module.getModuleName()
-                                             + " for " + spn
-                                             + " in part 2 was greater than part 11 value");
-                                 }
-                                 // 6.11.13.2.d Info if lifetime engine hours bin 1 (total) SPN 12593 < part 2 value +
-                                 // 60 seconds.
-                                 if (spn.getId() == 12593) {
-                                     double expectedValue = sum(partTwoValue, 60.0);
-                                     if (spn.getValue() < expectedValue) {
-                                         addInfo("6.11.13.2.d - Lifetime engine hours bin 1 (total) SP " + spn.getId()
-                                                 + " value is < part 2 value + 60 seconds");
+                                 if (partTwoPacket == null) {
+                                     addInfo("6.11.13.2.c-e - Message from part 2 is missing so verification of values skipped");
+                                 } else {
+                                     var partTwoValue = partTwoPacket.getSpn(spn.getId())
+                                                                     .map(Spn::getValue)
+                                                                     .orElse(NOT_AVAILABLE);
+                                     if (spn.getValue() != null && partTwoValue > spn.getValue()) {
+                                         addFailure("6.11.13.2.c - Value received from " + module.getModuleName()
+                                                 + " for " + spn
+                                                 + " in part 2 was greater than part 11 value");
                                      }
-                                 }
-                                 // 6.11.13.2.e Fail if lifetime engine activity engine hours bin 1 (total) SPN 12659 <
-                                 // part 2 value + 600 seconds
-                                 if (spn.getId() == 12659) {
-                                     if (spn.getValue() < partTwoValue + 600) {
-                                         addFailure("6.11.13.2.e - Lifetime engine activity engine hours bin 1 (total) SP "
-                                                 + spn.getId() + " is < part 2 value + 600 seconds");
+                                     // 6.11.13.2.d Info if lifetime engine hours bin 1 (total) SPN 12593 < part 2 value
+                                     // +
+                                     // 60 seconds.
+                                     if (spn.getId() == 12593) {
+                                         double expectedValue = sum(partTwoValue, 60.0);
+                                         if (spn.getValue() < expectedValue) {
+                                             addInfo("6.11.13.2.d - Lifetime engine hours bin 1 (total) SP "
+                                                     + spn.getId()
+                                                     + " value is < part 2 value + 60 seconds");
+                                         }
+                                     }
+                                     // 6.11.13.2.e Fail if lifetime engine activity engine hours bin 1 (total) SPN
+                                     // 12659 <
+                                     // part 2 value + 600 seconds
+                                     if (spn.getId() == 12659) {
+                                         if (spn.getValue() < partTwoValue + 600) {
+                                             addFailure("6.11.13.2.e - Lifetime engine activity engine hours bin 1 (total) SP "
+                                                     + spn.getId() + " is < part 2 value + 600 seconds");
+                                         }
                                      }
                                  }
                              });
@@ -700,10 +735,6 @@ public class Part11Step13Controller extends StepController {
                                            + module.getModuleName() + " for " + spn);
 
                     }
-                    // 6.11.13.4.d. Fail all values where the corresponding value received in part 2 is greater than the
-                    // part 11 value (where supported)
-                    var partTwoValue = partTwoPacket.getSpnValue(spn.getId())
-                                                    .orElse(NOT_AVAILABLE);
 
                     // 6.11.13.4.e. Info if active 100 hrs engine hours bin 1 SP 12389 < 60 seconds (where supported)
                     if (spn.getId() == 12389) {
@@ -742,16 +773,25 @@ public class Part11Step13Controller extends StepController {
                                                            12323, 12324, 12325, 12326, 12327, 12328, 12329,
                                                            12330, 12331, 12332, 12333, 12334, 12335, 12336);
                     // @formatter:on
-                    if (bins3Thr16Spns.contains(spn.getId())) {
-                        if (spn.getValue() != null && spn.getValue() < partTwoValue) {
-                            addWarning("6.11.13.4.g - Value received from " + module.getModuleName()
-                                    + " for " + spn + " in part 11 was less than part 2 value");
-                        }
+
+                    // 6.11.13.4.d. Fail all values where the corresponding value received in part 2 is greater than the
+                    // part 11 value (where supported)
+                    if (partTwoPacket == null) {
+                        addInfo("6.11.13.4.d,g - Message from part 2 is missing so verification of values skipped");
                     } else {
-                        if (spn.getValue() != null && partTwoValue > spn.getValue()) {
-                            addFailure("6.11.13.4.d - Value received from " + module.getModuleName()
-                                    + " for " + spn
-                                    + " in part 2 was greater than part 11 value");
+                        var partTwoValue = partTwoPacket.getSpnValue(spn.getId())
+                                                        .orElse(NOT_AVAILABLE);
+                        if (bins3Thr16Spns.contains(spn.getId())) {
+                            if (spn.getValue() != null && spn.getValue() < partTwoValue) {
+                                addWarning("6.11.13.4.g - Value received from " + module.getModuleName()
+                                        + " for " + spn + " in part 11 was less than part 2 value");
+                            }
+                        } else {
+                            if (spn.getValue() != null && partTwoValue > spn.getValue()) {
+                                addFailure("6.11.13.4.d - Value received from " + module.getModuleName()
+                                        + " for " + spn
+                                        + " in part 2 was greater than part 11 value");
+                            }
                         }
                     }
 

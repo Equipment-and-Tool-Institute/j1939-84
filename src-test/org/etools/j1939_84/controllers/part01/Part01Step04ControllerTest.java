@@ -1150,11 +1150,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(4),
                                         eq(FAIL),
-                                        eq("6.1.4.2.d - SP 12675 is not included in DM24 response from Engine #1 (0)"));
-        verify(mockListener).addOutcome(eq(1),
-                                        eq(4),
-                                        eq(FAIL),
-                                        eq("6.1.4.2.d - SP 12675 is not included in DM24 response from Engine #2 (1)"));
+                                        eq("6.1.4.2.d - SP 12675 is not included in DM24 responses"));
     }
 
     @Test
@@ -2628,11 +2624,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(4),
                                         eq(FAIL),
-                                        eq("6.1.4.2.h - SP 12783 is not included in DM24 response from Engine #1 (0)"));
-        verify(mockListener).addOutcome(eq(1),
-                                        eq(4),
-                                        eq(FAIL),
-                                        eq("6.1.4.2.h - SP 12783 is not included in DM24 response from Engine #2 (1)"));
+                                        eq("6.1.4.2.h - SP 12783 is not included in DM24 responses"));
     }
 
     @Test
@@ -3009,11 +3001,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(4),
                                         eq(WARN),
-                                        eq("6.1.4.2.f - SP 12691 is not included in DM24 response from Engine #1 (0)"));
-        verify(mockListener).addOutcome(eq(1),
-                                        eq(4),
-                                        eq(WARN),
-                                        eq("6.1.4.2.f - SP 12691 is not included in DM24 response from Engine #2 (1)"));
+                                        eq("6.1.4.2.f - SP 12691 is not included in DM24 responses"));
     }
 
     @Test
@@ -3391,11 +3379,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(4),
                                         eq(FAIL),
-                                        eq("6.1.4.2.e - SP 12730 is not included in DM24 response from Engine #1 (0)"));
-        verify(mockListener).addOutcome(eq(1),
-                                        eq(4),
-                                        eq(FAIL),
-                                        eq("6.1.4.2.e - SP 12730 is not included in DM24 response from Engine #2 (1)"));
+                                        eq("6.1.4.2.e - SP 12730 is not included in DM24 responses"));
     }
 
     @Test
@@ -3619,15 +3603,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(4),
                                         eq(FAIL),
-                                        eq("6.1.4.2.g - SP 12797 is not included in DM24 response from Engine #1 (0)"));
-        verify(mockListener).addOutcome(eq(1),
-                                        eq(4),
-                                        eq(FAIL),
-                                        eq("6.1.4.2.g - SP 12797 is not included in DM24 response from Engine #2 (1)"));
-//        verify(mockListener).addOutcome(eq(1),
-//                                        eq(4),
-//                                        eq(FAIL),
-//                                        eq(""));
+                                        eq("6.1.4.2.g - SP 12797 is not included in DM24 responses"));
 
         List<SupportedSPN> expectedPacket1Spns = new ArrayList<>() {
             {

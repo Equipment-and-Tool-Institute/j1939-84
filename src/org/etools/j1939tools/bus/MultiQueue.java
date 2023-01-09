@@ -50,7 +50,7 @@ public class MultiQueue<T> implements AutoCloseable {
                             long es = sp.estimateSize();
                             if (es > 10_000) {
                                 System.err.println(sp + " size:" + es + " end:" + sp.end);
-                                sp.stack.printStackTrace();
+                                // sp.stack.printStackTrace();
                             }
                         });
                     }
@@ -172,12 +172,12 @@ public class MultiQueue<T> implements AutoCloseable {
         private long end;
         // reference to tail
         private Item<T> item;
-        final private Error stack;
+        // final private Error stack;
 
         private SpliteratorImplementation(Item<T> list, long timeout, TimeUnit unit) {
             item = list;
             setTimeout(timeout, unit);
-            stack = new Error();
+            // stack = new Error();
         }
 
         public void close() {
@@ -188,7 +188,7 @@ public class MultiQueue<T> implements AutoCloseable {
         public SpliteratorImplementation(SpliteratorImplementation<T> that) {
             item = that.item;
             end = that.end;
-            stack = new Error();
+            // stack = new Error();
         }
 
         public void setTimeout(long timeout, TimeUnit unit) {

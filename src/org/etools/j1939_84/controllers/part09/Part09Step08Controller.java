@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part09;
 
+import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -17,6 +18,7 @@ import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939tools.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.LampStatus;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
@@ -72,7 +74,12 @@ public class Part09Step08Controller extends StepController {
         getDataRepository().getObdModules()
                            .stream()
                            .map(OBDModuleInformation::getSourceAddress)
-                           .filter(a -> getDTCs(DM12MILOnEmissionDTCPacket.class, a, 9).isEmpty())
+                           .filter(a -> Optional.ofNullable(get(DM12MILOnEmissionDTCPacket.class,
+                                                                a,
+                                                                9))
+                                                .map(p -> !p.getMalfunctionIndicatorLampStatus()
+                                                            .isActive())
+                                                .orElse(true))
                            .forEach(a -> {
                                getCommunicationsModule().requestDM11(getListener(), a);
                            });
@@ -89,7 +96,12 @@ public class Part09Step08Controller extends StepController {
         getDataRepository().getObdModules()
                            .stream()
                            .map(OBDModuleInformation::getSourceAddress)
-                           .filter(a -> !getDTCs(DM12MILOnEmissionDTCPacket.class, a, 9).isEmpty())
+                           .filter(a -> Optional.ofNullable(get(DM12MILOnEmissionDTCPacket.class,
+                                                                a,
+                                                                8))
+                                                .map(p -> p.getMalfunctionIndicatorLampStatus()
+                                                           .isActive())
+                                                .orElse(false))
                            .flatMap(a -> {
                                return getCommunicationsModule().requestDM11(getListener(), a).stream();
                            })

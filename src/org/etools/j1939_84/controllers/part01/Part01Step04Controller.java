@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.controllers.DataRepository;
@@ -163,38 +164,37 @@ public class Part01Step04Controller extends StepController {
             addFailure("6.1.4.2.c - One or more SPNs for freeze frame are not supported");
         }
 
-        for (OBDModuleInformation obdModule : getDataRepository().getObdModules()) {
-            // For MY2022+ diesel engines
-            boolean modelYearIs2022Plus = getEngineModelYear() >= 2022;
+        // For MY2022+ diesel engines
+        if (getEngineModelYear() >= 2022) {
 
             // 6.1.4.2.d. For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel
             // Consumption Bin 1 - Total) is not included in DM24 response
-            if (modelYearIs2022Plus && getFuelType().isCompressionIgnition() && !obdModule.supportsSpn(12675)) {
-                addFailure("6.1.4.2.d - SP 12675 is not included in DM24 response from " + obdModule.getModuleName());
+            if (getFuelType().isCompressionIgnition() && !someObd(m -> m.supportsSpn(12675))) {
+                addFailure("6.1.4.2.d - SP 12675 is not included in DM24 responses");
             }
             // 6.1.4.2.e. For all MY2022+ engines, Fail if SP 12730 (GHG Tracking Engine Run Time) is not included
             // in DM24 response
-            if (modelYearIs2022Plus && !obdModule.supportsSpn(12730)) {
-                addFailure("6.1.4.2.e - SP 12730 is not included in DM24 response from " + obdModule.getModuleName());
+            if (!someObd(m -> m.supportsSpn(12730))) {
+                addFailure("6.1.4.2.e - SP 12730 is not included in DM24 responses");
             }
 
             // 6.1.4.2.f. For all MY2022+ engines, Warn if SP 12691 (GHG Tracking Lifetime Active Technology Index)
             // is not included in DM24 response
-            if (modelYearIs2022Plus && !obdModule.supportsSpn(12691)) {
-                addWarning("6.1.4.2.f - SP 12691 is not included in DM24 response from " + obdModule.getModuleName());
+            if (!someObd(m -> m.supportsSpn(12691))) {
+                addWarning("6.1.4.2.f - SP 12691 is not included in DM24 responses");
             }
 
             // 6.1.4.2.g. For all MY2022+ HEV and BEV drives, Fail if SP 12797 (Hybrid Lifetime Propulsion System
             // Active Time), is not included in DM24 response. (SP 12797 is Lifetime EV Tracking Byte 1 SP)
-            if (modelYearIs2022Plus && (getFuelType().isHybrid() || getFuelType().isElectric())
-                    && !obdModule.supportsSpn(12797)) {
-                addFailure("6.1.4.2.g - SP 12797 is not included in DM24 response from " + obdModule.getModuleName());
+            if ((getFuelType().isHybrid() || getFuelType().isElectric())
+                    && !someObd(m -> m.supportsSpn(12797))) {
+                addFailure("6.1.4.2.g - SP 12797 is not included in DM24 responses");
             }
 
             // 6.1.4.2.h. For all MY2022+ Plug-in HEV drives, Fail if SP 12783 (Hybrid Lifetime Distance Traveled in
             // Charge Depleting Operation with Engine off), is not included in DM24 response
-            if (modelYearIs2022Plus && getFuelType() == BATT_ELEC && !obdModule.supportsSpn(12783)) {
-                addFailure("6.1.4.2.h - SP 12783 is not included in DM24 response from " + obdModule.getModuleName());
+            if (getFuelType() == BATT_ELEC && !someObd(m -> m.supportsSpn(12783))) {
+                addFailure("6.1.4.2.h - SP 12783 is not included in DM24 responses");
             }
         }
         // 6.1.4.3.a. Warn/Info as described by Table A-1 column “Warn/Info if SP not supported in DM24
@@ -212,6 +212,10 @@ public class Part01Step04Controller extends StepController {
         if(supportedSpnModule.isMoreThanOneSpnReportedInfo(getListener(), dataStreamSPNs, getFuelType(), getEngineModelYear())){
             getListener().addOutcome(getPartNumber(), getStepNumber(), Outcome.INFO, "6.1.4.3.b - More than 1 SPN supported");
         }
+    }
+
+    private boolean someObd(Predicate<OBDModuleInformation> p) {
+        return getDataRepository().getObdModules().stream().anyMatch(p);
     }
 
 }

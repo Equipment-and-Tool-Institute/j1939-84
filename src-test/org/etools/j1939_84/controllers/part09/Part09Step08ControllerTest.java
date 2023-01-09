@@ -161,7 +161,7 @@ public class Part09Step08ControllerTest extends AbstractControllerTest {
 
         verify(verifier).setJ1939(j1939);
 
-        verify(communicationsModule).requestDM11(any(), eq(0));
+       // verify(communicationsModule).requestDM11(any(), eq(0));
         verify(communicationsModule).requestDM11(any(), eq(1));
         verify(communicationsModule).requestDM11(any());
 

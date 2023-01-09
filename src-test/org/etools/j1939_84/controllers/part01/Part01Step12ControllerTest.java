@@ -178,6 +178,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
     public void testCompressionIgnition() {
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(BI_DSL);
+        vehicleInformation.setEngineModelYear(2022);
         dataRepository.setVehicleInformation(vehicleInformation);
 
         SupportedSPN supportedSPN = SupportedSPN.create(159, true, true, true, false, 1);
@@ -260,6 +261,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
     public void testCompressionIgnitionFailure() {
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(BI_DSL);
+        vehicleInformation.setEngineModelYear(2022);
         dataRepository.setVehicleInformation(vehicleInformation);
 
         SupportedSPN supportedSPN = SupportedSPN.create(159, true, true, true, false, 1);
@@ -342,6 +344,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
     public void testEmptyTestResults() {
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(BI_GAS);
+        vehicleInformation.setEngineModelYear(2022);
         dataRepository.setVehicleInformation(vehicleInformation);
 
         SupportedSPN supportedSPN = SupportedSPN.create(99, true, true, true, false, 1);
@@ -447,6 +450,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
     public void testIgnitionUnknown() {
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(BATT_ELEC);
+        vehicleInformation.setEngineModelYear(2022);
         dataRepository.setVehicleInformation(vehicleInformation);
 
         SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, false, 1);
@@ -520,6 +524,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
     public void testInvalidScaledTestMaximumFailure() {
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(BI_GAS);
+        vehicleInformation.setEngineModelYear(2022);
         dataRepository.setVehicleInformation(vehicleInformation);
 
         SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, false, 1);
@@ -602,6 +607,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
     public void testInvalidScaledTestMinimumFailure() {
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(BI_GAS);
+        vehicleInformation.setEngineModelYear(2022);
         dataRepository.setVehicleInformation(vehicleInformation);
 
         SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, false, 1);
@@ -683,6 +689,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
     public void testInvalidScaledTestValuesFailure() {
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(BI_GAS);
+        vehicleInformation.setEngineModelYear(2022);
         dataRepository.setVehicleInformation(vehicleInformation);
 
         SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, false, 1);
@@ -764,6 +771,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
     public void testInvalidSlot() {
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(BI_GAS);
+        vehicleInformation.setEngineModelYear(2022);
         dataRepository.setVehicleInformation(vehicleInformation);
 
         SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, false, 1);
@@ -845,6 +853,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
     public void testNoOBDModules() {
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(BI_DSL);
+        vehicleInformation.setEngineModelYear(2022);
         dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
@@ -898,6 +907,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
     public void testVerifyDM30SupportedFailure() {
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(BI_GAS);
+        vehicleInformation.setEngineModelYear(2022);
         dataRepository.setVehicleInformation(vehicleInformation);
 
         SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, false, 1);
@@ -990,6 +1000,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
     public void testReportedDuplicateTestResultsWarning() {
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(BI_GAS);
+        vehicleInformation.setEngineModelYear(2022);
         dataRepository.setVehicleInformation(vehicleInformation);
 
         SupportedSPN supportedSP = SupportedSPN.create(159, true, true, true, false, 1);
@@ -1088,6 +1099,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
     public void testTwoModulesReportWithSameTestResultsWarning() {
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(BI_DSL);
+        vehicleInformation.setEngineModelYear(2022);
         dataRepository.setVehicleInformation(vehicleInformation);
         SupportedSPN supportedSP0x00 = SupportedSPN.create(159, true, true, true, false, 1);
         SupportedSPN supportedSP0x09 = SupportedSPN.create(159, true, true, true, false, 1);
@@ -1198,6 +1210,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
     public void testSparkIgnition() {
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(BI_GAS);
+        vehicleInformation.setEngineModelYear(2022);
         dataRepository.setVehicleInformation(vehicleInformation);
 
         SupportedSPN supportedSP = SupportedSPN.create(159, true, true, true, false, 1);

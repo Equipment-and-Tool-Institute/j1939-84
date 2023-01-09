@@ -23,6 +23,7 @@ import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.controllers.OverallController;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.controllers.ResultsListener.MessageType;
 import org.etools.j1939_84.engine.simulated.Engine;
 import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.Outcome;
@@ -529,7 +530,13 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
             engine = new Engine(bus);
             return bus;
         } else {
-            return RP1210.createBus(selectedAdapter, connectionString, address);
+            return RP1210.createBus(selectedAdapter,
+                                    connectionString,
+                                    address,
+                                    msg -> {
+                                        getReportFileModule().onResult("RP1210 ERROR: " + msg);
+                                        getResultsListener().onUrgentMessage(msg, "RP1210 ERROR", MessageType.ERROR);
+                                    });
         }
     }
 

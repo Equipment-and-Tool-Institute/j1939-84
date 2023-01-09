@@ -1,9 +1,13 @@
 package org.etools.j1939tools.j1939;
 
-import static org.etools.j1939tools.bus.Packet.PacketException;
-
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -17,6 +21,7 @@ import org.etools.j1939tools.bus.Bus;
 import org.etools.j1939tools.bus.BusException;
 import org.etools.j1939tools.bus.EchoBus;
 import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.bus.Packet.PacketException;
 
 public class J1939TP implements Bus {
 
@@ -64,11 +69,12 @@ public class J1939TP implements Bus {
                                                                 255 + 1,
                                                                 1L,
                                                                 TimeUnit.SECONDS,
-                                                                new LinkedBlockingQueue<>());
+                                                                new LinkedBlockingQueue<>(),
+                                                                r -> new Thread(r, "J1939TP"));
     /** Application side bus. */
     private final EchoBus inbound;
 
-    private boolean passAll;
+    private final boolean passAll;
 
     /**
      * The inbound stream that RTS and BAM announcements will be detected on.
@@ -80,7 +86,12 @@ public class J1939TP implements Bus {
     }
 
     public J1939TP(Bus bus, int address) throws BusException {
+        this(bus, address, false);
+    }
+
+    public J1939TP(Bus bus, int address, boolean passAll) throws BusException {
         this.bus = bus;
+        this.passAll = passAll;
         stream = bus.read(9999, TimeUnit.DAYS);
         inbound = new EchoBus(address);
         // start processing
@@ -137,13 +148,17 @@ public class J1939TP implements Bus {
 
     @Override
     public Packet send(Packet packet) throws BusException {
+        Packet sent;
         if (packet.getLength() <= 8) {
-            return bus.send(packet);
+            sent = bus.send(packet);
         } else if (packet.getPgn() >= 0xF000) {
-            return sendBam(packet);
+            sent = sendBam(packet);
         } else {
-            return sendDestinationSpecific(packet.getDestination(), packet);
+            sent = sendDestinationSpecific(packet.getDestination(), packet);
         }
+        if (sent != null)
+            inbound.send(sent);
+        return sent;
     }
 
     /** Record an error, which is more than just a warning. */
@@ -159,10 +174,12 @@ public class J1939TP implements Bus {
     }
 
     private void receive(Packet packet) {
+        // System.err.println(this + " J1939TP receive: " + packet);
         // ignore the packet if it is from this
         try {
             if (passAll) // pass all fragments
                 inbound.send(packet);
+            // FIXME, this should be !isTransmitted, but that breaks a lot of tests.
             if (packet.getSource() != getAddress()) {
                 switch (packet.getPgn()) {
                     case CM: // TP connection management
@@ -330,7 +347,9 @@ public class J1939TP implements Bus {
                                                       // connection
                                                       .filter(p -> p.getId(0xFFFF) == (DT | rts.getId(0xFF)))
                                                       // After every TP.DT, reset timeout to T1 from now.
-                                                      .peek(p -> bus.resetTimeout(dataStream, T1, TimeUnit.MILLISECONDS))
+                                                      .peek(p -> bus.resetTimeout(dataStream,
+                                                                                  T1,
+                                                                                  TimeUnit.MILLISECONDS))
                                                       .limit(packetCount);
                     Packet cts = createPacket(CM | source,
                                               getAddress(),
@@ -392,7 +411,7 @@ public class J1939TP implements Bus {
                                   (0b111 & (pgn >> 16)));
         fine("tx BAM", bam);
 
-        Packet response = bus.send(bam);
+        bus.send(bam);
         // send data
         int id = DT | 0xFF;
         for (int i = 0; i < packetsToSend; i++) {
@@ -412,7 +431,8 @@ public class J1939TP implements Bus {
             fine("tx DT.DP", dp);
             bus.send(dp);
         }
-        return response;
+        // Don't bother finding echo. It's hard and not useful for TP sends.
+        return null;
     }
 
     public Packet sendDestinationSpecific(int destinationAddress, Packet packet) throws BusException {
@@ -437,7 +457,7 @@ public class J1939TP implements Bus {
 
         Stream<Packet> ctsStream = bus.read(T3, TimeUnit.MILLISECONDS)
                                       .filter(controlMessageFilter);
-        Packet response = bus.send(rts);
+        bus.send(rts);
 
         // wait for CTS
         Optional<Packet> ctsOptional = ctsStream.findFirst();
@@ -474,7 +494,7 @@ public class J1939TP implements Bus {
                     Packet dp = createPacket(DT | destinationAddress, getAddress(), buf);
 
                     fine("tx DP", dp);
-                    response = bus.send(dp);
+                    bus.send(dp);
                 }
                 // wait for CTS or EOM
                 ctsOptional = bus.read(T3, TimeUnit.MILLISECONDS).filter(controlMessageFilter).findFirst();
@@ -491,7 +511,9 @@ public class J1939TP implements Bus {
             throw ctsOptional.map(p -> (BusException) new EomBusException())
                              .orElse(new CtsBusException());
         }
-        return response;
+
+        // Don't bother finding echo. It's hard and not useful for TP sends.
+        return null;
     }
 
     private Packet createPacket(int id,
@@ -525,10 +547,6 @@ public class J1939TP implements Bus {
     @Override
     public boolean imposterDetected() {
         return bus.imposterDetected();
-    }
-
-    public void setPassAll(boolean b) {
-        passAll = b;
     }
 
     public boolean isPassAll() {
