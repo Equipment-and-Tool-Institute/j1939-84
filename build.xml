@@ -62,7 +62,7 @@
         <mkdir dir="${dist}"/>
     </target>
 
-    <target name="dist" description="Generates the JAR File" depends="clean, init, compile, increment.revision.build.number">
+    <target name="dist" description="Generates the JAR File" depends="increment.revision.build.number, clean, init, compile">
         <!-- Put everything in ${build} into the jar file -->
         <jar jarfile="${dist}/${project.name}.jar" basedir="${build}">
             <manifest>

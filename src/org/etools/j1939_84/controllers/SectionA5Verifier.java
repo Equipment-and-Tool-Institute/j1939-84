@@ -50,6 +50,7 @@ public class SectionA5Verifier extends SectionVerifier {
 
     public void setJ1939(J1939 j1939) {
         verifier.setJ1939(j1939);
+        sectionA5NoxGhgVerifier.setJ1939(j1939);
     }
 
     public void verifyDataErased(ResultsListener listener, String section) {
