@@ -688,7 +688,7 @@ public class Part02Step17ControllerTest12783 extends AbstractControllerTest {
         packets.add(packet1);
 
         List<GenericPacket> responses = new ArrayList<>();
-        GenericPacket response64244 = new GenericPacket(Packet.create(0xFAF4,
+        GenericPacket response64244 = newGenericPacket(Packet.create(0xFAF4,
                                                                       0x00,
                                                                       // @formatter:off
                                                             0x00, 0xDE, 0x58, 0x00, 0x00, 0x18, 0x47, 0x00,
@@ -698,14 +698,14 @@ public class Part02Step17ControllerTest12783 extends AbstractControllerTest {
         // @formatter:on
         responses.add(response64244);
         obdModule0.set(response64244, 1);
-        GenericPacket response64245 = new GenericPacket(Packet.create(0xFAF5, 0x00,
+        GenericPacket response64245 = newGenericPacket(Packet.create(0xFAF5, 0x00,
         // @formatter:off
                                                             0x00, 0x23, 0x00, 0x1C, 0x00, 0x07, 0x56, 0x05,
                                                             0x56, 0x01, 0xCC, 0x1F, 0x16, 0x05, 0xE2, 0x24));
         // @formatter:on
         responses.add(response64245);
         obdModule0.set(response64245, 1);
-        GenericPacket response64246 = new GenericPacket(Packet.create(0xFAF6, 0x00,
+        GenericPacket response64246 = newGenericPacket(Packet.create(0xFAF6, 0x00,
         // @formatter:off
                                                             0x40, 0x1A, 0x00, 0x15, 0x40, 0x05, 0x00, 0x04,
                                                             0x00, 0x01, 0xD9, 0x17, 0xD1, 0x03, 0xAA, 0x1B));
@@ -840,14 +840,14 @@ public class Part02Step17ControllerTest12783 extends AbstractControllerTest {
 
         List<GenericPacket> responses = new ArrayList<>();
 
-        GenericPacket response64245 = new GenericPacket(Packet.create(0xFAF5, 0x00,
+        GenericPacket response64245 = newGenericPacket(Packet.create(0xFAF5, 0x00,
         // @formatter:off
                                                                       0x00, 0x23, 0x00, 0x1C, 0x00, 0x07, 0x56, 0x05,
                                                                       0x56, 0x01, 0xCC, 0x1F, 0x16, 0x05, 0xE2, 0x24));
         // @formatter:on
         responses.add(response64245);
 obdModule0.set(response64245, 1);
-        GenericPacket response64246 = new GenericPacket(Packet.create(0xFAF6, 0x00,
+        GenericPacket response64246 = newGenericPacket(Packet.create(0xFAF6, 0x00,
         // @formatter:off
                                                                       0x40, 0x1A, 0x00, 0x15, 0x40, 0x05, 0x00, 0x04,
                                                                       0x00, 0x01, 0xD9, 0x17, 0xD1, 0x03, 0xAA, 0x1B));
@@ -985,7 +985,7 @@ obdModule0.set(response64245, 1);
         packets.add(packet1);
 
         List<GenericPacket> responses = new ArrayList<>();
-        GenericPacket response64244 = new GenericPacket(Packet.create(0xFAF4,
+        GenericPacket response64244 = newGenericPacket(Packet.create(0xFAF4,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0x00, 0xDE, 0x58, 0x00, 0x00, 0x18, 0x47, 0x00,
@@ -995,14 +995,14 @@ obdModule0.set(response64245, 1);
         // @formatter:on
         responses.add(response64244);
         obdModule0.set(response64244, 1);
-        GenericPacket response64245 = new GenericPacket(Packet.create(0xFAF5, 0x00,
+        GenericPacket response64245 = newGenericPacket(Packet.create(0xFAF5, 0x00,
         // @formatter:off
                                                                       0x00, 0x23, 0x00, 0x1C, 0x00, 0x07, 0x56, 0x05,
                                                                       0x56, 0x01, 0xCC, 0x1F, 0x16, 0x05, 0xE2, 0x24));
         // @formatter:on
         responses.add(response64245);
         obdModule0.set(response64245, 1);
-        GenericPacket response64246 = new GenericPacket(Packet.create(0xFAF6, 0x00,
+        GenericPacket response64246 = newGenericPacket(Packet.create(0xFAF6, 0x00,
         // @formatter:off
                                                                       0x40, 0x1A, 0x00, 0x15, 0x40, 0x05, 0x00, 0x04,
                                                                       0x00, 0x01, 0xD9, 0x17, 0xD1, 0x03, 0xAA, 0x1B));
@@ -1142,7 +1142,7 @@ obdModule0.set(response64245, 1);
         packets.add(packet1);
 
         List<GenericPacket> responses = new ArrayList<>();
-        GenericPacket response64244 = new GenericPacket(Packet.create(0xFAF4,
+        GenericPacket response64244 = newGenericPacket(Packet.create(0xFAF4,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0x00, 0xDE, 0x58, 0x00, 0x00, 0x18, 0x47, 0x00,
@@ -1152,14 +1152,14 @@ obdModule0.set(response64245, 1);
         // @formatter:on
         responses.add(response64244);
         obdModule0.set(response64244, 1);
-        GenericPacket response64245 = new GenericPacket(Packet.create(0xFAF5, 0x00,
+        GenericPacket response64245 = newGenericPacket(Packet.create(0xFAF5, 0x00,
         // @formatter:off
                                                                       0x00, 0x23, 0x00, 0x1C, 0x00, 0x07, 0x56, 0x05,
                                                                       0x56, 0x01, 0xCC, 0x1F, 0x16, 0x05, 0xE2, 0x24));
         // @formatter:on
         responses.add(response64245);
         obdModule0.set(response64245, 1);
-        GenericPacket response64246 = new GenericPacket(Packet.create(0xFAF6, 0x00,
+        GenericPacket response64246 = newGenericPacket(Packet.create(0xFAF6, 0x00,
         // @formatter:off
                                                                       0x40, 0x1A, 0x00, 0x15, 0x40, 0x05, 0x00, 0x04,
                                                                       0x00, 0x01, 0xD9, 0x17, 0xD1, 0x03, 0xAA, 0x1B));

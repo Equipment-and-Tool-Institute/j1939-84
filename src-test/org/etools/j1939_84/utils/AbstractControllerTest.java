@@ -12,7 +12,9 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.mockito.ArgumentCaptor;
 
@@ -74,4 +76,7 @@ public abstract class AbstractControllerTest {
         this.communicationsModule = communicationsModule;
     }
 
+    protected GenericPacket newGenericPacket(Packet p) {
+        return (GenericPacket) J1939.processRaw(p.getPgn(), p);
+    }
 }

@@ -47,9 +47,12 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.j1939.J1939DaRepository;
 import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.model.ActiveTechnology;
 import org.etools.j1939tools.j1939.model.Spn;
 import org.etools.j1939tools.j1939.model.SpnDefinition;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.GhgActiveTechnologyPacket;
+import org.etools.j1939tools.j1939.packets.GhgLifetimeActiveTechnologyPacket;
 import org.etools.j1939tools.j1939.packets.SupportedSPN;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
@@ -367,20 +370,22 @@ public class Part02Step17Controller extends StepController {
         // a. DS request message to ECU that indicated support in DM24 for upon request
         // SP 12783 (Hybrid Lifetime Distance Traveled in Charge Depleting Operation with
         // Engine off) for PG 64244 Hybrid Charge Depleting or Increasing Operation Lifetime Hours
-        List<GenericPacket> ghgChgDepletingLifeTimePackets = requestPackets(module.getSourceAddress(),
-                                                                            GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG)
-                                                                                                                          .stream()
-                                                                                                                          // 6.2.17.23.b.
-                                                                                                                          // Record
-                                                                                                                          // each
-                                                                                                                          // value
-                                                                                                                          // for
-                                                                                                                          // use
-                                                                                                                          // in
-                                                                                                                          // Part
-                                                                                                                          // 12.
-                                                                                                                          .peek(this::save)
-                                                                                                                          .collect(Collectors.toList());
+        int[] pgns = { GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG };
+        var ghgChgDepletingLifeTimePackets = requestPackets(module.getSourceAddress(), pgns).stream()
+                                                                                            .map(p -> (GhgActiveTechnologyPacket) p)
+                                                                                            .collect(Collectors.toList())
+                                                                                            .stream()
+                                                                                            // 6.2.17.23.b.
+                                                                                            // Record
+                                                                                            // each
+                                                                                            // value
+                                                                                            // for
+                                                                                            // use
+                                                                                            // in
+                                                                                            // Part
+                                                                                            // 12.
+                                                                                            .peek(this::save)
+                                                                                            .collect(Collectors.toList());
 
         if (ghgChgDepletingLifeTimePackets.isEmpty()) {
             // 6.2.17.24.a. Fail PG query where no response was received
@@ -412,6 +417,7 @@ public class Part02Step17Controller extends StepController {
                       });
             });
         }
+        int[] pgns1 = { GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR, GHG_STORED_HYBRID_CHG_DEPLETING_100_HR };
 
         // 6.2.17.25 Actions13 for MY2022+ Plug-in HEV DRIVES
         // 6.2.17.25.a - DS request message to ECU that indicated support in DM24 for upon request
@@ -421,14 +427,16 @@ public class Part02Step17Controller extends StepController {
         // PG PG Label
         // 64246 Hybrid Charge Depleting or Increasing Operation Active 100 Hours - PG Acronym HCDIOA
         // 64245 Hybrid Charge Depleting or Increasing Operation Stored 100 Hours - - PG Acronym HCDIOS
-        var hybridChargeOpsPackets = requestPackets(module.getSourceAddress(),
-                                                    GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR,
-                                                    GHG_STORED_HYBRID_CHG_DEPLETING_100_HR)
-                                                                                           .stream()
-                                                                                           // 6.2.17.25.b. Record each
-                                                                                           // value for use in Part 12.
-                                                                                           .peek(this::save)
-                                                                                           .collect(Collectors.toList());
+        var hybridChargeOpsPackets = requestPackets(module.getSourceAddress(), pgns1).stream()
+                                                                                     .map(p -> (GhgActiveTechnologyPacket) p)
+                                                                                     .collect(Collectors.toList())
+                                                                                     .stream()
+                                                                                     // 6.2.17.25.b. Record
+                                                                                     // each
+                                                                                     // value for use in Part
+                                                                                     // 12.
+                                                                                     .peek(this::save)
+                                                                                     .collect(Collectors.toList());
 
         // 6.2.17.25.c - List data received in a table using lifetime, stored 100 hr, active 100hr for columns, and
         // categories for rows.
@@ -479,8 +487,10 @@ public class Part02Step17Controller extends StepController {
         // 62.17.19.a - DS request message to ECU that indicated support in DM24 for upon request
         // SP 12797 (Hybrid Lifetime Propulsion System Active Time) for 64241 PSA Times
         // Lifetime Hours
-        var ghgTrackingPackets = requestPackets(module.getSourceAddress(),
-                                                GHG_TRACKING_LIFETIME_HYBRID_PG)
+        int[] pgns = { GHG_TRACKING_LIFETIME_HYBRID_PG };
+        var ghgTrackingPackets = requestPackets(module.getSourceAddress(), pgns).stream()
+                                                                                .map(p -> (GhgActiveTechnologyPacket) p)
+                                                                                .collect(Collectors.toList())
                                                                                 .stream()
                                                                                 // 6.2.17.19.b.
                                                                                 // Record each value for
@@ -517,6 +527,7 @@ public class Part02Step17Controller extends StepController {
                       });
             });
         }
+        int[] pgns1 = { GHG_STORED_HYBRID_100_HR, GHG_ACTIVE_HYBRID_100_HR };
 
         // 6.2.17.21 Actions11 for MY2022+ HEV and BEV drives
         // 6.2.17.21.a - DS request message to ECU that indicated support in DM24 for upon request
@@ -527,16 +538,16 @@ public class Part02Step17Controller extends StepController {
         // 64243 PSA Times Active 100 Hours - PG Acronym PSATA
         // 6.2.17.21.c - List data received in a table using lifetime, stored 100 hr, active 100hr
         // for columns, and categories for rows.
-        List<GenericPacket> ghgPackets = requestPackets(module.getSourceAddress(),
-                                                        GHG_STORED_HYBRID_100_HR,
-                                                        GHG_ACTIVE_HYBRID_100_HR)
-                                                                                 .stream()
-                                                                                 // 6.2.17.21.b. -
-                                                                                 // Record each
-                                                                                 // value for use
-                                                                                 // in Part 12.
-                                                                                 .peek(this::save)
-                                                                                 .collect(Collectors.toList());
+        var ghgPackets = requestPackets(module.getSourceAddress(), pgns1).stream()
+                                                                         .map(p -> (GhgActiveTechnologyPacket) p)
+                                                                         .collect(Collectors.toList())
+                                                                         .stream()
+                                                                         // 6.2.17.21.b. -
+                                                                         // Record each
+                                                                         // value for use
+                                                                         // in Part 12.
+                                                                         .peek(this::save)
+                                                                         .collect(Collectors.toList());
 
         if (!ghgTrackingPackets.isEmpty() || !ghgPackets.isEmpty()) {
             // 6.2.17.19.c - List data received in a table using lifetime, stored 100 hr, active 100hr for columns, and
@@ -592,13 +603,16 @@ public class Part02Step17Controller extends StepController {
         // 6.2.17.11 Actions6 for all MY2022+ Engines
         // 6.2.17.11.a - DS request messages to ECU that indicated support in DM24 for upon request SP 12730 (GHG
         // Tracking Lifetime Engine Run Time) for PG 64252 GHG Tracking Lifetime Array Data.
-        var ghgTrackingLifetimePackets = requestPackets(module.getSourceAddress(),
-                                                        GHG_TRACKING_LIFETIME_PG)
-                                                                                 .stream()
-                                                                                 // 6.2.17.9.b - Record each value
-                                                                                 // for use in Part 12.
-                                                                                 .peek(this::save)
-                                                                                 .collect(Collectors.toList());
+        int[] pgns = { GHG_TRACKING_LIFETIME_PG };
+        var ghgTrackingLifetimePackets = requestPackets(module.getSourceAddress(), pgns).stream()
+                                                                                        .map(p -> (GhgActiveTechnologyPacket) p)
+                                                                                        .collect(Collectors.toList())
+                                                                                        .stream()
+                                                                                        // 6.2.17.9.b - Record each
+                                                                                        // value
+                                                                                        // for use in Part 12.
+                                                                                        .peek(this::save)
+                                                                                        .collect(Collectors.toList());
 
         if (ghgTrackingLifetimePackets.isEmpty()) {
             // 6.2.17.12.a. Fail PG query where no response was received
@@ -627,6 +641,7 @@ public class Part02Step17Controller extends StepController {
                       });
             });
         }
+        int[] pgns1 = { GHG_ACTIVE_100_HR, GHG_STORED_100_HR };
 
         // 6.2.17.13 Actions7 for MY2022+ Engines
         // 6.2.17.13.a - DS request message to ECU that indicated support in DM24 for upon request
@@ -634,17 +649,17 @@ public class Part02Step17Controller extends StepController {
         // PG PG Label
         // 64254 GHG Tracking Active 100 Hour Array Data
         // 64253 GHG Tracking Stored 100 Hour Array Data
-        var ghgTrackingPackets = requestPackets(module.getSourceAddress(),
-                                                GHG_ACTIVE_100_HR,
-                                                GHG_STORED_100_HR)
-                                                                  .stream()
-                                                                  // 6.2.17.11.b.
-                                                                  // Record
-                                                                  // each value
-                                                                  // for use
-                                                                  // in Part 12.
-                                                                  .peek(this::save)
-                                                                  .collect(Collectors.toList());
+        var ghgTrackingPackets = requestPackets(module.getSourceAddress(), pgns1).stream()
+                                                                                 .map(p -> (GhgActiveTechnologyPacket) p)
+                                                                                 .collect(Collectors.toList())
+                                                                                 .stream()
+                                                                                 // 6.2.17.11.b.
+                                                                                 // Record
+                                                                                 // each value
+                                                                                 // for use
+                                                                                 // in Part 12.
+                                                                                 .peek(this::save)
+                                                                                 .collect(Collectors.toList());
 
         if (!ghgTrackingLifetimePackets.isEmpty() || !ghgTrackingPackets.isEmpty()) {
             // 6.2.17.13.c. List data received in a table using lifetime, stored 100 hr,
@@ -698,6 +713,8 @@ public class Part02Step17Controller extends StepController {
         var lifetimeGhgPackets = requestPackets(module.getSourceAddress(),
                                                 GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG)
                                                                                      .stream()
+                                                                                     .map(GenericPacket::getPacket)
+                                                                                     .map(GhgLifetimeActiveTechnologyPacket::new)
                                                                                      // 6.2.17.15.b. Record
                                                                                      // each value for use
                                                                                      // in Part 12.
@@ -745,6 +762,8 @@ public class Part02Step17Controller extends StepController {
                                              GHG_ACTIVE_GREEN_HOUSE_100_HR,
                                              GHG_STORED_GREEN_HOUSE_100_HR)
                                                                            .stream()
+                                                                           .map(GenericPacket::getPacket)
+                                                                           .map(GhgActiveTechnologyPacket::new)
                                                                            // 6.2.17.17.b. Record
                                                                            // each value for use
                                                                            // in Part 12.
@@ -778,38 +797,44 @@ public class Part02Step17Controller extends StepController {
             });
         }
 
-        var lifetimeLabels = lifetimeGhgPackets.stream()
-                                               .flatMap(p -> p.getSpns().stream())
-                                               .filter(spn -> spn.getId() == 12691)
-                                               .map(Spn::getValue)
-                                               .collect(Collectors.toCollection(HashSet::new));
-        var activeLabels = ghg100HrPackets.stream()
-                                          .flatMap(p -> p.getSpns().stream())
-                                          .filter(spn -> spn.getId() == 12697)
-                                          .map(Spn::getValue)
-                                          .collect(Collectors.toCollection(HashSet::new));
-        var storedLabels = ghg100HrPackets.stream()
-                                          .flatMap(p -> p.getSpns().stream())
-                                          .filter(spn -> spn.getId() == 12694)
-                                          .map(Spn::getValue)
-                                          .collect(Collectors.toCollection(HashSet::new));
+        var lifetimeIndexes = lifetimeGhgPackets.stream()
+                                                .flatMap(ghgPacket -> ghgPacket.getActiveTechnologies().stream())
+                                                .map(ActiveTechnology::getIndex)
+                                                .collect(Collectors.toList());
 
-        // 6.2.17.18.e. Fail each response where the set of labels received is not a subset of the set of labels
-        // received for the lifetime active technology response
-        if (lifetimeLabels.size() != activeLabels.size()) {
+        var activeIndexes = ghg100HrPackets.stream()
+                                           .filter(p -> {
+                                               return p.getPacket().getPgn() == GHG_ACTIVE_GREEN_HOUSE_100_HR;
+                                           })
+                                           .flatMap(ghgPacket -> ghgPacket.getActiveTechnologies().stream())
+                                           .map(ActiveTechnology::getIndex)
+                                           .collect(Collectors.toList());
+        var storedIndexes = ghg100HrPackets.stream()
+                                           .filter(genericPacket -> {
+                                               return genericPacket.getPgnDefinition()
+                                                                   .getId() == GHG_STORED_GREEN_HOUSE_100_HR;
+                                           })
+                                           .flatMap(ghgPacket -> ghgPacket.getActiveTechnologies().stream())
+                                           .map(ActiveTechnology::getIndex)
+                                           .collect(Collectors.toList());
+
+        // 6.2.17.18.e. Fail each response where the number of labels received are not
+        // the same as the number of labels received for the lifetime technology response.
+        if (lifetimeIndexes.size() != activeIndexes.size()) {
             addFailure("6.2.17.18.e - Number of active labels received differs from the number of lifetime labels");
         }
-        if (lifetimeLabels.size() != storedLabels.size()) {
+        if (lifetimeIndexes.size() != storedIndexes.size()) {
             addFailure("6.2.17.18.e - Number of stored labels received differs from the number of lifetime labels");
         }
 
-        // 6.2.17.18.f. Fail all values where the corresponding value received in part 1 is greater than the part 2
-        // value. (Where supported)
-        if (!lifetimeLabels.equals(activeLabels)) {
-            addFailure("6.2.17.18.f - Active labels received is not an equivalent set of lifetime labels");
+        // 6.2.17.18.f. Fail each response where the set of labels received is not a
+        // subset of the set of labels received for the lifetime’ active technology
+        // response.
+        if (!lifetimeIndexes.containsAll(activeIndexes)) {
+            addFailure("6.2.17.18.f - Active labels received is not a subset of lifetime labels");
         }
-        if (!lifetimeLabels.equals(storedLabels)) {
-            addFailure("6.2.17.18.f - Stored labels received is not an equivalent set of lifetime labels");
+        if (!lifetimeIndexes.containsAll(storedIndexes)) {
+            addFailure("6.2.17.18.f - Stored labels received is not a subset of lifetime labels");
         }
     }
 
@@ -820,14 +845,12 @@ public class Part02Step17Controller extends StepController {
                                      .toArray();
         // 6.2.17.7.a. DS request messages to ECU that indicated support in DM24 for upon
         // request SPN 12675 (NOx Tracking Engine
-        var nOxPackets = requestPackets(module.getSourceAddress(),
-                                        nOxLifeTimeSps)
-                                                       .stream()
-                                                       // 6.2.17.7.b. Record
-                                                       // each value for use
-                                                       // in Part 12.
-                                                       .peek(this::save)
-                                                       .collect(Collectors.toList());
+        var nOxPackets = requestPackets(module.getSourceAddress(), nOxLifeTimeSps).stream()
+                                                                                  // 6.2.17.7.b. Record
+                                                                                  // each value for use
+                                                                                  // in Part 12.
+                                                                                  .peek(this::save)
+                                                                                  .collect(Collectors.toList());
 
         if (nOxPackets.isEmpty()) {
             // 6.2.17.8.a. Fail each PG query where no response was received.
@@ -867,22 +890,21 @@ public class Part02Step17Controller extends StepController {
         // request SPN 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1
         // - Total) for each active 100hr NOx binning PG, followed by each Stored 100 hr PG
         // Label
-        List<GenericPacket> nOx100HourPackets = requestPackets(module.getSourceAddress(),
-                                                               CollectionUtils.join(NOx_TRACKING_ACTIVE_100_HOURS_PGs,
-                                                                                    NOx_TRACKING_STORED_100_HOURS_PGs))
-                                                                                                                       .stream()
-                                                                                                                       // 6.2.17.9.b
-                                                                                                                       // -
-                                                                                                                       // Record
-                                                                                                                       // each
-                                                                                                                       // value
-                                                                                                                       // for
-                                                                                                                       // use
-                                                                                                                       // in
-                                                                                                                       // Part
-                                                                                                                       // 12.
-                                                                                                                       .peek(this::save)
-                                                                                                                       .collect(Collectors.toList());
+        var nOx100HourPackets = requestPackets(module.getSourceAddress(),
+                                               CollectionUtils.join(NOx_TRACKING_ACTIVE_100_HOURS_PGs,
+                                                                    NOx_TRACKING_STORED_100_HOURS_PGs)).stream()
+                                                                                                       // 6.2.17.9.b
+                                                                                                       // -
+                                                                                                       // Record
+                                                                                                       // each
+                                                                                                       // value
+                                                                                                       // for
+                                                                                                       // use
+                                                                                                       // in
+                                                                                                       // Part
+                                                                                                       // 12.
+                                                                                                       .peek(this::save)
+                                                                                                       .collect(Collectors.toList());
 
         // 6.2.17.9.c - List data received in a table using bin numbers for rows.
         if (nOx100HourPackets.isEmpty()) {

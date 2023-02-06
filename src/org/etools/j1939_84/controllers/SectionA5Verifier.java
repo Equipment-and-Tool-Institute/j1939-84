@@ -20,10 +20,10 @@ public class SectionA5Verifier extends SectionVerifier {
 
     private final SectionA5NoxGhgVerifier sectionA5NoxGhgVerifier;
 
-    public SectionA5Verifier(boolean afterClear, int partNumber, int stepNumber) {
+    public SectionA5Verifier(int partNumber, int stepNumber) {
         this(DataRepository.getInstance(),
              new SectionA5MessageVerifier(partNumber, stepNumber),
-             new SectionA5NoxGhgVerifier(afterClear, partNumber, stepNumber),
+             new SectionA5NoxGhgVerifier(partNumber, stepNumber),
              new CommunicationsModule(),
              new VehicleInformationModule(),
              partNumber,
@@ -81,7 +81,7 @@ public class SectionA5Verifier extends SectionVerifier {
             }
             results.add(dataAsSameResult.isErased);
 
-            verifyGhgNOxBinngData(listener, address);
+            verifyGhgNOxBinngData(listener, address, verifyIsErased);
         }
 
         // section2 - Fail if one or more than one ECU erases diagnostic information and one or more other ECUs do not
@@ -93,42 +93,47 @@ public class SectionA5Verifier extends SectionVerifier {
     }
 
     /** public for testing **/
-    public void verifyGhgNOxBinngData(ResultsListener listener, int address) {
+    public void verifyGhgNOxBinngData(ResultsListener listener, int address, boolean isErased) {
         List<GenericPacket> packets = sectionA5NoxGhgVerifier.requestAllGhgNox(address, listener);
 
         if (getDataRepository().getObdModule(address).supportsSpn(12675)) {
             sectionA5NoxGhgVerifier.verifyDataSpn12675(listener,
                                                        getPartNumber(),
                                                        getStepNumber(),
-                                                       packets);
+                                                       packets,
+                                                       isErased);
         }
 
         if (getDataRepository().getObdModule(address).supportsSpn(12730)) {
             sectionA5NoxGhgVerifier.verifyDataSpn12730(listener,
                                                        getPartNumber(),
                                                        getStepNumber(),
-                                                       packets);
+                                                       packets,
+                                                       isErased);
         }
 
         if (getDataRepository().getObdModule(address).supportsSpn(12691)) {
             sectionA5NoxGhgVerifier.verifyDataSpn12691(listener,
                                                        getPartNumber(),
                                                        getStepNumber(),
-                                                       packets);
+                                                       packets,
+                                                       isErased);
         }
 
         if (getDataRepository().getObdModule(address).supportsSpn(12797)) {
             sectionA5NoxGhgVerifier.verifyDataSpn12797(listener,
                                                        getPartNumber(),
                                                        getStepNumber(),
-                                                       packets);
+                                                       packets,
+                                                       isErased);
         }
 
         if (getDataRepository().getObdModule(address).supportsSpn(12783)) {
             sectionA5NoxGhgVerifier.verifyDataSpn12783(listener,
                                                        getPartNumber(),
                                                        getStepNumber(),
-                                                       packets);
+                                                       packets,
+                                                       isErased);
         }
     }
 

@@ -80,9 +80,17 @@ public class Part08Step10Controller extends StepController {
         // 6.8.10.2.a. Fail if DTC(s) reported in the freeze frame does not include either the DTC reported in DM12 or
         // the DTC reported in DM23 earlier in this part
         packets.forEach(pp -> {
+            // Pass = (There exists an X that is an element of {DM12} that is also an element of {DM25})
+            // Or (There exists a Y that is an element of {DM23} that is also an element of {DM25})
+            // rephrased:
+            // Fail = (There does not exist an X that is an element of {DM12} that is also an element of {DM25})
+            // And (There does not exist an X that is an element of {DM23} that is also an element of {DM25})
             var ffDTCs = pp.getFreezeFrames().stream().map(ff -> ff.getDtc()).collect(Collectors.toList());
-            if (!ffDTCs.containsAll(getDM12DTCs(pp.getSourceAddress()))
-                    || !ffDTCs.containsAll(getDM23DTCs(pp.getSourceAddress()))) {
+            var oldDTCs = new ArrayList<>();
+            oldDTCs.addAll(getDM12DTCs(pp.getSourceAddress()));
+            oldDTCs.addAll(getDM23DTCs(pp.getSourceAddress()));
+            oldDTCs.retainAll(ffDTCs);
+            if (oldDTCs.isEmpty() && !ffDTCs.isEmpty()) {
                 addFailure("6.8.10.2.a - DTC(s) reported in the freeze frame by " + pp.getModuleName()
                         + " did not include either the DTC reported in DM12 or DM23 earlier in this part");
             }

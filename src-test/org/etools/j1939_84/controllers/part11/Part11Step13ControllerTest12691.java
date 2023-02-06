@@ -150,18 +150,18 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                                    supportedSPN),
                        1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
-                                                                      0xF5, 0xDB, 0x00, 0xB8, 0x04,
-                                                                      0x06, 0x7D, 0x60, 0x10, 0x00,
-                                                                      0xC0, 0xBC, 0x05, 0x00, 0x04,
-                                                                      0xCE, 0x31, 0x02, 0x00, 0x02,
-                                                                      0x49, 0x1D, 0x00, 0x00, 0xE0,
-                                                                      0x79, 0x00, 0x00, 0xF9, 0x86,
-                                                                      0xAD, 0x00, 0x00, 0xA8, 0xD2,
-                                                                      0x02, 0x00, 0xF7, 0x4B, 0xC3,
-                                                                      0x00, 0xF5, 0xD0, 0xB3, 0x00
+                                                                      0xF5, 0,0,0xDB, 0x00, 0,0,0xB8, 0x04,
+                                                                      0x06, 0,0,0x7D, 0x60, 0,0,0x10, 0x00,
+                                                                      0xC0, 0,0,0xBC, 0x05, 0,0,0x00, 0x04,
+                                                                      0xCE, 0,0,0x31, 0x02, 0,0,0x00, 0x02,
+                                                                      0x49, 0,0,0x1D, 0x00, 0,0,0x00, 0xE0,
+                                                                      0x79, 0,0,0x00, 0x00, 0,0,0xF9, 0x86,
+                                                                      0xAD,0,0, 0x00, 0x00, 0,0,0xA8, 0xD2,
+                                                                      0x02, 0,0,0x00, 0xF7,0,0, 0x4B, 0xC3,
+                                                                      0x00, 0,0,0xF5, 0xD0, 0,0,0xB3, 0x00
 
         ));
         // @formatter:on
@@ -171,7 +171,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x00,
@@ -191,7 +191,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0x00, 0x00,
@@ -271,7 +271,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                                    supportedSPN),
                        1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x04,
@@ -292,7 +292,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x00,
@@ -311,7 +311,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0x00, 0x00,
@@ -405,7 +405,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                                    supportedSpn),
                        1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x04,
@@ -426,7 +426,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x00,
@@ -445,7 +445,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0x00, 0x00,
@@ -534,7 +534,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                                    supportedSpn),
                        1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x04, 0x06, 0x7D, 0x60, 0x10, 
@@ -551,7 +551,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x00,
@@ -570,7 +570,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0x00, 0x00,
@@ -658,7 +658,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                                    supportedSpn),
                        1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x04,
@@ -679,7 +679,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x00,
@@ -698,7 +698,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0x00, 0x00,
@@ -781,7 +781,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                                    supportedSpn),
                        1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x04,
@@ -802,7 +802,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x00,
@@ -821,7 +821,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x04, 0x00, 0x00,
@@ -910,7 +910,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                                    supportedSpn),
                        1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x04,
@@ -931,7 +931,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x00,
@@ -950,7 +950,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xF2, 0x00, 0x00, 0x00,
@@ -964,7 +964,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                                                       0x00, 0xF5, 0xD0, 0xB3, 0x00
         ));
         // @formatter:on
-        GenericPacket response64256Part2 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256Part2 = newGenericPacket(Packet.create(0xFB00,
                                                                            0x00,
                                                                            // @formatter:off
                                                                       0xF5, 0x0B, 0x00, 0x00, 0x00,
@@ -1053,7 +1053,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                                    supportedSpn),
                        1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x04,
@@ -1074,7 +1074,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x00,
@@ -1093,7 +1093,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0x00, 0x00,
@@ -1107,7 +1107,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                                                       0x00, 0xF5, 0xD0, 0xB3, 0x00
         ));
         // @formatter:on
-        GenericPacket response64256Part2 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256Part2 = newGenericPacket(Packet.create(0xFB00,
                                                                            0x00,
                                                                            // @formatter:off
                                                                       0xF5, 0x33, 0x09, 0x00, 0x00,
@@ -1200,7 +1200,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                                    supportedSpn),
                        1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x04,
@@ -1221,7 +1221,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x00,
@@ -1240,7 +1240,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0x00, 0x00,
@@ -1254,7 +1254,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                                                       0x00, 0xF5, 0xD0, 0xB3, 0x00
         ));
         // @formatter:on
-        GenericPacket response64256Part2 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256Part2 = newGenericPacket(Packet.create(0xFB00,
                                                                            0x00,
                                                                            // @formatter:off
                                                                       0xF6, 0xDB, 0x00, 0x00, 0x00,
@@ -1343,7 +1343,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                                    supportedSpn),
                        1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x04,
@@ -1364,7 +1364,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xFC, 0xFF, 0x00, 0x00,
@@ -1383,7 +1383,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xFC, 0x00, 0x00, 0x00,
@@ -1472,7 +1472,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                                    supportedSpn),
                        1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x04,
@@ -1493,7 +1493,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x00,
@@ -1512,7 +1512,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xFD, 0xDB, 0x00, 0x00, 0x00,
@@ -1605,7 +1605,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                                    supportedSpn),
                        1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x04,
@@ -1626,7 +1626,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x00,
@@ -1645,7 +1645,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.empty());
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0x00, 0x00,
@@ -1722,7 +1722,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                                    supportedSpn),
                        1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x04,
@@ -1743,7 +1743,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x00,
@@ -1762,7 +1762,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.empty());
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0x00, 0x00,
@@ -1839,7 +1839,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                                    supportedSpn),
                        1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xFD, 0xDB, 0x00, 0xB8, 0x04,
@@ -1860,7 +1860,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x00,
@@ -1879,7 +1879,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0x00, 0x00,
@@ -1976,7 +1976,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                                    supportedSpn),
                        1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xFD, 0xFF, 0xFF, 0xFF,
@@ -1997,7 +1997,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x00,
@@ -2016,7 +2016,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0x00, 0x00,
@@ -2105,7 +2105,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                                    supportedSpn),
                        1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x04,
@@ -2126,7 +2126,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.empty());
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0xB8, 0x00,
@@ -2145,7 +2145,7 @@ public class Part11Step13ControllerTest12691 extends AbstractControllerTest {
                                           eq(0x00),
                                           any(ResultsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF5, 0xDB, 0x00, 0x00, 0x00,

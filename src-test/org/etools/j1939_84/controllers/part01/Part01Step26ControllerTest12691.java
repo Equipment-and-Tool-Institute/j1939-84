@@ -694,20 +694,20 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         when(communicationsModule.request(eq(64257),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0x08, 0x00, 0x00, 0x00, 0x00,
@@ -721,7 +721,7 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,
@@ -772,7 +772,7 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(26),
                                         eq(FAIL),
-                                        eq("6.1.26.18.f - Stored labels received is not an equivalent set of lifetime labels"));
+                                        eq("6.1.26.18.f - Stored labels received is not a subset of lifetime labels"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -849,20 +849,20 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         when(communicationsModule.request(eq(64257),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,
@@ -876,7 +876,7 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x88, 0xC2,
@@ -927,11 +927,11 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(26),
                                         eq(FAIL),
-                                        eq("6.1.26.18.g - Active 100 hr array value received was greater than zero from Engine #1 (0) for SPN SPN 12696, GHG Tracking Active 100 Hour Active Technology Vehicle Distance: 8704.000 km"));
+                                        eq("6.1.26.18.g - Active 100 hr array value received was greater than zero from Engine #1 (0) for SPN 12696, GHG Tracking Active 100 Hour Active Technology Vehicle Distance: 8704.000 km"));
         verify(mockListener).addOutcome(eq(1),
                                         eq(26),
                                         eq(FAIL),
-                                        eq("6.1.26.18.f - Active labels received is not an equivalent set of lifetime labels"));
+                                        eq("6.1.26.18.f - Active labels received is not a subset of lifetime labels"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -1008,15 +1008,15 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         when(communicationsModule.request(eq(64257),
                                           eq(0),
@@ -1076,14 +1076,6 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
                                         eq(26),
                                         eq(FAIL),
                                         eq("6.1.26.18.e - Number of stored labels received differs from the number of lifetime labels"));
-        verify(mockListener).addOutcome(eq(1),
-                                        eq(26),
-                                        eq(FAIL),
-                                        eq("6.1.26.18.f - Active labels received is not an equivalent set of lifetime labels"));
-        verify(mockListener).addOutcome(eq(1),
-                                        eq(26),
-                                        eq(FAIL),
-                                        eq("6.1.26.18.f - Stored labels received is not an equivalent set of lifetime labels"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -1158,15 +1150,15 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         when(communicationsModule.request(eq(64257),
                                           eq(0),
@@ -1226,14 +1218,6 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
                                         eq(26),
                                         eq(FAIL),
                                         eq("6.1.26.18.e - Number of stored labels received differs from the number of lifetime labels"));
-        verify(mockListener).addOutcome(eq(1),
-                                        eq(26),
-                                        eq(FAIL),
-                                        eq("6.1.26.18.f - Active labels received is not an equivalent set of lifetime labels"));
-        verify(mockListener).addOutcome(eq(1),
-                                        eq(26),
-                                        eq(FAIL),
-                                        eq("6.1.26.18.f - Stored labels received is not an equivalent set of lifetime labels"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -1308,21 +1292,21 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         when(communicationsModule.request(eq(64257),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1336,7 +1320,7 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1457,22 +1441,12 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
-
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
-                                                                      0x00,
-                                                                      // @formatter:off
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         when(communicationsModule.request(eq(64257),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.empty());
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1486,7 +1460,7 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1549,11 +1523,11 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(26),
                                         eq(FAIL),
-                                        eq("6.1.26.18.f - Active labels received is not an equivalent set of lifetime labels"));
+                                        eq("6.1.26.18.f - Active labels received is not a subset of lifetime labels"));
         verify(mockListener).addOutcome(eq(1),
                                         eq(26),
                                         eq(FAIL),
-                                        eq("6.1.26.18.f - Stored labels received is not an equivalent set of lifetime labels"));
+                                        eq("6.1.26.18.f - Stored labels received is not a subset of lifetime labels"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -1629,21 +1603,21 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         when(communicationsModule.request(eq(64257),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1657,7 +1631,7 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0x00, 0xFD, 0xFF, 0x00, 0x00,
@@ -1708,7 +1682,7 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(26),
                                         eq(FAIL),
-                                        eq("6.1.26.18.c - Bin value received is greater than 0xFFFFh and less than h from Engine #1 (0) for SPN 12695, GHG Tracking Active 100 Hour Active Technology Time: Not Available"));
+                                        eq("6.1.26.18.c - Bin value FBFFh is greater than FAFFh and less than FFFFh from Engine #1 (0) for SPN 12695, GHG Tracking Active 100 Hour Active Technology Time: Not Available"));
         verify(mockListener).addOutcome(eq(1),
                                         eq(26),
                                         eq(FAIL),
@@ -1716,7 +1690,7 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(26),
                                         eq(FAIL),
-                                        eq("6.1.26.18.f - Active labels received is not an equivalent set of lifetime labels"));
+                                        eq("6.1.26.18.f - Active labels received is not a subset of lifetime labels"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -1798,20 +1772,20 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         when(communicationsModule.request(eq(64257),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xFB, 0x00, 0x00, 0x00, 0x00,
@@ -1825,7 +1799,7 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1876,11 +1850,11 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(26),
                                         eq(FAIL),
-                                        eq("6.1.26.18.d - Bin value received is greater than 0xFAh and less than 0xFFh from Engine #1 (0) for SPN 12697, GHG Tracking Stored 100 Hour Active Technology Index: Unknown FB"));
+                                        eq("6.1.26.18.d - Bin value FBh is greater than FAh and less than FFh from Engine #1 (0) for SPN 12697, GHG Tracking Stored 100 Hour Active Technology Index: Unknown FB"));
         verify(mockListener).addOutcome(eq(1),
                                         eq(26),
                                         eq(FAIL),
-                                        eq("6.1.26.18.f - Stored labels received is not an equivalent set of lifetime labels"));
+                                        eq("6.1.26.18.f - Stored labels received is not a subset of lifetime labels"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -1957,20 +1931,20 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
                                                                       0x00,
                                                                       // @formatter:off
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         when(communicationsModule.request(eq(64257),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1984,7 +1958,7 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0x00, 0xDB, 0x00, 0x00, 0x00,
@@ -2038,11 +2012,15 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(26),
                                         eq(FAIL),
-                                        eq("6.1.26.18.g - Active 100 hr array value received was greater than zero from Engine #1 (0) for SPN SPN 12695, GHG Tracking Active 100 Hour Active Technology Time: 2190.000 s"));
+                                        eq("6.1.26.18.g - Active 100 hr array value received was greater than zero from Engine #1 (0) for SPN 12695, GHG Tracking Active 100 Hour Active Technology Time: 2190.000 s"));
         verify(mockListener).addOutcome(eq(1),
                                         eq(26),
                                         eq(FAIL),
-                                        eq("6.1.26.18.f - Active labels received is not an equivalent set of lifetime labels"));
+                                        eq("6.1.26.18.e - Number of active labels received differs from the number of lifetime labels"));
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(26),
+                                        eq(FAIL),
+                                        eq("6.1.26.18.f - Active labels received is not a subset of lifetime labels"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -2219,6 +2197,148 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
     @Test
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 0, instance.getTotalSteps());
+    }
+
+    @Test
+    public void testRealData() throws BusException {
+        final int supportedSpn = 12691;
+
+        var vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2025);
+        vehInfo.setFuelType(FuelType.DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+
+        OBDModuleInformation obdModule0 = new OBDModuleInformation(0x00);
+        SupportedSPN supportedSPN = SupportedSPN.create(supportedSpn,
+                                                        false,
+                                                        true,
+                                                        false,
+                                                        false,
+                                                        1);
+        obdModule0.set(DM24SPNSupportPacket.create(0x00,
+                                                   supportedSPN),
+                       1);
+        dataRepository.putObdModule(obdModule0);
+
+        when(broadcastValidator.getMaximumBroadcastPeriod()).thenReturn(3);
+
+        List<GenericPacket> packets = new ArrayList<>();
+
+        GenericPacket packet3 = packet(supportedSpn, false, 0);
+        packets.add(packet3);
+        GenericPacket packet8 = packet(888, true, 0);
+        packets.add(packet8);
+        when(busService.readBus(eq(12), eq("6.1.26.2.c"))).thenReturn(packets.stream());
+
+        GenericPacket packet1 = packet(supportedSpn, false, 0);
+        packets.add(packet1);
+
+        GenericPacket response64257 = newGenericPacket(Packet.create(0xFB01,
+                                                                      0x00,
+                                                                      // @formatter:off
+                                                                      0xFA ,0x01 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0xF9 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0xF8 ,0xC4 ,0x02 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00));
+        // @formatter:on
+        when(communicationsModule.request(eq(64257),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
+
+        GenericPacket response64255 = newGenericPacket(Packet.create(0xFAFF,
+                                                                      0x00,
+                                                                      // @formatter:off
+                                                                      0xFA ,0x00 ,0x00 ,0x00 ,0x00 ,0xF9 ,0x00 ,0x00 ,0x00 ,0x00 ,0xF8 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00));
+        // @formatter:on
+        when(communicationsModule.request(eq(64255),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
+
+        GenericPacket response64256 = newGenericPacket(Packet.create(0xFB00,
+                                                                      0x00,
+                                                                      // @formatter:off
+                                                                      0xFA ,0x00 ,0x00 ,0x00 ,0x00 ,0xF9 ,0x00 ,0x00 ,0x00 ,0x00 ,0xF8 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00));
+        // @formatter:on
+        when(communicationsModule.request(eq(64256),
+                                          eq(0),
+                                          any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64256));
+
+        Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = new HashMap<>();
+        packetMap.put(11111, Map.of(0, List.of(packet1)));
+        packetMap.put(33333, Map.of(0, List.of(packet3)));
+        when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
+
+        Bus busMock = mock(Bus.class);
+        when(j1939.getBus()).thenReturn(busMock);
+        when(busMock.imposterDetected()).thenReturn(false);
+
+        runTest();
+
+        verify(broadcastValidator).getMaximumBroadcastPeriod();
+        verify(broadcastValidator).buildPGNPacketsMap(packets);
+        verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
+                                                         any(),
+                                                         any(ResultsListener.class),
+                                                         eq(1),
+                                                         eq(26));
+        packets.forEach(packet -> {
+            verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(packet.getSourceAddress()),
+                                                                        any(),
+                                                                        eq(Collections.emptyList()),
+                                                                        eq(Collections.emptyList()),
+                                                                        any(ResultsListener.class),
+                                                                        eq(1),
+                                                                        eq(26),
+                                                                        eq("6.1.26.5.a"));
+        });
+        verify(busService).setup(eq(j1939), any(ResultsListener.class));
+        verify(busService).readBus(12, "6.1.26.2.c");
+        verify(busService).collectNonOnRequestPGNs(eq(List.of()));
+        verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
+        verify(busService).getPGNsForDSRequest(any(), any());
+
+        verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
+        verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
+                                                                       any(ResultsListener.class),
+                                                                       any());
+        verify(tableA1Validator, atLeastOnce()).reportImplausibleSPNValues(any(),
+                                                                           any(ResultsListener.class),
+                                                                           eq(false),
+                                                                           any());
+        verify(tableA1Validator, atLeastOnce()).reportNonObdModuleProvidedSPNs(any(),
+                                                                               any(ResultsListener.class),
+                                                                               any());
+        verify(tableA1Validator, atLeastOnce()).reportProvidedButNotSupportedSPNs(any(),
+                                                                                  any(ResultsListener.class),
+                                                                                  any());
+        verify(tableA1Validator, atLeastOnce()).reportPacketIfNotReported(any(),
+                                                                          any(ResultsListener.class),
+                                                                          eq(false));
+        verify(tableA1Validator, atLeastOnce()).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
+
+        // @formatter:off
+        String expected = "10:15:30.0000 GHG Active Technology Arrays from Engine #1 (0)" + NL;
+        expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
+        expected += "|                                     |    Active   |    Active   |    Stored   |    Stored   |             |             |" + NL;
+        expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |" + NL;
+        expected += "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL;
+        expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
+        expected += "| Mfg Defined Active Technology 3     |           0 |           0 |           0 |           0 |          12 |           0 |" + NL
+                + "| Mfg Defined Active Technology 2     |           0 |           0 |           0 |           0 |           0 |           0 |" + NL
+                + "| Mfg Defined Active Technology 1     |           0 |           0 |           0 |           0 |           0 |           0 |" + NL;
+        expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
+        expected += NL;
+        assertEquals(expected, listener.getResults());
+
+        String expectedMsg = "";
+        expectedMsg += "Requesting Green House Gas Lifetime Active Technology Tracking (GHGTTL) from Engine #1 (0)" + NL;
+        expectedMsg += "Requesting Green House Gas Active 100 Hour Active Technology Tracking (GHGTTA) from Engine #1 (0)" + NL;
+        expectedMsg += "Requesting Green House Gas Stored 100 Hour Active Technology Tracking (GHGTTS) from Engine #1 (0)";
+        assertEquals(expectedMsg, listener.getMessages());
+        // @formatter:on
+
+        verify(mockListener).addOutcome(1,
+                                        26,
+                                        FAIL,
+                                        "6.1.26.18.g - Active 100 hr array value received was greater than zero from Engine #1 (0) for SPN 12694, GHG Tracking Active 100 Hour Active Technology Index: Mfg Defined Active Technology 1");
+
     }
 
 }

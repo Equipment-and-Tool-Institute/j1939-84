@@ -582,7 +582,7 @@ public class Part02Step17ControllerTest12675 extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(2),
                                         eq(17),
                                         eq(FAIL),
-                                        eq("6.2.17.8.b - Bin value received is greater than 0xFAFFFFFFh and less than 0xFFFFFFFFh from Engine #1 (0) for SPN 12542, NOx Tracking Valid NOx Lifetime Engine Out NOx Mass Bin 1 (Total): 4261412863.000 g"));
+                                        eq("6.2.17.8.b - Bin value FDFFFFFFh is greater than FAFFFFFFh and less than FFFFFFFFh from Engine #1 (0) for SPN 12542, NOx Tracking Valid NOx Lifetime Engine Out NOx Mass Bin 1 (Total): 4261412863.000 g"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any(ResultsListener.class));
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),

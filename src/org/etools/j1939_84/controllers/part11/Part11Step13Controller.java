@@ -22,7 +22,6 @@ import static org.etools.j1939tools.modules.NOxBinningModule.NOx_LIFETIME_PGs;
 import static org.etools.j1939tools.modules.NOxBinningModule.NOx_TRACKING_ACTIVE_100_HOURS_PGs;
 import static org.etools.j1939tools.modules.NOxBinningModule.NOx_TRACKING_STORED_100_HOURS_PGs;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -128,8 +127,10 @@ public class Part11Step13Controller extends StepController {
         // SP 12783 (Hybrid Lifetime Distance Traveled in Charge Depleting Operation with
         // Engine off) for
         // PG 64244 Hybrid Charge Depleting or Increasing Operation Lifetime Hours
-        List<GenericPacket> lifetimeHybridChgDepletingPkgs = requestPackets(module.getSourceAddress(),
-                                                                            GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG);
+        int[] pgns = { GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG };
+        var lifetimeHybridChgDepletingPkgs = requestPackets(module.getSourceAddress(), pgns).stream()
+                                                                                            .map(p -> (GhgActiveTechnologyPacket) p)
+                                                                                            .collect(Collectors.toList());
         if (lifetimeHybridChgDepletingPkgs.isEmpty()) {
             // 6.11.13.18.a. Fail PG query where no response was received
             addFailure("6.11.13.18.a - No response was received from "
@@ -165,6 +166,7 @@ public class Part11Step13Controller extends StepController {
                 });
             });
         }
+        int[] pgns1 = { GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR, GHG_STORED_HYBRID_CHG_DEPLETING_100_HR };
 
         // 6.11.13.19 Actions13 for MY2022+ Plug-in HEV DRIVES
         // 6.11.13.19.a - DS request message to ECU that indicated support in DM24 for upon request
@@ -174,9 +176,9 @@ public class Part11Step13Controller extends StepController {
         // PG PG Label
         // 64246 Hybrid Charge Depleting or Increasing Operation Active 100 Hours - PG Acronym HCDIOA
         // 64245 Hybrid Charge Depleting or Increasing Operation Stored 100 Hours - - PG Acronym HCDIOS
-        var hybridChargeOpsPackets = new ArrayList<>(requestPackets(module.getSourceAddress(),
-                                                                    GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR,
-                                                                    GHG_STORED_HYBRID_CHG_DEPLETING_100_HR));
+        var hybridChargeOpsPackets = requestPackets(module.getSourceAddress(), pgns1).stream()
+                                                                                     .map(p -> (GhgActiveTechnologyPacket) p)
+                                                                                     .collect(Collectors.toList());
 
         // 6.11.13.19.b - List data received in a table using lifetime, stored 100 hr, active 100hr for columns, and
         // categories for rows.
@@ -236,8 +238,10 @@ public class Part11Step13Controller extends StepController {
         // 6.11.13.13.a - DS request message to ECU that indicated support in DM24 for upon request
         // SP 12797 (Hybrid Lifetime Propulsion System Active Time) for 64241 PSA Times
         // Lifetime Hours
-        var ghgTrackingPackets = requestPackets(module.getSourceAddress(),
-                                                GHG_TRACKING_LIFETIME_HYBRID_PG);
+        int[] pgns = { GHG_TRACKING_LIFETIME_HYBRID_PG };
+        var ghgTrackingPackets = requestPackets(module.getSourceAddress(), pgns).stream()
+                                                                                .map(p -> (GhgActiveTechnologyPacket) p)
+                                                                                .collect(Collectors.toList());
 
         if (ghgTrackingPackets.isEmpty()) {
             // 6.11.13.14.a - Fail PG query where no response was received.
@@ -270,6 +274,7 @@ public class Part11Step13Controller extends StepController {
                                   }
                               });
         }
+        int[] pgns1 = { GHG_STORED_HYBRID_100_HR, GHG_ACTIVE_HYBRID_100_HR };
 
         // 6.11.13.15 Actions11 for MY2022+ HEV and BEV drives
         // 6.11.13.15.a - DS request message to ECU that indicated support in DM24 for upon request
@@ -278,9 +283,9 @@ public class Part11Step13Controller extends StepController {
         // PG PG Label
         // 64242 PSA Times Stored 100 Hours - PG Acronym PSATS
         // 64243 PSA Times Active 100 Hours - PG Acronym PSATA
-        List<GenericPacket> ghgPackets = requestPackets(module.getSourceAddress(),
-                                                        GHG_STORED_HYBRID_100_HR,
-                                                        GHG_ACTIVE_HYBRID_100_HR);
+        var ghgPackets = requestPackets(module.getSourceAddress(), pgns1).stream()
+                                                                         .map(p -> (GhgActiveTechnologyPacket) p)
+                                                                         .collect(Collectors.toList());
 
         // 6.11.13.13.b - List data received in a table using lifetime, stored 100 hr, active 100hr for columns, and
         // categories for rows.
@@ -336,8 +341,10 @@ public class Part11Step13Controller extends StepController {
         // 6.11.13.5.a - DS request messages to ECU that indicated support in DM24 for upon request SP 12730 (GHG
         // Tracking Lifetime Engine Run
         // Time) for PG 64252 GHG Tracking Lifetime Array Data.
-        var ghgTrackingLifetimePackets = requestPackets(module.getSourceAddress(),
-                                                        GHG_TRACKING_LIFETIME_PG);
+        int[] pgns = { GHG_TRACKING_LIFETIME_PG };
+        var ghgTrackingLifetimePackets = requestPackets(module.getSourceAddress(), pgns).stream()
+                                                                                        .map(p -> (GhgActiveTechnologyPacket) p)
+                                                                                        .collect(Collectors.toList());
 
         if (ghgTrackingLifetimePackets.isEmpty()) {
             // 6.11.13.6.a. Fail PG query where no response was received
@@ -374,6 +381,7 @@ public class Part11Step13Controller extends StepController {
                 });
             });
         }
+        int[] pgns1 = { GHG_ACTIVE_100_HR, GHG_STORED_100_HR };
 
         // 6.11.13.7 Actions4 for MY2022+ Engines
         // 6.11.13.7.a - DS request message to ECU that indicated support in DM24 for upon request
@@ -381,9 +389,9 @@ public class Part11Step13Controller extends StepController {
         // PG Label
         // 64254 GHG Tracking Active 100 Hour Array Data
         // 64253 GHG Tracking Stored 100 Hour Array Data
-        var ghgTrackingPackets = requestPackets(module.getSourceAddress(),
-                                                GHG_ACTIVE_100_HR,
-                                                GHG_STORED_100_HR);
+        var ghgTrackingPackets = requestPackets(module.getSourceAddress(), pgns1).stream()
+                                                                                 .map(p -> (GhgActiveTechnologyPacket) p)
+                                                                                 .collect(Collectors.toList());
 
         // 6.11.13.7.b. List data received in a table using lifetime, stored 100 hr,
         // active 100hr for columns, and categories for rows.
@@ -702,8 +710,7 @@ public class Part11Step13Controller extends StepController {
         // request SPN 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1
         // - Total) for each active 100hr NOx binning PG, followed by each Stored 100 hr PG
         // Label
-        List<GenericPacket> nOx100HourPackets = requestPackets(module.getSourceAddress(),
-                                                               nOx100HourSps);
+        var nOx100HourPackets = requestPackets(module.getSourceAddress(), nOx100HourSps);
 
         if (nOx100HourPackets.isEmpty()) {
             // 6.11.13.4.a. For all MY2024+ Diesel engines, Fail each PG query where no response was received.

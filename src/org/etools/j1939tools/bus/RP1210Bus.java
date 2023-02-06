@@ -21,6 +21,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -84,7 +85,11 @@ public class RP1210Bus implements Bus {
 
     private boolean imposterDetected;
 
-    private final Consumer<String> errorFn;
+    public enum ErrorType {
+        IMPOSTER, OTHER
+    }
+
+    private final BiConsumer<ErrorType, String> errorFn;
 
     private final Adapter adapter;
 
@@ -96,7 +101,7 @@ public class RP1210Bus implements Bus {
                      String connectionString,
                      int address,
                      boolean appPacketize,
-                     Consumer<String> errorFn) throws BusException {
+                     BiConsumer<ErrorType, String> errorFn) throws BusException {
         this(RP1210Library.load(adapter),
              Executors.newSingleThreadExecutor(nameThreadFactory("RP1210 decoding")),
              Executors.newSingleThreadExecutor(nameThreadFactory("RP1210 processing")),
@@ -129,7 +134,7 @@ public class RP1210Bus implements Bus {
                      int address,
                      boolean appPacketize,
                      Logger logger,
-                     Consumer<String> errorFn) throws BusException {
+                     BiConsumer<ErrorType, String> errorFn) throws BusException {
         this.rp1210Library = rp1210Library;
         this.decodingExecutor = decodingExecutor;
         this.rp1210Executor = rp1210Executor;
@@ -358,7 +363,7 @@ public class RP1210Bus implements Bus {
             Thread.yield();
         } catch (BusException e) {
             logger.log(Level.SEVERE, "Failed to read RP1210", e);
-            errorFn.accept("Failed to read RP1210, restarting: " + e.getMessage());
+            errorFn.accept(ErrorType.OTHER, "Failed to read RP1210, restarting: " + e.getMessage());
             try {
                 close();
             } catch (Exception e2) {
@@ -366,7 +371,7 @@ public class RP1210Bus implements Bus {
             try {
                 start();
             } catch (BusException e1) {
-                errorFn.accept("Failed to reconnect RP1210, restarting: " + e.getMessage());
+                errorFn.accept(ErrorType.OTHER, "Failed to reconnect RP1210, restarting: " + e.getMessage());
             }
         }
         rp1210Executor.submit(this::poll);
@@ -378,7 +383,7 @@ public class RP1210Bus implements Bus {
             // logger.log(Level.FINE, packet.toTimeString());
             if (packet.getSource() == getAddress() && !packet.isTransmitted()) {
                 logger.log(Level.WARNING, "Another ECU is using this address: " + packet);
-                errorFn.accept("Another ECU is using this address: " + packet);
+                errorFn.accept(ErrorType.IMPOSTER, "Another ECU is using this address: " + packet);
 
                 imposterDetected = true;
             }

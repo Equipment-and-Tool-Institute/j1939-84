@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -154,7 +154,7 @@ public class RP1210 {
     static public Bus createBus(Adapter adapter,
                                 String connectionString,
                                 int address,
-                                Consumer<String> errorFn) throws BusException {
+                                BiConsumer<RP1210Bus.ErrorType, String> errorFn) throws BusException {
         return new J1939TP(new RP1210Bus(adapter, connectionString, address, true, errorFn), address, true);
     }
 

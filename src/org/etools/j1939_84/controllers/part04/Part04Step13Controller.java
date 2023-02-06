@@ -42,7 +42,7 @@ public class Part04Step13Controller extends StepController {
              new EngineSpeedModule(),
              new VehicleInformationModule(),
              new CommunicationsModule(),
-             new SectionA5Verifier(false, PART_NUMBER, STEP_NUMBER));
+             new SectionA5Verifier( PART_NUMBER, STEP_NUMBER));
     }
 
     Part04Step13Controller(Executor executor,

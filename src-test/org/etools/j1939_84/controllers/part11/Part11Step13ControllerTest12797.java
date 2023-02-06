@@ -151,45 +151,45 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
                        1);
         dataRepository.putObdModule(obdModule0);
 
-        GenericPacket response64241 = new GenericPacket(Packet.create(0xFAF1,
-                                                                      0x00,
-                                                                      // @formatter:off
+        GenericPacket response64241 = newGenericPacket(Packet.create(0xFAF1,
+                                                                     0x00,
+                                                                     // @formatter:off
                                                                       0xF0, 0x6A, 0x67, 0x01, 0xD8, 0x79, 0x43, 0x01,
                                                                       0x1C, 0x9F, 0xE9, 0x00));
         // @formatter:on
-         obdModule0.set(response64241, 2);
+        obdModule0.set(response64241, 2);
         when(communicationsModule.request(eq(64241),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64241));
 
-        GenericPacket response64242 = new GenericPacket(Packet.create(0xFAF2,
-                                                                      0x00,
-                                                                      0xA0,
-                                                                      0x8C,
-                                                                      0x10,
-                                                                      0x0E,
-                                                                      0x68,
-                                                                      0x5B,
-                                                                      0xFF,
-                                                                      0xFF));
+        GenericPacket response64242 = newGenericPacket(Packet.create(0xFAF2,
+                                                                     0x00,
+                                                                     0xA0,
+                                                                     0x8C,
+                                                                     0x10,
+                                                                     0x0E,
+                                                                     0x68,
+                                                                     0x5B,
+                                                                     0xFF,
+                                                                     0xFF));
         // @formatter:on
-         obdModule0.set(response64242, 2);
+        obdModule0.set(response64242, 2);
         when(communicationsModule.request(eq(64242),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64242));
 
-        GenericPacket response64243 = new GenericPacket(Packet.create(0xFAF3,
-                                                                      0x00,
-                                                                      0x78,
-                                                                      0x69,
-                                                                      0x8C,
-                                                                      0x0A,
-                                                                      0x8E,
-                                                                      0x44,
-                                                                      0xFF,
-                                                                      0xFF));
+        GenericPacket response64243 = newGenericPacket(Packet.create(0xFAF3,
+                                                                     0x00,
+                                                                     0x78,
+                                                                     0x69,
+                                                                     0x8C,
+                                                                     0x0A,
+                                                                     0x8E,
+                                                                     0x44,
+                                                                     0xFF,
+                                                                     0xFF));
         // @formatter:on
-         obdModule0.set(response64243, 2);
+        obdModule0.set(response64243, 2);
         when(communicationsModule.request(eq(64243),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64243));
@@ -250,9 +250,9 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
                        1);
         dataRepository.putObdModule(obdModule0);
 
-        GenericPacket response64241 = new GenericPacket(Packet.create(0xFAF1,
-                                                                      0x00,
-                                                                      // @formatter:off
+        GenericPacket response64241 = newGenericPacket(Packet.create(0xFAF1,
+                                                                     0x00,
+                                                                     // @formatter:off
                                                                       0xF0, 0x6A, 0x67, 0x01, 0xD8, 0x79, 0x43, 0x01,
                                                                       0x1C, 0x9F, 0xE9, 0x00));
         // @formatter:on
@@ -261,44 +261,44 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64241));
 
-        GenericPacket response64242 = new GenericPacket(Packet.create(0xFAF2,
-                                                                      0x00,
-                                                                      0xA0,
-                                                                      0x8C,
-                                                                      0x10,
-                                                                      0x0E,
-                                                                      0x68,
-                                                                      0x5B,
-                                                                      0xFF,
-                                                                      0xFF));
+        GenericPacket response64242 = newGenericPacket(Packet.create(0xFAF2,
+                                                                     0x00,
+                                                                     0xA0,
+                                                                     0x8C,
+                                                                     0x10,
+                                                                     0x0E,
+                                                                     0x68,
+                                                                     0x5B,
+                                                                     0xFF,
+                                                                     0xFF));
         // @formatter:on
 
-        GenericPacket response64242Part2 = new GenericPacket(Packet.create(0xFAF2,
-                                                                      0x00,
-                                                                      0xA0,
-                                                                      0x8C,
-                                                                      0x10,
-                                                                      0x1E,
-                                                                      0x68,
-                                                                      0x5B,
-                                                                      0xFF,
-                                                                      0xFF));
+        GenericPacket response64242Part2 = newGenericPacket(Packet.create(0xFAF2,
+                                                                          0x00,
+                                                                          0xA0,
+                                                                          0x8C,
+                                                                          0x10,
+                                                                          0x1E,
+                                                                          0x68,
+                                                                          0x5B,
+                                                                          0xFF,
+                                                                          0xFF));
         // @formatter:on
         obdModule0.set(response64242Part2, 2);
         when(communicationsModule.request(eq(64242),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64242));
 
-        GenericPacket response64243 = new GenericPacket(Packet.create(0xFAF3,
-                                                                      0x00,
-                                                                      0x78,
-                                                                      0x69,
-                                                                      0x8C,
-                                                                      0x0A,
-                                                                      0x8E,
-                                                                      0x44,
-                                                                      0xFF,
-                                                                      0xFF));
+        GenericPacket response64243 = newGenericPacket(Packet.create(0xFAF3,
+                                                                     0x00,
+                                                                     0x78,
+                                                                     0x69,
+                                                                     0x8C,
+                                                                     0x0A,
+                                                                     0x8E,
+                                                                     0x44,
+                                                                     0xFF,
+                                                                     0xFF));
         // @formatter:on
         obdModule0.set(response64243, 2);
         when(communicationsModule.request(eq(64243),
@@ -310,7 +310,10 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
         verify(communicationsModule).request(eq(64242), eq(0x00), any(CommunicationsListener.class));
         verify(communicationsModule).request(eq(64243), eq(0x00), any(CommunicationsListener.class));
 
-        verify(mockListener).addOutcome(eq(11), eq(13), eq(FAIL), eq("6.11.13.16.d - Value received from Engine #1 (0) for SPN 12795, Hybrid Stored 100 Hour Idle Propulsion System Active Time: 36000.000 s in part 2 was greater than part 11 value"));
+        verify(mockListener).addOutcome(eq(11),
+                                        eq(13),
+                                        eq(FAIL),
+                                        eq("6.11.13.16.d - Value received from Engine #1 (0) for SPN 12795, Hybrid Stored 100 Hour Idle Propulsion System Active Time: 36000.000 s in part 2 was greater than part 11 value"));
 
         String expected = "10:15:30.0000 GHG Tracking Arrays from Engine #1 (0)" + NL;
         expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
@@ -363,9 +366,9 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
                        1);
         dataRepository.putObdModule(obdModule0);
 
-        GenericPacket response64241 = new GenericPacket(Packet.create(0xFAF1,
-                                                                      0x00,
-                                                                      // @formatter:off
+        GenericPacket response64241 = newGenericPacket(Packet.create(0xFAF1,
+                                                                     0x00,
+                                                                     // @formatter:off
                                                                       0xF0, 0x6A, 0x67, 0x01, 0xD8, 0x79, 0x43, 0x01,
                                                                       0x1C, 0x9F, 0xE9, 0x00));
         // @formatter:on
@@ -374,32 +377,32 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64241));
 
-        GenericPacket response64242 = new GenericPacket(Packet.create(0xFAF2,
-                                                                      0x00,
-                                                                      0xA0,
-                                                                      0x8C,
-                                                                      0x10,
-                                                                      0x0E,
-                                                                      0xFC,
-                                                                      0xFF,
-                                                                      0xFF,
-                                                                      0xFF));
+        GenericPacket response64242 = newGenericPacket(Packet.create(0xFAF2,
+                                                                     0x00,
+                                                                     0xA0,
+                                                                     0x8C,
+                                                                     0x10,
+                                                                     0x0E,
+                                                                     0xFC,
+                                                                     0xFF,
+                                                                     0xFF,
+                                                                     0xFF));
         // @formatter:on
         obdModule0.set(response64242, 2);
         when(communicationsModule.request(eq(64242),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64242));
 
-        GenericPacket response64243 = new GenericPacket(Packet.create(0xFAF3,
-                                                                      0x00,
-                                                                      0x78,
-                                                                      0x69,
-                                                                      0x8C,
-                                                                      0x0A,
-                                                                      0x8E,
-                                                                      0x44,
-                                                                      0xFF,
-                                                                      0xFF));
+        GenericPacket response64243 = newGenericPacket(Packet.create(0xFAF3,
+                                                                     0x00,
+                                                                     0x78,
+                                                                     0x69,
+                                                                     0x8C,
+                                                                     0x0A,
+                                                                     0x8E,
+                                                                     0x44,
+                                                                     0xFF,
+                                                                     0xFF));
         // @formatter:on
         obdModule0.set(response64243, 2);
         when(communicationsModule.request(eq(64243),
@@ -411,7 +414,10 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
         verify(communicationsModule).request(eq(64242), eq(0x00), any(CommunicationsListener.class));
         verify(communicationsModule).request(eq(64243), eq(0x00), any(CommunicationsListener.class));
 
-        verify(mockListener).addOutcome(eq(11), eq(13), eq(FAIL), eq("6.11.13.16.c - Bin value received is greater than 0xFAFF(h) from Engine #1 (0) for SPN 12796, Hybrid Stored 100 Hour Urban Propulsion System Active Time : Not Available"));
+        verify(mockListener).addOutcome(eq(11),
+                                        eq(13),
+                                        eq(FAIL),
+                                        eq("6.11.13.16.c - Bin value received is greater than 0xFAFF(h) from Engine #1 (0) for SPN 12796, Hybrid Stored 100 Hour Urban Propulsion System Active Time : Not Available"));
 
         String expected = "10:15:30.0000 GHG Tracking Arrays from Engine #1 (0)" + NL;
         expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
@@ -464,9 +470,9 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
                        1);
         dataRepository.putObdModule(obdModule0);
 
-        GenericPacket response64241 = new GenericPacket(Packet.create(0xFAF1,
-                                                                      0x00,
-                                                                      // @formatter:off
+        GenericPacket response64241 = newGenericPacket(Packet.create(0xFAF1,
+                                                                     0x00,
+                                                                     // @formatter:off
                                                                       0xF0, 0x6A, 0x67, 0x01, 0xD8, 0x79, 0x43, 0x01,
                                                                       0x1C, 0x9F, 0xE9, 0x00));
         // @formatter:on
@@ -475,32 +481,32 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64241));
 
-        GenericPacket response64242 = new GenericPacket(Packet.create(0xFAF2,
-                                                                      0x00,
-                                                                      0xA0,
-                                                                      0x8C,
-                                                                      0x10,
-                                                                      0x0E,
-                                                                      0x68,
-                                                                      0x5B,
-                                                                      0xFF,
-                                                                      0xFF));
+        GenericPacket response64242 = newGenericPacket(Packet.create(0xFAF2,
+                                                                     0x00,
+                                                                     0xA0,
+                                                                     0x8C,
+                                                                     0x10,
+                                                                     0x0E,
+                                                                     0x68,
+                                                                     0x5B,
+                                                                     0xFF,
+                                                                     0xFF));
         // @formatter:on
         obdModule0.set(response64242, 2);
         when(communicationsModule.request(eq(64242),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.empty());
 
-        GenericPacket response64243 = new GenericPacket(Packet.create(0xFAF3,
-                                                                      0x00,
-                                                                      0x78,
-                                                                      0x69,
-                                                                      0x8C,
-                                                                      0x0A,
-                                                                      0x8E,
-                                                                      0x44,
-                                                                      0xFF,
-                                                                      0xFF));
+        GenericPacket response64243 = newGenericPacket(Packet.create(0xFAF3,
+                                                                     0x00,
+                                                                     0x78,
+                                                                     0x69,
+                                                                     0x8C,
+                                                                     0x0A,
+                                                                     0x8E,
+                                                                     0x44,
+                                                                     0xFF,
+                                                                     0xFF));
         // @formatter:on
         obdModule0.set(response64243, 2);
         when(communicationsModule.request(eq(64243),
@@ -512,7 +518,10 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
         verify(communicationsModule).request(eq(64242), eq(0x00), any(CommunicationsListener.class));
         verify(communicationsModule).request(eq(64243), eq(0x00), any(CommunicationsListener.class));
 
-        verify(mockListener).addOutcome(eq(11), eq(13), eq(FAIL), eq("6.11.13.16.a - No response was received from Engine #1 (0)"));
+        verify(mockListener).addOutcome(eq(11),
+                                        eq(13),
+                                        eq(FAIL),
+                                        eq("6.11.13.16.a - No response was received from Engine #1 (0)"));
 
         String expected = "10:15:30.0000 GHG Tracking Arrays from Engine #1 (0)" + NL;
         expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
@@ -565,9 +574,9 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
                        1);
         dataRepository.putObdModule(obdModule0);
 
-        GenericPacket response64241 = new GenericPacket(Packet.create(0xFAF1,
-                                                                      0x00,
-                                                                      // @formatter:off
+        GenericPacket response64241 = newGenericPacket(Packet.create(0xFAF1,
+                                                                     0x00,
+                                                                     // @formatter:off
                                                                       0xF0, 0x6A, 0x67, 0x01, 0xD8, 0x79, 0x43, 0x01,
                                                                       0x1C, 0x9F, 0xE9, 0x00));
         // @formatter:on
@@ -576,32 +585,32 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64241));
 
-        GenericPacket response64242 = new GenericPacket(Packet.create(0xFAF2,
-                                                                      0x00,
-                                                                      0xA0,
-                                                                      0x8C,
-                                                                      0x10,
-                                                                      0x0E,
-                                                                      0x68,
-                                                                      0x5B,
-                                                                      0xFF,
-                                                                      0xFF));
+        GenericPacket response64242 = newGenericPacket(Packet.create(0xFAF2,
+                                                                     0x00,
+                                                                     0xA0,
+                                                                     0x8C,
+                                                                     0x10,
+                                                                     0x0E,
+                                                                     0x68,
+                                                                     0x5B,
+                                                                     0xFF,
+                                                                     0xFF));
         // @formatter:on
         obdModule0.set(response64242, 2);
         when(communicationsModule.request(eq(64242),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.empty());
 
-        GenericPacket response64243 = new GenericPacket(Packet.create(0xFAF3,
-                                                                      0x00,
-                                                                      0x78,
-                                                                      0x69,
-                                                                      0x8C,
-                                                                      0x0A,
-                                                                      0x8E,
-                                                                      0x44,
-                                                                      0xFF,
-                                                                      0xFF));
+        GenericPacket response64243 = newGenericPacket(Packet.create(0xFAF3,
+                                                                     0x00,
+                                                                     0x78,
+                                                                     0x69,
+                                                                     0x8C,
+                                                                     0x0A,
+                                                                     0x8E,
+                                                                     0x44,
+                                                                     0xFF,
+                                                                     0xFF));
         // @formatter:on
         obdModule0.set(response64243, 2);
         when(communicationsModule.request(eq(64243),
@@ -613,7 +622,10 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
         verify(communicationsModule).request(eq(64242), eq(0x00), any(CommunicationsListener.class));
         verify(communicationsModule).request(eq(64243), eq(0x00), any(CommunicationsListener.class));
 
-        verify(mockListener).addOutcome(eq(11), eq(13), eq(WARN), eq("6.11.13.16.b - No response was received from Engine #1 (0)"));
+        verify(mockListener).addOutcome(eq(11),
+                                        eq(13),
+                                        eq(WARN),
+                                        eq("6.11.13.16.b - No response was received from Engine #1 (0)"));
 
         String expected = "10:15:30.0000 GHG Tracking Arrays from Engine #1 (0)" + NL;
         expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
@@ -666,16 +678,16 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
                        1);
         dataRepository.putObdModule(obdModule0);
 
-        GenericPacket response64241 = new GenericPacket(Packet.create(0xFAF1,
-                                                                      0x00,
-                                                                      // @formatter:off
+        GenericPacket response64241 = newGenericPacket(Packet.create(0xFAF1,
+                                                                     0x00,
+                                                                     // @formatter:off
                                                                       0xF0, 0x6A, 0x67, 0x01, 0xD8, 0x79, 0x43, 0x01,
                                                                       0x1C, 0x9F, 0xE9, 0x00));
         // @formatter:on
 
-        GenericPacket response64241Part2 = new GenericPacket(Packet.create(0xFAF1,
-                                                                      0x00,
-                                                                      // @formatter:off
+        GenericPacket response64241Part2 = newGenericPacket(Packet.create(0xFAF1,
+                                                                          0x00,
+                                                                          // @formatter:off
                                                                       0xF0, 0x6A, 0x67, 0x01, 0xD8, 0x79, 0x63, 0x01,
                                                                       0x1C, 0x9F, 0xE9, 0x00));
         // @formatter:on
@@ -684,32 +696,32 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64241));
 
-        GenericPacket response64242 = new GenericPacket(Packet.create(0xFAF2,
-                                                                      0x00,
-                                                                      0xA0,
-                                                                      0x8C,
-                                                                      0x10,
-                                                                      0x0E,
-                                                                      0x68,
-                                                                      0x5B,
-                                                                      0xFF,
-                                                                      0xFF));
+        GenericPacket response64242 = newGenericPacket(Packet.create(0xFAF2,
+                                                                     0x00,
+                                                                     0xA0,
+                                                                     0x8C,
+                                                                     0x10,
+                                                                     0x0E,
+                                                                     0x68,
+                                                                     0x5B,
+                                                                     0xFF,
+                                                                     0xFF));
         // @formatter:on
         obdModule0.set(response64242, 2);
         when(communicationsModule.request(eq(64242),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64242));
 
-        GenericPacket response64243 = new GenericPacket(Packet.create(0xFAF3,
-                                                                      0x00,
-                                                                      0x78,
-                                                                      0x69,
-                                                                      0x8C,
-                                                                      0x0A,
-                                                                      0x8E,
-                                                                      0x44,
-                                                                      0xFF,
-                                                                      0xFF));
+        GenericPacket response64243 = newGenericPacket(Packet.create(0xFAF3,
+                                                                     0x00,
+                                                                     0x78,
+                                                                     0x69,
+                                                                     0x8C,
+                                                                     0x0A,
+                                                                     0x8E,
+                                                                     0x44,
+                                                                     0xFF,
+                                                                     0xFF));
         // @formatter:on
         obdModule0.set(response64243, 2);
         when(communicationsModule.request(eq(64243),
@@ -721,7 +733,10 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
         verify(communicationsModule).request(eq(64242), eq(0x00), any(CommunicationsListener.class));
         verify(communicationsModule).request(eq(64243), eq(0x00), any(CommunicationsListener.class));
 
-        verify(mockListener).addOutcome(eq(11), eq(13), eq(FAIL), eq("6.11.13.14.c - Value received from Engine #1 (0) for SPN 12798, Hybrid Lifetime Idle Propulsion System Active Time : 21199320.000 s in part 2 was greater than part 11 value"));
+        verify(mockListener).addOutcome(eq(11),
+                                        eq(13),
+                                        eq(FAIL),
+                                        eq("6.11.13.14.c - Value received from Engine #1 (0) for SPN 12798, Hybrid Lifetime Idle Propulsion System Active Time : 21199320.000 s in part 2 was greater than part 11 value"));
 
         String expected = "10:15:30.0000 GHG Tracking Arrays from Engine #1 (0)" + NL;
         expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
@@ -773,9 +788,9 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
                                                    supportedSPN),
                        1);
 
-        GenericPacket response64241 = new GenericPacket(Packet.create(0xFAF1,
-                                                                      0x00,
-                                                                      // @formatter:off
+        GenericPacket response64241 = newGenericPacket(Packet.create(0xFAF1,
+                                                                     0x00,
+                                                                     // @formatter:off
                                                                       0xFC, 0xFF, 0xFF, 0xFF, 0xD8, 0x79, 0x43, 0x01,
                                                                       0x1C, 0x9F, 0xE9, 0x00));
         // @formatter:on
@@ -784,32 +799,32 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64241));
 
-        GenericPacket response64242 = new GenericPacket(Packet.create(0xFAF2,
-                                                                      0x00,
-                                                                      0xA0,
-                                                                      0x8C,
-                                                                      0x10,
-                                                                      0x0E,
-                                                                      0x68,
-                                                                      0x5B,
-                                                                      0xFF,
-                                                                      0xFF));
+        GenericPacket response64242 = newGenericPacket(Packet.create(0xFAF2,
+                                                                     0x00,
+                                                                     0xA0,
+                                                                     0x8C,
+                                                                     0x10,
+                                                                     0x0E,
+                                                                     0x68,
+                                                                     0x5B,
+                                                                     0xFF,
+                                                                     0xFF));
         // @formatter:on
         obdModule0.set(response64242, 2);
         when(communicationsModule.request(eq(64242),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64242));
 
-        GenericPacket response64243 = new GenericPacket(Packet.create(0xFAF3,
-                                                                      0x00,
-                                                                      0x78,
-                                                                      0x69,
-                                                                      0x8C,
-                                                                      0x0A,
-                                                                      0x8E,
-                                                                      0x44,
-                                                                      0xFF,
-                                                                      0xFF));
+        GenericPacket response64243 = newGenericPacket(Packet.create(0xFAF3,
+                                                                     0x00,
+                                                                     0x78,
+                                                                     0x69,
+                                                                     0x8C,
+                                                                     0x0A,
+                                                                     0x8E,
+                                                                     0x44,
+                                                                     0xFF,
+                                                                     0xFF));
         // @formatter:on
         obdModule0.set(response64243, 2);
         when(communicationsModule.request(eq(64243),
@@ -824,7 +839,10 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
         verify(communicationsModule).request(eq(64242), eq(0x00), any(CommunicationsListener.class));
         verify(communicationsModule).request(eq(64243), eq(0x00), any(CommunicationsListener.class));
 
-        verify(mockListener).addOutcome(eq(11), eq(13), eq(FAIL), eq("6.11.13.14.b - Bin value received is greater than 0xFAFFFFFF(h) from Engine #1 (0) for SPN 12797, Hybrid Lifetime Propulsion System Active Time : Not Available"));
+        verify(mockListener).addOutcome(eq(11),
+                                        eq(13),
+                                        eq(FAIL),
+                                        eq("6.11.13.14.b - Bin value received is greater than 0xFAFFFFFF(h) from Engine #1 (0) for SPN 12797, Hybrid Lifetime Propulsion System Active Time : Not Available"));
 
         String expected = "10:15:30.0000 GHG Tracking Arrays from Engine #1 (0)" + NL;
         expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
@@ -877,9 +895,9 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
                        1);
         dataRepository.putObdModule(obdModule0);
 
-        GenericPacket response64241 = new GenericPacket(Packet.create(0xFAF1,
-                                                                      0x00,
-                                                                      // @formatter:off
+        GenericPacket response64241 = newGenericPacket(Packet.create(0xFAF1,
+                                                                     0x00,
+                                                                     // @formatter:off
                                                                       0xF0, 0x6A, 0x67, 0x01, 0xD8, 0x79, 0x43, 0x01,
                                                                       0x1C, 0x9F, 0xE9, 0x00));
         // @formatter:on
@@ -888,32 +906,32 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.empty());
 
-        GenericPacket response64242 = new GenericPacket(Packet.create(0xFAF2,
-                                                                      0x00,
-                                                                      0xA0,
-                                                                      0x8C,
-                                                                      0x10,
-                                                                      0x0E,
-                                                                      0x68,
-                                                                      0x5B,
-                                                                      0xFF,
-                                                                      0xFF));
+        GenericPacket response64242 = newGenericPacket(Packet.create(0xFAF2,
+                                                                     0x00,
+                                                                     0xA0,
+                                                                     0x8C,
+                                                                     0x10,
+                                                                     0x0E,
+                                                                     0x68,
+                                                                     0x5B,
+                                                                     0xFF,
+                                                                     0xFF));
         // @formatter:on
         obdModule0.set(response64242, 2);
         when(communicationsModule.request(eq(64242),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64242));
 
-        GenericPacket response64243 = new GenericPacket(Packet.create(0xFAF3,
-                                                                      0x00,
-                                                                      0x78,
-                                                                      0x69,
-                                                                      0x8C,
-                                                                      0x0A,
-                                                                      0x8E,
-                                                                      0x44,
-                                                                      0xFF,
-                                                                      0xFF));
+        GenericPacket response64243 = newGenericPacket(Packet.create(0xFAF3,
+                                                                     0x00,
+                                                                     0x78,
+                                                                     0x69,
+                                                                     0x8C,
+                                                                     0x0A,
+                                                                     0x8E,
+                                                                     0x44,
+                                                                     0xFF,
+                                                                     0xFF));
         // @formatter:on
         obdModule0.set(response64243, 2);
         when(communicationsModule.request(eq(64243),
@@ -925,7 +943,10 @@ public class Part11Step13ControllerTest12797 extends AbstractControllerTest {
         verify(communicationsModule).request(eq(64242), eq(0x00), any(CommunicationsListener.class));
         verify(communicationsModule).request(eq(64243), eq(0x00), any(CommunicationsListener.class));
 
-        verify(mockListener).addOutcome(eq(11), eq(13), eq(WARN), eq("6.11.13.14.a - No response was received from Engine #1 (0)"));
+        verify(mockListener).addOutcome(eq(11),
+                                        eq(13),
+                                        eq(WARN),
+                                        eq("6.11.13.14.a - No response was received from Engine #1 (0)"));
 
         String expected = "10:15:30.0000 GHG Tracking Arrays from Engine #1 (0)" + NL;
         expected += "|--------------------------------+-------------+-------------+-------------|" + NL;

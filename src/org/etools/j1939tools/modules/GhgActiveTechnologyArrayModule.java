@@ -25,7 +25,7 @@ public class GhgActiveTechnologyArrayModule {
     private final static int columnWidth = 12;
     private final static int descriptionWidth = 35;
 
-    public String format(List<GenericPacket> packets) {
+    public String format(List<GhgActiveTechnologyPacket> packets) {
         String moduleName = packets.get(0).getModuleName();
 
         String result = "";
@@ -36,7 +36,7 @@ public class GhgActiveTechnologyArrayModule {
         return result;
     }
 
-    private String printTechnologyArray(List<GenericPacket> packets) {
+    private String printTechnologyArray(List<GhgActiveTechnologyPacket> packets) {
         var pgns = new ArrayList<>();
         for (GenericPacket packet : packets) {
             pgns.add(packet.getPgnDefinition().getId());
@@ -50,7 +50,7 @@ public class GhgActiveTechnologyArrayModule {
         return "";
     }
 
-    private String printTechnologyArray(List<GenericPacket> packets,
+    private String printTechnologyArray(List<GhgActiveTechnologyPacket> packets,
                                         int activeArrayPg,
                                         int storedArrayPg,
                                         int lifetimeArrayPg) {
@@ -174,12 +174,9 @@ public class GhgActiveTechnologyArrayModule {
         return format(decimalFormat.format(value));
     }
 
-    private ActiveTechnology getActiveTechnology(int pgn, int index, List<GenericPacket> packets) {
+    private ActiveTechnology getActiveTechnology(int pgn, int index, List<GhgActiveTechnologyPacket> packets) {
         return packets.stream()
                       .filter(p -> p.getPacket().getPgn() == pgn)
-                      .map(p -> pgn == 64257
-                              ? new GhgLifetimeActiveTechnologyPacket(p.getPacket())
-                              : new GhgActiveTechnologyPacket(p.getPacket()))
                       .flatMap(p -> p.getActiveTechnologies().stream())
                       .filter(t -> t.getIndex() == index)
                       .findFirst()

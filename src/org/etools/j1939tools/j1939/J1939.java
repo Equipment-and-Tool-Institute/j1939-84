@@ -75,6 +75,7 @@ import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.j1939.packets.TotalVehicleDistancePacket;
 import org.etools.j1939tools.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939tools.modules.DateTimeModule;
+import org.etools.j1939tools.modules.GhgTrackingModule;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -323,7 +324,7 @@ public class J1939 {
         return read(time, unit).map(p -> processRaw(p.getPgn(), p));
     }
 
-    private ParsedPacket processRaw(int pgn, Packet packet) {
+    static public ParsedPacket processRaw(int pgn, Packet packet) {
         switch (pgn) {
 
             case DM1ActiveDTCsPacket.PGN:
@@ -425,11 +426,20 @@ public class J1939 {
             case VehicleIdentificationPacket.PGN:
                 return new VehicleIdentificationPacket(packet);
 
-            case 64255:
-            case 64256:
+            case GhgTrackingModule.GHG_STORED_100_HR:
+            case GhgTrackingModule.GHG_STORED_GREEN_HOUSE_100_HR:
+            case GhgTrackingModule.GHG_STORED_HYBRID_100_HR:
+            case GhgTrackingModule.GHG_STORED_HYBRID_CHG_DEPLETING_100_HR:
+            case GhgTrackingModule.GHG_ACTIVE_100_HR:
+            case GhgTrackingModule.GHG_ACTIVE_GREEN_HOUSE_100_HR:
+            case GhgTrackingModule.GHG_ACTIVE_HYBRID_100_HR:
+            case GhgTrackingModule.GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR:
                 return new GhgActiveTechnologyPacket(packet);
 
-            case 64257:
+            case GhgTrackingModule.GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG:
+            case GhgTrackingModule.GHG_TRACKING_LIFETIME_HYBRID_PG:
+            case GhgTrackingModule.GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG:
+            case GhgTrackingModule.GHG_TRACKING_LIFETIME_PG:
                 return new GhgLifetimeActiveTechnologyPacket(packet);
 
             default:
@@ -637,7 +647,7 @@ public class J1939 {
 
     static private Predicate<Packet> after(Packet sent) {
         return new Predicate<Packet>() {
-        	// sent == null for TP requests and some tests
+            // sent == null for TP requests and some tests
             boolean pass = sent == null;
 
             @Override

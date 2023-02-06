@@ -90,7 +90,7 @@ public class RP1210BusTest {
                                  ADDRESS,
                                  true,
                                  logger,
-                                 msg -> {
+                                 (type, msg) -> {
                                  });
     }
 
@@ -679,7 +679,7 @@ public class RP1210BusTest {
     public static void main(String... args) throws Exception {
         Adapter adapter = new Adapter("Nexiq USBLink 2", "NULN2R32", (short) 1);
         final int TOOL = 0xFA;
-        try (RP1210Bus bus = new RP1210Bus(adapter, "J1939:Baud=Auto", TOOL, true, msg -> {
+        try (RP1210Bus bus = new RP1210Bus(adapter, "J1939:Baud=Auto", TOOL, true, (type, msg) -> {
         })) {
 
             Stream<Packet> in = bus.read(1, TimeUnit.DAYS);

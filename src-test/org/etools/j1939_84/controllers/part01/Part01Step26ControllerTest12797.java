@@ -861,7 +861,7 @@ public class Part01Step26ControllerTest12797 extends AbstractControllerTest {
         packets.add(packet1);
 
         List<GenericPacket> responses = new ArrayList<>();
-        GenericPacket response64241 = new GenericPacket(Packet.create(0xFAF1,
+        GenericPacket response64241 = newGenericPacket(Packet.create(0xFAF1,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF0, 0x6A, 0x67, 0x01, 0xD8, 0x79, 0x43, 0x01,
@@ -872,7 +872,7 @@ public class Part01Step26ControllerTest12797 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64241));
 
-        GenericPacket response64242 = new GenericPacket(Packet.create(0xFAF2,
+        GenericPacket response64242 = newGenericPacket(Packet.create(0xFAF2,
                                                                       0x00,
                                                                       0xA0,
                                                                       0x8C,
@@ -888,7 +888,7 @@ public class Part01Step26ControllerTest12797 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64242));
 
-        GenericPacket response64243 = new GenericPacket(Packet.create(0xFAF3,
+        GenericPacket response64243 = newGenericPacket(Packet.create(0xFAF3,
                                                                       0x00,
                                                                       0x78,
                                                                       0x69,
@@ -1027,7 +1027,7 @@ public class Part01Step26ControllerTest12797 extends AbstractControllerTest {
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.empty());
 
         List<GenericPacket> responses = new ArrayList<>();
-        GenericPacket response64242 = new GenericPacket(Packet.create(0xFAF2,
+        GenericPacket response64242 = newGenericPacket(Packet.create(0xFAF2,
                                                                       0x00,
                                                                       0xA0,
                                                                       0x8C,
@@ -1043,7 +1043,7 @@ public class Part01Step26ControllerTest12797 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64242));
 
-        GenericPacket response64243 = new GenericPacket(Packet.create(0xFAF3,
+        GenericPacket response64243 = newGenericPacket(Packet.create(0xFAF3,
                                                                       0x00,
                                                                       0x78,
                                                                       0x69,
@@ -1180,7 +1180,7 @@ public class Part01Step26ControllerTest12797 extends AbstractControllerTest {
         packets.add(packet1);
 
         List<GenericPacket> responses = new ArrayList<>();
-        GenericPacket response64241 = new GenericPacket(Packet.create(0xFAF1,
+        GenericPacket response64241 = newGenericPacket(Packet.create(0xFAF1,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF0, 0x6A, 0x67, 0x01, 0xD8, 0x79, 0x43, 0x01,
@@ -1321,7 +1321,7 @@ public class Part01Step26ControllerTest12797 extends AbstractControllerTest {
         packets.add(packet1);
 
         List<GenericPacket> responses = new ArrayList<>();
-        GenericPacket response64241 = new GenericPacket(Packet.create(0xFAF1,
+        GenericPacket response64241 = newGenericPacket(Packet.create(0xFAF1,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0xF0, 0x6A, 0x67, 0x01, 0xD8, 0x79, 0x43, 0x01,

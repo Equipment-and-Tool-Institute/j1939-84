@@ -35,32 +35,28 @@ import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.utils.CollectionUtils;
 
 public class SectionA5NoxGhgVerifier extends SectionVerifier {
-    private final boolean afterClear;
-
-    SectionA5NoxGhgVerifier(boolean afterClear, int partNumber, int stepNumber) {
-        this(true,
-             DataRepository.getInstance(),
+    SectionA5NoxGhgVerifier(int partNumber, int stepNumber) {
+        this(DataRepository.getInstance(),
              new CommunicationsModule(),
              new VehicleInformationModule(),
              partNumber,
              stepNumber);
     }
 
-    protected SectionA5NoxGhgVerifier(boolean afterClear,
-                                      DataRepository dataRepository,
+    protected SectionA5NoxGhgVerifier(DataRepository dataRepository,
                                       CommunicationsModule communicationsModule,
                                       VehicleInformationModule vehInfoModule,
                                       int partNumber,
                                       int stepNumber) {
 
         super(dataRepository, communicationsModule, vehInfoModule, partNumber, stepNumber);
-        this.afterClear = afterClear;
     }
 
     public void verifyDataSpn12730(ResultsListener listener,
                                    int partNumber,
                                    int stepNumber,
-                                   List<GenericPacket> packets) {
+                                   List<GenericPacket> packets,
+                                   boolean isErased) {
         listener.onProgress(partNumber,
                             stepNumber,
                             "A.5.3 - Checking GHG spn values against previous spn values");
@@ -81,14 +77,15 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
         // should be no less than their corresponding part 2 values at any other time.
         List<Integer> pgs = new ArrayList<>();
         pgs.add(GHG_ACTIVE_100_HR);
-        verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgs, packets);
+        verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgs, packets, isErased);
 
     }
 
     public void verifyDataSpn12675(ResultsListener listener,
                                    int partNumber,
                                    int stepNumber,
-                                   List<GenericPacket> packets) {
+                                   List<GenericPacket> packets,
+                                   boolean isErased) {
         listener.onProgress(partNumber,
                             stepNumber,
                             "A.5.3 - Checking NOx spn values against previous spn values");
@@ -109,14 +106,15 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
         // The SPNs in the following following messages shall be equal to zero only after global DM11 command. They
         // should be no less than their corresponding part 2 values at any other time.
         List<Integer> pgs = Arrays.stream(NOx_TRACKING_ACTIVE_100_HOURS_PGs).boxed().collect(Collectors.toList());
-        verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgs, packets);
+        verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgs, packets, isErased);
 
     }
 
     public void verifyDataSpn12691(ResultsListener listener,
                                    int partNumber,
                                    int stepNumber,
-                                   List<GenericPacket> packets) {
+                                   List<GenericPacket> packets,
+                                   boolean isErased) {
         listener.onProgress(partNumber,
                             stepNumber,
                             "A.5.3 - Checking GHG spn values against previous spn values");
@@ -137,14 +135,15 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
         // should be no less than their corresponding part 2 values at any other time.
         List<Integer> pgns = new ArrayList<>();
         pgns.add(GHG_ACTIVE_GREEN_HOUSE_100_HR);
-        verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgns, packets);
+        verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgns, packets, isErased);
 
     }
 
     public void verifyDataSpn12797(ResultsListener listener,
                                    int partNumber,
                                    int stepNumber,
-                                   List<GenericPacket> packets) {
+                                   List<GenericPacket> packets,
+                                   boolean isErased) {
         listener.onProgress(partNumber,
                             stepNumber,
                             "A.5.3 - Checking GHG spn values against previous spn values");
@@ -165,14 +164,15 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
         // should be no less than their corresponding part 2 values at any other time.
         List<Integer> pgs = new ArrayList<>();
         pgs.add(GHG_ACTIVE_HYBRID_100_HR);
-        verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgs, packets);
+        verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgs, packets, isErased);
 
     }
 
     public void verifyDataSpn12783(ResultsListener listener,
                                    int partNumber,
                                    int stepNumber,
-                                   List<GenericPacket> packets) {
+                                   List<GenericPacket> packets,
+                                   boolean isErased) {
         listener.onProgress(partNumber,
                             stepNumber,
                             "A.5.3 - Checking GHG spn values against previous spn values");
@@ -192,7 +192,7 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
         // should be no less than their corresponding part 2 values at any other time.
         List<Integer> pgs = new ArrayList<>();
         pgs.add(GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR);
-        verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgs, packets);
+        verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgs, packets, isErased);
     }
 
     private void verifyPgValuesSameAsTwo(int partNumber,
@@ -208,7 +208,7 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
                     listener.addOutcome(partNumber,
                                         stepNumber,
                                         Outcome.INFO,
-                                        "Section A.5.A - Massage from part 2 for PG "
+                                        "Section A.5.A - Message from part 2 for PG "
                                                 + packet.getPgnDefinition().getId()
                                                 + " is missing so verification of values skipped");
                 }
@@ -234,8 +234,9 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
                                     int stepNumber,
                                     ResultsListener listener,
                                     List<Integer> pgns,
-                                    List<GenericPacket> packets) {
-        if (afterClear) {
+                                    List<GenericPacket> packets,
+                                    boolean isErased) {
+        if (isErased) {
             packets.forEach(packet -> {
                 if (pgns.contains(packet.getPgnDefinition().getId())) {
                     packet.getSpns().forEach(spn -> {

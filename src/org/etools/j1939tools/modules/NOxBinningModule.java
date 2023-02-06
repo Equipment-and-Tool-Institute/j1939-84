@@ -3,7 +3,6 @@ package org.etools.j1939tools.modules;
 import static org.etools.j1939_84.J1939_84.NL;
 
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,6 +12,7 @@ import java.util.stream.Stream;
 import org.etools.j1939tools.j1939.Lookup;
 import org.etools.j1939tools.j1939.model.Spn;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.GhgActiveTechnologyPacket;
 import org.etools.j1939tools.utils.StringUtils;
 
 public class NOxBinningModule {

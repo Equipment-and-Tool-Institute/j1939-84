@@ -264,7 +264,7 @@ public class Part02Step17ControllerTest12691 extends AbstractControllerTest {
 
         verify(broadcastValidator).getMaximumBroadcastPeriod();
         verify(broadcastValidator).buildPGNPacketsMap(List.of());
-//        verify(broadcastValidator).buildPGNPacketsMap(List.of(packet2));
+        // verify(broadcastValidator).buildPGNPacketsMap(List.of(packet2));
 
         verify(broadcastValidator).reportBroadcastPeriod(eq(Map.of()),
                                                          eq(List.of(111,
@@ -766,7 +766,15 @@ public class Part02Step17ControllerTest12691 extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(2),
                                         eq(17),
                                         eq(FAIL),
-                                        eq("6.2.17.18.f - Active labels received is not an equivalent set of lifetime labels"));
+                                        eq("6.2.17.18.e - Number of stored labels received differs from the number of lifetime labels"));
+        verify(mockListener).addOutcome(eq(2),
+                                        eq(17),
+                                        eq(FAIL),
+                                        eq("6.2.17.18.e - Number of active labels received differs from the number of lifetime labels"));
+        verify(mockListener).addOutcome(eq(2),
+                                        eq(17),
+                                        eq(FAIL),
+                                        eq("6.2.17.18.f - Stored labels received is not a subset of lifetime labels"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -896,7 +904,19 @@ public class Part02Step17ControllerTest12691 extends AbstractControllerTest {
         when(busMock.imposterDetected()).thenReturn(false);
 
         runTest();
-
+        verify(mockListener).addOutcome(eq(2),
+                                        eq(17),
+                                        eq(FAIL),
+                                        eq("6.2.17.18.e - Number of active labels received differs from the number of lifetime labels"));
+        verify(mockListener).addOutcome(eq(2),
+                                        eq(17),
+                                        eq(FAIL),
+                                        eq("6.2.17.18.e - Number of stored labels received differs from the number of lifetime labels"));
+        verify(mockListener).addOutcome(eq(2),
+                                        eq(17),
+                                        eq(FAIL),
+                                        eq("6.2.17.18.f - Active labels received is not a subset of lifetime labels"));
+        
         verify(broadcastValidator).getMaximumBroadcastPeriod();
         verify(broadcastValidator).buildPGNPacketsMap(packets);
         verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
@@ -920,14 +940,15 @@ public class Part02Step17ControllerTest12691 extends AbstractControllerTest {
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
         verify(busService).getPGNsForDSRequest(any(), any());
 
-//        verify(mockListener).addOutcome(eq(2),
-//                                        eq(17),
-//                                        eq(FAIL),
-//                                        eq("6.2.17.18.g - Active 100 hr array value received was greater than zero from Engine #1 (0) for SPN SPN 12696, GHG Tracking Active 100 Hour Active Technology Vehicle Distance: 8704.000 km"));
-//        verify(mockListener).addOutcome(eq(2),
-//                                        eq(17),
-//                                        eq(FAIL),
-//                                        eq("6.2.17.18.f - Active labels received is not an equivalent set of lifetime labels"));
+        // verify(mockListener).addOutcome(eq(2),
+        // eq(17),
+        // eq(FAIL),
+        // eq("6.2.17.18.g - Active 100 hr array value received was greater than zero from Engine #1 (0) for SPN SPN
+        // 12696, GHG Tracking Active 100 Hour Active Technology Vehicle Distance: 8704.000 km"));
+        // verify(mockListener).addOutcome(eq(2),
+        // eq(17),
+        // eq(FAIL),
+        // eq("6.2.17.18.f - Active labels received is not a subset of lifetime labels"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -1095,14 +1116,6 @@ public class Part02Step17ControllerTest12691 extends AbstractControllerTest {
                                         eq(17),
                                         eq(FAIL),
                                         eq("6.2.17.18.e - Number of stored labels received differs from the number of lifetime labels"));
-        verify(mockListener).addOutcome(eq(2),
-                                        eq(17),
-                                        eq(FAIL),
-                                        eq("6.2.17.18.f - Stored labels received is not an equivalent set of lifetime labels"));
-        verify(mockListener).addOutcome(eq(2),
-                                        eq(17),
-                                        eq(FAIL),
-                                        eq("6.2.17.18.f - Active labels received is not an equivalent set of lifetime labels"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -1268,15 +1281,6 @@ public class Part02Step17ControllerTest12691 extends AbstractControllerTest {
                                         eq(17),
                                         eq(FAIL),
                                         eq("6.2.17.18.e - Number of stored labels received differs from the number of lifetime labels"));
-        verify(mockListener).addOutcome(eq(2),
-                                        eq(17),
-                                        eq(FAIL),
-                                        eq("6.2.17.18.f - Active labels received is not an equivalent set of lifetime labels"));
-        verify(mockListener).addOutcome(eq(2),
-                                        eq(17),
-                                        eq(FAIL),
-                                        eq("6.2.17.18.f - Stored labels received is not an equivalent set of lifetime labels"));
-
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -1406,6 +1410,15 @@ public class Part02Step17ControllerTest12691 extends AbstractControllerTest {
         when(busMock.imposterDetected()).thenReturn(false);
 
         runTest();
+
+        verify(mockListener).addOutcome(eq(2),
+                                        eq(17),
+                                        eq(FAIL),
+                                        eq("6.2.17.18.e - Number of active labels received differs from the number of lifetime labels"));
+        verify(mockListener).addOutcome(eq(2),
+                                        eq(17),
+                                        eq(FAIL),
+                                        eq("6.2.17.18.e - Number of stored labels received differs from the number of lifetime labels"));
 
         verify(broadcastValidator).getMaximumBroadcastPeriod();
         verify(broadcastValidator).buildPGNPacketsMap(packets);
@@ -1582,8 +1595,20 @@ public class Part02Step17ControllerTest12691 extends AbstractControllerTest {
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
         verify(busService).getPGNsForDSRequest(any(), any());
 
-        verify(mockListener).addOutcome(eq(2), eq(17), eq(INFO), eq("6.2.17.16.c - Message from part 1 is missing so verification of values skipped"));
-
+        verify(mockListener).addOutcome(eq(2),
+                                        eq(17),
+                                        eq(INFO),
+                                        eq("6.2.17.16.c - Message from part 1 is missing so verification of values skipped"));
+        verify(mockListener).addOutcome(eq(2),
+                                        eq(17),
+                                        eq(FAIL),
+                                        eq("6.2.17.18.e - Number of active labels received differs from the number of lifetime labels"));
+        verify(mockListener).addOutcome(eq(2),
+                                        eq(17),
+                                        eq(FAIL),
+                                        eq("6.2.17.18.e - Number of stored labels received differs from the number of lifetime labels"));
+        
+        
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
                                                                        any(ResultsListener.class),
@@ -1753,11 +1778,11 @@ public class Part02Step17ControllerTest12691 extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(2),
                                         eq(17),
                                         eq(FAIL),
-                                        eq("6.2.17.18.f - Active labels received is not an equivalent set of lifetime labels"));
+                                        eq("6.2.17.18.f - Active labels received is not a subset of lifetime labels"));
         verify(mockListener).addOutcome(eq(2),
                                         eq(17),
                                         eq(FAIL),
-                                        eq("6.2.17.18.f - Stored labels received is not an equivalent set of lifetime labels"));
+                                        eq("6.2.17.18.f - Stored labels received is not a subset of lifetime labels"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -1799,7 +1824,7 @@ public class Part02Step17ControllerTest12691 extends AbstractControllerTest {
 
     }
 
-     @Test
+    @Test
     public void testRunObdPgnSupports12691FailureSixteenC() {
         final int supportedSpn = 12691;
 
@@ -1852,7 +1877,7 @@ public class Part02Step17ControllerTest12691 extends AbstractControllerTest {
                                                                          0x00, 0x00, 0x00, 0x00, 0x00,
                                                                          0x00, 0x00, 0x00, 0x00, 0x00));
          // @formatter:on
-         obdModule0.set(response64257P1, 1);
+        obdModule0.set(response64257P1, 1);
         when(communicationsModule.request(eq(64257),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
@@ -1923,7 +1948,14 @@ public class Part02Step17ControllerTest12691 extends AbstractControllerTest {
                                         eq(17),
                                         eq(FAIL),
                                         eq("6.2.17.16.c - Value received from Engine #1 (0) for SPN 12692, GHG Tracking Lifetime Active Technology Time: 0.000 s  in part 1 was greater than part 2 value"));
-
+        verify(mockListener).addOutcome(eq(2),
+                                        eq(17),
+                                        eq(FAIL),
+                                        eq("6.2.17.18.e - Number of stored labels received differs from the number of lifetime labels"));
+        verify(mockListener).addOutcome(eq(2),
+                                        eq(17),
+                                        eq(FAIL),
+                                        eq("6.2.17.18.e - Number of active labels received differs from the number of lifetime labels"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -2080,8 +2112,19 @@ public class Part02Step17ControllerTest12691 extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(2),
                                         eq(17),
                                         eq(FAIL),
-                                        eq("6.2.17.18.c - Bin value received is greater than 0xFAh and less than 0xFFh from Engine #1 (0) for SPN 12697, GHG Tracking Stored 100 Hour Active Technology Index: Unknown FB"));
-        verify(mockListener).addOutcome(eq(2), eq(17), eq(FAIL), eq("6.2.17.18.f - Active labels received is not an equivalent set of lifetime labels"));
+                                        eq("6.2.17.18.c - Bin value FBh is greater than FAh and less than FFh from Engine #1 (0) for SPN 12697, GHG Tracking Stored 100 Hour Active Technology Index: Unknown FB"));
+        verify(mockListener).addOutcome(eq(2),
+                                        eq(17),
+                                        eq(FAIL),
+                                        eq("6.2.17.18.e - Number of active labels received differs from the number of lifetime labels"));
+        verify(mockListener).addOutcome(eq(2),
+                                        eq(17),
+                                        eq(FAIL),
+                                        eq("6.2.17.18.e - Number of stored labels received differs from the number of lifetime labels"));
+        verify(mockListener).addOutcome(eq(2),
+                                        eq(17),
+                                        eq(FAIL),
+                                        eq("6.2.17.18.f - Stored labels received is not a subset of lifetime labels"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -2123,6 +2166,7 @@ public class Part02Step17ControllerTest12691 extends AbstractControllerTest {
         assertEquals(expectedMsg, listener.getMessages());
 
     }
+
     @Test
     public void testUiInterruptionFailure() {
         // SPNs

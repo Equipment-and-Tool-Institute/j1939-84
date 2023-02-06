@@ -37,6 +37,7 @@ import org.etools.j1939tools.bus.EchoBus;
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.bus.RP1210;
 import org.etools.j1939tools.bus.RP1210Bus;
+import org.etools.j1939tools.bus.RP1210Bus.ErrorType;
 import org.etools.j1939tools.j1939.J1939;
 
 /**
@@ -533,12 +534,20 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
             return RP1210.createBus(selectedAdapter,
                                     connectionString,
                                     address,
-                                    msg -> {
+                                    (type, msg) -> {
+                                        getResultsListener().onResult("RP1210 ERROR: " + msg);
                                         getReportFileModule().onResult("RP1210 ERROR: " + msg);
-                                        getResultsListener().onUrgentMessage(msg, "RP1210 ERROR", MessageType.ERROR);
+                                        if (!imposterReported && type == ErrorType.IMPOSTER) {
+                                            imposterReported = true;
+                                            getResultsListener().onUrgentMessage(msg,
+                                                                                 "RP1210 ERROR",
+                                                                                 MessageType.ERROR);
+                                        }
                                     });
         }
     }
+
+    private boolean imposterReported;
 
     private UserInterfaceContract.View getView() {
         return view;

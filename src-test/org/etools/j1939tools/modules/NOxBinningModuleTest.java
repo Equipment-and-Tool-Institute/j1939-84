@@ -1,16 +1,17 @@
 package org.etools.j1939tools.modules;
 
-import org.etools.j1939tools.bus.Packet;
-import org.etools.j1939tools.j1939.packets.GenericPacket;
-import org.junit.Before;
-import org.junit.Test;
+import static junit.framework.TestCase.assertEquals;
+import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.etools.j1939_84.J1939_84.NL;
+import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.junit.Before;
+import org.junit.Test;
 
 public class NOxBinningModuleTest {
 
@@ -281,7 +282,9 @@ public class NOxBinningModuleTest {
                                   0xBF, 0x04, 0x00, 0x00));
         // @formatter:on
 
-        var genericPackets = packets.stream().map(GenericPacket::new).collect(Collectors.toList());
+        var genericPackets = packets.stream()
+                                    .map(p -> (GenericPacket) J1939.processRaw(p.getPgn(), p))
+                                    .collect(Collectors.toList());
 
         String actual = instance.format(genericPackets);
 

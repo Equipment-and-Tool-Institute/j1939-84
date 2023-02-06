@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import org.etools.j1939tools.j1939.model.Spn;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.GhgActiveTechnologyPacket;
 import org.etools.j1939tools.utils.StringUtils;
 
 public class GhgTrackingArrayModule {
@@ -20,7 +21,7 @@ public class GhgTrackingArrayModule {
 
     private final DecimalFormat decimalFormat = new DecimalFormat("#,##0");
 
-    public String format(List<GenericPacket> packets) {
+    public String format(List<GhgActiveTechnologyPacket> packets) {
 
         String moduleName = packets.get(0).getModuleName();
 
@@ -31,7 +32,7 @@ public class GhgTrackingArrayModule {
         return result;
     }
 
-    public String formatXevTable(List<GenericPacket> packets) {
+    public String formatXevTable(List<GhgActiveTechnologyPacket> packets) {
 
         String moduleName = packets.get(0).getModuleName();
 
@@ -42,7 +43,7 @@ public class GhgTrackingArrayModule {
         return result;
     }
 
-    private String printXevTrackingArray(List<GenericPacket> packets) {
+    private String printXevTrackingArray(List<GhgActiveTechnologyPacket> packets) {
         int headerRows = 2;
         int[] columnWidths = { 25, 12, 12, 12 };
         boolean[] leftPad = { true, false, false, false };
@@ -68,7 +69,8 @@ public class GhgTrackingArrayModule {
         return printTable(packets, headerRows, columnWidths, leftPad, table);
     }
 
-    private String printTable(List<GenericPacket> packets,
+    private String
+            printTable(List<? extends GhgActiveTechnologyPacket> packets,
                               int headerRows,
                               int[] columnWidths,
                               boolean[] leftPad,
@@ -102,7 +104,7 @@ public class GhgTrackingArrayModule {
         return s;
     }
 
-    private String printTrackingArray(List<GenericPacket> packets) {
+    private String printTrackingArray(List<GhgActiveTechnologyPacket> packets) {
 
         int headerRows = 2;
         int[] columnWidths = {25, 12, 12, 12};
@@ -131,7 +133,7 @@ public class GhgTrackingArrayModule {
         return printTable(packets, headerRows, columnWidths, leftPad, table);
     }
 
-    private String getSpnValue(List<GenericPacket> packets, int spnId) {
+    private String getSpnValue(List<? extends GenericPacket> packets, int spnId) {
         return packets.stream()
                       .map(p -> p.getSpn(spnId))
                       .filter(Optional::isPresent)

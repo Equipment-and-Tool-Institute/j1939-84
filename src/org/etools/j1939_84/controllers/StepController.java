@@ -49,12 +49,14 @@ import org.etools.j1939tools.j1939.packets.DiagnosticReadinessPacket;
 import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.GhgActiveTechnologyPacket;
 import org.etools.j1939tools.j1939.packets.LampStatus;
 import org.etools.j1939tools.j1939.packets.MonitoredSystem;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.j1939.packets.Slot;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
+import org.etools.j1939tools.modules.GhgTrackingModule;
 
 public abstract class StepController extends Controller {
 
@@ -437,76 +439,72 @@ public abstract class StepController extends Controller {
                                                                 Spn spn,
                                                                 Outcome outcome,
                                                                 String section) {
-        long lowerLimit = 0xFFL;
-        long upperLimit = 0xFFL;
-        String lowerLimitString = "";
-        String upperLimitString = "";
-        String spnValueInHex = "";
+        long lowerLimit = 0;
+        long upperLimit = 0;
+        String fmt = "ERROR";
         switch (spn.getSlot().getByteLength()) {
             case 1:
                 lowerLimit = 0xFAL;
                 upperLimit = 0xFFL;
-                lowerLimitString = String.format("0x%01X", lowerLimit);
-                upperLimitString = String.format("0x%01X", upperLimit);
+                fmt = "%02X";
                 break;
 
             case 2:
                 lowerLimit = 0xFAFFL;
                 upperLimit = 0xFFFFL;
-                lowerLimitString = String.format("0x%02X", lowerLimit);
-                lowerLimitString = String.format("0x%02X", upperLimit);
+                fmt = "%04X";
                 break;
 
             case 3:
                 lowerLimit = 0xFAFFFFL;
-                upperLimit = 0xFAFFFFL;
-                lowerLimitString = String.format("0x%03X", lowerLimit);
-                upperLimitString = String.format("0x%03X", upperLimit);
+                upperLimit = 0xFFFFFFL;
+                fmt = "%06X";
                 break;
 
             case 4:
                 lowerLimit = 0xFAFFFFFFL;
                 upperLimit = 0xFFFFFFFFL;
-                lowerLimitString = String.format("0x%04X", lowerLimit);
-                upperLimitString = String.format("0x%04X", upperLimit);
+                fmt = "%08X";
                 break;
 
             case 5:
                 lowerLimit = 0xFAFFFFFFFFL;
                 upperLimit = 0xFFFFFFFFFFL;
-                lowerLimitString = String.format("0x%05X", lowerLimit);
-                upperLimitString = String.format("0x%05X", upperLimit);
+                fmt = "%010X";
                 break;
 
             case 6:
                 lowerLimit = 0xFAFFFFFFFFFFL;
                 upperLimit = 0xFFFFFFFFFFFFL;
-                lowerLimitString = String.format("0x%06X", lowerLimit);
-                upperLimitString = String.format("0x%06X", upperLimit);
+                fmt = "%012X";
                 break;
 
             case 7:
                 lowerLimit = 0xFAFFFFFFFFFFFFL;
                 upperLimit = 0xFFFFFFFFFFFFFFL;
-                lowerLimitString = String.format("0x%07X", lowerLimit);
-                upperLimitString = String.format("0x%07X", upperLimit);
+                fmt = "%014X";
                 break;
 
             case 8:
                 lowerLimit = 0xFAFFFFFFFFFFFFFFL;
                 upperLimit = 0xFFFFFFFFFFFFFFFFL;
-                lowerLimitString = String.format("0x%08X", lowerLimit);
-                upperLimitString = String.format("0x%08X", upperLimit);
+                fmt = "%016X";
                 break;
 
             default:
+                addInfo("Unknown slot size " + spn);
                 break;
 
         }
         if (spn.getRawValue() > lowerLimit && spn.getRawValue() < upperLimit) {
-            addFailure(section + " - Bin value received is greater than "
-                    + lowerLimitString + "h and less than " + upperLimitString
-                    + "h from " + module.getModuleName() + " for " + spn);
+            String fmtStr = String.format("%s - Bin value %sh is greater than %sh and less than %sh from %s for %s",
+                                          section,
+                                          fmt,
+                                          fmt,
+                                          fmt,
+                                          module.getModuleName(),
+                                          spn);
+            addFailure(String.format(fmtStr, spn.getRawValue(), lowerLimit, upperLimit));
         }
     }
 
