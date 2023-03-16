@@ -25,6 +25,7 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -77,9 +78,10 @@ public class Part12Step06ControllerTest extends AbstractControllerTest {
 
     private StepController instance;
 
+    DataRepository dataRepository = DataRepository.newInstance();
+
     @Before
     public void setUp() throws Exception {
-        DataRepository dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
 
         instance = new Part12Step06Controller(executor,
@@ -205,6 +207,7 @@ public class Part12Step06ControllerTest extends AbstractControllerTest {
         var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
         var dm1_0 = DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc);
 
+        dataRepository.putObdModule(new OBDModuleInformation(0));
         when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
                                        eq(3),
                                        eq(SECONDS),

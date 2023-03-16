@@ -128,9 +128,7 @@ public class Part11Step13Controller extends StepController {
         // Engine off) for
         // PG 64244 Hybrid Charge Depleting or Increasing Operation Lifetime Hours
         int[] pgns = { GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG };
-        var lifetimeHybridChgDepletingPkgs = requestPackets(module.getSourceAddress(), pgns).stream()
-                                                                                            .map(p -> (GhgActiveTechnologyPacket) p)
-                                                                                            .collect(Collectors.toList());
+        var lifetimeHybridChgDepletingPkgs = requestPackets(module.getSourceAddress(), pgns);
         if (lifetimeHybridChgDepletingPkgs.isEmpty()) {
             // 6.11.13.18.a. Fail PG query where no response was received
             addFailure("6.11.13.18.a - No response was received from "
@@ -176,9 +174,7 @@ public class Part11Step13Controller extends StepController {
         // PG PG Label
         // 64246 Hybrid Charge Depleting or Increasing Operation Active 100 Hours - PG Acronym HCDIOA
         // 64245 Hybrid Charge Depleting or Increasing Operation Stored 100 Hours - - PG Acronym HCDIOS
-        var hybridChargeOpsPackets = requestPackets(module.getSourceAddress(), pgns1).stream()
-                                                                                     .map(p -> (GhgActiveTechnologyPacket) p)
-                                                                                     .collect(Collectors.toList());
+        var hybridChargeOpsPackets = requestPackets(module.getSourceAddress(), pgns1);
 
         // 6.11.13.19.b - List data received in a table using lifetime, stored 100 hr, active 100hr for columns, and
         // categories for rows.
@@ -239,9 +235,7 @@ public class Part11Step13Controller extends StepController {
         // SP 12797 (Hybrid Lifetime Propulsion System Active Time) for 64241 PSA Times
         // Lifetime Hours
         int[] pgns = { GHG_TRACKING_LIFETIME_HYBRID_PG };
-        var ghgTrackingPackets = requestPackets(module.getSourceAddress(), pgns).stream()
-                                                                                .map(p -> (GhgActiveTechnologyPacket) p)
-                                                                                .collect(Collectors.toList());
+        var ghgTrackingPackets = requestPackets(module.getSourceAddress(), pgns);
 
         if (ghgTrackingPackets.isEmpty()) {
             // 6.11.13.14.a - Fail PG query where no response was received.
@@ -283,9 +277,7 @@ public class Part11Step13Controller extends StepController {
         // PG PG Label
         // 64242 PSA Times Stored 100 Hours - PG Acronym PSATS
         // 64243 PSA Times Active 100 Hours - PG Acronym PSATA
-        var ghgPackets = requestPackets(module.getSourceAddress(), pgns1).stream()
-                                                                         .map(p -> (GhgActiveTechnologyPacket) p)
-                                                                         .collect(Collectors.toList());
+        var ghgPackets = requestPackets(module.getSourceAddress(), pgns1);
 
         // 6.11.13.13.b - List data received in a table using lifetime, stored 100 hr, active 100hr for columns, and
         // categories for rows.
@@ -342,9 +334,7 @@ public class Part11Step13Controller extends StepController {
         // Tracking Lifetime Engine Run
         // Time) for PG 64252 GHG Tracking Lifetime Array Data.
         int[] pgns = { GHG_TRACKING_LIFETIME_PG };
-        var ghgTrackingLifetimePackets = requestPackets(module.getSourceAddress(), pgns).stream()
-                                                                                        .map(p -> (GhgActiveTechnologyPacket) p)
-                                                                                        .collect(Collectors.toList());
+        var ghgTrackingLifetimePackets = requestPackets(module.getSourceAddress(), pgns);
 
         if (ghgTrackingLifetimePackets.isEmpty()) {
             // 6.11.13.6.a. Fail PG query where no response was received
@@ -389,9 +379,7 @@ public class Part11Step13Controller extends StepController {
         // PG Label
         // 64254 GHG Tracking Active 100 Hour Array Data
         // 64253 GHG Tracking Stored 100 Hour Array Data
-        var ghgTrackingPackets = requestPackets(module.getSourceAddress(), pgns1).stream()
-                                                                                 .map(p -> (GhgActiveTechnologyPacket) p)
-                                                                                 .collect(Collectors.toList());
+        var ghgTrackingPackets = requestPackets(module.getSourceAddress(), pgns1);
 
         // 6.11.13.7.b. List data received in a table using lifetime, stored 100 hr,
         // active 100hr for columns, and categories for rows.

@@ -25,7 +25,7 @@ public class GhgActiveTechnologyArrayModule {
     private final static int columnWidth = 12;
     private final static int descriptionWidth = 35;
 
-    public String format(List<GhgActiveTechnologyPacket> packets) {
+    public String format(List<GenericPacket> packets) {
         String moduleName = packets.get(0).getModuleName();
 
         String result = "";
@@ -36,21 +36,15 @@ public class GhgActiveTechnologyArrayModule {
         return result;
     }
 
-    private String printTechnologyArray(List<GhgActiveTechnologyPacket> packets) {
+    private String printTechnologyArray(List<GenericPacket> packets) {
         var pgns = new ArrayList<>();
         for (GenericPacket packet : packets) {
             pgns.add(packet.getPgnDefinition().getId());
         }
-        if (pgns.contains(64256) || pgns.contains(64255) || pgns.contains(64257)) {
-            return printTechnologyArray(packets, 64256, 64255, 64257);
-        }
-        if (pgns.contains(64253) || pgns.contains(64254)) {
-            return printTechnologyArray(packets, 64254, 64253, 0);
-        }
-        return "";
+        return printTechnologyArray(packets, 64256, 64255, 64257);
     }
 
-    private String printTechnologyArray(List<GhgActiveTechnologyPacket> packets,
+    private String printTechnologyArray(List<GenericPacket> packets,
                                         int activeArrayPg,
                                         int storedArrayPg,
                                         int lifetimeArrayPg) {
@@ -78,44 +72,6 @@ public class GhgActiveTechnologyArrayModule {
         }
         sb.append(spacer1).append(NL);
         return sb.toString();
-    }
-
-    private String getSpnValue(List<GenericPacket> packets, int spnId) {
-        return packets.stream()
-                      .map(p -> p.getSpn(spnId))
-                      .filter(Optional::isPresent)
-                      .map(Optional::get)
-                      .map(this::printSpn)
-                      .map(v -> {
-                          if ("Not Available".equals(v)) {
-                              return "N/A";
-                          } else {
-                              return v;
-                          }
-                      })
-                      .findFirst()
-                      .orElse("");
-    }
-
-    private int parseSpnId(String cell) {
-        return Integer.parseInt(cell.replace("SPN_", "").replace(" ", ""));
-    }
-
-    private String printSpn(Spn spn) {
-        if (spn.isNotAvailable() || spn.isError()) {
-            return spn.getStringValue();
-        }
-
-        double value = spn.getValue();
-
-        String unit = spn.getSlot().getUnit();
-        if ("s".equals(unit)) {
-            value = value / 60; // Convert seconds to minutes
-        } else if ("m".equals(unit)) {
-            value = value / 1000; // Convert meters to kilometers
-        }
-
-        return decimalFormat.format(value);
     }
 
     private String writeLine(ActiveTechnology active, ActiveTechnology stored, ActiveTechnology lifetime) {
@@ -174,9 +130,10 @@ public class GhgActiveTechnologyArrayModule {
         return format(decimalFormat.format(value));
     }
 
-    private ActiveTechnology getActiveTechnology(int pgn, int index, List<GhgActiveTechnologyPacket> packets) {
+    private ActiveTechnology getActiveTechnology(int pgn, int index, List<GenericPacket> packets) {
         return packets.stream()
                       .filter(p -> p.getPacket().getPgn() == pgn)
+                      .map(p -> (GhgActiveTechnologyPacket) p)
                       .flatMap(p -> p.getActiveTechnologies().stream())
                       .filter(t -> t.getIndex() == index)
                       .findFirst()

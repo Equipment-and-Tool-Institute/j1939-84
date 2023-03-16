@@ -374,4 +374,19 @@ public class BroadcastValidatorTest {
 
         verify(dataRepository).getObdModules();
     }
+
+    @Test
+    public void testcollectAndReportNotAvailableSPNs() {
+        ResultsListener mockListener = mock(ResultsListener.class);
+        List<Integer> v = instance.collectAndReportNotAvailableSPNs(0,
+                                                                    List.of(new GenericPacket(Packet.parse("18FEC100 [8] FF FF FF FF 00 3B 0B 00"))), // foundPackets
+                                                                    List.of(917), // supportedSPNs
+                                                                    new ArrayList<>(List.of(0xFEC1)), // requiredPgns,
+                                                                    mockListener,
+                                                                    5,// partNumber
+                                                                    6,// stepNumber
+                                                                    "6.5.6"// section
+        );
+        assertEquals(List.of(), v);
+    }
 }

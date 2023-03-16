@@ -182,3 +182,6 @@
 ; DM59
 -3295,Continuous-MI Time While engine Operating,,1,,0,16
 -3296,Time Elapsed Since DTCs Were Erased,,1,,0,16
+
+; stray common SPNs without SLOTs
+-5600,Source Address,,1,,0,8

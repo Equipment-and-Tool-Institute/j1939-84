@@ -85,13 +85,12 @@ public class Part04Step03Controller extends StepController {
         packets.forEach(this::save);
 
         // 6.4.3.2.b Fail if any OBD ECU report does not include its DM12 DTCs in the list of active DTCs.
-
         for (OBDModuleInformation moduleInfo : getDataRepository().getObdModules()) {
             int moduleAddress = moduleInfo.getSourceAddress();
 
             packets.stream()
                    .filter(p -> p.getSourceAddress() == moduleAddress)
-                   .filter(p -> !p.getDtcs().equals(getDTCs(moduleAddress)))
+                   .filter(p -> !getDTCs(moduleAddress).stream().allMatch(d -> p.getDtcs().contains(d)))
                    .map(ParsedPacket::getModuleName)
                    .findFirst()
                    .ifPresent(moduleName -> addFailure("6.4.3.2.b - " + moduleName

@@ -426,20 +426,11 @@ public class J1939 {
             case VehicleIdentificationPacket.PGN:
                 return new VehicleIdentificationPacket(packet);
 
-            case GhgTrackingModule.GHG_STORED_100_HR:
             case GhgTrackingModule.GHG_STORED_GREEN_HOUSE_100_HR:
-            case GhgTrackingModule.GHG_STORED_HYBRID_100_HR:
-            case GhgTrackingModule.GHG_STORED_HYBRID_CHG_DEPLETING_100_HR:
-            case GhgTrackingModule.GHG_ACTIVE_100_HR:
             case GhgTrackingModule.GHG_ACTIVE_GREEN_HOUSE_100_HR:
-            case GhgTrackingModule.GHG_ACTIVE_HYBRID_100_HR:
-            case GhgTrackingModule.GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR:
                 return new GhgActiveTechnologyPacket(packet);
 
             case GhgTrackingModule.GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG:
-            case GhgTrackingModule.GHG_TRACKING_LIFETIME_HYBRID_PG:
-            case GhgTrackingModule.GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG:
-            case GhgTrackingModule.GHG_TRACKING_LIFETIME_PG:
                 return new GhgLifetimeActiveTechnologyPacket(packet);
 
             default:

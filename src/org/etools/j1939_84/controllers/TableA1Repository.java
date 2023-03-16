@@ -120,7 +120,7 @@ public class TableA1Repository {
             rows.add(new TableA1Row(3217, 2013, false, true, false, false, FAIL, FAIL, FAIL));
             rows.add(new TableA1Row(3227, 2013, false, true, false, false, FAIL, FAIL, FAIL));
             rows.add(new TableA1Row(166, 2022, true, true, false, false, FAIL, FAIL, FAIL));
-            rows.add(new TableA1Row(12744, 2024, true, true, false, false, FAIL, FAIL, FAIL));
+            rows.add(new TableA1Row(12744, 2024, false, true, false, false, FAIL, FAIL, FAIL));
             rows.add(new TableA1Row(12750, 2022, true, false, false, false, FAIL, FAIL, FAIL));
             rows.add(new TableA1Row(12751, 2022, true, false, false, false, FAIL, FAIL, FAIL));
             rows.add(new TableA1Row(4360, 2024, true, false, false, false, FAIL, FAIL, FAIL));

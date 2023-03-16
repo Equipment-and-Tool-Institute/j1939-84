@@ -82,16 +82,14 @@ public class J1939DaRepository {
      * These SPNs represent SP which appear in multiple PGs.
      */
     private final List<Integer> omittedSPNs = Collections.unmodifiableList(List.of(588,
+                                                                                   /*- 976, Why different than OBDModuleInformation? */
                                                                                    1213,
                                                                                    1220,
                                                                                    12675,
+                                                                                   /*- 12691, Why different than OBDModuleInformation? */
                                                                                    12730,
                                                                                    12783,
                                                                                    12797));
-
-    public List<Integer> getOmittedDataStreamSPNs() {
-        return omittedSPNs;
-    }
 
     public boolean isOmittedDataStreamSpS(int sp) {
         return omittedSPNs.contains(sp);

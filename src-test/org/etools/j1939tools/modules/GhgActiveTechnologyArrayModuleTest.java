@@ -119,7 +119,7 @@ public class GhgActiveTechnologyArrayModuleTest {
         // @formatter:on
 
         var genericPackets = packets.stream()
-                                    .map(p -> (GhgActiveTechnologyPacket) J1939.processRaw(p.getPgn(), p))
+                                    .map(p -> (GenericPacket) J1939.processRaw(p.getPgn(), p))
                                     .collect(Collectors.toList());
 
         String actual = instance.format(genericPackets);

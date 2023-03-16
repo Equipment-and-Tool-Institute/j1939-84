@@ -326,9 +326,6 @@ public class BroadcastValidator {
                         .forEach(message -> addFailure(listener, partNumber, stepNumber, section, message));
         }
 
-        // Find any Supported SPNs which has a value of Not Available
-        missingSpns.addAll(collectNotAvailableSPNs(supportedSPNs, foundPackets.stream()));
-
         return missingSpns;
     }
 

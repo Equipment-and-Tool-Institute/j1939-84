@@ -624,11 +624,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.setVehicleInformation(vehInfo);
 
         var packet = DM25ExpandedFreezeFrame.create(0);
-        when(communicationsModule.requestDM25(listener, 0 )).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM25(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM25(listener, SECTION, 0, true));
 
-        verify(communicationsModule).requestDM25(listener, 0 );
+        verify(communicationsModule).requestDM25(listener, 0);
     }
 
     @Test
@@ -643,7 +643,7 @@ public class SectionA5MessageVerifierTest {
 
         assertFalse(instance.checkDM25(listener, SECTION, 0, true));
 
-        verify(communicationsModule).requestDM25(listener, 0 );
+        verify(communicationsModule).requestDM25(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -658,11 +658,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM25ExpandedFreezeFrame.create(0, freezeFrame);
-        when(communicationsModule.requestDM25(listener, 0 )).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM25(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertTrue(instance.checkDM25(listener, SECTION, 0, false));
 
-        verify(communicationsModule).requestDM25(listener, 0 );
+        verify(communicationsModule).requestDM25(listener, 0);
     }
 
     @Test
@@ -673,11 +673,11 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var packet = DM25ExpandedFreezeFrame.create(0);
-        when(communicationsModule.requestDM25(listener, 0 )).thenReturn(BusResult.of(packet));
+        when(communicationsModule.requestDM25(listener, 0)).thenReturn(BusResult.of(packet));
 
         assertFalse(instance.checkDM25(listener, SECTION, 0, false));
 
-        verify(communicationsModule).requestDM25(listener, 0 );
+        verify(communicationsModule).requestDM25(listener, 0);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.2.3.4.a - Engine #1 (0) erased DM25 data");
     }
 
@@ -1097,6 +1097,14 @@ public class SectionA5MessageVerifierTest {
     }
 
     @Test
+    public void checkTestResultsAsErasedWithNACKSuccess() {
+        var moduleInfo1 = new OBDModuleInformation(0);
+        dataRepository.putObdModule(moduleInfo1);
+
+        assertTrue(instance.checkTestResults(listener, SECTION, 0, false));
+    }
+
+    @Test
     public void checkTestResultsAsErasedFailure() {
         var moduleInfo = new OBDModuleInformation(0);
         moduleInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, false, 0)), 1);
@@ -1160,7 +1168,8 @@ public class SectionA5MessageVerifierTest {
         var packet = IdleOperationPacket.create(0, 101);
         when(communicationsModule.request(eq(IdleOperationPacket.PGN),
                                           eq(0x00),
-                                          any(CommunicationsListener.class))).thenReturn(new BusResult<>(false, packet));
+                                          any(CommunicationsListener.class))).thenReturn(new BusResult<>(false,
+                                                                                                         packet));
 
         assertTrue(instance.checkEngineIdleTime(listener, SECTION, 0));
 
@@ -1178,7 +1187,8 @@ public class SectionA5MessageVerifierTest {
         var packet = IdleOperationPacket.create(0, 0);
         when(communicationsModule.request(eq(IdleOperationPacket.PGN),
                                           eq(0x00),
-                                          any(CommunicationsListener.class))).thenReturn(new BusResult<>(false, packet));
+                                          any(CommunicationsListener.class))).thenReturn(new BusResult<>(false,
+                                                                                                         packet));
 
         assertFalse(instance.checkEngineIdleTime(listener, SECTION, 0));
 
@@ -1206,7 +1216,7 @@ public class SectionA5MessageVerifierTest {
 
         var packet = EngineHoursPacket.create(0, 101);
         when(communicationsModule.request(eq(EngineHoursPacket.PGN), eq(0x00), any(CommunicationsListener.class)))
-                                                                                                                    .thenReturn(new BusResult<>(false,
+                                                                                                                  .thenReturn(new BusResult<>(false,
                                                                                                                                               packet));
 
         assertTrue(instance.checkEngineRunTime(listener, SECTION, 0));
@@ -1224,7 +1234,7 @@ public class SectionA5MessageVerifierTest {
 
         var packet = EngineHoursPacket.create(0, 0);
         when(communicationsModule.request(eq(EngineHoursPacket.PGN), eq(0x00), any(CommunicationsListener.class)))
-                                                                                                                    .thenReturn(new BusResult<>(false,
+                                                                                                                  .thenReturn(new BusResult<>(false,
                                                                                                                                               packet));
 
         assertFalse(instance.checkEngineRunTime(listener, SECTION, 0));

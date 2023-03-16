@@ -377,9 +377,6 @@ public class Part01Step26Controller extends StepController {
         // PG 64244 Hybrid Charge Depleting or Increasing Operation Lifetime Hours
         int[] pgns = { GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG };
         var ghgLifeTimePackets = requestPackets(module.getSourceAddress(), pgns).stream()
-                                                                                .map(p -> (GhgActiveTechnologyPacket) p)
-                                                                                .collect(Collectors.toList())
-                                                                                .stream()
                                                                                 // 6.1.26.23.b.
                                                                                 // Record
                                                                                 // each
@@ -418,9 +415,6 @@ public class Part01Step26Controller extends StepController {
         // 64245 Hybrid Charge Depleting or Increasing Operation Stored 100 Hours
         // PG Acronym HCDIOA HCDIOS
         var hybridChargeOpsPackets = requestPackets(module.getSourceAddress(), pgns1).stream()
-                                                                                     .map(p -> (GhgActiveTechnologyPacket) p)
-                                                                                     .collect(Collectors.toList())
-                                                                                     .stream()
                                                                                      // 6.1.26.25.b. Record
                                                                                      // each value for use in
                                                                                      // Part
@@ -468,9 +462,6 @@ public class Part01Step26Controller extends StepController {
         // Lifetime Hours
         int[] pgns = { GHG_TRACKING_LIFETIME_HYBRID_PG };
         var ghgTrackingPackets = requestPackets(module.getSourceAddress(), pgns).stream()
-                                                                                .map(p -> (GhgActiveTechnologyPacket) p)
-                                                                                .collect(Collectors.toList())
-                                                                                .stream()
                                                                                 // 6.1.26.19.b.
                                                                                 // Record
                                                                                 // each value for
@@ -509,9 +500,6 @@ public class Part01Step26Controller extends StepController {
         // for columns, and categories for rows.
         int[] hybridLifeTimePgs = { GHG_STORED_HYBRID_100_HR, GHG_ACTIVE_HYBRID_100_HR };
         var ghgPackets = requestPackets(module.getSourceAddress(), hybridLifeTimePgs).stream()
-                                                                                     .map(p -> (GhgActiveTechnologyPacket) p)
-                                                                                     .collect(Collectors.toList())
-                                                                                     .stream()
                                                                                      // 6.1.26.21.b.
                                                                                      // Record each
                                                                                      // value for use
@@ -558,9 +546,6 @@ public class Part01Step26Controller extends StepController {
         // Tracking Lifetime Engine Run Time) for PG 64252 GHG Tracking Lifetime Array Data.
         int[] pgns = { GHG_TRACKING_LIFETIME_PG };
         var ghgTrackingLifetimePackets = requestPackets(module.getSourceAddress(), pgns).stream()
-                                                                                        .map(p -> (GhgActiveTechnologyPacket) p)
-                                                                                        .collect(Collectors.toList())
-                                                                                        .stream()
                                                                                         .filter(Objects::nonNull)
                                                                                         // 6.1.26.11.b - Record each
                                                                                         // value
@@ -589,9 +574,6 @@ public class Part01Step26Controller extends StepController {
         // 64254 GHG Tracking Active 100 Hour Array Data
         // 64253 GHG Tracking Stored 100 Hour Array Data
         var ghgTrackingPackets = requestPackets(module.getSourceAddress(), pgns1).stream()
-                                                                                 .map(p -> (GhgActiveTechnologyPacket) p)
-                                                                                 .collect(Collectors.toList())
-                                                                                 .stream()
                                                                                  // 6.1.26.13.b. Record
                                                                                  // each value for use
                                                                                  // in Part 2.
@@ -645,12 +627,7 @@ public class Part01Step26Controller extends StepController {
         // PG 64257 Green House Gas Lifetime Active Technology Tracking.
         int[] pgns = { GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG };
         var lifetimeGhgPackets = requestPackets(module.getSourceAddress(), pgns).stream()
-                                                                                .map(p2 -> (GhgActiveTechnologyPacket) p2)
-                                                                                .collect(Collectors.toList())
-                                                                                .stream()
-                                                                                .map(p1 -> (GhgLifetimeActiveTechnologyPacket) p1)
-                                                                                .collect(Collectors.toList())
-                                                                                .stream()
+                                                                                .map(p -> (GhgLifetimeActiveTechnologyPacket) p)
                                                                                 // 6.1.26.15.b. Record
                                                                                 // each value for use
                                                                                 // in Part 2.
@@ -688,13 +665,16 @@ public class Part01Step26Controller extends StepController {
         // 64256 Green House Gas Active 100 Hour Active Technology Tracking
         // 64255 Green House Gas Stored 100 Hour Active Technology Tracking
         // PG Acronym GHGTTA GHGTTS
-        var ghg100HrPackets = requestGhgTechPackets(module.getSourceAddress())
-                                                                              .stream()
-                                                                              // 6.1.26.17.b. Record
-                                                                              // each value for use
-                                                                              // in Part 2.
-                                                                              .peek(this::save)
-                                                                              .collect(Collectors.toList());
+        var ghg100HrPackets = requestPackets(module.getSourceAddress(),
+                                             GHG_ACTIVE_GREEN_HOUSE_100_HR,
+                                             GHG_STORED_GREEN_HOUSE_100_HR)
+                                                                           .stream()
+                                                                           .map(p -> (GhgActiveTechnologyPacket) p)
+                                                                           // 6.1.26.17.b. Record
+                                                                           // each value for use
+                                                                           // in Part 2.
+                                                                           .peek(this::save)
+                                                                           .collect(Collectors.toList());
         if (!ghg100HrPackets.isEmpty() || !lifetimeGhgPackets.isEmpty()) {
             // 6.1.26.17.c. List data received in a table using lifetime, stored 100 hr,
             // active 100hr for columns, and categories for rows.
@@ -715,10 +695,11 @@ public class Part01Step26Controller extends StepController {
                         + module.getModuleName());
             }
         } else {
+            var indexes = List.of(12691, 12694, 12697);
             ghg100HrPackets.forEach(packet -> {
                 packet.getSpns().forEach(spn -> {
                     if (spn.hasValue()) {
-                        if (spn.getId() != 12691 && spn.getId() != 12694 && spn.getId() != 12697) {
+                        if (!indexes.contains(spn.getId())) {
                             // 6.1.26.18.c. Fail PG query where any bin value received is greater than FAFFh.
                             validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.18.c");
                         } else {
@@ -726,7 +707,9 @@ public class Part01Step26Controller extends StepController {
                             validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.18.d");
                         }
                     }
-                    if (GHG_ACTIVE_GREEN_HOUSE_100_HR == packet.getPgnDefinition().getId() && spn.getValue() > 0) {
+                    if (!indexes.contains(spn.getId())
+                            && GHG_ACTIVE_GREEN_HOUSE_100_HR == packet.getPgnDefinition().getId()
+                            && spn.getValue() > 0) {
                         // 6.1.26.18.g. Fail each active 100 hr array value that is greater than zero
                         addFailure("6.1.26.18.g - Active 100 hr array value received was greater than zero from "
                                 + module.getModuleName() + " for " + spn);
@@ -735,24 +718,19 @@ public class Part01Step26Controller extends StepController {
             });
         }
         var lifetimeIndexes = lifetimeGhgPackets.stream()
-                                                .flatMap(ghgPacket -> ghgPacket.getActiveTechnologies().stream())
-                                                .map(ActiveTechnology::getIndex)
+                                                .flatMap(p -> p.getActiveTechnologies().stream())
+                                                .map(v -> v.getIndex())
                                                 .collect(Collectors.toList());
 
         var activeIndexes = ghg100HrPackets.stream()
-                                           .filter(p -> {
-                                               return p.getPacket().getPgn() == GHG_ACTIVE_GREEN_HOUSE_100_HR;
-                                           })
-                                           .flatMap(ghgPacket -> ghgPacket.getActiveTechnologies().stream())
-                                           .map(ActiveTechnology::getIndex)
+                                           .filter(p -> p.getPacket().getPgn() == GHG_ACTIVE_GREEN_HOUSE_100_HR)
+                                           .flatMap(p -> p.getActiveTechnologies().stream())
+                                           .map(v -> v.getIndex())
                                            .collect(Collectors.toList());
         var storedIndexes = ghg100HrPackets.stream()
-                                           .filter(genericPacket -> {
-                                               return genericPacket.getPgnDefinition()
-                                                                   .getId() == GHG_STORED_GREEN_HOUSE_100_HR;
-                                           })
-                                           .flatMap(ghgPacket -> ghgPacket.getActiveTechnologies().stream())
-                                           .map(ActiveTechnology::getIndex)
+                                           .filter(p -> p.getPacket().getPgn() == GHG_STORED_GREEN_HOUSE_100_HR)
+                                           .flatMap(p -> p.getActiveTechnologies().stream())
+                                           .map(v -> v.getIndex())
                                            .collect(Collectors.toList());
 
         // 6.1.26.18.e. Fail each response where the number of labels received are not
@@ -773,26 +751,6 @@ public class Part01Step26Controller extends StepController {
         if (!lifetimeIndexes.containsAll(storedIndexes)) {
             addFailure("6.1.26.18.f - Stored labels received is not a subset of lifetime labels");
         }
-    }
-
-    private Collection<GhgLifetimeActiveTechnologyPacket> requestGhgLifetimeTechPackets(int sourceAddress) {
-        int[] pgns = { GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG };
-        return requestPackets(sourceAddress, pgns).stream()
-                                                  .map(p1 -> (GhgActiveTechnologyPacket) p1)
-                                                  .collect(Collectors.toList())
-                                                  .stream()
-                                                  .map(p -> (GhgLifetimeActiveTechnologyPacket) p)
-                                                  .collect(Collectors.toList());
-    }
-
-    private Collection<GhgActiveTechnologyPacket> requestGhgTechPackets(int sourceAddress) {
-        int[] pgns = { GHG_ACTIVE_GREEN_HOUSE_100_HR, GHG_STORED_GREEN_HOUSE_100_HR };
-        return requestPackets(sourceAddress, pgns).stream()
-                                                  .map(p1 -> (GhgActiveTechnologyPacket) p1)
-                                                  .collect(Collectors.toList())
-                                                  .stream()
-                                                  .map(p -> (GhgActiveTechnologyPacket) p)
-                                                  .collect(Collectors.toList());
     }
 
     private void testSp12675(OBDModuleInformation module) {
@@ -882,17 +840,5 @@ public class Part01Step26Controller extends StepController {
             });
         }
 
-    }
-
-    enum TEST {
-        JOE, CARSON;
-
-        public int age;
-    }
-
-    {
-        TEST.JOE.age = 60;
-        TEST.JOE.age = 51;
-        List<Integer> immutableList = Collections.unmodifiableList(List.of(1, 2, 3));
     }
 }

@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.j1939.J1939;
-import org.etools.j1939tools.j1939.packets.GhgActiveTechnologyPacket;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -118,7 +118,7 @@ public class GhgTrackingModuleTest {
                                   // @formatter:on
 
         var genericPackets = packets.stream()
-                                    .map(p -> (GhgActiveTechnologyPacket) J1939.processRaw(p.getPgn(), p))
+                                    .map(p -> (GenericPacket) J1939.processRaw(p.getPgn(), p))
                                     .collect(Collectors.toList());
 
         String actual = instance.format(genericPackets);

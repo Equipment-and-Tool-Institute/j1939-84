@@ -78,6 +78,7 @@ public class Part12Step06Controller extends StepController {
 
         // 6.12.6.2.b. Fail if any ECU reports active DTCs.
         dm1s.stream()
+            .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
             .filter(DiagnosticTroubleCodePacket::hasDTCs)
             .map(ParsedPacket::getModuleName)
             .forEach(moduleName -> {

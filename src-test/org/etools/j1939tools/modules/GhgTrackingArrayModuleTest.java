@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.j1939.J1939;
-import org.etools.j1939tools.j1939.packets.GhgActiveTechnologyPacket;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,7 +28,7 @@ public class GhgTrackingArrayModuleTest {
         List<Packet> packets = new ArrayList<>();
 
         packets.add(Packet.create(0xFAFE, ADDR,
-                                  // @formatter:off
+        // @formatter:off
                                   0x78, 0x69, 0x34, 0x6E, 0x12, 0x0B, 0xFE, 0x0A,
                                   0x5A, 0x37, 0xFF, 0xC1, 0x02, 0x00, 0x8D, 0x27,
                                   0xA3, 0x02, 0x0C, 0x00, 0x5E, 0x1A, 0x76, 0x00,
@@ -36,7 +36,7 @@ public class GhgTrackingArrayModuleTest {
         // @formatter:on
 
         packets.add(Packet.create(0xFAFC, ADDR,
-                                  // @formatter:off
+        // @formatter:off
                                   0xA0, 0x8C, 0xA8, 0x52, 0xC2, 0x0E, 0xA8, 0x0E,
                                   0xCD, 0x49, 0x54, 0xAD, 0x03, 0x00, 0xBC, 0x34,
                                   0x84, 0x03, 0x10, 0x00, 0x28, 0x23, 0x9C, 0x00,
@@ -44,7 +44,7 @@ public class GhgTrackingArrayModuleTest {
         // @formatter:on
 
         packets.add(Packet.create(0xFAFD, ADDR,
-                                  // @formatter:off
+        // @formatter:off
                                   0xB0, 0x30, 0x2C, 0x02, 0x58, 0x94, 0x62, 0x06,
                                   0x7A, 0xD6, 0x05, 0x00, 0x5D, 0x30, 0x1D, 0x00,
                                   0x27, 0x76, 0x4A, 0x00, 0x4F, 0xD6, 0xF8, 0x0B,
@@ -53,13 +53,13 @@ public class GhgTrackingArrayModuleTest {
                                   0xD9, 0x02, 0x00, 0x00, 0x3B, 0xCF, 0x1B, 0x00));
         // @formatter:on
         packets.add(Packet.create(0xFAF6, ADDR,
-                                  // @formatter:off
+        // @formatter:off
                                   0x40, 0x1A, 0x00, 0x15, 0x40, 0x05, 0x00, 0x04,
                                   0x00, 0x01, 0xD9, 0x17, 0xD1, 0x03, 0xAA, 0x1B));
         // @formatter:on
 
         packets.add(Packet.create(0xFAF5, ADDR,
-                                  // @formatter:off
+        // @formatter:off
                                   0x00, 0x23, 0x00, 0x1C, 0x00, 0x07, 0x56, 0x05,
                                   0x56, 0x01, 0xCC, 0x1F, 0x16, 0x05, 0xE2, 0x24));
         // @formatter:on
@@ -118,8 +118,8 @@ public class GhgTrackingArrayModuleTest {
         // @formatter:on
 
         var genericPackets = packets.stream()
-                .map(p -> (GhgActiveTechnologyPacket) J1939.processRaw(p.getPgn(), p))
-                .collect(Collectors.toList());
+                                    .map(p -> (GenericPacket) J1939.processRaw(p.getPgn(), p))
+                                    .collect(Collectors.toList());
 
         String actual = instance.format(genericPackets);
 

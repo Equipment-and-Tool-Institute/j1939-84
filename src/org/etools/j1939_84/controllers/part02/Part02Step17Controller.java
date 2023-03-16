@@ -372,9 +372,6 @@ public class Part02Step17Controller extends StepController {
         // Engine off) for PG 64244 Hybrid Charge Depleting or Increasing Operation Lifetime Hours
         int[] pgns = { GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG };
         var ghgChgDepletingLifeTimePackets = requestPackets(module.getSourceAddress(), pgns).stream()
-                                                                                            .map(p -> (GhgActiveTechnologyPacket) p)
-                                                                                            .collect(Collectors.toList())
-                                                                                            .stream()
                                                                                             // 6.2.17.23.b.
                                                                                             // Record
                                                                                             // each
@@ -428,9 +425,6 @@ public class Part02Step17Controller extends StepController {
         // 64246 Hybrid Charge Depleting or Increasing Operation Active 100 Hours - PG Acronym HCDIOA
         // 64245 Hybrid Charge Depleting or Increasing Operation Stored 100 Hours - - PG Acronym HCDIOS
         var hybridChargeOpsPackets = requestPackets(module.getSourceAddress(), pgns1).stream()
-                                                                                     .map(p -> (GhgActiveTechnologyPacket) p)
-                                                                                     .collect(Collectors.toList())
-                                                                                     .stream()
                                                                                      // 6.2.17.25.b. Record
                                                                                      // each
                                                                                      // value for use in Part
@@ -489,9 +483,6 @@ public class Part02Step17Controller extends StepController {
         // Lifetime Hours
         int[] pgns = { GHG_TRACKING_LIFETIME_HYBRID_PG };
         var ghgTrackingPackets = requestPackets(module.getSourceAddress(), pgns).stream()
-                                                                                .map(p -> (GhgActiveTechnologyPacket) p)
-                                                                                .collect(Collectors.toList())
-                                                                                .stream()
                                                                                 // 6.2.17.19.b.
                                                                                 // Record each value for
                                                                                 // use in Part 12.
@@ -539,9 +530,6 @@ public class Part02Step17Controller extends StepController {
         // 6.2.17.21.c - List data received in a table using lifetime, stored 100 hr, active 100hr
         // for columns, and categories for rows.
         var ghgPackets = requestPackets(module.getSourceAddress(), pgns1).stream()
-                                                                         .map(p -> (GhgActiveTechnologyPacket) p)
-                                                                         .collect(Collectors.toList())
-                                                                         .stream()
                                                                          // 6.2.17.21.b. -
                                                                          // Record each
                                                                          // value for use
@@ -605,9 +593,6 @@ public class Part02Step17Controller extends StepController {
         // Tracking Lifetime Engine Run Time) for PG 64252 GHG Tracking Lifetime Array Data.
         int[] pgns = { GHG_TRACKING_LIFETIME_PG };
         var ghgTrackingLifetimePackets = requestPackets(module.getSourceAddress(), pgns).stream()
-                                                                                        .map(p -> (GhgActiveTechnologyPacket) p)
-                                                                                        .collect(Collectors.toList())
-                                                                                        .stream()
                                                                                         // 6.2.17.9.b - Record each
                                                                                         // value
                                                                                         // for use in Part 12.
@@ -650,9 +635,6 @@ public class Part02Step17Controller extends StepController {
         // 64254 GHG Tracking Active 100 Hour Array Data
         // 64253 GHG Tracking Stored 100 Hour Array Data
         var ghgTrackingPackets = requestPackets(module.getSourceAddress(), pgns1).stream()
-                                                                                 .map(p -> (GhgActiveTechnologyPacket) p)
-                                                                                 .collect(Collectors.toList())
-                                                                                 .stream()
                                                                                  // 6.2.17.11.b.
                                                                                  // Record
                                                                                  // each value

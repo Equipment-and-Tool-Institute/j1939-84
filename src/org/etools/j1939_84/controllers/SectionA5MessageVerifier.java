@@ -7,6 +7,7 @@ package org.etools.j1939_84.controllers;
 import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.bus.BusResult;
@@ -366,27 +367,31 @@ public class SectionA5MessageVerifier extends SectionVerifier {
     boolean checkTestResults(ResultsListener listener, String section, int address, boolean verifyIsErased) {
         // 6.a. DM7/DM30 Test Results shall report all test results with initialized results and limits
         // (all 0x00 or 0xFB00 for results and 0xFFFF for limits).
-        var isErased = getDataRepository().getObdModule(address)
-                                          .getTestResultSPNs()
-                                          .stream()
-                                          .map(SupportedSPN::getSpn)
-                                          .map(spn -> getCommunicationsModule().requestTestResult(listener,
-                                                                                                  address,
-                                                                                                  247,
-                                                                                                  spn,
-                                                                                                  31))
-                                          .flatMap(BusResult::toPacketStream)
-                                          .map(DM30ScaledTestResultsPacket::getTestResults)
-                                          .flatMap(Collection::stream)
-                                          .allMatch(ScaledTestResult::isInitialized);
+        List<SupportedSPN> testResultSPNs = getDataRepository().getObdModule(address).getTestResultSPNs();
+        boolean failure = false;
+        // If there are no test results to verify, then no verification of erased or not erased can be made.
+        if (!testResultSPNs.isEmpty()) {
+            boolean isErased = testResultSPNs
+                                             .stream()
+                                             .map(SupportedSPN::getSpn)
+                                             .map(spn -> getCommunicationsModule().requestTestResult(listener,
+                                                                                                     address,
+                                                                                                     247,
+                                                                                                     spn,
+                                                                                                     31))
+                                             .flatMap(BusResult::toPacketStream)
+                                             .map(DM30ScaledTestResultsPacket::getTestResults)
+                                             .flatMap(Collection::stream)
+                                             .allMatch(ScaledTestResult::isInitialized);
 
-        boolean failure = verifyIsErased != isErased;
-        if (failure) {
-            addFailure(listener,
-                       section,
-                       verifyIsErased,
-                       Lookup.getAddressName(address),
-                       "Test Results");
+            failure = verifyIsErased != isErased;
+            if (failure) {
+                addFailure(listener,
+                           section,
+                           verifyIsErased,
+                           Lookup.getAddressName(address),
+                           "Test Results");
+            }
         }
         return !failure;
     }

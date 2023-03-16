@@ -3,9 +3,8 @@ package org.etools.j1939tools.modules;
 import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.List;
-import java.util.stream.IntStream;
 
-import org.etools.j1939tools.j1939.packets.GhgActiveTechnologyPacket;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
 
 public class GhgTrackingModule {
 
@@ -60,11 +59,11 @@ public class GhgTrackingModule {
         this.ghgActiveTechnologyArrayModule = ghgActiveTechnologyArrayModule;
     }
 
-    public String formatXevTable(List<GhgActiveTechnologyPacket> packets) {
+    public String formatXevTable(List<GenericPacket> packets) {
         return ghgTrackingArrayModule.formatXevTable(packets);
     }
 
-    public String format(List<GhgActiveTechnologyPacket> packets) {
+    public String format(List<GenericPacket> packets) {
         String result = "";
         result += ghgTrackingArrayModule.format(packets);
         result += NL;
@@ -72,13 +71,13 @@ public class GhgTrackingModule {
         return result;
     }
 
-    public String formatTrackingTable(List<GhgActiveTechnologyPacket> packets) {
+    public String formatTrackingTable(List<GenericPacket> packets) {
         String result = "";
         result += ghgTrackingArrayModule.format(packets);
         return result;
     }
 
-    public String formatTechTable(List<GhgActiveTechnologyPacket> packets) {
+    public String formatTechTable(List<GenericPacket> packets) {
         String result = "";
         result += ghgActiveTechnologyArrayModule.format(packets);
         return result;

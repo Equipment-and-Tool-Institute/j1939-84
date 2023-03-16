@@ -1,37 +1,53 @@
 package org.etools.j1939tools.j1939.model;
 
+import static org.etools.j1939_84.J1939_84.NL;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.etools.j1939tools.j1939.J1939DaRepository;
 import org.etools.j1939tools.j1939.packets.Slot;
 import org.etools.j1939tools.utils.CollectionUtils;
 
-import static java.util.Comparator.comparingInt;
-import static org.etools.j1939_84.J1939_84.NL;
-
 public class ActiveTechnology {
 
     public static ActiveTechnology create(int pgn, int[] data) {
-        final int[] marker = {0}; //to keep tracker of last used data byte
+        List<SpnDefinition> spnDefinitions = new ArrayList<>(getSpnDefinitions(pgn));
+        spnDefinitions.sort(Comparator.comparing(s -> s.getSpnId()));
 
-        List<Spn> spns = getSpnDefinitions(pgn)
-                .stream()
-                .map(def -> {
-                    int spnId = def.getSpnId();
-                    Slot slot = getSlot(def);
-                    String label = def.getLabel();
-                    int byteLength = slot.getByteLength();
-                    int[] dataArray = Arrays.copyOfRange(data, marker[0], marker[0] + byteLength);
-                    marker[0] += byteLength;
+        int pos = 0;
+        SpnDefinition def;
 
-                    return new Spn(spnId, label, slot, CollectionUtils.toByteArray(dataArray));
-                })
-                .sorted(comparingInt(Spn::getId))
-                .collect(Collectors.toList());
+        def = spnDefinitions.get(0);
+        var index = new Spn(def.getSpnId(),
+                            def.getLabel(),
+                            getSlot(def),
+                            CollectionUtils.toByteArray(Arrays.copyOfRange(data,
+                                                                           pos,
+                                                                           pos + getSlot(def).getByteLength())));
 
-        return new ActiveTechnology(spns.get(0), spns.get(1), spns.get(2));
+        pos += getSlot(def).getByteLength();
+        def = spnDefinitions.get(1);
+        var time = new Spn(def.getSpnId(),
+                           def.getLabel(),
+                           getSlot(def),
+                           CollectionUtils.toByteArray(Arrays.copyOfRange(data,
+                                                                          pos,
+                                                                          pos + getSlot(def).getByteLength())));
+
+        pos += getSlot(def).getByteLength();
+        def = spnDefinitions.get(2);
+        int to = pos + getSlot(def).getByteLength();
+        var distance = new Spn(def.getSpnId(),
+                               def.getLabel(),
+                               getSlot(def),
+                               CollectionUtils.toByteArray(Arrays.copyOfRange(data,
+                                                                              pos,
+                                                                              to)));
+
+        return new ActiveTechnology(index, time, distance);
     }
 
     private final Spn indexSpn;
@@ -83,8 +99,8 @@ public class ActiveTechnology {
     @Override
     public String toString() {
         return "Active Technology:  " + getLabel() + " (" + getIndex() + "), " +
-               "Time = " + timeSpn.getStringValue() + ", " +
-               "Vehicle Distance = " + distanceSpn.getStringValue() + NL;
+                "Time = " + timeSpn.getStringValue() + ", " +
+                "Vehicle Distance = " + distanceSpn.getStringValue() + NL;
     }
 
     private static List<SpnDefinition> getSpnDefinitions(int pgn) {
