@@ -18,6 +18,7 @@ import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.FaultModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.DM5Heartbeat;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -66,22 +67,24 @@ public class Part02Step18Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.2.18.1.a. Turn Engine Off and keep the ignition key in the off position.
-        ensureKeyStateIs(KEY_OFF, "6.2.18.1.a");
-        faultModule.setJ1939(getJ1939());
+        try (var dm5 = DM5Heartbeat.run(getJ1939(), getListener())) {
 
-        // 6.2.18.1.b. Implant Fault A according to engine manufacturer’s instruction (See section 5 for additional
-        // discussion).
-        waitForFaultA();
-        if (isTesting()) {
-            faultModule.implantFaultA(getListener());
+            // 6.2.18.1.a. Turn Engine Off and keep the ignition key in the off position.
+            ensureKeyStateIs(KEY_OFF, "6.2.18.1.a");
+            faultModule.setJ1939(getJ1939());
+
+            // 6.2.18.1.b. Implant Fault A according to engine manufacturer’s instruction (See section 5 for additional
+            // discussion).
+            waitForFaultA();
+            if (isTesting()) {
+                faultModule.implantFaultA(getListener());
+            }
+
+            // 6.2.18.1.c. Turn ignition key to the ON position.
+            // 6.2.18.1.d. Observe MIL and Wait to Start Lamps in Instrument Cluster
+            // 6.2.18.1.e. Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished.
+            ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.2.18.1.c");
         }
-
-        // 6.2.18.1.c. Turn ignition key to the ON position.
-        // 6.2.18.1.d. Observe MIL and Wait to Start Lamps in Instrument Cluster
-        // 6.2.18.1.e. Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished.
-        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.2.18.1.c");
-
     }
 
     private void waitForFaultA() throws InterruptedException {

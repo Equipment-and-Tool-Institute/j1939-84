@@ -16,6 +16,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.DM5Heartbeat;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -61,21 +62,23 @@ public class Part01Step27Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.1.27.1 Actions:
-        // a. Testing may be stopped for vehicles with failed tests and for
-        // vehicles with the MIL on or a non-emissions related fault displayed
-        // in DM1. Vehicles with the MIL on will fail subsequent tests.
-        displayQuestionMessage();
+        try (var dm5 = DM5Heartbeat.run(getJ1939(), getListener())) {
+            // 6.1.27.1 Actions:
+            // a. Testing may be stopped for vehicles with failed tests and for
+            // vehicles with the MIL on or a non-emissions related fault displayed
+            // in DM1. Vehicles with the MIL on will fail subsequent tests.
+            displayQuestionMessage();
 
-        // b. The transition from part 1 to part 2 shall be as provided below.
-        // i. The engine shall be started without turning the key off.
-        // ii. Or, an electric drive or hybrid drive system shall be placed in the operating
-        // mode used to provide power to the drive system without moving the vehicle, if not
-        // automatically provided during the initial key off to key on operation.
-        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.1.27.1.b");
+            // b. The transition from part 1 to part 2 shall be as provided below.
+            // i. The engine shall be started without turning the key off.
+            // ii. Or, an electric drive or hybrid drive system shall be placed in the operating
+            // mode used to provide power to the drive system without moving the vehicle, if not
+            // automatically provided during the initial key off to key on operation.
+            ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.1.27.1.b");
 
-        // iii. The engine shall be allowed to idle one minute
-        pause("Step 6.1.27.b.iii - Allowing engine to idle for %1$d seconds", 60L);
+            // iii. The engine shall be allowed to idle one minute
+            pause("Step 6.1.27.b.iii - Allowing engine to idle for %1$d seconds", 60L);
+        }
     }
 
     /**

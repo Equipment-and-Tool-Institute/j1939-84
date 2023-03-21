@@ -14,6 +14,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.DM5Heartbeat;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -56,16 +57,19 @@ public class Part09Step25Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.9.25.1.a. Turn Key Off.
-        ensureKeyStateIs(KEY_OFF, "6.9.25.1.a");
+        try (var dm5 = DM5Heartbeat.run(getJ1939(), getListener())) {
 
-        // 6.9.25.1.b. Wait manufacturer’s recommended interval.
-        waitMfgIntervalWithKeyOff("Step 6.9.25.1.b");
+            // 6.9.25.1.a. Turn Key Off.
+            ensureKeyStateIs(KEY_OFF, "6.9.25.1.a");
 
-        // 6.9.25.1.c. Turn ignition key to on position.
-        // 6.9.25.1.d. Start engine.
-        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.9.25.1.d");
+            // 6.9.25.1.b. Wait manufacturer’s recommended interval.
+            waitMfgIntervalWithKeyOff("Step 6.9.25.1.b");
 
-        // 6.9.25.1.e. Proceed with part 10
+            // 6.9.25.1.c. Turn ignition key to on position.
+            // 6.9.25.1.d. Start engine.
+            ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.9.25.1.d");
+
+            // 6.9.25.1.e. Proceed with part 10
+        }
     }
 }

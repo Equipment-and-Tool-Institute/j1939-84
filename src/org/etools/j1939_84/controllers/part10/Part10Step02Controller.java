@@ -16,6 +16,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.DM5Heartbeat;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -58,23 +59,26 @@ public class Part10Step02Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.10.2.1.a. Wait for manufacturer’s recommended time for Fault B to be detected as passed.
-        updateProgress("Step 6.10.2.1.a - Waiting for manufacturer’s recommended time for Fault B to be detected as passed");
-        String message = "Wait for manufacturer’s recommended time for Fault B to be detected as passed";
-        message += NL + NL + "Press OK to continue";
-        displayInstructionAndWait(message, "Step 6.10.2.1.a", WARNING);
+        try (var dm5 = DM5Heartbeat.run(getJ1939(), getListener())) {
 
-        // 6.10.2.1.b. Wait a total of at least 2 minutes to establish cycle.
-        pause("Step 6.10.2.1.b - Waiting %1$d seconds to establish cycle", 120L);
+            // 6.10.2.1.a. Wait for manufacturer’s recommended time for Fault B to be detected as passed.
+            updateProgress("Step 6.10.2.1.a - Waiting for manufacturer’s recommended time for Fault B to be detected as passed");
+            String message = "Wait for manufacturer’s recommended time for Fault B to be detected as passed";
+            message += NL + NL + "Press OK to continue";
+            displayInstructionAndWait(message, "Step 6.10.2.1.a", WARNING);
 
-        // 6.10.2.1.c. Turn engine off.
-        ensureKeyStateIs(KEY_OFF, "6.10.2.1.c");
+            // 6.10.2.1.b. Wait a total of at least 2 minutes to establish cycle.
+            pause("Step 6.10.2.1.b - Waiting %1$d seconds to establish cycle", 120L);
 
-        // 6.10.2.1.d. Wait 1 minute.
-        pause("Step 6.10.2.1.d - Waiting %1$d seconds", 60L);
+            // 6.10.2.1.c. Turn engine off.
+            ensureKeyStateIs(KEY_OFF, "6.10.2.1.c");
 
-        // 6.10.2.1.e. Start engine.
-        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.10.2.1.e");
+            // 6.10.2.1.d. Wait 1 minute.
+            pause("Step 6.10.2.1.d - Waiting %1$d seconds", 60L);
+
+            // 6.10.2.1.e. Start engine.
+            ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.10.2.1.e");
+        }
     }
 
 }

@@ -18,6 +18,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.DM5Heartbeat;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -60,38 +61,42 @@ public class Part06Step11Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.6.11.1.a Turn engine off.
-        ensureKeyStateIs(KEY_OFF, "6.6.11.1.a");
+        try (var dm5 = DM5Heartbeat.run(getJ1939(), getListener())) {
 
-        // 6.6.11.1.b Wait engine manufacturer’s recommended interval.
-        waitMfgIntervalWithKeyOff("Step 6.6.11.1.b");
+            // 6.6.11.1.a Turn engine off.
+            ensureKeyStateIs(KEY_OFF, "6.6.11.1.a");
 
-        // 6.6.11.1.c Turn key to on position.
-        ensureKeyStateIs(KEY_ON_ENGINE_OFF, "6.6.11.1.c");
+            // 6.6.11.1.b Wait engine manufacturer’s recommended interval.
+            waitMfgIntervalWithKeyOff("Step 6.6.11.1.b");
 
-        // 6.6.11.1.d If required by engine manufacturer, start the engine for start to start operating cycle effects.
-        String message = "If required by engine manufacturer, start the engine for start-to-start operating cycle effects";
-        message += NL + NL + "Press OK to continue";
-        displayInstructionAndWait(message, "Step 6.6.11.1.d", WARNING);
-        if (isTesting()) {
-            // The Simulated engine requires an engine start
-            ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.6.11.1.d");
+            // 6.6.11.1.c Turn key to on position.
+            ensureKeyStateIs(KEY_ON_ENGINE_OFF, "6.6.11.1.c");
+
+            // 6.6.11.1.d If required by engine manufacturer, start the engine for start to start operating cycle
+            // effects.
+            String message = "If required by engine manufacturer, start the engine for start-to-start operating cycle effects";
+            message += NL + NL + "Press OK to continue";
+            displayInstructionAndWait(message, "Step 6.6.11.1.d", WARNING);
+            if (isTesting()) {
+                // The Simulated engine requires an engine start
+                ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.6.11.1.d");
+            }
+
+            // 6.6.11.1.e Otherwise, Proceed with part 7.
+            if (getEngineSpeedModule().getKeyState() != KEY_ON_ENGINE_RUNNING) {
+                return;
+            }
+
+            // 6.6.11.1.f Turn engine off.
+            ensureKeyStateIs(KEY_OFF, "6.6.11.1.f");
+
+            // 6.6.11.1.g Wait engine manufacturer’s recommended interval.
+            waitMfgIntervalWithKeyOff("Step 6.6.11.1.g");
+
+            // 6.6.11.1.h Turn the key to the on position.
+            // 6.6.11.1.i Proceed with part 7.
+            ensureKeyStateIs(KEY_ON_ENGINE_OFF, "6.6.11.1.h");
         }
-
-        // 6.6.11.1.e Otherwise, Proceed with part 7.
-        if (getEngineSpeedModule().getKeyState() != KEY_ON_ENGINE_RUNNING) {
-            return;
-        }
-
-        // 6.6.11.1.f Turn engine off.
-        ensureKeyStateIs(KEY_OFF, "6.6.11.1.f");
-
-        // 6.6.11.1.g Wait engine manufacturer’s recommended interval.
-        waitMfgIntervalWithKeyOff("Step 6.6.11.1.g");
-
-        // 6.6.11.1.h Turn the key to the on position.
-        // 6.6.11.1.i Proceed with part 7.
-        ensureKeyStateIs(KEY_ON_ENGINE_OFF, "6.6.11.1.h");
     }
 
 }

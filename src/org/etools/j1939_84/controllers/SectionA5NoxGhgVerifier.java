@@ -25,7 +25,9 @@ import static org.etools.j1939tools.modules.NOxBinningModule.NOx_TRACKING_STORED
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.Outcome;
@@ -55,8 +57,8 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
     public void verifyDataSpn12730(ResultsListener listener,
                                    int partNumber,
                                    int stepNumber,
-                                   List<GenericPacket> packets,
-                                   boolean isErased) {
+                                   boolean isErased,
+                                   Function<Integer, Stream<GenericPacket>> fn) {
         listener.onProgress(partNumber,
                             stepNumber,
                             "A.5.3 - Checking GHG spn values against previous spn values");
@@ -67,25 +69,29 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
 
         // B. Stored 100-hour Accumulators.
         // The SPNs in the following PGs shall be greater than or equal the corresponding values observed in Part 2,
-        List<Integer> pgns = new ArrayList<>();
-        pgns.add(GHG_TRACKING_LIFETIME_PG);
-        pgns.add(GHG_STORED_100_HR);
-        verifyPgValuesSameAsTwo(getPartNumber(), getStepNumber(), listener, pgns, packets);
-
+        {
+            List<Integer> pgns = new ArrayList<>();
+            pgns.add(GHG_TRACKING_LIFETIME_PG);
+            pgns.add(GHG_STORED_100_HR);
+            List<GenericPacket> packets = pgns.stream().flatMap(p -> fn.apply(p)).collect(Collectors.toList());
+            verifyPgValuesSameAsTwo(getPartNumber(), getStepNumber(), listener, pgns, packets);
+        }
         // C. Active 100-hour Arrays.
         // The SPNs in the following following messages shall be equal to zero only after global DM11 command. They
         // should be no less than their corresponding part 2 values at any other time.
-        List<Integer> pgs = new ArrayList<>();
-        pgs.add(GHG_ACTIVE_100_HR);
-        verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgs, packets, isErased);
-
+        {
+            List<Integer> pgns = new ArrayList<>();
+            pgns.add(GHG_ACTIVE_100_HR);
+            List<GenericPacket> packets = pgns.stream().flatMap(p -> fn.apply(p)).collect(Collectors.toList());
+            verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgns, packets, isErased);
+        }
     }
 
     public void verifyDataSpn12675(ResultsListener listener,
                                    int partNumber,
                                    int stepNumber,
-                                   List<GenericPacket> packets,
-                                   boolean isErased) {
+                                   boolean isErased,
+                                   Function<Integer, Stream<GenericPacket>> fn) {
         listener.onProgress(partNumber,
                             stepNumber,
                             "A.5.3 - Checking NOx spn values against previous spn values");
@@ -96,25 +102,29 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
 
         // B. Stored 100-hour Accumulators.
         // The SPNs in the following PGs shall be greater than or equal the corresponding values observed in Part 2,
-        List<Integer> pgns = Arrays.stream(CollectionUtils.join(NOx_LIFETIME_PGs,
-                                                                NOx_LIFETIME_ACTIVITY_PGs,
-                                                                NOx_TRACKING_STORED_100_HOURS_PGs))
-                                   .boxed()
-                                   .collect(Collectors.toList());
-        verifyPgValuesSameAsTwo(getPartNumber(), getStepNumber(), listener, pgns, packets);
-        // C. Active 100-hour Arrays.
-        // The SPNs in the following following messages shall be equal to zero only after global DM11 command. They
-        // should be no less than their corresponding part 2 values at any other time.
-        List<Integer> pgs = Arrays.stream(NOx_TRACKING_ACTIVE_100_HOURS_PGs).boxed().collect(Collectors.toList());
-        verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgs, packets, isErased);
-
+        {
+            List<Integer> pgns = Arrays.stream(CollectionUtils.join(NOx_LIFETIME_PGs,
+                                                                    NOx_LIFETIME_ACTIVITY_PGs,
+                                                                    NOx_TRACKING_STORED_100_HOURS_PGs))
+                                       .boxed()
+                                       .collect(Collectors.toList());
+            List<GenericPacket> packets = pgns.stream().flatMap(p -> fn.apply(p)).collect(Collectors.toList());
+            verifyPgValuesSameAsTwo(getPartNumber(), getStepNumber(), listener, pgns, packets);
+        }// C. Active 100-hour Arrays.
+         // The SPNs in the following following messages shall be equal to zero only after global DM11 command. They
+         // should be no less than their corresponding part 2 values at any other time.
+        {
+            List<Integer> pgns = Arrays.stream(NOx_TRACKING_ACTIVE_100_HOURS_PGs).boxed().collect(Collectors.toList());
+            List<GenericPacket> packets = pgns.stream().flatMap(p -> fn.apply(p)).collect(Collectors.toList());
+            verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgns, packets, isErased);
+        }
     }
 
     public void verifyDataSpn12691(ResultsListener listener,
                                    int partNumber,
                                    int stepNumber,
-                                   List<GenericPacket> packets,
-                                   boolean isErased) {
+                                   boolean isErased,
+                                   Function<Integer, Stream<GenericPacket>> fn) {
         listener.onProgress(partNumber,
                             stepNumber,
                             "A.5.3 - Checking GHG spn values against previous spn values");
@@ -125,25 +135,29 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
 
         // B. Stored 100-hour Accumulators.
         // The SPNs in the following PGs shall be greater than or equal the corresponding values observed in Part 2,
-        List<Integer> pgs = new ArrayList<>();
-        pgs.add(GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG);
-        pgs.add(GHG_STORED_GREEN_HOUSE_100_HR);
-        verifyPgValuesSameAsTwo(getPartNumber(), getStepNumber(), listener, pgs, packets);
-
+        {
+            List<Integer> pgns = new ArrayList<>();
+            pgns.add(GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG);
+            pgns.add(GHG_STORED_GREEN_HOUSE_100_HR);
+            List<GenericPacket> packets = pgns.stream().flatMap(p -> fn.apply(p)).collect(Collectors.toList());
+            verifyPgValuesSameAsTwo(getPartNumber(), getStepNumber(), listener, pgns, packets);
+        }
         // C. Active 100-hour Arrays.
         // The SPNs in the following following messages shall be equal to zero only after global DM11 command. They
         // should be no less than their corresponding part 2 values at any other time.
-        List<Integer> pgns = new ArrayList<>();
-        pgns.add(GHG_ACTIVE_GREEN_HOUSE_100_HR);
-        verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgns, packets, isErased);
-
+        {
+            List<Integer> pgns = new ArrayList<>();
+            pgns.add(GHG_ACTIVE_GREEN_HOUSE_100_HR);
+            List<GenericPacket> packets = pgns.stream().flatMap(p -> fn.apply(p)).collect(Collectors.toList());
+            verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgns, packets, isErased);
+        }
     }
 
     public void verifyDataSpn12797(ResultsListener listener,
                                    int partNumber,
                                    int stepNumber,
-                                   List<GenericPacket> packets,
-                                   boolean isErased) {
+                                   boolean isErased,
+                                   Function<Integer, Stream<GenericPacket>> fn) {
         listener.onProgress(partNumber,
                             stepNumber,
                             "A.5.3 - Checking GHG spn values against previous spn values");
@@ -154,25 +168,30 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
 
         // B. Stored 100-hour Accumulators.
         // The SPNs in the following PGs shall be greater than or equal the corresponding values observed in Part 2,
-        List<Integer> pgns = new ArrayList<>();
-        pgns.add(GHG_TRACKING_LIFETIME_HYBRID_PG);
-        pgns.add(GHG_STORED_HYBRID_100_HR);
-        verifyPgValuesSameAsTwo(getPartNumber(), getStepNumber(), listener, pgns, packets);
+        {
+            List<Integer> pgns = new ArrayList<>();
+            pgns.add(GHG_TRACKING_LIFETIME_HYBRID_PG);
+            pgns.add(GHG_STORED_HYBRID_100_HR);
+            List<GenericPacket> packets = pgns.stream().flatMap(p -> fn.apply(p)).collect(Collectors.toList());
+            verifyPgValuesSameAsTwo(getPartNumber(), getStepNumber(), listener, pgns, packets);
+        }
 
         // C. Active 100-hour Arrays.
         // The SPNs in the following following messages shall be equal to zero only after global DM11 command. They
         // should be no less than their corresponding part 2 values at any other time.
-        List<Integer> pgs = new ArrayList<>();
-        pgs.add(GHG_ACTIVE_HYBRID_100_HR);
-        verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgs, packets, isErased);
-
+        {
+            List<Integer> pgns = new ArrayList<>();
+            pgns.add(GHG_ACTIVE_HYBRID_100_HR);
+            List<GenericPacket> packets = pgns.stream().flatMap(p -> fn.apply(p)).collect(Collectors.toList());
+            verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgns, packets, isErased);
+        }
     }
 
     public void verifyDataSpn12783(ResultsListener listener,
                                    int partNumber,
                                    int stepNumber,
-                                   List<GenericPacket> packets,
-                                   boolean isErased) {
+                                   boolean isErased,
+                                   Function<Integer, Stream<GenericPacket>> fn) {
         listener.onProgress(partNumber,
                             stepNumber,
                             "A.5.3 - Checking GHG spn values against previous spn values");
@@ -183,16 +202,22 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
 
         // B. Stored 100-hour Accumulators.
         // The SPNs in the following PGs shall be greater than or equal the corresponding values observed in Part 2,
-        List<Integer> pgns = new ArrayList<>();
-        pgns.add(GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG);
-        pgns.add(GHG_STORED_HYBRID_CHG_DEPLETING_100_HR);
-        verifyPgValuesSameAsTwo(getPartNumber(), getStepNumber(), listener, pgns, packets);
+        {
+            List<Integer> pgns = new ArrayList<>();
+            pgns.add(GHG_TRACKING_LIFETIME_HYBRID_CHG_DEPLETING_PG);
+            pgns.add(GHG_STORED_HYBRID_CHG_DEPLETING_100_HR);
+            List<GenericPacket> packets = pgns.stream().flatMap(p -> fn.apply(p)).collect(Collectors.toList());
+            verifyPgValuesSameAsTwo(getPartNumber(), getStepNumber(), listener, pgns, packets);
+        }
         // C. Active 100-hour Arrays.
         // The SPNs in the following following messages shall be equal to zero only after global DM11 command. They
         // should be no less than their corresponding part 2 values at any other time.
-        List<Integer> pgs = new ArrayList<>();
-        pgs.add(GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR);
-        verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgs, packets, isErased);
+        {
+            List<Integer> pgns = new ArrayList<>();
+            pgns.add(GHG_ACTIVE_HYBRID_CHG_DEPLETING_100_HR);
+            List<GenericPacket> packets = pgns.stream().flatMap(p -> fn.apply(p)).collect(Collectors.toList());
+            verifyPgValuesZero(getPartNumber(), getStepNumber(), listener, pgns, packets, isErased);
+        }
     }
 
     private void verifyPgValuesSameAsTwo(int partNumber,
@@ -259,9 +284,5 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
     protected <T extends GenericPacket> T get(int pg, int address, int partNumber) {
         OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(address);
         return obdModuleInformation == null ? null : obdModuleInformation.get(pg, partNumber);
-    }
-
-    public List<GenericPacket> requestAllGhgNox(int address, ResultsListener listener) {
-        return getCommunicationsModule().requestAllGhgNox(address, listener);
     }
 }

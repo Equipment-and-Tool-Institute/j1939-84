@@ -18,6 +18,7 @@ import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.DM5Heartbeat;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -100,23 +101,26 @@ public class Part01Step01Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        incrementProgress("Step 6.1.1.1.a - Vehicle Data Collection");
-        // 6.1.1.1.a. Confirm the vehicle is in a safe location and condition for the test.
-        String message = "a. Confirm the vehicle is in a safe location and condition for the test" + NL;
+        try (var dm5 = DM5Heartbeat.run(getJ1939(), getListener())) {
 
-        // 6.1.1.1.b. Confirm that the vehicle battery is well charged. ([Battery voltage >> 12 V].)
-        message += "b. Confirm the vehicle battery is well charged. (Battery voltage >> 12 volts)" + NL;
+            incrementProgress("Step 6.1.1.1.a - Vehicle Data Collection");
+            // 6.1.1.1.a. Confirm the vehicle is in a safe location and condition for the test.
+            String message = "a. Confirm the vehicle is in a safe location and condition for the test" + NL;
 
-        // 6.1.1.1.c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s
-        // instructions.
-        message += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions"
-                + NL + NL;
-        message += "Please press OK to continue";
-        displayInstructionAndWait(message, "Step 6.1.1.1.a, b & c", WARNING);
+            // 6.1.1.1.b. Confirm that the vehicle battery is well charged. ([Battery voltage >> 12 V].)
+            message += "b. Confirm the vehicle battery is well charged. (Battery voltage >> 12 volts)" + NL;
 
-        // 6.1.1.1.d. Turn the ignition key to on.
-        ensureKeyStateIs(KEY_ON_ENGINE_OFF, "6.1.1.1.d");
+            // 6.1.1.1.c. Confirm the vehicle condition and operator control settings according to the engine
+            // manufacturer’s
+            // instructions.
+            message += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions"
+                    + NL + NL;
+            message += "Please press OK to continue";
+            displayInstructionAndWait(message, "Step 6.1.1.1.a, b & c", WARNING);
 
+            // 6.1.1.1.d. Turn the ignition key to on.
+            ensureKeyStateIs(KEY_ON_ENGINE_OFF, "6.1.1.1.d");
+        }
         incrementProgress("Step 6.1.1.1.e - Collecting Vehicle Information");
         // 6.1.1.1.e. Record vehicle data base entries including:
         // 6.1.1.1.e.i. VIN of vehicle,

@@ -25,7 +25,7 @@ public class AddressClaimPacketTest {
         expected += "  Industry Group: Global" + NL;
         expected += "  Vehicle System: Non-specific System, System Instance: 1" + NL;
         expected += "  Function: Engine Emission Aftertreatment System, Functional Instance: 0, ECU Instance: 0" + NL;
-        expected += "  Manufactured by: Cummins Inc, Identity Number: 390928" + NL;
+        expected += "  Manufactured by: Cummins Inc (formerly Cummins Engine Co), Identity Number: 390928" + NL;
         expected += "  Is not arbitrary address capable." + NL;
         expected += "}";
         assertEquals(expected, instance.toString());
@@ -53,7 +53,7 @@ public class AddressClaimPacketTest {
         expected += "  Industry Group: On-Highway Equipment" + NL;
         expected += "  Vehicle System: Unknown System (50), System Instance: 4" + NL;
         expected += "  Function: Unknown Function (0), Functional Instance: 0, ECU Instance: 0" + NL;
-        expected += "  Manufactured by: International Truck and Engine Corporation - Engine Electronics, Identity Number: 0"
+        expected += "  Manufactured by: International Truck and Engine Corporation - Engine Electronics  (formerly Navistar Intl Trans Co., Engine Electronics), Identity Number: 0"
                 + NL;
         expected += "  Is not arbitrary address capable." + NL;
         expected += "}";
@@ -68,7 +68,7 @@ public class AddressClaimPacketTest {
         expected += "  Industry Group: Global" + NL;
         expected += "  Vehicle System: Non-specific System, System Instance: 0" + NL;
         expected += "  Function: Instrument Cluster, Functional Instance: 0, ECU Instance: 0" + NL;
-        expected += "  Manufactured by: International Truck and Engine Corporation - Vehicle Electronics, Identity Number: 18243"
+        expected += "  Manufactured by: International Truck and Engine Corporation - Vehicle Electronics (formerly Navistar Intl Trans Corp.), Identity Number: 18243"
                 + NL;
         expected += "  Is not arbitrary address capable." + NL;
         expected += "}";

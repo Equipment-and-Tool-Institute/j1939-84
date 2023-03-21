@@ -16,6 +16,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.DM5Heartbeat;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -58,25 +59,27 @@ public class Part08Step16Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.8.16.1.a Turn the engine off.
-        ensureKeyStateIs(KEY_OFF, "6.8.16.1.a");
+        try (var dm5 = DM5Heartbeat.run(getJ1939(), getListener())) {
 
-        // 6.8.16.1.b Wait manufacturer's recommended interval.
-        waitMfgIntervalWithKeyOff("Step 6.8.16.1.b");
+            // 6.8.16.1.a Turn the engine off.
+            ensureKeyStateIs(KEY_OFF, "6.8.16.1.a");
 
-        // 6.8.16.1.c With the key in the off position remove the implanted Fault B, according to the manufacturer’s
-        // instructions for restoring the system to a fault-free operating condition.
-        updateProgress("Step 6.8.16.1.c - Waiting for implanted Fault B to be removed");
-        String message = "With the key in the off position remove the implanted Fault B, according to the"
-                + NL + "manufacturer’s instructions for restoring the system to a fault-free operating condition";
-        message += NL + NL + "Press OK to continue";
-        displayInstructionAndWait(message, "Step 6.8.16.1.c", WARNING);
+            // 6.8.16.1.b Wait manufacturer's recommended interval.
+            waitMfgIntervalWithKeyOff("Step 6.8.16.1.b");
 
-        // 6.8.16.1.d Turn the ignition key to the ON position.
-        ensureKeyStateIs(KEY_ON_ENGINE_OFF, "6.8.16.1.d");
+            // 6.8.16.1.c With the key in the off position remove the implanted Fault B, according to the manufacturer’s
+            // instructions for restoring the system to a fault-free operating condition.
+            updateProgress("Step 6.8.16.1.c - Waiting for implanted Fault B to be removed");
+            String message = "With the key in the off position remove the implanted Fault B, according to the"
+                    + NL + "manufacturer’s instructions for restoring the system to a fault-free operating condition";
+            message += NL + NL + "Press OK to continue";
+            displayInstructionAndWait(message, "Step 6.8.16.1.c", WARNING);
 
-        // 6.8.16.1.e Do not start engine.
-        // 6.8.16.1.f Proceed with part 9.
+            // 6.8.16.1.d Turn the ignition key to the ON position.
+            ensureKeyStateIs(KEY_ON_ENGINE_OFF, "6.8.16.1.d");
+
+            // 6.8.16.1.e Do not start engine.
+            // 6.8.16.1.f Proceed with part 9.
+        }
     }
-
 }

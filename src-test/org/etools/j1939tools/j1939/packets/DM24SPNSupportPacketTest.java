@@ -161,7 +161,7 @@ public class DM24SPNSupportPacketTest {
         expected += "  D F     2  SPN 27 - Engine EGR 1 Valve Position" + NL;
         expected += "  D F     1  SPN 51 - Engine Throttle Valve 1 Position 1" + NL;
         expected += "  D F     2  SPN 84 - Wheel-Based Vehicle Speed" + NL;
-        expected += "  D F     1  SPN 91 - Accelerator Pedal Position 1" + NL;
+        expected += "  D F     1  SPN 91 - Accelerator Pedal 1 Position" + NL;
         expected += "  D F     1  SPN 92 - Engine Percent Load At Current Speed" + NL;
         expected += "  D F     1  SPN 94 - Engine Fuel Delivery Pressure" + NL;
         expected += "  D F T   1  SPN 102 - Engine Intake Manifold #1 Pressure" + NL;
@@ -299,7 +299,7 @@ public class DM24SPNSupportPacketTest {
         expectedSPNString += "SPN 105 - Engine Intake Manifold 1 Temperature" + NL;
         expectedSPNString += "SPN 132 - Engine Intake Air Mass Flow Rate" + NL;
         expectedSPNString += "SPN 976 - PTO Governor State" + NL;
-        expectedSPNString += "SPN 91 - Accelerator Pedal Position 1" + NL;
+        expectedSPNString += "SPN 91 - Accelerator Pedal 1 Position" + NL;
         expectedSPNString += "SPN 183 - Engine Fuel Rate" + NL;
         expectedSPNString += "SPN 102 - Engine Intake Manifold #1 Pressure" + NL;
         expectedSPNString += "SPN 173 - Engine Exhaust Temperature" + NL;
@@ -365,7 +365,7 @@ public class DM24SPNSupportPacketTest {
         expectedFreezeFrame += "   1  SPN 105 - Engine Intake Manifold 1 Temperature" + NL;
         expectedFreezeFrame += "   2  SPN 132 - Engine Intake Air Mass Flow Rate" + NL;
         expectedFreezeFrame += "   1  SPN 976 - PTO Governor State" + NL;
-        expectedFreezeFrame += "   1  SPN 91 - Accelerator Pedal Position 1" + NL;
+        expectedFreezeFrame += "   1  SPN 91 - Accelerator Pedal 1 Position" + NL;
         expectedFreezeFrame += "   2  SPN 183 - Engine Fuel Rate" + NL;
         expectedFreezeFrame += "   1  SPN 102 - Engine Intake Manifold #1 Pressure" + NL;
         expectedFreezeFrame += "   2  SPN 173 - Engine Exhaust Temperature" + NL;

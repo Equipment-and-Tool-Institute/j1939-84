@@ -16,6 +16,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.DM5Heartbeat;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -59,29 +60,31 @@ public class Part03Step16Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.3.16.1.a. Turn the engine off.
-        ensureKeyStateIs(KEY_OFF, "6.3.16.1.a");
+        try (var dm5 = DM5Heartbeat.run(getJ1939(), getListener())) {
 
-        // 6.3.16.1.b. Confirm Fault A is still implanted according to the manufacturer’s instruction.
-        updateProgress("Step 6.3.16.1.b - Confirming Fault A is still implanted according to the manufacturer's instruction");
-        String message = "Confirm Fault A is still implanted according to the manufacturer's instruction" + NL + NL;
-        message += "Press OK to continue";
-        displayInstructionAndWait(message, "Step 6.3.16.1.b", WARNING);
+            // 6.3.16.1.a. Turn the engine off.
+            ensureKeyStateIs(KEY_OFF, "6.3.16.1.a");
 
-        // 6.3.16.1.c. Wait manufacturer’s recommended interval with the key in the off position.
-        waitMfgIntervalWithKeyOff("Step 6.3.16.1.c");
+            // 6.3.16.1.b. Confirm Fault A is still implanted according to the manufacturer’s instruction.
+            updateProgress("Step 6.3.16.1.b - Confirming Fault A is still implanted according to the manufacturer's instruction");
+            String message = "Confirm Fault A is still implanted according to the manufacturer's instruction" + NL + NL;
+            message += "Press OK to continue";
+            displayInstructionAndWait(message, "Step 6.3.16.1.b", WARNING);
 
-        // 6.3.16.1.d. Turn ignition key to the ON position.
-        // 6.3.16.1.e. Observe MIL and Wait to Start Lamp in Instrument Cluster
-        // 6.3.16.1.f. Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished.
-        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.3.16.1.f");
+            // 6.3.16.1.c. Wait manufacturer’s recommended interval with the key in the off position.
+            waitMfgIntervalWithKeyOff("Step 6.3.16.1.c");
 
-        // 6.3.16.1.g. Wait as indicated by the engine manufacturer’s recommendations for Fault A.
-        updateProgress("Step 6.3.16.1.g - Waiting as indicated by the engine manufacturer’s recommendations for Fault A");
-        String message1 = "Wait as indicated by the engine manufacturer’s recommendations for Fault A" + NL + NL;
-        message1 += "Press OK to continue";
-        displayInstructionAndWait(message1, "Step 6.3.16.1.g", WARNING);
+            // 6.3.16.1.d. Turn ignition key to the ON position.
+            // 6.3.16.1.e. Observe MIL and Wait to Start Lamp in Instrument Cluster
+            // 6.3.16.1.f. Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished.
+            ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.3.16.1.f");
 
+            // 6.3.16.1.g. Wait as indicated by the engine manufacturer’s recommendations for Fault A.
+            updateProgress("Step 6.3.16.1.g - Waiting as indicated by the engine manufacturer’s recommendations for Fault A");
+            String message1 = "Wait as indicated by the engine manufacturer’s recommendations for Fault A" + NL + NL;
+            message1 += "Press OK to continue";
+            displayInstructionAndWait(message1, "Step 6.3.16.1.g", WARNING);
+        }
     }
 
 }

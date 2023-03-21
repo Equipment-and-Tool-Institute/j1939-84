@@ -1,9 +1,10 @@
-Extracted from J1939DA_MAR2021,,,,,,
+Extracted from J1939DA_JAN2023,,,,,,
 SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value only),Length Minimum(bits)
 414,SAEaa01,Angular Acceleration,1,rpm/s,0,16
 115,SAEac01(obs),Acceleration,0.00048828125,m/s²,-15.687,16
 140,SAEac02,Acceleration,0.1,m/s²,-12.5,8
 303,SAEac03,Acceleration,0.01,m/s²,-320,16
+501,SAEac04,Acceleration,0.00048828125,m/s²,-15.6865234375,16
 7,SAEad01,Angle/Direction,0.0000001,deg,-210,32
 10,SAEad02,Angle/Direction,0.1,s,-3276.8,16
 113,SAEad03(obs),Angle/Direction,0.0009765625,rad,-31.374,16
@@ -19,12 +20,12 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 379,SAEad13,Angle/Direction,0.0078125,deg,-400,16
 446,SAEad14,Angle/Direction,0.0125,deg,-360,16
 485,SAEad15,Angle/Direction,0.0625,deg,-2008,16
-109,SAEatad0005,"ASCII, text (variable, ""*"" delimited)",1,,0,0
-271,SAEatad0025,"ASCII, text (variable, ""*"" delimited)",1,,0,0
-291,SAEatad0032,"ASCII, text (variable, ""*"" delimited)",1,,0,0
-381,SAEatad0050,"ASCII, text (variable, ""*"" delimited)",1,,0,0
-108,SAEatad0200,"ASCII, text (variable, ""*"" delimited)",1,,0,0
-111,SAEatad1728,"ASCII, text (variable, ""*"" delimited)",1,,0,0
+109,SAEatad0005,"ASCII, text (variable, ""*"" delimited)",1,,0,40
+271,SAEatad0025,"ASCII, text (variable, ""*"" delimited)",1,,0,200
+291,SAEatad0032,"ASCII, text (variable, ""*"" delimited)",1,,0,256
+381,SAEatad0050,"ASCII, text (variable, ""*"" delimited)",1,,0,400
+108,SAEatad0200,"ASCII, text (variable, ""*"" delimited)",1,,0,1600
+111,SAEatad1728,"ASCII, text (variable, ""*"" delimited)",1,,0,13824
 94,SAEatf0001,"ASCII, text (fixed length)",1,,0,8
 131,SAEatf0002,"ASCII, text (fixed length)",1,,0,16
 421,SAEatf0003,"ASCII, text (fixed length)",1,,0,24
@@ -33,8 +34,9 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 110,SAEatf0007,"ASCII, text (fixed length)",1,,0,56
 339,SAEatf0008,"ASCII, text (fixed length)",1,,0,64
 282,SAEatf0016,"ASCII, text (fixed length)",1,,0,128
-258,SAEatnd0200,"ASCII, text (variable, NULL delimited)",1,,0,0
-228,SAEatvn0100,"ASCII, text (variable, non-delimited)",1,,0,0
+258,SAEatnd0200,"ASCII, text (variable, NULL delimited)",1,,0,1600
+489,SAEatvn0063,"ASCII, text (variable, non-delimited)",1,,0,504
+228,SAEatvn0100,"ASCII, text (variable, non-delimited)",1,,0,800
 81,SAEba01,Brake Applications,1,brake appl,0,32
 292,SAEbm05,Bit mapped,1,,0,5
 275,SAEbm08,Bit mapped,1,,0,8
@@ -48,12 +50,8 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 91,SAEbs06,Bit Field,1,,0,6
 92,SAEbs07,Bit Field,1,,0,7
 93,SAEbs08,Bit Field,1,,0,8
-218,SAEbs11,Bit Field,1,,0,11
-281,SAEbs12,Bit Field,1,,0,12
-217,SAEbs21,Bit Field,1,,0,21
-280,SAEbs24,Bit Field,1,,0,24
-245,SAEbs32,Bit Field,1,,0,32
 239,SAEby01,Number of bytes,1,byte,0,8
+281,SAEby02,Number of bytes,1,byte,0,12
 211,SAEca01,"Capacity, Battery",1,mAh,0,16
 342,SAEca02,"Capacity, Battery",0.01,Ah,0,16
 343,SAEca03,"Capacity, Battery",100,Ah,0,32
@@ -78,6 +76,8 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 340,SAEct14,Count,1,count,0,32
 395,SAEct15,Count,1,count,0,4
 422,SAEct16,Count,1,count,0,24
+493,SAEct17,"Count (no error, N/A)",1,count,0,11
+500,SAEcu03,Curvature,0.25,km⁻¹,-8032,16
 65,SAEcw01,"Calendar, weeks",1,week,-125,8
 66,SAEcy01,"Calendar, years",1,year,1985,8
 284,SAEcy02,"Calendar, years",1,year,2000,6
@@ -123,6 +123,7 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 444,SAEec13,Electrical Current,0.05,A,-3212.75,16
 451,SAEec14,Electrical Current,0.125,A,0,16
 440,SAEec15,Electrical Current,0.03125,A,0,16
+507,SAEec16,Electrical Current,0.125,A,-4000,16
 483,SAEee01,Energy Economy,0.001953125,kWh/km,0,16
 323,SAEef01,"Energy, Fuel",0.00390625,MJ/Nm³,0,16
 17,SAEeg01,"Economy, gaseous",0.001953125,km/kg,0,16
@@ -149,6 +150,10 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 453,SAEev10,Electrical Voltage,0.125,V,0,16
 427,SAEev11,Electrical Voltage,2,V,0,8
 442,SAEev12,Electrical Voltage,0.03125,V,0,16
+503,SAEev13,Electrical Voltage,0.01,V,0,8
+506,SAEev14,Electrical Voltage,0.125,V,0,16
+508,SAEev15,Electrical Voltage,0.05,V,0,8
+509,SAEev16,Electrical Voltage,0.01,V,-321.28,16
 18,SAEfg01,"Flow rate, gaseous",0.05,kg/h,0,16
 262,SAEfg02,"Flow rate, gaseous",0.2,kg/h,0,16
 369,SAEfg03,"Flow rate, gaseous",0.00006103515625,kg/s,0,16
@@ -191,6 +196,8 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 25,SAEid01,"Identifier,component/software",1,ID,0,8
 325,SAEid02,"Identifier,component/software",1,ID,0,24
 373,SAEid03,"Identifier,component/software",1,ID,0,16
+217,SAEid04,"Identifier,component/software",1,ID,0,21
+245,SAEid05,"Identifier,component/software",1,ID,0,32
 112,SAEie01,Inertia,0.004,kg•m²,0,16
 459,SAEig01,Integral Gain,0.015625,%/(%*s),0,16
 204,SAEio01,"Intensity, optical",0.4,mW/cm²,0,8
@@ -211,7 +218,9 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 471,SAEma14,Mass,0.0002,g,0,32
 472,SAEma15,Mass,0.0005,g,0,32
 473,SAEma16,Mass,1,g,0,32
-283,SAEmd01,Manufacturer defined,1,,0,0
+283,SAEmd01,Manufacturer defined,1,,0,14280
+490,SAEmd02,Manufacturer defined,1,,0,14216
+218,SAEmf01,Manufacturer ID,1,,0,11
 337,SAEms01,Mass Concentration,0.0125,mg/m³,0,16
 474,SAEms02,Mass Concentration,1,mg/l,0,16
 159,SAEnm01,Name (long),1,,0,64
@@ -240,7 +249,9 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 449,SAEpc24,Percent,0.0625,%,-125,12
 450,SAEpc25,Percent,0.00390625,%,-125,16
 465,SAEpc26,Percent,0.025,%,0,16
-154,SAEpd01,Proprietary Data,1,,0,64
+496,SAEpc27,"Percent, position/level",0.01,%,0,16
+497,SAEpc28,"Percent, flow",0.004,%,-128.512,16
+154,SAEpd01,Proprietary Data,1,,0,14280
 151,SAEpf01,Power Factor,0.00006103515625,,-1,16
 116,SAEpg00,PGN,1,,0,24
 457,SAEpg01,Proportional Gain,0.0625,%/%,0,12
@@ -248,6 +259,7 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 296,SAEpp02,Parts Per Million,1,ppm,-125,8
 348,SAEpp03,Parts Per Million,0.1,ppm,-200,16
 349,SAEpp04,Parts Per Million,0.05,ppm,-500,16
+492,SAEpp05,Parts Per Million,500,ppm,0,8
 52,SAEpr01,Pressure,0.0078125,kPa,-250,16
 48,SAEpr02,Pressure,0.05,kPa,0,8
 85,SAEpr03,Pressure,0.1,kPa,0,16
@@ -275,6 +287,7 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 431,SAEpr25,Pressure,0.0078125,kPa,-100,16
 475,SAEpr26,Pressure,4,Pa,0,16
 487,SAEpr27,Pressure,0.1,kPa,-100,16
+510,SAEpr28,Pressure,0.01,kPa,0,16
 162,SAEprc01,Pressure Rate Change,0.1,Pa/s,0,16
 411,SAEprc02,Pressure Rate Change,16,kPa/deg crank angle,0,8
 149,SAEpt01,"Power, Reactive",1,VAr,-2000000000,32
@@ -286,6 +299,7 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 370,SAEpw06,"Power, Real",0.0625,kW,0,16
 428,SAEpw07,"Power, Real",0.1,kW,0,8
 437,SAEpw08,"Power, Real",0.05,kW,-1600,16
+505,SAEpw09,"Power, Real",0.25,kW,0,16
 443,SAEpwr01,Power Rate,0.125,kW/s,0,16
 32,SAEr01,Ratio,0.001,,0,16
 31,SAEr02,Ratio,0.1,,0,8
@@ -295,6 +309,7 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 375,SAEr06,Ratio,0.03125,,-1004,16
 394,SAEr07,Ratio,0.01,,-300,16
 447,SAEr08,Ratio,0.004,,1,8
+502,SAEr09,Ratio,0.0000305,,0,16
 263,SAEra01,Range,1,range,-32,6
 96,SAErc01,Road Curvature,0.0078125,km⁻¹,-250,16
 261,SAErc02,Road Curvature,0.0078125,deg,-90,16
@@ -302,6 +317,7 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 429,SAEri01,Isolation Resistance,0.1,ohm per V,0,16
 454,SAEroc01,Rate of change,0.25,%/s,0,12
 455,SAEroc02,Rate of change,2,%/s,0,12
+491,SAEroc03,Rate of change,0.01,%/s,0,16
 290,SAErs01,Resistance,0.1,ohm,0,16
 383,SAErs02,Resistance,1,kohm,0,16
 385,SAErs03,Resistance,250,kohm,0,8
@@ -317,8 +333,8 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 83,SAEsr01,Specific Resistance,0.1,Mohm*m,0,8
 84,SAEst01,Step,1,step,0,8
 274,SAEtc01,Trouble code,1,trouble code,0,8
-155,SAEtd01,Transfer Data,1,,0,72
-158,SAEtd02,Transport Data,1,,0,72
+155,SAEtd01,Transfer Data,1,,0,14216
+158,SAEtd02,Transport Data,1,,0,14272
 277,SAEtd03,Test data,1,,0,16
 57,SAEtm01,Time,0.01,ms,0,16
 132,SAEtm02,Time,1,ms,0,16
@@ -346,6 +362,8 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 384,SAEtm24,Time,6,s,0,16
 464,SAEtm25,Time,10,s,0,16
 477,SAEtm26,Time,1,s,0,6
+488,SAEtm27,Time,1,s,0,8
+504,SAEtm28,Time,0.1,min,0,16
 416,SAEtma01,Temperature per mass flow,0.015625,°C/kg/s,-502,16
 67,SAEtp01,Temperature,1,°C,-40,8
 68,SAEtp02,Temperature,0.03125,°C,-273,16
@@ -361,6 +379,7 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 288,SAEva03,"Velocity, angular",0.0078125,deg/s,-250,16
 134,SAEvd01,VariantData,1,,0,32
 456,SAEvd02,VariantData,1,,0,16
+280,SAEvd03,VariantData,1,,0,24
 125,SAEvl01,"Velocity, linear",0.001,m/s,0,16
 71,SAEvl02,"Velocity, linear",0.00390625,km/h,0,16
 72,SAEvl03,"Velocity, linear",0.0078125,km/h,-250,16
@@ -370,6 +389,7 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 401,SAEvl07,"Velocity, linear",0.1,m/s,0,16
 405,SAEvl08,"Velocity, linear",0.125,km/h,0,8
 406,SAEvl09,"Velocity, linear",0.125,km/h,-31.25,8
+495,SAEvl10,"Velocity, linear",0.001,m/s,-32.128,16
 219,SAEvm01,"Velocity, magnitude",2,m/h,0,16
 75,SAEvm1,Volume,0.5,l,0,32
 222,SAEvm2,Volume,0.5,l,0,16
@@ -385,3 +405,4 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 223,SAEvr06,"Velocity, rotational",1,rpm,0,16
 378,SAEvr07,"Velocity, rotational",1,rpm,-32127,16
 398,SAEvr08,"Velocity, rotational",0.25,rpm,-8031.75,16
+494,SAEvr09,"Velocity, rotational",0.125,rpm,-4016,16

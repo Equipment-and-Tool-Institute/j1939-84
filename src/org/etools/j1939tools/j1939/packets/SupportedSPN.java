@@ -30,7 +30,7 @@ public class SupportedSPN {
     public SupportedSPN(int[] data) {
 
         this.data = Arrays.copyOf(data, data.length);
-        support = data[2] & 0x0F;
+        support = data[2] & 0x0F ; 
         spn = SupportedSPN.parseSPN(data);
         length = (byte) (data[3] & 0xFF);
     }
@@ -54,31 +54,6 @@ public class SupportedSPN {
         byte byte4 = (byte) (length & 0xFF);
 
         return new SupportedSPN(new int[] { byte1, byte2, byte3, byte4 });
-    }
-
-    public static SupportedSPN create(int spn,
-                                      boolean isScaledTestResult,
-                                      boolean isDataStream,
-                                      boolean isFreezeFrame,
-                                      boolean isRationalData,
-                                      int length,
-                                      int[] data) {
-        byte byte1 = (byte) (spn & 0xFF);
-        byte byte2 = (byte) ((spn >> 8) & 0xFF);
-
-        byte byte3 = (byte) 0xFF;
-        byte3 &= (byte) (((spn >> 16) & 0xE0) + 0x1F);
-        byte3 &= (byte) (isFreezeFrame ? 0xFE : 0xFF);
-        byte3 &= (byte) (isDataStream ? 0xFD : 0xFF);
-        byte3 &= (byte) (isScaledTestResult ? 0xFB : 0xFF);
-        byte3 &= (byte) (isRationalData ? 0xF7 : 0xFF);
-
-        byte byte4 = (byte) (length & 0xFF);
-
-        int[] spnBytes = CollectionUtils.toIntArray(new byte[] { byte1, byte2, byte3, byte4 });
-        int[] dataBytes = CollectionUtils.join(spnBytes, data);
-
-        return new SupportedSPN(dataBytes);
     }
 
     /**

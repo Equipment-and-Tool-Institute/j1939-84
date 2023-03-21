@@ -25,6 +25,7 @@ import org.etools.j1939_84.controllers.TableA1Validator;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.DM5Heartbeat;
 import org.etools.j1939tools.bus.Either;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.DM20MonitorPerformanceRatioPacket;
@@ -104,59 +105,63 @@ public class Part11Step07Controller extends StepController {
             getListener().onResult(msg);
         }, 0L, 1L, TimeUnit.MINUTES);
 
-        // 6.11.7.1.b. Wait 3 minutes.
-        pause("Step 6.11.7.1.b - Waiting %1$d seconds", 3 * 60);
+        try (var dm5 = DM5Heartbeat.run(getJ1939(), getListener())) {
 
-        // 6.11.7.1.c. Increase engine speed over 1150 rpm (a minimum of 300 seconds at this speed is required).
-        long secondsToGo = calculateSecondsRemainingAtSpeed();
+            // 6.11.7.1.b. Wait 3 minutes.
+            pause("Step 6.11.7.1.b - Waiting %1$d seconds", 3 * 60);
 
-        String msg = "Please increase engine speed over 1150 rpm for a minimum of %1$d seconds" + NL + NL;
-        msg += "Press OK to continue";
-        displayInstructionAndWait(format(msg, secondsToGo), "Step 6.11.7.1.c", WARNING);
+            // 6.11.7.1.c. Increase engine speed over 1150 rpm (a minimum of 300 seconds at this speed is required).
+            long secondsToGo = calculateSecondsRemainingAtSpeed();
 
-        String message = "Step 6.11.7.1.c - Increase engine speed over 1150 rpm for %1$d seconds";
-        do {
-            updateProgress(format(message, secondsToGo));
+            String msg = "Please increase engine speed over 1150 rpm for a minimum of %1$d seconds" + NL + NL;
+            msg += "Press OK to continue";
+            displayInstructionAndWait(format(msg, secondsToGo), "Step 6.11.7.1.c", WARNING);
 
-            // 6.11.7.1.d - f Periodic DS DM20 and DS DM28 with Fail Criteria
-            requestPeriodicMessages();
+            String message = "Step 6.11.7.1.c - Increase engine speed over 1150 rpm for %1$d seconds";
+            do {
+                updateProgress(format(message, secondsToGo));
 
-            getDateTimeModule().pauseFor(1000);
-            secondsToGo = calculateSecondsRemainingAtSpeed();
-        } while (secondsToGo > 0);
+                // 6.11.7.1.d - f Periodic DS DM20 and DS DM28 with Fail Criteria
+                requestPeriodicMessages();
 
-        // 6.11.7.1.f. After 300 seconds have been exceeded, reduce the engine speed back to idle.
-        String msg2 = "Please reduce engine speed back to idle" + NL;
-        msg2 += "Test will continue for an additional %1$d seconds" + NL + NL;
-        msg2 += "Press OK to continue";
-        displayInstructionAndWait(format(msg2, calculateSecondsRemaining()), "Step 6.11.7.1.f", WARNING);
+                getDateTimeModule().pauseFor(1000);
+                secondsToGo = calculateSecondsRemainingAtSpeed();
+            } while (secondsToGo > 0);
 
-        // This logic has been moved to only report implausible values when the engine is at idle after the engine
-        // has been at 1150 RPMs for over 300 seconds
-        // 6.11.7.1.a. Broadcast data received shall comply with the values defined in Section A.1.
-        // 6.11.7.3.a. Identify any broadcast data meeting warning criteria in Table A1 during engine idle periods.
-        // 6.11.7.2.c. Fail if any broadcast data is missing according to Table A1,
-        // or otherwise meets failure criteria during engine idle speed periods.
-        executor.submit(() -> {
-            getJ1939().readGenericPacket(stopPredicate)
-                      .filter(p -> getEngineSpeedModule().isEngineAtIdle())
-                      .forEach(p -> {
-                          validator.reportImplausibleSPNValues(p, getListener(), true, "6.11.7.3.a");
-                      });
-        });
+            // 6.11.7.1.f. After 300 seconds have been exceeded, reduce the engine speed back to idle.
+            String msg2 = "Please reduce engine speed back to idle" + NL;
+            msg2 += "Test will continue for an additional %1$d seconds" + NL + NL;
+            msg2 += "Press OK to continue";
+            displayInstructionAndWait(format(msg2, calculateSecondsRemaining()), "Step 6.11.7.1.f", WARNING);
 
-        // 6.11.7.4.a. Once 620 seconds of engine operation overall in part 11 have elapsed (including over 300 seconds
-        // of engine operation over 1150 rpm), end periodic DM20 and DM28 and continue with test 6.11.8.
-        secondsToGo = calculateSecondsRemaining();
-        do {
-            updateProgress(format("Step 6.11.7.4.a - Continue to run engine at idle for an additional %1$d seconds",
-                                  secondsToGo));
-            getDateTimeModule().pauseFor(1000);
+            // This logic has been moved to only report implausible values when the engine is at idle after the engine
+            // has been at 1150 RPMs for over 300 seconds
+            // 6.11.7.1.a. Broadcast data received shall comply with the values defined in Section A.1.
+            // 6.11.7.3.a. Identify any broadcast data meeting warning criteria in Table A1 during engine idle periods.
+            // 6.11.7.2.c. Fail if any broadcast data is missing according to Table A1,
+            // or otherwise meets failure criteria during engine idle speed periods.
+            executor.submit(() -> {
+                getJ1939().readGenericPacket(stopPredicate)
+                          .filter(p -> getEngineSpeedModule().isEngineAtIdle())
+                          .forEach(p -> {
+                              validator.reportImplausibleSPNValues(p, getListener(), true, "6.11.7.3.a");
+                          });
+            });
+
+            // 6.11.7.4.a. Once 620 seconds of engine operation overall in part 11 have elapsed (including over 300
+            // seconds
+            // of engine operation over 1150 rpm), end periodic DM20 and DM28 and continue with test 6.11.8.
             secondsToGo = calculateSecondsRemaining();
-        } while (secondsToGo > 0);
+            do {
+                updateProgress(format("Step 6.11.7.4.a - Continue to run engine at idle for an additional %1$d seconds",
+                                      secondsToGo));
+                getDateTimeModule().pauseFor(1000);
+                secondsToGo = calculateSecondsRemaining();
+            } while (secondsToGo > 0);
 
-        executor.shutdownNow();
-        isComplete.set(true);
+            executor.shutdownNow();
+            isComplete.set(true);
+        }
     }
 
     private void requestPeriodicMessages() {

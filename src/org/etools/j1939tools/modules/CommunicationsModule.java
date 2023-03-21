@@ -547,13 +547,4 @@ public class CommunicationsModule extends FunctionalModule {
                                 address,
                                 listener).busResult();
     }
-
-    public List<GenericPacket> requestAllGhgNox(int address, ResultsListener listener) {
-        return Stream.of(IntStream.of(GhgTrackingModule.GHG_ALL_PG),
-                         IntStream.of(NOxBinningModule.NOx_ALL_PGNS))
-                     .flatMapToInt(x -> x)
-                     .mapToObj(pg -> request(pg, address, listener).toPacketStream())
-                     .flatMap(x -> x)
-                     .collect(Collectors.toList());
-    }
 }

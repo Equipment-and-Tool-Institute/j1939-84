@@ -45,6 +45,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.DM5Heartbeat;
 import org.etools.j1939tools.j1939.J1939DaRepository;
 import org.etools.j1939tools.j1939.Lookup;
 import org.etools.j1939tools.j1939.model.ActiveTechnology;
@@ -194,7 +195,9 @@ public class Part02Step17Controller extends StepController {
         if (getJ1939().getBus().imposterDetected()) {
             String msg = "6.2.17 - Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible";
             addWarning(msg);
-            displayInstructionAndWait(msg, "Second device using SA 0xF9", ERROR);
+            try (var dm5 = DM5Heartbeat.run(getJ1939(), getListener())) {
+                displayInstructionAndWait(msg, "Second device using SA 0xF9", ERROR);
+            }
         }
         // Check the Broadcast Period of the received packets1
         // Map of PGN to (Map of Source Address to List of Packets)

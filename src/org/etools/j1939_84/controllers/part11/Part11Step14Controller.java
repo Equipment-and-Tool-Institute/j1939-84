@@ -15,6 +15,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.DM5Heartbeat;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -57,29 +58,32 @@ public class Part11Step14Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.11.14.1.a. Turn Engine Off.
-        ensureKeyStateIs(KEY_OFF, "6.11.14.1.a");
+        try (var dm5 = DM5Heartbeat.run(getJ1939(), getListener())) {
 
-        // 6.11.14.1.b. Wait manufacturer's recommended interval.
-        waitMfgIntervalWithKeyOff("Step 6.11.14.1.b");
+            // 6.11.14.1.a. Turn Engine Off.
+            ensureKeyStateIs(KEY_OFF, "6.11.14.1.a");
 
-        // 6.11.14.1.c. Turn Key On.
-        // 6.11.14.1.d. Start Engine Immediately.
-        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.11.14.1.d");
+            // 6.11.14.1.b. Wait manufacturer's recommended interval.
+            waitMfgIntervalWithKeyOff("Step 6.11.14.1.b");
 
-        // 6.11.14.1.e. Wait 60 seconds.
-        pause("Step 6.11.14.1.e - Waiting %1$d seconds", 60);
+            // 6.11.14.1.c. Turn Key On.
+            // 6.11.14.1.d. Start Engine Immediately.
+            ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.11.14.1.d");
 
-        // 6.11.14.1.f. Turn engine off.
-        ensureKeyStateIs(KEY_OFF, "6.11.14.1.f");
+            // 6.11.14.1.e. Wait 60 seconds.
+            pause("Step 6.11.14.1.e - Waiting %1$d seconds", 60);
 
-        // 6.11.14.1.g. Wait manufacturer's recommended interval.
-        waitMfgIntervalWithKeyOff("Step 6.11.14.1.g");
+            // 6.11.14.1.f. Turn engine off.
+            ensureKeyStateIs(KEY_OFF, "6.11.14.1.f");
 
-        // 6.11.14.1.h. Turn Key On.
-        ensureKeyStateIs(KEY_ON_ENGINE_OFF, "6.11.14.1.h");
+            // 6.11.14.1.g. Wait manufacturer's recommended interval.
+            waitMfgIntervalWithKeyOff("Step 6.11.14.1.g");
 
-        // 6.11.14.1.i. Proceed to Part 12.
+            // 6.11.14.1.h. Turn Key On.
+            ensureKeyStateIs(KEY_ON_ENGINE_OFF, "6.11.14.1.h");
+
+            // 6.11.14.1.i. Proceed to Part 12.
+        }
     }
 
 }

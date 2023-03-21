@@ -190,12 +190,12 @@ public class Part12Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(PART_NUMBER),
                                         eq(STEP_NUMBER),
                                         eq(FAIL),
-                                        eq("6.12.11.3.a - NACK received for DM7 PG from OBD ECU from Engine #1 (0) for SP SPN 91 - Accelerator Pedal Position 1"));
+                                        eq("6.12.11.3.a - NACK received for DM7 PG from OBD ECU from Engine #1 (0) for SP SPN 91 - Accelerator Pedal 1 Position"));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
         ActionOutcome expectedOutcome = new ActionOutcome(FAIL,
-                                                          "6.12.11.3.a - NACK received for DM7 PG from OBD ECU from Engine #1 (0) for SP SPN 91 - Accelerator Pedal Position 1");
+                                                          "6.12.11.3.a - NACK received for DM7 PG from OBD ECU from Engine #1 (0) for SP SPN 91 - Accelerator Pedal 1 Position");
         assertEquals(List.of(expectedOutcome), listener.getOutcomes());
     }
 
@@ -717,12 +717,12 @@ public class Part12Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(PART_NUMBER),
                                         eq(STEP_NUMBER),
                                         eq(FAIL),
-                                        eq("6.12.12.3.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 91 - Accelerator Pedal Position 1"));
+                                        eq("6.12.12.3.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 91 - Accelerator Pedal 1 Position"));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
         ActionOutcome expectedActionOutcome = new ActionOutcome(FAIL,
-                                                                "6.12.12.3.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 91 - Accelerator Pedal Position 1");
+                                                                "6.12.12.3.d - Data returned is greater than 0xFB... threshold from Engine #1 (0) for SPN 91 - Accelerator Pedal 1 Position");
 
         assertEquals(List.of(expectedActionOutcome), listener.getOutcomes());
     }

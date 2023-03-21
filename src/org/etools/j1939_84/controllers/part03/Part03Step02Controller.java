@@ -16,6 +16,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.DM5Heartbeat;
 import org.etools.j1939tools.j1939.Lookup;
 import org.etools.j1939tools.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
@@ -94,10 +95,12 @@ public class Part03Step02Controller extends StepController {
                     // and fail if user says 'no' and no ECU reports a pending DTC.
 
                     // This will throw an exception if the user chooses 'no'
-                    displayInstructionAndWait("No ECU has reported a Pending Emission DTC." + NL + NL +
-                            "Do you wish to continue?",
-                                              "No Pending Emission DTCs Found",
-                                              QUESTION);
+                    try (var dm5 = DM5Heartbeat.run(getJ1939(), getListener())) {
+                        displayInstructionAndWait("No ECU has reported a Pending Emission DTC." + NL + NL +
+                                "Do you wish to continue?",
+                                                  "No Pending Emission DTCs Found",
+                                                  QUESTION);
+                    }
                     attempts = 0;
                 } else {
                     getDateTimeModule().pauseFor(1000);

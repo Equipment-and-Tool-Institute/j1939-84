@@ -16,6 +16,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.DM5Heartbeat;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -55,34 +56,37 @@ public class Part05Step07Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.5.7.1.a Turn the engine off to complete the first cycle.
-        ensureKeyStateIs(KEY_OFF, "6.5.7.1.a");
+        try (var dm5 = DM5Heartbeat.run(getJ1939(), getListener())) {
 
-        // 6.5.7.1.b Wait manufacturer’s recommended interval with the key in the off position.
-        waitMfgIntervalWithKeyOff("Step 6.5.7.1.b");
+            // 6.5.7.1.a Turn the engine off to complete the first cycle.
+            ensureKeyStateIs(KEY_OFF, "6.5.7.1.a");
 
-        // 6.5.7.1.c Start Engine for second cycle.
-        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.5.7.1.c");
+            // 6.5.7.1.b Wait manufacturer’s recommended interval with the key in the off position.
+            waitMfgIntervalWithKeyOff("Step 6.5.7.1.b");
 
-        // 6.5.7.1.d Wait for manufacturer’s recommended time for Fault A to be detected as passed.
-        updateProgress("Step 6.5.7.1.d - Waiting manufacturer’s recommended time for Fault A to be detected as passed");
-        String message = "Wait the manufacturer's recommended time for Fault A to be detected as passed" + NL + NL;
-        message += "Press OK to continue";
-        displayInstructionAndWait(message, "Step 6.5.7.1.d", WARNING);
+            // 6.5.7.1.c Start Engine for second cycle.
+            ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.5.7.1.c");
 
-        // 6.5.7.1.e Turn the engine off to complete the second cycle.
-        ensureKeyStateIs(KEY_OFF, "6.5.7.1.e");
+            // 6.5.7.1.d Wait for manufacturer’s recommended time for Fault A to be detected as passed.
+            updateProgress("Step 6.5.7.1.d - Waiting manufacturer’s recommended time for Fault A to be detected as passed");
+            String message = "Wait the manufacturer's recommended time for Fault A to be detected as passed" + NL + NL;
+            message += "Press OK to continue";
+            displayInstructionAndWait(message, "Step 6.5.7.1.d", WARNING);
 
-        // 6.5.7.1.f Wait manufacturer’s recommended interval with the key in the off position.
-        waitMfgIntervalWithKeyOff("Step 6.5.7.1.f");
+            // 6.5.7.1.e Turn the engine off to complete the second cycle.
+            ensureKeyStateIs(KEY_OFF, "6.5.7.1.e");
 
-        // 6.5.7.1.g Start the engine for part 6.
-        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.5.7.1.g");
+            // 6.5.7.1.f Wait manufacturer’s recommended interval with the key in the off position.
+            waitMfgIntervalWithKeyOff("Step 6.5.7.1.f");
 
-        // 6.5.7.1.h Wait for manufacturer’s recommended time for Fault A to be detected as passed
-        updateProgress("Step 6.5.7.1.h - Waiting manufacturer’s recommended time for Fault A to be detected as passed");
-        String message2 = "Wait the manufacturer's recommended time for Fault A to be detected as passed" + NL + NL;
-        message2 += "Press OK to continue";
-        displayInstructionAndWait(message2, "Step 6.5.7.1.h", WARNING);
+            // 6.5.7.1.g Start the engine for part 6.
+            ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.5.7.1.g");
+
+            // 6.5.7.1.h Wait for manufacturer’s recommended time for Fault A to be detected as passed
+            updateProgress("Step 6.5.7.1.h - Waiting manufacturer’s recommended time for Fault A to be detected as passed");
+            String message2 = "Wait the manufacturer's recommended time for Fault A to be detected as passed" + NL + NL;
+            message2 += "Press OK to continue";
+            displayInstructionAndWait(message2, "Step 6.5.7.1.h", WARNING);
+        }
     }
 }

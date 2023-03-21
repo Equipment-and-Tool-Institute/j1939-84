@@ -19,6 +19,7 @@ import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.FaultModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.DM5Heartbeat;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -67,60 +68,62 @@ public class Part07Step18Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.7.18.1.a. Turn the engine off.
-        // 6.2.18.1.a. Turn Engine Off and keep the ignition key in the off position.
-        ensureKeyStateIs(KEY_OFF, "6.7.18.1.a");
-        faultModule.setJ1939(getJ1939());
+        try (var dm5 = DM5Heartbeat.run(getJ1939(), getListener())) {
+            // 6.7.18.1.a. Turn the engine off.
+            // 6.2.18.1.a. Turn Engine Off and keep the ignition key in the off position.
+            ensureKeyStateIs(KEY_OFF, "6.7.18.1.a");
+            faultModule.setJ1939(getJ1939());
 
-        // 6.7.18.1.b. Keep the ignition key in the off position.
-        // 6.7.18.1.c. Implant Fault B according to engine manufacturer’s instruction.
-        updateProgress("Step 6.7.18.1.c - Waiting for Fault B to be implanted");
-        String message = "Implant Fault B according to engine manufacturer’s instruction";
-        message += NL + NL + "Press OK to continue";
-        displayInstructionAndWait(message, "Step 6.7.18.1.b", WARNING);
-        if (isTesting()) {
-            faultModule.implantFaultB(getListener());
-        }
-
-        // 6.7.18.1.d. Turn ignition key to the ON position.
-        // 6.7.18.1.e. Start the engine for cycle 8a.
-        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.7.18.1.e");
-
-        // 6.7.18.1.f. Wait for manufacturer’s recommended time for Fault B to be detected as failed.
-        waitForFault("Step 6.7.18.1.f");
-
-        // 6.7.18.1.g. Turn engine off.
-        ensureKeyStateIs(KEY_OFF, "6.7.18.1.g");
-
-        // 6.7.18.1.h. Wait engine manufacturer’s recommended interval for permanent fault recording.
-        waitMfgIntervalWithKeyOff("Step 6.7.18.1.h");
-
-        // 6.7.18.1.i. Start Engine.
-        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.7.18.1.i");
-
-        // 6.7.18.1.j. If Fault B is a single trip fault proceed with part 8 immediately.
-        if (getTripsRequired() != 1) {
-            // We already handle the first fault B, so only iterate over rest
-            for (int i = 2; i <= getTripsRequired(); i++) {
-                updateProgress(format("Step 6.7.18.1.j - Running fault B trip #%d of %d total fault trips",
-                                      i,
-                                      getTripsRequired()));
-                // 6.7.18.1.k. Wait for manufacturer’s recommended time for Fault B to be detected as failed.
-                waitForFault("Step 6.7.18.1.k");
-
-                // 6.7.18.1.l. Turn engine off.
-                ensureKeyStateIs(KEY_OFF, "6.7.18.1.l");
-
-                // 6.7.18.1.m. Wait engine manufacturer’s recommended interval for permanent fault recording.
-                waitMfgIntervalWithKeyOff("Step 6.7.18.1.m");
-
-                // 6.7.18.1.n. Start Engine.
-                // 6.7.18.1.o. Proceed with part 8 (cycle 8b).
-                ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.7.18.1.n");
+            // 6.7.18.1.b. Keep the ignition key in the off position.
+            // 6.7.18.1.c. Implant Fault B according to engine manufacturer’s instruction.
+            updateProgress("Step 6.7.18.1.c - Waiting for Fault B to be implanted");
+            String message = "Implant Fault B according to engine manufacturer’s instruction";
+            message += NL + NL + "Press OK to continue";
+            displayInstructionAndWait(message, "Step 6.7.18.1.b", WARNING);
+            if (isTesting()) {
+                faultModule.implantFaultB(getListener());
             }
-        } else {
+
+            // 6.7.18.1.d. Turn ignition key to the ON position.
+            // 6.7.18.1.e. Start the engine for cycle 8a.
+            ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.7.18.1.e");
+
+            // 6.7.18.1.f. Wait for manufacturer’s recommended time for Fault B to be detected as failed.
+            waitForFault("Step 6.7.18.1.f");
+
+            // 6.7.18.1.g. Turn engine off.
+            ensureKeyStateIs(KEY_OFF, "6.7.18.1.g");
+
+            // 6.7.18.1.h. Wait engine manufacturer’s recommended interval for permanent fault recording.
+            waitMfgIntervalWithKeyOff("Step 6.7.18.1.h");
+
+            // 6.7.18.1.i. Start Engine.
+            ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.7.18.1.i");
+
             // 6.7.18.1.j. If Fault B is a single trip fault proceed with part 8 immediately.
-            updateProgress("Step 6.7.18.1.j - Fault B is a single trip fault; proceeding with part 8 immediately");
+            if (getTripsRequired() != 1) {
+                // We already handle the first fault B, so only iterate over rest
+                for (int i = 2; i <= getTripsRequired(); i++) {
+                    updateProgress(format("Step 6.7.18.1.j - Running fault B trip #%d of %d total fault trips",
+                                          i,
+                                          getTripsRequired()));
+                    // 6.7.18.1.k. Wait for manufacturer’s recommended time for Fault B to be detected as failed.
+                    waitForFault("Step 6.7.18.1.k");
+
+                    // 6.7.18.1.l. Turn engine off.
+                    ensureKeyStateIs(KEY_OFF, "6.7.18.1.l");
+
+                    // 6.7.18.1.m. Wait engine manufacturer’s recommended interval for permanent fault recording.
+                    waitMfgIntervalWithKeyOff("Step 6.7.18.1.m");
+
+                    // 6.7.18.1.n. Start Engine.
+                    // 6.7.18.1.o. Proceed with part 8 (cycle 8b).
+                    ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.7.18.1.n");
+                }
+            } else {
+                // 6.7.18.1.j. If Fault B is a single trip fault proceed with part 8 immediately.
+                updateProgress("Step 6.7.18.1.j - Fault B is a single trip fault; proceeding with part 8 immediately");
+            }
         }
     }
 

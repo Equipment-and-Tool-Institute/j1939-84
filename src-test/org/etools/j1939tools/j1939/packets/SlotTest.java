@@ -10,6 +10,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.etools.j1939tools.j1939.J1939DaRepository;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -42,6 +43,7 @@ public class SlotTest {
         assertFalse(slot.isError(data));
     }
 
+    @Ignore // slot removed in JAN23
     @Test
     public void test11Bits() {
         Slot slot = J1939DaRepository.findSlot(218, 0);
@@ -61,6 +63,7 @@ public class SlotTest {
         assertTrue(slot.isError(data));
     }
 
+    @Ignore // slot removed in JAN23
     @Test
     public void test12Bits() {
         Slot slot = J1939DaRepository.findSlot(281, 0);
@@ -141,6 +144,7 @@ public class SlotTest {
         assertTrue(slot.isFB(data));
     }
 
+    @Ignore // slot removed in JAN23
     @Test
     public void test21Bits() {
         Slot slot = J1939DaRepository.findSlot(217, 0);
@@ -160,6 +164,7 @@ public class SlotTest {
         assertTrue(slot.isError(data));
     }
 
+    @Ignore // slot removed in JAN23
     @Test
     public void test24Bits() {
         Slot slot = J1939DaRepository.findSlot(280, 0);
@@ -225,6 +230,7 @@ public class SlotTest {
         assertTrue(slot.isFB(data));
     }
 
+    @Ignore // slot removed in JAN23
     @Test
     public void test32Bits() {
         Slot slot = J1939DaRepository.findSlot(245, 0);

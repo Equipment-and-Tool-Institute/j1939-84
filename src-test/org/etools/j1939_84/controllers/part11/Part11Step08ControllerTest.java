@@ -479,7 +479,7 @@ public class Part11Step08ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.11.8.3.a - Engine #1 (0) response indicates denominator for monitor SPN 3056 Oxygen (or Exhaust Gas) Sensor Bank 1 Monitor has not incremented by one");
+                                        "6.11.8.3.a - Engine #1 (0) response indicates denominator for monitor SPN 3056 Engine Exhaust Bank 1 O2 Sensor Monitor has not incremented by one");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,

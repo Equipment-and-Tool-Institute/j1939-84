@@ -8,6 +8,9 @@ import static org.etools.j1939_84.J1939_84.NL;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.j1939.J1939;
@@ -94,46 +97,49 @@ public class SectionA5Verifier extends SectionVerifier {
 
     /** public for testing **/
     public void verifyGhgNOxBinngData(ResultsListener listener, int address, boolean isErased) {
-        List<GenericPacket> packets = sectionA5NoxGhgVerifier.requestAllGhgNox(address, listener);
+        Function<Integer, Stream<GenericPacket>> packetProvider = pg -> getCommunicationsModule().request(pg,
+                                                                                                          address,
+                                                                                                          listener)
+                                                                                                 .toPacketStream();
 
         if (getDataRepository().getObdModule(address).supportsSpn(12675)) {
             sectionA5NoxGhgVerifier.verifyDataSpn12675(listener,
                                                        getPartNumber(),
                                                        getStepNumber(),
-                                                       packets,
-                                                       isErased);
+                                                       isErased,
+                                                       packetProvider);
         }
 
         if (getDataRepository().getObdModule(address).supportsSpn(12730)) {
             sectionA5NoxGhgVerifier.verifyDataSpn12730(listener,
                                                        getPartNumber(),
                                                        getStepNumber(),
-                                                       packets,
-                                                       isErased);
+                                                       isErased,
+                                                       packetProvider);
         }
 
         if (getDataRepository().getObdModule(address).supportsSpn(12691)) {
             sectionA5NoxGhgVerifier.verifyDataSpn12691(listener,
                                                        getPartNumber(),
                                                        getStepNumber(),
-                                                       packets,
-                                                       isErased);
+                                                       isErased,
+                                                       packetProvider);
         }
 
         if (getDataRepository().getObdModule(address).supportsSpn(12797)) {
             sectionA5NoxGhgVerifier.verifyDataSpn12797(listener,
                                                        getPartNumber(),
                                                        getStepNumber(),
-                                                       packets,
-                                                       isErased);
+                                                       isErased,
+                                                       packetProvider);
         }
 
         if (getDataRepository().getObdModule(address).supportsSpn(12783)) {
             sectionA5NoxGhgVerifier.verifyDataSpn12783(listener,
                                                        getPartNumber(),
                                                        getStepNumber(),
-                                                       packets,
-                                                       isErased);
+                                                       isErased,
+                                                       packetProvider);
         }
     }
 

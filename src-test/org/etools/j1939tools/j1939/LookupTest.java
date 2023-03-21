@@ -64,7 +64,7 @@ public class LookupTest {
     @Test
     public void testGetManufacturer() {
         assertEquals("Reserved", Lookup.getManufacturer(0));
-        assertEquals("Cummins Inc", Lookup.getManufacturer(10));
+        assertEquals("Cummins Inc (formerly Cummins Engine Co)", Lookup.getManufacturer(10));
         assertEquals("Equipment & Tool Institute", Lookup.getManufacturer(2047));
         assertEquals("Unknown", Lookup.getManufacturer(-1));
     }
