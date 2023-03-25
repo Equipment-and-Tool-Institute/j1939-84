@@ -1111,7 +1111,7 @@ public class Part11Step13ControllerTest12675 extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(11),
                                         eq(13),
                                         eq(INFO),
-                                        eq("6.11.13.4.k - Active 100 hr system out Nox 12321 received is = 0 seconds from Engine #1 (0) for NOx Tracking Active 100 Hour System Out NOx Mass Bin 1 (Total)"));
+                                        eq("6.11.13.4.k - Active 100 hr system out Nox 12321 received is = 0 g from Engine #1 (0) for NOx Tracking Active 100 Hour System Out NOx Mass Bin 1 (Total)"));
 
         // @formatter:off
         String expected = "10:15:30.0000 NOx Binning Lifetime Array from Engine #1 (0)" + NL;
@@ -1652,7 +1652,7 @@ public class Part11Step13ControllerTest12675 extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(11),
                                         eq(13),
                                         eq(INFO),
-                                        eq("6.11.13.4.k - Active 100 hr system out Nox 12338 received is = 0 seconds from Engine #1 (0) for NOx Tracking Active 100 Hour Engine Out NOx Mass Bin 1 (Total)"));
+                                        eq("6.11.13.4.j - Active 100 hr system out Nox 12338 received is = 0 g from Engine #1 (0) for NOx Tracking Active 100 Hour Engine Out NOx Mass Bin 1 (Total)"));
 
         // @formatter:off
         String expected = "10:15:30.0000 NOx Binning Lifetime Array from Engine #1 (0)" + NL;

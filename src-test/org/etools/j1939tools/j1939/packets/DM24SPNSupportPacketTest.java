@@ -270,6 +270,7 @@ public class DM24SPNSupportPacketTest {
         expected += "  D F     1  SPN 5541 - Engine Turbocharger 1 Turbine Outlet Pressure" + NL;
         expected += "  D F     1  SPN 5837 - Fuel Type" + NL;
         expected += "]" + NL;
+        expected += "Freeze Frame data length = 480 bytes" + NL;
         assertEquals(expected, instance.toString());
 
         List<SupportedSPN> actualSPNs = instance.getFreezeFrameSPNsInOrder();
@@ -429,6 +430,7 @@ public class DM24SPNSupportPacketTest {
         expected += "  ------------------------" + NL;
         expected += "      T   1  SPN 92 - Engine Percent Load At Current Speed" + NL;
         expected += "]" + NL;
+        expected += "Freeze Frame data length = 4 bytes" + NL;
         assertEquals(expected, instance.toString());
     }
 
@@ -483,6 +485,7 @@ public class DM24SPNSupportPacketTest {
         expected += "      T   1  SPN 512 - Driver's Demand Engine - Percent Torque" + NL;
         expected += "      T   1  SPN 513 - Actual Engine - Percent Torque" + NL;
         expected += "]" + NL;
+        expected += "Freeze Frame data length = 12 bytes" + NL;
         assertEquals(expected, instance.toString());
     }
 

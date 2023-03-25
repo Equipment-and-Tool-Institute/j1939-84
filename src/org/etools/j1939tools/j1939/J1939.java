@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.etools.j1939_84.J1939_84;
+import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939tools.CommunicationsListener;
 import org.etools.j1939tools.bus.Bus;
 import org.etools.j1939tools.bus.BusException;
@@ -164,7 +165,7 @@ public class J1939 {
      * Used for development to detect DMs that are manually parsed.
      */
     static public boolean isManual(int pgn) {
-        ParsedPacket processRaw = new J1939().processRaw(pgn, Packet.create(pgn, 0x0, new byte[8]));
+        ParsedPacket processRaw = J1939.processRaw(pgn, Packet.create(pgn, 0x0, new byte[8]));
         return processRaw.getClass() != GenericPacket.class;
     }
 
@@ -673,10 +674,10 @@ public class J1939 {
         listener.onResult("");
         listener.onResult(getDateTimeModule().getTime() + " " + title);
         Packet requestPacket = createRequestPacket(pgn, GLOBAL_ADDR);
-        return requestGlobalOnce(pgn, requestPacket, listener, timeOut, timeUnit)
-                                                                                 .stream()
-                                                                                 .flatMap(e -> e.right.stream())
-                                                                                 .collect(Collectors.toList());
+        return requestGlobalOnce(pgn, requestPacket, listener, timeOut, timeUnit, true)
+                                                                                       .stream()
+                                                                                       .flatMap(e -> e.right.stream())
+                                                                                       .collect(Collectors.toList());
     }
 
     /**
@@ -788,7 +789,7 @@ public class J1939 {
     private <T extends GenericPacket> List<Either<T, AcknowledgmentPacket>> requestGlobalOnce(int pgn,
                                                                                               Packet request,
                                                                                               CommunicationsListener listener) {
-        return requestGlobalOnce(pgn, request, listener, GLOBAL_TIMEOUT, MILLISECONDS);
+        return requestGlobalOnce(pgn, request, listener, GLOBAL_TIMEOUT, MILLISECONDS, true);
     }
 
     /**
@@ -798,7 +799,8 @@ public class J1939 {
                                                                                               Packet request,
                                                                                               CommunicationsListener listener,
                                                                                               long timeOut,
-                                                                                              TimeUnit timeUnit) {
+                                                                                              TimeUnit timeUnit,
+                                                                                              boolean decode) {
         if (request.getDestination() != GLOBAL_ADDR) {
             throw new IllegalArgumentException("Request not to global.");
         }
@@ -1028,5 +1030,17 @@ public class J1939 {
 
     public void closeLogger() {
         loggerStream.close();
+    }
+
+    public List<Either<GenericPacket, AcknowledgmentPacket>>
+           requestGlobalNoDecode(String title, Class<DM5DiagnosticReadinessPacket> clas, ResultsListener listener) {
+        int pgn = getPgn(clas);
+        Packet requestPacket = createRequestPacket(pgn, GLOBAL_ADDR);
+        return requestGlobalOnce(pgn,
+                                 requestPacket,
+                                 listener,
+                                 GLOBAL_TIMEOUT,
+                                 MILLISECONDS,
+                                 false);
     }
 }

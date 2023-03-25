@@ -668,8 +668,7 @@ public class Part11Step13Controller extends StepController {
                                                  + " in part 2 was greater than part 11 value");
                                      }
                                      // 6.11.13.2.d Info if lifetime engine hours bin 1 (total) SPN 12593 < part 2 value
-                                     // +
-                                     // 60 seconds.
+                                     // + 60 seconds.
                                      if (spn.getId() == 12593) {
                                          double expectedValue = sum(partTwoValue, 60.0);
                                          if (spn.getValue() < expectedValue) {
@@ -679,8 +678,7 @@ public class Part11Step13Controller extends StepController {
                                          }
                                      }
                                      // 6.11.13.2.e Fail if lifetime engine activity engine hours bin 1 (total) SPN
-                                     // 12659 <
-                                     // part 2 value + 600 seconds
+                                     // 12659 < part 2 value + 600 seconds
                                      if (spn.getId() == 12659) {
                                          if (spn.getValue() < partTwoValue + 600) {
                                              addFailure("6.11.13.2.e - Lifetime engine activity engine hours bin 1 (total) SP "
@@ -812,8 +810,8 @@ public class Part11Step13Controller extends StepController {
                     // (Where supported).
                     if (spn.getId() == 12338 || spn.getId() == 12339) {
                         if (spn.getValue() != null && spn.getValue() == 0) {
-                            addInfo("6.11.13.4.k - Active 100 hr system out Nox " + spn.getId()
-                                    + " received is = 0 seconds from " + module.getModuleName()
+                            addInfo("6.11.13.4.j - Active 100 hr system out Nox " + spn.getId()
+                                    + " received is = 0 g from " + module.getModuleName()
                                     + " for " + spn.getLabel());
                         }
                     }
@@ -823,7 +821,7 @@ public class Part11Step13Controller extends StepController {
                     if (spn.getId() == 12321 || spn.getId() == 12322) {
                         if (spn.getValue() != null && spn.getValue() == 0) {
                             addInfo("6.11.13.4.k - Active 100 hr system out Nox " + spn.getId()
-                                    + " received is = 0 seconds from " + module.getModuleName()
+                                    + " received is = 0 g from " + module.getModuleName()
                                     + " for " + spn.getLabel());
                         }
                     }

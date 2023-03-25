@@ -60,6 +60,11 @@ public class SectionA5MessageVerifier extends SectionVerifier {
     }
 
     boolean checkDM5(ResultsListener listener, String section, int address, boolean verifyIsErased) {
+        var prev = getLatest(DM5DiagnosticReadinessPacket.class, address);
+        if (prev == null) {
+            return true;
+        }
+
         // 1.e. DM5 shall report zero for number of active and previously active DTCs.
         // 4.a. DM5 shall report test not complete (1) for all supported monitors except comprehensive components.
         return getCommunicationsModule().requestDM5(listener, address)
@@ -83,8 +88,6 @@ public class SectionA5MessageVerifier extends SectionVerifier {
                                                             && p.getPreviouslyActiveCodeCount() == (byte) 0xFF);
                                             boolean isErased = isNoCodes && isAllTestsIncomplete;
 
-                                            var prev = getLatest(DM5DiagnosticReadinessPacket.class,
-                                                                 p.getSourceAddress());
                                             boolean wasAllTestsIncomplete = prev.getMonitoredSystems()
                                                                                 .stream()
                                                                                 .filter(s -> s.getId() != CompositeSystem.COMPREHENSIVE_COMPONENT)
@@ -108,12 +111,14 @@ public class SectionA5MessageVerifier extends SectionVerifier {
     }
 
     boolean checkDM6(ResultsListener listener, String section, int address, boolean verifyIsErased) {
+        var prev = getLatest(DM6PendingEmissionDTCPacket.class, address);
+        if (prev == null) {
+            return true;
+        }
         // 1.a. DM6 pending shall report no DTCs and MIL off and not flashing
         return getCommunicationsModule().requestDM6(listener, address)
                                         .toPacketStream()
                                         .filter(p -> {
-                                            var prev = getLatest(DM6PendingEmissionDTCPacket.class,
-                                                                 p.getSourceAddress());
                                             return filterDTCPacket(verifyIsErased, p, prev);
                                         })
                                         .peek(p -> {
@@ -124,12 +129,15 @@ public class SectionA5MessageVerifier extends SectionVerifier {
     }
 
     boolean checkDM12(ResultsListener listener, String section, int address, boolean verifyIsErased) {
+        var prev = getLatest(DM12MILOnEmissionDTCPacket.class, address);
+        if (prev == null) {
+            return true;
+        }
+
         // 1.b. DM12 active shall report no DTCs and MIL off and not flashing
         return getCommunicationsModule().requestDM12(listener, address)
                                         .toPacketStream()
                                         .filter(p -> {
-                                            var prev = getLatest(DM12MILOnEmissionDTCPacket.class,
-                                                                 p.getSourceAddress());
                                             return filterDTCPacket(verifyIsErased, p, prev);
                                         })
                                         .peek(p -> {
@@ -184,6 +192,10 @@ public class SectionA5MessageVerifier extends SectionVerifier {
     }
 
     boolean checkDM21(ResultsListener listener, String section, int address, boolean verifyIsErased) {
+        var prev = getLatest(DM21DiagnosticReadinessPacket.class, address);
+        if (prev == null) {
+            return true;
+        }
         // 3.b. DM21 diagnostic readiness 2 shall report 0 for distance with MIL on and minutes run with MIL on.
         // 5.b. DM21 diagnostic readiness 2 shall report 0 for distance since code clear and minutes run since code
         // clear.
@@ -195,8 +207,6 @@ public class SectionA5MessageVerifier extends SectionVerifier {
                                                     && p.getKmSinceDTCsCleared() == 0
                                                     && p.getMinutesSinceDTCsCleared() == 0;
 
-                                            var prev = getLatest(DM21DiagnosticReadinessPacket.class,
-                                                                 p.getSourceAddress());
                                             boolean wasErased = prev.getKmWhileMILIsActivated() == 0
                                                     && prev.getMinutesWhileMILIsActivated() == 0
                                                     && prev.getKmSinceDTCsCleared() == 0
@@ -212,12 +222,14 @@ public class SectionA5MessageVerifier extends SectionVerifier {
     }
 
     boolean checkDM23(ResultsListener listener, String section, int address, boolean verifyIsErased) {
+        var prev = getLatest(DM23PreviouslyMILOnEmissionDTCPacket.class, address);
+        if (prev == null) {
+            return true;
+        }
         // 1.c. DM23 previously active shall report no DTCs and MIL off and not flashing
         return getCommunicationsModule().requestDM23(listener, address)
                                         .toPacketStream()
                                         .filter(p -> {
-                                            var prev = getLatest(DM23PreviouslyMILOnEmissionDTCPacket.class,
-                                                                 p.getSourceAddress());
                                             return filterDTCPacket(verifyIsErased, p, prev);
                                         })
                                         .peek(p -> {
@@ -228,6 +240,10 @@ public class SectionA5MessageVerifier extends SectionVerifier {
     }
 
     boolean checkDM25(ResultsListener listener, String section, int address, boolean verifyIsErased) {
+        var prev = getLatest(DM25ExpandedFreezeFrame.class, address);
+        if (prev == null) {
+            return true;
+        }
         // 2.a. DM25 expanded freeze frame shall report no data and DTC causing freeze frame
         // with bytes 1-5 = 0 and bytes 6-8 = 255.
         // In this case, we do not care to parse the SPN data, so pass a null DM24.
@@ -236,7 +252,6 @@ public class SectionA5MessageVerifier extends SectionVerifier {
                                         .filter(p -> {
                                             boolean isErased = p.getFreezeFrames().isEmpty();
 
-                                            var prev = getLatest(DM25ExpandedFreezeFrame.class, p.getSourceAddress());
                                             boolean wasErased = prev.getFreezeFrames().isEmpty();
 
                                             return shouldBeReported(verifyIsErased, wasErased, isErased);
@@ -249,14 +264,16 @@ public class SectionA5MessageVerifier extends SectionVerifier {
     }
 
     boolean checkDM26(ResultsListener listener, String section, int address, boolean verifyIsErased) {
+        var prev = getLatest(DM26TripDiagnosticReadinessPacket.class, address);
+        if (prev == null) {
+            return true;
+        }
         // 5.a. DM26 diagnostic readiness 3 shall report 0 for number of warm-ups since code clear.
         return getCommunicationsModule().requestDM26(listener, address)
                                         .toPacketStream()
                                         .filter(p -> {
                                             boolean isErased = p.getWarmUpsSinceClear() == 0;
 
-                                            var prev = getLatest(DM26TripDiagnosticReadinessPacket.class,
-                                                                 p.getSourceAddress());
                                             boolean wasErased = prev.getWarmUpsSinceClear() == 0;
 
                                             return shouldBeReported(verifyIsErased, wasErased, isErased);
@@ -289,11 +306,14 @@ public class SectionA5MessageVerifier extends SectionVerifier {
     }
 
     boolean checkDM29(ResultsListener listener, String section, int address, boolean verifyIsErased) {
+        var prev = getLatest(DM29DtcCounts.class, address);
+        if (prev == null) {
+            return true;
+        }
         // 1.d. DM29 shall report zero for number of pending, active, and previously active DTCs
         return getCommunicationsModule().requestDM29(listener, address)
                                         .toPacketStream()
                                         .filter(p -> {
-                                            var prev = getLatest(DM29DtcCounts.class, p.getSourceAddress());
                                             boolean prevState = prev.getEmissionRelatedPendingDTCCount() == 0
                                                     && prev.getEmissionRelatedMILOnDTCCount() == 0
                                                     && prev.getEmissionRelatedPreviouslyMILOnDTCCount() == 0;
@@ -312,6 +332,10 @@ public class SectionA5MessageVerifier extends SectionVerifier {
     }
 
     boolean checkDM31(ResultsListener listener, String section, int address, boolean verifyIsErased) {
+        var prev = getLatest(DM31DtcToLampAssociation.class, address);
+        if (prev == null) {
+            return true;
+        }
         // 3.a. DM31 lamp status shall report no DTCs causing MIL on (if supported).
         return getCommunicationsModule().requestDM31(listener, address)
                                         .toPacketStream()
@@ -321,7 +345,6 @@ public class SectionA5MessageVerifier extends SectionVerifier {
                                                                 .stream()
                                                                 .allMatch(s -> s.getMalfunctionIndicatorLampStatus() == OFF);
 
-                                            var prev = getLatest(DM31DtcToLampAssociation.class, p.getSourceAddress());
                                             boolean wasErased = prev.getDtcLampStatuses()
                                                                     .stream()
                                                                     .allMatch(s -> s.getMalfunctionIndicatorLampStatus() == OFF);

@@ -17,7 +17,7 @@ public class DM5Heartbeat {
             try {
                 Thread.sleep(10_000);
                 while (running.get()) {
-                    j1939.requestGlobal("DM5 Heartbeat", DM5DiagnosticReadinessPacket.class, listener);
+                    j1939.requestGlobalNoDecode("DM5 Heartbeat", DM5DiagnosticReadinessPacket.class, listener);
                     Thread.sleep(10_000);
                 }
             } catch (InterruptedException e) {

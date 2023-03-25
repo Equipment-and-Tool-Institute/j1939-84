@@ -417,6 +417,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
             @Override
             public void onMessage(String message, String title, MessageType type) {
                 getView().displayDialog(message, title, type.getValue(), false);
+                onResult(type + ": " + title + ": " + message);
             }
 
             @Override
