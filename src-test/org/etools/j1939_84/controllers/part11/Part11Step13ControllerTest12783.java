@@ -222,9 +222,9 @@ public class Part11Step13ControllerTest12783 extends AbstractControllerTest {
         expected += "| Grid: Chg Dep Op eng-off,  kWh |             |             |             |" + NL;
         expected += "| Grid: Chg Dep Op eng-on,   kWh |             |             |             |" + NL;
         expected += "| Grid: Energy into battery, kWh |             |             |             |" + NL;
-        expected += "| Prod: Prop system active,  s   |       4,500 |       6,000 |     392,580 |" + NL;
-        expected += "| Prod: Prop idle active,    s   |         450 |         600 |     353,322 |" + NL;
-        expected += "| Prod: Prop urban active,   s   |       2,925 |       3,900 |     255,177 |" + NL;
+        expected += "| Prod: Prop system active,  min |       4,500 |       6,000 |     392,580 |" + NL;
+        expected += "| Prod: Prop idle active,    min |         450 |         600 |     353,322 |" + NL;
+        expected += "| Prod: Prop urban active,   min |       2,925 |       3,900 |     255,177 |" + NL;
         expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
         expected += NL;
 
@@ -335,9 +335,9 @@ public class Part11Step13ControllerTest12783 extends AbstractControllerTest {
         expected += "| Grid: Chg Dep Op eng-off,  kWh |             |             |             |" + NL;
         expected += "| Grid: Chg Dep Op eng-on,   kWh |             |             |             |" + NL;
         expected += "| Grid: Energy into battery, kWh |             |             |             |" + NL;
-        expected += "| Prod: Prop system active,  s   |       4,500 |       6,000 |     392,580 |" + NL;
-        expected += "| Prod: Prop idle active,    s   |         450 |         600 |     353,322 |" + NL;
-        expected += "| Prod: Prop urban active,   s   |       2,925 |       3,900 |     255,177 |" + NL;
+        expected += "| Prod: Prop system active,  min |       4,500 |       6,000 |     392,580 |" + NL;
+        expected += "| Prod: Prop idle active,    min |         450 |         600 |     353,322 |" + NL;
+        expected += "| Prod: Prop urban active,   min |       2,925 |       3,900 |     255,177 |" + NL;
         expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
         expected += NL;
 
@@ -436,9 +436,9 @@ public class Part11Step13ControllerTest12783 extends AbstractControllerTest {
         expected += "| Grid: Chg Dep Op eng-off,  kWh |             |             |             |" + NL;
         expected += "| Grid: Chg Dep Op eng-on,   kWh |             |             |             |" + NL;
         expected += "| Grid: Energy into battery, kWh |             |             |             |" + NL;
-        expected += "| Prod: Prop system active,  s   |       4,500 |       6,000 |     392,580 |" + NL;
-        expected += "| Prod: Prop idle active,    s   |         450 |         600 |     353,322 |" + NL;
-        expected += "| Prod: Prop urban active,   s   |       2,925 |         N/A |     255,177 |" + NL;
+        expected += "| Prod: Prop system active,  min |       4,500 |       6,000 |     392,580 |" + NL;
+        expected += "| Prod: Prop idle active,    min |         450 |         600 |     353,322 |" + NL;
+        expected += "| Prod: Prop urban active,   min |       2,925 |         N/A |     255,177 |" + NL;
         expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
         expected += NL;
 
@@ -535,9 +535,9 @@ public class Part11Step13ControllerTest12783 extends AbstractControllerTest {
         expected += "| Grid: Chg Dep Op eng-off,  kWh |       6,105 |       8,140 |      16,926 |" + NL;
         expected += "| Grid: Chg Dep Op eng-on,   kWh |         977 |       1,302 |     122,746 |" + NL;
         expected += "| Grid: Energy into battery, kWh |       7,082 |       9,442 |           0 |" + NL;
-        expected += "| Prod: Prop system active,  s   |             |             |             |" + NL;
-        expected += "| Prod: Prop idle active,    s   |             |             |             |" + NL;
-        expected += "| Prod: Prop urban active,   s   |             |             |             |" + NL;
+        expected += "| Prod: Prop system active,  min |             |             |             |" + NL;
+        expected += "| Prod: Prop idle active,    min |             |             |             |" + NL;
+        expected += "| Prod: Prop urban active,   min |             |             |             |" + NL;
         expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on
@@ -641,9 +641,9 @@ public class Part11Step13ControllerTest12783 extends AbstractControllerTest {
         expected += "| Grid: Chg Dep Op eng-off,  kWh |       6,105 |       8,140 |      16,926 |" + NL;
         expected += "| Grid: Chg Dep Op eng-on,   kWh |         977 |       1,302 |     122,746 |" + NL;
         expected += "| Grid: Energy into battery, kWh |       7,082 |       9,442 |           0 |" + NL;
-        expected += "| Prod: Prop system active,  s   |             |             |             |" + NL;
-        expected += "| Prod: Prop idle active,    s   |             |             |             |" + NL;
-        expected += "| Prod: Prop urban active,   s   |             |             |             |" + NL;
+        expected += "| Prod: Prop system active,  min |             |             |             |" + NL;
+        expected += "| Prod: Prop idle active,    min |             |             |             |" + NL;
+        expected += "| Prod: Prop urban active,   min |             |             |             |" + NL;
         expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on
@@ -742,9 +742,9 @@ public class Part11Step13ControllerTest12783 extends AbstractControllerTest {
         expected += "| Grid: Chg Dep Op eng-off,  kWh |       6,105 |       8,140 |      16,926 |" + NL;
         expected += "| Grid: Chg Dep Op eng-on,   kWh |         977 |       1,302 |     122,746 |" + NL;
         expected += "| Grid: Energy into battery, kWh |       7,082 |       9,442 |           0 |" + NL;
-        expected += "| Prod: Prop system active,  s   |             |             |             |" + NL;
-        expected += "| Prod: Prop idle active,    s   |             |             |             |" + NL;
-        expected += "| Prod: Prop urban active,   s   |             |             |             |" + NL;
+        expected += "| Prod: Prop system active,  min |             |             |             |" + NL;
+        expected += "| Prod: Prop idle active,    min |             |             |             |" + NL;
+        expected += "| Prod: Prop urban active,   min |             |             |             |" + NL;
         expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on
@@ -846,9 +846,9 @@ public class Part11Step13ControllerTest12783 extends AbstractControllerTest {
         expected += "| Grid: Chg Dep Op eng-off,  kWh |             |             |      16,926 |" + NL;
         expected += "| Grid: Chg Dep Op eng-on,   kWh |             |             |     122,746 |" + NL;
         expected += "| Grid: Energy into battery, kWh |             |             |           0 |" + NL;
-        expected += "| Prod: Prop system active,  s   |             |             |             |" + NL;
-        expected += "| Prod: Prop idle active,    s   |             |             |             |" + NL;
-        expected += "| Prod: Prop urban active,   s   |             |             |             |" + NL;
+        expected += "| Prod: Prop system active,  min |             |             |             |" + NL;
+        expected += "| Prod: Prop idle active,    min |             |             |             |" + NL;
+        expected += "| Prod: Prop urban active,   min |             |             |             |" + NL;
         expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on
@@ -950,9 +950,9 @@ public class Part11Step13ControllerTest12783 extends AbstractControllerTest {
         expected += "| Grid: Chg Dep Op eng-off,  kWh |             |             |      16,926 |" + NL;
         expected += "| Grid: Chg Dep Op eng-on,   kWh |             |             |     122,746 |" + NL;
         expected += "| Grid: Energy into battery, kWh |             |             |           0 |" + NL;
-        expected += "| Prod: Prop system active,  s   |             |             |             |" + NL;
-        expected += "| Prod: Prop idle active,    s   |             |             |             |" + NL;
-        expected += "| Prod: Prop urban active,   s   |             |             |             |" + NL;
+        expected += "| Prod: Prop system active,  min |             |             |             |" + NL;
+        expected += "| Prod: Prop idle active,    min |             |             |             |" + NL;
+        expected += "| Prod: Prop urban active,   min |             |             |             |" + NL;
         expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on
@@ -1044,9 +1044,9 @@ public class Part11Step13ControllerTest12783 extends AbstractControllerTest {
         expected += "| Grid: Chg Dep Op eng-off,  kWh |       6,105 |       8,140 |             |" + NL;
         expected += "| Grid: Chg Dep Op eng-on,   kWh |         977 |       1,302 |             |" + NL;
         expected += "| Grid: Energy into battery, kWh |       7,082 |       9,442 |             |" + NL;
-        expected += "| Prod: Prop system active,  s   |             |             |             |" + NL;
-        expected += "| Prod: Prop idle active,    s   |             |             |             |" + NL;
-        expected += "| Prod: Prop urban active,   s   |             |             |             |" + NL;
+        expected += "| Prod: Prop system active,  min |             |             |             |" + NL;
+        expected += "| Prod: Prop idle active,    min |             |             |             |" + NL;
+        expected += "| Prod: Prop urban active,   min |             |             |             |" + NL;
         expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on
@@ -1148,9 +1148,9 @@ public class Part11Step13ControllerTest12783 extends AbstractControllerTest {
         expected += "| Grid: Chg Dep Op eng-off,  kWh |       6,105 |       8,140 |      16,926 |" + NL;
         expected += "| Grid: Chg Dep Op eng-on,   kWh |         977 |       1,302 |     122,746 |" + NL;
         expected += "| Grid: Energy into battery, kWh |       7,082 |       9,442 |           0 |" + NL;
-        expected += "| Prod: Prop system active,  s   |             |             |             |" + NL;
-        expected += "| Prod: Prop idle active,    s   |             |             |             |" + NL;
-        expected += "| Prod: Prop urban active,   s   |             |             |             |" + NL;
+        expected += "| Prod: Prop system active,  min |             |             |             |" + NL;
+        expected += "| Prod: Prop idle active,    min |             |             |             |" + NL;
+        expected += "| Prod: Prop urban active,   min |             |             |             |" + NL;
         expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on
@@ -1261,9 +1261,9 @@ public class Part11Step13ControllerTest12783 extends AbstractControllerTest {
         expected += "| Grid: Chg Dep Op eng-off,  kWh |       6,105 |       8,140 |      16,926 |" + NL;
         expected += "| Grid: Chg Dep Op eng-on,   kWh |         977 |       1,302 |     122,746 |" + NL;
         expected += "| Grid: Energy into battery, kWh |       7,082 |       9,442 |           0 |" + NL;
-        expected += "| Prod: Prop system active,  s   |             |             |             |" + NL;
-        expected += "| Prod: Prop idle active,    s   |             |             |             |" + NL;
-        expected += "| Prod: Prop urban active,   s   |             |             |             |" + NL;
+        expected += "| Prod: Prop system active,  min |             |             |             |" + NL;
+        expected += "| Prod: Prop idle active,    min |             |             |             |" + NL;
+        expected += "| Prod: Prop urban active,   min |             |             |             |" + NL;
         expected += "|--------------------------------+-------------+-------------+-------------|" + NL;
         expected += NL;
         // @formatter:on

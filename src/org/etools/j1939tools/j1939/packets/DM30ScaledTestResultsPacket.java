@@ -66,11 +66,6 @@ public class DM30ScaledTestResultsPacket extends GenericPacket {
         return sb.toString();
     }
 
-    @Override
-    protected String getStringPrefix() {
-        return getName() + " from " + getSourceAddress() + ": ";
-    }
-
     /**
      * Returns the {@link ScaledTestResult}s
      *

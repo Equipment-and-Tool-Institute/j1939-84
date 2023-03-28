@@ -344,7 +344,7 @@ public class ParsedPacket {
      *
      * @return {@link String}
      */
-    protected String getStringPrefix() {
+    final public String getStringPrefix() {
         return getName() + " from " + Lookup.getAddressName(getSourceAddress()) + ": ";
     }
 

@@ -839,7 +839,9 @@ public class J1939 {
                                try {
                                    logResponse(listener, sent, rawPacket);
                                    Either<T, AcknowledgmentPacket> pp = process(rawPacket);
-                                   listener.onResult(pp.resolve().toString());
+                                   if (decode) {
+                                       listener.onResult(pp.resolve().toString());
+                                   }
                                    listener.onResult("");
                                    return pp;
                                } catch (PacketException e) {
@@ -1034,6 +1036,8 @@ public class J1939 {
 
     public List<Either<GenericPacket, AcknowledgmentPacket>>
            requestGlobalNoDecode(String title, Class<DM5DiagnosticReadinessPacket> clas, ResultsListener listener) {
+        listener.onResult("");
+        listener.onResult(getDateTimeModule().getTime() + " " + title);
         int pgn = getPgn(clas);
         Packet requestPacket = createRequestPacket(pgn, GLOBAL_ADDR);
         return requestGlobalOnce(pgn,

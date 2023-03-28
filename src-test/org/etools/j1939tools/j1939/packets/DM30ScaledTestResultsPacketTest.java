@@ -35,7 +35,7 @@ public class DM30ScaledTestResultsPacketTest {
             assertEquals(expected, testResult.toString());
         }
 
-        String expected = "DM30 from 0: SPN 3362 FMI 31 (SLOT 208) Result: Test Passed. Min: 800, Value: 951, Max: 1,000 count";
+        String expected = "DM30 from Engine #1 (0): SPN 3362 FMI 31 (SLOT 208) Result: Test Passed. Min: 800, Value: 951, Max: 1,000 count";
         assertEquals(expected, instance.toString());
     }
 
@@ -52,7 +52,7 @@ public class DM30ScaledTestResultsPacketTest {
             assertEquals(expected, testResult.toString());
         }
 
-        String expected = "DM30 from 0: SPN 3521 FMI 18 (SLOT 256) Result: Test Not Complete.";
+        String expected = "DM30 from Engine #1 (0): SPN 3521 FMI 18 (SLOT 256) Result: Test Not Complete.";
         assertEquals(expected, instance.toString());
     }
 
@@ -81,7 +81,7 @@ public class DM30ScaledTestResultsPacketTest {
             assertEquals(expected, testResult.toString());
         }
 
-        String expected = "DM30 from 0: [" + NL
+        String expected = "DM30 from Engine #1 (0): [" + NL
                 + "  SPN 724 FMI 2 (SLOT 132) Result: Test Passed. Min: 0, Value: 0, Max: 0 ms" + NL
                 + "  SPN 724 FMI 20 (SLOT 318) Result: Test Passed. Min: -3.92, Value: -3.92, Max: -3.92" + NL
                 + "  SPN 724 FMI 21 (SLOT 318) Result: Test Passed. Min: -3.92, Value: -3.92, Max: -3.92" + NL
