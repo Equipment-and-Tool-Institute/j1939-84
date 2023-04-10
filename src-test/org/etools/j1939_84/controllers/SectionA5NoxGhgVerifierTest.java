@@ -2206,7 +2206,7 @@ public class SectionA5NoxGhgVerifierTest {
         GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
                                                                       0x00,
                                                                       // @formatter:off
-                                                                      0x00, 0x00, 0x00, 0xC6, 0x00,
+                                                                      0x01, 0x00, 0x00, 0xC6, 0x00,
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,

@@ -76,7 +76,7 @@ public class Part11Step09Controller extends StepController {
 
         // 6.11.9.2.b. Fail if the permanent DTCs reported are not the same DTCs that were reported in DM28 in part 10.
         packets.forEach(p -> {
-            if (!p.getDtcs().equals(getDTCs(p.getSourceAddress()))) {
+            if (isNotSubset(getDTCs(p.getSourceAddress()), p.getDtcs())) {
                 addFailure("6.11.9.2.b - " + p.getModuleName()
                         + " reported a different DTCs than as reported in DM28 in part 10");
             }

@@ -35,7 +35,7 @@ public class SupportedSpnModule {
      * The Data Stream SPNs that are not (causes INFO) to be supported by the vehicle regardless of engine fuel type
      */
     private static final Collection<SpnGroup> NOTICED_NON_DUP_2024_DATA_STREAM_SPNS = List.of(new SpnGroup(4348,
-                                                                                                      6593));
+                                                                                                           6593));
 
     /*
      * The Data Stream SPNs that are not (causes WARN) to be supported by the vehicle regardless of engine fuel type
@@ -43,28 +43,27 @@ public class SupportedSpnModule {
     private static final Collection<SpnGroup> DESIRED_NON_DUP_DATA_STREAM_SPNS = List.of(new SpnGroup(132,
                                                                                                       6393));
 
-
     /*
      * The Data Stream SPNs that are desired (cause INFO) to be supported by the vehicle regardless of engine fuel type
      */
     private static final Collection<SpnGroup> NOTICED_DATA_STREAM_SPNS = List.of(new SpnGroup(110));
 
     /*
-     * The Data Stream SPNs that are desired (cause INFO) to be supported by the vehicle compression ignition engine type
+     * The Data Stream SPNs that are desired (cause INFO) to be supported by the vehicle compression ignition engine
+     * type
      * for vehicles manufactured 2024 or later
      */
     private static final Collection<SpnGroup> NOTICED_2024_CI_DATA_STREAM_SPNS = List.of(new SpnGroup(101),
-                                                                                 new SpnGroup(74)
-    );
+                                                                                         new SpnGroup(74));
     /*
      * The Data Stream SPNs that are desired (cause WARN) to be supported by the vehicle regardless of engine fuel type
      */
     private static final Collection<SpnGroup> DESIRED_DATA_STREAM_SPNS = List.of(new SpnGroup(190),
-                                                                                   new SpnGroup(5827),
-                                                                                   new SpnGroup(132),
-                                                                                   new SpnGroup(157),
-                                                                                   new SpnGroup(5313),
-                                                                                   new SpnGroup(175));
+                                                                                 new SpnGroup(5827),
+                                                                                 new SpnGroup(132),
+                                                                                 new SpnGroup(157),
+                                                                                 new SpnGroup(5313),
+                                                                                 new SpnGroup(175));
 
     /*
      * The Data Stream SPNs that are desired (cause WARN) to be supported by the vehicle regardless of engine fuel type
@@ -73,7 +72,7 @@ public class SupportedSpnModule {
     private static final Collection<SpnGroup> DESIRED_2016_DATA_STREAM_SPNS = List.of(new SpnGroup(3516,
                                                                                                    3518,
                                                                                                    7346),
-                                                                                 new SpnGroup(96));
+                                                                                      new SpnGroup(96));
 
     /*
      * The Data Stream SPNs that are desired (cause WARN) to be supported by the vehicle regardless of engine fuel type
@@ -97,11 +96,11 @@ public class SupportedSpnModule {
                                                                                       new SpnGroup(2659));
 
     /*
-     * The Data Stream SPNs that are desired (cause WARN) to be supported by the vehicle with compression ignition engine
+     * The Data Stream SPNs that are desired (cause WARN) to be supported by the vehicle with compression ignition
+     * engine
      * fuel type for vehicle manufactured 2024 or later
      */
-    private static final Collection<SpnGroup> DESIRED_2024_CI_DATA_STREAM_SPNS = List.of(new SpnGroup(12744),
-                                                                                         new SpnGroup(4348,
+    private static final Collection<SpnGroup> DESIRED_2024_CI_DATA_STREAM_SPNS = List.of(new SpnGroup(4348,
                                                                                                       6593),
                                                                                          new SpnGroup(12749),
                                                                                          new SpnGroup(4363),
@@ -110,7 +109,7 @@ public class SupportedSpnModule {
                                                                                          new SpnGroup(3481,
                                                                                                       5503),
                                                                                          new SpnGroup(12743,
-                                                                                         3479),
+                                                                                                      3479),
                                                                                          new SpnGroup(3480),
                                                                                          new SpnGroup(4334),
                                                                                          new SpnGroup(2630),
@@ -221,7 +220,8 @@ public class SupportedSpnModule {
                                                                                      new SpnGroup(3249),
                                                                                      new SpnGroup(3241),
                                                                                      new SpnGroup(3217),
-                                                                                     new SpnGroup(3227));
+                                                                                     new SpnGroup(3227),
+                                                                                     new SpnGroup(12744));
 
     /*
      * The Freeze Frame SPNs that are required to be supported by the vehicle
@@ -290,13 +290,13 @@ public class SupportedSpnModule {
                 requiredSpns.addAll(DESIRED_2024_CI_DATA_STREAM_SPNS);
             }
         }
-        if (fuelType.isElectric()){
-            if (engineModelYear >= 2024){
+        if (fuelType.isElectric()) {
+            if (engineModelYear >= 2024) {
                 requiredSpns.addAll(DESIRED_2024_XEV_DATA_STREAM_SPNS);
             }
         }
-        if (fuelType.isHybrid()){
-            if (engineModelYear >= 2024){
+        if (fuelType.isHybrid()) {
+            if (engineModelYear >= 2024) {
                 requiredSpns.addAll(DESIRED_2024_HEV_DATA_STREAM_SPNS);
             }
         }
@@ -314,9 +314,9 @@ public class SupportedSpnModule {
     }
 
     public boolean validateDesiredDataStreamSpns(ResultsListener listener,
-                                                  Collection<Integer> spns,
-                                                  FuelType fuelType,
-                                                  int engineModelYear) {
+                                                 Collection<Integer> spns,
+                                                 FuelType fuelType,
+                                                 int engineModelYear) {
 
         boolean result = true;
         for (SpnGroup spnGroup : getDesiredDataStreamSpns(fuelType, engineModelYear)) {
@@ -382,8 +382,10 @@ public class SupportedSpnModule {
         return requiredSpns.stream().sorted().collect(Collectors.toList());
     }
 
-
-    public boolean isMoreThanOneSpnReportedInfo(ResultsListener listener, Collection<Integer> spns, FuelType fuelType, int engineModelYear){
+    public boolean isMoreThanOneSpnReportedInfo(ResultsListener listener,
+                                                Collection<Integer> spns,
+                                                FuelType fuelType,
+                                                int engineModelYear) {
         boolean result = false;
         for (SpnGroup spnGroup : getNoticedNoDupDataStreamSpns(fuelType, engineModelYear)) {
             if (spnGroup.containsMultiple(spns)) {
@@ -394,7 +396,10 @@ public class SupportedSpnModule {
         return result;
     }
 
-    public boolean isMoreThanOneSpnReportedWarning(ResultsListener listener, Collection<Integer> spns, FuelType fuelType, int engineModelYear){
+    public boolean isMoreThanOneSpnReportedWarning(ResultsListener listener,
+                                                   Collection<Integer> spns,
+                                                   FuelType fuelType,
+                                                   int engineModelYear) {
         boolean result = false;
         for (SpnGroup spnGroup : getDesiredNoDupDataStreamSpns(fuelType, engineModelYear)) {
             if (spnGroup.containsMultiple(spns)) {

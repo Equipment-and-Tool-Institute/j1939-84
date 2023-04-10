@@ -244,7 +244,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
                                         "6.9.3.2.a - Engine #2 (1) provided CLR_PA_ACK");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.9.3.3.a - Engine #2 (1) did not provide DM22 CLR_PA_NACK or CLR_ACT_NACK with acknowledgement code of 0");
     }
 
@@ -291,7 +291,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
                                         "6.9.3.2.a - Engine #2 (1) provided CLR_ACT_ACK");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.9.3.3.a - Engine #2 (1) did not provide DM22 CLR_PA_NACK or CLR_ACT_NACK with acknowledgement code of 0");
     }
 
@@ -338,7 +338,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
                                         "6.9.3.2.b - Engine #2 (1) provided J1939-21 ACK for PGN 49920");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.9.3.3.a - Engine #2 (1) did not provide DM22 CLR_PA_NACK or CLR_ACT_NACK with acknowledgement code of 0");
     }
 
@@ -385,7 +385,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
                                         "6.9.3.2.c - Engine #2 (1) provided CLR_ACT_NACK with an acknowledgement code greater than 0");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.9.3.3.a - Engine #2 (1) did not provide DM22 CLR_PA_NACK or CLR_ACT_NACK with acknowledgement code of 0");
     }
 
@@ -432,7 +432,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
                                         "6.9.3.2.c - Engine #2 (1) provided CLR_PA_NACK with an acknowledgement code greater than 0");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.9.3.3.a - Engine #2 (1) did not provide DM22 CLR_PA_NACK or CLR_ACT_NACK with acknowledgement code of 0");
     }
 
@@ -479,7 +479,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
                                         "6.9.3.3.b - Engine #2 (1) provided J1939-21 NACK for PGN 49920");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.9.3.3.a - Engine #2 (1) did not provide DM22 CLR_PA_NACK or CLR_ACT_NACK with acknowledgement code of 0");
     }
 

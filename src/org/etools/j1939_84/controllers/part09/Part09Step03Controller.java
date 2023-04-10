@@ -152,7 +152,7 @@ public class Part09Step03Controller extends StepController {
                                    .anyMatch(p -> (p.getControlByte() == CLR_PA_NACK
                                            || p.getControlByte() == CLR_ACT_NACK) && p.getAcknowledgementCode() == 0);
             if (!found) {
-                addWarning("6.9.3.3.a - " + Lookup.getAddressName(address)
+                addInfo("6.9.3.3.a - " + Lookup.getAddressName(address)
                         + " did not provide DM22 CLR_PA_NACK or CLR_ACT_NACK with acknowledgement code of 0");
             }
         }
@@ -232,7 +232,6 @@ public class Part09Step03Controller extends StepController {
                                    .anyMatch(p -> (p.getControlByte() == CLR_PA_NACK
                                            || p.getControlByte() == CLR_ACT_NACK) && p.getAcknowledgementCode() == 0);
             if (!found) {
-                // FIXME forth coming VERSION 9
                 addInfo("6.9.3.6.a - " + Lookup.getAddressName(address)
                         + " did not provide DM22 CLR_PA_NACK or CLR_ACT_NACK with acknowledgement code of 0");
             }

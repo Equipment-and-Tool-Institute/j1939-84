@@ -7,6 +7,8 @@ import static org.etools.j1939tools.j1939.packets.LampStatus.FAST_FLASH;
 import static org.etools.j1939tools.j1939.packets.LampStatus.ON;
 import static org.etools.j1939tools.j1939.packets.LampStatus.SLOW_FLASH;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -16,6 +18,7 @@ import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.j1939.packets.DM6PendingEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -79,7 +82,8 @@ public class Part05Step02Controller extends StepController {
         // 6.5.2.2.c Fail if DM12 DTC reported does not match the DM6 DTC SPN and FMI reported from step 6.3.2.
         globalPackets.forEach(packet -> {
             var dm6DTCs = getDTCs(DM6PendingEmissionDTCPacket.class, packet.getSourceAddress(), 3);
-            if (!packet.getDtcs().equals(dm6DTCs)) {
+            List<DiagnosticTroubleCode> dm12DTCs = packet.getDtcs();
+            if (isNotSubset(dm12DTCs, dm6DTCs)) {
                 addFailure("6.5.2.2.c - OBD ECU " + packet.getModuleName() +
                         " had a discrepancy between reported DM12 DTCs and DM6 DTCs reported in 6.3.2");
             }

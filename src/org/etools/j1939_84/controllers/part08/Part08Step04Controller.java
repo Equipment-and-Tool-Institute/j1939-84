@@ -64,10 +64,10 @@ public class Part08Step04Controller extends StepController {
     protected void run() throws Throwable {
         // 6.8.4.1.a Global DM23 [(send Request (PGN 59904) for PGN 64949 (SPNs 1213-1215, 1706, and 3038)]).
         var packets = getCommunicationsModule().requestDM23(getListener())
-                                                  .getPackets()
-                                                  .stream()
-                                                  .filter(p -> isObdModule(p.getSourceAddress()))
-                                                  .collect(Collectors.toList());
+                                               .getPackets()
+                                               .stream()
+                                               .filter(p -> isObdModule(p.getSourceAddress()))
+                                               .collect(Collectors.toList());
 
         packets.forEach(this::save);
 
@@ -79,7 +79,11 @@ public class Part08Step04Controller extends StepController {
 
         // 6.8.4.2.b Fail if previously active DTC reported is not the same as previously active DTC from part 7.
         packets.stream()
-               .filter(p -> !p.getDtcs().equals(getDTCs(p.getSourceAddress())))
+               .filter(p -> {
+                   List<DiagnosticTroubleCode> oldDTCs = getDTCs(p.getSourceAddress());
+                   List<DiagnosticTroubleCode> newDTCs = p.getDtcs();
+                   return isNotSubset(oldDTCs, newDTCs);
+               })
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
                    addFailure("6.8.4.2.b - Previously active DTC reported by " + moduleName

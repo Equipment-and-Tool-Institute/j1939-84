@@ -180,53 +180,54 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule).setJ1939(j1939);
 
         String expectedResults = "Required Data Stream SPNs are not supported. SPNs: 27" + NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 51"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 84"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 91"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 92"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 108"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 235"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 247"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 248"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 158, 168"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 512"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 513"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 539"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 540"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 541"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 542"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 543"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 544"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 183, 1600"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 2791"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3217"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3227"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3241"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3249"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3464"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 4236"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 4237"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 4240"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 1413, 1433, 1436"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 102, 106, 1127, 3563"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 5829"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 5837"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 190, 4201, 723, 4202"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 110, 1637, 4076, 4193"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 94, 157, 5313, 5578"+ NL;
-        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 92"+ NL;
-        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 110, 1637, 4076, 4193"+ NL;
-        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 190, 4201, 723, 4202"+ NL;
-        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 512"+ NL;
-        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 513"+ NL;
-        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 3301"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 132"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 157"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 175"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 190"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 5313"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 5827"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 110"+ NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 51" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 84" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 91" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 92" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 108" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 235" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 247" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 248" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 158, 168" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 512" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 513" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 539" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 540" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 541" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 542" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 543" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 544" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 183, 1600" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 2791" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3217" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3227" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3241" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3249" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3464" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 4236" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 4237" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 4240" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 1413, 1433, 1436" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 102, 106, 1127, 3563" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 5829" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 5837" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 190, 4201, 723, 4202" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 110, 1637, 4076, 4193" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 94, 157, 5313, 5578" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 12744" + NL;
+        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 92" + NL;
+        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 110, 1637, 4076, 4193" + NL;
+        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 190, 4201, 723, 4202" + NL;
+        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 512" + NL;
+        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 513" + NL;
+        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 3301" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 132" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 157" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 175" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 190" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 5313" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 5827" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 110" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         verify(mockListener)
@@ -303,53 +304,54 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule).setJ1939(j1939);
 
         String expectedResults = "Required Data Stream SPNs are not supported. SPNs: 27" + NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 51"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 84"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 91"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 92"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 108"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 235"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 247"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 248"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 158, 168"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 512"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 513"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 539"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 540"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 541"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 542"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 543"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 544"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 183, 1600"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 2791"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3217"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3227"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3241"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3249"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3464"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 4236"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 4237"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 4240"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 1413, 1433, 1436"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 102, 106, 1127, 3563"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 5829"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 5837"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 190, 4201, 723, 4202"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 110, 1637, 4076, 4193"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 94, 157, 5313, 5578"+ NL;
-        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 92"+ NL;
-        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 110, 1637, 4076, 4193"+ NL;
-        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 190, 4201, 723, 4202"+ NL;
-        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 512"+ NL;
-        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 513"+ NL;
-        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 3301"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 132"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 157"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 175"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 190"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 5313"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 5827"+ NL;
-        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 110"+ NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 51" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 84" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 91" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 92" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 108" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 235" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 247" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 248" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 158, 168" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 512" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 513" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 539" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 540" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 541" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 542" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 543" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 544" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 183, 1600" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 2791" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3217" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3227" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3241" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3249" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 3464" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 4236" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 4237" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 4240" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 1413, 1433, 1436" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 102, 106, 1127, 3563" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 5829" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 5837" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 190, 4201, 723, 4202" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 110, 1637, 4076, 4193" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 94, 157, 5313, 5578" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 12744" + NL;
+        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 92" + NL;
+        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 110, 1637, 4076, 4193" + NL;
+        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 190, 4201, 723, 4202" + NL;
+        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 512" + NL;
+        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 513" + NL;
+        expectedResults += "Required Freeze Frame SPNs are not supported. SPNs: 3301" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 132" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 157" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 175" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 190" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 5313" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 5827" + NL;
+        expectedResults += "Required Data Stream SPNs are not supported. SPNs: 110" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -1016,7 +1018,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                 add(SupportedSPN.create(530, false, true, false, true, 0));
                 add(SupportedSPN.create(531, false, true, true, true, 1));
                 add(SupportedSPN.create(532, true, false, false, true, 4));
-                add(SupportedSPN. create(533, true, false, true, true, 2));
+                add(SupportedSPN.create(533, true, false, true, true, 2));
                 add(SupportedSPN.create(534, true, true, false, true, 0));
                 add(SupportedSPN.create(535, true, true, true, true, 1));
                 add(SupportedSPN.create(536, false, false, false, true, 0));
@@ -1895,7 +1897,6 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1), eq(4), eq(WARN), eq("6.1.4.3.b - More than 1 SPN supported"));
     }
 
-
     @Test
     public void testMy2022ObjectsInfoThreeB() {
 
@@ -2267,6 +2268,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(eq(1), eq(4), eq(INFO), eq("6.1.4.3.b - More than 1 SPN supported"));
     }
+
     @Test
     // Testing object without any errors.
     @TestDoc(value = @TestItem(verifies = "6.1.4.2.d"), description = "For MY2022+ diesel engines, Fail if SP 12675 (NOx Tracking Engine Activity Lifetime Fuel Consumption Bin 1 - Total) is not included in DM24 response.")
@@ -2795,6 +2797,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                                                                    SupportedSPN.create(6895, false, true, false, false, 1),
                                                                    SupportedSPN.create(7333, false, true, false, false, 1),
                                                                    SupportedSPN.create(12730, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12744, false, true, false, false, 1),
                                                                    SupportedSPN.create(12797, false, true, false, false, 1));
         //@formatter:on
 
@@ -2823,7 +2826,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                                                                  247, 248, 512, 513, 514, 530, 531, 534, 535, 538, 539,
                                                                  540, 541, 542, 543, 544, 1413, 1634, 1635, 2791, 2978,
                                                                  3031, 3226, 3516, 3609, 3700, 5466, 5827, 5829, 5837,
-                                                                 6895, 7333, 12730, 12797);
+                                                                 6895, 7333, 12730, 12744, 12797);
         //@formatter:on
 
         Collections.sort(expectedDataStreamsPacket4);
@@ -2918,7 +2921,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                 add(SupportedSPN.create(12751, false, true, false, false, 1));
                 add(SupportedSPN.create(12783, false, true, false, false, 1));
                 add(SupportedSPN.create(12797, false, true, false, false, 1));
-               
+
             }
         };
         assertArrayEquals(expectedPacket1Spns.toArray(), dataRepository.getObdModule(0).getSupportedSPNs().toArray());
@@ -2992,6 +2995,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                 add(SupportedSPN.create(6895, false, true, false, false, 1));
                 add(SupportedSPN.create(7333, false, true, false, false, 1));
                 add(SupportedSPN.create(12730, false, true, false, false, 1));
+                add(SupportedSPN.create(12744, false, true, false, false, 1));
                 add(SupportedSPN.create(12797, false, true, false, false, 1));
             }
         };
@@ -3092,6 +3096,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                                                                    SupportedSPN.create(7333, false, true, false, false, 1),
                                                                    SupportedSPN.create(12675, false, true, false, false, 1),
                                                                    SupportedSPN.create(12691, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12744, false, true, false, false, 1),
                                                                    SupportedSPN.create(12750, false, true, false, false, 1),
                                                                    SupportedSPN.create(12751, false, true, false, false, 1),
                                                                    SupportedSPN.create(12783, false, true, false, false, 1),
@@ -3201,7 +3206,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                                                                  247, 248, 512, 513, 514, 530, 531, 534, 535, 538, 539,
                                                                  540, 541, 542, 543, 544, 1413, 1634, 1635, 2791, 2978,
                                                                  3031, 3226, 3516, 3609, 3700, 5466, 5827, 5829, 5837,
-                                                                 6895, 7333, 12675, 12691, 12797);
+                                                                 6895, 7333, 12675, 12691, 12797,12744);
         //@formatter:on
 
         Collections.sort(expectedDataStreamsPacket4);
@@ -3292,6 +3297,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                 add(SupportedSPN.create(7333, false, true, false, false, 1));
                 add(SupportedSPN.create(12675, false, true, false, false, 1));
                 add(SupportedSPN.create(12691, false, true, false, false, 1));
+                add(SupportedSPN.create(12744, false, true, false, false, 1));
                 add(SupportedSPN.create(12750, false, true, false, false, 1));
                 add(SupportedSPN.create(12751, false, true, false, false, 1));
                 add(SupportedSPN.create(12783, false, true, false, false, 1));
@@ -3471,6 +3477,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                                                                    SupportedSPN.create(7333, false, true, false, false, 1),
                                                                    SupportedSPN.create(12691, false, true, false, false, 1),
                                                                    SupportedSPN.create(12730, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12744, false, true, false, false, 1),
                                                                    SupportedSPN.create(12750, false, true, false, false, 1),
                                                                    SupportedSPN.create(12751, false, true, false, false, 1));
         //@formatter:on
@@ -3564,6 +3571,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                                                                    SupportedSPN.create(7333, false, true, false, false, 1),
                                                                    SupportedSPN.create(12691, false, true, false, false, 1),
                                                                    SupportedSPN.create(12730, false, true, false, false, 1),
+                                                                   SupportedSPN.create(12744, false, true, false, false, 1),
                                                                    SupportedSPN.create(12750, false, true, false, false, 1),
                                                                    SupportedSPN.create(12751, false, true, false, false, 1));
         //@formatter:on
@@ -3593,7 +3601,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                                                                  247, 248, 512, 513, 514, 530, 531, 534, 535, 538, 539,
                                                                  540, 541, 542, 543, 544, 1413, 1634, 1635, 2791, 2978,
                                                                  3031, 3226, 3516, 3609, 3700, 5466, 5827, 5829, 5837,
-                                                                 6895, 7333, 12691, 12730);
+                                                                 6895, 7333, 12691, 12730,12744);
         //@formatter:on
 
         Collections.sort(expectedDataStreamsPacket4);
@@ -3689,6 +3697,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                 add(SupportedSPN.create(7333, false, true, false, false, 1));
                 add(SupportedSPN.create(12691, false, true, false, false, 1));
                 add(SupportedSPN.create(12730, false, true, false, false, 1));
+                add(SupportedSPN.create(12744, false, true, false, false, 1));
                 add(SupportedSPN.create(12750, false, true, false, false, 1));
                 add(SupportedSPN.create(12751, false, true, false, false, 1));
             }
@@ -3779,6 +3788,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                 add(SupportedSPN.create(7333, false, true, false, false, 1));
                 add(SupportedSPN.create(12691, false, true, false, false, 1));
                 add(SupportedSPN.create(12730, false, true, false, false, 1));
+                add(SupportedSPN.create(12744, false, true, false, false, 1));
                 add(SupportedSPN.create(12750, false, true, false, false, 1));
                 add(SupportedSPN.create(12751, false, true, false, false, 1));
             }

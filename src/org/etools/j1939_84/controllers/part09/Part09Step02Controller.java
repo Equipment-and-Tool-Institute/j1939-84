@@ -61,10 +61,10 @@ public class Part09Step02Controller extends StepController {
     protected void run() throws Throwable {
         // 6.9.2.1.a Global DM12 [(send Request (PGN 59904) for PGN 65236 (SPNs 1213-1215, 1706, and 3038)]).
         var packets = getCommunicationsModule().requestDM12(getListener())
-                                                  .getPackets()
-                                                  .stream()
-                                                  .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                                                  .collect(Collectors.toList());
+                                               .getPackets()
+                                               .stream()
+                                               .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                                               .collect(Collectors.toList());
 
         // 6.9.2.1.b Create list of which OBD ECU(s) have a DM12 active MIL on DTC and which do not.
         packets.forEach(this::save);
@@ -85,7 +85,7 @@ public class Part09Step02Controller extends StepController {
         // response.
         packets.forEach(dm12 -> {
             var prevDM12 = get(DM12MILOnEmissionDTCPacket.class, dm12.getSourceAddress(), 8);
-            if (prevDM12 == null || !dm12.getDtcs().equals(prevDM12.getDtcs())) {
+            if (prevDM12 == null || isNotSubset(prevDM12.getDtcs(), dm12.getDtcs())) {
                 addFailure("6.9.2.2.c - " + dm12.getModuleName()
                         + " reported different active MIL on DTC(s) than what it reported in part 8 DM 12 response");
             }
@@ -104,7 +104,6 @@ public class Part09Step02Controller extends StepController {
         if (dtcCount > 1) {
             addWarning("6.9.2.3.b - More than one ECU reported an active DTC");
         }
-
 
     }
 

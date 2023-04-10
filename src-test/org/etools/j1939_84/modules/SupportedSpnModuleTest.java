@@ -431,6 +431,7 @@ public class SupportedSpnModuleTest {
         expected += "Required Data Stream SPNs are not supported. SPNs: 190, 4201, 723, 4202" + NL;
         expected += "Required Data Stream SPNs are not supported. SPNs: 110, 1637, 4076, 4193" + NL;
         expected += "Required Data Stream SPNs are not supported. SPNs: 94, 157, 5313, 5578" + NL;
+        expected += "Required Data Stream SPNs are not supported. SPNs: 12744" + NL;
         assertEquals(expected, listener.getResults());
     }
 
@@ -470,7 +471,8 @@ public class SupportedSpnModuleTest {
                                      5837,
                                      190,
                                      110,
-                                     94);
+                                     94,
+                                     12744);
         assertTrue(instance.validateRequiredDataStreamSpns(listener, spns, FuelType.GAS, 2013));
         String expected = "";
         assertEquals(expected, listener.getResults());
@@ -519,6 +521,7 @@ public class SupportedSpnModuleTest {
         expected += "Required Data Stream SPNs are not supported. SPNs: 190, 4201, 723, 4202" + NL;
         expected += "Required Data Stream SPNs are not supported. SPNs: 110, 1637, 4076, 4193" + NL;
         expected += "Required Data Stream SPNs are not supported. SPNs: 94, 157, 5313, 5578" + NL;
+        expected += "Required Data Stream SPNs are not supported. SPNs: 12744" + NL;
         assertEquals(expected, listener.getResults());
     }
 
@@ -562,7 +565,8 @@ public class SupportedSpnModuleTest {
                                      7333,
                                      190,
                                      110,
-                                     94);
+                                     94,
+                                     12744);
         assertTrue(instance.validateRequiredDataStreamSpns(listener, spns, FuelType.GAS, 2016));
 
         String expected = "";
@@ -613,6 +617,7 @@ public class SupportedSpnModuleTest {
         expected += "Required Data Stream SPNs are not supported. SPNs: 190, 4201, 723, 4202" + NL;
         expected += "Required Data Stream SPNs are not supported. SPNs: 110, 1637, 4076, 4193" + NL;
         expected += "Required Data Stream SPNs are not supported. SPNs: 94, 157, 5313, 5578" + NL;
+        expected += "Required Data Stream SPNs are not supported. SPNs: 12744" + NL;
         assertEquals(expected, listener.getResults());
     }
 
@@ -658,7 +663,8 @@ public class SupportedSpnModuleTest {
                                      7333,
                                      190,
                                      110,
-                                     94);
+                                     94,
+                                     12744);
 
         assertTrue(instance.validateRequiredDataStreamSpns(listener, spns, FuelType.GAS, 2022));
         String expected = "";
@@ -710,6 +716,7 @@ public class SupportedSpnModuleTest {
         expected += "Required Data Stream SPNs are not supported. SPNs: 190, 4201, 723, 4202" + NL;
         expected += "Required Data Stream SPNs are not supported. SPNs: 110, 1637, 4076, 4193" + NL;
         expected += "Required Data Stream SPNs are not supported. SPNs: 94, 157, 5313, 5578" + NL;
+        expected += "Required Data Stream SPNs are not supported. SPNs: 12744" + NL;
         assertEquals(expected, listener.getResults());
     }
 
@@ -721,7 +728,7 @@ public class SupportedSpnModuleTest {
                            157,
                            5313,
                            175,
-                           12744,
+                           // 12744,
                            4348,
                            6593,
                            12749,
@@ -798,7 +805,8 @@ public class SupportedSpnModuleTest {
                                      94,
                                      6894,
                                      6895,
-                                     7333);
+                                     7333,
+                                     12744);
         assertTrue(instance.validateRequiredDataStreamSpns(listener, spns, FuelType.GAS, 2024));
         String expected = "";
         assertEquals(expected, listener.getResults());

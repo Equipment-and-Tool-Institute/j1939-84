@@ -80,8 +80,8 @@ public class Part07Step02Controller extends StepController {
 
         // 6.7.2.2.b Fail if reported previously active DTC does not match DM12 active DTC from part 6.
         packets.forEach(p -> {
-            List<DiagnosticTroubleCode> dm6DTCs = getDTCs(DM12MILOnEmissionDTCPacket.class, p.getSourceAddress(), 6);
-            if (!p.getDtcs().equals(dm6DTCs)) {
+            List<DiagnosticTroubleCode> dm12DTCs = getDTCs(DM12MILOnEmissionDTCPacket.class, p.getSourceAddress(), 6);
+            if (isNotSubset(dm12DTCs, p.getDtcs())) {
                 addFailure("6.7.2.2.b - OBD ECU " + p.getModuleName()
                         + " reported a different DTCs from the DM12 DTCs");
             }

@@ -265,6 +265,10 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
             packets.forEach(packet -> {
                 if (pgns.contains(packet.getPgnDefinition().getId())) {
                     packet.getSpns().forEach(spn -> {
+                        if (spn.getId() == 12697 || spn.getId() == 12694 || spn.getId() == 12691) {
+                            // GHG technology index
+                            return;
+                        }
                         if (spn.hasValue() && spn.getValue() > 0) {
                             listener.addOutcome(partNumber,
                                                 stepNumber,
@@ -276,7 +280,9 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
                     });
                 }
             });
-        } else {
+        } else
+
+        {
             verifyPgValuesSameAsTwo(partNumber, stepNumber, listener, pgns, packets);
         }
     }

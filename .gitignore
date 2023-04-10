@@ -8,3 +8,4 @@ bin
 /testdoc/
 /.apt_generated/
 *.j1939-84
+tmp

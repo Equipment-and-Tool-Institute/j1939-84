@@ -39,6 +39,7 @@ import org.etools.j1939tools.j1939.model.ActiveTechnology;
 import org.etools.j1939tools.j1939.model.Spn;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.GhgActiveTechnologyPacket;
+import org.etools.j1939tools.j1939.packets.GhgLifetimeActiveTechnologyPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 import org.etools.j1939tools.modules.GhgTrackingModule;
@@ -469,7 +470,7 @@ public class Part11Step13Controller extends StepController {
                                                 GHG_TRACKING_LIFETIME_GREEN_HOUSE_PG)
                                                                                      .stream()
                                                                                      .map(GenericPacket::getPacket)
-                                                                                     .map(GhgActiveTechnologyPacket::new)
+                                                                                     .map(GhgLifetimeActiveTechnologyPacket::new)
                                                                                      .collect(Collectors.toList());
 
         if (lifetimeGhgPackets.isEmpty()) {

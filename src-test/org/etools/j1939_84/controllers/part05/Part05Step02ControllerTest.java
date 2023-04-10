@@ -248,10 +248,12 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.5.2.2.b - All OBD ECUs report no DM12 DTCs");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.5.2.2.c - OBD ECU Engine #2 (1) had a discrepancy between reported DM12 DTCs and DM6 DTCs reported in 6.3.2");
+        // clarified with ticket #1227
+        // verify(mockListener).addOutcome(PART_NUMBER,
+        // STEP_NUMBER,
+        // FAIL,
+        // "6.5.2.2.c - OBD ECU Engine #2 (1) had a discrepancy between reported DM12 DTCs and DM6 DTCs reported in
+        // 6.3.2");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,

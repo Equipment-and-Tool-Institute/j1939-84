@@ -60,34 +60,34 @@ public class Part03Step03Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.3.3.1.a Global DM27 (send Request (PGN 59904) for PGN 64898 (SPNs 1213-1215, 3038, 1706)).
-        var globalPackets = getCommunicationsModule().requestDM27(getListener()).getPackets();
+        var dm27s = getCommunicationsModule().requestDM27(getListener()).getPackets();
 
         // 6.3.3.2.a Fail if (if supported) no ECU reports the same DTC observed in step 6.3.2.1 in a positive DM27
         // response.
-        globalPackets.forEach(packet -> {
-            List<DiagnosticTroubleCode> packetDTCs = packet.getDtcs();
-            List<DiagnosticTroubleCode> obdDTCs = getDTCs(packet.getSourceAddress());
+        dm27s.forEach(packet -> {
+            List<DiagnosticTroubleCode> dm27DTCs = packet.getDtcs();
+            List<DiagnosticTroubleCode> dm6DTCs = getDTCs(packet.getSourceAddress());
 
-            if (packetDTCs.size() != obdDTCs.size() || !packetDTCs.equals(obdDTCs)) {
+            if (isNotSubset(dm6DTCs, dm27DTCs)) {
                 addFailure("6.3.3.2.a - OBD ECU " + packet.getModuleName() +
                         " reported different DTC than observed in Step 6.3.2.1");
             }
         });
 
-        globalPackets.forEach(packet -> {
-            List<DiagnosticTroubleCode> packetDTCs = packet.getDtcs();
-            List<DiagnosticTroubleCode> obdDTCs = getDTCs(packet.getSourceAddress());
+        dm27s.forEach(packet -> {
+            List<DiagnosticTroubleCode> dm27DTCs = packet.getDtcs();
+            List<DiagnosticTroubleCode> dm6DTCs = getDTCs(packet.getSourceAddress());
 
             // 6.3.3.3.a. Warn if (if supported) any ECU additional DTCs are provided than the DTC observed in step
             // 6.3.2.1 in a positive DM27 response.
-            if (packetDTCs.size() > obdDTCs.size()) {
+            if (isNotSubset(dm27DTCs, dm6DTCs)) {
                 addWarning("6.3.3.3.a - OBD ECU " + packet.getModuleName() +
-                        "reported " + obdDTCs.size() + " DTCs in response to DM6 in 6.3.2.1 and " +
-                        packetDTCs.size() + " DTCs when responding to DM27");
+                        " reported " + dm6DTCs.size() + " DTCs in response to DM6 in 6.3.2.1 and " +
+                        dm27DTCs.size() + " DTCs when responding to DM27");
             }
         });
 
-        globalPackets.forEach(this::save);
+        dm27s.forEach(this::save);
 
         // 6.3.3.4.a DS DM27 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
@@ -97,10 +97,10 @@ public class Part03Step03Controller extends StepController {
                                            .collect(Collectors.toList());
 
         // 6.3.3.5.a Fail if (if supported) any difference compared to data received with global request.
-        compareRequestPackets(globalPackets, filterRequestResultPackets(dsResults), "6.3.3.5.a");
+        compareRequestPackets(dm27s, filterRequestResultPackets(dsResults), "6.3.3.5.a");
 
         // 6.3.3.5.b Fail if NACK not received from OBD ECUs that did not respond to global query.
-        checkForNACKsGlobal(globalPackets, filterRequestResultAcks(dsResults), "6.3.3.5.b");
+        checkForNACKsGlobal(dm27s, filterRequestResultAcks(dsResults), "6.3.3.5.b");
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int address) {

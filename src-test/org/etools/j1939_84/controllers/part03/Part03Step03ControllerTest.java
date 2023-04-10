@@ -333,15 +333,21 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
 
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.3.3.2.a - OBD ECU Engine #2 (1) reported different DTC than observed in Step 6.3.2.1");
+        // on longer checking for equality #1227
+        // verify(mockListener).addOutcome(PART_NUMBER,
+        // STEP_NUMBER,
+        // FAIL,
+        // "6.3.3.2.a - OBD ECU Engine #2 (1) reported different DTC than observed in Step 6.3.2.1");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.3.3.3.a - OBD ECU Engine #2 (1)reported 1 DTCs in response to DM6 in 6.3.2.1 and 2 DTCs when responding to DM27");
+                                        "6.3.3.3.a - OBD ECU Engine #2 (1) reported 1 DTCs in response to DM6 in 6.3.2.1 and 2 DTCs when responding to DM27");
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.3.3.3.a - OBD ECU Turbocharger (2) reported 1 DTCs in response to DM6 in 6.3.2.1 and 1 DTCs when responding to DM27");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,

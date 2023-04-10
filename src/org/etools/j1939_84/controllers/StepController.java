@@ -21,6 +21,7 @@ import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -576,5 +577,10 @@ public abstract class StepController extends Controller {
         sb.delete(sb.length() - 2, sb.length());
         sb.append("]");
         return sb.toString();
+    }
+
+    /** used to match requirement wording. */
+    public <T> boolean isNotSubset(Collection<T> a, Collection<T> b) {
+        return !b.containsAll(a);
     }
 }

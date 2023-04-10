@@ -88,7 +88,11 @@ public class Part08Step03Controller extends StepController {
 
             packets.stream()
                    .filter(p -> p.getSourceAddress() == moduleAddress)
-                   .filter(p -> !p.getDtcs().equals(getDTCs(moduleAddress)))
+                   .filter(p -> {
+                       List<DiagnosticTroubleCode> dm21DTCs = getDTCs(moduleAddress);
+                       List<DiagnosticTroubleCode> dm1DTCs = p.getDtcs();
+                       return isNotSubset(dm21DTCs, dm1DTCs);
+                   })
                    .map(ParsedPacket::getModuleName)
                    .findFirst()
                    .ifPresent(moduleName -> addFailure("6.8.3.2.b - " + moduleName
