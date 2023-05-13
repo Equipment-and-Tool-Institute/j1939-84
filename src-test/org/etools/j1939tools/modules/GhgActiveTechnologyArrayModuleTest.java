@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
@@ -17,11 +18,8 @@ import static org.etools.j1939_84.J1939_84.NL;
 public class GhgActiveTechnologyArrayModuleTest {
     private static final int ADDR = 0;
 
-    private GhgActiveTechnologyArrayModule instance;
-
     @Before
     public void setUp() throws Exception {
-        instance = new GhgActiveTechnologyArrayModule(new TestDateTimeModule());
     }
 
     @Test
@@ -122,8 +120,6 @@ public class GhgActiveTechnologyArrayModuleTest {
                                     .map(p -> (GenericPacket) J1939.processRaw(p.getPgn(), p))
                                     .collect(Collectors.toList());
 
-        String actual = instance.format(genericPackets);
-
         String expected = "";
         expected += "10:15:30.0000 GHG Active Technology Arrays from Engine #1 (0)" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|"
@@ -150,6 +146,40 @@ public class GhgActiveTechnologyArrayModuleTest {
                 + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|"
                 + NL;
-        assertEquals(expected, actual);
+        assertEquals(expected, new GhgActiveTechnologyArrayModule(new TestDateTimeModule()).format(genericPackets));
+
+        var old = Locale.getDefault();
+        Locale.setDefault(Locale.CANADA_FRENCH);
+        try {
+            expected = "";
+            expected += "10:15:30.0000 GHG Active Technology Arrays from Engine #1 (0)" + NL;
+            expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|"
+                    + NL;
+            expected += "|                                     |    Active   |    Active   |    Stored   |    Stored   |             |             |"
+                    + NL;
+            expected += "| Index                               |   100 Hour  |   100 Hour  |   100 Hour  |   100 Hour  |   Lifetime  |   Lifetime  |"
+                    + NL;
+            expected += "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |"
+                    + NL;
+            expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|"
+                    + NL;
+            expected += "| Cylinder Deactivation               |           6 |           7 |          18 |          22 |     133 120 |           0 |"
+                    + NL
+                    + "| Intelligent Control                 |         171 |         214 |         342 |         428 |       2 397 |       9 596 |"
+                    + NL
+                    + "| Predictive Cruise Control           |          72 |          90 |       2 148 |         269 |      17 888 |       1 880 |"
+                    + NL
+                    + "| Mfg Defined Active Technology 6     |          36 |          46 |         110 |         137 |         767 |         959 |"
+                    + NL
+                    + "| Mfg Defined Active Technology 4     |          12 |          15 |          37 |       2 205 |         833 |         322 |"
+                    + NL
+                    + "| Mfg Defined Active Technology 2     |          53 |          66 |         106 |         132 |         740 |         925 |"
+                    + NL;
+            expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|"
+                    + NL;
+            assertEquals(expected, new GhgActiveTechnologyArrayModule(new TestDateTimeModule()).format(genericPackets));
+        } finally {
+            Locale.setDefault(old);
+        }
     }
 }

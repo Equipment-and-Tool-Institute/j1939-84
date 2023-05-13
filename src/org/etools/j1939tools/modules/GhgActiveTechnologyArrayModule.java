@@ -119,7 +119,7 @@ public class GhgActiveTechnologyArrayModule {
     }
 
     private String format(Spn spn) {
-        Double value = Double.parseDouble(spn.getStringValueNoUnit());
+        Double value = spn.getValue();
         String unit = spn.getSlot().getUnit();
         if ("s".equals(unit)) {
             value = value / 60; // Convert seconds to minutes
