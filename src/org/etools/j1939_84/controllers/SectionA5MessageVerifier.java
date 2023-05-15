@@ -73,11 +73,8 @@ public class SectionA5MessageVerifier extends SectionVerifier {
                                             boolean isAllTestsIncomplete = p.getMonitoredSystems()
                                                                             .stream()
                                                                             .filter(s -> s.getId() != CompositeSystem.COMPREHENSIVE_COMPONENT)
-                                                                            .filter(system -> {
-                                                                                return isEngineModuleYearLessThan2019()
-                                                                                        || system.getId() != CompositeSystem.MISFIRE;
-                                                                            })
-
+                                                                            .filter(system -> isEngineModuleYearLessThan2019()
+                                                                                    || system.getId() != CompositeSystem.MISFIRE)
                                                                             .map(MonitoredSystem::getStatus)
                                                                             .filter(MonitoredSystemStatus::isEnabled)
                                                                             .noneMatch(MonitoredSystemStatus::isComplete);
@@ -91,6 +88,8 @@ public class SectionA5MessageVerifier extends SectionVerifier {
                                             boolean wasAllTestsIncomplete = prev.getMonitoredSystems()
                                                                                 .stream()
                                                                                 .filter(s -> s.getId() != CompositeSystem.COMPREHENSIVE_COMPONENT)
+                                                                                .filter(system -> isEngineModuleYearLessThan2019()
+                                                                                        || system.getId() != CompositeSystem.MISFIRE)
                                                                                 .map(MonitoredSystem::getStatus)
                                                                                 .filter(MonitoredSystemStatus::isEnabled)
                                                                                 .noneMatch(MonitoredSystemStatus::isComplete);
@@ -476,7 +475,7 @@ public class SectionA5MessageVerifier extends SectionVerifier {
                                             boolean isCurrentlyErased) {
         if (verifyIsErased) {
             // Report if the data is not erased
-            return !wasPreviouslyErased && !isCurrentlyErased;
+            return /* !wasPreviouslyErased && */ !isCurrentlyErased;
         } else {
             // Report if the data is erased
             return isCurrentlyErased && !wasPreviouslyErased;

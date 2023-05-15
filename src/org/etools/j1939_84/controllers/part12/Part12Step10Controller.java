@@ -114,9 +114,8 @@ public class Part12Step10Controller extends StepController {
                       addInfo("6.12.10.4.b - " + moduleName + " responded with a ACK");
                   });
 
-        // 6.12.10.4.c. Check diagnostic information and fail if any ECU partially erases diagnostic information
-        // (pass if it erases either all or none).
-        verifier.verifyDataNotPartialErased(getListener(), "6.12.10.4.c", "6.12.10.4.c", true);
+        // 6.12.10.4.c Fail if any diagnostic information was not erased from any OBD ECUs.
+        verifier.verifyDataErased(getListener(), "6.12.10.4.c");
     }
 
 }
