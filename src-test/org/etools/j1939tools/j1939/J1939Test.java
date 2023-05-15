@@ -85,8 +85,8 @@ public class J1939Test {
 
     @Test
     public void busyNack4Test() throws Exception {
-        try (EchoBus echoBus = new EchoBus(0xF9)) {
-            J1939TP tpBus = new J1939TP(echoBus);
+        try (EchoBus echoBus = new EchoBus(0xF9);
+             J1939TP tpBus = new J1939TP(echoBus);) {
 
             J1939 j1939 = new J1939(tpBus);
             Stream<Packet> reqStream = echoBus.read(1, TimeUnit.HOURS);
@@ -129,8 +129,8 @@ public class J1939Test {
 
     @Test
     public void busyNack3Test() throws Exception {
-        try (EchoBus echoBus = new EchoBus(0xF9)) {
-            J1939TP tpBus = new J1939TP(echoBus);
+        try (EchoBus echoBus = new EchoBus(0xF9);
+             J1939TP tpBus = new J1939TP(echoBus);) {
 
             J1939 j1939 = new J1939(tpBus);
             Stream<Packet> reqStream = echoBus.read(1, TimeUnit.HOURS);
@@ -173,8 +173,8 @@ public class J1939Test {
 
     @Test
     public void busyNack2Test() throws Exception {
-        try (EchoBus echoBus = new EchoBus(0xF9)) {
-            J1939TP tpBus = new J1939TP(echoBus);
+        try (EchoBus echoBus = new EchoBus(0xF9);
+             J1939TP tpBus = new J1939TP(echoBus);) {
 
             J1939 j1939 = new J1939(tpBus);
             Stream<Packet> reqStream = echoBus.read(1, TimeUnit.HOURS);
@@ -211,8 +211,8 @@ public class J1939Test {
 
     @Test
     public void busyNack1Test() throws Exception {
-        try (EchoBus echoBus = new EchoBus(0xF9)) {
-            J1939TP tpBus = new J1939TP(echoBus);
+        try (EchoBus echoBus = new EchoBus(0xF9);
+             J1939TP tpBus = new J1939TP(echoBus);) {
 
             J1939 j1939 = new J1939(tpBus);
             Stream<Packet> reqStream = echoBus.read(1, TimeUnit.HOURS);
@@ -245,8 +245,8 @@ public class J1939Test {
 
     @Test
     public void busyNack0Test() throws Exception {
-        try (EchoBus echoBus = new EchoBus(0xF9)) {
-            J1939TP tpBus = new J1939TP(echoBus);
+        try (EchoBus echoBus = new EchoBus(0xF9);
+             J1939TP tpBus = new J1939TP(echoBus);) {
 
             J1939 j1939 = new J1939(tpBus);
             Stream<Packet> reqStream = echoBus.read(1, TimeUnit.HOURS);
@@ -274,8 +274,9 @@ public class J1939Test {
     @Test
     public void aTestTP() throws Exception {
         final String VIN = "Some VINs are garbage, but this test doesn't care.";
-        try (EchoBus echoBus = new EchoBus(0xF9)) {
-            J1939 j1939 = new J1939(new J1939TP(echoBus));
+        try (EchoBus echoBus = new EchoBus(0xF9);
+             J1939TP tp = new J1939TP(echoBus);) {
+            J1939 j1939 = new J1939(tp);
             Stream<Packet> reqStream = echoBus.read(1, TimeUnit.HOURS);
             new Thread(() -> {
                 // respond with VIN packets with long delays to verify over all
@@ -330,8 +331,8 @@ public class J1939Test {
      */
     @Test
     public void feebBamTest() throws Exception {
-        try (EchoBus echoBus = new EchoBus(0xF9)) {
-            J1939TP tpBus = new J1939TP(echoBus);
+        try (EchoBus echoBus = new EchoBus(0xF9);
+             J1939TP tpBus = new J1939TP(echoBus);) {
             // echoBus.log(p->p.toString());
             J1939 j1939 = new J1939(tpBus);
             Stream<Packet> reqStream = echoBus.read(1, TimeUnit.HOURS);
@@ -602,8 +603,8 @@ public class J1939Test {
      */
     @Test
     public void testBamTimeout() throws Exception {
-        EchoBus bus2 = new EchoBus(0);
-        try (Bus bus = new J1939TP(bus2, 0)) {
+
+        try (EchoBus bus2 = new EchoBus(0); Bus bus = new J1939TP(bus2, 0)) {
 
             Stream<Packet> requestStream = bus.read(1, TimeUnit.HOURS);
             new Thread(() -> {
