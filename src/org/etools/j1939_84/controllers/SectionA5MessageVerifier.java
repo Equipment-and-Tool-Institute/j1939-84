@@ -475,7 +475,7 @@ public class SectionA5MessageVerifier extends SectionVerifier {
                                             boolean isCurrentlyErased) {
         if (verifyIsErased) {
             // Report if the data is not erased
-            return /* !wasPreviouslyErased && */ !isCurrentlyErased;
+            return !wasPreviouslyErased && !isCurrentlyErased;
         } else {
             // Report if the data is erased
             return isCurrentlyErased && !wasPreviouslyErased;
