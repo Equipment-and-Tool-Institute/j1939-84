@@ -4,7 +4,6 @@
 package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response;
 
 import java.util.Collection;
 import java.util.List;
@@ -18,13 +17,14 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-import org.etools.j1939_84.utils.CollectionUtils;
 import org.etools.j1939tools.bus.Either;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939tools.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939tools.j1939.packets.PerformanceRatio;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
+import org.etools.j1939tools.utils.CollectionUtils;
 
 ;
 

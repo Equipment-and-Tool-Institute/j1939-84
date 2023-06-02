@@ -1,12 +1,12 @@
 /*
  * Copyright 2021 Equipment & Tool Institute
  */
-package org.etools.j1939_84.engine.simulated;
+package org.etools.j1939tols.engine.simulated;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.etools.j1939_84.model.KeyState.KEY_OFF;
-import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
+import static org.etools.j1939tools.j1939.model.KeyState.KEY_OFF;
+import static org.etools.j1939tools.j1939.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.ACK;
 import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939tools.j1939.packets.CompositeSystem.AC_SYSTEM_REFRIGERANT;
@@ -49,10 +49,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
-import org.etools.j1939_84.model.KeyState;
 import org.etools.j1939tools.bus.Bus;
 import org.etools.j1939tools.bus.BusException;
 import org.etools.j1939tools.bus.Packet;
+import org.etools.j1939tools.j1939.model.KeyState;
 import org.etools.j1939tools.j1939.model.SpnFmi;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.CompositeSystem;

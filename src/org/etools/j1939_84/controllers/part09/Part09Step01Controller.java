@@ -3,7 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part09;
 
-import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
+import static org.etools.j1939tools.j1939.model.KeyState.KEY_ON_ENGINE_OFF;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;

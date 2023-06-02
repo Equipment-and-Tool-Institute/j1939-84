@@ -4,11 +4,11 @@
 package org.etools.j1939_84.modules;
 
 import static java.time.temporal.ChronoUnit.MILLIS;
-import static org.etools.j1939_84.model.KeyState.KEY_OFF;
-import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
-import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
-import static org.etools.j1939_84.model.KeyState.UNKNOWN;
 import static org.etools.j1939tools.j1939.J1939.ENGINE_ADDR;
+import static org.etools.j1939tools.j1939.model.KeyState.KEY_OFF;
+import static org.etools.j1939tools.j1939.model.KeyState.KEY_ON_ENGINE_OFF;
+import static org.etools.j1939tools.j1939.model.KeyState.KEY_ON_ENGINE_RUNNING;
+import static org.etools.j1939tools.j1939.model.KeyState.UNKNOWN;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.ExecutorService;
@@ -18,8 +18,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import org.etools.j1939_84.model.KeyState;
 import org.etools.j1939tools.bus.Either;
+import org.etools.j1939tools.j1939.model.KeyState;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.EngineSpeedPacket;
 import org.etools.j1939tools.j1939.packets.GenericPacket;

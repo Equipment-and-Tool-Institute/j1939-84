@@ -2,10 +2,10 @@
  * Copyright (c) 2021. Equipment & Tool Institute
  */
 
-package org.etools.j1939_84.controllers;
+package org.etools.j1939tools.utils;
 
 import static org.etools.j1939_84.J1939_84.getLogger;
-import static org.etools.j1939_84.utils.CollectionUtils.toByteArray;
+import static org.etools.j1939tools.utils.CollectionUtils.toByteArray;
 
 import java.util.ArrayList;
 import java.util.Arrays;

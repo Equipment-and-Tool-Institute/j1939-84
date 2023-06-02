@@ -4,10 +4,10 @@
 package org.etools.j1939_84.modules;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.etools.j1939_84.model.KeyState.KEY_OFF;
-import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
-import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
-import static org.etools.j1939_84.model.KeyState.UNKNOWN;
+import static org.etools.j1939tools.j1939.model.KeyState.KEY_OFF;
+import static org.etools.j1939tools.j1939.model.KeyState.KEY_ON_ENGINE_OFF;
+import static org.etools.j1939tools.j1939.model.KeyState.KEY_ON_ENGINE_RUNNING;
+import static org.etools.j1939tools.j1939.model.KeyState.UNKNOWN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 
-import org.etools.j1939_84.utils.CollectionUtils;
 import org.etools.j1939tools.bus.Either;
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.j1939.J1939;
@@ -31,6 +30,7 @@ import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.EngineSpeedPacket;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.utils.CollectionUtils;
 import org.etools.testdoc.TestDoc;
 import org.etools.testdoc.TestItem;
 import org.junit.After;

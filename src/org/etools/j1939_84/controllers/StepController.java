@@ -30,7 +30,6 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
-import org.etools.j1939_84.model.KeyState;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.modules.BannerModule;
@@ -41,6 +40,7 @@ import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.j1939.J1939DaRepository;
 import org.etools.j1939tools.j1939.Lookup;
 import org.etools.j1939tools.j1939.model.FuelType;
+import org.etools.j1939tools.j1939.model.KeyState;
 import org.etools.j1939tools.j1939.model.PgnDefinition;
 import org.etools.j1939tools.j1939.model.Spn;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
