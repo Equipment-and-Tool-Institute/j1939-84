@@ -914,6 +914,29 @@ public class J1939Test {
     }
 
     @Test
+    public void testRequestMultipleHandle1NACK() throws Exception {
+        Packet packet1 = Packet.create(VehicleIdentificationPacket.PGN, 0x00, "EngineVIN*".getBytes(UTF8));
+        Packet packet2 = Packet.create(AcknowledgmentPacket.PGN|0xFF, 0x17, 01, 0xff, 0xff, 0xff, BUS_ADDR, 0xec, 0xfe, 0);
+        Packet packet3 = Packet.create(VehicleIdentificationPacket.PGN, 0x21, "BodyControllerVIN*".getBytes(UTF8));
+        when(bus.read(ArgumentMatchers.anyLong(), ArgumentMatchers.any(TimeUnit.class)))
+                                                                                        .thenReturn(Stream.of(packet1,
+                                                                                                              packet2,
+                                                                                                              packet3));
+
+        Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
+
+        RequestResult<VehicleIdentificationPacket> response = instance
+                                                                      .requestGlobal(null,
+                                                                                     VehicleIdentificationPacket.class,
+                                                                                     NOOP);
+        assertEquals("EngineVIN,BodyControllerVIN",
+                     response.getPackets().stream().map(p -> p.getVin()).collect(Collectors.joining(",")));
+        assertEquals(1, response.getAcks().size());
+
+        verify(bus).send(request);
+    }
+
+    @Test
     public void testRequestMultipleHandlesBusException() throws Exception {
         when(bus.read(ArgumentMatchers.anyLong(), ArgumentMatchers.any(TimeUnit.class)))
                                                                                         .thenThrow(new BusException("Testing"));
