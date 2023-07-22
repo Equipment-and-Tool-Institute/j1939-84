@@ -215,24 +215,24 @@ public class TableA1Validator {
     }
 
     public void reportMessages(ResultsListener listener, OBDModuleInformation moduleInfo) {
-                          Map<Integer, List<Integer>> pgnMap = getMessages(moduleInfo.getSourceAddress(), listener);
-                          pgnMap.keySet().stream().sorted().forEach(pgn -> {
-                              String spns = pgnMap.get(pgn)
-                                                  .stream()
-                                                  .sorted()
-                                                  .map(Object::toString)
-                                                  .collect(Collectors.joining(", "));
-                              String msg = "PGN " + pgn + " from " + moduleInfo.getModuleName() + " with SPNs " + spns;
+        Map<Integer, List<Integer>> pgnMap = getMessages(moduleInfo.getSourceAddress(), listener);
+        pgnMap.keySet().stream().sorted().forEach(pgn -> {
+            String spns = pgnMap.get(pgn)
+                                .stream()
+                                .sorted()
+                                .map(Object::toString)
+                                .collect(Collectors.joining(", "));
+            String msg = "PGN " + pgn + " from " + moduleInfo.getModuleName() + " with SPNs " + spns;
 
-                              PgnDefinition pgnDefinition = j1939DaRepository.findPgnDefinition(pgn);
-                              if (pgnDefinition.isOnRequest()) {
-                                  msg = "  Req " + msg;
-                              } else {
-                                  msg = "  BCT " + msg;
-                              }
+            PgnDefinition pgnDefinition = j1939DaRepository.findPgnDefinition(pgn);
+            if (pgnDefinition.isOnRequest()) {
+                msg = "  Req " + msg;
+            } else {
+                msg = "  BCT " + msg;
+            }
 
-                              listener.onResult(msg);
-                          });
+            listener.onResult(msg);
+        });
     }
 
     /**
@@ -262,15 +262,19 @@ public class TableA1Validator {
                     reportPacketIfNotReported(packet, listener, true);
                     String moduleName = getAddressName(moduleAddress);
 
-                    String message;
                     if (spn.isError()) {
-                        message = "N.1 " + moduleName + " reported value for SPN " + spnId
-                                + " (ERROR) is implausible";
+                        addOutcome(listener,
+                                   section,
+                                   FAIL,
+                                   "N.1 " + moduleName + " reported value for SPN " + spnId
+                                           + " (ERROR) is implausible");
                     } else {
-                        message = "N.8 " + moduleName + " reported value for SPN " + spnId + " (" + value
-                                + ") is implausible";
+                        addOutcome(listener,
+                                   section,
+                                   WARN,
+                                   "N.8 " + moduleName + " reported value for SPN " + spnId + " (" + value
+                                           + ") is implausible");
                     }
-                    addOutcome(listener, section, WARN, message);
                     invalid.add(spnId);
                     invalidSPNs.put(moduleAddress, invalid);
                 }
@@ -363,7 +367,8 @@ public class TableA1Validator {
             int moduleAddress = packet.getSourceAddress();
             int pgn = packet.getPacket().getPgn();
 
-            Collection<Integer> spns = dataRepository.isObdModule(moduleAddress) ? dataRepository.getModuleSupportedSPNs(moduleAddress)
+            Collection<Integer> spns = dataRepository.isObdModule(moduleAddress)
+                    ? dataRepository.getModuleSupportedSPNs(moduleAddress)
                     : getAllSupportedSPNs();
             List<String> supportedSPNs = getSupportedSPNs(spns, packet);
             if (forceReporting || !supportedSPNs.isEmpty()) {
@@ -394,7 +399,8 @@ public class TableA1Validator {
                                                  .stream()
                                                  .filter(s -> !s.isNotAvailable())
                                                  .map(Spn::getId)
-                                                 .filter(s -> !dataRepository.getModuleSupportedSPNs(sourceAddress).contains(s))
+                                                 .filter(s -> !dataRepository.getModuleSupportedSPNs(sourceAddress)
+                                                                             .contains(s))
                                                  .collect(Collectors.toSet());
 
         Map<Integer, Outcome> outcomes = new HashMap<>();
