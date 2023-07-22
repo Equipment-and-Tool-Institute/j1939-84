@@ -65,6 +65,7 @@ public class Part08Step08Controller extends StepController {
 
         // 6.8.8.2.a. Fail if any ECU reports > 0 for emission-related pending.
         packets.stream()
+               .filter(p -> p.getEmissionRelatedPendingDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPendingDTCCount() > 0)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -72,7 +73,9 @@ public class Part08Step08Controller extends StepController {
                });
 
         // 6.8.8.2.b. Fail if no ECU reports > 0 for MIL on.
-        boolean isMilOn = packets.stream().anyMatch(p -> p.getEmissionRelatedMILOnDTCCount() > 0);
+        boolean isMilOn = packets.stream()
+                                 .filter(p -> p.getEmissionRelatedMILOnDTCCount() != 0xFF)
+                                 .anyMatch(p -> p.getEmissionRelatedMILOnDTCCount() > 0);
         if (!isMilOn) {
             addFailure("6.8.8.2.b - No ECU reported > 0 for MIL on");
         }
@@ -88,7 +91,8 @@ public class Part08Step08Controller extends StepController {
                });
 
         // 6.8.8.2.d. Fail if no ECU reports > 0 for previous MIL on.
-        boolean isPrevMilOn = packets.stream().anyMatch(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 0);
+        boolean isPrevMilOn = packets.stream()               .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() != 0xFF)
+.anyMatch(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 0);
         if (!isPrevMilOn) {
             addFailure("6.8.8.2.d - No ECU reported > 0 for previous MIL on");
         }
@@ -104,7 +108,9 @@ public class Part08Step08Controller extends StepController {
                });
 
         // 6.8.8.2.f. Fail if no ECU reports > 0 for permanent.
-        boolean isPermanent = packets.stream().anyMatch(p -> p.getEmissionRelatedPermanentDTCCount() > 0);
+        boolean isPermanent = packets.stream()
+                                     .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
+                                     .anyMatch(p -> p.getEmissionRelatedPermanentDTCCount() > 0);
         if (!isPermanent) {
             addFailure("6.8.8.2.f - No ECU reported > 0 for permanent");
         }
@@ -125,6 +131,7 @@ public class Part08Step08Controller extends StepController {
                            .filter(OBDModuleInformation::supportsDM27)
                            .map(OBDModuleInformation::getSourceAddress)
                            .flatMap(a -> packets.stream().filter(p -> p.getSourceAddress() == a))
+                           .filter(p -> p.getAllPendingDTCCount() != 0xFF)
                            .filter(p -> p.getAllPendingDTCCount() > 0)
                            .map(ParsedPacket::getModuleName)
                            .forEach(moduleName -> {
@@ -147,6 +154,7 @@ public class Part08Step08Controller extends StepController {
 
         // 6.8.8.3.a. Warn if any ECU reports > 1 for MIL on.
         packets.stream()
+               .filter(p -> p.getEmissionRelatedMILOnDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 1)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -155,6 +163,7 @@ public class Part08Step08Controller extends StepController {
 
         // 6.8.8.3.b. Warn if more than one ECU reports > 0 for MIL on.
         long milOnCount = packets.stream()
+                                 .filter(p -> p.getEmissionRelatedMILOnDTCCount() != 0xFF)
                                  .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 0)
                                  .count();
         if (milOnCount > 1) {
@@ -163,6 +172,7 @@ public class Part08Step08Controller extends StepController {
 
         // 6.8.8.3.c. Warn if any ECU reports > 1 for previous MIL on.
         packets.stream()
+               .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 1)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -171,6 +181,7 @@ public class Part08Step08Controller extends StepController {
 
         // 6.8.8.3.d. Warn if more than one ECU reports > 0 for previous MIL on.
         long prevMilOnCount = packets.stream()
+               .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() != 0xFF)
                                      .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 0)
                                      .count();
         if (prevMilOnCount > 1) {
@@ -179,6 +190,7 @@ public class Part08Step08Controller extends StepController {
 
         // 6.8.8.3.e. Warn if any ECU report > 1 for permanent.
         packets.stream()
+               .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 1)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -187,6 +199,7 @@ public class Part08Step08Controller extends StepController {
 
         // 6.8.8.3.f. Warn if more than one ECU reports > 0 for permanent.
         long permanentCount = packets.stream()
+                                     .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
                                      .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 0)
                                      .count();
         if (permanentCount > 1) {

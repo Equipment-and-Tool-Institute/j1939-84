@@ -69,12 +69,14 @@ public class Part03Step04Controller extends StepController {
 
         // 6.3.4.2.a Fail if any ECU reports > 0 for MIL on, previous MIL on, or permanent fault counts.
         packets.stream()
+               .filter(p -> p.getEmissionRelatedMILOnDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 0)
                .map(ParsedPacket::getSourceAddress)
                .map(Lookup::getAddressName)
                .forEach(moduleName -> addFailure("6.3.4.2.a - " + moduleName + " reported > 0 for MIL on count"));
 
         packets.stream()
+               .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 0)
                .map(ParsedPacket::getSourceAddress)
                .map(Lookup::getAddressName)
@@ -82,6 +84,7 @@ public class Part03Step04Controller extends StepController {
                        + " reported > 0 for previous MIL on count"));
 
         packets.stream()
+               .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 0)
                .map(ParsedPacket::getSourceAddress)
                .map(Lookup::getAddressName)
@@ -89,7 +92,9 @@ public class Part03Step04Controller extends StepController {
                        + " reported > 0 for permanent DTC count"));
 
         // 6.3.4.2.b Fail if no ECU reports > 0 emission-related pending (SPN 4104).
-        boolean isNoPendingCounts = packets.stream().noneMatch(p -> p.getEmissionRelatedPendingDTCCount() > 0);
+        boolean isNoPendingCounts = packets.stream()
+                                           .filter(p -> p.getEmissionRelatedPendingDTCCount() != 0xFF)
+                                           .noneMatch(p -> p.getEmissionRelatedPendingDTCCount() > 0);
         if (isNoPendingCounts) {
             addFailure("6.3.4.2.b - No ECU reported > 0 emission-related pending count");
         }
@@ -118,6 +123,8 @@ public class Part03Step04Controller extends StepController {
                 // 6.3.4.2.d For OBD ECUs that support DM27, fail if any ECU reports a lower number of
                 // all pending DTCs (SPN 4105) than the number of emission-related pending DTCs.
                 boolean isLower = modulePackets.stream()
+                                               .filter(p -> p.getAllPendingDTCCount() != 0xFF)
+                                               .filter(p -> p.getEmissionRelatedPendingDTCCount() != 0xFF)
                                                .anyMatch(p -> p.getAllPendingDTCCount() < p.getEmissionRelatedPendingDTCCount());
                 if (isLower) {
                     addFailure("6.3.4.2.d - " + moduleName + " reported a lower number of " +
@@ -127,6 +134,7 @@ public class Part03Step04Controller extends StepController {
                 // 6.3.4.2.e For OBD ECUs that support DM27, fail if any ECU reports a lower number of
                 // all pending DTCs than what that ECU reported in DM27 earlier in this part.
                 boolean hasDifference = modulePackets.stream()
+                                                     .filter(p -> p.getAllPendingDTCCount() != 0xFF)
                                                      .anyMatch(p -> p.getAllPendingDTCCount() < lastDM27.getDtcs()
                                                                                                         .size());
                 if (hasDifference) {
@@ -136,7 +144,8 @@ public class Part03Step04Controller extends StepController {
             } else {
                 // 6.3.4.2.f For OBD ECUs that do not support DM27, fail if any ECU does not report number of all
                 // pending DTCs = 0xFF.
-                boolean hasWrongValue = modulePackets.stream().anyMatch(p -> p.getAllPendingDTCCount() != 0xFF);
+                boolean hasWrongValue = modulePackets.stream()
+                                                     .anyMatch(p -> p.getAllPendingDTCCount() != 0xFF);
                 if (hasWrongValue) {
                     addFailure("6.3.4.2.f - " + moduleName
                             + " does not support DM27 and did not report all pending DTCs = 0xFF");
@@ -148,6 +157,7 @@ public class Part03Step04Controller extends StepController {
         // greater than 0.
         packets.stream()
                .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
+               .filter(p -> p.getEmissionRelatedPendingDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPendingDTCCount() > 0)
                .map(ParsedPacket::getSourceAddress)
                .map(Lookup::getAddressName)
@@ -156,6 +166,7 @@ public class Part03Step04Controller extends StepController {
 
         packets.stream()
                .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
+               .filter(p -> p.getEmissionRelatedMILOnDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 0)
                .map(ParsedPacket::getSourceAddress)
                .map(Lookup::getAddressName)
@@ -164,6 +175,7 @@ public class Part03Step04Controller extends StepController {
 
         packets.stream()
                .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
+               .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 0)
                .map(ParsedPacket::getSourceAddress)
                .map(Lookup::getAddressName)
@@ -172,6 +184,7 @@ public class Part03Step04Controller extends StepController {
 
         packets.stream()
                .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
+               .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 0)
                .map(ParsedPacket::getSourceAddress)
                .map(Lookup::getAddressName)
@@ -180,12 +193,14 @@ public class Part03Step04Controller extends StepController {
 
         // 6.3.4.3.a Warn if any ECU reports > 1 for pending or all pending.
         packets.stream()
+               .filter(p -> p.getEmissionRelatedPendingDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPendingDTCCount() > 1)
                .map(ParsedPacket::getSourceAddress)
                .map(Lookup::getAddressName)
                .forEach(moduleName -> addWarning("6.3.4.3.a - " + moduleName + " reported > 1 for pending DTC count"));
 
         packets.stream()
+               .filter(p -> p.getAllPendingDTCCount() != 0xFF)
                .filter(p -> p.getAllPendingDTCCount() > 1)
                .map(ParsedPacket::getSourceAddress)
                .map(Lookup::getAddressName)
@@ -194,6 +209,7 @@ public class Part03Step04Controller extends StepController {
 
         // 6.3.4.3.b Warn if more than one ECU reports > 0 for pending or all pending.
         var modulesReportingPendingCount = packets.stream()
+                                                  .filter(p -> p.getEmissionRelatedPendingDTCCount() != 0xFF)
                                                   .filter(p -> p.getEmissionRelatedPendingDTCCount() > 0)
                                                   .count();
         if (modulesReportingPendingCount > 1) {
@@ -201,6 +217,7 @@ public class Part03Step04Controller extends StepController {
         }
 
         var modulesReportingAllPendingCount = packets.stream()
+                                                     .filter(p -> p.getAllPendingDTCCount() != 0xFF)
                                                      .filter(p -> p.getAllPendingDTCCount() > 0)
                                                      .count();
         if (modulesReportingAllPendingCount > 1) {

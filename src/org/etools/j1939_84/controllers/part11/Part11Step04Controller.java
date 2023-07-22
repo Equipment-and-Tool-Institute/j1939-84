@@ -63,6 +63,7 @@ public class Part11Step04Controller extends StepController {
 
         // 6.11.4.2.a. Fail if any ECU reports > 0 for emission-related pending
         packets.stream()
+               .filter(p -> p.getEmissionRelatedPendingDTCCount() !=0xFF)
                .filter(p -> p.getEmissionRelatedPendingDTCCount() > 0)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -71,6 +72,7 @@ public class Part11Step04Controller extends StepController {
 
         // 6.11.4.2.a. Fail if any ECU reports > 0 for MIL-on
         packets.stream()
+               .filter(p -> p.getEmissionRelatedMILOnDTCCount() !=0xFF)
                .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 0)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -79,6 +81,7 @@ public class Part11Step04Controller extends StepController {
 
         // 6.11.4.2.a. Fail if any ECU reports > 0 for previous MIL on.
         packets.stream()
+               .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 0)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -86,7 +89,8 @@ public class Part11Step04Controller extends StepController {
                });
 
         // 6.11.4.2.b. Fail if no ECU reports > 0 for permanent DTC.
-        boolean noPermanent = packets.stream().noneMatch(p -> p.getEmissionRelatedPermanentDTCCount() > 0);
+        boolean noPermanent = packets.stream()               .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
+.noneMatch(p -> p.getEmissionRelatedPermanentDTCCount() > 0);
         if (noPermanent) {
             addFailure("6.11.4.2.b - No ECU reported > 0 for permanent DTC");
         }
@@ -95,6 +99,7 @@ public class Part11Step04Controller extends StepController {
         packets.stream()
                .filter(p -> isObdModule(p.getSourceAddress()))
                .filter(p -> supportsDM27(p.getSourceAddress()))
+                                                     .filter(p -> p.getAllPendingDTCCount() != 0xFF)
                .filter(p -> p.getAllPendingDTCCount() > 0)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -106,14 +111,15 @@ public class Part11Step04Controller extends StepController {
         packets.stream()
                .filter(p -> isObdModule(p.getSourceAddress()))
                .filter(p -> !supportsDM27(p.getSourceAddress()))
-               .filter(p -> (byte) p.getAllPendingDTCCount() != (byte) 0xFF)
+               .filter(p ->  p.getAllPendingDTCCount() != 0xFF)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
                    addFailure("6.11.4.2.d - " + moduleName + " did not report all pending DTCs = 0xFF");
                });
 
         // 6.11.4.3.a. Warn if any ECU reports > 1 for permanent DTC.
-        packets.stream()
+        packets.stream()               .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
+
                .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 1)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -121,7 +127,8 @@ public class Part11Step04Controller extends StepController {
                });
 
         // 6.11.4.3.b. Warn if more than one ECU reports > 0 for permanent DTC.
-        long count = packets.stream().filter(p -> p.getEmissionRelatedPermanentDTCCount() > 0).count();
+        long count = packets.stream()               .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
+.filter(p -> p.getEmissionRelatedPermanentDTCCount() > 0).count();
         if (count > 1) {
             addWarning("6.11.4.3.b - More than one ECU reported > 0 for permanent DTC");
         }

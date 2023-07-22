@@ -59,6 +59,7 @@ public class Part12Step05Controller extends StepController {
 
         // 6.12.5.2.a. Fail if any ECU reports > 0 for emission-related pending
         packets.stream()
+               .filter(p -> p.getEmissionRelatedPendingDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPendingDTCCount() > 0)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -67,6 +68,7 @@ public class Part12Step05Controller extends StepController {
 
         // 6.12.5.2.a. Fail if any ECU reports > 0 for MIL-on
         packets.stream()
+               .filter(p -> p.getEmissionRelatedMILOnDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 0)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -75,6 +77,7 @@ public class Part12Step05Controller extends StepController {
 
         // 6.12.5.2.a. Fail if any ECU reports > 0 for previous MIL on.
         packets.stream()
+               .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 0)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -83,6 +86,7 @@ public class Part12Step05Controller extends StepController {
 
         // 6.12.5.2.a. Fail if any ECU reports > 0 for permanent.
         packets.stream()
+               .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 0)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -93,6 +97,7 @@ public class Part12Step05Controller extends StepController {
         packets.stream()
                .filter(p -> isObdModule(p.getSourceAddress()))
                .filter(p -> supportsDM27(p.getSourceAddress()))
+               .filter(p -> p.getAllPendingDTCCount() != 0xFF)
                .filter(p -> p.getAllPendingDTCCount() > 0)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -104,7 +109,7 @@ public class Part12Step05Controller extends StepController {
         packets.stream()
                .filter(p -> isObdModule(p.getSourceAddress()))
                .filter(p -> !supportsDM27(p.getSourceAddress()))
-               .filter(p -> (byte) p.getAllPendingDTCCount() != (byte) 0xFF)
+               .filter(p -> p.getAllPendingDTCCount() != 0xFF)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
                    addFailure("6.12.5.2.c - " + moduleName + " did not report all pending DTCs = 0xFF");

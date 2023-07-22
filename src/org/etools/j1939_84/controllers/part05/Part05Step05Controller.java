@@ -66,6 +66,7 @@ public class Part05Step05Controller extends StepController {
 
         // 6.5.5.2.a Fail if any ECU reports > 0 for emission-related pending.
         packets.stream()
+               .filter(p -> p.getEmissionRelatedPendingDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPendingDTCCount() > 0)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -74,6 +75,7 @@ public class Part05Step05Controller extends StepController {
 
         // 6.5.5.2.a Fail if any ECU reports > 0 for previous MIL on.
         packets.stream()
+               .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 0)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -82,6 +84,8 @@ public class Part05Step05Controller extends StepController {
 
         // 6.5.5.2.b Fail if no ECU reports > 0 MIL on DTCs where the same ECU provides one or more permanent DTCs.
         boolean noReports = packets.stream()
+                                   .filter(p -> p.getEmissionRelatedMILOnDTCCount() != 0xFF)
+                                   .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
                                    .noneMatch(p -> p.getEmissionRelatedMILOnDTCCount() > 0
                                            && p.getEmissionRelatedPermanentDTCCount() > 0);
         if (noReports) {
@@ -111,7 +115,8 @@ public class Part05Step05Controller extends StepController {
         // 6.5.5.2.e.i. For OBD ECUs that support DM27, Fail if any ECU reports > 0 for all pending DTCs (SPN 4105).
         packets.stream()
                .filter(p -> isDM27Supported(p.getSourceAddress()))
-               .filter(p -> p.getAllPendingDTCCount() > 0 && p.getAllPendingDTCCount() != 0xFF)
+               .filter(p -> p.getAllPendingDTCCount() != 0xFF)
+               .filter(p -> p.getAllPendingDTCCount() > 0)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
                    addFailure("6.5.5.2.e.i - " + moduleName + " reported > 0 for all pending DTCs");
@@ -120,7 +125,7 @@ public class Part05Step05Controller extends StepController {
         // 6.5.5.2.e.ii. For OBD ECUs that support DM27, Fail if any ECU reports 0xFF for all pending DTCs.
         packets.stream()
                .filter(p -> isDM27Supported(p.getSourceAddress()))
-               .filter(p -> (byte) p.getAllPendingDTCCount() == (byte) 0xFF)
+               .filter(p -> p.getAllPendingDTCCount() == 0xFF)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
                    addFailure("6.5.5.2.e.ii - " + moduleName + " reported 0xFF for all pending DTCs");
@@ -130,7 +135,7 @@ public class Part05Step05Controller extends StepController {
         // (SPN 4105) = 0xFF.
         packets.stream()
                .filter(p -> !isDM27Supported(p.getSourceAddress()))
-               .filter(p -> (byte) p.getAllPendingDTCCount() != (byte) 0xFF)
+               .filter(p -> p.getAllPendingDTCCount() != 0xFF)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
                    addFailure("6.5.5.2.f.i - " + moduleName + " did not report all pending DTCs = 0xFF");
@@ -138,6 +143,7 @@ public class Part05Step05Controller extends StepController {
 
         // 6.5.5.3.a Warn if any ECU reports > 1 for MIL on
         packets.stream()
+               .filter(p -> p.getEmissionRelatedMILOnDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 1)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -146,6 +152,7 @@ public class Part05Step05Controller extends StepController {
 
         // 6.5.5.3.a Warn if any ECU reports > 1 for permanent.
         packets.stream()
+               .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 1)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -153,13 +160,19 @@ public class Part05Step05Controller extends StepController {
                });
 
         // 6.5.5.3.b Warn if more than one ECU reports > 0 for MIL on
-        long milOnCount = packets.stream().filter(p -> p.getEmissionRelatedMILOnDTCCount() > 0).count();
+        long milOnCount = packets.stream()
+                                 .filter(p -> p.getEmissionRelatedMILOnDTCCount() != 0xFF)
+                                 .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 0)
+                                 .count();
         if (milOnCount > 1) {
             addWarning("6.5.5.3.b - More than one ECU reported > 0 for MIL on");
         }
 
         // 6.5.5.3.b Warn if more than one ECU reports > 0 for permanent
-        long permanentCount = packets.stream().filter(p -> p.getEmissionRelatedPermanentDTCCount() > 0).count();
+        long permanentCount = packets.stream()
+                                     .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
+                                     .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 0)
+                                     .count();
         if (permanentCount > 1) {
             addWarning("6.5.5.3.b - More than one ECU reported > 0 for permanent");
         }

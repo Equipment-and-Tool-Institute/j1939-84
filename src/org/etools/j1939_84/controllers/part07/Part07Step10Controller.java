@@ -63,6 +63,7 @@ public class Part07Step10Controller extends StepController {
 
         // 6.7.10.2.a. Fail if any ECU reports > 0 for pending
         packets.stream()
+               .filter(p -> p.getEmissionRelatedPendingDTCCount() !=0xFF)
                .filter(p -> p.getEmissionRelatedPendingDTCCount() > 0)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -71,6 +72,7 @@ public class Part07Step10Controller extends StepController {
 
         // 6.7.10.2.a. Fail if any ECU reports > 0 for all pending
         packets.stream()
+                                                     .filter(p -> p.getAllPendingDTCCount() != 0xFF)
                .filter(p -> p.getAllPendingDTCCount() > 0)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -79,6 +81,7 @@ public class Part07Step10Controller extends StepController {
 
         // 6.7.10.2.a. Fail if any ECU reports > 0 for MIL on
         packets.stream()
+               .filter(p -> p.getEmissionRelatedMILOnDTCCount() !=0xFF)
                .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 0)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -87,6 +90,7 @@ public class Part07Step10Controller extends StepController {
 
         // 6.7.10.2.a. Fail if any ECU reports > 0 for permanent
         packets.stream()
+               .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 0)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -115,6 +119,7 @@ public class Part07Step10Controller extends StepController {
 
         // 6.7.10.3.a. Warn if any ECU reports > 1 for previous MIL on.
         packets.stream()
+               .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 1)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
@@ -123,7 +128,8 @@ public class Part07Step10Controller extends StepController {
 
         // 6.7.10.3.b. Warn if more than one ECU reports > 0 for previous MIL on.
         long count = packets.stream()
-                            .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 0)
+                  .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() != 0xFF)
+                         .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 0)
                             .count();
         if (count > 1) {
             addWarning("6.7.10.3.b - More than one ECU reported > 0 for previous MIL on");
