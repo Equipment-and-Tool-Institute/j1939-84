@@ -83,14 +83,6 @@ public class NOxBinningModule {
     // 64273 NOx Tracking Stored 100 Hour
     public static final int[] NOx_TRACKING_STORED_100_HOURS_PGs = { 64273, 64272, 64271, 64268, 64269, 64270 };
 
-    public static final int[] NOx_ALL_PGNS = Stream.of(IntStream.of(NOx_TRACKING_ACTIVE_100_HOURS_PGs),
-                                                       IntStream.of(NOx_TRACKING_STORED_100_HOURS_PGs),
-                                                       IntStream.of(NOx_LIFETIME_PGs),
-                                                       IntStream.of(NOx_LIFETIME_ACTIVITY_PGs))
-                                                   .flatMapToInt(x -> x)
-                                                   .filter(x -> x != 0)
-                                                   .toArray();
-
     private final DecimalFormat decimalFormat = new DecimalFormat("#,##0");
     private final static int columnWidth = 13;
     private final static int descriptionWidth = 25;

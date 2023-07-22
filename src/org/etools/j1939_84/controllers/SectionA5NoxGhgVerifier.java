@@ -107,6 +107,7 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
                                                                     NOx_LIFETIME_ACTIVITY_PGs,
                                                                     NOx_TRACKING_STORED_100_HOURS_PGs))
                                        .boxed()
+                                       .filter(x -> x != 0)
                                        .collect(Collectors.toList());
             List<GenericPacket> packets = pgns.stream().flatMap(p -> fn.apply(p)).collect(Collectors.toList());
             verifyPgValuesSameAsTwo(getPartNumber(), getStepNumber(), listener, pgns, packets);
