@@ -76,7 +76,12 @@ public class DM24SPNSupportPacket extends GenericPacket {
         sb.append("  ------------------------").append(NL);
         getSupportedSpns().forEach(supportedSPN -> sb.append(createRow(supportedSPN)).append(NL));
         sb.append("]").append(NL);
-        sb.append("Freeze Frame data length = " + getPacket().getLength()+" bytes").append(NL);
+
+        var ffDataLenth = getSupportedSpns().stream()
+                                            .filter(s -> s.supportsExpandedFreezeFrame())
+                                            .mapToInt(s -> s.getLength())
+                                            .sum();
+        sb.append("Freeze Frame data length = " + ffDataLenth + " bytes").append(NL);
         return sb.toString();
     }
 
