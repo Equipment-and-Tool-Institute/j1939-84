@@ -190,6 +190,7 @@ public class OBDModuleInformation implements Cloneable {
 
     private static class PacketArchive {
 
+        private static final int PART_COUNT = 13;
         private final Map<Integer, GenericPacket[]> packetArchive = new HashMap<>();
 
         public void put(GenericPacket packet, int partNumber) {
@@ -204,7 +205,7 @@ public class OBDModuleInformation implements Cloneable {
         }
 
         public <T extends GenericPacket> T getLatest(Class<T> clazz) {
-            for (int i = 12; i > 0; i--) {
+            for (int i = PART_COUNT - 1; i > 0; i--) {
                 var packet = get(getPg(clazz), i);
                 if (packet != null) {
                     return (T) packet;
@@ -223,7 +224,7 @@ public class OBDModuleInformation implements Cloneable {
         }
 
         private <T extends GenericPacket> GenericPacket[] getPackets(int pg) {
-            return packetArchive.getOrDefault(pg, new GenericPacket[13]);
+            return packetArchive.getOrDefault(pg, new GenericPacket[PART_COUNT]);
         }
 
     }

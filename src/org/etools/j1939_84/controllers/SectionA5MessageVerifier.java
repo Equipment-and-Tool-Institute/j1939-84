@@ -475,7 +475,13 @@ public class SectionA5MessageVerifier extends SectionVerifier {
                                             boolean isCurrentlyErased) {
         if (verifyIsErased) {
             // Report if the data is not erased
-            return !wasPreviouslyErased && !isCurrentlyErased;
+
+            // why was it like this?
+            // return !wasPreviouslyErased && !isCurrentlyErased;
+            // It's equivalent to this, but that doesn't make sense:
+            // return !(wasPreviouslyErased || isCurrentlyErased);
+
+            return !isCurrentlyErased;
         } else {
             // Report if the data is erased
             return isCurrentlyErased && !wasPreviouslyErased;
