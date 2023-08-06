@@ -18,7 +18,6 @@ import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939tools.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
-import org.etools.j1939tools.j1939.packets.LampStatus;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;

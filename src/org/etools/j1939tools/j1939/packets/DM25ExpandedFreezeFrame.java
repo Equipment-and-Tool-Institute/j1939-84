@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.etools.j1939_84.controllers.FreezeFrameDataTranslator;
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.utils.CollectionUtils;
+import org.etools.j1939tools.utils.FreezeFrameDataTranslator;
 
 /**
  * The {@link ParsedPacket} for Expanded Freeze Frame Codes (DM25)

@@ -15,6 +15,7 @@ import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939tools.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939tools.j1939.packets.FreezeFrame;
 import org.etools.j1939tools.j1939.packets.SupportedSPN;
+import org.etools.j1939tools.utils.FreezeFrameDataTranslator;
 import org.junit.Before;
 import org.junit.Test;
 

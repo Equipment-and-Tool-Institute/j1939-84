@@ -52,8 +52,6 @@ public class Part11Step13ControllerTest12697 extends AbstractControllerTest {
     private static final int PART_NUMBER = 11;
     private static final int STEP_NUMBER = 13;
 
-    private static final int BUS_ADDR = 0xA5;
-
     @Mock
     private BannerModule bannerModule;
 

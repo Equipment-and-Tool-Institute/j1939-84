@@ -152,7 +152,7 @@ public class Part12Step11ControllerTest extends AbstractControllerTest {
         obd0x00.set(getDm24SPNSupportPacket(0x00), 1);
         DataRepository.getInstance().putObdModule(obd0x00);
 
-        var dm58Packet91 = DM58RationalityFaultSpData.create(source,
+        DM58RationalityFaultSpData.create(source,
                                                              245,
                                                              91,
                                                              new int[] { 0xF0, 0xFF, 0xFF, 0xFF });
@@ -699,7 +699,7 @@ public class Part12Step11ControllerTest extends AbstractControllerTest {
                                               eq(source),
                                               eq(3301))).thenReturn(new BusResult<>(false, dm58Packet3301));
 
-        var dm58Packet27 = DM58RationalityFaultSpData.create(source,
+        DM58RationalityFaultSpData.create(source,
                                                              245,
                                                              27,
                                                              new int[] { 0xFF, 0xFA, 0xFF, 0xFF });

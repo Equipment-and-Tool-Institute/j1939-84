@@ -6,8 +6,6 @@ package org.etools.j1939_84.modules;
 import static java.util.logging.Level.SEVERE;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.J1939_84.PAGE_BREAK;
-import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;

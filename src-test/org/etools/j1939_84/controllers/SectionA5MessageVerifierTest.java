@@ -553,6 +553,42 @@ public class SectionA5MessageVerifierTest {
                                         "6.2.3.4.a - Engine #1 (0) did not erase DM5 data");
     }
 
+    /** Created rom bug report #1246 */
+    @Test
+    public void checkDM5AsErasedSuccessWithNoSupportedTests() {
+        var moduleInfo = new OBDModuleInformation(0);
+        moduleInfo.set(DM5DiagnosticReadinessPacket.create(39,
+                                                           1,
+                                                           1,
+                                                           0x22,
+                                                           List.of(),
+                                                           List.of(CompositeSystem.values())),
+                       1);
+        dataRepository.putObdModule(moduleInfo);
+
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2018);
+        vehInfo.setFuelType(DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+
+        var packet = DM5DiagnosticReadinessPacket.create(39, 0, 0, 0x22, List.of(), List.of(CompositeSystem.values()));
+        when(communicationsModule.requestDM5(listener, 0)).thenReturn(BusResult.of(packet));
+
+        var verifier = new SectionA5MessageVerifier(dataRepository,
+                                                    communicationsModule,
+                                                    vehicleInformationModule,
+                                                    12,
+                                                    10);
+        assertTrue(verifier.checkDM5(listener, "6.12.10.4.c", 0, true));
+
+        verify(communicationsModule).requestDM5(listener, 0);
+        // incorrect response:
+        // verify(mockListener).addOutcome(12,
+        // 10,
+        // FAIL,
+        // "6.12.10.4.c - Management Computer #1 (39) did not erase DM5 data");
+    }
+
     @Test
     public void checkDM5AsNotErasedSuccessWithZeros() {
         var moduleInfo = new OBDModuleInformation(0);

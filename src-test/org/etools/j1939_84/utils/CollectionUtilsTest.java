@@ -16,6 +16,7 @@ import java.util.List;
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
+import org.etools.j1939tools.utils.CollectionUtils;
 import org.junit.Test;
 
 /**

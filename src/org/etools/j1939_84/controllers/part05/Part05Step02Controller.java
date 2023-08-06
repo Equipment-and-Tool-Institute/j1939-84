@@ -7,7 +7,6 @@ import static org.etools.j1939tools.j1939.packets.LampStatus.FAST_FLASH;
 import static org.etools.j1939tools.j1939.packets.LampStatus.ON;
 import static org.etools.j1939tools.j1939.packets.LampStatus.SLOW_FLASH;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
