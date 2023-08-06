@@ -526,6 +526,15 @@ public class Packet {
         return DateTimeModule.getInstance().getTimeFormatter().format(timestamp) + " " + dataString;
     }
 
+    public String toDateTimeString() {
+        /*
+         * Collect data first, because timestamp is dynamic until the data is collected. This will block on the data. We
+         * want to report the timestamp of final packet.
+         */
+        String dataString = toString();
+        return DateTimeModule.getInstance().getTime() + " " + dataString;
+    }
+
     /**
      * Vector compatible log record.
      * 

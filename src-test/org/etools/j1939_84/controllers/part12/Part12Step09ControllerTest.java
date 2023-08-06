@@ -234,7 +234,7 @@ public class Part12Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation);
 
         var ratio3058 = new PerformanceRatio(3058, 2, 3, 0);
-        var dm20 = DM20MonitorPerformanceRatioPacket.create(0, 4, 4, ratio3058);
+        DM20MonitorPerformanceRatioPacket.create(0, 4, 4, ratio3058);
         when(communicationsModule.requestDM20(any(), eq(0))).thenReturn(new BusResult<>(false, create(0, NACK)));
 
         runTest();

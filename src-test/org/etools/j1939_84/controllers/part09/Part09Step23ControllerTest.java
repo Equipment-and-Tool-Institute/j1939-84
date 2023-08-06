@@ -271,10 +271,11 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.9.23.2.b - ECU Engine #1 (0) reported a active DTC");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.9.23.2.a - ECU Body Controller (33) reported MIL status of on");
+        // should not report as FAIL as is not OBD
+        // verify(mockListener).addOutcome(PART_NUMBER,
+        // STEP_NUMBER,
+        // FAIL,
+        // "6.9.23.2.a - ECU Body Controller (33) reported MIL status of on");
 
     }
 }

@@ -172,9 +172,8 @@ public class Part06Step04ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM5DiagnosticReadinessPacket.create(0, 1, 0, 0x22), 6);
         dataRepository.putObdModule(obdModuleInformation);
 
-        var dm1_0 = DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc);
-        var dm1_1 = DM1ActiveDTCsPacket.create(1, ON, ON, ON, ON);
-        // when(communicationsModule.read(any(), anyInt(), any(), any())).thenReturn(List.of(dm1_0, dm1_1));
+        DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+        DM1ActiveDTCsPacket.create(1, ON, ON, ON, ON);
 
         runTest();
 

@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import org.etools.j1939tools.j1939.Lookup;
-import org.etools.j1939tools.utils.CollectionUtils;
 
 /**
  * Class that contains the data about Supported SPNs

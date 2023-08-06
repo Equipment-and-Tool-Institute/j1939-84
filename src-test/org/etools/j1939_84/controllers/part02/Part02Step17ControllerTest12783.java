@@ -113,8 +113,6 @@ public class Part02Step17ControllerTest12783 extends AbstractControllerTest {
 
     private NOxBinningModule nOxBinningModule;
 
-    private static final int BUS_ADDR = 0xA5;
-
     private static List<SupportedSPN> spns(int... ids) {
         return Arrays.stream(ids).mapToObj(id -> {
             return SupportedSPN.create(id, false, true, false, false, 1);
@@ -1264,10 +1262,7 @@ obdModule0.set(response64245, 1);
     }
     @Test
     public void testUiInterruptionFailure() {
-        // SPNs
-        // 111 - Broadcast with value
-        // 444 - DS with value
-        List<Integer> supportedSpns = Arrays.asList(111, 444);
+        Arrays.asList(111, 444);
         List<SupportedSPN> supportedSPNList = spns(111, 444);
 
         OBDModuleInformation obdModule0 = new OBDModuleInformation(0);

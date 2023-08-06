@@ -17,9 +17,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939tools.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
-import org.etools.j1939tools.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
-import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 

@@ -179,7 +179,7 @@ public class Part08Step10ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation);
 
         var ff1 = new FreezeFrame(dtc1, new int[0]);
-        var ff2 = new FreezeFrame(dtc2, new int[0]);
+        new FreezeFrame(dtc2, new int[0]);
         var dtc3 = DiagnosticTroubleCode.create(987, 9, 0, 1);
         var ff3 = new FreezeFrame(dtc3, new int[0]);
 
@@ -211,7 +211,7 @@ public class Part08Step10ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc2), 8);
         dataRepository.putObdModule(obdModuleInformation);
 
-        var ff1 = new FreezeFrame(dtc1, new int[0]);
+        new FreezeFrame(dtc1, new int[0]);
         var ff2 = new FreezeFrame(dtc2, new int[0]);
         var dtc3 = DiagnosticTroubleCode.create(987, 9, 0, 1);
         var ff3 = new FreezeFrame(dtc3, new int[0]);
@@ -265,8 +265,8 @@ public class Part08Step10ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc2), 8);
         dataRepository.putObdModule(obdModuleInformation);
 
-        var ff1 = new FreezeFrame(dtc1, new int[0]);
-        var ff2 = new FreezeFrame(dtc2, new int[0]);
+        new FreezeFrame(dtc1, new int[0]);
+        new FreezeFrame(dtc2, new int[0]);
         var dtc3 = DiagnosticTroubleCode.create(987, 9, 0, 1);
         var ff3 = new FreezeFrame(dtc3, new int[0]);
 

@@ -109,8 +109,6 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
     @Mock
     private ReportFileModule reportFileModule;
 
-    private static final int BUS_ADDR = 0xA5;
-
     private static List<SupportedSPN> spns(int... ids) {
         return Arrays.stream(ids).mapToObj(id -> {
             return SupportedSPN.create(id, false, true, false, false, 1);

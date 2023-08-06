@@ -3,7 +3,6 @@ package org.etools.j1939tools.modules;
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.j1939.J1939;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
-import org.etools.j1939tools.j1939.packets.GhgActiveTechnologyPacket;
 import org.junit.Before;
 import org.junit.Test;
 

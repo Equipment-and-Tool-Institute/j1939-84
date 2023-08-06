@@ -54,8 +54,6 @@ public class Part11Step13ControllerTest12675 extends AbstractControllerTest {
     private static final int PART_NUMBER = 11;
     private static final int STEP_NUMBER = 13;
 
-    private static final int BUS_ADDR = 0xA5;
-
     @Mock
     private BannerModule bannerModule;
 
@@ -6086,7 +6084,7 @@ public class Part11Step13ControllerTest12675 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.empty());
 
-        GenericPacket response64259 = new GenericPacket(Packet.create(0xFB03, 0x00,
+        new GenericPacket(Packet.create(0xFB03, 0x00,
         // @formatter:off
                                                                       0x00, 0x04, 0x00, 0x3C, 0x01, 0x04, 0x00, 0x0D,
                                                                       0x03, 0x04, 0x00, 0x0D, 0x05, 0x04, 0x00, 0x0D,
@@ -6097,7 +6095,6 @@ public class Part11Step13ControllerTest12675 extends AbstractControllerTest {
                                                                       0x17, 0x04, 0x00, 0x0D, 0x19, 0x04, 0x00, 0x0D,
                                                                       0x1B, 0x04, 0x00, 0x0D, 0x1D, 0x04, 0x00, 0x0D,
                                                                       0x1F, 0x04, 0x00, 0x0D));
-        // @formatter:on
 
         GenericPacket response64259Part2 = new GenericPacket(Packet.create(0xFB03,
                                                                            0x00,
@@ -6169,7 +6166,7 @@ public class Part11Step13ControllerTest12675 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.empty());
 
-        GenericPacket response64263 = new GenericPacket(Packet.create(0xFB07, 0,
+        new GenericPacket(Packet.create(0xFB07, 0,
         // @formatter:off
                                                                       0x00, 0x04, 0x00, 0x3C, 0x01, 0x04, 0x00, 0x0D,
                                                                       0x03, 0x04, 0x00, 0x0D, 0x05, 0x04, 0x00, 0x0D,

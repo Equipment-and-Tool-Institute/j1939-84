@@ -17,8 +17,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -50,7 +48,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class VehicleInformationModuleTest {
 
-    private static final Charset UTF8 = StandardCharsets.UTF_8;
     private final TestResultsListener listener = new TestResultsListener();
     private VehicleInformationModule instance;
     @Spy

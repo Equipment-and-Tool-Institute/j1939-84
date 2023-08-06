@@ -133,7 +133,7 @@ public class VehicleInformationPresenterTest {
     public void testInitializeWithError() throws IOException {
         ResultsListener resultsListener = new TestResultsListener();
         CalibrationInformation calibrationInformation = new CalibrationInformation("SixteenCharacter", "3491");
-        DM19CalibrationInformationPacket packet = DM19CalibrationInformationPacket.create(0x00,
+        DM19CalibrationInformationPacket.create(0x00,
                                                                                           0xF9,
                                                                                           calibrationInformation);
 
@@ -142,7 +142,7 @@ public class VehicleInformationPresenterTest {
         when(listener.getResultsListener()).thenReturn(resultsListener);
 
         when(vehicleInformationModule.getVin()).thenThrow(new IOException());
-        AddressClaimPacket addressClaimPacket = mock(AddressClaimPacket.class);
+        mock(AddressClaimPacket.class);
 
         when(vehicleInformationModule.reportAddressClaim(any(ResultsListener.class))).thenReturn(RequestResult.empty(false));
         when(vehicleInformationModule.getEngineModelYear()).thenThrow(new IOException());

@@ -50,14 +50,12 @@ import org.etools.j1939tools.j1939.packets.DiagnosticReadinessPacket;
 import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
-import org.etools.j1939tools.j1939.packets.GhgActiveTechnologyPacket;
 import org.etools.j1939tools.j1939.packets.LampStatus;
 import org.etools.j1939tools.j1939.packets.MonitoredSystem;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.j1939.packets.Slot;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
-import org.etools.j1939tools.modules.GhgTrackingModule;
 
 public abstract class StepController extends Controller {
 

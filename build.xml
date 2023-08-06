@@ -1,249 +1,246 @@
 <!-- Copyright 2019 Equipment & Tool Institute -->
 <project xmlns:jacoco="antlib:org.jacoco.ant" name="J1939_84" default="compile" basedir=".">
-    <description>The Ant build file for the J1939-84 Project.</description>
+	<description>The Ant build file for the J1939-84 Project.</description>
 
-    <!-- set global properties for this build -->
-    <property name="project.name" value="J1939-84"/>
-    <property name="main.class.name" value="org.etools.j1939_84.J1939_84"/>
+	<!-- set global properties for this build -->
+	<property name="project.name" value="J1939-84" />
+	<property name="main.class.name" value="org.etools.j1939_84.J1939_84" />
 
-    <!-- set directories -->
-    <property name="src" location="${basedir}/src"/>
-    <property name="src-test" location="${basedir}/src-test"/>
-    <property name="build" location="${basedir}/build"/>
-    <property name="dist" location="${basedir}/dist"/>
-    <property name="lib" location="${basedir}/lib"/>
-    <property name="lib-test" location="${basedir}/lib-test"/>
-    <property name="build.info.filename" value="${src}/org/etools/j1939_84/resources/version.properties"/>
+	<!-- set directories -->
+	<property name="src" location="${basedir}/src" />
+	<property name="src-test" location="${basedir}/src-test" />
+	<property name="build" location="${basedir}/build" />
+	<property name="dist" location="${basedir}/dist" />
+	<property name="lib" location="${basedir}/lib" />
+	<property name="lib-test" location="${basedir}/lib-test" />
+	<property name="build.info.filename" value="${src}/org/etools/j1939_84/resources/version.properties" />
 
-    <property name="launch4j.dir" location="${lib-test}/launch4j"/>
-    <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask">
-        <classpath path="${launch4j.dir}/launch4j.jar:${launch4j.dir}/lib/xstream.jar"/>
-    </taskdef>
+	<property name="launch4j.dir" location="${lib-test}/launch4j" />
+	<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask">
+		<classpath path="${launch4j.dir}/launch4j.jar:${launch4j.dir}/lib/xstream.jar" />
+	</taskdef>
 
-    <property name="spotbugs.home" value="${lib-test}/spotbugs-4.0.2"/>
-    <taskdef resource="edu/umd/cs/findbugs/anttask/tasks.properties">
-        <classpath path="${lib-test}/spotbugs-4.0.2/lib/spotbugs-ant.jar"/>
-    </taskdef>
+	<property name="spotbugs.home" value="${lib-test}/spotbugs-4.0.2" />
+	<taskdef resource="edu/umd/cs/findbugs/anttask/tasks.properties">
+		<classpath path="${lib-test}/spotbugs-4.0.2/lib/spotbugs-ant.jar" />
+	</taskdef>
 
-    <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
-        <classpath path="${lib-test}/jacoco-0.8.5/lib/jacocoant.jar"/>
-    </taskdef>
+	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+		<classpath path="${lib-test}/jacoco-0.8.5/lib/jacocoant.jar" />
+	</taskdef>
 
-    <condition property="isWindows" value="true">
-        <os family="windows"/>
-    </condition>
+	<condition property="isWindows" value="true">
+		<os family="windows" />
+	</condition>
 
-    <path id="src.path">
-        <pathelement path="${src}"/>
-    </path>
+	<path id="src.path">
+		<pathelement path="${src}" />
+	</path>
 
-    <path id="compile.path">
-        <path refid="src.path"/>
-        <fileset dir="${lib}">
-            <include name="**/*.jar"/>
-        </fileset>
-    </path>
+	<path id="compile.path">
+		<path refid="src.path" />
+		<fileset dir="${lib}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
 
-    <path id="unit.test.path">
-        <path refid="compile.path"/>
-        <pathelement path="${build}"/>
-        <pathelement path="${src-test}"/>
-        <fileset dir="${lib-test}">
-            <include name="**/*.jar"/>
-        </fileset>
-    </path>
+	<path id="unit.test.path">
+		<path refid="compile.path" />
+		<pathelement path="${build}" />
+		<pathelement path="${src-test}" />
+		<fileset dir="${lib-test}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
 
-    <target name="init">
-        <!-- Create the time stamp -->
-        <tstamp/>
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp />
 
-        <!-- Create directories if needed -->
-        <mkdir dir="${build}"/>
-        <mkdir dir="${dist}"/>
-    </target>
+		<!-- Create directories if needed -->
+		<mkdir dir="${build}" />
+		<mkdir dir="${dist}" />
+	</target>
 
-    <target name="dist" description="Generates the JAR File" depends="increment.revision.build.number, clean, init, compile">
-        <!-- Put everything in ${build} into the jar file -->
-        <jar jarfile="${dist}/${project.name}.jar" basedir="${build}">
-            <manifest>
-                <attribute name="Main-Class" value="${main.class.name}"/>
-            </manifest>
-            <fileset dir="build">
-            </fileset>
-            <zipfileset src="lib/commons-lang3-3.10.jar"/>
-            <zipfileset src="lib/ini4j-0.5.4.jar"/>
-            <zipfileset src="lib/jna-5.5.0.jar"/>
-            <zipfileset src="lib/jna-platform-5.5.0.jar"/>
-            <zipfileset src="lib/opencsv-3.8.jar"/>
-        </jar>
+	<target name="dist" description="Generates the JAR File" depends="increment.revision.build.number, clean, init, compile">
+		<!-- Put everything in ${build} into the jar file -->
+		<jar jarfile="${dist}/${project.name}.jar" basedir="${build}">
+			<manifest>
+				<attribute name="Main-Class" value="${main.class.name}" />
+			</manifest>
+			<fileset dir="build">
+			</fileset>
+			<zipfileset src="lib/commons-lang3-3.10.jar" />
+			<zipfileset src="lib/ini4j-0.5.4.jar" />
+			<zipfileset src="lib/jna-5.5.0.jar" />
+			<zipfileset src="lib/jna-platform-5.5.0.jar" />
+			<zipfileset src="lib/opencsv-3.8.jar" />
+		</jar>
 
-        <antcall target="dist.exe"/>
-    </target>
+		<antcall target="dist.exe" />
+	</target>
 
 
-    <target name="dist.exe" if="isWindows">
-        <property environment="env"/>
-        <echo message="Using JRE from JRE_HOME env variable ${env.JRE_HOME}"/>
-        <fail message="The directory '${env.JRE_HOME}' was expected to be available but is not.  Verify that the environment variable JRE_HOME is set to correctly point to the 32 bit JRE.">
-            <condition>
-                <not>
-                    <available file="${env.JRE_HOME}" type="dir"/>
-                </not>
-            </condition>
-        </fail>
+	<target name="dist.exe" if="isWindows">
+		<property environment="env" />
+		<echo message="Using JRE from JRE_HOME env variable ${env.JRE_HOME}" />
+		<fail message="The directory '${env.JRE_HOME}' was expected to be available but is not.  Verify that the environment variable JRE_HOME is set to correctly point to the 32 bit JRE.">
+			<condition>
+				<not>
+					<available file="${env.JRE_HOME}" type="dir" />
+				</not>
+			</condition>
+		</fail>
 
-        <copy todir="jre">
-            <fileset dir="${env.JRE_HOME}"/>
-        </copy>
-        <!--Generates the EXE File -->
-        <property file="${build.info.filename}"/>
-        <launch4j configFile="${basedir}/etc/launch4j.xml"/>
-        <exec executable="${lib-test}\NSIS\makensis.exe" failonerror="true">
-            <!-- providing some nsis definitions -->
-            <arg value="/DVERSIONMAJOR=${build.major.number}"/>
-            <arg value="/DVERSIONMINOR=${build.minor.number}"/>
-            <arg value="/DVERSIONBUILD=${build.revision.number}"/>
-            <!-- passing the script -->
-            <arg value="${basedir}/etc/nullsoft.nsi"/>
-        </exec>
-    </target>
+		<copy todir="jre">
+			<fileset dir="${env.JRE_HOME}" />
+		</copy>
+		<!--Generates the EXE File -->
+		<property file="${build.info.filename}" />
+		<launch4j configFile="${basedir}/etc/launch4j.xml" />
+		<exec executable="${lib-test}\NSIS\makensis.exe" failonerror="true">
+			<!-- providing some nsis definitions -->
+			<arg value="/DVERSIONMAJOR=${build.major.number}" />
+			<arg value="/DVERSIONMINOR=${build.minor.number}" />
+			<arg value="/DVERSIONBUILD=${build.revision.number}" />
+			<!-- passing the script -->
+			<arg value="${basedir}/etc/nullsoft.nsi" />
+		</exec>
+	</target>
 
-    <target name="clean" description="Removes all build artifacts">
-        <!-- Delete the ${build} directory -->
-        <delete dir="${build}"/>
-    </target>
+	<target name="clean" description="Removes all build artifacts">
+		<!-- Delete the ${build} directory -->
+		<delete dir="${build}" />
+	</target>
 
-    <target name="compile" depends="init" description="Compiles the source code">
-        <javac encoding="UTF-8" destdir="${build}" includeantruntime="false" debug="true">
-            <src path="${src}"/>
-            <classpath refid="compile.path"/>
-        </javac>
-        <!-- Copy files from ${src} into ${build} -->
-        <copy todir="${build}">
-            <fileset dir="${src}">
-                <exclude name="**/*.java"/>
-            </fileset>
-        </copy>
-    </target>
+	<target name="compile" depends="init" description="Compiles the source code">
+		<javac encoding="UTF-8" destdir="${build}" includeantruntime="false" debug="true">
+			<src path="${src}" />
+			<classpath refid="compile.path" />
+		</javac>
+		<!-- Copy files from ${src} into ${build} -->
+		<copy todir="${build}">
+			<fileset dir="${src}">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+	</target>
 
-    <target name="compile.tests" depends="compile" description="Compiles the code to run unit tests">
-        <javac encoding="UTF-8" srcdir="${src-test}" destdir="${build}" includeantruntime="false" debug="true" target="11" source="11">
-            <classpath refid="unit.test.path"/>
-            <compilerarg line="-s dist"/>
-        </javac>
-    </target>
+	<target name="compile.tests" depends="compile" description="Compiles the code to run unit tests">
+		<javac encoding="UTF-8" srcdir="${src-test}" destdir="${build}" includeantruntime="false" debug="true" target="11" source="11">
+			<classpath refid="unit.test.path" />
+			<compilerarg line="-s dist" />
+		</javac>
+	</target>
 
-    <target name="run.tests" depends="clean, compile.tests" description="Runs the unit tests">
-        <mkdir dir="${build}/tests"/>
-        <jacoco:coverage destfile="${build}/jacoco/jacoco.exec">
-            <junit printsummary="yes" haltonfailure="no" fork="yes" forkmode="once">
-                <jvmarg value="-Dfile.encoding=UTF-8"/>
-                <classpath refid="unit.test.path"/>
+	<target name="run.tests" depends="clean, compile.tests" description="Runs the unit tests">
+		<mkdir dir="${build}/tests" />
+		<jacoco:coverage destfile="${build}/jacoco/jacoco.exec">
+			<junit printsummary="yes" haltonfailure="no" fork="yes" forkmode="once">
+				<jvmarg value="-Dfile.encoding=UTF-8" />
+				<classpath refid="unit.test.path" />
 
-                <formatter type="xml"/>
+				<formatter type="xml" />
 
-                <batchtest fork="true" todir="${build}/tests">
-                    <fileset dir="${build}">
-                        <include name="**/*Test.class"/>
-                    </fileset>
-                </batchtest>
-            </junit>
-        </jacoco:coverage>
+				<batchtest fork="true" todir="${build}/tests" skipNonTests="true">
+					<fileset dir="${build}">
+						<include name="**/*Test.class" />
+					</fileset>
+				</batchtest>
+			</junit>
+		</jacoco:coverage>
 
-        <jacoco:report>
-            <executiondata>
-                <file file="${build}/jacoco/jacoco.exec"/>
-            </executiondata>
-            <structure name="J1939_84">
-                <classfiles>
-                    <fileset dir="${build}">
-                        <exclude name="**/*Test.class"/>
-                        <exclude name="**/simulated/**"/>
-                    </fileset>
-                </classfiles>
-                <sourcefiles encoding="UTF-8">
-                    <dirset dir="${src}"/>
-                </sourcefiles>
-            </structure>
-            <html destDir="${build}/jacoco"/>
-        </jacoco:report>
+		<jacoco:report>
+			<executiondata>
+				<file file="${build}/jacoco/jacoco.exec" />
+			</executiondata>
+			<structure name="J1939_84">
+				<classfiles>
+					<fileset dir="${build}">
+						<exclude name="**/*Test.class" />
+						<exclude name="**/simulated/**" />
+					</fileset>
+				</classfiles>
+				<sourcefiles encoding="UTF-8">
+					<dirset dir="${src}" />
+				</sourcefiles>
+			</structure>
+			<html destDir="${build}/jacoco" />
+		</jacoco:report>
 
-        <junitreport todir="${build}">
-            <fileset dir="${build}/tests">
-                <include name="TEST-*.xml"/>
-            </fileset>
-            <report format="frames" todir="${build}/junit"/>
-        </junitreport>
-    </target>
+		<junitreport todir="${build}">
+			<fileset dir="${build}/tests">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="${build}/junit" />
+		</junitreport>
+	</target>
 
-    <target name="spotbugs" depends="clean, compile.tests" description="Generate the spotbugs Report">
-        <spotbugs home="${spotbugs.home}" output="html" outputFile="${build}/spotbugsReport.html">
-            <auxclasspath refid="unit.test.path"/>
-            <sourcePath path="${src}"/>
-            <class location="${build}"/>
-        </spotbugs>
-        <open file="${build}/spotbugsReport.html"/>
-    </target>
+	<target name="spotbugs" depends="clean, compile.tests" description="Generate the spotbugs Report">
+		<spotbugs home="${spotbugs.home}" output="html" outputFile="${build}/spotbugsReport.html">
+			<auxclasspath refid="unit.test.path" />
+			<sourcePath path="${src}" />
+			<class location="${build}" />
+		</spotbugs>
+		<open file="${build}/spotbugsReport.html" />
+	</target>
 
-    <target name="echo.current.build.number">
-        <!-- Echos the current build number -->
-        <property file="${build.info.filename}"/>
-        <property name="build.number"
-                  value="${build.major.number}.${build.minor.number}.${build.revision.number} - ${build.date}"/>
-        <echo>Current build number: ${build.number}</echo>
-    </target>
+	<target name="echo.current.build.number">
+		<!-- Echos the current build number -->
+		<property file="${build.info.filename}" />
+		<property name="build.number" value="${build.major.number}.${build.minor.number}.${build.revision.number} - ${build.date}" />
+		<echo>Current build number: ${build.number}</echo>
+	</target>
 
-    <target name="tstamp.build.number">
-        <propertyfile file="${build.info.filename}">
-            <entry key="build.date" type="date" value="${TODAY}"/>
-        </propertyfile>
-    </target>
+	<target name="tstamp.build.number">
+		<propertyfile file="${build.info.filename}">
+			<entry key="build.date" type="date" value="${TODAY}" />
+		</propertyfile>
+	</target>
 
-    <target name="increment.revision.build.number">
-        <!-- Increments the revision on the build number. -->
-        <propertyfile file="${build.info.filename}">
-            <entry key="build.revision.number" type="int" operation="+" value="1"/>
-        </propertyfile>
-        <antcall target="tstamp.build.number"/>
-        <antcall target="echo.current.build.number"/>
-    </target>
+	<target name="increment.revision.build.number">
+		<!-- Increments the revision on the build number. -->
+		<propertyfile file="${build.info.filename}">
+			<entry key="build.revision.number" type="int" operation="+" value="1" />
+		</propertyfile>
+		<antcall target="tstamp.build.number" />
+		<antcall target="echo.current.build.number" />
+	</target>
 
-    <target name="increment.minor.build.number">
-        <!-- Increments the minor on the build number, resets the revision. -->
-        <propertyfile file="${build.info.filename}">
-            <entry key="build.minor.number" type="int" operation="+" value="1"/>
-            <entry key="build.revision.number" type="int" value="-2"/>
-        </propertyfile>
-        <antcall target="tstamp.build.number"/>
-        <antcall target="echo.current.build.number"/>
-    </target>
+	<target name="increment.minor.build.number">
+		<!-- Increments the minor on the build number, resets the revision. -->
+		<propertyfile file="${build.info.filename}">
+			<entry key="build.minor.number" type="int" operation="+" value="1" />
+			<entry key="build.revision.number" type="int" value="-2" />
+		</propertyfile>
+		<antcall target="tstamp.build.number" />
+		<antcall target="echo.current.build.number" />
+	</target>
 
-    <target name="increment.major.build.number">
-        <!--Increments the major on the build number, resets the minor and revision. -->
-        <propertyfile file="${build.info.filename}">
-            <entry key="build.major.number" type="int" operation="+" value="1"/>
-            <entry key="build.minor.number" type="int" value="-2"/>
-            <entry key="build.revision.number" type="int" value="-2"/>
-        </propertyfile>
-        <antcall target="tstamp.build.number"/>
-        <antcall target="echo.current.build.number"/>
-    </target>
+	<target name="increment.major.build.number">
+		<!--Increments the major on the build number, resets the minor and revision. -->
+		<propertyfile file="${build.info.filename}">
+			<entry key="build.major.number" type="int" operation="+" value="1" />
+			<entry key="build.minor.number" type="int" value="-2" />
+			<entry key="build.revision.number" type="int" value="-2" />
+		</propertyfile>
+		<antcall target="tstamp.build.number" />
+		<antcall target="echo.current.build.number" />
+	</target>
 
-    <target name="docs" description="Generates the Java Docs">
-        <property name="docs.dir" value="${build}/docs/api"/>
-        <mkdir dir="${docs.dir}"/>
-        <javadoc packagenames="org.etools.j1939_84.*" sourcepath="${src}" defaultexcludes="yes" destdir="${docs.dir}"
-                 author="true" version="true" use="true" windowtitle="J1939-84 Tool API" access="package"
-                 classpathref="compile.path">
-            <bottom>Copyright 2019 Equipment and Tool Institute. All Rights Reserved.</bottom>
-            <link href="http://docs.oracle.com/javase/8/docs/api/"/>
-            <tag name="wbp.parser.entryPoint" scope="all" enabled="false" description="Entry Point for UI Parsing"/>
-        </javadoc>
-    </target>
+	<target name="docs" description="Generates the Java Docs">
+		<property name="docs.dir" value="${build}/docs/api" />
+		<mkdir dir="${docs.dir}" />
+		<javadoc packagenames="org.etools.j1939_84.*" sourcepath="${src}" defaultexcludes="yes" destdir="${docs.dir}" author="true" version="true" use="true" windowtitle="J1939-84 Tool API" access="package" classpathref="compile.path">
+			<bottom>Copyright 2019 Equipment and Tool Institute. All Rights Reserved.</bottom>
+			<link href="http://docs.oracle.com/javase/8/docs/api/" />
+			<tag name="wbp.parser.entryPoint" scope="all" enabled="false" description="Entry Point for UI Parsing" />
+		</javadoc>
+	</target>
 
-    <scriptdef name="open" language="javascript">
-        <attribute name="file"/>
-        <![CDATA[
+	<scriptdef name="open" language="javascript">
+		<attribute name="file" />
+		<![CDATA[
 	        var location = "file://"+attributes.get("file").toString().replaceAll("\\\\","/");
 	        location = java.net.URLEncoder.encode(location, "UTF-8");
 	        location = location.toString().replaceAll("%3A",":");
@@ -253,25 +250,24 @@
 	        var desktop = java.awt.Desktop.getDesktop();
 	        desktop.browse(uriLocation);
 	    ]]>
-    </scriptdef>
+	</scriptdef>
 
-    <target name="testdoc regenerate" description="Regenerate the dist/testdoc.html" depends="clean,compile.tests">
-    </target>
+	<target name="testdoc regenerate" description="Regenerate the dist/testdoc.html" depends="clean,compile.tests">
+	</target>
 
-    <target name="testdoc.jar" depends="init">
-        <javac encoding="UTF-8" srcdir="${src-test}" destdir="${build}" includeantruntime="false" debug="true" target="11" source="11"
-               classpath="${src-test}" includes="**/TestDoc*.java,**/TestItem*.java">
-            <classpath>
-                <fileset dir="${lib-test}">
-                    <include name="junit-4.12.jar"/>
-                </fileset>
-            </classpath>
-        </javac>
-        <delete file="lib-test/testdoc.jar"/>
-        <jar file="lib-test/testdoc.jar">
-            <fileset dir="build" includes="org/etools/testdoc/**"/>
-            <fileset dir="etc/testdoc"/>
-            <zipfileset src="lib-test/junit-4.12.jar" includes="org/junit/Test.class"/>
-        </jar>
-    </target>
+	<target name="testdoc.jar" depends="init">
+		<javac encoding="UTF-8" srcdir="${src-test}" destdir="${build}" includeantruntime="false" debug="true" target="11" source="11" classpath="${src-test}" includes="**/TestDoc*.java,**/TestItem*.java">
+			<classpath>
+				<fileset dir="${lib-test}">
+					<include name="junit-4.12.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+		<delete file="lib-test/testdoc.jar" />
+		<jar file="lib-test/testdoc.jar">
+			<fileset dir="build" includes="org/etools/testdoc/**" />
+			<fileset dir="etc/testdoc" />
+			<zipfileset src="lib-test/junit-4.12.jar" includes="org/junit/Test.class" />
+		</jar>
+	</target>
 </project>

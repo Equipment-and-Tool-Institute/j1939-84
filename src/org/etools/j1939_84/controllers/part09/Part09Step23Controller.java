@@ -67,6 +67,8 @@ public class Part09Step23Controller extends StepController {
                                                  SECONDS).stream()
                                                          .map(p -> new DM1ActiveDTCsPacket(p.getPacket()))
                                                          .peek(this::save)
+                                                         // find issue based on 9.23
+                                                         .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                                                          .peek(p -> {
                                                              // 6.9.23.2.a. Fail if any ECU does not
                                                              // report MIL off or MIL not supported.
@@ -84,7 +86,6 @@ public class Part09Step23Controller extends StepController {
                                                                                    p.getModuleName()));
                                                              }
                                                          })
-                                                         .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                                                          .collect(Collectors.toList());
 
         // 6.9.23.2.c. Fail if no OBD ECU provides DM1.
