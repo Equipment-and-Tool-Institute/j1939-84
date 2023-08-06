@@ -23,7 +23,6 @@
 	<classpathentry kind="lib" path="lib-test/launch4j/lib/foxtrot.jar"/>
 	<classpathentry kind="lib" path="lib-test/launch4j/lib/jgoodies-common.jar"/>
 	<classpathentry kind="lib" path="lib-test/launch4j/lib/jgoodies-forms.jar"/>
-	<classpathentry kind="lib" path="lib-test/launch4j/lib/jgoodies-looks.jar"/>
 	<classpathentry kind="lib" path="lib-test/launch4j/lib/xstream.jar"/>
 	<classpathentry kind="lib" path="lib-test/objenesis-2.5.jar"/>
 	<classpathentry kind="lib" path="lib-test/byte-buddy-1.10.9.jar"/>
@@ -46,16 +45,21 @@
 	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/Saxon-HE-9.9.1-2.jar"/>
 	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/slf4j-api-1.8.0-beta4.jar"/>
 	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/spotbugs-annotations.jar"/>
-	<classpathentry kind="lib" path="lib-test/jacoco-0.8.5/lib/org.jacoco.agent-0.8.5.201910111838.jar"/>
-	<classpathentry kind="lib" path="lib-test/jacoco-0.8.5/lib/org.jacoco.ant-0.8.5.201910111838.jar"/>
-	<classpathentry kind="lib" path="lib-test/jacoco-0.8.5/lib/org.jacoco.core-0.8.5.201910111838.jar"/>
-	<classpathentry kind="lib" path="lib-test/jacoco-0.8.5/lib/org.jacoco.report-0.8.5.201910111838.jar"/>
-	<classpathentry kind="lib" path="lib-test/jacoco-0.8.5/lib/jacocoagent.jar"/>
-	<classpathentry kind="lib" path="lib-test/jacoco-0.8.5/lib/jacococli.jar"/>
 	<classpathentry kind="lib" path="lib/opencsv-3.8.jar"/>
 	<classpathentry kind="lib" path="lib/ini4j-0.5.4.jar"/>
 	<classpathentry kind="lib" path="lib/jna-5.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/jna-platform-5.5.0.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib-test/jacoco-0.8.9/lib/jacocoagent.jar"/>
+	<classpathentry kind="lib" path="lib-test/jacoco-0.8.9/lib/jacocoant.jar"/>
+	<classpathentry kind="lib" path="lib-test/jacoco-0.8.9/lib/jacococli.jar"/>
+	<classpathentry kind="lib" path="lib-test/jacoco-0.8.9/lib/org.jacoco.agent-0.8.9.202303310957.jar"/>
+	<classpathentry kind="lib" path="lib-test/jacoco-0.8.9/lib/org.jacoco.ant-0.8.9.202303310957.jar"/>
+	<classpathentry kind="lib" path="lib-test/jacoco-0.8.9/lib/org.jacoco.core-0.8.9.202303310957.jar"/>
+	<classpathentry kind="lib" path="lib-test/jacoco-0.8.9/lib/org.jacoco.report-0.8.9.202303310957.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
