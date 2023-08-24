@@ -214,17 +214,19 @@ public class Part01Step07Controller extends StepController {
                         addWarning("6.1.7.3.d.v - Non-OBD ECU Received CVN that is all 0x00 from " + moduleName);
                     }
                 }
-                // 6.1.7.2 Fail if CVN padded with 16-binary zeros (where either the 1st two bytes are both 00h or the
-                // last two bytes both 00h). Note HD OBD CVNs are required to be 32-bits
-                if (rawCvn[0] == 0 && rawCvn[1] == 0 || rawCvn[2] == 0 && rawCvn[3] == 0) {
-                    String moduleName = packet.getModuleName();
-                    if (isObdModule(packet.getSourceAddress())) {
-                        addFailure("6.1.7.2.b.v - OBD ECU Received CVN with incorrect padding from " + moduleName);
-                    } else {
-                        addWarning("6.1.7.3.d.vi - Non-OBD ECU Received CVN with incorrect padding from "
-                                + moduleName);
-                    }
-                }
+                // removed #1249
+                // // 6.1.7.2 Fail if CVN padded with 16-binary zeros (where either the 1st two bytes are both 00h or
+                // the
+                // // last two bytes both 00h). Note HD OBD CVNs are required to be 32-bits
+                // if (rawCvn[0] == 0 && rawCvn[1] == 0 || rawCvn[2] == 0 && rawCvn[3] == 0) {
+                // String moduleName = packet.getModuleName();
+                // if (isObdModule(packet.getSourceAddress())) {
+                // addFailure("6.1.7.2.b.v - OBD ECU Received CVN with incorrect padding from " + moduleName);
+                // } else {
+                // addWarning("6.1.7.3.d.vi - Non-OBD ECU Received CVN with incorrect padding from "
+                // + moduleName);
+                // }
+                // }
             }
         }
 
