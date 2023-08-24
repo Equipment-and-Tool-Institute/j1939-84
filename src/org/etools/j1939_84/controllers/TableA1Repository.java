@@ -146,7 +146,8 @@ public class TableA1Repository {
             rows.add(new TableA1Row(12743, 2024, true, false, false, false, FAIL, FAIL, FAIL));
             rows.add(new TableA1Row(3479, 2024, true, false, false, false, FAIL, FAIL, FAIL));
             rows.add(new TableA1Row(3480, 2024, true, false, false, false, FAIL, FAIL, FAIL));
-            rows.add(new TableA1Row(4334, 2024, true, false, false, false, FAIL, FAIL, FAIL));
+            // issue #1248
+            // rows.add(new TableA1Row(4334, 2024, true, false, false, false, FAIL, FAIL, FAIL));
             rows.add(new TableA1Row(2630, 2024, true, false, false, false, FAIL, FAIL, FAIL));
 
             rows.add(new TableA1Row(12758, 2024, true, false, false, false, FAIL, FAIL, FAIL));
