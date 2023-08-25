@@ -222,11 +222,13 @@ public class TableA6Validator {
             acceptableStatuses.addAll(findStatus(1, 1));
             if (system.getStatus().isComplete()) {
                 if (getModelYear() >= 2019) {
-                    addOutcome(system, listener, section, WARN);
-                    acceptableStatuses.addAll(findStatus(1, 0));
-                } else if (engineHasRun && getModelYear() < 2013) {
-                    addOutcome(system, listener, section, INFO);
-                    acceptableStatuses.addAll(findStatus(1, 0));
+                    if (!engineHasRun) {
+                        addOutcome(system, listener, section, WARN);
+                        acceptableStatuses.addAll(findStatus(1, 0));
+                    } else {
+                        addOutcome(system, listener, section, INFO);
+                        acceptableStatuses.addAll(findStatus(1, 0));
+                    }
                 }
             }
         } else if (isSparkIgnition()) {
