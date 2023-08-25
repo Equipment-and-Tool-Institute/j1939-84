@@ -83,8 +83,7 @@ public class DM58RationalityFaultSpData extends GenericPacket {
     public String toString() {
         return getStringPrefix() + NL +
                 "  Test Identifier: " + getTestId() + NL +
-                "  Rationality Fault SPN: " + getSpnId() + NL +
-                "  Rationality Fault SPN Data Value: [" + getFormattedData() + "]" + NL +
+                "  Rationality Fault SPN: " + getSpnId() + ", Data Value: [" + getFormattedData() + "]" + NL +
                 "  " + getSpn() + NL;
     }
 

@@ -114,7 +114,7 @@ public class VehicleInformationTest {
     public void testToString() {
         String actual = instance.toString();
         String expected = "User Data Entry: " + NL + NL +
-                "Engine Model Emissions Year: 1" + NL +
+                "Engine Model Emissions Year: 1" + " not US/CARB" + NL +
                 "Number of Emissions ECUs Expected: 4" + NL +
                 "Number of CAL IDs Expected: 0" + NL +
                 "Fuel Type: Diesel vehicle" + NL +

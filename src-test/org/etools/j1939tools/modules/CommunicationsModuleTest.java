@@ -2783,8 +2783,7 @@ public class CommunicationsModuleTest {
         expectedResults += "10:15:30.0000 18FBDB17 [8] F5 C8 04 00 FF 88 FF FF" + NL;
         expectedResults += "DM58 from Instrument Cluster #1 (23): " + NL;
         expectedResults += "  Test Identifier: 245" + NL;
-        expectedResults += "  Rationality Fault SPN: 1224" + NL;
-        expectedResults += "  Rationality Fault SPN Data Value: [FF]" + NL;
+        expectedResults += "  Rationality Fault SPN: 1224, Data Value: [FF]" + NL;
         expectedResults += "  SPN  1224, Test Identifier: Not Available" + NL + NL;
         String actualResults = listener.getResults();
         assertEquals(expectedResults, actualResults);

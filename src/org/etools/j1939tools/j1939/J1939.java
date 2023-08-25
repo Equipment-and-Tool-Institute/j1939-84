@@ -998,18 +998,17 @@ public class J1939 {
         J1939_84.getLogger().info(message);
     }
 
-    public void startLogger() throws BusException {
+    public Stream<Packet> startLogger(String prefix) throws BusException {
         Instant start = Instant.now();
         // do not crash tests that do not include a raw bus.
         loggerStream = (bus.getRawBus() == null ? bus : bus.getRawBus()).read(Integer.MAX_VALUE, TimeUnit.DAYS);
         new Thread(() -> {
             try {
-                final String PREFIX = "J1939-84-CAN-";
                 final String SUFFIX = ".asc";
-                File file = File.createTempFile(PREFIX, SUFFIX);
+                File file = File.createTempFile(prefix, SUFFIX);
                 // delete all but last 10 logs
                 Stream.of(file.getParentFile()
-                              .listFiles((dir, name) -> name.startsWith(PREFIX) && name.endsWith(SUFFIX)))
+                              .listFiles((dir, name) -> name.startsWith(prefix) && name.endsWith(SUFFIX)))
                       .sorted(Comparator.comparing(f -> -f.lastModified()))
                       .skip(10)
                       .forEach(f -> f.delete());
@@ -1028,6 +1027,7 @@ public class J1939 {
                 J1939_84.getLogger().log(Level.SEVERE, "Unable to log packets.", e);
             }
         }).start();
+        return loggerStream;
     }
 
     public void closeLogger() {

@@ -41,7 +41,7 @@ public class VehicleInformation implements Cloneable {
     private int engineModelYear;
 
     private FuelType fuelType;
-    
+
     private boolean usCarb;
 
     private int numberOfTripsForFaultBImplant;
@@ -203,7 +203,8 @@ public class VehicleInformation implements Cloneable {
     @Override
     public String toString() {
         return "User Data Entry: " + NL + NL
-                + "Engine Model Emissions Year: " + engineModelYear + NL
+                + "Engine Model Emissions Year: " + engineModelYear
+                + (isUsCarb() ? " US/CARB" : " not US/CARB") + NL
                 + "Number of Emissions ECUs Expected: " + emissionUnits + NL
                 + "Number of CAL IDs Expected: " + calIds + NL
                 + "Fuel Type: " + fuelType + NL

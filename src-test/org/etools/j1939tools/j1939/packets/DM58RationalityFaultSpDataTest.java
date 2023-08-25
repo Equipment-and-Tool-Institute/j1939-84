@@ -88,8 +88,7 @@ public class DM58RationalityFaultSpDataTest {
     public void testToString() {
         String expected = "DM58 from Engine #1 (0): " + NL;
         expected += "  Test Identifier: 245" + NL;
-        expected += "  Rationality Fault SPN: 190" + NL;
-        expected += "  Rationality Fault SPN Data Value: [DD CC]" + NL;
+        expected += "  Rationality Fault SPN: 190, Data Value: [DD CC]" + NL;
         expected += "  SPN   190, Engine Speed: 6555.625 rpm" + NL;
         assertEquals(expected, instance.toString());
     }

@@ -16,6 +16,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import javax.swing.JOptionPane;
 
@@ -550,6 +551,8 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
     private boolean imposterReported;
 
+    private Stream<Packet> loggerStream = Stream.of();
+
     private UserInterfaceContract.View getView() {
         return view;
     }
@@ -573,11 +576,12 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
             this.j1939 = null;
             vehicleInformationModule.setJ1939(null);
         }
+        loggerStream.close();
         // set new values
         if (bus != null) {
             this.bus = bus;
             this.j1939 = new J1939(bus);
-            this.j1939.startLogger();
+            this.loggerStream = this.j1939.startLogger("J1939-84-CAN-");
             vehicleInformationModule.setJ1939(getJ1939());
         }
     }
