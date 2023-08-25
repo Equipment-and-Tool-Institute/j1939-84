@@ -76,10 +76,12 @@ public class Part12Step03Controller extends StepController {
 
         packets.forEach(this::save);
 
-        // 6.12.3.1.b. Display monitor readiness composite value in log.
-        getListener().onResult("");
-        getListener().onResult("Vehicle Composite of DM5:");
-        getCompositeSystems(packets, true).forEach(s -> getListener().onResult(s.toString()));
+        if (packets.size() > 1) {
+            // 6.12.3.1.b. Display monitor readiness composite value in log.
+            getListener().onResult("");
+            getListener().onResult("Vehicle Composite of DM5:");
+            getCompositeSystems(packets, true).forEach(s -> getListener().onResult(s.toString()));
+        }
 
         // 6.12.3.2.a. Fail if any supported monitor (except CCM) that was “0 = complete” in part 11 is now reporting “1
         // = not complete.”.
@@ -109,13 +111,13 @@ public class Part12Step03Controller extends StepController {
                                          .collect(Collectors.toList());
 
         var previouslyCompleteSupportedSystems = get(DM5DiagnosticReadinessPacket.class, address, 11)
-                                                                                                    .getMonitoredSystems()
-                                                                                                    .stream()
-                                                                                                    .filter(s -> s.getStatus()
-                                                                                                                  .isComplete())
-                                                                                                    .map(MonitoredSystem::getId)
-                                                                                                    .filter(supportedSystems::contains)
-                                                                                                    .collect(Collectors.toList());
+                                                                                                     .getMonitoredSystems()
+                                                                                                     .stream()
+                                                                                                     .filter(s -> s.getStatus()
+                                                                                                                   .isComplete())
+                                                                                                     .map(MonitoredSystem::getId)
+                                                                                                     .filter(supportedSystems::contains)
+                                                                                                     .collect(Collectors.toList());
 
         currentDM5.getMonitoredSystems()
                   .stream()

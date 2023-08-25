@@ -79,12 +79,14 @@ public class Part01Step14Controller extends StepController {
             // 6.1.14.1.a.i. Create list by ECU address of all data and current status for use later in the test.
             globalPackets.forEach(this::save);
 
-            // 6.1.14.1.b. Display monitor readiness composite value in log for OBD ECU replies only.
-            getListener().onResult("");
-            getListener().onResult("Vehicle Composite of DM26:");
-            getCompositeSystems(globalPackets, false).stream()
-                                                     .map(MonitoredSystem::toString)
-                                                     .forEach(s -> getListener().onResult(s));
+            if (globalPackets.size() > 1) {
+                // 6.1.14.1.b. Display monitor readiness composite value in log for OBD ECU replies only.
+                getListener().onResult("");
+                getListener().onResult("Vehicle Composite of DM26:");
+                getCompositeSystems(globalPackets, false).stream()
+                                                         .map(MonitoredSystem::toString)
+                                                         .forEach(s -> getListener().onResult(s));
+            }
             getListener().onResult("");
         }
 

@@ -135,7 +135,7 @@ public class Part02Step08Controller extends StepController {
 
         // 6.2.8.1.b. Display monitor readiness composite value in log for OBD ECU replies only.
         List<CompositeMonitoredSystem> compositeSystems = getCompositeSystems(dsPackets, false);
-        if (!compositeSystems.isEmpty()) {
+        if (compositeSystems.size() > 1) {
             getListener().onResult("");
             getListener().onResult("Vehicle Composite of DM26:");
             getListener().onResult(compositeSystems.stream()

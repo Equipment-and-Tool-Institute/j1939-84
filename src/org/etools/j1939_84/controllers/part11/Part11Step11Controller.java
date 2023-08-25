@@ -100,7 +100,7 @@ public class Part11Step11Controller extends StepController {
         packets.forEach(this::save);
 
         // 6.11.11.1.c. Display composite status for support and enable bits for responses received from OBD ECUs.
-        if (!packets.isEmpty()) {
+        if (packets.size() > 1) {
             getListener().onResult("");
             getListener().onResult("Vehicle Composite of DM26:");
             getCompositeSystems(packets, false).stream()

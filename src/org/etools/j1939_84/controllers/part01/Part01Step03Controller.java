@@ -74,7 +74,7 @@ public class Part01Step03Controller extends StepController {
 
         List<DM5DiagnosticReadinessPacket> parsedPackets = response.getPackets();
 
-        if (!parsedPackets.isEmpty()) {
+        if (parsedPackets.size() > 1) {
             getListener().onResult("");
             getListener().onResult("Vehicle Composite of DM5:");
             getCompositeSystems(parsedPackets, true).forEach(s -> getListener().onResult(s.toString()));

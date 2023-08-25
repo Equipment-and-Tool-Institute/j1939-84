@@ -73,13 +73,13 @@ public class Part02Step02Controller extends StepController {
     protected void run() throws Throwable {
         // 6.2.2.1.a. Global DM5 (send Request (PGN 59904) for PGN 65230 (SPNs 1218-1223)).
         RequestResult<DM5DiagnosticReadinessPacket> globalDM5Result = getCommunicationsModule().requestDM5(
-                                                                                                              getListener());
+                                                                                                           getListener());
         List<DM5DiagnosticReadinessPacket> globalDM5Packets = globalDM5Result.getPackets();
         List<DM5DiagnosticReadinessPacket> obdGlobalPackets = globalDM5Packets
                                                                               .stream()
                                                                               .filter(DM5DiagnosticReadinessPacket::isObd)
                                                                               .collect(Collectors.toList());
-        if (!obdGlobalPackets.isEmpty()) {
+        if (obdGlobalPackets.size() > 1) {
             // 6.2.2.1.b. Display monitor readiness composite value in log for OBD ECU replies only.
             List<CompositeMonitoredSystem> systems = getCompositeSystems(obdGlobalPackets, true);
             getListener().onResult("");
@@ -88,11 +88,11 @@ public class Part02Step02Controller extends StepController {
                                           .map(MonitoredSystem::toString)
                                           .collect(Collectors.toList()));
             getListener().onResult("");
-        } else {
+        } else if (obdGlobalPackets.isEmpty()) {
             addFailure("6.2.2.1.a - Global DM5 request did not receive any response packets");
         }
         // 6.2.2.2.a. Fail/warn per the section A.6 Criteria for Readiness 1 Evaluation.27
-        sectionA6Validator.verify(getListener(), "6.2.2.2.a", globalDM5Result,true);
+        sectionA6Validator.verify(getListener(), "6.2.2.2.a", globalDM5Result, true);
 
         // 6.2.2.2.b. Fail if any OBD ECU reports active DTC count not = 0.
         obdGlobalPackets.stream()
@@ -114,8 +114,8 @@ public class Part02Step02Controller extends StepController {
         getDataRepository().getObdModuleAddresses()
                            .forEach(address -> {
                                BusResult<DM5DiagnosticReadinessPacket> busResult = getCommunicationsModule()
-                                                                                                               .requestDM5(getListener(),
-                                                                                                                           address);
+                                                                                                            .requestDM5(getListener(),
+                                                                                                                        address);
                                busResult.getPacket()
                                         .ifPresentOrElse(packet -> {
                                             // No requirements around the destination specific acks
@@ -131,7 +131,7 @@ public class Part02Step02Controller extends StepController {
         for (DM5DiagnosticReadinessPacket responsePacket : globalDM5Packets) {
             DM5DiagnosticReadinessPacket dsPacketResponse = null;
             for (DM5DiagnosticReadinessPacket dsPacket : destinationSpecificPackets) {
-                //FIXME - need document updated @Joe
+                // FIXME - need document updated @Joe
                 save(dsPacket);
                 if (dsPacket.getSourceAddress() == responsePacket.getSourceAddress()) {
                     dsPacketResponse = dsPacket;

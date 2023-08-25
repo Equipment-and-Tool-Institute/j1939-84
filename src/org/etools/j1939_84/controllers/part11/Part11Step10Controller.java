@@ -70,7 +70,7 @@ public class Part11Step10Controller extends StepController {
         packets.forEach(this::save);
 
         // 6.11.10.1.c. Display monitor readiness composite value in log
-        if (!packets.isEmpty()) {
+        if (packets.size() > 1) {
             getListener().onResult("");
             getListener().onResult("Vehicle Composite of DM5:");
             getCompositeSystems(packets, true).stream()
