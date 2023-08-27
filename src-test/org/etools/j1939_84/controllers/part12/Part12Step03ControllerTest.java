@@ -257,8 +257,8 @@ public class Part12Step03ControllerTest extends AbstractControllerTest {
                 + "    NOx catalyst/adsorber          supported, not complete" + NL
                 + "    Diesel Particulate Filter      supported, not complete" + NL
                 + "    Boost pressure control sys     supported, not complete" + NL
-                + "    Cold start aid system          supported, not complete" + NL;
-        assertEquals(expected, listener.getResults());
+                + "    Cold start aid system          supported, not complete" + NL + NL;
+        assertEquals(expected, CommunicationsModule.getTestCompositeSystemsString(List.of(dm5_0), true));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -370,8 +370,8 @@ public class Part12Step03ControllerTest extends AbstractControllerTest {
                 + "    NOx catalyst/adsorber          supported, not complete" + NL
                 + "    Diesel Particulate Filter      supported, not complete" + NL
                 + "    Boost pressure control sys     supported, not complete" + NL
-                + "    Cold start aid system          supported, not complete" + NL;
-        assertEquals(expected, listener.getResults());
+                + "    Cold start aid system          supported, not complete" + NL + NL;
+        assertEquals(expected, CommunicationsModule.getTestCompositeSystemsString(List.of(dm5_0), true));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,

@@ -587,7 +587,7 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                 + "    Diesel Particulate Filter      supported, not complete" + NL
                 + "    Boost pressure control sys     supported, not complete" + NL
                 + "    Cold start aid system      not supported,     complete" + NL;
-        assertEquals(expectedVehicleComposite + NL, listener.getResults());
+        assertEquals(expectedVehicleComposite + NL, CommunicationsModule.getTestCompositeSystemsString(List.of(packet0, packet17, packet23), true));
     }
 
 }

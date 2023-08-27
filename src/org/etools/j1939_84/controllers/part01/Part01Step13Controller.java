@@ -77,7 +77,7 @@ public class Part01Step13Controller extends StepController {
                                                                       .stream()
                                                                       .filter(DM5DiagnosticReadinessPacket::isObd)
                                                                       .collect(Collectors.toList());
-        if (obdGlobalPackets.size()>1) {
+        if (obdGlobalPackets.size() > 1) {
             // 6.1.13.1.b. Display monitor readiness composite value in log for OBD ECU replies only.
             getListener().onResult("");
             getListener().onResult("Vehicle Composite of DM5:");
@@ -86,12 +86,12 @@ public class Part01Step13Controller extends StepController {
                                                                               .map(MonitoredSystem::toString)
                                                                               .collect(Collectors.toList()));
             getListener().onResult("");
-        } else if(obdGlobalPackets.isEmpty()){
+        } else if (obdGlobalPackets.isEmpty()) {
             addFailure("6.1.13.1.a - Global DM5 request did not receive any response packets");
         }
 
         // 6.1.13.2.a. Fail/warn per section A.6, Criteria for Readiness 1 Evaluation
-        sectionA6Validator.verify(getListener(), "6.1.13.2.a", response,false);
+        sectionA6Validator.verify(getListener(), "6.1.13.2.a", response, false);
 
         // 6.1.13.2.b. Fail if any OBD ECU reports active DTCs count not = 0.
         obdGlobalPackets.stream()

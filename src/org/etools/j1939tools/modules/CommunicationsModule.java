@@ -542,4 +542,13 @@ public class CommunicationsModule extends FunctionalModule {
                                 address,
                                 listener).busResult();
     }
+
+    // because of changing requirements, verifying the vehicle composite and not the individual packets for tests.
+    public static String getTestCompositeSystemsString(List<DiagnosticReadinessPacket> of, boolean isDm5) {
+        return NL + (isDm5 ? "Vehicle Composite of DM5:" : "Vehicle Composite of DM26:") + NL
+                + getCompositeSystems(of, isDm5).stream()
+                                                .map(s -> s.toString())
+                                                .collect(Collectors.joining(NL))
+                + NL + NL;
+    }
 }

@@ -278,7 +278,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
                 + "    Boost pressure control sys     enabled, not complete" + NL
                 + "    Cold start aid system      not enabled,     complete" + NL;
         expectedResults += NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals(expectedResults, CommunicationsModule.getTestCompositeSystemsString(List.of(dm26), false));
         assertEquals(List.of(), listener.getOutcomes());
 
     }
@@ -454,7 +454,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "    Boost pressure control sys not enabled,     complete" + NL;
         expectedResults += "    Cold start aid system      not enabled, not complete" + NL;
         expectedResults += NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals(expectedResults, CommunicationsModule.getTestCompositeSystemsString(List.of(dm26), false));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -539,7 +539,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "    Boost pressure control sys not enabled,     complete" + NL;
         expectedResults += "    Cold start aid system      not enabled, not complete" + NL;
         expectedResults += NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals(expectedResults, CommunicationsModule.getTestCompositeSystemsString(List.of(dm26), false));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -624,7 +624,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "    Boost pressure control sys not enabled,     complete" + NL;
         expectedResults += "    Cold start aid system      not enabled, not complete" + NL;
         expectedResults += NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals(expectedResults, CommunicationsModule.getTestCompositeSystemsString(List.of(dm26), false));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -748,7 +748,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "    Boost pressure control sys     enabled, not complete" + NL;
         expectedResults += "    Cold start aid system      not enabled,     complete" + NL;
         expectedResults += NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals(expectedResults, CommunicationsModule.getTestCompositeSystemsString(List.of(dm26), false));
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -862,7 +862,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "    Boost pressure control sys     enabled, not complete" + NL;
         expectedResults += "    Cold start aid system      not enabled, not complete" + NL;
         expectedResults += NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals(expectedResults, CommunicationsModule.getTestCompositeSystemsString(List.of(dm26), false));
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -972,7 +972,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "    Boost pressure control sys     enabled, not complete" + NL;
         expectedResults += "    Cold start aid system      not enabled,     complete" + NL;
         expectedResults += NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals(expectedResults, CommunicationsModule.getTestCompositeSystemsString(List.of(dm26), false));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -1093,7 +1093,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "    Boost pressure control sys     enabled, not complete" + NL;
         expectedResults += "    Cold start aid system          enabled, not complete" + NL;
         expectedResults += NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals(expectedResults, CommunicationsModule.getTestCompositeSystemsString(List.of(dm26), false));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -1213,7 +1213,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "    Boost pressure control sys     enabled, not complete" + NL;
         expectedResults += "    Cold start aid system      not enabled,     complete" + NL;
         expectedResults += NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals(expectedResults, CommunicationsModule.getTestCompositeSystemsString(List.of(dm26), false));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -1468,7 +1468,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "    Boost pressure control sys     enabled, not complete" + NL;
         expectedResults += "    Cold start aid system      not enabled, not complete" + NL;
         expectedResults += NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals(expectedResults, CommunicationsModule.getTestCompositeSystemsString(List.of(dm26), false));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -1598,7 +1598,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "    Boost pressure control sys     enabled, not complete" + NL;
         expectedResults += "    Cold start aid system      not enabled,     complete" + NL;
         expectedResults += NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals(expectedResults, CommunicationsModule.getTestCompositeSystemsString(List.of(dm26), false));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,

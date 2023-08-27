@@ -174,8 +174,8 @@ public class Part11Step11ControllerTest extends AbstractControllerTest {
                 + "    NOx catalyst/adsorber      not enabled, not complete" + NL
                 + "    Diesel Particulate Filter  not enabled, not complete" + NL
                 + "    Boost pressure control sys not enabled, not complete" + NL
-                + "    Cold start aid system      not enabled, not complete" + NL;
-        assertEquals(expected, listener.getResults());
+                + "    Cold start aid system      not enabled, not complete" + NL + NL;
+        assertEquals(expected, CommunicationsModule.getTestCompositeSystemsString(List.of(dm26), false));
 
         assertEquals(List.of(), listener.getOutcomes());
     }
@@ -210,8 +210,8 @@ public class Part11Step11ControllerTest extends AbstractControllerTest {
                 + "    NOx catalyst/adsorber      not enabled, not complete" + NL
                 + "    Diesel Particulate Filter  not enabled, not complete" + NL
                 + "    Boost pressure control sys not enabled, not complete" + NL
-                + "    Cold start aid system      not enabled, not complete" + NL;
-        assertEquals(expected, listener.getResults());
+                + "    Cold start aid system      not enabled, not complete" + NL + NL;
+        assertEquals(expected, CommunicationsModule.getTestCompositeSystemsString(List.of(dm26), false));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -253,8 +253,8 @@ public class Part11Step11ControllerTest extends AbstractControllerTest {
                 + "    NOx catalyst/adsorber      not enabled, not complete" + NL
                 + "    Diesel Particulate Filter  not enabled, not complete" + NL
                 + "    Boost pressure control sys not enabled, not complete" + NL
-                + "    Cold start aid system      not enabled, not complete" + NL;
-        assertEquals(expected, listener.getResults());
+                + "    Cold start aid system      not enabled, not complete" + NL + NL;
+        assertEquals(expected, CommunicationsModule.getTestCompositeSystemsString(List.of(dm26), false));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,

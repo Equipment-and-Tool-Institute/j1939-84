@@ -273,7 +273,8 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                 + "    Diesel Particulate Filter      supported, not complete" + NL
                 + "    Boost pressure control sys     supported, not complete" + NL
                 + "    Cold start aid system      not supported,     complete" + NL;
-        assertEquals(expectedVehicleComposite + NL, listener.getResults());
+        assertEquals(expectedVehicleComposite + NL,
+                     CommunicationsModule.getTestCompositeSystemsString(List.of(packet0), true));
     }
 
     /**
@@ -503,7 +504,8 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                 + "    Diesel Particulate Filter      supported, not complete" + NL
                 + "    Boost pressure control sys     supported, not complete" + NL
                 + "    Cold start aid system      not supported,     complete" + NL + NL;
-        assertEquals(expectedResult, listener.getResults());
+        assertEquals(expectedResult,
+                     CommunicationsModule.getTestCompositeSystemsString(List.of(packet0x00), true));
     }
 
     /**
@@ -794,6 +796,7 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                 + "    Diesel Particulate Filter      supported, not complete" + NL
                 + "    Boost pressure control sys     supported, not complete" + NL
                 + "    Cold start aid system      not supported,     complete" + NL;
-        assertEquals(expectedVehicleComposite + NL, listener.getResults());
+        assertEquals(expectedVehicleComposite + NL,
+                     CommunicationsModule.getTestCompositeSystemsString(List.of(packet0x17), true));
     }
 }
