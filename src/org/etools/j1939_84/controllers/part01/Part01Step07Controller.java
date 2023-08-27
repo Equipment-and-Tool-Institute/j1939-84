@@ -95,17 +95,26 @@ public class Part01Step07Controller extends StepController {
                                  + " provided more than one CAL ID and CVN pair in a single DM19 message");
                      });
 
-        // 6.1.7.3.c For responses from OBD ECUs, warn if 00h is observed in either the first or fourth bytes.
+        // Updated with #1249
+        // 6.1.7.3.c For responses from OBD ECUs, inf if 00h is observed in either the first or fourth bytes.
+        // 6.1.7.3.d.vi For responses from non-OBD ECUs, info if 00h is observed in either the first or fourth bytes.
         globalPackets.toPacketStream()
-                     .filter(p -> isObdModule(p.getSourceAddress()))
-                     .flatMap(p -> p.getCalibrationInformation().stream())
-                     .filter(calInfo -> calInfo.getRawCvn()[0] == 0x00 || calInfo.getRawCvn()[3] == 0x0)
-                     .forEach(caInfo -> {
-                         addWarning(String.format("6.1.7.3.c - CAL ID %s has CVN %s which has 00h in either the first or fourth bytes",
-                                                  caInfo.getCalibrationIdentification(),
-                                                  caInfo.getCalibrationVerificationNumber()));
+                     .forEach(p -> {
+                         for (CalibrationInformation calInfo : p.getCalibrationInformation()) {
+                             if (calInfo.getRawCvn()[0] == 0x00 || calInfo.getRawCvn()[3] == 0x0) {
+                                 if (isObdModule(p.getSourceAddress())) {
+                                     addInfo(String.format("6.1.7.3.c - CAL ID %s has CVN %s which has 00h in either the first or fourth bytes",
+                                                           calInfo.getCalibrationIdentification(),
+                                                           calInfo.getCalibrationVerificationNumber()));
+                                 } else {
+                                     addInfo(String.format("6.1.7.3.d.vi - CAL ID %s has CVN %s which has 00h in either the first or fourth bytes",
+                                                           calInfo.getCalibrationIdentification(),
+                                                           calInfo.getCalibrationVerificationNumber()));
+                                 }
+                             }
+                         }
                      });
-
+        
         // 6.1.7.3.d.i. For responses from non-OBD ECUs: Warn if any non-OBD ECU provides CAL ID.
         globalPackets.toPacketStream()
                      .filter(p -> !isObdModule(p.getSourceAddress()))

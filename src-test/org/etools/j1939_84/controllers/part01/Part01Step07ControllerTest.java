@@ -430,7 +430,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                         eq("6.1.7.3.b - Engine #1 (0) provided more than one CAL ID and CVN pair in a single DM19 message"));
         verify(mockListener).addOutcome(eq(PART_NUMBER),
                                         eq(STEP_NUMBER),
-                                        eq(WARN),
+                                        eq(INFO),
                                         eq("6.1.7.3.c - CAL ID ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ has CVN 0x00000000 which has 00h in either the first or fourth bytes"));
         verify(mockListener, times(1)).addOutcome(eq(PART_NUMBER),
                                                   eq(STEP_NUMBER),
@@ -440,10 +440,10 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                         eq(STEP_NUMBER),
                                         eq(FAIL),
                                         eq("6.1.7.2.b.iv - OBD ECU Received CVN is all 0x00 from Engine #1 (0)"));
-//        verify(mockListener).addOutcome(eq(1),
-//                                        eq(7),
-//                                        eq(FAIL),
-//                                        eq("6.1.7.2.b.v - OBD ECU Received CVN with incorrect padding from Engine #1 (0)"));
+        // verify(mockListener).addOutcome(eq(1),
+        // eq(7),
+        // eq(FAIL),
+        // eq("6.1.7.2.b.v - OBD ECU Received CVN with incorrect padding from Engine #1 (0)"));
         verify(mockListener).addOutcome(eq(PART_NUMBER),
                                         eq(STEP_NUMBER),
                                         eq(FAIL),
@@ -1085,10 +1085,10 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                         eq(7),
                                         eq(WARN),
                                         eq("6.1.7.3.d.v - Non-OBD ECU Received CVN that is all 0x00 from Electrical System (30)"));
-//        verify(mockListener).addOutcome(eq(1),
-//                                        eq(7),
-//                                        eq(WARN),
-//                                        eq("6.1.7.3.d.vi - Non-OBD ECU Received CVN with incorrect padding from Electrical System (30)"));
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(7),
+                                        eq(INFO),
+                                        eq("6.1.7.3.d.vi - CAL ID QaD;QaD;QaD;QaD; has CVN 0x00000000 which has 00h in either the first or fourth bytes"));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -1178,12 +1178,12 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                         eq("6.1.7.2.b.iv - OBD ECU Received CVN is all 0x00 from Electrical System (30)"));
         verify(mockListener).addOutcome(eq(1),
                                         eq(7),
-                                        eq(WARN),
+                                        eq(INFO),
                                         eq("6.1.7.3.c - CAL ID QaD;QaD;QaD;QaD; has CVN 0x00000000 which has 00h in either the first or fourth bytes"));
-//        verify(mockListener).addOutcome(eq(1),
-//                                        eq(7),
-//                                        eq(FAIL),
-//                                        eq("6.1.7.2.b.v - OBD ECU Received CVN with incorrect padding from Electrical System (30)"));
+        // verify(mockListener).addOutcome(eq(1),
+        // eq(7),
+        // eq(FAIL),
+        // eq("6.1.7.2.b.v - OBD ECU Received CVN with incorrect padding from Electrical System (30)"));
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
     }
@@ -2006,7 +2006,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                         eq("6.1.7.2.b.ii - OBD ECU Brakes - Drive axle #1 (13) CAL ID not formatted correctly (padded incorrectly)"));
         verify(mockListener).addOutcome(eq(1),
                                         eq(7),
-                                        eq(WARN),
+                                        eq(INFO),
                                         eq("6.1.7.3.c - CAL ID     calids       has CVN 0xBD51BA00 which has 00h in either the first or fourth bytes"));
 
         assertEquals("", listener.getMessages());
