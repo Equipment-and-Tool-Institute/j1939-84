@@ -75,8 +75,6 @@
 			<manifest>
 				<attribute name="Main-Class" value="${main.class.name}" />
 			</manifest>
-			<fileset dir="build">
-			</fileset>
 			<zipfileset src="lib/commons-lang3-3.10.jar" />
 			<zipfileset src="lib/ini4j-0.5.4.jar" />
 			<zipfileset src="lib/jna-5.5.0.jar" />
