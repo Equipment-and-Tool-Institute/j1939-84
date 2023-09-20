@@ -151,7 +151,7 @@
 -3490, 10b, reserved for SAE assignment, 4
 -3490, 11b, not available, 4
 ;,,,
-; PTO State
+; PTO State,,,
 -976, 00000b, Off/Disabled             ,5
 -976, 00001b, Hold                     ,5
 -976, 00010b, Remote Hold              ,5
