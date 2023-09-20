@@ -53,12 +53,12 @@
 -5837, 00000101b, Liquefied Petroleum Gas (LPG) - LPG,8
 -5837, 00000110b, Compressed Natural Gas (CNG) - CNG,8
 -5837, 00000111b, Propane - PROP,8
-; -5837, 00001000b to 00010110b, Reserved for use in SPN 5837
+; -5837, 00001000b to 00010110b, Reserved for use in SPN 5837,
 -5837, 00010111b, Natural Gas (NG) - NG, 8
-; -5837, 00011000b to 00011110b, Reserved for use in SPN 5837
+; -5837, 00011000b to 00011110b, Reserved for use in SPN 5837,
 -5837, 00011111b, Kerosene,8
--5837, 00100000b, Heavy Fuel Oil
-; -5837, 00100001b to 11111101b, ISO/SAE reserved
+-5837, 00100000b, Heavy Fuel Oil,
+; -5837, 00100001b to 11111101b, ISO/SAE reserved,
 -5837, 11111110b, Reserved for use in SPN 5837,8
 -5837, 11111111b, Not supported,8
 ;,,,
@@ -68,7 +68,7 @@
 -3490, 10b, reserved for SAE assignment,2
 -3490, 11b, not available,2
 ;,,,
-; (SA:0 SPN:3521) AFT 1 DEF Property
+; (SA:0 SPN:3521) AFT 1 DEF Property,
 -3521, 0000b, Urea concentration too high,4
 -3521, 0001b, Urea concentration too low,4
 -3521, 0010b, Fluid is diesel,4
@@ -173,7 +173,7 @@
 -976, 10010b, PTO set speed memory 1   ,5
 -976, 10011b, PTO set speed memory 2   ,5
 -976, 10100b, PTO set speed memory 3   ,5
-;-976, 10101b to 11110b = Reserved
+;-976, 10101b to 11110b = Reserved,
 -976, 11111b, Not available,5
 ;,,,
 ; Engine Wait to Start Lamp ,,,
