@@ -231,7 +231,7 @@
 ;,,,
 ; DEF Dosing Mode ,,,
 -12749, 00h, "Off, not dosing", 8
-; -12749, 01h, - Fah = Manufacturer Defined, assign from 1 up or from 250 down., 8
+; -12749, 01h - Fah = Manufacturer Defined, assign from 1 up or from 250 down., 8
 -12749, FBh, Reserved, 8
 -12749, FCh, Reserved, 8
 -12749, FDh, Reserved, 8
