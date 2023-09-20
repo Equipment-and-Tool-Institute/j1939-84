@@ -173,7 +173,7 @@
 -976, 10010b, PTO set speed memory 1   ,5
 -976, 10011b, PTO set speed memory 2   ,5
 -976, 10100b, PTO set speed memory 3   ,5
-;-976, 10101b to 11110b = Reserved,
+;-976, 10101b to 11110b = Reserved,,
 -976, 11111b, Not available,5
 ;,,,
 ; Engine Wait to Start Lamp ,,,
