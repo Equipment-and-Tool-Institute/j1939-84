@@ -68,7 +68,7 @@
 -3490, 10b, reserved for SAE assignment,2
 -3490, 11b, not available,2
 ;,,,
-; (SA:0 SPN:3521) AFT 1 DEF Property,
+; (SA:0 SPN:3521) AFT 1 DEF Property,,,
 -3521, 0000b, Urea concentration too high,4
 -3521, 0001b, Urea concentration too low,4
 -3521, 0010b, Fluid is diesel,4
