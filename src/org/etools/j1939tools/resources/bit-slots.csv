@@ -3,8 +3,8 @@
 -5843,01b,A warm-up cycle has occurred on this engine start,2
 -5843,10b,SAE reserved,2
 -5843,11b,Not supported or not available,2
-#
-# (SA:0 SPN:976) PTO Governor State
+;,,,
+; (SA:0 SPN:976) PTO Governor State,,,
 -976, 00000b, Off/Disabled,5
 -976, 00001b, Hold,5
 -976, 00010b, Remote Hold,5
@@ -37,14 +37,14 @@
 -976, 11101b, Reserved,5
 -976, 11110b, Reserved,5
 -976, 11111b, Not available,5
-;
-; (SA:0 SPN:1081) Engine Wait to Start Lamp 
+;,,,
+; (SA:0 SPN:1081) Engine Wait to Start Lamp ,,,
 -1081, 00b, Off,2
 -1081, 01b, On,2
 -1081, 10b, Error,2
 -1081, 11b, Not available,2
-
-; SPN:5837 Fuel type
+;,,,
+; SPN:5837 Fuel type,,,
 -5837, 00000000b, Not available - NONE,8
 -5837, 00000001b, Gasoline/petrol - GAS,8
 -5837, 00000010b, Methanol - METH,8
@@ -61,13 +61,13 @@
 ; -5837, 00100001b to 11111101b, ISO/SAE reserved
 -5837, 11111110b, Reserved for use in SPN 5837,8
 -5837, 11111111b, Not supported,8
-
-; (SA:0 SPN:3490) AFT 1 Purge Air Actuator
+;,,,
+; (SA:0 SPN:3490) AFT 1 Purge Air Actuator,,,
 -3490, 00b, not active,2
 -3490, 01b, active,2
 -3490, 10b, reserved for SAE assignment,2
 -3490, 11b, not available,2
-
+;,,,
 ; (SA:0 SPN:3521) AFT 1 DEF Property
 -3521, 0000b, Urea concentration too high,4
 -3521, 0001b, Urea concentration too low,4
@@ -85,8 +85,8 @@
 -3521, 1101b, Not able to determine fluid property (fluid type unknown),4
 -3521, 1110b, Error with diesel exhaust fluid property detection,4
 -3521, 1111b, Not available,4
-
-; OBD Compliance
+;,,,
+; OBD Compliance,,,
 -1220, 17, EMD,8
 -1220, 20, HD OBD,8
 -1220, 182, HD OBD,8
@@ -98,59 +98,59 @@
 -1220, 21, WWH OBD,8
 -1220, 26, EURO VI HD OBD,8
 -1220, 27, HD ZEV,8
-
-; Malfunction Indicator Lamp
+;,,,
+; Malfunction Indicator Lamp,,,
 -1213, 00b, MIL Off, 2
 -1213, 01b, MIL On, 2
-
-; NOx NTE Control Area Status
+;,,,
+; NOx NTE Control Area Status,,,
 -4127, 00b, Outside control area, 2
 -4127, 01b, Inside control area, 2
 -4127, 10b, Reserved, 2
 -4127, 11b, Not Available, 2
-
-; Manufacture-specific Nox NTE Limited Testing Region Status
+;,,,
+; Manufacture-specific Nox NTE Limited Testing Region Status,,,
 -4128, 00b, Outside control area, 2
 -4128, 01b, Inside control area, 2
 -4128, 10b, Reserved, 2
 -4128, 11b, Not Available, 2
-
-; Nox NTE Deficiency Area Status
+;,,,
+; Nox NTE Deficiency Area Status,,,
 -4129, 00b, Outside control area, 2
 -4129, 01b, Inside control area, 2
 -4129, 10b, Reserved, 2
 -4129, 11b, Not Available, 2
-
-; PM NTE Control Area Status
+;,,,
+; PM NTE Control Area Status,,,
 -4130, 00b, Outside control area, 2
 -4130, 01b, Inside control area, 2
 -4130, 10b, Reserved, 2
 -4130, 11b, Not Available, 2
-
-; Manufacture-specific PM NTE Limited Testing Region Status
+;,,,
+; Manufacture-specific PM NTE Limited Testing Region Status,,,
 -4131, 00b, Outside control area, 2
 -4131, 01b, Inside control area, 2
 -4131, 10b, Reserved, 2
 -4131, 11b, Not Available, 2
-
-; PM NTE Deficiency Area Status
+;,,,
+; PM NTE Deficiency Area Status,,,
 -4132, 00b, Outside control area, 2
 -4132, 01b, Inside control area, 2
 -4132, 10b, Reserved, 2
 -4132, 11b, Not Available, 2
-
-; Aftertreatment Diesel Particulate Filter Active Regeneration Status
+;,,,
+; Aftertreatment Diesel Particulate Filter Active Regeneration Status,,,
 -3700, 00b, not active, 2
 -3700, 01b, active, 2
 -3700, 10b, regeneration needed - automatically initiated active regeneration imminent, 2
 -3700, 11b, not available, 2
-
-; Aftertreatment 1 Purge Air Actuator
+;,,,
+; Aftertreatment 1 Purge Air Actuator,,,
 -3490, 00b, not active, 4
 -3490, 01b, active, 4
 -3490, 10b, reserved for SAE assignment, 4
 -3490, 11b, not available, 4
-
+;,,,
 ; PTO State
 -976, 00000b, Off/Disabled             ,5
 -976, 00001b, Hold                     ,5
@@ -175,20 +175,20 @@
 -976, 10100b, PTO set speed memory 3   ,5
 ;-976, 10101b to 11110b = Reserved
 -976, 11111b, Not available,5
-
-; Engine Wait to Start Lamp 
+;,,,
+; Engine Wait to Start Lamp ,,,
 -1081, 00b, Off, 2
 -1081, 01b, On, 2
 -1081, 10b, Error, 2
 -1081, 11b, Not available, 2
-
-; Engine Variable Geometry Turbocharger 1 Control Mode
+;,,,
+; Engine Variable Geometry Turbocharger 1 Control Mode,,,
 -5457, 00b, open loop, 2
 -5457, 01b, closed loop, 2
 -5457, 10b, SAE reserved, 2
 -5457, 11b, not available, 2
-
-; Fuel Type
+;,,,
+; Fuel Type,,,
 -5837, 00h, Not available - NONE, 8
 -5837, 01h, Gasoline/petrol - GAS, 8
 -5837, 02h, Methanol - METH, 8
@@ -217,8 +217,8 @@
 ;-5837, 21h to FDh = ISO/SAE reserved, 8
 -5837, FEh, Error, 8
 -5837, FFh, Not available (Parameter not supported), 8
-
-; Aftertreatment 1 Diesel Exhaust Fluid Property 
+;,,,
+; Aftertreatment 1 Diesel Exhaust Fluid Property ,,,
 -3521, 0000b, Urea concentration too high, 4
 -3521, 0001b, Urea concentration too low, 4
 -3521, 0010b, Fluid is diesel, 4
@@ -228,8 +228,8 @@
 -3521, 1101b, Not able to determine fluid property (fluid type unknown), 4
 -3521, 1110b, Error with diesel exhaust fluid property detection, 4
 -3521, 1111b, Not available, 4
-
-; DEF Dosing Mode 
+;,,,
+; DEF Dosing Mode ,,,
 -12749, 00h, "Off, not dosing", 8
 ; -12749, 01h - Fah = Manufacturer Defined, assign from 1 up or from 250 down., 8
 -12749, FBh, Reserved, 8
@@ -237,20 +237,20 @@
 -12749, FDh, Reserved, 8
 -12749, Feh, Error (Not Dosing), 8
 -12749, FFh, Not available, 8
-
-; Aftertreatment 1 Outlet NOx 1 Reading Stable
+;,,,
+; Aftertreatment 1 Outlet NOx 1 Reading Stable,,,
 -3230, 00b, Not stable, 2
 -3230, 01b, Stable, 2
 -3230, 10b, Error, 2
 -3230, 11b, Not available, 2
-
-; Engine Exhaust 1 NOx 1 Reading Stable
+;,,,
+; Engine Exhaust 1 NOx 1 Reading Stable,,,
 -3220, 00b, Not stable, 2
 -3220, 01b, Stable, 2
 -3220, 10b, Error, 2
 -3220, 11b, Not available, 2
-
-; Engine Operating State
+;,,,
+; Engine Operating State,,,
 -3543, 0000b, Engine Stopped, 4
 -3543, 0001b, Pre-Start, 4
 -3543, 0010b, Starting, 4
@@ -262,9 +262,9 @@
 ;-3543, 1000b to 1101b = available for SAE assignment, 4
 -3543, 1110b, <reserved>, 4
 -3543, 1111b, not available, 4
-
-; Hybrid Propulsion Mode Status
-;   Verify bit size FIXME
+;,,,
+; Hybrid Propulsion Mode Status,,,
+;   Verify bit size FIXME,,,
 -7896, 0, No mode requested, 8
 -7896, 1, Stored Energy Source Sustaining, 8
 -7896, 2, Stored Energy Source Increasing, 8
@@ -274,14 +274,14 @@
 ;-7896, 6 to 13 = Reserved, 8
 -7896, 14, Error, 8
 -7896, 15, Not Available, 8
-
-; Propulsion System Active
+;,,,
+; Propulsion System Active,,,
 -7315, 00b, Propulsion System is not ready to move vehicle if commanded by operator, 2
 -7315, 01b, "Propulsion System is ready to move, or is moving the vehicle as commanded by operator", 2
 -7315, 10b, SAE Reserved, 2
 -7315, 11b, Not Available, 2
-
-; DC Charging State
+;,,,
+; DC Charging State,,,
 -13171, 0, Idle. No EVSE connected, 8
 -13171, 1, Charging, 8
 -13171, 2, Standby, 8
@@ -298,8 +298,8 @@
 -13171, 13, "Battery failure. An error condition due to the battery state (high temperature, etc.)", 8
 -13171, 14, EVSE fault.  An error condition due to the EVSE, 8
 -13171, 15, Not available, 8
-
-; GHG Tracking Lifetime Active Technology Index
+;,,,
+; GHG Tracking Lifetime Active Technology Index,,,
 -12691, 0, SAE/ISO Reserved, 8
 -12691, 1, Waste Heat Recovery, 8
 -12691, 2, Cylinder Deactivation, 8
@@ -318,8 +318,8 @@
 -12691, 250, Mfg Defined Active Technology 1, 8
 -12691, 254, Error, 8
 -12691, 255, Not Available, 8
-
-; GHG Tracking Active 100 Hour Active Technology Index
+;,,,
+; GHG Tracking Active 100 Hour Active Technology Index,,,
 -12694, 0, SAE/ISO Reserved, 8
 -12694, 1, Waste Heat Recovery, 8
 -12694, 2, Cylinder Deactivation, 8
@@ -338,8 +338,8 @@
 -12694, 250, Mfg Defined Active Technology 1, 8
 -12694, 254, Error, 8
 -12694, 255, Not Available, 8
-
-; GHG Tracking Stored 100 Hour Active Technology Index
+;,,,
+; GHG Tracking Stored 100 Hour Active Technology Index,,,
 -12697, 0, SAE/ISO Reserved, 8
 -12697, 1, Waste Heat Recovery, 8
 -12697, 2, Cylinder Deactivation, 8
