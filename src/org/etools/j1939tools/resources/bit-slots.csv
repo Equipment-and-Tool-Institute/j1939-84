@@ -3,8 +3,8 @@
 -5843,01b,A warm-up cycle has occurred on this engine start,2
 -5843,10b,SAE reserved,2
 -5843,11b,Not supported or not available,2
-;
-; (SA:0 SPN:976) PTO Governor State
+#
+# (SA:0 SPN:976) PTO Governor State
 -976, 00000b, Off/Disabled,5
 -976, 00001b, Hold,5
 -976, 00010b, Remote Hold,5
