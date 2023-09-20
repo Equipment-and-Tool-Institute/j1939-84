@@ -3,22 +3,20 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939tools.j1939.Lookup.getAddressName;
-
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.j1939.packets.ComponentIdentificationPacket;
-import org.etools.j1939tools.j1939.packets.ParsedPacket;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -67,31 +65,52 @@ public class Part02Step07Controller extends StepController {
         var dsPackets = getDataRepository().getObdModuleAddresses()
                                            .stream()
                                            .map(this::requestComponentId)
-                                           .flatMap(BusResult::toPacketStream)
+                                           // .flatMap(BusResult::toPacketStream)
                                            .collect(Collectors.toList());
 
-        // 6.2.7.2.a Fail if any device does not support PGN 65259 with the engine running that supported PGN 65259 with
-        // the engine off in part 1.
+        /**
+         * <pre>
+         * 6.2.7.2 Fail Criteria
+         * a. Fail if any OBD ECU NACKs (control byte = 1) its DS request, where the ECU supported PG 65259 in Part 1
+         * b. Info if any OBD ECU NACKs (control byte = 2) its DS request. (2, access denied, conditions not correct -
+         * Engine running.
+         * c. Fail if there is any difference between the part 2 response and the part 1 response from an OBD ECU, as PG
+         * 65259 data is defined to be static values.
+         * d. Fail if no Function 0 device supports PG 65259 with the engine running.
+         */
+
+        // 6.2.7.2.a Fail if any OBD ECU NACKs (control byte = 1) its DS request, where the ECU supported PG 65259 in
+        // Part 1
         for (int address : getDataRepository().getObdModuleAddresses()) {
             var packet = getPart1Packet(address);
             if (packet != null) {
-                boolean hasResponse = dsPackets.stream().anyMatch(p -> p.getSourceAddress() == address);
-                if (!hasResponse) {
+                Optional<GenericPacket> response = dsPackets.stream()
+                        
+                                                                            .filter(p -> p.getPacket().map(r->(GenericPacket)r.resolve()).getSourceAddress() == address)
+                                                                            .findFirst();
+                if (response.isEmpty()) {
                     addFailure("6.2.7.2.a - " + getAddressName(address)
                             + " did not support PGN 65259 with the engine running");
+                } else {
+                    var r = response.get();
                 }
             }
         }
+        // 6.2.7.2.b Info if any OBD ECU NACKs (control byte = 2) its DS request. (2, access denied, conditions not
+        // correct -
+        // Engine running.
 
-        // 6.2.7.2.b Fail if there is any difference between the part 2 response and the part 1 response, as PGN 65259
+        // 6.2.7.2.c Fail if there is any difference between the part 2 response and the part 1 response, as PGN 65259
         // data is defined to be static values.
         dsPackets.stream()
                  .filter(p -> !p.equals(getPart1Packet(p.getSourceAddress())))
                  .map(ParsedPacket::getModuleName)
                  .forEach(moduleName -> {
-                     addFailure("6.2.7.2.b - " + moduleName
+                     addFailure("6.2.7.2.c - " + moduleName
                              + " reported difference between the part2 response and the part 1 response");
                  });
+
+        // 6.2.7.2.d Fail if no Function 0 device supports PG 65259 with the engine running.
 
         // 6.2.7.3.a. Global Request for Component ID request (PGN 59904) for PGN 65259 (SPNs 586, 587, and 588)
         // 6.2.7.3.b. Display each positive return in the log.
@@ -140,9 +159,9 @@ public class Part02Step07Controller extends StepController {
 
     private List<ComponentIdentificationPacket> requestComponentIds() {
         return request(ComponentIdentificationPacket.PGN)
-                                                           .toPacketStream()
-                                                           .map(p -> new ComponentIdentificationPacket(p.getPacket()))
-                                                           .collect(Collectors.toList());
+                                                         .toPacketStream()
+                                                         .map(p -> new ComponentIdentificationPacket(p.getPacket()))
+                                                         .collect(Collectors.toList());
     }
 
     private List<ComponentIdentificationPacket> requestComponentIds(int address) {
