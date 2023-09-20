@@ -214,7 +214,7 @@
 -5837, 1Eh, Hydrogen Internal Combustion Engine, 8
 -5837, 1Fh, Kerosene, 8
 -5837, 20h, Heavy Fuel Oil, 8
-;-5837, 21h to FDh = ISO/SAE reserved, 8
+;-5837, 21h, to FDh = ISO/SAE reserved, 8
 -5837, FEh, Error, 8
 -5837, FFh, Not available (Parameter not supported), 8
 ;,,,
@@ -223,7 +223,7 @@
 -3521, 0001b, Urea concentration too low, 4
 -3521, 0010b, Fluid is diesel, 4
 -3521, 0011b, Diesel exhaust fluid is proper mixture, 4
-; -3521, 0100b to 1011b = Reserved for SAE assignment, 4
+; -3521, 0100b, to 1011b = Reserved for SAE assignment, 4
 -3521, 1100b, "Diesel exhaust fluid, but concentration cannot be determined", 4
 -3521, 1101b, Not able to determine fluid property (fluid type unknown), 4
 -3521, 1110b, Error with diesel exhaust fluid property detection, 4
@@ -231,7 +231,7 @@
 ;,,,
 ; DEF Dosing Mode ,,,
 -12749, 00h, "Off, not dosing", 8
-; -12749, 01h - Fah = Manufacturer Defined, assign from 1 up or from 250 down., 8
+; -12749, 01h, - Fah = Manufacturer Defined, assign from 1 up or from 250 down., 8
 -12749, FBh, Reserved, 8
 -12749, FCh, Reserved, 8
 -12749, FDh, Reserved, 8
@@ -259,7 +259,7 @@
 -3543, 0101b, Cool-down, 4
 -3543, 0110b, Engine Stopping, 4
 -3543, 0111b, Post-Run, 4
-;-3543, 1000b to 1101b = available for SAE assignment, 4
+;-3543, 1000b, to 1101b = available for SAE assignment, 4
 -3543, 1110b, <reserved>, 4
 -3543, 1111b, not available, 4
 ;,,,
@@ -271,7 +271,7 @@
 -7896, 3, Stored Energy Source Depleting, 8
 -7896, 4, Stored Energy Source Offline, 8
 -7896, 5, Stored Energy Source Only, 8
-;-7896, 6 to 13 = Reserved, 8
+;-7896, 6, to 13 = Reserved, 8
 -7896, 14, Error, 8
 -7896, 15, Not Available, 8
 ;,,,
