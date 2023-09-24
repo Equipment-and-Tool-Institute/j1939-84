@@ -212,7 +212,11 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.2.7.2.a - Engine #2 (1) did not support PGN 65259 with the engine running");
+                                        "6.2.7.2 - Engine #2 (1) did not respond with PGN 65259 with the engine running");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.2.7.4.b - Global response does not match the destination specific response from Engine #2 (1)");
     }
 
     @Test
@@ -254,7 +258,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.2.7.2.b - Engine #1 (0) reported difference between the part2 response and the part 1 response");
+                                        "6.2.7.2.c - Engine #1 (0) reported difference between the part2 response and the part 1 response");
     }
 
     @Test
@@ -294,7 +298,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.2.7.4.a - There is no positive response from Engine #1 (0)");
+                                        "6.2.7.4.a - There is no positive response from function 0. (Global request not supported or timed out.)");
     }
 
     @Test
@@ -333,10 +337,15 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+        
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.2.7.4.a - There is no positive response from Unknown (-1)");
+                                        "6.2.7.2.d - No Function 0 device supports PG 65259 with the engine running");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.2.7.4.a - There is no positive response from function 0. (Global request not supported or timed out.)");
     }
 
     @Test

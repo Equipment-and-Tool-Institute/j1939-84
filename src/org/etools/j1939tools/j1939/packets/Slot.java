@@ -232,7 +232,7 @@ public class Slot {
         return ~0L >>> (dataLength - length);
     }
 
-    private long mask() {
+    protected long mask() {
         return ~0L >>> (64 - length);
     }
 
@@ -291,6 +291,5 @@ public class Slot {
         }
         return flipBytes(data & mask());
     }
-
 
 }

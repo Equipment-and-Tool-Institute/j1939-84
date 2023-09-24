@@ -6,6 +6,7 @@ package org.etools.j1939_84.controllers;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -24,6 +25,7 @@ import org.etools.j1939tools.j1939.J1939DaRepository;
 import org.etools.j1939tools.j1939.model.PgnDefinition;
 import org.etools.j1939tools.j1939.model.Spn;
 import org.etools.j1939tools.j1939.model.SpnDefinition;
+import org.etools.j1939tools.j1939.packets.BitSlot;
 import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
@@ -237,4 +239,54 @@ public class TableA1ValidatorTest {
         return J1939DaRepository.getInstance().findSLOT(spnDef.getSlotNumber(), spnDef.getSpnId());
     }
 
+    @Test
+    public void reportNonErrorFEState() {
+        J1939DaRepository j1939da = J1939DaRepository.getInstance();
+        List<SpnDefinition> list = j1939da
+                                          .getSpnDefinitions()
+                                          .values()
+                                          .stream()
+                                          .filter(d -> findSlot(d).getLength() > 1)
+                                          .filter(d -> {
+                                              var slot = findSlot(d);
+                                              if (slot.getLength() > 1 && slot instanceof BitSlot) {
+                                                  int value = (1 << slot.getLength()) - 2;
+                                                  byte[] data = new byte[] { (byte) value };
+                                                  String str = slot.asString(data);
+                                                  if (((BitSlot) slot).isDefined(data)
+                                                          && !str.toUpperCase().contains("ERROR")) {
+                                                      return true;
+                                                  }
+                                              }
+                                              return false;
+                                          })
+                                          .collect(Collectors.toList());
+        // print the table
+        list.forEach(d -> {
+            Slot slot = findSlot(d);
+            int value = (1 << slot.getLength()) - 2;
+            byte[] data = new byte[] { (byte) value };
+            String str = slot.asString(data);
+            System.err.format("| %4d | %-60s | %5s | %75s |%n",
+                              d.getSpnId(),
+                              d.getLabel(),
+                              Integer.toBinaryString(value),
+                              str);
+        });
+
+        int[] spns = new int[] { 976,
+                3490,
+                3543,
+                3700,
+                4127,
+                4128,
+                4129,
+                4130,
+                4131,
+                4132,
+                5457,
+                5843,
+                7315 };
+        assertArrayEquals(spns, list.stream().mapToInt(spn -> spn.getSpnId()).toArray());
+    }
 }

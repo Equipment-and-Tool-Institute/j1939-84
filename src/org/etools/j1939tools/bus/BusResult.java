@@ -101,11 +101,18 @@ public class BusResult<T extends ParsedPacket> {
         return retryUsed;
     }
 
+    // FIXME legacy overkill: there is 1. no packet, 2. packet, 3. NACK
     public RequestResult<T> requestResult() {
         return new RequestResult<>(isRetryUsed(), getPacket().stream().collect(Collectors.toList()));
     }
 
+    // FIXME Why Stream instead of Optional?
     public Stream<T> toPacketStream() {
         return getPacket().stream().flatMap(e -> e.left.stream());
+    }
+
+    // FIXME Why Stream instead of Optional?
+    public Stream<AcknowledgmentPacket> toAckStream() {
+        return getPacket().stream().flatMap(e -> e.right.stream());
     }
 }
