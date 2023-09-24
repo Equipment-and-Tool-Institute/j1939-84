@@ -3,20 +3,26 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.bus.BusResult;
+import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.Lookup;
+import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939tools.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -60,13 +66,21 @@ public class Part02Step07Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
+        List<Integer> function0Addresses = getDataRepository().getObdModules()
+                                                              .stream()
+                                                              .filter(m -> m.getFunction() == 0)
+                                                              .map(OBDModuleInformation::getSourceAddress)
+                                                              .toList();
+
         // 6.2.7.1.a Destination Specific (DS) Component ID request (PGN 59904) for PGN 65259 (SPNs 586, 587, and 588)
         // to each OBD ECU.
-        var dsPackets = getDataRepository().getObdModuleAddresses()
-                                           .stream()
-                                           .map(this::requestComponentId)
-                                           // .flatMap(BusResult::toPacketStream)
-                                           .collect(Collectors.toList());
+        Map<Integer, BusResult<ComponentIdentificationPacket>> dsPackets = getDataRepository().getObdModuleAddresses()
+                                                                                              .stream()
+                                                                                              .collect(Collectors.toMap(b -> b,
+                                                                                                                        b -> requestComponentId(b),
+                                                                                                                        (a,
+                                                                                                                         b) -> b,
+                                                                                                                        () -> new LinkedHashMap<>()));
 
         /**
          * <pre>
@@ -82,27 +96,32 @@ public class Part02Step07Controller extends StepController {
         // 6.2.7.2.a Fail if any OBD ECU NACKs (control byte = 1) its DS request, where the ECU supported PG 65259 in
         // Part 1
         for (int address : getDataRepository().getObdModuleAddresses()) {
-            var packet = getPart1Packet(address);
-            if (packet != null) {
-                Optional<GenericPacket> response = dsPackets.stream()
-                        
-                                                                            .filter(p -> p.getPacket().map(r->(GenericPacket)r.resolve()).getSourceAddress() == address)
-                                                                            .findFirst();
-                if (response.isEmpty()) {
-                    addFailure("6.2.7.2.a - " + getAddressName(address)
-                            + " did not support PGN 65259 with the engine running");
+            var response = dsPackets.get(address);
+            var part1Packet = getPart1Packet(address);
+            if (part1Packet != null) {
+                // implied
+                if (response == null || response.getPacket().isEmpty()) {
+                    addFailure("6.2.7.2 - " + Lookup.getAddressName(address)
+                            + " did not respond with PGN 65259 with the engine running");
                 } else {
-                    var r = response.get();
+                    var packet = response.getPacket().get();
+                    if (packet.right.filter(ack -> ack.getResponse() == Response.NACK).isPresent()) {
+                        addFailure("6.2.7.2.a - " + Lookup.getAddressName(address)
+                                + " NACK (control byte = 1) PGN 65259 with the engine running");
+                    } else if (packet.right.filter(ack -> ack.getResponse() == Response.DENIED).isPresent()) {
+                        addInfo("6.2.7.2.b - " + Lookup.getAddressName(address)
+                                + " NACK (control byte = 2) PGN 65259 with the engine running");
+                    }
                 }
             }
         }
-        // 6.2.7.2.b Info if any OBD ECU NACKs (control byte = 2) its DS request. (2, access denied, conditions not
-        // correct -
-        // Engine running.
 
         // 6.2.7.2.c Fail if there is any difference between the part 2 response and the part 1 response, as PGN 65259
         // data is defined to be static values.
-        dsPackets.stream()
+        dsPackets.values()
+                 .stream()
+                 .flatMap(r -> r.getPacket().stream())
+                 .map(e -> (GenericPacket) e.resolve())
                  .filter(p -> !p.equals(getPart1Packet(p.getSourceAddress())))
                  .map(ParsedPacket::getModuleName)
                  .forEach(moduleName -> {
@@ -111,64 +130,46 @@ public class Part02Step07Controller extends StepController {
                  });
 
         // 6.2.7.2.d Fail if no Function 0 device supports PG 65259 with the engine running.
+        if (!dsPackets.keySet().stream().anyMatch(function0Addresses::contains)) {
+            addFailure("6.2.7.2.d - No Function 0 device supports PG 65259 with the engine running");
+        }
 
         // 6.2.7.3.a. Global Request for Component ID request (PGN 59904) for PGN 65259 (SPNs 586, 587, and 588)
         // 6.2.7.3.b. Display each positive return in the log.
         var globalPackets = requestComponentIds();
 
         // 6.2.7.4.a. Fail if there is no positive response from function 0. (Global request not supported or timed out)
-        int function0Address = getDataRepository().getObdModules()
-                                                  .stream()
-                                                  .filter(m -> m.getFunction() == 0)
-                                                  .map(OBDModuleInformation::getSourceAddress)
-                                                  .findFirst()
-                                                  .orElse(-1);
+        if (!globalPackets.toPacketStream().anyMatch(t -> function0Addresses.contains(t.getSourceAddress()))) {
+            addFailure("6.2.7.4.a - There is no positive response from function 0. (Global request not supported or timed out.)");
+        }
 
-        var function0GlobalPacket = globalPackets.stream()
-                                                 .filter(p -> p.getSourceAddress() == function0Address)
-                                                 .findFirst()
-                                                 .orElse(null);
-        if (function0GlobalPacket == null) {
-            addFailure("6.2.7.4.a - There is no positive response from " + getAddressName(function0Address));
-        } else {
-            // 6.2.7.4.b. Fail if the global response does not match the destination specific response from function 0.
-            var function0DSPacket = dsPackets.stream()
-                                             .filter(p -> p.getSourceAddress() == function0Address)
-                                             .findFirst()
-                                             .orElse(null);
-            if (!function0GlobalPacket.equals(function0DSPacket)) {
+        // 6.2.7.4.b. Fail if the global response does not match the destination specific response from function 0.
+        for (var globalResponse : globalPackets.getEither()) {
+            GenericPacket r = globalResponse.resolve();
+            var function0DSPacket = dsPackets.get(r.getSourceAddress());
+            if (!r.equals(function0DSPacket.getPacket().map(e -> (GenericPacket) e.resolve()).orElse(null))) {
                 addFailure("6.2.7.4.b - Global response does not match the destination specific response from "
-                        + getAddressName(function0Address));
+                        + Lookup.getAddressName(r.getSourceAddress()));
             }
         }
 
         // 6.2.7.5 Warn Criteria2 for OBD ECUs Other than Function 0, Warn if Component ID not supported for the
         // global query in 6.2.7.3 with engine running.
         for (int address : getDataRepository().getObdModuleAddresses()) {
-            if (address == function0Address) {
+            if (function0Addresses.contains(address)) {
                 continue;
             }
 
-            var globalResponse = globalPackets.stream().anyMatch(p -> p.getSourceAddress() == address);
+            var globalResponse = globalPackets.getPackets().stream().anyMatch(p -> p.getSourceAddress() == address);
             if (!globalResponse) {
-                addWarning("6.2.7.5.a - " + getAddressName(address)
+                addWarning("6.2.7.5.a - " + Lookup.getAddressName(address)
                         + " did not support PGN 65259 with the engine running");
             }
         }
     }
 
-    private List<ComponentIdentificationPacket> requestComponentIds() {
-        return request(ComponentIdentificationPacket.PGN)
-                                                         .toPacketStream()
-                                                         .map(p -> new ComponentIdentificationPacket(p.getPacket()))
-                                                         .collect(Collectors.toList());
-    }
-
-    private List<ComponentIdentificationPacket> requestComponentIds(int address) {
-        return requestComponentId(address)
-                                          .toPacketStream()
-                                          .map(p -> new ComponentIdentificationPacket(p.getPacket()))
-                                          .collect(Collectors.toList());
+    private RequestResult<ComponentIdentificationPacket> requestComponentIds() {
+        return request(ComponentIdentificationPacket.PGN);
     }
 
     private ComponentIdentificationPacket getPart1Packet(int address) {
