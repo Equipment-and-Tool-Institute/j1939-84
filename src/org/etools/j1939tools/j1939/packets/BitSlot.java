@@ -58,7 +58,22 @@ public class BitSlot extends Slot {
         return find(value);
     }
 
+    public boolean isDefined(byte[] data) {
+        return valuesMap.containsKey(asValue(data).intValue());
+    }
+
     public void addValue(int value, String meaning) {
         valuesMap.put(value, meaning);
     }
+
+    @Override
+    public boolean isError(byte[] data) {
+        long value = toValue(data);
+        long mask = mask();
+        boolean isErrorValue = (value & mask) == (mask - 1);
+        return isErrorValue
+                && (!isDefined(data)
+                        || asString(data).toUpperCase().contains("ERROR"));
+    }
+
 }
