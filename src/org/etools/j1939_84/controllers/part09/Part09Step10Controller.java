@@ -92,7 +92,9 @@ public class Part09Step10Controller extends StepController {
                                                      .flatMap(Collection::stream)
                                                      .peek(str -> {
                                                          // 6.9.10.2.a. Fail if any test result not initialized.
-                                                         if (!str.isInitialized()) {
+                                                         if (!moduleInformation.getCompleteTests()
+                                                                               .contains(str.getSpn())
+                                                                 && !str.isInitialized()) {
                                                              addFailure("6.9.10.2.a - " + moduleName
                                                                      + " reported test result for SPN = " + str.getSpn()
                                                                      + ", FMI = " + str.getFmi()

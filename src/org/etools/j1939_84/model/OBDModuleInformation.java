@@ -46,9 +46,14 @@ public class OBDModuleInformation implements Cloneable {
 
     private final List<ScaledTestResult> nonInitializedTests = new ArrayList<>();
 
+    private final List<ScaledTestResult> initializedTests_7_15 = new ArrayList<>();
+    private final List<ScaledTestResult> initializedTests_8_11 = new ArrayList<>();
+
     private Double deltaEngineStart = null;
 
     private PacketArchive packetArchive = new PacketArchive();
+
+    private final List<Integer> completedTests = new ArrayList<>();
 
     public OBDModuleInformation(int sourceAddress) {
         this(sourceAddress, -1);
@@ -65,6 +70,10 @@ public class OBDModuleInformation implements Cloneable {
         obdInfo.setScaledTestResults(getScaledTestResults());
         obdInfo.setSupportedSPNs(getSupportedSPNs());
         obdInfo.setNonInitializedTests(getNonInitializedTests());
+
+        obdInfo.getInitializedTests_7_15().addAll(getInitializedTests_7_15());
+        obdInfo.getInitializedTests_8_11().addAll(getInitializedTests_8_11());
+
         obdInfo.setDeltaEngineStart(getDeltaEngineStart());
         obdInfo.packetArchive = packetArchive;
 
@@ -159,6 +168,14 @@ public class OBDModuleInformation implements Cloneable {
         nonInitializedTests.addAll(tests);
     }
 
+    public List<ScaledTestResult> getInitializedTests_7_15() {
+        return initializedTests_7_15;
+    }
+
+    public List<ScaledTestResult> getInitializedTests_8_11() {
+        return initializedTests_8_11;
+    }
+
     public void set(GenericPacket packet, int partNumber) {
         packetArchive.put(packet, partNumber);
     }
@@ -238,6 +255,17 @@ public class OBDModuleInformation implements Cloneable {
             e.printStackTrace();
         }
         return pg;
+    }
+
+    public List<Integer> getCompleteTests() {
+        return completedTests;
+    }
+
+    public List<SupportedSPN> getNotCompleteTestResultSPNs() {
+        return getSupportedSPNs().stream()
+                                 .filter(SupportedSPN::supportsScaledTestResults)
+                                 .filter(ss -> !completedTests.contains(ss.getSpn()))
+                                 .collect(toList());
     }
 
 }

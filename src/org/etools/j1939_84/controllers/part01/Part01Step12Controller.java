@@ -117,11 +117,18 @@ public class Part01Step12Controller extends StepController {
                              addFailure("6.1.12.2.a (A.7.2.a) - No test result for Supported SP " + spId + " from "
                                      + moduleName);
                          } else {
-                             var testResults = dm30Packets
-                                                          .stream()
-                                                          .peek(p -> verifyDM30PacketSupported(p, spId))
-                                                          .flatMap(p -> p.getTestResults().stream())
-                                                          .collect(Collectors.toList());
+                             List<ScaledTestResult> testResults = dm30Packets
+                                                                             .stream()
+                                                                             .peek(p -> verifyDM30PacketSupported(p,
+                                                                                                                  spId))
+                                                                             .flatMap(p -> p.getTestResults().stream())
+                                                                             .collect(Collectors.toList());
+
+                             obdModule.getCompleteTests()
+                                      .addAll(testResults.stream()
+                                                         .filter(t -> !t.isInitialized())
+                                                         .map(t -> t.getSpn())
+                                                         .toList());
 
                              // 6.1.12.1.d. Warn if any ECU reports more than one set of test results for the same
                              // SP+FMI.

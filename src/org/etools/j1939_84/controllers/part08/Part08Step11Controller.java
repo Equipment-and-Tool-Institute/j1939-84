@@ -15,6 +15,7 @@ import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
+import org.etools.j1939tools.j1939.packets.ScaledTestResult;
 import org.etools.j1939tools.j1939.packets.SupportedSPN;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
@@ -63,16 +64,20 @@ public class Part08Step11Controller extends StepController {
         // 6.8.11.1.a. DS DM7 with TID 247 + each DM24 SPN + FMI 31.
         // 6.8.11.1.b. Create list of any ECU address+SPN+FMI with non-initialized values.
         getDataRepository().getObdModules().forEach(obdModule -> {
-            var nonInitializedTests = obdModule.getTestResultSPNs()
-                                               .stream()
-                                               .map(SupportedSPN::getSpn)
-                                               .map(s -> requestTest(obdModule.getSourceAddress(), s))
-                                               .flatMap(Collection::stream)
-                                               .map(DM30ScaledTestResultsPacket::getTestResults)
-                                               .flatMap(Collection::stream)
-                                               .filter(r -> !r.isInitialized())
-                                               .collect(Collectors.toList());
-            obdModule.setNonInitializedTests(nonInitializedTests);
+            List<ScaledTestResult> allTests = obdModule.getTestResultSPNs()
+                                                       .stream()
+                                                       .map(SupportedSPN::getSpn)
+                                                       .map(s -> requestTest(obdModule.getSourceAddress(), s))
+                                                       .flatMap(Collection::stream)
+                                                       .map(DM30ScaledTestResultsPacket::getTestResults)
+                                                       .flatMap(Collection::stream)
+                                                       .collect(Collectors.toList());
+            obdModule.setNonInitializedTests(allTests.stream()
+                                                     .filter(r -> !r.isInitialized())
+                                                     .toList());
+//            obdModule.setInitializedTests(allTests.stream()
+//                                                  .filter(r -> r.isInitialized())
+//                                                  .toList());
             getDataRepository().putObdModule(obdModule);
         });
     }

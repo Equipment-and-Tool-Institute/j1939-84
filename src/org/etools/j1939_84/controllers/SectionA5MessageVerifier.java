@@ -9,6 +9,7 @@ import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 import java.util.Collection;
 import java.util.List;
 
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.bus.BusResult;
 import org.etools.j1939tools.j1939.Lookup;
@@ -389,7 +390,10 @@ public class SectionA5MessageVerifier extends SectionVerifier {
     boolean checkTestResults(ResultsListener listener, String section, int address, boolean verifyIsErased) {
         // 6.a. DM7/DM30 Test Results shall report all test results with initialized results and limits
         // (all 0x00 or 0xFB00 for results and 0xFFFF for limits).
-        List<SupportedSPN> testResultSPNs = getDataRepository().getObdModule(address).getTestResultSPNs();
+        OBDModuleInformation obdModule = getDataRepository().getObdModule(address);
+        List<SupportedSPN> testResultSPNs = verifyIsErased
+                ? obdModule.getNotCompleteTestResultSPNs() // do not include fast running tests.
+                : obdModule.getTestResultSPNs();
         boolean failure = false;
         // If there are no test results to verify, then no verification of erased or not erased can be made.
         if (!testResultSPNs.isEmpty()) {
