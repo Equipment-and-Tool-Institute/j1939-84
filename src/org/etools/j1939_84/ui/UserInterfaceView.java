@@ -19,9 +19,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.prefs.Preferences;
@@ -120,8 +121,6 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      *
      * @param controller
      *                          The {@link UserInterfacePresenter} that will control the UI
-     * @param buildNumber
-     *                          The {@link BuildNumber} that will return the build number
      * @param swingExecutor
      *                          The {@link Executor} used to make updates to the UI on the
      *                          Swing Thread
@@ -337,7 +336,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
                 if (!dir.exists() && !dir.mkdir()) {
                     return;
                 }
-                file = new File(dir, LocalDateTime.now().toString());
+                file = new File(dir, new SimpleDateFormat("MM-dd-yyyy_HH_mm_ss.SSSZ").format(new Date()));
                 controller.onFileChosen(file);
             }
         });
