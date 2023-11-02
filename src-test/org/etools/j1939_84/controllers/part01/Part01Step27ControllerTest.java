@@ -128,7 +128,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
     @Test
     public void testUserAbortForFail() {
         PartResultRepository partResultRepository = PartResultRepository.getInstance();
-        StepResult stepResult = new StepResult(1, 3, "Testing Result");
+        StepResult stepResult = new StepResult(1, 3, "DM5: Diagnostic readiness 1");
         stepResult.addResult(new ActionOutcome(PASS, "6.1.2.1.a - Pass for testing"));
         stepResult.addResult(new ActionOutcome(FAIL, "6.1.2.1.b - Fail for testing"));
 
@@ -213,7 +213,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
     @Test
     public void testRun() throws InterruptedException {
         PartResultRepository partResultRepository = PartResultRepository.getInstance();
-        StepResult stepResult = new StepResult(1, 3, "Testing Result");
+        StepResult stepResult = new StepResult(1, 3, "DM5: Diagnostic readiness 1");
         stepResult.addResult(new ActionOutcome(PASS, "6.1.2.1.a - Pass for testing"));
         stepResult.addResult(new ActionOutcome(FAIL, "6.1.2.1.b - Fail for testing"));
 
@@ -271,7 +271,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
     @Test
     public void testEngineThrowInterruptedException() {
         PartResultRepository partResultRepository = PartResultRepository.getInstance();
-        StepResult stepResult = new StepResult(PART_NUMBER, STEP_NUMBER, "Testing Result");
+        StepResult stepResult = new StepResult(PART_NUMBER, STEP_NUMBER, "Part 1 to Part 2 Transition");
         stepResult.addResult(new ActionOutcome(FAIL, "6.1.2.1.b - Fail for testing"));
 
         partResultRepository.setStepResult(PART_NUMBER, stepResult);

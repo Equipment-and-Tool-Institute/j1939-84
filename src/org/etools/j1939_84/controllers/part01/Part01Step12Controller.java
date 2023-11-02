@@ -123,12 +123,10 @@ public class Part01Step12Controller extends StepController {
                                                                                                                   spId))
                                                                              .flatMap(p -> p.getTestResults().stream())
                                                                              .collect(Collectors.toList());
-
-                             obdModule.getCompleteTests()
-                                      .addAll(testResults.stream()
-                                                         .filter(t -> !t.isInitialized())
-                                                         .map(t -> t.getSpn())
-                                                         .toList());
+                             // 6.1.12.1.c Record those test results that are received as complete for each OBD ECU.
+                             obdModule.setNonInitialized_1_12_Tests(testResults.stream()
+                                                                               .filter(t -> !t.isInitialized())
+                                                                               .toList());
 
                              // 6.1.12.1.d. Warn if any ECU reports more than one set of test results for the same
                              // SP+FMI.

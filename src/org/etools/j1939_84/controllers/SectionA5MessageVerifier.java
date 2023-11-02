@@ -7,7 +7,6 @@ package org.etools.j1939_84.controllers;
 import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -35,7 +34,6 @@ import org.etools.j1939tools.j1939.packets.IdleOperationPacket;
 import org.etools.j1939tools.j1939.packets.MonitoredSystem;
 import org.etools.j1939tools.j1939.packets.MonitoredSystemStatus;
 import org.etools.j1939tools.j1939.packets.ScaledTestResult;
-import org.etools.j1939tools.j1939.packets.SupportedSPN;
 import org.etools.j1939tools.modules.CommunicationsModule;
 
 public class SectionA5MessageVerifier extends SectionVerifier {
@@ -391,24 +389,24 @@ public class SectionA5MessageVerifier extends SectionVerifier {
         // 6.a. DM7/DM30 Test Results shall report all test results with initialized results and limits
         // (all 0x00 or 0xFB00 for results and 0xFFFF for limits).
         OBDModuleInformation obdModule = getDataRepository().getObdModule(address);
-        List<SupportedSPN> testResultSPNs = verifyIsErased
-                ? obdModule.getNotCompleteTestResultSPNs() // do not include fast running tests.
-                : obdModule.getTestResultSPNs();
         boolean failure = false;
+
         // If there are no test results to verify, then no verification of erased or not erased can be made.
-        if (!testResultSPNs.isEmpty()) {
-            boolean isErased = testResultSPNs
-                                             .stream()
-                                             .map(SupportedSPN::getSpn)
-                                             .map(spn -> getCommunicationsModule().requestTestResult(listener,
-                                                                                                     address,
-                                                                                                     247,
-                                                                                                     spn,
-                                                                                                     31))
-                                             .flatMap(BusResult::toPacketStream)
-                                             .map(DM30ScaledTestResultsPacket::getTestResults)
-                                             .flatMap(Collection::stream)
-                                             .allMatch(ScaledTestResult::isInitialized);
+        // FIXME is this backwards?
+        var testResults = verifyIsErased
+                ? obdModule.getNonInitialized_1_12_Tests() // do not include fast running tests.
+                : obdModule.getInitializedTests();
+        if (!testResults.isEmpty()) {
+            boolean isErased = testResults.stream()
+                                          .map(tr -> getCommunicationsModule().requestTestResult(listener,
+                                                                                                 address,
+                                                                                                 247,
+                                                                                                 tr.getSpn(),
+                                                                                                 31))
+                                          .flatMap(BusResult::toPacketStream)
+                                          .map(DM30ScaledTestResultsPacket::getTestResults)
+                                          .flatMap(Collection::stream)
+                                          .allMatch(ScaledTestResult::isInitialized);
 
             failure = verifyIsErased != isErased;
             if (failure) {

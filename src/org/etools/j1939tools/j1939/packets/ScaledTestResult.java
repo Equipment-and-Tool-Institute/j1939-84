@@ -258,15 +258,21 @@ public class ScaledTestResult implements Comparable<ScaledTestResult> {
      */
     public enum TestResult {
 
-        CANNOT_BE_PERFORMED("Test Cannot Be Performed"),
-        FAILED("Test Failed"),
-        NOT_COMPLETE("Test Not Complete"),
-        PASSED("Test Passed");
+        CANNOT_BE_PERFORMED("Test Cannot Be Performed", false),
+        FAILED("Test Failed", true),
+        NOT_COMPLETE("Test Not Complete", false),
+        PASSED("Test Passed", true);
 
         private final String string;
+        private final boolean complete;
 
-        TestResult(String string) {
+        TestResult(String string, boolean complete) {
             this.string = string;
+            this.complete = complete;
+        }
+
+        boolean isComplete() {
+            return complete;
         }
 
         @Override

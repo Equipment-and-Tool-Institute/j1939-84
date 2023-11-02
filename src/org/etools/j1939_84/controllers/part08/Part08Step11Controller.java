@@ -62,7 +62,6 @@ public class Part08Step11Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.8.11.1.a. DS DM7 with TID 247 + each DM24 SPN + FMI 31.
-        // 6.8.11.1.b. Create list of any ECU address+SPN+FMI with non-initialized values.
         getDataRepository().getObdModules().forEach(obdModule -> {
             List<ScaledTestResult> allTests = obdModule.getTestResultSPNs()
                                                        .stream()
@@ -72,12 +71,15 @@ public class Part08Step11Controller extends StepController {
                                                        .map(DM30ScaledTestResultsPacket::getTestResults)
                                                        .flatMap(Collection::stream)
                                                        .collect(Collectors.toList());
+            // 6.8.11.1.b. Create list of any ECU address+SPN+FMI with non-initialized values.
             obdModule.setNonInitializedTests(allTests.stream()
                                                      .filter(r -> !r.isInitialized())
                                                      .toList());
-//            obdModule.setInitializedTests(allTests.stream()
-//                                                  .filter(r -> r.isInitialized())
-//                                                  .toList());
+            // 6.8.11.1.c. Create a list of initialized test results by ECU address, SPN and FMI for each ECU with
+            // initialized test results.
+            obdModule.setInitializedTests(allTests.stream()
+                                                  .filter(r -> r.isInitialized())
+                                                  .toList());
             getDataRepository().putObdModule(obdModule);
         });
     }

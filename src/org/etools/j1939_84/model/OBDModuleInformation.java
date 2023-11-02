@@ -44,16 +44,13 @@ public class OBDModuleInformation implements Cloneable {
 
     private final List<ScaledTestResult> scaledTestResults = new ArrayList<>();
 
+    private final List<ScaledTestResult> nonInitializedTests_1_12 = new ArrayList<>();
     private final List<ScaledTestResult> nonInitializedTests = new ArrayList<>();
-
-    private final List<ScaledTestResult> initializedTests_7_15 = new ArrayList<>();
-    private final List<ScaledTestResult> initializedTests_8_11 = new ArrayList<>();
+    private final List<ScaledTestResult> initializedTests = new ArrayList<>();
 
     private Double deltaEngineStart = null;
 
     private PacketArchive packetArchive = new PacketArchive();
-
-    private final List<Integer> completedTests = new ArrayList<>();
 
     public OBDModuleInformation(int sourceAddress) {
         this(sourceAddress, -1);
@@ -69,11 +66,9 @@ public class OBDModuleInformation implements Cloneable {
         OBDModuleInformation obdInfo = new OBDModuleInformation(getSourceAddress(), getFunction());
         obdInfo.setScaledTestResults(getScaledTestResults());
         obdInfo.setSupportedSPNs(getSupportedSPNs());
+        obdInfo.setNonInitialized_1_12_Tests(nonInitializedTests_1_12);
         obdInfo.setNonInitializedTests(getNonInitializedTests());
-
-        obdInfo.getInitializedTests_7_15().addAll(getInitializedTests_7_15());
-        obdInfo.getInitializedTests_8_11().addAll(getInitializedTests_8_11());
-
+        obdInfo.setInitializedTests(getInitializedTests());
         obdInfo.setDeltaEngineStart(getDeltaEngineStart());
         obdInfo.packetArchive = packetArchive;
 
@@ -159,8 +154,16 @@ public class OBDModuleInformation implements Cloneable {
         Collections.sort(this.scaledTestResults);
     }
 
+    public List<ScaledTestResult> getNonInitialized_1_12_Tests() {
+        return Collections.unmodifiableList(nonInitializedTests_1_12);
+    }
+
     public List<ScaledTestResult> getNonInitializedTests() {
-        return nonInitializedTests;
+        return Collections.unmodifiableList(nonInitializedTests);
+    }
+
+    public List<ScaledTestResult> getInitializedTests() {
+        return Collections.unmodifiableList(initializedTests);
     }
 
     public void setNonInitializedTests(List<ScaledTestResult> tests) {
@@ -168,12 +171,15 @@ public class OBDModuleInformation implements Cloneable {
         nonInitializedTests.addAll(tests);
     }
 
-    public List<ScaledTestResult> getInitializedTests_7_15() {
-        return initializedTests_7_15;
+    public void setNonInitialized_1_12_Tests(List<ScaledTestResult> tests) {
+        nonInitializedTests_1_12.clear();
+        nonInitializedTests_1_12.addAll(tests);
+        setNonInitializedTests(tests);
     }
 
-    public List<ScaledTestResult> getInitializedTests_8_11() {
-        return initializedTests_8_11;
+    public void setInitializedTests(List<ScaledTestResult> tests) {
+        initializedTests.clear();
+        initializedTests.addAll(tests);
     }
 
     public void set(GenericPacket packet, int partNumber) {
@@ -256,16 +262,4 @@ public class OBDModuleInformation implements Cloneable {
         }
         return pg;
     }
-
-    public List<Integer> getCompleteTests() {
-        return completedTests;
-    }
-
-    public List<SupportedSPN> getNotCompleteTestResultSPNs() {
-        return getSupportedSPNs().stream()
-                                 .filter(SupportedSPN::supportsScaledTestResults)
-                                 .filter(ss -> !completedTests.contains(ss.getSpn()))
-                                 .collect(toList());
-    }
-
 }

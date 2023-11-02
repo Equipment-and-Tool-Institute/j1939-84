@@ -78,7 +78,9 @@ public class Part07Step15Controller extends StepController {
             }
 
             // 6.7.15.1.b. Create list of any ECU address+SPN+FMI combination with non-initialized test results.
-            saveNonInitializedTests(obdModuleInformation, testResults);
+            obdModuleInformation.setNonInitializedTests(testResults.stream().filter(t -> !t.isInitialized()).toList());
+            // 6.7.15.1.c. Create a list of any ECU address+SPN+FMI combination with initialized test results.
+            obdModuleInformation.setInitializedTests(testResults.stream().filter(t -> t.isInitialized()).toList());
 
             // 6.7.15.2.a. Fail if any difference in the ECU address+SPN+FMI combinations that report test results
             // compared to list created in part 1.
@@ -87,13 +89,6 @@ public class Part07Step15Controller extends StepController {
                         + obdModuleInformation.getModuleName() + " compared to list created in part 1");
             }
         }
-    }
-
-    private void saveNonInitializedTests(OBDModuleInformation obdModuleInformation,
-                                         Collection<ScaledTestResult> testResults) {
-        var nonInitializedTests = testResults.stream().filter(r -> !r.isInitialized()).collect(Collectors.toList());
-        obdModuleInformation.setNonInitializedTests(nonInitializedTests);
-        getDataRepository().putObdModule(obdModuleInformation);
     }
 
     private List<ScaledTestResult> queryForAllTestsResults(OBDModuleInformation obdModuleInformation) {
