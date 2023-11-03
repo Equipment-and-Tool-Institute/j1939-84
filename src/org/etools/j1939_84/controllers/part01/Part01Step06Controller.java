@@ -97,7 +97,7 @@ public class Part01Step06Controller extends StepController {
         int engineModelYear = getEngineModelYear();
 
         if (packets.isEmpty()) {
-            if (engineModelYear > 2024) {
+            if (engineModelYear >= 2024) {
                 addFailure("6.1.6.2.f - MY2024+ Engine does not support DM56");
             } else {
                 getListener().onResult("6.1.6.1.a - DM56 is not supported");
