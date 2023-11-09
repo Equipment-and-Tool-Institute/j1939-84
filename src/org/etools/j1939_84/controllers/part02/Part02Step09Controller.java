@@ -6,7 +6,9 @@ package org.etools.j1939_84.controllers.part02;
 import static org.etools.j1939tools.j1939.Lookup.getAddressName;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -15,8 +17,10 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.Lookup;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.DM21DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
@@ -140,7 +144,27 @@ public class Part02Step09Controller extends StepController {
         });
 
         // 6.2.9.4.a. Fail if any difference compared to data received from global request.
-        compareRequestPackets(globalPackets, dsPackets, "6.2.9.4.a");
+        // 6.2.9.4.a.i. Allow 1 minute difference between responses for SPN 3296
+        for (DM21DiagnosticReadinessPacket globalPacket : globalPackets) {
+            dsPackets.stream()
+                    .filter(dsPacket -> dsPacket.getSourceAddress() == globalPacket.getSourceAddress())
+                    .findFirst().ifPresent(p -> {
+                if (p.getKmSinceDTCsCleared() != globalPacket.getKmSinceDTCsCleared() ||
+                        p.getKmWhileMILIsActivated() != globalPacket.getKmWhileMILIsActivated() ||
+                        p.getMinutesWhileMILIsActivated() != globalPacket.getMinutesWhileMILIsActivated()){
+                    String moduleName = getAddressName(p.getSourceAddress());
+                    addFailure("6.2.9.4.a - Difference compared to data received during global request from "
+                                       + moduleName);
+                }
+
+                if (p.getMinutesSinceDTCsCleared() > (globalPacket.getMinutesSinceDTCsCleared() + 1) ||
+                        p.getMinutesSinceDTCsCleared() < globalPacket.getMinutesSinceDTCsCleared()){
+                    String moduleName = getAddressName(p.getSourceAddress());
+                    addFailure("6.2.9.4.a.i - Time Since DTCs cleared is more than 1 minute greater than global request from "
+                                       + moduleName);
+                }
+            });
+        }
 
         // 6.2.9.4.b. Fail if NACK not received from OBD ECUs that did not respond to global query.
         checkForNACKsGlobal(globalPackets, dsAcks, "6.2.9.4.b");
