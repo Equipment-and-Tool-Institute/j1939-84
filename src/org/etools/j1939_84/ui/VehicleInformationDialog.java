@@ -443,6 +443,7 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
             usCarbCheckBox = new JCheckBox("US/CARB");
             usCarbCheckBox.addActionListener(e -> presenter.onUsCarb(usCarbCheckBox.isSelected()));
             usCarbCheckBox.setSelected(true);
+            presenter.onUsCarb(true);
         }
         return usCarbCheckBox;
     }
