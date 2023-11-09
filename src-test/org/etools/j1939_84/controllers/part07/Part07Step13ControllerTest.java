@@ -163,7 +163,7 @@ public class Part07Step13ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.7.13.2.a - Ignition cycle counter for Engine #1 (0) has incremented by other than 3 cycles from part 5");
+                                        "6.7.13.2.a - Ignition cycle counter for Engine #1 (0) has incremented by less than 2 or more than 3 cycles from part 5");
     }
 
     @Test
@@ -183,7 +183,7 @@ public class Part07Step13ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.7.13.2.a - Ignition cycle counter for Engine #1 (0) has incremented by other than 3 cycles from part 5");
+                                        "6.7.13.2.a - Ignition cycle counter for Engine #1 (0) has incremented by less than 2 or more than 3 cycles from part 5");
     }
 
 }
