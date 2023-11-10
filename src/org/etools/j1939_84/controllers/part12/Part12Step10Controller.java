@@ -115,12 +115,7 @@ public class Part12Step10Controller extends StepController {
                   });
 
         // 6.12.10.4.c Fail if any diagnostic information was not erased from any OBD ECUs.
-        try {
-            getDataRepository().getObdModules().forEach(m->m.setNonInitializedTests(m.getNonInitialized_1_12_Tests()));
-            verifier.verifyDataErased(getListener(), "6.12.10.4.c");
-        } finally {
-
-        }
+        verifier.verifyDataErased(getListener(), "6.12.10.4.c");
     }
 
 }

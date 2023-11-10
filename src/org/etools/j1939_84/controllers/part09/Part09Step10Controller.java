@@ -94,7 +94,7 @@ public class Part09Step10Controller extends StepController {
                                                          // 6.9.10.2.a. Fail if any test result not initialized.
                                                          int spn = str.getSpn();
                                                          int fmi = str.getFmi();
-                                                         boolean fromPart1 = moduleInformation.getNonInitialized_1_12_Tests()
+                                                         boolean fromPart1 = moduleInformation.getInitialized_1_12_Tests()
                                                                                               .stream()
                                                                                               .filter(t -> t.getSpn() == spn
                                                                                                       && t.getFmi() == fmi)

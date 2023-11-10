@@ -44,7 +44,7 @@ public class OBDModuleInformation implements Cloneable {
 
     private final List<ScaledTestResult> scaledTestResults = new ArrayList<>();
 
-    private final List<ScaledTestResult> nonInitializedTests_1_12 = new ArrayList<>();
+    private final List<ScaledTestResult> initializedTests_1_12 = new ArrayList<>();
     private final List<ScaledTestResult> nonInitializedTests = new ArrayList<>();
     private final List<ScaledTestResult> initializedTests = new ArrayList<>();
 
@@ -66,7 +66,7 @@ public class OBDModuleInformation implements Cloneable {
         OBDModuleInformation obdInfo = new OBDModuleInformation(getSourceAddress(), getFunction());
         obdInfo.setScaledTestResults(getScaledTestResults());
         obdInfo.setSupportedSPNs(getSupportedSPNs());
-        obdInfo.setNonInitialized_1_12_Tests(nonInitializedTests_1_12);
+        obdInfo.setInitialized_1_12_Tests(initializedTests_1_12);
         obdInfo.setNonInitializedTests(getNonInitializedTests());
         obdInfo.setInitializedTests(getInitializedTests());
         obdInfo.setDeltaEngineStart(getDeltaEngineStart());
@@ -154,8 +154,8 @@ public class OBDModuleInformation implements Cloneable {
         Collections.sort(this.scaledTestResults);
     }
 
-    public List<ScaledTestResult> getNonInitialized_1_12_Tests() {
-        return Collections.unmodifiableList(nonInitializedTests_1_12);
+    public List<ScaledTestResult> getInitialized_1_12_Tests() {
+        return Collections.unmodifiableList(initializedTests_1_12);
     }
 
     public List<ScaledTestResult> getNonInitializedTests() {
@@ -171,10 +171,10 @@ public class OBDModuleInformation implements Cloneable {
         nonInitializedTests.addAll(tests);
     }
 
-    public void setNonInitialized_1_12_Tests(List<ScaledTestResult> tests) {
-        nonInitializedTests_1_12.clear();
-        nonInitializedTests_1_12.addAll(tests);
-        setNonInitializedTests(tests);
+    public void setInitialized_1_12_Tests(List<ScaledTestResult> tests) {
+        initializedTests_1_12.clear();
+        initializedTests_1_12.addAll(tests);
+        setInitializedTests(tests);
     }
 
     public void setInitializedTests(List<ScaledTestResult> tests) {

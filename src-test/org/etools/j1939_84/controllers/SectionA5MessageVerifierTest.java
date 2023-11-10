@@ -1124,7 +1124,7 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var tr = ScaledTestResult.create(247, 123, 12, 1, 0, 0, 0);
-        moduleInfo.setNonInitialized_1_12_Tests(List.of(tr));
+        moduleInfo.setInitializedTests(List.of(tr));
         var packet = DM30ScaledTestResultsPacket.create(0, 0, tr);
         when(communicationsModule.requestTestResult(listener, 0, 247, 123, 31)).thenReturn(BusResult.of(packet));
 
@@ -1148,7 +1148,7 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var tr = ScaledTestResult.create(247, 123, 12, 1, 1, 0, 0);
-        moduleInfo.setNonInitialized_1_12_Tests(List.of(tr));
+        moduleInfo.setInitializedTests(List.of(tr));
         var packet = DM30ScaledTestResultsPacket.create(0, 0, tr);
         when(communicationsModule.requestTestResult(listener, 0, 247, 123, 31)).thenReturn(BusResult.of(packet));
 
@@ -1169,7 +1169,7 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var tr = ScaledTestResult.create(247, 123, 12, 1, 1, 0, 0);
-        moduleInfo.setInitializedTests(List.of(tr));
+        moduleInfo.setNonInitializedTests(List.of(tr));
         var packet = DM30ScaledTestResultsPacket.create(0, 0, tr);
         when(communicationsModule.requestTestResult(listener, 0, 247, 123, 31)).thenReturn(BusResult.of(packet));
 
@@ -1185,7 +1185,7 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var tr = ScaledTestResult.create(247, 123, 12, 1, 0xFB00, 0xFFFF, 0xFFFF);
-        moduleInfo.setInitializedTests(List.of(tr));
+        moduleInfo.setNonInitializedTests(List.of(tr));
         var packet = DM30ScaledTestResultsPacket.create(0, 0, tr);
         when(communicationsModule.requestTestResult(listener, 0, 247, 123, 31)).thenReturn(BusResult.of(packet));
 

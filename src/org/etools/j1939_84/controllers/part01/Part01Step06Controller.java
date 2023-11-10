@@ -94,7 +94,9 @@ public class Part01Step06Controller extends StepController {
 
         // 6.1.6.1.a. Global DM56 (send Request (PGN 59904) for PGN 64711 (SPNs 5844 and 5845)).
         List<DM56EngineFamilyPacket> packets = getCommunicationsModule().requestDM56(getListener());
-        int engineModelYear = getEngineModelYear();
+        // packet.getModelYear() may be null, so use Integer, not int to avoid NPE.
+        Integer engineModelYear = getEngineModelYear();
+        // int engineModelYear = getEngineModelYear();
 
         if (packets.isEmpty()) {
             if (engineModelYear >= 2024) {
