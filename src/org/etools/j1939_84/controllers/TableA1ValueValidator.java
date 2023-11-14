@@ -110,7 +110,7 @@ public class TableA1ValueValidator {
             case 183:
             case 1600:
                 if (isEngineRunning) {
-                    return value == 0 || value > 4;
+                    return value == 0 || value > 5;
                 } else {
                     return value > 0;
                 }
