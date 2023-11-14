@@ -124,7 +124,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(2,
                                         9,
                                         FAIL,
-                                        "6.2.9.4.a - Difference compared to data received during global request from Engine #1 (0)");
+                                        "6.2.9.4.a.i - Time Since DTCs cleared is more than 1 minute greater than global request from Engine #1 (0)");
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
