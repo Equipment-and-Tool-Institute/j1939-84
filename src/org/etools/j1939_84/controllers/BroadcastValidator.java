@@ -210,9 +210,7 @@ public class BroadcastValidator {
 
                         // b. Fail if any parameter is not broadcast within +10% of the
                         // fixed, specified broadcast period.
-                        // c. Fail if any parameter in a variable period broadcast
-                        // message exceeds 110% of its recommended broadcast period.
-                        if (diff1 > maxBroadcastPeriod || diff2 > maxBroadcastPeriod) {
+                        if (!pgnDefinition.isVariableBroadcast() && (diff1 > maxBroadcastPeriod || diff2 > maxBroadcastPeriod)) {
                             long diff = Math.max(diff1, diff2);
                             addOutcome(listener,
                                        partNumber,
