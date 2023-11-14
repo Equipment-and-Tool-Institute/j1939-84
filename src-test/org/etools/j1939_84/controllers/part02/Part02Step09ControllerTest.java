@@ -106,7 +106,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
     public void testDifferentInPacketsFailure() {
 
         var packet0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 1);
-        var packet1 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 2);
+        var packet1 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0, 3);
 
         var globalResults = new RequestResult<>(false, packet0);
 
