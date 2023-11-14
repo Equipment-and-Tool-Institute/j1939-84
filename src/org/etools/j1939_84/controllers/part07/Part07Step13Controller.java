@@ -58,20 +58,23 @@ public class Part07Step13Controller extends StepController {
     protected void run() throws Throwable {
         // 6.7.13.1.a. DS DM20 [(send Request (PGN 59904) for PGN 49664 (SPN 3048)]) to ECU(s) that responded in part 5
         // with DM20 data.
-        // 6.7.13.2.a. Fail if ignition cycle counter (SPN 3048) for any ECU has incremented by other than 3 cycles from
-        // part 5.
+
+        //6.7.13.2.a. Fail if ignition cycle counter (SP 3048) for any ECU has incremented by less than 2 or more than 3 cycles from part 5.
         getDataRepository().getObdModuleAddresses()
-                           .stream()
-                           .filter(a -> getIgnCycles(a) != -1)
-                           .map(a -> getCommunicationsModule().requestDM20(getListener(), a))
-                           .flatMap(BusResult::toPacketStream)
-                           .peek(this::save)
-                           .filter(p -> p.getIgnitionCycles() != getIgnCycles(p.getSourceAddress()) + 3)
-                           .map(ParsedPacket::getModuleName)
-                           .forEach(moduleName -> {
-                               addFailure("6.7.13.2.a - Ignition cycle counter for " + moduleName
-                                       + " has incremented by other than 3 cycles from part 5");
-                           });
+                .stream()
+                .filter(a -> getIgnCycles(a) != -1)
+                .map(a -> getCommunicationsModule().requestDM20(getListener(), a))
+                .flatMap(BusResult::toPacketStream)
+                .peek(this::save)
+                .filter(p -> {
+                    int cycles = p.getIgnitionCycles(), cyclesP5 = getIgnCycles(p.getSourceAddress());
+                    return cycles < cyclesP5 + 2 || cycles > cyclesP5 + 3;
+                })
+                .map(ParsedPacket::getModuleName)
+                .forEach(moduleName -> {
+                    addFailure("6.7.13.2.a - Ignition cycle counter for " + moduleName
+                                       + " has incremented by less than 2 or more than 3 cycles from part 5");
+                });
     }
 
     private int getIgnCycles(int address) {
