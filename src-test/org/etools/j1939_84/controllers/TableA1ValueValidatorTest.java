@@ -156,7 +156,8 @@ public class TableA1ValueValidatorTest {
         assertFalse(instance.isImplausible(3700, 0.0, false));
 
         assertTrue(instance.isImplausible(183, 0.0, true));
-        assertTrue(instance.isImplausible(183, 4.1, true));
+        assertTrue(instance.isImplausible(183, 4.1, false));
+        assertTrue(instance.isImplausible(183, 5.1, true));
         assertFalse(instance.isImplausible(183, 3.9, true));
         assertTrue(instance.isImplausible(183, 1.0, false));
         assertFalse(instance.isImplausible(183, 0.0, false));
