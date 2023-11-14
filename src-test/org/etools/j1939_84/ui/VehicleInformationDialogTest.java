@@ -43,6 +43,7 @@ public class VehicleInformationDialogTest {
     public void testSetVisibleFalse() {
         instance.setVisible(false);
         verify(presenter).onDialogClosed();
+        verify(presenter).onUsCarb(true);
     }
 
     @Test
@@ -51,6 +52,7 @@ public class VehicleInformationDialogTest {
         // initialize runs in a thread. Give it time to start.
         Thread.sleep(500);
         verify(presenter).readVehicle();
+        verify(presenter).onUsCarb(true);
     }
 
 }
