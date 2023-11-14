@@ -110,7 +110,8 @@ public class Part01Step06Controller extends StepController {
         packets.forEach(this::save);
 
         for (DM56EngineFamilyPacket packet : packets) {
-            if (packet.getEngineModelYear() != engineModelYear) {
+
+            if (packet.getEngineModelYear() == null || packet.getEngineModelYear() != engineModelYear) {
                 addFailure("6.1.6.2.a - Engine model year does not match user input");
                 break;
             }

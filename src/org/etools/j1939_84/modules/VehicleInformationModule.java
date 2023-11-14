@@ -148,7 +148,7 @@ public class VehicleInformationModule extends FunctionalModule {
             } else if (results.size() > 1) {
                 throw new IOException("Different Engine Model Years Received");
             } else {
-                engineModelYear = results.stream().findFirst().get();
+                engineModelYear = results.stream().findFirst().orElseThrow(() -> new IOException("Invalid Engine Model Year"));
             }
         }
         return engineModelYear;
