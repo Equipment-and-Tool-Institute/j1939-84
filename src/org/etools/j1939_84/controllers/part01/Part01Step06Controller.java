@@ -110,8 +110,8 @@ public class Part01Step06Controller extends StepController {
         packets.forEach(this::save);
 
         for (DM56EngineFamilyPacket packet : packets) {
-
-            if (packet.getEngineModelYear() == null || packet.getEngineModelYear() != engineModelYear) {
+            Integer my = packet.getEngineModelYear();
+            if (my == null || !my.equals(engineModelYear)) {
                 addFailure("6.1.6.2.a - Engine model year does not match user input");
                 break;
             }
@@ -138,7 +138,7 @@ public class Part01Step06Controller extends StepController {
         for (DM56EngineFamilyPacket packet : packets) {
             String firstCharacter = packet.getFamilyName().substring(0, 1);
             Integer myCode = myCodes.get(firstCharacter);
-            if (myCode == null || myCode != engineModelYear) {
+            if (myCode == null || !myCode.equals(engineModelYear)) {
                 addFailure("6.1.6.2.d - MY designation in engine family (1st digit) does not match user MY input");
                 break;
             }
