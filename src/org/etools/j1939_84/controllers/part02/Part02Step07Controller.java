@@ -147,7 +147,7 @@ public class Part02Step07Controller extends StepController {
         for (var globalResponse : globalPackets.getEither()) {
             GenericPacket r = globalResponse.resolve();
             var function0DSPacket = dsPackets.get(r.getSourceAddress());
-            if (!r.equals(function0DSPacket.getPacket().map(e -> (GenericPacket) e.resolve()).orElse(null))) {
+            if (function0DSPacket != null && !r.equals(function0DSPacket.getPacket().map(e -> (GenericPacket) e.resolve()).orElse(null))) {
                 addFailure("6.2.7.4.b - Global response does not match the destination specific response from "
                         + Lookup.getAddressName(r.getSourceAddress()));
             }
