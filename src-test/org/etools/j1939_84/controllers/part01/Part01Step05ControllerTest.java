@@ -229,9 +229,9 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
      */
     @Test
     @TestDoc(value = {
-            @TestItem(verifies = "6.1.5.3.b", description = "Warn if more than one VIN response from any individual ECU.") })
-    public void testMoreThanOneVinResponseFromAnEcuWarning() {
-
+            @TestItem(verifies = "6.1.5.2.b", description = "Fail if more than one OBD ECU responds with VIN.") })
+    public void testMoreThanOneVinResponseFromOBDECUsWarning() {
+//
         // valid vin
         String vin = "2G1WB5E37E1110567";
         VehicleIdentificationPacket packet1 = VehicleIdentificationPacket.create(0x01, vin);
@@ -240,9 +240,9 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
         obdModule1.set(packet1, 1);
         dataRepository.putObdModule(obdModule1);
 
-        VehicleIdentificationPacket packet2 = VehicleIdentificationPacket.create(0x01, vin);
+        VehicleIdentificationPacket packet2 = VehicleIdentificationPacket.create(0x02, vin);
 
-        OBDModuleInformation obdModule2 = new OBDModuleInformation((1));
+        OBDModuleInformation obdModule2 = new OBDModuleInformation((0x02));
         obdModule2.set(packet2, 1);
         dataRepository.putObdModule(obdModule2);
         when(communicationsModule.request(eq(VehicleIdentificationPacket.PGN),
@@ -263,6 +263,40 @@ public class Part01Step05ControllerTest extends AbstractControllerTest {
                                         5,
                                         FAIL,
                                         "6.1.5.2.b - More than one OBD ECU responded with VIN");
+    }
+
+    @Test
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.5.3.b", description = "Warn if more than one VIN response from any individual ECU.") })
+    public void testMoreThanOneVinResponseFromAnEcuWarning() {
+
+        // valid vin
+        String vin = "2G1WB5E37E1110567";
+        VehicleIdentificationPacket packet1 = VehicleIdentificationPacket.create(0x01, vin);
+
+        OBDModuleInformation obdModule1 = new OBDModuleInformation((0x01));
+        obdModule1.set(packet1, 1);
+        dataRepository.putObdModule(obdModule1);
+
+        String vin2 = "2G1WB5E37E1110568";
+        VehicleIdentificationPacket packet2 = VehicleIdentificationPacket.create(0x01, vin2);
+
+        OBDModuleInformation obdModule2 = new OBDModuleInformation((0x02));
+        obdModule2.set(packet2, 1);
+        dataRepository.putObdModule(obdModule2);
+        when(communicationsModule.request(eq(VehicleIdentificationPacket.PGN),
+                                          any(CommunicationsListener.class))).thenReturn(RequestResult.of(packet1, packet2));
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setVin(vin);
+        vehicleInformation.setVehicleModelYear(2014);
+        dataRepository.setVehicleInformation(vehicleInformation);
+
+        runTest();
+
+        verify(communicationsModule).request(eq(VehicleIdentificationPacket.PGN), any(ResultsListener.class));
+
+        verify(engineSpeedModule).setJ1939(j1939);
 
         verify(mockListener).addOutcome(1,
                                         5,
