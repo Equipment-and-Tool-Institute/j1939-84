@@ -61,7 +61,9 @@ public class Part01Step22Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.1.22.1.a. Global DM29 (send Request (PGN 59904) for PGN 40448 (SPNs 4104-4108)).
-        List<DM29DtcCounts> globalPackets = getCommunicationsModule().requestDM29(getListener()).getPackets();
+        List<DM29DtcCounts> globalPackets = getCommunicationsModule().requestDM29(getListener()).getPackets().stream()
+                .filter(p -> p.getPacket().get16(0) != 0xFFFF)
+                .collect(Collectors.toList());
 
         // 6.1.22.2.a. For ECUs that support DM27, fail if any ECU does not report
         // pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0

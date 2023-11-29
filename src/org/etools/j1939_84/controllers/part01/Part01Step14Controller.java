@@ -70,6 +70,7 @@ public class Part01Step14Controller extends StepController {
                                                      .getPackets()
                                                      .stream()
                                                      .filter(p -> isObdModule(p.getSourceAddress()))
+                                                    .filter(p -> p.getPacket().get16(0) != 0xFFFF)
                                                      .collect(Collectors.toList());
 
         // 6.1.14.2.g. Fail if no OBD ECU provides DM26.
