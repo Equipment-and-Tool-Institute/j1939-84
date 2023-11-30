@@ -136,18 +136,17 @@ public class Part02Step07Controller extends StepController {
 
         // 6.2.7.3.a. Global Request for Component ID request (PGN 59904) for PGN 65259 (SPNs 586, 587, and 588)
         // 6.2.7.3.b. Display each positive return in the log.
-        var globalPackets = requestComponentIds();
+        var globalPackets = requestComponentIds().toPacketStream().filter(t -> function0Addresses.contains(t.getSourceAddress())).toList();
 
         // 6.2.7.4.a. Fail if there is no positive response from function 0. (Global request not supported or timed out)
-        if (!globalPackets.toPacketStream().anyMatch(t -> function0Addresses.contains(t.getSourceAddress()))) {
+        if (globalPackets.isEmpty()) {
             addFailure("6.2.7.4.a - There is no positive response from function 0. (Global request not supported or timed out.)");
         }
 
         // 6.2.7.4.b. Fail if the global response does not match the destination specific response from function 0.
-        for (var globalResponse : globalPackets.getEither()) {
-            GenericPacket r = globalResponse.resolve();
+        for (var r : globalPackets) {
             var function0DSPacket = dsPackets.get(r.getSourceAddress());
-            if (function0DSPacket != null && !r.equals(function0DSPacket.getPacket().map(e -> (GenericPacket) e.resolve()).orElse(null))) {
+            if (function0DSPacket == null || !r.equals(function0DSPacket.getPacket().map(e -> (GenericPacket) e.resolve()).orElse(null))) {
                 addFailure("6.2.7.4.b - Global response does not match the destination specific response from "
                         + Lookup.getAddressName(r.getSourceAddress()));
             }
@@ -160,7 +159,7 @@ public class Part02Step07Controller extends StepController {
                 continue;
             }
 
-            var globalResponse = globalPackets.getPackets().stream().anyMatch(p -> p.getSourceAddress() == address);
+            var globalResponse = globalPackets.stream().anyMatch(p -> p.getSourceAddress() == address);
             if (!globalResponse) {
                 addWarning("6.2.7.5.a - " + Lookup.getAddressName(address)
                         + " did not support PGN 65259 with the engine running");
