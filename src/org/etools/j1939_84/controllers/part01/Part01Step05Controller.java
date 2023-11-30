@@ -77,6 +77,8 @@ public class Part01Step05Controller extends StepController {
         // 6.1.5.2.b. Fail if more than one OBD ECU responds with VIN.
         long obdResponses = packets.stream()
                                    .filter(p -> isObdModule(p.getSourceAddress()))
+                                    .map(p -> p.getSourceAddress())
+                                    .distinct()
                                    .count();
         if (obdResponses > 1) {
             addFailure("6.1.5.2.b - More than one OBD ECU responded with VIN");
@@ -112,9 +114,14 @@ public class Part01Step05Controller extends StepController {
         }
 
         // 6.1.5.3.b. Warn if more than one VIN response from any individual ECU.
-        long respondingSources = packets.stream().mapToInt(ParsedPacket::getSourceAddress).distinct().count();
-        if (packets.size() > respondingSources) {
-            addWarning("6.1.5.3.b - More than one VIN response from an ECU");
+        List<Integer> respondingAddrs = packets.stream().mapToInt(ParsedPacket::getSourceAddress).distinct().boxed().toList();
+        if (packets.size() > respondingAddrs.size()) {
+            for (var addr : respondingAddrs){
+                long vinsFromAddr = packets.stream().filter(p -> p.getSourceAddress() == addr).map(p -> p.getVin()).distinct().count();
+                if (vinsFromAddr > 1){
+                    addWarning("6.1.5.3.b - More than one VIN response from an ECU");
+                }
+            }
         }
 
         // 6.1.5.3.c. Warn if VIN provided from more than one non-OBD ECU.
