@@ -136,15 +136,16 @@ public class Part02Step07Controller extends StepController {
 
         // 6.2.7.3.a. Global Request for Component ID request (PGN 59904) for PGN 65259 (SPNs 586, 587, and 588)
         // 6.2.7.3.b. Display each positive return in the log.
-        var globalPackets = requestComponentIds().toPacketStream().filter(t -> function0Addresses.contains(t.getSourceAddress())).toList();
+        var globalPackets = requestComponentIds().getPackets();
+        var function0GlobalPackets = globalPackets.stream().filter(t -> function0Addresses.contains(t.getSourceAddress())).toList();
 
         // 6.2.7.4.a. Fail if there is no positive response from function 0. (Global request not supported or timed out)
-        if (globalPackets.isEmpty()) {
+        if (function0GlobalPackets.isEmpty()) {
             addFailure("6.2.7.4.a - There is no positive response from function 0. (Global request not supported or timed out.)");
         }
 
         // 6.2.7.4.b. Fail if the global response does not match the destination specific response from function 0.
-        for (var r : globalPackets) {
+        for (var r : function0GlobalPackets) {
             var function0DSPacket = dsPackets.get(r.getSourceAddress());
             if (function0DSPacket == null || !r.equals(function0DSPacket.getPacket().map(e -> (GenericPacket) e.resolve()).orElse(null))) {
                 addFailure("6.2.7.4.b - Global response does not match the destination specific response from "
