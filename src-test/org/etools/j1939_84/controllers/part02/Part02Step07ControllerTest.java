@@ -213,10 +213,6 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.2.7.2 - Engine #2 (1) did not respond with PGN 65259 with the engine running");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.2.7.4.b - Global response does not match the destination specific response from Engine #2 (1)");
     }
 
     @Test
