@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static org.etools.j1939tools.j1939.packets.ParsedPacket.NOT_AVAILABLE;
 import static org.etools.j1939tools.modules.CommunicationsModule.getCompositeSystems;
 
 import java.util.concurrent.Executor;
@@ -70,7 +71,8 @@ public class Part01Step14Controller extends StepController {
                                                      .getPackets()
                                                      .stream()
                                                      .filter(p -> isObdModule(p.getSourceAddress()))
-                                                    .filter(p -> p.getPacket().get16(0) != 0xFFFF)
+                                                    .filter(p -> p.getTimeSinceEngineStart() != NOT_AVAILABLE ||
+                                                            p.getWarmUpsSinceClear() != 0xFF)
                                                      .collect(Collectors.toList());
 
         // 6.1.14.2.g. Fail if no OBD ECU provides DM26.

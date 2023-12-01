@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static org.etools.j1939tools.j1939.packets.ParsedPacket.NOT_AVAILABLE;
+
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -69,7 +71,10 @@ public class Part01Step11Controller extends StepController {
         List<DM21DiagnosticReadinessPacket> globalPackets = getCommunicationsModule()
                 .requestDM21(getListener())
                 .getPackets()
-                .stream().filter(p -> p.getPacket().get16(0) != 0xFFFF)
+                .stream().filter(p -> p.getKmWhileMILIsActivated() != NOT_AVAILABLE ||
+                            p.getKmSinceDTCsCleared() != NOT_AVAILABLE ||
+                            p.getMinutesWhileMILIsActivated() != NOT_AVAILABLE ||
+                        p.getMinutesSinceDTCsCleared() != NOT_AVAILABLE)
                 .collect(Collectors.toList());
         ;
 

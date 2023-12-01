@@ -62,7 +62,11 @@ public class Part01Step22Controller extends StepController {
 
         // 6.1.22.1.a. Global DM29 (send Request (PGN 59904) for PGN 40448 (SPNs 4104-4108)).
         List<DM29DtcCounts> globalPackets = getCommunicationsModule().requestDM29(getListener()).getPackets().stream()
-                .filter(p -> p.getPacket().get16(0) != 0xFFFF)
+                .filter(p -> p.getEmissionRelatedPendingDTCCount() != 0xFF ||
+                        p.getAllPendingDTCCount() != 0xFF ||
+                        p.getEmissionRelatedMILOnDTCCount() != 0xFF ||
+                        p.getEmissionRelatedPreviouslyMILOnDTCCount() != 0xFF ||
+                        p.getEmissionRelatedPermanentDTCCount() != 0xFF)
                 .collect(Collectors.toList());
 
         // 6.1.22.2.a. For ECUs that support DM27, fail if any ECU does not report
