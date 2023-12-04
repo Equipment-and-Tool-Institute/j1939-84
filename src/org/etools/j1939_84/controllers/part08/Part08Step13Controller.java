@@ -107,9 +107,6 @@ public class Part08Step13Controller extends StepController {
                          + " did provide a NACK with control byte = 3 for the DS query")
                  .forEach(this::addWarning);
 
-        // 6.8.13.2.c. Fail if any diagnostic information erased.
-        verifier.verifyDataNotErased(getListener(), "6.8.13.2.c");
-
         // 6.8.13.3.a. Global DM3.
         getCommunicationsModule().requestDM3(getListener());
 
