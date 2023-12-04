@@ -5,7 +5,6 @@ package org.etools.j1939_84.controllers.part12;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
-import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -517,7 +516,7 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(eq(12),
                                         eq(2),
-                                        eq(WARN),
+                                        eq(INFO),
                                         eq("6.12.2.2.a - Required monitor Boost pressure control sys is supported by more than one OBD ECU"));
 
         String expectedResults = "";

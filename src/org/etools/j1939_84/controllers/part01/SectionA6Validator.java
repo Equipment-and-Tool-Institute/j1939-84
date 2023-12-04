@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 
 import java.util.ArrayList;
@@ -159,7 +160,7 @@ public class SectionA6Validator {
         // A6.2.c. Fail if composite vehicle readiness does not meet any of the criteria in Table A-6.
         tableA6Validator.verify(listener, compositeSystems, section + " (A6.2.c)", engineHasRun);
 
-        // A6.2.d. Warn if any individual required monitor, except Continuous Component Monitoring (CCM)
+        // A6.2.d. Info if any individual required monitor, except Continuous Component Monitoring (CCM)
         // is supported by more than one OBD ECU.
         List<CompositeSystem> supportedSystems = obdPackets.stream()
                                                            .flatMap(p -> p.getMonitoredSystems().stream())
@@ -171,9 +172,9 @@ public class SectionA6Validator {
         for (CompositeSystem system : CompositeSystem.values()) {
             int freq = Collections.frequency(supportedSystems, system);
             if (freq > 1) {
-                String warnMessage = section + " (A6.2.d) - " + system.getName().trim()
+                String infoMessage = section + " (A6.2.d) - " + system.getName().trim()
                         + " is supported by more than one OBD ECU";
-                listener.addOutcome(partNumber, stepNumber, WARN, warnMessage);
+                listener.addOutcome(partNumber, stepNumber, INFO, infoMessage);
             }
         }
 
