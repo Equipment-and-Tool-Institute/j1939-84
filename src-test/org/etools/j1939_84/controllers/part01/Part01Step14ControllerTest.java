@@ -5,7 +5,7 @@ package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
-import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939tools.j1939.model.FuelType.DSL;
 import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.junit.Assert.assertEquals;
@@ -1353,7 +1353,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.1.14.3.a - Required monitor A/C system refrigerant is supported by more than one OBD ECU");
     }
 

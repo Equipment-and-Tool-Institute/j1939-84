@@ -379,7 +379,7 @@ public abstract class StepController extends Controller {
                         .map(CompositeSystem::getName)
                         .map(String::trim)
                         .map(m -> section + " - Required monitor " + m + " is supported by more than one OBD ECU")
-                        .forEach(this::addWarning);
+                        .forEach(this::addInfo);
     }
 
     protected void pause(String message, long secondsToSleep) {
