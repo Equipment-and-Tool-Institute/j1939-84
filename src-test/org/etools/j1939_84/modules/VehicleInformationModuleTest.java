@@ -361,7 +361,7 @@ public class VehicleInformationModuleTest {
                            packet3.getPacket())).when(j1939).read(anyLong(), any());
 
         List<Integer> results = instance.getOBDModules(NOOP);
-        assertEquals(2, results.size());
+        assertEquals(3, results.size());
         assertTrue(results.contains(0x00));
         assertTrue(results.contains(0x21));
 
