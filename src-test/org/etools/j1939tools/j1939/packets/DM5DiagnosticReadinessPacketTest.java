@@ -243,27 +243,6 @@ public class DM5DiagnosticReadinessPacketTest extends DiagnosticReadinessPacketT
     }
 
     @Test
-    public void testisHdObdComplianceFalse() {
-        Packet packet = Packet.create(PGN, 0, 11, 22, 33, 44, 55, 66, 77, 88);
-        DM5DiagnosticReadinessPacket instance = new DM5DiagnosticReadinessPacket(packet);
-        assertFalse(instance.isHdObd());
-    }
-
-    @Test
-    public void testisHdObdComplianceTrue19() {
-        Packet packet = Packet.create(PGN, 0, 11, 22, 19, 44, 55, 66, 77, 88);
-        DM5DiagnosticReadinessPacket instance = new DM5DiagnosticReadinessPacket(packet);
-        assertTrue(instance.isHdObd());
-    }
-
-    @Test
-    public void testisHdObdComplianceTrue20() {
-        Packet packet = Packet.create(PGN, 0, 11, 22, 20, 44, 55, 66, 77, 88);
-        DM5DiagnosticReadinessPacket instance = new DM5DiagnosticReadinessPacket(packet);
-        assertTrue(instance.isHdObd());
-    }
-
-    @Test
     public void testNotEqualsActiveCount() {
         Packet packet1 = Packet.create(PGN, 0, 11, 22, 33, 44, 55, 66, 77, 88);
         DM5DiagnosticReadinessPacket instance1 = new DM5DiagnosticReadinessPacket(packet1);

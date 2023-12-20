@@ -7,7 +7,9 @@ import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.etools.j1939tools.bus.RequestResult;
@@ -36,7 +38,7 @@ public class VehicleInformation implements Cloneable {
 
     private int emissionUnits;
 
-    private List<ComponentIdentificationPacket> emissionUnitsFound = Collections.emptyList();
+    private Map<Integer, Optional<ComponentIdentificationPacket>> emissionUnitsFound = Collections.emptyMap();
 
     private int engineModelYear;
 
@@ -93,12 +95,13 @@ public class VehicleInformation implements Cloneable {
         this.emissionUnits = emissionUnits;
     }
 
-    public List<ComponentIdentificationPacket> getEmissionUnitsFound() {
+    public Map<Integer, Optional<ComponentIdentificationPacket>> getEmissionUnitsFound() {
         return emissionUnitsFound;
     }
 
-    public void setEmissionUnitsFound(List<ComponentIdentificationPacket> emissionUnitsFound) {
-        this.emissionUnitsFound = emissionUnitsFound;
+    public void setEmissionUnitsFound(Map<Integer, Optional<ComponentIdentificationPacket>> emissionUnitsFound) {
+        this.emissionUnitsFound.clear();
+        this.emissionUnitsFound.putAll(emissionUnitsFound);
     }
 
     public int getEngineModelYear() {
@@ -217,9 +220,10 @@ public class VehicleInformation implements Cloneable {
                 + "Engine MY: " + engineModelYear + NL
                 + "Cert. Engine Family: " + certificationIntent + NL
                 + "Number of OBD ECUs Found: " + emissionUnitsFound.size() + NL
-                + emissionUnitsFound.stream()
-                                    .map(m -> "     Make: " + m.getMake() + ", Model: " + m.getModel() + ", Serial: "
-                                            + m.getSerialNumber())
+                + emissionUnitsFound.keySet().stream()
+                                    .map(addr -> "     Address: " + addr +
+                                            emissionUnitsFound.get(addr).map(cid -> " Make: " + cid.getMake() + ", Model: " + cid.getModel() + ", Serial: "
+                                                + cid.getSerialNumber()).orElse(""))
                                     .collect(Collectors.joining(NL))
                 + NL
                 + "Number of CAL IDs Found: "

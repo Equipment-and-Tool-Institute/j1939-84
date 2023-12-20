@@ -10,7 +10,10 @@ import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -81,7 +84,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     /**
      * The component Id for the emissions units on the vehicle
      */
-    private final List<ComponentIdentificationPacket> emissionUnitsFound = new ArrayList<>();
+    private final Map<Integer, Optional<ComponentIdentificationPacket>> emissionUnitsFound = new HashMap<Integer, Optional<ComponentIdentificationPacket>>();
     /**
      * The value the user has entered for the engine model year
      */
@@ -113,12 +116,12 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      * Constructor
      *
      * @param view
-     *                     the View to be controlled
+     *         the View to be controlled
      * @param listener
-     *                     the {@link VehicleInformationListener} that will be given the
-     *                     {@link VehicleInformation}
+     *         the {@link VehicleInformationListener} that will be given the
+     *         {@link VehicleInformation}
      * @param j1939
-     *                     the vehicle bus
+     *         the vehicle bus
      */
     public VehicleInformationPresenter(VehicleInformationContract.View view,
                                        VehicleInformationListener listener,
@@ -205,14 +208,14 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
             List<Integer> obdModules = vehicleInformationModule.getOBDModules(NOOP);
             view.setEmissionUnits(obdModules.size());
 
-            obdModules.stream().forEach(address -> {
-                emissionUnitsFound.addAll(communicationsModule.request(ComponentIdentificationPacket.PGN,
-                                                                       address,
-                                                                       NOOP)
-                                                              .toPacketStream()
-                                                              .map(p -> new ComponentIdentificationPacket(p.getPacket()))
-                                                              .collect(Collectors.toList()));
-            });
+            obdModules.stream().forEach(address -> emissionUnitsFound.put(address,
+                                                                          communicationsModule.request(
+                                                                                  ComponentIdentificationPacket.PGN,
+                                                                                  address,
+                                                                                  NOOP)
+                                                                                  .toPacketStream()
+                                                                                  .map(p -> new ComponentIdentificationPacket(
+                                                                                          p.getPacket())).findFirst()));
 
         } catch (Exception e) {
             getLogger().log(INFO, "Error reading OBD ECUs", e);

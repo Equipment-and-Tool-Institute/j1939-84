@@ -141,15 +141,6 @@ public class DM5DiagnosticReadinessPacket extends DiagnosticReadinessPacket {
                 && getOBDCompliance() == that.getOBDCompliance() && super.equals(obj);
     }
 
-    /**
-     * Returns true if this module reported that it supports HD OBD
-     *
-     * @return boolean
-     */
-    public boolean isHdObd() {
-        return getOBDCompliance() == 19 || getOBDCompliance() == 20;
-    }
-
     public boolean isObd() {
         return !notObdValues.contains(getOBDCompliance());
     }

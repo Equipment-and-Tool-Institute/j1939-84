@@ -226,7 +226,7 @@ public class VehicleInformationModule extends FunctionalModule {
                                 GLOBAL_ADDR,
                                 listener)
                                          .toPacketStream()
-                                         .filter(DM5DiagnosticReadinessPacket::isHdObd)
+                                         .filter(DM5DiagnosticReadinessPacket::isObd)
                                          .map(ParsedPacket::getSourceAddress)
                                          .sorted()
                                          .distinct()
