@@ -435,7 +435,7 @@ public class J1939DaRepository {
                 return -1000;
 
             case "Every 5 s and on change of torque/speed points of more than 10% since last transmission but no faster than every 500 ms":
-                return 5000;
+                return -5000;
 
             case "Engine speed dependent when there is no combustion, once every 5 s otherwise.":
             case "Engine speed dependent when knock present, once every 5 s otherwise.":
