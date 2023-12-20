@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket.PGN;
 import static org.junit.Assert.assertEquals;
@@ -177,77 +178,77 @@ public class SectionA6ValidatorTest {
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - A/C system refrigerant is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - Boost pressure control sys is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - Catalyst is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - Cold start aid system is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - Diesel Particulate Filter is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - EGR/VVT system is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - Evaporative system is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - Exhaust Gas Sensor is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - Exhaust Gas Sensor heater is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - Fuel System is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - Heated catalyst is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - Misfire is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - NMHC converting catalyst is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - NOx catalyst/adsorber is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - Secondary air system is supported by more than one OBD ECU");
     }
 
@@ -364,32 +365,32 @@ public class SectionA6ValidatorTest {
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - A/C system refrigerant is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - Boost pressure control sys is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - Catalyst is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - Diesel Particulate Filter is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - Evaporative system is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.2.d) - Exhaust Gas Sensor heater is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
                                         1,

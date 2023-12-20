@@ -151,7 +151,7 @@ public class TableA1Repository {
             rows.add(new TableA1Row(2630, 2024, true, false, false, false, FAIL, FAIL, FAIL));
 
             rows.add(new TableA1Row(12758, 2024, true, false, false, false, FAIL, FAIL, WARN));
-            rows.add(new TableA1Row(101, 2024, true, false, false, false, FAIL, FAIL, FAIL));
+            rows.add(new TableA1Row(101, 2024, true, false, false, false, FAIL, FAIL, WARN));
             rows.add(new TableA1Row(5444, 2024, true, false, false, false, FAIL, FAIL, FAIL));
             rows.add(new TableA1Row(74, 2024, true, false, false, false, WARN, INFO, INFO));
             rows.add(new TableA1Row(7315, 2024, false, false, true, true, FAIL, WARN, WARN));

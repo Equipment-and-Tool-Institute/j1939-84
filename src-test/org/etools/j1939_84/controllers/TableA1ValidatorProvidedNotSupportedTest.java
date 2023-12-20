@@ -389,7 +389,7 @@ public class TableA1ValidatorProvidedNotSupportedTest {
         verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 110 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, INFO, "S - N.7 Provided SPN 175 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 94 is not indicated as supported by Engine #1 (0)");
-        verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 101 is not indicated as supported by Engine #1 (0)");
+        verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 101 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 84 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 183 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 108 is not indicated as supported by Engine #1 (0)");
@@ -651,7 +651,7 @@ public class TableA1ValidatorProvidedNotSupportedTest {
         verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 110 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, INFO, "S - N.7 Provided SPN 175 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 94 is not indicated as supported by Engine #1 (0)");
-        verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 101 is not indicated as supported by Engine #1 (0)");
+        verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 101 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 84 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 183 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 108 is not indicated as supported by Engine #1 (0)");
