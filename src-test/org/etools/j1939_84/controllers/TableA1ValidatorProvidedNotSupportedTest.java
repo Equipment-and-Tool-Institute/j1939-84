@@ -308,7 +308,7 @@ public class TableA1ValidatorProvidedNotSupportedTest {
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 512 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 513 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 132 is not indicated as supported by Engine #1 (0)");
-        verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 2659 is not indicated as supported by Engine #1 (0)");
+        verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 2659 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 12758 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 3220 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 3226 is not indicated as supported by Engine #1 (0)");
@@ -473,7 +473,7 @@ public class TableA1ValidatorProvidedNotSupportedTest {
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 512 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 513 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 132 is not indicated as supported by Engine #1 (0)");
-        verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 2659 is not indicated as supported by Engine #1 (0)");
+        verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 2659 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 3217 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 3227 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 3464 is not indicated as supported by Engine #1 (0)");
@@ -565,7 +565,7 @@ public class TableA1ValidatorProvidedNotSupportedTest {
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 512 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 513 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 132 is not indicated as supported by Engine #1 (0)");
-        verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 2659 is not indicated as supported by Engine #1 (0)");
+        verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 2659 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 12758 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 3220 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 3226 is not indicated as supported by Engine #1 (0)");
@@ -676,7 +676,7 @@ public class TableA1ValidatorProvidedNotSupportedTest {
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 512 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 513 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 132 is not indicated as supported by Engine #1 (0)");
-        verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 2659 is not indicated as supported by Engine #1 (0)");
+        verify(mockListener).addOutcome(1, 26, WARN, "S - N.7 Provided SPN 2659 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 3217 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 3227 is not indicated as supported by Engine #1 (0)");
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.7 Provided SPN 3464 is not indicated as supported by Engine #1 (0)");
