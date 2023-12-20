@@ -136,7 +136,7 @@ public class TableA1Repository {
             rows.add(new TableA1Row(6593, 2024, true, false, false, false, FAIL, FAIL, WARN));
             rows.add(new TableA1Row(12749, 2024, true, false, false, false, FAIL, FAIL, FAIL));
             rows.add(new TableA1Row(4363, 2024, true, false, false, false, FAIL, FAIL, FAIL));
-            rows.add(new TableA1Row(2659, 2024, true, true, false, false, FAIL, FAIL, FAIL));
+            rows.add(new TableA1Row(2659, 2024, true, true, false, false, FAIL, FAIL, WARN));
             rows.add(new TableA1Row(4331, 2024, true, false, false, false, FAIL, FAIL, WARN));
             rows.add(new TableA1Row(6595, 2024, true, false, false, false, FAIL, FAIL, WARN));
             rows.add(new TableA1Row(3230, 2024, true, false, false, false, FAIL, FAIL, FAIL));
@@ -150,7 +150,7 @@ public class TableA1Repository {
             // rows.add(new TableA1Row(4334, 2024, true, false, false, false, FAIL, FAIL, FAIL));
             rows.add(new TableA1Row(2630, 2024, true, false, false, false, FAIL, FAIL, FAIL));
 
-            rows.add(new TableA1Row(12758, 2024, true, false, false, false, FAIL, FAIL, FAIL));
+            rows.add(new TableA1Row(12758, 2024, true, false, false, false, FAIL, FAIL, WARN));
             rows.add(new TableA1Row(101, 2024, true, false, false, false, FAIL, FAIL, WARN));
             rows.add(new TableA1Row(5444, 2024, true, false, false, false, FAIL, FAIL, FAIL));
             rows.add(new TableA1Row(74, 2024, true, false, false, false, WARN, INFO, INFO));
