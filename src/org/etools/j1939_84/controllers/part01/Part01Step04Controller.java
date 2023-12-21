@@ -178,10 +178,10 @@ public class Part01Step04Controller extends StepController {
                 addFailure("6.1.4.2.e - SP 12730 is not included in DM24 responses");
             }
 
-            // 6.1.4.2.f. For all MY2022+ engines, Warn if SP 12691 (GHG Tracking Lifetime Active Technology Index)
+            // 6.1.4.2.f. For all MY2022+ engines, Info if SP 12691 (GHG Tracking Lifetime Active Technology Index)
             // is not included in DM24 response
             if (!someObd(m -> m.supportsSpn(12691))) {
-                addWarning("6.1.4.2.f - SP 12691 is not included in DM24 responses");
+                addInfo("6.1.4.2.f - SP 12691 is not included in DM24 responses");
             }
 
             // 6.1.4.2.g. For all MY2022+ HEV and BEV drives, Fail if SP 12797 (Hybrid Lifetime Propulsion System
