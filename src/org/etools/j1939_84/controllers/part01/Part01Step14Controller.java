@@ -166,22 +166,22 @@ public class Part01Step14Controller extends StepController {
                                  + " in DM5 is reported as disabled/not supported in SP 3303 bit 3");
                      });
 
-        // 6.1.14.2.e. Fail if any response indicates number of warm-ups since code clear (SP 3302) is not zero.
+        // 6.1.14.2.e. Fail if any response indicates number of warm-ups since code clear (SP 3302) is not zero or FFh.
         globalPackets.stream()
-                     .filter(packet -> packet.getWarmUpsSinceClear() != 0)
+                     .filter(packet -> packet.getWarmUpsSinceClear() != 0 && packet.getWarmUpsSinceClear() != 0xFF)
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> {
                          addFailure("6.1.14.2.e - " + moduleName
-                                 + " response indicates number of warm-ups since code clear is not zero");
+                                 + " response indicates number of warm-ups since code clear is not zero or NA");
                      });
 
-        // 6.1.14.2.f. Fail if any response indicates time since engine start (SP 3301) is not zero.
+        // 6.1.14.2.f. Fail if any response indicates time since engine start (SP 3301) is not zero or FFFFh.
         globalPackets.stream()
-                     .filter(packet -> packet.getTimeSinceEngineStart() != 0)
+                     .filter(packet -> packet.getTimeSinceEngineStart() != 0 && packet.getTimeSinceEngineStart() != NOT_AVAILABLE)
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> {
                          addFailure("6.1.14.2.f - " + moduleName
-                                 + " response indicates time since engine start is not zero");
+                                 + " response indicates time since engine start is not zero or NA");
                      });
 
         // 6.1.14.3.a. Warn if any individual required monitor, except Continuous

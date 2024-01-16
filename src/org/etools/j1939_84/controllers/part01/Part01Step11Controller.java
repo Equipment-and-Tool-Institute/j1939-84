@@ -76,7 +76,7 @@ public class Part01Step11Controller extends StepController {
                             p.getMinutesWhileMILIsActivated() != NOT_AVAILABLE ||
                         p.getMinutesSinceDTCsCleared() != NOT_AVAILABLE)
                 .collect(Collectors.toList());
-        ;
+
 
         // 6.1.11.2.e. Fail if no OBD ECU provides a DM21 message.
         if (globalPackets.isEmpty()) {
