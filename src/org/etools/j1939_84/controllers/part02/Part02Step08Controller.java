@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part02;
 
 import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939tools.j1939.packets.ParsedPacket.NOT_AVAILABLE;
 import static org.etools.j1939tools.modules.CommunicationsModule.getCompositeSystems;
 
 import java.time.temporal.ChronoUnit;
@@ -115,7 +116,7 @@ public class Part02Step08Controller extends StepController {
                         }
 
                         // 6.2.8.2.d Fail if any ECU reports number of warm-ups SCC (SP 3302) greater than zero.
-                        if (dm26.getWarmUpsSinceClear() > 0) {
+                        if (dm26.getWarmUpsSinceClear() > 0 && dm26.getWarmUpsSinceClear() != 0xFF) {
                             addFailure("6.2.8.2.d - " + moduleName
                                     + " indicates number of warm-ups since code clear greater than zero");
                         }
@@ -177,12 +178,14 @@ public class Part02Step08Controller extends StepController {
                 var dsReceivedTime = dsPacket.getPacket().getTimestamp();
                 var dsWarmupTime = dsPacket.getTimeSinceEngineStart();
 
-                long deltaReceivedSeconds = ChronoUnit.SECONDS.between(dsReceivedTime, globalReceivedTime);
-                long deltaWarmupTime = Double.valueOf(globalWarmupTime - dsWarmupTime).longValue();
+                if (dsWarmupTime != NOT_AVAILABLE) {
+                    long deltaReceivedSeconds = ChronoUnit.SECONDS.between(dsReceivedTime, globalReceivedTime);
+                    long deltaWarmupTime = Double.valueOf(globalWarmupTime - dsWarmupTime).longValue();
 
-                long difference = Math.abs(deltaWarmupTime - deltaReceivedSeconds);
-                if (difference > 1) {
-                    addFailure("6.2.8.5.a - Difference in data between DS and global responses from " + moduleName);
+                    long difference = Math.abs(deltaWarmupTime - deltaReceivedSeconds);
+                    if (difference > 1) {
+                        addFailure("6.2.8.5.a - Difference in data between DS and global responses from " + moduleName);
+                    }
                 }
             } else if (globalAck.isPresent() && dsOptional.isPresent()) {
                 // 6.2.8.5.b Fail if NACK not received from OBD ECUs that did not respond to global query.

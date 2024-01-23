@@ -68,7 +68,7 @@ public class Part09Step16Controller extends StepController {
         // 6.8.16.1.a is still reporting > 0.
         packets.stream()
                .filter(p -> getWarmUpsSCC(p.getSourceAddress()) > 0)
-               .filter(p -> p.getWarmUpsSinceClear() > 0)
+               .filter(p -> p.getWarmUpsSinceClear() > 0 && p.getWarmUpsSinceClear() != 0xFF)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
                    addFailure("6.9.16.2.a - " + moduleName
@@ -81,6 +81,6 @@ public class Part09Step16Controller extends StepController {
 
     private int getWarmUpsSCC(int address) {
         var dm26 = get(DM26TripDiagnosticReadinessPacket.class, address, 8);
-        return dm26 == null ? 0 : dm26.getWarmUpsSinceClear();
+        return dm26 == null || dm26.getWarmUpsSinceClear() == 0xFF ? 0 : dm26.getWarmUpsSinceClear();
     }
 }

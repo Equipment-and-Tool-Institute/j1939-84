@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part11;
 
+import static org.etools.j1939tools.j1939.packets.ParsedPacket.NOT_AVAILABLE;
 import static org.etools.j1939tools.modules.CommunicationsModule.getCompositeSystems;
 
 import java.time.temporal.ChronoUnit;
@@ -138,7 +139,7 @@ public class Part11Step11Controller extends StepController {
 
         var currentTSES = currentPacket.getTimeSinceEngineStart();
         var previousTSES = previousPacket.getTimeSinceEngineStart();
-        return currentTSES - previousTSES;
+        return currentTSES == NOT_AVAILABLE ? null : currentTSES - previousTSES;
     }
 
     private DM26TripDiagnosticReadinessPacket getDM26(int address) {

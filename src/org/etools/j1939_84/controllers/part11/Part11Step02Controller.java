@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part11;
 
+import static org.etools.j1939tools.j1939.packets.ParsedPacket.NOT_AVAILABLE;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -68,6 +70,7 @@ public class Part11Step02Controller extends StepController {
         // 6.11.2.2.a. If more than one ECU responds, fail if times (since engine start) differ by > 2 seconds.
         int max = packets.stream()
                          .map(DM26TripDiagnosticReadinessPacket::getTimeSinceEngineStart)
+                         .filter(t -> t != NOT_AVAILABLE)
                          .mapToInt(Double::intValue)
                          .max()
                          .orElse(0);

@@ -172,7 +172,7 @@ public class Part01Step14Controller extends StepController {
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> {
                          addFailure("6.1.14.2.e - " + moduleName
-                                 + " response indicates number of warm-ups since code clear is not zero or NA");
+                                 + " response indicates number of warm-ups since code clear is not zero or N/A");
                      });
 
         // 6.1.14.2.f. Fail if any response indicates time since engine start (SP 3301) is not zero or FFFFh.
@@ -181,7 +181,7 @@ public class Part01Step14Controller extends StepController {
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> {
                          addFailure("6.1.14.2.f - " + moduleName
-                                 + " response indicates time since engine start is not zero or NA");
+                                 + " response indicates time since engine start is not zero or N/A");
                      });
 
         // 6.1.14.3.a. Warn if any individual required monitor, except Continuous

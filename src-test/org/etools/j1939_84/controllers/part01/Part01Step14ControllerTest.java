@@ -1098,7 +1098,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.14.2.e - Engine #1 (0) response indicates number of warm-ups since code clear is not zero");
+                                        "6.1.14.2.e - Engine #1 (0) response indicates number of warm-ups since code clear is not zero or N/A");
     }
 
     /**
@@ -1218,7 +1218,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.14.2.f - Engine #1 (0) response indicates time since engine start is not zero");
+                                        "6.1.14.2.f - Engine #1 (0) response indicates time since engine start is not zero or N/A");
     }
 
     /**
