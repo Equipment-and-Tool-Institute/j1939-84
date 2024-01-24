@@ -271,10 +271,10 @@ public class SectionA5MessageVerifier extends SectionVerifier {
                                         .toPacketStream()
                                         .filter(p -> {
                                             boolean isErased = p.getWarmUpsSinceClear() == 0;
-
                                             boolean wasErased = prev.getWarmUpsSinceClear() == 0;
+                                            boolean isNA = p.getWarmUpsSinceClear() == 0xFF;
 
-                                            return shouldBeReported(verifyIsErased, wasErased, isErased);
+                                            return !isNA && shouldBeReported(verifyIsErased, wasErased, isErased);
                                         })
                                         .peek(p -> {
                                             addFailure(listener, section, verifyIsErased, p);

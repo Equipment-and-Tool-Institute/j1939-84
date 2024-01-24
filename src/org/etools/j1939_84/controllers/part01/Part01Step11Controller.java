@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static org.etools.j1939tools.j1939.packets.ParsedPacket.NOT_AVAILABLE;
+
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -67,8 +69,14 @@ public class Part01Step11Controller extends StepController {
 
         // 6.1.11.1.a. Global DM21 (send Request (PG 59904) for PG 49408
         List<DM21DiagnosticReadinessPacket> globalPackets = getCommunicationsModule()
-                                                                                        .requestDM21(getListener())
-                                                                                        .getPackets();
+                .requestDM21(getListener())
+                .getPackets()
+                .stream().filter(p -> p.getKmWhileMILIsActivated() != NOT_AVAILABLE ||
+                            p.getKmSinceDTCsCleared() != NOT_AVAILABLE ||
+                            p.getMinutesWhileMILIsActivated() != NOT_AVAILABLE ||
+                        p.getMinutesSinceDTCsCleared() != NOT_AVAILABLE)
+                .collect(Collectors.toList());
+
 
         // 6.1.11.2.e. Fail if no OBD ECU provides a DM21 message.
         if (globalPackets.isEmpty()) {
@@ -76,79 +84,79 @@ public class Part01Step11Controller extends StepController {
         } else {
             // 6.1.11.2.a. Fail if any ECU reports distance with MIL on (SP 3069) is not zero.
             globalPackets.stream()
-                         .filter(packet -> isNotZero(packet.getKmSinceDTCsCleared()))
-                         .map(ParsedPacket::getModuleName)
-                         .forEach(moduleName -> {
-                             addFailure("6.1.11.2.a - " + moduleName
-                                     + " reported distance with MIL on (SP 3069) is not zero");
-                         });
+                    .filter(packet -> isNotZero(packet.getKmSinceDTCsCleared()))
+                    .map(ParsedPacket::getModuleName)
+                    .forEach(moduleName -> {
+                        addFailure("6.1.11.2.a - " + moduleName
+                                           + " reported distance with MIL on (SP 3069) is not zero");
+                    });
 
             // 6.1.11.2.b. Fail if any ECU reports distance SCC (SP 3294) is not zero.
             globalPackets.stream()
-                         .filter(packet -> isNotZero(packet.getKmWhileMILIsActivated()))
-                         .map(ParsedPacket::getModuleName)
-                         .forEach(moduleName -> {
-                             addFailure("6.1.11.2.b - " + moduleName + " reported distance SCC (SP 3294) is not zero");
-                         });
+                    .filter(packet -> isNotZero(packet.getKmWhileMILIsActivated()))
+                    .map(ParsedPacket::getModuleName)
+                    .forEach(moduleName -> {
+                        addFailure("6.1.11.2.b - " + moduleName + " reported distance SCC (SP 3294) is not zero");
+                    });
 
             // 6.1.11.2.c. Fail if any ECU reports time with MIL on (SP 3295) is not zero (if supported)
             globalPackets.stream()
-                         .filter(packet -> isNotZero(packet.getMinutesWhileMILIsActivated()))
-                         .map(ParsedPacket::getModuleName)
-                         .forEach(moduleName -> {
-                             addFailure("6.1.11.2.c - " + moduleName
-                                     + " reported time with MIL on (SP 3295) is not zero");
-                         });
+                    .filter(packet -> isNotZero(packet.getMinutesWhileMILIsActivated()))
+                    .map(ParsedPacket::getModuleName)
+                    .forEach(moduleName -> {
+                        addFailure("6.1.11.2.c - " + moduleName
+                                           + " reported time with MIL on (SP 3295) is not zero");
+                    });
 
             // 6.1.11.2.d. Fail if any ECU reports time SCC (SP 3296) > 1 minute (if supported).
             globalPackets.stream()
-                         .filter(packet -> Double.valueOf(packet.getMinutesSinceDTCsCleared()).intValue() > 1)
-                         .map(ParsedPacket::getModuleName)
-                         .forEach(moduleName -> {
-                             addFailure("6.1.11.2.d - " + moduleName + " reported time SCC (SP 3296) > 1 minute");
-                         });
+                    .filter(packet -> Double.valueOf(packet.getMinutesSinceDTCsCleared()).intValue() > 1)
+                    .map(ParsedPacket::getModuleName)
+                    .forEach(moduleName -> {
+                        addFailure("6.1.11.2.d - " + moduleName + " reported time SCC (SP 3296) > 1 minute");
+                    });
         }
 
         // 6.1.11.3.a. DS DM21 to each OBD ECU
         var dsResults = getDataRepository().getObdModuleAddresses()
-                                           .stream()
-                                           .map(addr -> getCommunicationsModule().requestDM21(getListener(), addr))
-                                           .collect(Collectors.toList());
+                .stream()
+                .map(addr -> getCommunicationsModule().requestDM21(getListener(), addr))
+                .collect(Collectors.toList());
 
         // ignore missing responses and NACKs
         List<DM21DiagnosticReadinessPacket> dsPackets = filterPackets(dsResults);
 
         // 6.1.11.4.a. Fail if any ECU reports distance with MIL on (SP 3069) is not zero.
         dsPackets.stream()
-                 .filter(packet -> isNotZero(packet.getKmSinceDTCsCleared()))
-                 .map(ParsedPacket::getModuleName)
-                 .forEach(moduleName -> {
-                     addFailure("6.1.11.4.a - " + moduleName + " reported distance with MIL on (SP 3069) is not zero");
-                 });
+                .filter(packet -> isNotZero(packet.getKmSinceDTCsCleared()))
+                .map(ParsedPacket::getModuleName)
+                .forEach(moduleName -> {
+                    addFailure("6.1.11.4.a - " + moduleName + " reported distance with MIL on (SP 3069) is not zero");
+                });
 
         // 6.1.11.4.b. Fail if any ECU reports distance SCC (SP 3294) is not zero.
         dsPackets.stream()
-                 .filter(packet -> isNotZero(packet.getKmWhileMILIsActivated()))
-                 .map(ParsedPacket::getModuleName)
-                 .forEach(moduleName -> {
-                     addFailure("6.1.11.4.b - " + moduleName + " reported distance SCC (SP 3294) is not zero");
-                 });
+                .filter(packet -> isNotZero(packet.getKmWhileMILIsActivated()))
+                .map(ParsedPacket::getModuleName)
+                .forEach(moduleName -> {
+                    addFailure("6.1.11.4.b - " + moduleName + " reported distance SCC (SP 3294) is not zero");
+                });
 
         // 6.1.11.4.c. Fail if any ECU reports time with MIL on (SP 3295) is not zero (if supported)
         dsPackets.stream()
-                 .filter(packet -> isNotZero(packet.getMinutesWhileMILIsActivated()))
-                 .map(ParsedPacket::getModuleName)
-                 .forEach(moduleName -> {
-                     addFailure("6.1.11.4.c - " + moduleName + " reported time with MIL on (SP 3295) is not zero");
-                 });
+                .filter(packet -> isNotZero(packet.getMinutesWhileMILIsActivated()))
+                .map(ParsedPacket::getModuleName)
+                .forEach(moduleName -> {
+                    addFailure("6.1.11.4.c - " + moduleName + " reported time with MIL on (SP 3295) is not zero");
+                });
 
         // 6.1.11.4.d. Fail if any ECU reports time SCC (SP 3296) > 1 minute (if supported).
         dsPackets.stream()
-                 .filter(packet -> Double.valueOf(packet.getMinutesSinceDTCsCleared()).intValue() > 1)
-                 .map(ParsedPacket::getModuleName)
-                 .forEach(moduleName -> {
-                     addFailure("6.1.11.4.d - " + moduleName + " reported time SCC (SP 3296) > 1 minute");
-                 });
+                .filter(packet -> Double.valueOf(packet.getMinutesSinceDTCsCleared()).intValue() > 1)
+                .map(ParsedPacket::getModuleName)
+                .forEach(moduleName -> {
+                    addFailure("6.1.11.4.d - " + moduleName + " reported time SCC (SP 3296) > 1 minute");
+                });
 
         // 6.1.11.4.e Fail if any difference compared to data received during global request.
         compareRequestPackets(globalPackets, dsPackets, "6.1.11.4.e");

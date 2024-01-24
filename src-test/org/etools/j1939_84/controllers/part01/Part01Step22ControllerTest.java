@@ -182,7 +182,7 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
         DM29DtcCounts packet5 = DM29DtcCounts.create(0x05, 0, 0, 0xFF, 0, 0, 0);
 
         // Module 6 will be a non-obd module with bad values
-        DM29DtcCounts packet6 = DM29DtcCounts.create(0x06, 0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+        DM29DtcCounts packet6 = DM29DtcCounts.create(0x06, 0, 0x01, 0xFF, 0xFF, 0xFF, 0xFF);
 
         // Module 7 will return different values global/ds
         dataRepository.putObdModule(new OBDModuleInformation(7));
