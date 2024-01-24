@@ -73,6 +73,10 @@ public class Packet {
         }
     }
 
+    public Packet(Packet p) {
+        this(LocalDateTime.now(), p.priority, p.id, p.source, p.transmitted, p.data);
+    }
+
     public static Packet create(int id, int source, boolean transmitted, int... data) {
         return new Packet(LocalDateTime.now(), 6, id, source, transmitted, data);
     }

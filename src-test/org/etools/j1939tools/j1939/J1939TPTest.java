@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -254,6 +255,44 @@ public class J1939TPTest {
                     System.err.println("done:" + (System.currentTimeMillis() - start));
                 }
             }
+        }
+    }
+
+    /** Verify that abort in BAM stream actually aborts the receive. */
+    @Test
+    public void testRealBam() throws BusException {
+        Collection<Packet> rawPackets = Packet.parseCollection("18EAFFF9 00 D3 00\r\n"
+                + "1CECFF3D 20 64 00 0F FF 00 D3 00\r\n"
+                + "1CEBFF3D 01 C0 C9 00 CE 33 41 73\r\n"
+                + "1CEBFF3D 02 33 30 31 4E 58 4E 00\r\n"
+                + "1CEBFF3D 03 00 00 00 00 00 00 C0\r\n"
+                + "1CEBFF3D 04 F5 FF 6A 4E 4F 78 2D\r\n"
+                + "1CEBFF3D 05 54 52 30 34 34 30 20\r\n"
+                + "1CEBFF3D 06 41 54 49 31 00 44 A9\r\n"
+                + "1CEBFF3D 07 2B 82 4E 4F 78 2D 54\r\n"
+                + "1CEBFF3D 08 52 30 34 34 30 20 41\r\n"
+                + "1CEBFF3D 09 54 4F 31 00 3C D4 F9\r\n"
+                + "1CEBFF3D 0A EE 50 4D 53 2A 31 32\r\n"
+                + "1CEBFF3D 0B 2A 33 33 30 2A 41 31\r\n"
+                + "1CEBFF3D 0C 30 30 00 6D 61 E7 CD\r\n"
+                + "1CEBFF3D 0D 30 31 39 37 30 30 20\r\n"
+                + "1CEBFF3D 0E 20 20 20 20 20 20 20\r\n"
+                + "1CEBFF3D 0F 20 00 FF FF FF FF FF\r\n");
+        try (EchoBus bus = new EchoBus(0);
+             J1939TP tp = new J1939TP(bus, 0xF9)) {
+            var start = Instant.now();
+            Stream<Packet> in = tp.read(750, TimeUnit.MILLISECONDS);
+            new Thread(() -> {
+                sleep(50);
+                rawPackets.forEach(p -> {
+                    sleep(100);
+                    System.err.println(bus.send(new Packet(p)).toVectorString(start));
+                });
+            }).start();
+            assertEquals("1CD3FF3D [100] C0 C9 00 CE 33 41 73 33 30 31 4E 58 4E 00 00 00 00 00 00 00 C0 F5 FF 6A 4E 4F 78 2D 54 52 30 34 34 30 20 41 54 49 31 00 44 A9 2B 82 4E 4F 78 2D 54 52 30 34 34 30 20 41 54 4F 31 00 3C D4 F9 EE 50 4D 53 2A 31 32 2A 33 33 30 2A 41 31 30 30 00 6D 61 E7 CD 30 31 39 37 30 30 20 20 20 20 20 20 20 20 20 00",
+                                in.filter(VALID_FILTER)
+                                  .map(p -> p.toString())
+                                  .collect(Collectors.joining(System.lineSeparator())));
         }
     }
 

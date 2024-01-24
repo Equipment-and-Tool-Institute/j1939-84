@@ -25,8 +25,10 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.j1939.J1939;
 import org.etools.j1939tools.j1939.packets.DM56EngineFamilyPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 import org.etools.testdoc.TestDoc;
@@ -232,6 +234,26 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(mockListener).addOutcome(1, 6, FAIL, "6.1.6.2.a - Engine model year does not match user input");
+
+        verify(communicationsModule).requestDM56(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testEngineModelYearReal() {
+        List<DM56EngineFamilyPacket> parsedPackets = List.of(new DM56EngineFamilyPacket(Packet.parse("1CFCC700 [21] 32 30 32 34 45 2D 4D 59 52 4E 56 58 48 30 37 37 35 30 53 41 00")));
+        when(communicationsModule.requestDM56(any())).thenReturn(parsedPackets);
+
+        DataRepository repo = DataRepository.getInstance();
+        var vi = repo.getVehicleInformation();
+        vi.setEngineModelYear(2024);
+        repo.setVehicleInformation(vi);
+
+        runTest();
+
+     //   verify(mockListener).addOutcome(1, 6, FAIL, "6.1.6.2.a - Engine model year does not match user input");
 
         verify(communicationsModule).requestDM56(any());
 
