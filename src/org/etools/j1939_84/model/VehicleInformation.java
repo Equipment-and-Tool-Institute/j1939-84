@@ -6,6 +6,7 @@ package org.etools.j1939_84.model;
 import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,7 +39,7 @@ public class VehicleInformation implements Cloneable {
 
     private int emissionUnits;
 
-    private Map<Integer, Optional<ComponentIdentificationPacket>> emissionUnitsFound = Collections.emptyMap();
+    private Map<Integer, Optional<ComponentIdentificationPacket>> emissionUnitsFound = new HashMap<>();
 
     private int engineModelYear;
 
