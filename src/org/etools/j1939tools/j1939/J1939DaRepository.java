@@ -358,16 +358,16 @@ public class J1939DaRepository {
             case "On request then 1 s until key off":
                 return 0;
 
-            // 10 ms
-            case "To engine: Control Purpose dependent or 10 ms\n"
-                    + "To retarder: 50 ms":
-                return 10;
+        // 10 ms
+        case "To engine: Control Purpose dependent or 10 ms\n"
+                + "To retarder: 50 ms":
+            return -10;
 
-            // 20 ms
-            case "Manufacturer defined, not faster than 20 ms":
-            case "Default broadcast rate of 20 ms unless the sending device has received Engine Start Control Message Rate (SPN 7752) from the engine start arbitrator indicating a switch to 250 ms and on change, but no faster than 20 ms.":
-            case "Default broadcast rate of 20 ms unless the arbitrator is transmitting Engine Start Control Message Rate (SPN 7752) indicating a switch to 250 ms or on change, but no faster than 20 ms.":
-                return 20;
+        // 20 ms
+        case "Manufacturer defined, not faster than 20 ms":
+        case "Default broadcast rate of 20 ms unless the sending device has received Engine Start Control Message Rate (SPN 7752) from the engine start arbitrator indicating a switch to 250 ms and on change, but no faster than 20 ms.":
+        case "Default broadcast rate of 20 ms unless the arbitrator is transmitting Engine Start Control Message Rate (SPN 7752) indicating a switch to 250 ms or on change, but no faster than 20 ms.":
+            return -20;
 
             // 50 ms
             case "System dependent; either 50 ms as needed for active control, or as a continuous 50 ms periodic broadcast.":
@@ -379,16 +379,20 @@ public class J1939DaRepository {
             case "Every 50ms and on change of \"Blind Spot Detection state\" or change of \"Collision Warning Level\" but no faster than every 10 ms":
                 return -50;
 
-            case "Engine speed dependent": // Got a better guess?
-            case "manufacturer defined, not faster than 100 ms":
-            case "Manufacturer defined, not faster than 100 ms":
-            case "100 ms\n"
-                    + "\n"
-                    + "Note: Systems developed to the standard published before January, 2015 transmit at a 1s rate.":
-            case "100 ms\n"
-                    + "\n"
-                    + "Note: Systems developed to the standard published before May, 2016 might not be transmitted at a 100 ms rate, but be transmitted on request":
-                return 100;
+        case "Engine speed dependent":
+            return -1;
+
+        case "manufacturer defined, not faster than 100 ms":
+        case "Manufacturer defined, not faster than 100 ms":
+            return -100;
+
+        case "100 ms\n"
+                + "\n"
+                + "Note: Systems developed to the standard published before January, 2015 transmit at a 1s rate.":
+        case "100 ms\n"
+                + "\n"
+                + "Note: Systems developed to the standard published before May, 2016 might not be transmitted at a 100 ms rate, but be transmitted on request":
+            return 100;
 
             case "Application dependent, but no faster than 10 ms and no slower than 100 ms.":
             case "Engine speed dependent when active, otherwise every 100 ms":
