@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939tools.modules.CommunicationsModule.getCompositeSystems;
 
 import java.util.Collection;
@@ -21,6 +22,7 @@ import org.etools.j1939tools.j1939.model.FuelType;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939tools.j1939.packets.AddressClaimPacket;
 import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -141,8 +143,8 @@ public class Part01Step03Controller extends StepController {
         Collection<Integer> invalidNonObdCompliance = List.of(0, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF);
         parsedPackets.stream().forEach(p -> {
             if (!p.isObd() && invalidNonObdCompliance.contains((int) p.getOBDCompliance())) {
-                addWarning(String.format("6.1.3.3.b - Response received from a non-OBD ECU provided OBD Compliance values of %Xh",
-                                         p.getOBDCompliance()));
+                addWarning(String.format("6.1.3.3.b - Response received from a non-OBD ECU %s provided OBD Compliance values of %Xh",
+                                         p.getModuleName(), p.getOBDCompliance()));
             }
         });
 
@@ -150,8 +152,8 @@ public class Part01Step03Controller extends StepController {
         parsedPackets.stream()
                      .filter(p -> !p.isObd())
                      .forEach(p -> {
-                         addInfo(String.format("6.1.3.3.c - Response received from a non-OBD ECU provided OBD Compliance values of %Xh",
-                                               p.getOBDCompliance()));
+                         addInfo(String.format("6.1.3.3.c - Response received from a non-OBD ECU %s provided OBD Compliance values of %Xh",
+                                               p.getModuleName(), p.getOBDCompliance()));
                      });
     }
 

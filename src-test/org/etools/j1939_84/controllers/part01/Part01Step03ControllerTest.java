@@ -28,6 +28,7 @@ import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.Lookup;
 import org.etools.j1939tools.j1939.model.FuelType;
 import org.etools.j1939tools.j1939.model.PgnDefinition;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
@@ -130,6 +131,7 @@ public class Part01Step03ControllerTest {
         PgnDefinition pgnDefinition = mock(PgnDefinition.class);
         when(packet1.getPgnDefinition()).thenReturn(pgnDefinition);
         when(packet1.getPgnDefinition().getId()).thenReturn(DM5DiagnosticReadinessPacket.PGN);
+        when(packet1.getModuleName()).thenReturn(Lookup.getAddressName(0));
         packets.add(packet1);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
@@ -150,6 +152,7 @@ public class Part01Step03ControllerTest {
         when(packet4.isObd()).thenReturn(true);
         when(packet4.getSourceAddress()).thenReturn(0);
         when(packet4.getOBDCompliance()).thenReturn((byte) 4);
+
         packets.add(packet4);
 
         DM5DiagnosticReadinessPacket packet5 = mock(DM5DiagnosticReadinessPacket.class);
@@ -188,11 +191,11 @@ public class Part01Step03ControllerTest {
         verify(mockListener).addOutcome(1,
                                         3,
                                         WARN,
-                                        "6.1.3.3.b - Response received from a non-OBD ECU provided OBD Compliance values of 0h");
+                                        "6.1.3.3.b - Response received from a non-OBD ECU Engine #1 (0) provided OBD Compliance values of 0h");
         verify(mockListener).addOutcome(1,
                                         3,
                                         INFO,
-                                        "6.1.3.3.c - Response received from a non-OBD ECU provided OBD Compliance values of 0h");
+                                        "6.1.3.3.c - Response received from a non-OBD ECU Engine #1 (0) provided OBD Compliance values of 0h");
         verify(mockListener).addOutcome(1,
                                         3,
                                         FAIL,
@@ -219,6 +222,7 @@ public class Part01Step03ControllerTest {
         List<AcknowledgmentPacket> acks = new ArrayList<>();
         RequestResult<DM5DiagnosticReadinessPacket> requestResult = new RequestResult<>(true, packets, acks);
         DM5DiagnosticReadinessPacket packet1 = mock(DM5DiagnosticReadinessPacket.class);
+        when(packet1.getModuleName()).thenReturn(Lookup.getAddressName(0));
         packets.add(packet1);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
@@ -244,11 +248,11 @@ public class Part01Step03ControllerTest {
         verify(mockListener).addOutcome(1,
                                         3,
                                         WARN,
-                                        "6.1.3.3.b - Response received from a non-OBD ECU provided OBD Compliance values of 0h");
+                                        "6.1.3.3.b - Response received from a non-OBD ECU Engine #1 (0) provided OBD Compliance values of 0h");
         verify(mockListener).addOutcome(1,
                                         3,
                                         INFO,
-                                        "6.1.3.3.c - Response received from a non-OBD ECU provided OBD Compliance values of 0h");
+                                        "6.1.3.3.c - Response received from a non-OBD ECU Engine #1 (0) provided OBD Compliance values of 0h");
         verify(vehicleInformationModule).setJ1939(j1939);
     }
 
@@ -261,6 +265,7 @@ public class Part01Step03ControllerTest {
         RequestResult<DM5DiagnosticReadinessPacket> requestResult = new RequestResult<>(false, packets, acks);
         DM5DiagnosticReadinessPacket packet1 = mock(DM5DiagnosticReadinessPacket.class);
         when(packet1.getOBDCompliance()).thenReturn((byte) 4);
+        when(packet1.getModuleName()).thenReturn(Lookup.getAddressName(0));
         PgnDefinition pgnDefinition = mock(PgnDefinition.class);
         when(packet1.getPgnDefinition()).thenReturn(pgnDefinition);
         when(packet1.getPgnDefinition().getId()).thenReturn(DM5DiagnosticReadinessPacket.PGN);
@@ -319,7 +324,7 @@ public class Part01Step03ControllerTest {
         verify(mockListener).addOutcome(1,
                                         3,
                                         INFO,
-                                        "6.1.3.3.c - Response received from a non-OBD ECU provided OBD Compliance values of 4h");
+                                        "6.1.3.3.c - Response received from a non-OBD ECU Engine #1 (0) provided OBD Compliance values of 4h");
         verify(vehicleInformationModule).setJ1939(j1939);
     }
 
