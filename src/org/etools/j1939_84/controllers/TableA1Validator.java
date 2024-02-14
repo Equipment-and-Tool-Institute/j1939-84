@@ -29,6 +29,7 @@ import org.etools.j1939tools.j1939.model.PgnDefinition;
 import org.etools.j1939tools.j1939.model.Spn;
 import org.etools.j1939tools.j1939.model.SpnDefinition;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.j1939.packets.SupportedSPN;
 
 public class TableA1Validator {
@@ -412,6 +413,7 @@ public class TableA1Validator {
             providedSPNs.stream().filter(spns::contains).forEach(s -> outcomes.put(s, outcome));
         }
 
+        //similar to reportPacketIfNotReported(packet, listener, true)
         if (!outcomes.isEmpty()) {
             outcomes.keySet().stream().sorted().forEach(spn -> {
                 Set<Integer> reportedSPNs = providedNotSupportedSPNs.getOrDefault(sourceAddress, new HashSet<>());
