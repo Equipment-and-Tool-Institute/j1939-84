@@ -100,7 +100,7 @@ public class Part09Step10Controller extends StepController {
                                                                                                       && t.getFmi() == fmi)
                                                                                               .findAny()
                                                                                               .isPresent();
-                                                         if (!fromPart1 && !str.isInitialized()) {
+                                                         if (fromPart1 && !str.isInitialized()) {
                                                              addFailure("6.9.10.2.a - " + moduleName
                                                                      + " reported test result for SPN = " + str.getSpn()
                                                                      + ", FMI = " + str.getFmi()
