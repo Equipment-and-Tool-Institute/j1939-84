@@ -268,6 +268,7 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
         ScaledTestResult str1 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
         ScaledTestResult str2 = ScaledTestResult.create(250, 456, 9, 0, 0, 0, 0);
         obdModuleInformation.setScaledTestResults(List.of(str1, str2));
+        obdModuleInformation.setInitialized_1_12_Tests(List.of(str1, str2));
         dataRepository.putObdModule(obdModuleInformation);
 
         var str123 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
