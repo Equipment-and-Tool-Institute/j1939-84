@@ -8,7 +8,8 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -293,10 +294,12 @@ public class TableA1ValidatorProvidedNotSupportedTest {
         verify(mockListener).addOutcome(1, 26, INFO, "S - N.7 Provided SPN 96 is not indicated as supported by Engine #1 (0)");
 
         String r = listener.getResults();
-        assertThat("Verify formatting of omitted SPNs.", r.contains("Found: Electronic Engine Controller 2 from Engine #1 (0):"));
-        assertThat("Verify formatting of omitted SPNs.", r.contains("PGN 61443 with supported SPNs"));
-        assertThat("Verify formatting of omitted SPNs.", r.contains("PGN 61443 with Omitted SPNs 91"));
-        assertThat("Verify formatting of omitted SPNs.", r.contains("SPN    91, Accelerator Pedal 1 Position: 0.000 %"));
+        assertTrue(r.contains("Found: Electronic Engine Controller 2 from Engine #1 (0):"));
+        assertTrue(r.contains("PGN 61443 with supported SPNs"));
+        assertTrue(r.contains("PGN 61443 with Omitted SPNs 91, 92"));
+        assertTrue(r.contains("SPN    91, Accelerator Pedal 1 Position: 0.000 %"));
+        assertTrue(r.contains("SPN    92, Engine Percent Load At Current Speed: 0.000 %"));
+
         //@formatter:on
     }
 
