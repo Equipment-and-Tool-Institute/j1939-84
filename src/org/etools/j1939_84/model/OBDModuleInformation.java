@@ -15,6 +15,7 @@ import java.util.Map;
 import org.etools.j1939tools.j1939.Lookup;
 import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939tools.j1939.packets.DM27AllPendingDTCsPacket;
+import org.etools.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.ScaledTestResult;
 import org.etools.j1939tools.j1939.packets.SupportedSPN;
@@ -45,7 +46,8 @@ public class OBDModuleInformation implements Cloneable {
     private final List<ScaledTestResult> scaledTestResults = new ArrayList<>();
 
     private final List<ScaledTestResult> initializedTests_1_12 = new ArrayList<>();
-    private final List<ScaledTestResult> nonInitializedTests = new ArrayList<>();
+    //integer value is number of initialized test results for the same test
+    private final Map<ScaledTestResult, Integer> nonInitializedTests = new HashMap<>();
     private final List<ScaledTestResult> initializedTests = new ArrayList<>();
 
     private Double deltaEngineStart = null;
@@ -158,17 +160,17 @@ public class OBDModuleInformation implements Cloneable {
         return Collections.unmodifiableList(initializedTests_1_12);
     }
 
-    public List<ScaledTestResult> getNonInitializedTests() {
-        return Collections.unmodifiableList(nonInitializedTests);
+    public Map<ScaledTestResult, Integer> getNonInitializedTests() {
+        return Collections.unmodifiableMap(nonInitializedTests);
     }
 
     public List<ScaledTestResult> getInitializedTests() {
         return Collections.unmodifiableList(initializedTests);
     }
 
-    public void setNonInitializedTests(List<ScaledTestResult> tests) {
+    public void setNonInitializedTests(Map<ScaledTestResult, Integer> tests) {
         nonInitializedTests.clear();
-        nonInitializedTests.addAll(tests);
+        nonInitializedTests.putAll(tests);
     }
 
     public void setInitialized_1_12_Tests(List<ScaledTestResult> tests) {

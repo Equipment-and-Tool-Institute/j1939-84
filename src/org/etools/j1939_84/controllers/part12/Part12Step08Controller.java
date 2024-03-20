@@ -4,7 +4,9 @@
 package org.etools.j1939_84.controllers.part12;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -17,6 +19,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.j1939.model.SpnFmi;
 import org.etools.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
+import org.etools.j1939tools.j1939.packets.ScaledTestResult;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -74,7 +77,11 @@ public class Part12Step08Controller extends StepController {
                                                        .flatMap(Collection::stream)
                                                        .filter(str -> !str.isInitialized())
                                                        .collect(Collectors.toList());
-            moduleInformation.setNonInitializedTests(nonInitializedTests);
+            Map<ScaledTestResult, Integer> nonInit = new HashMap<ScaledTestResult, Integer>();
+                    nonInitializedTests.stream().forEach(tr -> {
+                        nonInit.put(tr, (int)moduleInformation.getScaledTestResults().stream().filter(tr2 -> tr.equals(tr2) && tr2.isInitialized()).count());
+                    });
+            moduleInformation.setNonInitializedTests(nonInit);
             getDataRepository().putObdModule(moduleInformation);
         }
     }

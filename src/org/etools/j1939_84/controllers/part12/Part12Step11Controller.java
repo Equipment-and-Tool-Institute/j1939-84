@@ -64,6 +64,7 @@ public class Part12Step11Controller extends StepController {
         // in part 12 test 8.
         for (OBDModuleInformation moduleInformation : getDataRepository().getObdModules()) {
             moduleInformation.getNonInitializedTests()
+                             .keySet()
                              .stream()
                              .map(SpnFmi::of)
                              .distinct()

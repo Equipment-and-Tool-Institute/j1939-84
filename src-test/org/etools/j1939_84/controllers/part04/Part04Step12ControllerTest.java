@@ -11,7 +11,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.controllers.DataRepository;
@@ -166,12 +168,12 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestTestResults(any(), eq(1), eq(247), eq(supportedSPN1.getSpn()), eq(31));
 
         // Verify non-initialized tests are stored
-        List<ScaledTestResult> nonInitializedTests = dataRepository.getObdModule(0).getNonInitializedTests();
+        List<ScaledTestResult> nonInitializedTests = new ArrayList<>(dataRepository.getObdModule(0).getNonInitializedTests().keySet());
         assertEquals(1, nonInitializedTests.size());
         assertEquals(str0.getSpn(), nonInitializedTests.get(0).getSpn());
         assertEquals(str0.getFmi(), nonInitializedTests.get(0).getFmi());
 
-        assertEquals(List.of(), dataRepository.getObdModule(1).getNonInitializedTests());
+        assertEquals(Map.of(), dataRepository.getObdModule(1).getNonInitializedTests());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
