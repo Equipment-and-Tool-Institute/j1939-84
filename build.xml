@@ -26,7 +26,7 @@
 	</taskdef>
 
 	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
-		<classpath path="${lib-test}/jacoco-0.8.5/lib/jacocoant.jar" />
+		<classpath path="${lib-test}/jacoco-0.8.9/lib/jacocoant.jar" />
 	</taskdef>
 
 	<condition property="isWindows" value="true">
@@ -142,7 +142,7 @@
 	<target name="run.tests" depends="clean, compile.tests" description="Runs the unit tests">
 		<mkdir dir="${build}/tests" />
 		<jacoco:coverage destfile="${build}/jacoco/jacoco.exec">
-			<junit printsummary="yes" haltonfailure="no" fork="yes">
+			<junit printsummary="yes" haltonfailure="no" fork="true">
 				<jvmarg value="-Dfile.encoding=UTF-8" />
 				<classpath refid="unit.test.path" />
 
