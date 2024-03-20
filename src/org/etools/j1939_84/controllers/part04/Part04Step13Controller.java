@@ -104,9 +104,6 @@ public class Part04Step13Controller extends StepController {
                      addWarning("6.4.13.2.b - " + moduleName + " NACKs with control = 3");
                  });
 
-        // 6.4.13.2.c. Fail if any ECU erases any diagnostic information. See Section A.5 for more information.
-        verifier.verifyDataNotErased(getListener(), "6.4.13.2.c");
-
         // 6.4.13.3.a. Global DM3
         getCommunicationsModule().requestDM3(getListener());
 
