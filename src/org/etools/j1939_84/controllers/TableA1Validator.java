@@ -29,6 +29,7 @@ import org.etools.j1939tools.j1939.model.PgnDefinition;
 import org.etools.j1939tools.j1939.model.Spn;
 import org.etools.j1939tools.j1939.model.SpnDefinition;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.j1939.packets.SupportedSPN;
 
 public class TableA1Validator {
@@ -412,21 +413,45 @@ public class TableA1Validator {
             providedSPNs.stream().filter(spns::contains).forEach(s -> outcomes.put(s, outcome));
         }
 
-        if (!outcomes.isEmpty()) {
-            outcomes.keySet().stream().sorted().forEach(spn -> {
-                Set<Integer> reportedSPNs = providedNotSupportedSPNs.getOrDefault(sourceAddress, new HashSet<>());
-                if (!reportedSPNs.contains(spn)) {
-                    reportPacketIfNotReported(packet, listener, true);
-                    String moduleName = Lookup.getAddressName(sourceAddress);
-                    addOutcome(listener,
-                               section,
-                               outcomes.get(spn),
-                               "N.7 Provided SPN " + spn + " is not indicated as supported by " + moduleName);
-                    listener.onResult("");
-                    reportedSPNs.add(spn);
-                    providedNotSupportedSPNs.put(sourceAddress, reportedSPNs);
+        //similar to reportPacketIfNotReported(packet, listener, true), but groups omitted and supported SPNs separately
+        if (!outcomes.isEmpty() && !isReported(packet)) {
+            int pgn = packet.getPacket().getPgn();
+
+            Set<Integer> reportedSPNs = providedNotSupportedSPNs.getOrDefault(sourceAddress, new HashSet<>());
+            List<Integer> omittedSPNs = outcomes.keySet().stream().filter(spn -> !reportedSPNs.contains(spn)).toList();
+
+            if (!omittedSPNs.isEmpty()) {
+                Collection<Integer> spns = dataRepository.isObdModule(sourceAddress)
+                        ? dataRepository.getModuleSupportedSPNs(sourceAddress)
+                        : getAllSupportedSPNs();
+                List<String> supportedSPNs = getSupportedSPNs(spns, packet);
+                listener.onResult(packet.getPacket().toTimeString());
+                StringBuilder omitted = new StringBuilder("PGN " + pgn + " with Omitted SPNs " + omittedSPNs.stream().map(String::valueOf).collect(Collectors.joining(", ")) + NL);
+                StringBuilder supported = new StringBuilder("PGN " + pgn + " with supported SPNs" + NL);
+                for (Spn s : packet.getSpns()) {
+                    if (omittedSPNs.contains(s.getId())){
+                        omitted.append("  ").append((s.toString())).append(NL);
+                        String moduleName = Lookup.getAddressName(sourceAddress);
+                        addOutcome(listener,
+                                   section,
+                                   outcomes.get(s.getId()),
+                                   "N.7 Provided SPN " + s.getId() + " is not indicated as supported by " + moduleName);
+                        listener.onResult("");
+                        reportedSPNs.add(s.getId());
+                        providedNotSupportedSPNs.put(sourceAddress, reportedSPNs);
+                    } else {
+                        supported.append("  ").append(s.toString()).append(NL);
+                    }
                 }
-            });
+                StringBuilder result = new StringBuilder().append(packet.getStringPrefix()).append(NL)
+                        .append(supported.toString()).append(NL)
+                        .append(omitted.toString());
+
+                listener.onResult("Found: " + result);
+                Set<Integer> modulePackets = getReportedPGNs(sourceAddress);
+                modulePackets.add(pgn);
+                foundPackets.put(sourceAddress, modulePackets);
+            }
         }
     }
 
