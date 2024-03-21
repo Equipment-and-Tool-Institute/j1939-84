@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.controllers.DataRepository;
@@ -37,7 +38,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class Part09Step06ControllerTest extends AbstractControllerTest {
@@ -133,7 +134,7 @@ public class Part09Step06ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         ScaledTestResult str2 = ScaledTestResult.create(247, 123, 15, 0, 5, 10, 1);
         ScaledTestResult str3 = ScaledTestResult.create(247, 456, 3, 0, 5, 10, 1);
-        obdModuleInformation.setNonInitializedTests(List.of(str2, str3));
+        obdModuleInformation.setNonInitializedTests(Map.of(str2, 0, str3, 0));
         dataRepository.putObdModule(obdModuleInformation);
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
@@ -167,7 +168,7 @@ public class Part09Step06ControllerTest extends AbstractControllerTest {
     public void testFailureForInitializeTest() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         ScaledTestResult str1 = ScaledTestResult.create(247, 123, 13, 0, 5, 10, 1);
-        obdModuleInformation.setNonInitializedTests(List.of(str1));
+        obdModuleInformation.setNonInitializedTests(Map.of(str1, 0));
         dataRepository.putObdModule(obdModuleInformation);
 
         dataRepository.putObdModule(new OBDModuleInformation(1));

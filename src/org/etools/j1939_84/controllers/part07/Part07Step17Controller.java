@@ -64,11 +64,11 @@ public class Part07Step17Controller extends StepController {
             int moduleAddress = obdModuleInformation.getSourceAddress();
             String moduleName = obdModuleInformation.getModuleName();
 
-            for (Map.Entry<ScaledTestResult, DM30ScaledTestResultsPacket> e : obdModuleInformation.getNonInitializedTests().entrySet()) {
+            for (Map.Entry<ScaledTestResult, Integer> e : obdModuleInformation.getNonInitializedTests().entrySet()) {
                 ScaledTestResult str = e.getKey();
                 int spn = str.getSpn();
                 int fmi = str.getFmi();
-                long initializedCount = e.getValue().getTestResults().stream().filter(r -> str.equals(r) && r.isInitialized()).count();
+                long initializedCount = e.getValue();
 
                 // 6.7.17.2.a. Fail if any non-initialized tests reports now report initialized values.
                 // Use this to help verify no diagnostic information was cleared with DM3 request.

@@ -16,8 +16,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.HashMap;
 import java.util.List;
 
+import java.util.Map;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -1169,7 +1171,7 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var tr = ScaledTestResult.create(247, 123, 12, 1, 1, 0, 0);
-        moduleInfo.setNonInitializedTests(List.of(tr));
+        moduleInfo.setNonInitializedTests(Map.of(tr, 0));
         var packet = DM30ScaledTestResultsPacket.create(0, 0, tr);
         when(communicationsModule.requestTestResult(listener, 0, 247, 123, 31)).thenReturn(BusResult.of(packet));
 
@@ -1185,7 +1187,7 @@ public class SectionA5MessageVerifierTest {
         dataRepository.putObdModule(moduleInfo);
 
         var tr = ScaledTestResult.create(247, 123, 12, 1, 0xFB00, 0xFFFF, 0xFFFF);
-        moduleInfo.setNonInitializedTests(List.of(tr));
+        moduleInfo.setNonInitializedTests(Map.of(tr, 0));
         var packet = DM30ScaledTestResultsPacket.create(0, 0, tr);
         when(communicationsModule.requestTestResult(listener, 0, 247, 123, 31)).thenReturn(BusResult.of(packet));
 

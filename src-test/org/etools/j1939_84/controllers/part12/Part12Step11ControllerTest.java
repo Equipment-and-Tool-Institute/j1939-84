@@ -17,6 +17,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 
@@ -322,7 +323,7 @@ public class Part12Step11ControllerTest extends AbstractControllerTest {
         ScaledTestResult str1 = ScaledTestResult.create(250, 123, 14, 0, 1, 0, 0);
         ScaledTestResult str2 = ScaledTestResult.create(250, 456, 9, 0, 1, 0, 0);
         ScaledTestResult str3 = ScaledTestResult.create(250, 456, 9, 0, 1, 0, 0);
-        obdModuleInformation.setNonInitializedTests(List.of(str1, str2, str3));
+        obdModuleInformation.setNonInitializedTests(Map.of(str1, 0, str2, 0, str3, 0));
         dataRepository.putObdModule(obdModuleInformation);
 
         var str123 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);

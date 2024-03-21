@@ -165,7 +165,7 @@ public class Part08Step11ControllerTest extends AbstractControllerTest {
 
         var nonInitializedTests = dataRepository.getObdModule(0).getNonInitializedTests();
         assertEquals(1, nonInitializedTests.size());
-        assertEquals(spn1, nonInitializedTests.get(0).getSpn());
+        assertEquals(spn1, nonInitializedTests.keySet().iterator().next().getSpn());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

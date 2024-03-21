@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.controllers.DataRepository;
@@ -36,7 +37,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class Part12Step08ControllerTest extends AbstractControllerTest {
@@ -160,9 +161,9 @@ public class Part12Step08ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestTestResults(any(), eq(0), eq(250), eq(123), eq(14));
         verify(communicationsModule).requestTestResults(any(), eq(0), eq(250), eq(456), eq(9));
 
-        List<ScaledTestResult> nonInitializedTests = dataRepository.getObdModule(0).getNonInitializedTests();
+        Map<ScaledTestResult, Integer> nonInitializedTests = dataRepository.getObdModule(0).getNonInitializedTests();
         assertEquals(1, nonInitializedTests.size());
-        ScaledTestResult scaledTestResult = nonInitializedTests.get(0);
+        ScaledTestResult scaledTestResult = nonInitializedTests.keySet().iterator().next();
         assertEquals(123, scaledTestResult.getSpn());
         assertEquals(14, scaledTestResult.getFmi());
 
