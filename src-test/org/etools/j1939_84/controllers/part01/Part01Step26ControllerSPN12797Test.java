@@ -2,7 +2,7 @@
  * Copyright (c) 2020. Equipment & Tool Institute
  */
 
-package org.etools.j1939_84.controllers.part02;
+package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.ERROR;
@@ -68,7 +68,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
+public class Part01Step26ControllerSPN12797Test extends AbstractControllerTest {
 
     @Mock
     private Executor executor;
@@ -96,7 +96,7 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
     @Mock
     private BusService busService;
 
-    private Part02Step17Controller instance;
+    private Part01Step26Controller instance;
 
     @Mock
     private J1939 j1939;
@@ -142,7 +142,7 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
         ghgTrackingModule = new GhgTrackingModule(DateTimeModule.getInstance());
         nOxBinningModule = new NOxBinningModule((DateTimeModule.getInstance()));
 
-        instance = new Part02Step17Controller(executor,
+        instance = new Part01Step26Controller(executor,
                                               bannerModule,
                                               DateTimeModule.getInstance(),
                                               dataRepository,
@@ -214,12 +214,12 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
                                                                  any(),
                                                                  eq(0),
                                                                  any(ResultsListener.class),
-                                                                 eq(2),
-                                                                 eq(17),
-                                                                 eq("6.2.17.6.a")))
+                                                                 eq(1),
+                                                                 eq(26),
+                                                                 eq("6.1.26.6.a")))
                 .thenReturn(List.of("111"));
 
-        OBDModuleInformation module1 = new OBDModuleInformation(2);
+        OBDModuleInformation module1 = new OBDModuleInformation(1);
         DM24SPNSupportPacket dm24SPNSupportPacket = DM24SPNSupportPacket.create(1,
                                                                                 SupportedSPN.create(111,
                                                                                                     false,
@@ -266,7 +266,6 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
 
         verify(broadcastValidator).getMaximumBroadcastPeriod();
         verify(broadcastValidator).buildPGNPacketsMap(List.of());
-        //        verify(broadcastValidator).buildPGNPacketsMap(List.of(packet2));
 
         verify(broadcastValidator).reportBroadcastPeriod(eq(Map.of()),
                                                          eq(List.of(111,
@@ -280,262 +279,174 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
                                                                     999,
                                                                     111)),
                                                          any(ResultsListener.class),
-                                                         eq(2),
-                                                         eq(17));
+                                                         eq(1),
+                                                         eq(26));
         verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(0),
                                                                     eq(List.of()),
                                                                     eq(supportedSpns),
                                                                     eq(List.of(11111, 22222, 33333)),
                                                                     any(ResultsListener.class),
-                                                                    eq(2),
-                                                                    eq(17),
-                                                                    eq("6.2.17.5.a"));
-        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(List.of(111,
-                                                                               222,
-                                                                               333,
-                                                                               444,
-                                                                               555,
-                                                                               666,
-                                                                               777,
-                                                                               888,
-                                                                               999,
-                                                                               111)),
+                                                                    eq(1),
+                                                                    eq(26),
+                                                                    eq("6.1.26.5.a"));
+        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(List.of(111, 222, 333, 444, 555, 666, 777, 888, 999, 111)),
                                                                     eq(22222),
                                                                     eq(List.of()),
                                                                     eq(0),
                                                                     any(ResultsListener.class),
-                                                                    eq(2),
-                                                                    eq(17),
-                                                                    eq("6.2.17.6.a"));
-        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(List.of(111,
-                                                                               222,
-                                                                               333,
-                                                                               444,
-                                                                               555,
-                                                                               666,
-                                                                               777,
-                                                                               888,
-                                                                               999,
-                                                                               111)),
+                                                                    eq(1),
+                                                                    eq(26),
+                                                                    eq("6.1.26.6.a"));
+        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(List.of(111, 222, 333, 444, 555, 666, 777, 888, 999, 111)),
                                                                     eq(44444),
                                                                     eq(List.of(packet4)),
                                                                     eq(0),
                                                                     any(ResultsListener.class),
-                                                                    eq(2),
-                                                                    eq(17),
-                                                                    eq("6.2.17.6.a"));
-        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(List.of(111,
-                                                                               222,
-                                                                               333,
-                                                                               444,
-                                                                               555,
-                                                                               666,
-                                                                               777,
-                                                                               888,
-                                                                               999,
-                                                                               111)),
-                                                                    eq(44444),
-                                                                    eq(List.of(packet4)),
-                                                                    eq(0),
-                                                                    any(ResultsListener.class),
-                                                                    eq(2),
-                                                                    eq(17),
-                                                                    eq("6.2.17.6.a"));
-        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(List.of(111,
-                                                                               222,
-                                                                               333,
-                                                                               444,
-                                                                               555,
-                                                                               666,
-                                                                               777,
-                                                                               888,
-                                                                               999,
-                                                                               111)),
+                                                                    eq(1),
+                                                                    eq(26),
+                                                                    eq("6.1.26.6.a"));
+        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(List.of(111, 222, 333, 444, 555, 666, 777, 888, 999, 111)),
                                                                     eq(55555),
                                                                     eq(List.of(packet5)),
                                                                     eq(0),
                                                                     any(ResultsListener.class),
-                                                                    eq(2),
-                                                                    eq(17),
-                                                                    eq("6.2.17.6.a"));
-        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(List.of(111,
-                                                                               222,
-                                                                               333,
-                                                                               444,
-                                                                               555,
-                                                                               666,
-                                                                               777,
-                                                                               888,
-                                                                               999,
-                                                                               111)),
+                                                                    eq(1),
+                                                                    eq(26),
+                                                                    eq("6.1.26.6.a"));
+        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(List.of(111, 222, 333, 444, 555, 666, 777, 888, 999, 111)),
                                                                     eq(66666),
                                                                     eq(List.of(packet6)),
                                                                     eq(0),
                                                                     any(ResultsListener.class),
-                                                                    eq(2),
-                                                                    eq(17),
-                                                                    eq("6.2.17.6.a"));
-        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(2),
+                                                                    eq(1),
+                                                                    eq(26),
+                                                                    eq("6.1.26.6.a"));
+        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(1),
                                                                     eq(List.of()),
                                                                     eq(List.of(111)),
                                                                     eq(List.of(11111, 22222, 33333)),
                                                                     any(ResultsListener.class),
-                                                                    eq(2),
-                                                                    eq(17),
-                                                                    eq("6.2.17.5.a"));
-        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(List.of(111,
-                                                                               222,
-                                                                               333,
-                                                                               444,
-                                                                               555,
-                                                                               666,
-                                                                               777,
-                                                                               888,
-                                                                               999,
-                                                                               111)),
+                                                                    eq(1),
+                                                                    eq(26),
+                                                                    eq("6.1.26.5.a"));
+        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(List.of(111, 222, 333, 444, 555, 666, 777, 888, 999, 111)),
                                                                     eq(22222),
                                                                     eq(List.of()),
-                                                                    eq(2),
+                                                                    eq(1),
                                                                     any(ResultsListener.class),
-                                                                    eq(2),
-                                                                    eq(17),
-                                                                    eq("6.2.17.6.a"));
-        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(List.of(111,
-                                                                               222,
-                                                                               333,
-                                                                               444,
-                                                                               555,
-                                                                               666,
-                                                                               777,
-                                                                               888,
-                                                                               999,
-                                                                               111)),
+                                                                    eq(1),
+                                                                    eq(26),
+                                                                    eq("6.1.26.6.a"));
+        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(List.of(111, 222, 333, 444, 555, 666, 777, 888, 999, 111)),
                                                                     eq(44444),
                                                                     eq(List.of()),
-                                                                    eq(2),
+                                                                    eq(1),
                                                                     any(ResultsListener.class),
-                                                                    eq(2),
-                                                                    eq(17),
-                                                                    eq("6.2.17.6.a"));
-        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(List.of(111,
-                                                                               222,
-                                                                               333,
-                                                                               444,
-                                                                               555,
-                                                                               666,
-                                                                               777,
-                                                                               888,
-                                                                               999,
-                                                                               111)),
+                                                                    eq(1),
+                                                                    eq(26),
+                                                                    eq("6.1.26.6.a"));
+        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(List.of(111, 222, 333, 444, 555, 666, 777, 888, 999, 111)),
                                                                     eq(55555),
                                                                     eq(List.of()),
-                                                                    eq(2),
+                                                                    eq(1),
                                                                     any(ResultsListener.class),
-                                                                    eq(2),
-                                                                    eq(17),
-                                                                    eq("6.2.17.6.a"));
-        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(List.of(111,
-                                                                               222,
-                                                                               333,
-                                                                               444,
-                                                                               555,
-                                                                               666,
-                                                                               777,
-                                                                               888,
-                                                                               999,
-                                                                               111)),
+                                                                    eq(1),
+                                                                    eq(26),
+                                                                    eq("6.1.26.6.a"));
+        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(List.of(111, 222, 333, 444, 555, 666, 777, 888, 999, 111)),
                                                                     eq(66666),
                                                                     eq(List.of()),
-                                                                    eq(2),
+                                                                    eq(1),
                                                                     any(ResultsListener.class),
-                                                                    eq(2),
-                                                                    eq(17),
-                                                                    eq("6.2.17.6.a"));
-        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(2),
+                                                                    eq(1),
+                                                                    eq(26),
+                                                                    eq("6.1.26.6.a"));
+        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(1),
                                                                     eq(List.of()),
                                                                     eq(List.of(111)),
                                                                     eq(List.of(11111, 22222, 33333)),
                                                                     any(ResultsListener.class),
-                                                                    eq(2),
-                                                                    eq(17),
-                                                                    eq("6.2.17.5.a"));
+                                                                    eq(1),
+                                                                    eq(26),
+                                                                    eq("6.1.26.5.a"));
         verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(0),
                                                                     eq(List.of()),
                                                                     eq(supportedSpns),
                                                                     eq(List.of(11111, 22222, 33333)),
                                                                     any(ResultsListener.class),
-                                                                    eq(2),
-                                                                    eq(17),
-                                                                    eq("6.2.17.5.a"));
-        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(List.of(111,
-                                                                               222,
-                                                                               333,
-                                                                               444,
-                                                                               555,
-                                                                               666,
-                                                                               777,
-                                                                               888,
-                                                                               999,
-                                                                               111)),
+                                                                    eq(1),
+                                                                    eq(26),
+                                                                    eq("6.1.26.5.a"));
+        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(List.of(111, 222, 333, 444, 555, 666, 777, 888, 999, 111)),
                                                                     eq(22222),
                                                                     any(),
                                                                     eq(0),
                                                                     any(ResultsListener.class),
-                                                                    eq(2),
-                                                                    eq(17),
-                                                                    eq("6.2.17.6.a"));
+                                                                    eq(1),
+                                                                    eq(26),
+                                                                    eq("6.1.26.6.a"));
 
         verify(busService, times(2)).collectNonOnRequestPGNs(any());
         verify(busService, times(2)).getPGNsForDSRequest(any(), any());
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
         pgns.forEach(pgn -> {
             verify(busService).dsRequest(eq(pgn), eq(0), eq(""));
-            verify(busService).dsRequest(eq(pgn), eq(2), any());
+            verify(busService).dsRequest(eq(pgn), eq(1), any());
             verify(busService).globalRequest(eq(pgn), any());
         });
         verify(busService).readBus(eq(0),
-                                   eq("6.2.17.2.c"));
+                                   eq("6.1.26.2.c"));
 
         verify(tableA1Validator).reportExpectedMessages(any(ResultsListener.class));
-        verify(tableA1Validator).reportDuplicateSPNs(eq(List.of()), any(ResultsListener.class), eq("6.2.17.3.e"));
+        verify(tableA1Validator).reportDuplicateSPNs(eq(List.of()), any(ResultsListener.class), eq("6.1.26.3.e"));
 
         verify(tableA1Validator).reportNotAvailableSPNs(eq(packet2),
                                                         any(ResultsListener.class),
-                                                        eq("6.2.17.5.b"));
+                                                        eq("6.1.26.5.b"));
         verify(tableA1Validator).reportImplausibleSPNValues(eq(packet2),
                                                             any(ResultsListener.class),
-                                                            eq(true),
-                                                            eq("6.2.17.6.b"));
+                                                            eq(false),
+                                                            eq("6.1.26.6.b"));
+        verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet2),
+                                                                any(ResultsListener.class),
+                                                                eq("6.1.26.6.c"));
         verify(tableA1Validator).reportProvidedButNotSupportedSPNs(eq(packet2),
                                                                    any(ResultsListener.class),
-                                                                   eq("6.2.17.6.e"));
+                                                                   eq("6.1.26.6.e"));
         dsPackets.forEach(packet -> {
+            verify(tableA1Validator).reportNotAvailableSPNs(eq(packet),
+                                                            any(ResultsListener.class),
+                                                            eq("6.1.26.5.a"));
+            verify(tableA1Validator).reportProvidedButNotSupportedSPNs(eq(packet),
+                                                                       any(ResultsListener.class),
+                                                                       eq("6.1.26.6.e"));
             verify(tableA1Validator).reportImplausibleSPNValues(eq(packet),
                                                                 any(ResultsListener.class),
-                                                                eq(true),
-                                                                eq("6.2.17.6.b"));
+                                                                eq(false),
+                                                                eq("6.1.26.6.b"));
             verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet),
                                                                     any(ResultsListener.class),
-                                                                    eq("6.2.17.6.c"));
+                                                                    eq("6.1.26.6.f"));
         });
 
         verify(tableA1Validator).reportDuplicateSPNs(eq(packets),
                                                      any(ResultsListener.class),
-                                                     eq("6.2.17.6.d"));
+                                                     eq("6.1.26.6.d"));
 
         String expected = "";
         assertEquals(expected, listener.getResults());
 
-        String expectedMsg = "Test 2.17 - Verifying Engine #1 (0)" + NL;
-        expectedMsg += "Test 2.17 - Verifying Engine #1 (0)" + NL;
-        expectedMsg += "Test 2.17 - Verifying Engine #1 (0)" + NL;
-        expectedMsg += "Test 2.17 - Verifying Engine #1 (0)" + NL;
-        expectedMsg += "Test 2.17 - Verifying Turbocharger (2)" + NL;
-        expectedMsg += "Test 2.17 - Verifying Turbocharger (2)" + NL;
-        expectedMsg += "Test 2.17 - Verifying Turbocharger (2)" + NL;
-        expectedMsg += "Test 2.17 - Verifying Turbocharger (2)";
+        String expectedMsg = "Test 1.26 - Verifying Engine #1 (0)" + NL;
+        expectedMsg += "Test 1.26 - Verifying Engine #1 (0)" + NL;
+        expectedMsg += "Test 1.26 - Verifying Engine #1 (0)" + NL;
+        expectedMsg += "Test 1.26 - Verifying Engine #1 (0)" + NL;
+        expectedMsg += "Test 1.26 - Verifying Engine #2 (1)" + NL;
+        expectedMsg += "Test 1.26 - Verifying Engine #2 (1)" + NL;
+        expectedMsg += "Test 1.26 - Verifying Engine #2 (1)" + NL;
+        expectedMsg += "Test 1.26 - Verifying Engine #2 (1)";
         assertEquals(expectedMsg, listener.getMessages());
     }
+
     @Test
     public void testRunWithFailuresUnExpectedToolSaMsg() {
         VehicleInformation vehicleInformation = new VehicleInformation();
@@ -578,7 +489,7 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(12, "6.2.17.2.c")).thenReturn(packets.stream());
+        when(busService.readBus(12, "6.1.26.2.c")).thenReturn(packets.stream());
 
         Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = new HashMap<>();
         when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
@@ -596,30 +507,30 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
         verify(broadcastValidator).reportBroadcastPeriod(any(),
                                                          eq(supportedSpns),
                                                          any(ResultsListener.class),
-                                                         eq(2),
-                                                         eq(17));
+                                                         eq(1),
+                                                         eq(26));
         verify(broadcastValidator, atLeastOnce()).collectAndReportNotAvailableSPNs(eq(0x00),
                                                                                    eq(packets),
                                                                                    eq(supportedSpns.subList(1,
                                                                                                             supportedSpns.size())),
                                                                                    eq(List.of(11111, 22222, 33333)),
                                                                                    any(ResultsListener.class),
-                                                                                   eq(2),
-                                                                                   eq(17),
-                                                                                   eq("6.2.17.5.a"));
+                                                                                   eq(1),
+                                                                                   eq(26),
+                                                                                   eq("6.1.26.5.a"));
 
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.2.17.2.c");
+        verify(busService).readBus(12, "6.1.26.2.c");
         verify(busService).collectNonOnRequestPGNs(supportedSpns);
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns.subList(1, supportedSpns.size())));
         verify(busService).getPGNsForDSRequest(any(), any());
 
-        verify(mockListener).addOutcome(2,
-                                        17,
+        verify(mockListener).addOutcome(1,
+                                        26,
                                         WARN,
-                                        "6.2.17 - Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible");
+                                        "6.1.26 - Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible");
         verify(mockListener).onUrgentMessage(eq(
-                                                     "6.2.17 - Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible"),
+                                                     "6.1.26 - Unexpected Service Tool Message from SA 0xF9 observed. Test results uncertain. False failures are possible"),
                                              eq("Second device using SA 0xF9"),
                                              eq(ERROR),
                                              any());
@@ -630,7 +541,7 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
                                                                            any());
             verify(tableA1Validator, atLeastOnce()).reportImplausibleSPNValues(any(),
                                                                                any(ResultsListener.class),
-                                                                               eq(true),
+                                                                               eq(false),
                                                                                any());
             verify(tableA1Validator, atLeastOnce()).reportNonObdModuleProvidedSPNs(any(),
                                                                                    any(ResultsListener.class),
@@ -651,7 +562,7 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
     }
 
     @Test
-    public void testRunObdPgnSupports12797() {
+    public void testRunObdPgnSupports12797() throws BusException {
         final int supportedSpn = 12797;
         List<Integer> supportedSpns = List.of(supportedSpn);
 
@@ -670,6 +581,8 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
         obdModule0.set(DM24SPNSupportPacket.create(0,
                                                    supportedSPN),
                        1);
+        dataRepository.putObdModule(obdModule0);
+
         when(broadcastValidator.getMaximumBroadcastPeriod()).thenReturn(3);
 
         List<GenericPacket> packets = new ArrayList<>();
@@ -678,7 +591,7 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(eq(12), eq("6.2.17.2.c"))).thenReturn(packets.stream());
+        when(busService.readBus(eq(12), eq("6.1.26.2.c"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
@@ -691,7 +604,6 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
                                                                       0x1C, 0x9F, 0xE9, 0x00));
         // @formatter:on
         responses.add(response64241);
-        obdModule0.set(response64241, 1);
         when(communicationsModule.request(eq(64241),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64241));
@@ -708,7 +620,6 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
                                                                       0xFF));
         // @formatter:on
         responses.add(response64242);
-        obdModule0.set(response64242, 1);
         when(communicationsModule.request(eq(64242),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64242));
@@ -725,12 +636,9 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
                                                                       0xFF));
         // @formatter:on
         responses.add(response64243);
-        obdModule0.set(response64243, 1);
         when(communicationsModule.request(eq(64243),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64243));
-
-        dataRepository.putObdModule(obdModule0);
 
         Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = new HashMap<>();
         packetMap.put(11111, Map.of(0, List.of(packet1)));
@@ -748,20 +656,20 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
         verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
                                                          any(),
                                                          any(ResultsListener.class),
-                                                         eq(2),
-                                                         eq(17));
+                                                         eq(1),
+                                                         eq(26));
         packets.forEach(packet -> {
             verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(packet.getSourceAddress()),
                                                                         any(),
                                                                         eq(Collections.emptyList()),
                                                                         eq(Collections.emptyList()),
                                                                         any(ResultsListener.class),
-                                                                        eq(2),
-                                                                        eq(17),
-                                                                        eq("6.2.17.5.a"));
+                                                                        eq(1),
+                                                                        eq(26),
+                                                                        eq("6.1.26.5.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.2.17.2.c");
+        verify(busService).readBus(12, "6.1.26.2.c");
         verify(busService).collectNonOnRequestPGNs(supportedSpns.subList(1, supportedSpns.size()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns.subList(1, supportedSpns.size())));
         verify(busService).getPGNsForDSRequest(any(), any());
@@ -772,7 +680,7 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
                                                                        any());
         verify(tableA1Validator, atLeastOnce()).reportImplausibleSPNValues(any(),
                                                                            any(ResultsListener.class),
-                                                                           eq(true),
+                                                                           eq(false),
                                                                            any());
         verify(tableA1Validator, atLeastOnce()).reportNonObdModuleProvidedSPNs(any(),
                                                                                any(ResultsListener.class),
@@ -835,6 +743,7 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
         obdModule0.set(DM24SPNSupportPacket.create(0,
                                                    supportedSPN),
                        1);
+        dataRepository.putObdModule(obdModule0);
 
         when(broadcastValidator.getMaximumBroadcastPeriod()).thenReturn(3);
 
@@ -844,7 +753,7 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(eq(12), eq("6.2.17.2.c"))).thenReturn(packets.stream());
+        when(busService.readBus(eq(12), eq("6.1.26.2.c"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
@@ -866,7 +775,6 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
                                                                       0xFF));
         // @formatter:on
         responses.add(response64242);
-        obdModule0.set(response64242, 1);
         when(communicationsModule.request(eq(64242),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64242));
@@ -883,12 +791,9 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
                                                                       0xFF));
         // @formatter:on
         responses.add(response64243);
-        obdModule0.set(response64243, 1);
         when(communicationsModule.request(eq(64243),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64243));
-
-        dataRepository.putObdModule(obdModule0);
 
         Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = new HashMap<>();
         packetMap.put(11111, Map.of(0, List.of(packet1)));
@@ -906,25 +811,25 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
         verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
                                                          any(),
                                                          any(ResultsListener.class),
-                                                         eq(2),
-                                                         eq(17));
+                                                         eq(1),
+                                                         eq(26));
         packets.forEach(packet -> {
             verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(packet.getSourceAddress()),
                                                                         any(),
                                                                         eq(Collections.emptyList()),
                                                                         eq(Collections.emptyList()),
                                                                         any(ResultsListener.class),
-                                                                        eq(2),
-                                                                        eq(17),
-                                                                        eq("6.2.17.5.a"));
+                                                                        eq(1),
+                                                                        eq(26),
+                                                                        eq("6.1.26.5.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.2.17.2.c");
+        verify(busService).readBus(12, "6.1.26.2.c");
         verify(busService).collectNonOnRequestPGNs(supportedSpns.subList(1, supportedSpns.size()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns.subList(1, supportedSpns.size())));
         verify(busService).getPGNsForDSRequest(any(), any());
 
-        verify(mockListener).addOutcome(eq(2), eq(17), eq(WARN), eq("6.2.17.20.a - No response was received from Engine #1 (0)"));
+        verify(mockListener).addOutcome(eq(1), eq(26), eq(WARN), eq("6.1.26.20.a - No response was received from Engine #1 (0)for PG 64241"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -932,7 +837,7 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
                                                                        any());
         verify(tableA1Validator, atLeastOnce()).reportImplausibleSPNValues(any(),
                                                                            any(ResultsListener.class),
-                                                                           eq(true),
+                                                                           eq(false),
                                                                            any());
         verify(tableA1Validator, atLeastOnce()).reportNonObdModuleProvidedSPNs(any(),
                                                                                any(ResultsListener.class),
@@ -976,7 +881,7 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
     }
 
     @Test
-    public void testRunObdPgnSupports12797FailureTwentyTwoA() {
+    public void testRunObdPgnSupports12797FailureTwentyTwoA() throws BusException {
         final int supportedSpn = 12797;
         List<Integer> supportedSpns = List.of(supportedSpn);
 
@@ -1005,7 +910,7 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(eq(12), eq("6.2.17.2.c"))).thenReturn(packets.stream());
+        when(busService.readBus(eq(12), eq("6.1.26.2.c"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
@@ -1018,7 +923,6 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
                                                                       0x1C, 0x9F, 0xE9, 0x00));
         // @formatter:on
         responses.add(response64241);
-        obdModule0.set(response64241, 1);
         when(communicationsModule.request(eq(64241),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64241));
@@ -1047,26 +951,26 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
         verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
                                                          any(),
                                                          any(ResultsListener.class),
-                                                         eq(2),
-                                                         eq(17));
+                                                         eq(1),
+                                                         eq(26));
         packets.forEach(packet -> {
             verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(packet.getSourceAddress()),
                                                                         any(),
                                                                         eq(Collections.emptyList()),
                                                                         eq(Collections.emptyList()),
                                                                         any(ResultsListener.class),
-                                                                        eq(2),
-                                                                        eq(17),
-                                                                        eq("6.2.17.5.a"));
+                                                                        eq(1),
+                                                                        eq(26),
+                                                                        eq("6.1.26.5.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.2.17.2.c");
+        verify(busService).readBus(12, "6.1.26.2.c");
         verify(busService).collectNonOnRequestPGNs(supportedSpns.subList(1, supportedSpns.size()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns.subList(1, supportedSpns.size())));
         verify(busService).getPGNsForDSRequest(any(), any());
 
 
-        verify(mockListener).addOutcome(eq(2), eq(17), eq(FAIL), eq("6.2.17.22.a - No response was received from Engine #1 (0)"));
+        verify(mockListener).addOutcome(eq(1), eq(26), eq(FAIL), eq("6.1.26.22.a - No response was received from Engine #1 (0)"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -1074,7 +978,7 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
                                                                        any());
         verify(tableA1Validator, atLeastOnce()).reportImplausibleSPNValues(any(),
                                                                            any(ResultsListener.class),
-                                                                           eq(true),
+                                                                           eq(false),
                                                                            any());
         verify(tableA1Validator, atLeastOnce()).reportNonObdModuleProvidedSPNs(any(),
                                                                                any(ResultsListener.class),
@@ -1137,6 +1041,7 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
         obdModule0.set(DM24SPNSupportPacket.create(0,
                                                    supportedSPN),
                        1);
+        dataRepository.putObdModule(obdModule0);
 
         when(broadcastValidator.getMaximumBroadcastPeriod()).thenReturn(3);
 
@@ -1146,7 +1051,7 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(eq(12), eq("6.2.17.2.c"))).thenReturn(packets.stream());
+        when(busService.readBus(eq(12), eq("6.1.26.2.c"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
@@ -1159,7 +1064,6 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
                                                                       0x1C, 0x9F, 0xE9, 0x00));
         // @formatter:on
         responses.add(response64241);
-        obdModule0.set(response64241, 1);
         when(communicationsModule.request(eq(64241),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64241));
@@ -1171,8 +1075,6 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
         when(communicationsModule.request(eq(64243),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.empty());
-
-        dataRepository.putObdModule(obdModule0);
 
         Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = new HashMap<>();
         packetMap.put(11111, Map.of(0, List.of(packet1)));
@@ -1190,25 +1092,25 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
         verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
                                                          any(),
                                                          any(ResultsListener.class),
-                                                         eq(2),
-                                                         eq(17));
+                                                         eq(1),
+                                                         eq(26));
         packets.forEach(packet -> {
             verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(packet.getSourceAddress()),
                                                                         any(),
                                                                         eq(Collections.emptyList()),
                                                                         eq(Collections.emptyList()),
                                                                         any(ResultsListener.class),
-                                                                        eq(2),
-                                                                        eq(17),
-                                                                        eq("6.2.17.5.a"));
+                                                                        eq(1),
+                                                                        eq(26),
+                                                                        eq("6.1.26.5.a"));
         });
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.2.17.2.c");
+        verify(busService).readBus(12, "6.1.26.2.c");
         verify(busService).collectNonOnRequestPGNs(supportedSpns.subList(1, supportedSpns.size()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(supportedSpns.subList(1, supportedSpns.size())));
         verify(busService).getPGNsForDSRequest(any(), any());
 
-        verify(mockListener).addOutcome(eq(2), eq(17), eq(WARN), eq("6.2.17.22.b - No response was received from Engine #1 (0)"));
+        verify(mockListener).addOutcome(eq(1), eq(26), eq(WARN), eq("6.1.26.22.b - No response was received from Engine #1 (0)"));
 
         verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
         verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
@@ -1216,7 +1118,7 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
                                                                        any());
         verify(tableA1Validator, atLeastOnce()).reportImplausibleSPNValues(any(),
                                                                            any(ResultsListener.class),
-                                                                           eq(true),
+                                                                           eq(false),
                                                                            any());
         verify(tableA1Validator, atLeastOnce()).reportNonObdModuleProvidedSPNs(any(),
                                                                                any(ResultsListener.class),
@@ -1291,7 +1193,7 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
         GenericPacket packet1 = packet(111, false, 1);
         packets.add(packet1);
 
-        when(busService.readBus(eq(12), eq("6.2.17.2.c"))).thenAnswer(a -> {
+        when(busService.readBus(eq(12), eq("6.1.26.2.c"))).thenAnswer(a -> {
             instance.stop();
             return packets.stream();
         });
@@ -1306,28 +1208,28 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
         verify(broadcastValidator).reportBroadcastPeriod(eq(Map.of()),
                                                          eq(List.of(111, 111, 444)),
                                                          any(ResultsListener.class),
-                                                         eq(2),
-                                                         eq(17));
+                                                         eq(1),
+                                                         eq(26));
 
         verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(0),
                                                                     eq(List.of()),
                                                                     eq(List.of(111)),
                                                                     eq(List.of()),
                                                                     any(ResultsListener.class),
-                                                                    eq(2),
-                                                                    eq(17),
-                                                                    eq("6.2.17.5.a"));
+                                                                    eq(1),
+                                                                    eq(26),
+                                                                    eq("6.1.26.5.a"));
         verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(1),
                                                                     eq(List.of(packet1)),
                                                                     eq(List.of(444)),
                                                                     eq(List.of()),
                                                                     any(ResultsListener.class),
-                                                                    eq(2),
-                                                                    eq(17),
-                                                                    eq("6.2.17.5.a"));
+                                                                    eq(1),
+                                                                    eq(26),
+                                                                    eq("6.1.26.5.a"));
 
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(eq(12), eq("6.2.17.2.c"));
+        verify(busService).readBus(eq(12), eq("6.1.26.2.c"));
         verify(busService, times(2)).collectNonOnRequestPGNs(eq(List.of(111, 111, 444)));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of(111)));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of(444)));
@@ -1336,20 +1238,20 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
         packets.forEach(packet -> {
             verify(tableA1Validator).reportNotAvailableSPNs(eq(packet),
                                                             any(ResultsListener.class),
-                                                            eq("6.2.17.3.a"));
+                                                            eq("6.1.26.3.a"));
             verify(tableA1Validator).reportImplausibleSPNValues(eq(packet),
                                                                 any(ResultsListener.class),
-                                                                eq(true),
-                                                                eq("6.2.17.3.c"));
+                                                                eq(false),
+                                                                eq("6.1.26.3.c"));
             verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet),
                                                                     any(ResultsListener.class),
-                                                                    eq("6.2.17.3.d"));
+                                                                    eq("6.1.26.3.d"));
             verify(tableA1Validator).reportDuplicateSPNs(any(),
                                                          any(ResultsListener.class),
-                                                         eq("6.2.17.3.e"));
+                                                         eq("6.1.26.3.e"));
             verify(tableA1Validator).reportProvidedButNotSupportedSPNs(eq(packet),
                                                                        any(ResultsListener.class),
-                                                                       eq("6.2.17.3.f"));
+                                                                       eq("6.1.26.3.f"));
             verify(tableA1Validator).reportPacketIfNotReported(eq(packet),
                                                                any(ResultsListener.class),
                                                                eq(false));
@@ -1357,7 +1259,7 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
 
         verify(tableA1Validator).reportDuplicateSPNs(any(),
                                                      any(ResultsListener.class),
-                                                     eq("6.2.17.6.d"));
+                                                     eq("6.1.26.6.d"));
 
         String expected = "";
         assertEquals(expected, listener.getResults());
@@ -1368,17 +1270,17 @@ public class Part02Step17ControllerTest12797 extends AbstractControllerTest {
 
     @Test
     public void testGetDisplayName() {
-        assertEquals("Display Name", "Part 2 Step 17", instance.getDisplayName());
+        assertEquals("Display Name", "Part 1 Step 26", instance.getDisplayName());
     }
 
     @Test
     public void testGetPartNumber() {
-        assertEquals("Part Number", 2, instance.getPartNumber());
+        assertEquals("Part Number", 1, instance.getPartNumber());
     }
 
     @Test
     public void testGetStepNumber() {
-        assertEquals(17, instance.getStepNumber());
+        assertEquals(26, instance.getStepNumber());
     }
 
     @Test
