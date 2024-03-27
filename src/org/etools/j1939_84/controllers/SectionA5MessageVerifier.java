@@ -394,7 +394,7 @@ public class SectionA5MessageVerifier extends SectionVerifier {
         // If there are no test results to verify, then no verification of erased or not erased can be made.
         var testResults = verifyIsErased
                 ? obdModule.getInitializedTests()
-                : obdModule.getNonInitializedTests() // do not include fast running tests.
+                : obdModule.getNonInitializedTests().keySet() // do not include fast running tests.
         ;
         if (!testResults.isEmpty()) {
             boolean isErased = testResults.stream()

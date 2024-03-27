@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part07;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -63,22 +64,23 @@ public class Part07Step17Controller extends StepController {
             int moduleAddress = obdModuleInformation.getSourceAddress();
             String moduleName = obdModuleInformation.getModuleName();
 
-            for (ScaledTestResult str : obdModuleInformation.getNonInitializedTests()) {
+            for (Map.Entry<ScaledTestResult, Integer> e : obdModuleInformation.getNonInitializedTests().entrySet()) {
+                ScaledTestResult str = e.getKey();
                 int spn = str.getSpn();
                 int fmi = str.getFmi();
+                long initializedCount = e.getValue();
 
                 // 6.7.17.2.a. Fail if any non-initialized tests reports now report initialized values.
                 // Use this to help verify no diagnostic information was cleared with DM3 request.
-                getCommunicationsModule().requestTestResults(getListener(), moduleAddress, 250, spn, fmi)
-                                         .stream()
-                                         .map(DM30ScaledTestResultsPacket::getTestResults)
-                                         .flatMap(Collection::stream)
-                                         .filter(ScaledTestResult::isInitialized)
-                                         .forEach(s -> {
-                                             addFailure("6.7.17.2.a - " + moduleName
-                                                     + " is now reporting an initialize test for SPN = " + spn
-                                                     + ", FMI = " + fmi);
-                                         });
+                getCommunicationsModule().requestTestResults(getListener(), moduleAddress, 250, spn, fmi).forEach(p -> {
+                    p.getTestResults().stream().filter(ScaledTestResult::isInitialized).forEach(s -> {
+                        if (initializedCount != p.getTestResults().stream().filter(pstr -> pstr.equals(s) && pstr.isInitialized()).count()) {
+                            addFailure("6.7.17.2.a - " + moduleName
+                                               + " is now reporting an initialize test for SPN = " + spn
+                                               + ", FMI = " + fmi);
+                        }
+                    });
+                });
             }
         }
     }

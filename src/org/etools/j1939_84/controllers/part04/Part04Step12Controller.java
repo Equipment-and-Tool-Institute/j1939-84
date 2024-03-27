@@ -5,7 +5,9 @@ package org.etools.j1939_84.controllers.part04;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -19,6 +21,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.j1939.Lookup;
 import org.etools.j1939tools.j1939.model.SpnFmi;
 import org.etools.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
+import org.etools.j1939tools.j1939.packets.ScaledTestResult;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 
@@ -97,9 +100,17 @@ public class Part04Step12Controller extends StepController {
                                                  .flatMap(Collection::stream)
                                                  .filter(r -> !r.isInitialized())
                                                  .collect(Collectors.toList());
+                Map nonInit = new HashMap<ScaledTestResult, Integer>();
 
-                if (!nonInitializedTests.isEmpty()) {
-                    obdModuleInformation.setNonInitializedTests(nonInitializedTests);
+                packets.forEach(p -> {
+                    p.getTestResults().stream().filter(tr -> !tr.isInitialized()).forEach(tr -> {
+                        Integer initCount = (int) p.getTestResults().stream().filter(r -> r.equals(tr) && r.isInitialized()).count();
+                        nonInit.put(tr, initCount);
+                    });
+                });
+
+                if (!nonInit.isEmpty()) {
+                    obdModuleInformation.setNonInitializedTests(nonInit);
                     getDataRepository().putObdModule(obdModuleInformation);
                 }
 

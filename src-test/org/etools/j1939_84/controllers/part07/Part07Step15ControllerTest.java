@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.controllers.DataRepository;
@@ -157,9 +158,9 @@ public class Part07Step15ControllerTest extends AbstractControllerTest {
 
         verify(communicationsModule).requestTestResult(any(), eq(0), eq(246), eq(5846), eq(31));
 
-        List<ScaledTestResult> nonInitializedTests = dataRepository.getObdModule(0).getNonInitializedTests();
+        Map<ScaledTestResult, Integer> nonInitializedTests = dataRepository.getObdModule(0).getNonInitializedTests();
         assertEquals(1, nonInitializedTests.size());
-        assertEquals(123, nonInitializedTests.get(0).getSpn());
+        assertEquals(123, nonInitializedTests.keySet().iterator().next().getSpn());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -198,9 +199,9 @@ public class Part07Step15ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestTestResult(any(), eq(0), eq(247), eq(123), eq(31));
         verify(communicationsModule).requestTestResult(any(), eq(0), eq(247), eq(456), eq(31));
 
-        List<ScaledTestResult> nonInitializedTests = dataRepository.getObdModule(0).getNonInitializedTests();
+        Map<ScaledTestResult, Integer> nonInitializedTests = dataRepository.getObdModule(0).getNonInitializedTests();
         assertEquals(1, nonInitializedTests.size());
-        assertEquals(123, nonInitializedTests.get(0).getSpn());
+        assertEquals(123, nonInitializedTests.keySet().iterator().next().getSpn());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -232,7 +233,7 @@ public class Part07Step15ControllerTest extends AbstractControllerTest {
         verify(communicationsModule).requestTestResult(any(), eq(0), eq(247), eq(123), eq(31));
         verify(communicationsModule).requestTestResult(any(), eq(0), eq(247), eq(456), eq(31));
 
-        List<ScaledTestResult> nonInitializedTests = dataRepository.getObdModule(0).getNonInitializedTests();
+        Map<ScaledTestResult, Integer> nonInitializedTests = dataRepository.getObdModule(0).getNonInitializedTests();
         assertEquals(0, nonInitializedTests.size());
 
         assertEquals("", listener.getMessages());

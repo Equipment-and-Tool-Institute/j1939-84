@@ -65,21 +65,25 @@ public class Part09Step06Controller extends StepController {
         // 6.9.6.2.a Fail if any test result is now initialized
         for (OBDModuleInformation moduleInformation : getDataRepository().getObdModules()) {
             moduleInformation.getNonInitializedTests()
+                            .keySet()
                              .stream()
                              .map(ScaledTestResult::getSpn)
                              .distinct()
                              .sorted()
                              .map(spn -> requestTestResults(moduleInformation, spn))
                              .flatMap(Collection::stream)
-                             .map(DM30ScaledTestResultsPacket::getTestResults)
-                             .flatMap(Collection::stream)
-                             .filter(ScaledTestResult::isInitialized)
-                             .filter(str -> moduleInformation.getNonInitializedTests().contains(str))
-                             .forEach(r -> {
-                                 addFailure("6.9.6.2.a - " + moduleInformation.getModuleName()
-                                         + " reported test result for SPN = " + r.getSpn() + ", FMI = " + r.getFmi()
-                                         + " is now initialized");
-                             });
+                    .forEach(p -> {
+                        p.getTestResults().stream().filter(ScaledTestResult::isInitialized).forEach((r -> {
+                            if (moduleInformation.getNonInitializedTests().keySet().contains(r)){
+                                int initializedCount = moduleInformation.getNonInitializedTests().get(r);
+                                if (initializedCount != p.getTestResults().stream().filter(pstr -> pstr.equals(r) && pstr.isInitialized()).count()){
+                                    addFailure("6.9.6.2.a - " + moduleInformation.getModuleName()
+                                                       + " reported test result for SPN = " + r.getSpn() + ", FMI = " + r.getFmi()
+                                                       + " is now initialized");
+                                }
+                            }
+                        }));
+                    });
         }
 
     }

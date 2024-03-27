@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part04;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -63,19 +64,22 @@ public class Part04Step14Controller extends StepController {
             int moduleAddress = obdModuleInformation.getSourceAddress();
             String moduleName = obdModuleInformation.getModuleName();
 
-            for (ScaledTestResult str : obdModuleInformation.getNonInitializedTests()) {
+            for (Map.Entry<ScaledTestResult, Integer> e : obdModuleInformation.getNonInitializedTests().entrySet()) {
+                ScaledTestResult str = e.getKey();
                 int spn = str.getSpn();
                 int fmi = str.getFmi();
+                long initializedCount = e.getValue();
 
                 // 6.4.14.2.a. Fail if any [Scaled Test Result is] now reporting initialized values.
-                getCommunicationsModule().requestTestResults(getListener(), moduleAddress, 250, spn, fmi)
-                                            .stream()
-                                            .map(DM30ScaledTestResultsPacket::getTestResults)
-                                            .flatMap(Collection::stream)
-                                            .filter(ScaledTestResult::isInitialized)
-                                            .forEach(s -> addFailure("6.4.14.2.a - " + moduleName
-                                                    + " is now reporting an initialize test for SPN = " + spn
-                                                    + ", FMI = " + fmi));
+                getCommunicationsModule().requestTestResults(getListener(), moduleAddress, 250, spn, fmi).forEach(p -> {
+                   p.getTestResults().stream().filter(ScaledTestResult::isInitialized).forEach(s -> {
+                       if (initializedCount != p.getTestResults().stream().filter(pstr -> pstr.equals(s) && pstr.isInitialized()).count()) {
+                           addFailure("6.4.14.2.a - " + moduleName
+                                              + " is now reporting an initialize test for SPN = " + spn
+                                              + ", FMI = " + fmi);
+                       }
+                   });
+                });
             }
         }
 

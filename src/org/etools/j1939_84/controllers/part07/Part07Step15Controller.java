@@ -7,7 +7,9 @@ import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -78,8 +80,15 @@ public class Part07Step15Controller extends StepController {
             }
 
             // 6.7.15.1.b. Create list of any ECU address+SPN+FMI combination with non-initialized test results.
-            obdModuleInformation.setNonInitializedTests(testResults.stream().filter(t -> !t.isInitialized()).toList());
-            // 6.7.15.1.c. Create a list of any ECU address+SPN+FMI combination with initialized test results.
+            var nonInitializedTests = testResults
+                    .stream()
+                    .filter(r -> !r.isInitialized())
+                    .collect(Collectors.toList());
+            Map nonInit = new HashMap<ScaledTestResult, Integer>();
+            testResults.stream().filter(tr -> !tr.isInitialized()).forEach(tr -> {
+                nonInit.put(tr, (int)testResults.stream().filter(tr2 -> tr.equals(tr2) && tr2.isInitialized()).count());
+            });
+            obdModuleInformation.setNonInitializedTests(nonInit);
             obdModuleInformation.setInitializedTests(testResults.stream().filter(t -> t.isInitialized()).toList());
 
             // 6.7.15.2.a. Fail if any difference in the ECU address+SPN+FMI combinations that report test results

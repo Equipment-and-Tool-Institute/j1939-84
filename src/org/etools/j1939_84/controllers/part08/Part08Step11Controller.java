@@ -4,7 +4,9 @@
 package org.etools.j1939_84.controllers.part08;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -72,9 +74,11 @@ public class Part08Step11Controller extends StepController {
                                                        .flatMap(Collection::stream)
                                                        .collect(Collectors.toList());
             // 6.8.11.1.b. Create list of any ECU address+SPN+FMI with non-initialized values.
-            obdModule.setNonInitializedTests(allTests.stream()
-                                                     .filter(r -> !r.isInitialized())
-                                                     .toList());
+            Map<ScaledTestResult, Integer> nonInit = new HashMap<ScaledTestResult, Integer>();
+            allTests.stream().filter(r -> !r.isInitialized()).forEach(r -> {
+                nonInit.put(r, (int) allTests.stream().filter(r2 -> r.equals(r2) && r2.isInitialized()).count());
+            });
+            obdModule.setNonInitializedTests(nonInit);
             // 6.8.11.1.c. Create a list of initialized test results by ECU address, SPN and FMI for each ECU with
             // initialized test results.
             obdModule.setInitializedTests(allTests.stream()

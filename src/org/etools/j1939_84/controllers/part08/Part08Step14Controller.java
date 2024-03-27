@@ -64,7 +64,7 @@ public class Part08Step14Controller extends StepController {
         // from list created earlier in this part.
         // 6.8.14.2.a. Fail if any test results now have initialized values.
         for (OBDModuleInformation moduleInformation : getDataRepository().getObdModules()) {
-            moduleInformation.getNonInitializedTests()
+            moduleInformation.getNonInitializedTests().keySet()
                              .stream()
                              .map(str -> requestTestResults(moduleInformation, str))
                              .flatMap(Collection::stream)
