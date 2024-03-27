@@ -1,5 +1,6 @@
-Extracted from J1939DA_JAN2023,,,,,,
+Extracted from J1939DA_FEB24,,,,,,
 SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value only),Length Minimum(bits)
+202,Diagnostic,Diagnostic only,,,,
 414,SAEaa01,Angular Acceleration,1,rpm/s,0,16
 115,SAEac01(obs),Acceleration,0.00048828125,m/s²,-15.687,16
 140,SAEac02,Acceleration,0.1,m/s²,-12.5,8
@@ -50,6 +51,7 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 91,SAEbs06,Bit Field,1,,0,6
 92,SAEbs07,Bit Field,1,,0,7
 93,SAEbs08,Bit Field,1,,0,8
+519,SAEbs11,Bit Field,1,,0,11
 239,SAEby01,Number of bytes,1,byte,0,8
 281,SAEby02,Number of bytes,1,byte,0,12
 211,SAEca01,"Capacity, Battery",1,mAh,0,16
@@ -60,6 +62,7 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 60,SAEcd01,"Calendar, days",0.25,days,0,8
 62,SAEcm01,"Calendar, months",1,month,0,8
 255,SAEco01,Conductivity,5,µSiemens/mm,0,8
+518,SAEco02,Conductivity,0.02,µSiemens/cm,0,16
 141,SAEct01,Count,1,turn,-32,6
 129,SAEct02,Count,1,count,0,8
 133,SAEct03,"Count (no error, N/A)",1,count,0,8
@@ -137,6 +140,8 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 469,SAEen08,Energy [PKE Numerator],1,km²/h²,0,32
 470,SAEen09,Energy [PKE Numerator],5,km²/h²,0,32
 484,SAEen10,Energy,0.1,kWh,0,32
+511,SAEen11,Energy,1,kJ,0,16
+512,SAEen12,Energy,5,kJ,0,16
 257,SAEer01,"Energy, reactive",1,kVArh,0,32
 80,SAEev01,Electrical Voltage,0.05,V,0,16
 145,SAEev02,Electrical Voltage,1,V,0,16
@@ -179,6 +184,7 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 320,SAEfq02,Frequency,0.1,MHz,0,16
 425,SAEfq03,Frequency,1,Hz,0,8
 461,SAEfq04,Frequency,1,Hz,0,16
+514,SAEfq05,Frequency,0.01,Hz,-321.28,16
 426,SAEfqr01,Frequency Rate,2,Hz/s,0,8
 43,SAEfr01,Force,5,N,0,16
 127,SAEfr02,Force,10,N,-320000,16
@@ -218,6 +224,7 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 471,SAEma14,Mass,0.0002,g,0,32
 472,SAEma15,Mass,0.0005,g,0,32
 473,SAEma16,Mass,1,g,0,32
+513,SAEma17,Mass,5,g,0,16
 283,SAEmd01,Manufacturer defined,1,,0,14280
 490,SAEmd02,Manufacturer defined,1,,0,14216
 218,SAEmf01,Manufacturer ID,1,,0,11
@@ -364,6 +371,8 @@ SLOT Identifier,SLOT Name,SLOT Type,Scale Factor(value only),Unit,Offset(value o
 477,SAEtm26,Time,1,s,0,6
 488,SAEtm27,Time,1,s,0,8
 504,SAEtm28,Time,0.1,min,0,16
+516,SAEtm29,Time,1,s,0,32
+517,SAEtm30,Time,1,µs,0,24
 416,SAEtma01,Temperature per mass flow,0.015625,°C/kg/s,-502,16
 67,SAEtp01,Temperature,1,°C,-40,8
 68,SAEtp02,Temperature,0.03125,°C,-273,16
