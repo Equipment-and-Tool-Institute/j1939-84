@@ -48,7 +48,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class Part11Step13ControllerTest12697 extends AbstractControllerTest {
+public class Part11Step13ControllerSPN12697Test extends AbstractControllerTest {
     private static final int PART_NUMBER = 11;
     private static final int STEP_NUMBER = 13;
 

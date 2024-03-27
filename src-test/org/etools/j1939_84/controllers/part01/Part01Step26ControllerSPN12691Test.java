@@ -68,7 +68,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
+public class Part01Step26ControllerSPN12691Test extends AbstractControllerTest {
 
     @Mock
     private Executor executor;
