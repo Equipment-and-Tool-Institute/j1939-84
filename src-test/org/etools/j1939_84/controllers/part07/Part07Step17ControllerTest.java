@@ -161,18 +161,18 @@ public class Part07Step17ControllerTest extends AbstractControllerTest {
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         obdModuleInformation.setNonInitializedTests(Map.of(ScaledTestResult.create(247, 123, 12, 6, 100, 0, 250), 0,
-                                                            ScaledTestResult.create(247, 456, 9, 4, 9, 12, 3), 0));
+                                                           ScaledTestResult.create(247, 456, 9, 4, 9, 12, 3), 0));
         dataRepository.putObdModule(obdModuleInformation);
 
         var str_123_12 = ScaledTestResult.create(247, 123, 12, 6, 0, 0, 0);
         var dm30_123_12 = DM30ScaledTestResultsPacket.create(0, 0, str_123_12);
         when(communicationsModule.requestTestResults(any(), eq(0), eq(250), eq(123), eq(12)))
-                                                                                                .thenReturn(List.of(dm30_123_12));
+                .thenReturn(List.of(dm30_123_12));
 
         var str_456_9 = ScaledTestResult.create(247, 456, 9, 4, 0xFB00, 0xFFFF, 0xFFFF);
         var dm30_456_9 = DM30ScaledTestResultsPacket.create(0, 0, str_456_9);
         when(communicationsModule.requestTestResults(any(), eq(0), eq(250), eq(456), eq(9)))
-                                                                                               .thenReturn(List.of(dm30_456_9));
+                .thenReturn(List.of(dm30_456_9));
 
         runTest();
 
@@ -186,6 +186,39 @@ public class Part07Step17ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         Outcome.FAIL,
                                         "6.7.17.2.a - Engine #1 (0) is now reporting an initialize test for SPN = 123, FMI = 12");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        Outcome.FAIL,
+                                        "6.7.17.2.a - Engine #1 (0) is now reporting an initialize test for SPN = 456, FMI = 9");
+    }
+
+    @Test
+    public void testInitAndNonInitTestsForSameSPNFMI(){
+
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        obdModuleInformation.setNonInitializedTests(Map.of(ScaledTestResult.create(247, 123, 12, 6, 100, 0, 250), 1,
+                                                           ScaledTestResult.create(247, 456, 9, 4, 9, 12, 3), 0));
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var str_123_12 = ScaledTestResult.create(247, 123, 12, 6, 100, 0, 250);
+        var str_123_12Init = ScaledTestResult.create(247, 123, 12, 6, 0, 0, 0);
+        var dm30_123_12 = DM30ScaledTestResultsPacket.create(0, 0, str_123_12, str_123_12Init);
+        when(communicationsModule.requestTestResults(any(), eq(0), eq(250), eq(123), eq(12)))
+                .thenReturn(List.of(dm30_123_12));
+
+        var str_456_9 = ScaledTestResult.create(247, 456, 9, 4, 0xFB00, 0xFFFF, 0xFFFF);
+        var dm30_456_9 = DM30ScaledTestResultsPacket.create(0, 0, str_456_9);
+        when(communicationsModule.requestTestResults(any(), eq(0), eq(250), eq(456), eq(9)))
+                .thenReturn(List.of(dm30_456_9));
+
+        runTest();
+
+        verify(communicationsModule).requestTestResults(any(), eq(0), eq(250), eq(123), eq(12));
+        verify(communicationsModule).requestTestResults(any(), eq(0), eq(250), eq(456), eq(9));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         Outcome.FAIL,
