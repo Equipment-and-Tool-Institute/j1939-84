@@ -10,6 +10,7 @@
 	<property name="src" location="${basedir}/src" />
 	<property name="src-test" location="${basedir}/src-test" />
 	<property name="build" location="${basedir}/build" />
+	<property name="build-tests" location="${basedir}/build/test-bin" />
 	<property name="dist" location="${basedir}/dist" />
 	<property name="lib" location="${basedir}/lib" />
 	<property name="lib-test" location="${basedir}/lib-test" />
@@ -47,6 +48,7 @@
 	<path id="unit.test.path">
 		<path refid="compile.path" />
 		<pathelement path="${build}" />
+		<pathelement path="${build-tests}" />
 		<pathelement path="${src-test}" />
 		<fileset dir="${lib-test}">
 			<include name="**/*.jar" />
@@ -97,13 +99,14 @@
 			</condition>
 		</fail>
 
-		<delete dir="jre"></delete>
+		<delete dir="jre">
+		</delete>
 		<copy overwrite="true" todir="jre">
 			<fileset dir="${env.JRE_HOME}" />
 		</copy>
 		<!--Generates the EXE File -->
 		<property file="${build.info.filename}" />
-		<launch4j  configFile="${basedir}/etc/launch4j.xml" />
+		<launch4j configFile="${basedir}/etc/launch4j.xml" />
 		<exec executable="${lib-test}\NSIS\makensis.exe" failonerror="true">
 			<!-- providing some nsis definitions -->
 			<arg value="/DVERSIONMAJOR=${build.major.number}" />
@@ -134,7 +137,8 @@
 	</target>
 
 	<target name="compile.tests" depends="compile" description="Compiles the code to run unit tests">
-		<javac srcdir="${src-test}" destdir="${build}" includeantruntime="false" debug="true">
+		<mkdir dir="${build-tests}" />
+		<javac srcdir="${src-test}" destdir="${build-tests}" includeantruntime="false" debug="true">
 			<classpath refid="unit.test.path" />
 		</javac>
 	</target>
@@ -146,41 +150,36 @@
 				<jvmarg value="-Dfile.encoding=UTF-8" />
 				<classpath refid="unit.test.path" />
 
-				<formatter type="xml" />
+                                <formatter type="xml" />
 
-				<batchtest fork="true" todir="${build}/tests" skipNonTests="true">
-					<fileset dir="${build}">
-						<include name="**/*Test.class" />
-					</fileset>
-				</batchtest>
-			</junit>
-		</jacoco:coverage>
+                                <batchtest fork="true" todir="${build}/tests" skipNonTests="true">
+                                        <fileset dir="${build-tests}" />
+                                </batchtest>
+                        </junit>
+                </jacoco:coverage>
 
-		<jacoco:report>
-			<executiondata>
-				<file file="${build}/jacoco/jacoco.exec" />
-			</executiondata>
-			<structure name="J1939_84">
-				<classfiles>
-					<fileset dir="${build}">
-						<exclude name="**/*Test.class" />
-						<exclude name="**/simulated/**" />
-					</fileset>
-				</classfiles>
-				<sourcefiles encoding="UTF-8">
-					<dirset dir="${src}" />
-				</sourcefiles>
-			</structure>
-			<html destDir="${build}/jacoco" />
-		</jacoco:report>
+                <jacoco:report>
+                        <executiondata>
+                                <file file="${build}/jacoco/jacoco.exec" />
+                        </executiondata>
+                        <structure name="J1939_84">
+                                <classfiles>
+                                        <fileset dir="${build}" />
+                                </classfiles>
+                                <sourcefiles encoding="UTF-8">
+                                        <dirset dir="${src}" />
+                                </sourcefiles>
+                        </structure>
+                        <html destDir="${build}/jacoco" />
+                </jacoco:report>
 
-		<junitreport todir="${build}">
-			<fileset dir="${build}/tests">
-				<include name="TEST-*.xml" />
-			</fileset>
-			<report format="frames" todir="${build}/junit" />
-		</junitreport>
-	</target>
+                <junitreport todir="${build}">
+                        <fileset dir="${build}/tests">
+                                <include name="TEST-*.xml" />
+                        </fileset>
+                        <report format="frames" todir="${build}/junit" />
+                </junitreport>
+        </target>
 
 	<target name="spotbugs" depends="clean, compile.tests" description="Generate the spotbugs Report">
 		<spotbugs home="${spotbugs.home}" output="html" outputFile="${build}/spotbugsReport.html">
