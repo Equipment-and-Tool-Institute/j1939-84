@@ -222,6 +222,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         executor.execute(() -> {
             selectedAdapter = adapter;
             selectedConnectionString = connectionString;
+            getReportFileModule().setAdapter(adapter);
             resetView();
             checkSetupComplete();
         });

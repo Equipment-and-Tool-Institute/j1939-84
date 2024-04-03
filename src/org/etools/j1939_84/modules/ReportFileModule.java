@@ -24,6 +24,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.VehicleInformation;
+import org.etools.j1939tools.bus.Adapter;
 import org.etools.j1939tools.modules.FunctionalModule;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -41,6 +42,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
     private final SummaryModule summaryModule;
     private File reportFile;
     private VehicleInformation vehicleInformation;
+    private Adapter adapter;
 
     /**
      * The Writer used to write results to the report file
@@ -152,6 +154,22 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
     }
 
     /**
+     * Sets the adapter to be included in the report
+     *
+     * @param adapter
+     */
+    public void setAdapter(Adapter adapter) {
+        this.adapter = adapter;
+    }
+
+    private String getAdapterString(){
+        if (adapter != null){
+            return adapter.getDLLName() + " - " + adapter.getName();
+        }
+        return "";
+    }
+
+    /**
      * Writes a result to the report file
      *
      * @param  result
@@ -169,6 +187,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
         try {
             String pageHeader = bannerModule.getHeader() + NL
                     + "Generated: " + getDate() + " " + getTime() + NL
+                    + "Adapter Selection: " + getAdapterString() + NL
                     + "Log File Name: " + reportFile;
 
             Path tempFilePath = Files.createTempFile("report", "J1939-84");
