@@ -699,7 +699,7 @@ public class J1939Test {
     @Test
     public void testBamTimeoutWarn() throws Exception {
         EchoBus bus2 = new EchoBus(1);
-        // bus2.log(p -> " " + p);
+        bus2.log(p -> " " + p.toDateTimeString());
         try (Bus bus = new J1939TP(bus2, 0)) {
 
             Stream<Packet> requestStream = bus.read(1, TimeUnit.HOURS);
@@ -708,7 +708,6 @@ public class J1939Test {
                     // wait for request
                     requestStream.findAny();
                     // wait to cause warning
-                    Thread.sleep(300);
                     bus.send(Packet.create(VehicleIdentificationPacket.PGN,
                                            0x0,
                                            1,
@@ -728,9 +727,29 @@ public class J1939Test {
                                            15,
                                            16,
                                            17));
+                    Thread.sleep(300);
                     bus.send(Packet.create(VehicleIdentificationPacket.PGN,
                                            0x0,
-                                           1,
+                                           2,
+                                           2,
+                                           3,
+                                           4,
+                                           5,
+                                           6,
+                                           7,
+                                           8,
+                                           9,
+                                           10,
+                                           11,
+                                           12,
+                                           13,
+                                           14,
+                                           15,
+                                           16,
+                                           17));
+                    bus.send(Packet.create(VehicleIdentificationPacket.PGN,
+                                           0x0,
+                                           3,
                                            2,
                                            3,
                                            4,
@@ -756,13 +775,87 @@ public class J1939Test {
                                                                                                     .requestGlobal("VIN",
                                                                                                                    VehicleIdentificationPacket.class,
                                                                                                                    listener);
-            assertEquals(2, response.getPackets().size());
+            assertEquals(3, response.getPackets().size());
             /* verify there is a warning */
             String results = listener.getResults();
             assertTrue(results.matches("(?s).*TIMING: Late response -  [\\d:.]+ 1CECFF00 \\[8] 20 11 00 03 FF EC FE 00.*"));
-            /* and only a single warning */
+            /* and two warnings */
+            assertFalse(results.matches("(?s).*TIMING.*TIMING.*TIMING.*"));
+        }
+    }
+
+    /**
+     */
+    @Test
+    public void testTimeoutWarn() throws Exception {
+        EchoBus bus2 = new EchoBus(1);
+        // bus2.log(p -> " " + p);
+        try (Bus bus = new J1939TP(bus2, 0)) {
+
+            Stream<Packet> requestStream = bus.read(1, TimeUnit.HOURS);
+            int PGN = 0xFF01;
+            new Thread(() -> {
+                try {
+                    // wait for request
+                    requestStream.findAny();
+                    // wait to cause warning
+                    bus.send(Packet.create(PGN, 0x0, 1, 2, 3, 4, 5, 6, 7, 8));
+                    Thread.sleep(300);
+                    bus.send(Packet.create(PGN, 0x0, 2, 2, 3, 4, 5, 6, 7, 8));
+                    bus.send(Packet.create(PGN, 0x0, 3, 2, 3, 4, 5, 6, 7, 8));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+            TestResultsListener listener = new TestResultsListener();
+            var j1939 = new J1939(new J1939TP(bus2, 0xF9));
+            var response = j1939.requestGlobal("test",
+                                               PGN,
+                                               j1939.createRequestPacket(PGN, 0xFF),
+                                               listener);
+            assertEquals(3, response.getPackets().size());
+            /* verify there is a warning */
+            String results = listener.getResults();
+            assertTrue(results.matches("(?s).*TIMING: Late response -  [\\d:.]+ 18FF0100 \\[8] 02 02 03 04 05 06 07.*"));
+            assertTrue(results.matches("(?s).*TIMING: Late response -  [\\d:.]+ 18FF0100 \\[8] 02 02 03 04 05 06 07.*"));
+            /* and only two warnings */
+            assertFalse(results.matches("(?s).*TIMING.*TIMING.*TIMING.*"));
+        }
+    }
+
+    @Test
+    public void testAfterFilter() throws Exception {
+        EchoBus bus2 = new EchoBus(1);
+        bus2.log(p -> " " + p.toDateTimeString());
+        try (Bus bus = new J1939TP(bus2, 0)) {
+
+            Stream<Packet> requestStream = bus.read(1, TimeUnit.HOURS);
+            int PGN = 0xFF01;
+            new Thread(() -> {
+                try {
+                    // wait for request
+                    requestStream.skip(1).findAny();
+                    // wait to cause warning
+                    bus.send(Packet.create(PGN, 0x0, 1, 2, 3, 4, 5, 6, 7, 8));
+                    Thread.sleep(300);
+                    bus.send(Packet.create(PGN, 0x0, 2, 2, 3, 4, 5, 6, 7, 8));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+            TestResultsListener listener = new TestResultsListener();
+            var j1939 = new J1939(new J1939TP(bus2, 0xF9));
+            bus.send(Packet.create(PGN, 0x0, 0, 2, 3, 4, 5, 6, 7, 8));
+            var response = j1939.requestGlobal("test",
+                                               PGN,
+                                               j1939.createRequestPacket(PGN, 0xFF),
+                                               listener);
+            assertEquals(2, response.getPackets().size());
+            String results = listener.getResults();
+            assertTrue(results.matches("(?s).*TIMING: Late response -  [\\d:.]+ 18FF0100 \\[8] 02 02 03 04 05 06 07.*"));
             assertFalse(results.matches("(?s).*TIMING.*TIMING.*"));
         }
+
     }
 
     /**
@@ -916,7 +1009,8 @@ public class J1939Test {
     @Test
     public void testRequestMultipleHandle1NACK() throws Exception {
         Packet packet1 = Packet.create(VehicleIdentificationPacket.PGN, 0x00, "EngineVIN*".getBytes(UTF8));
-        Packet packet2 = Packet.create(AcknowledgmentPacket.PGN|0xFF, 0x17, 01, 0xff, 0xff, 0xff, BUS_ADDR, 0xec, 0xfe, 0);
+        Packet packet2 = Packet.create(AcknowledgmentPacket.PGN
+                | 0xFF, 0x17, 01, 0xff, 0xff, 0xff, BUS_ADDR, 0xec, 0xfe, 0);
         Packet packet3 = Packet.create(VehicleIdentificationPacket.PGN, 0x21, "BodyControllerVIN*".getBytes(UTF8));
         when(bus.read(ArgumentMatchers.anyLong(), ArgumentMatchers.any(TimeUnit.class)))
                                                                                         .thenReturn(Stream.of(packet1,

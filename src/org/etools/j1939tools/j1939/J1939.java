@@ -625,7 +625,9 @@ public class J1939 {
                 listener.onResult(pp.toString());
 
                 if (lateTime != null && pp.getPacket().getFragments().get(0).getTimestamp().isAfter(lateTime)) {
-                    logTiming(listener, LATE_RESPONSE + " " + pp.getPacket().getFragments().get(0).toTimeString());
+                    logTiming(listener,
+                              LATE_RESPONSE + " " + pp.getPacket().getFragments().get(0).toTimeString() + " to request "
+                                      + sent.toTimeString());
                 }
             },
                                    () -> listener.onResult(getDateTimeModule().getTime() + " " + TIMEOUT_MESSAGE));
@@ -639,12 +641,12 @@ public class J1939 {
 
     static private Predicate<Packet> after(Packet sent) {
         return new Predicate<Packet>() {
-            // sent == null for TP requests and some tests
+            // sent == null for TP requests and some unit tests
             boolean pass = sent == null;
 
             @Override
             public boolean test(Packet p) {
-                // p == null comes from tests
+                // p == null comes from unit tests
                 pass |= (p == sent || p == null);
                 return pass && p != null;
             }
@@ -854,7 +856,9 @@ public class J1939 {
                            .collect(Collectors.toList());
             /* Log late fragments as raw packets. */
             lateBam.forEach(p -> {
-                logTiming(listener, LATE_RESPONSE + " " + p.getFragments().get(0).toTimeString());
+                logTiming(listener,
+                          LATE_RESPONSE + " " + p.getFragments().get(0).toTimeString() + " to request "
+                                  + sent.toTimeString());
             });
 
             if (result.isEmpty()) {
