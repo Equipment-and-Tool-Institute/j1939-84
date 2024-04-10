@@ -364,7 +364,7 @@ public class TableA1Validator {
     }
 
     public void reportPacketIfNotReported(GenericPacket packet, ResultsListener listener, boolean forceReporting) {
-        if (!isReported(packet)) {
+        if (!isReported(packet) || forceReporting) {
             int moduleAddress = packet.getSourceAddress();
             int pgn = packet.getPacket().getPgn();
 
