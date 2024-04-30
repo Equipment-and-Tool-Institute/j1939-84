@@ -190,4 +190,41 @@ public class Part08Step14ControllerTest extends AbstractControllerTest {
                                         "6.8.14.2.a - Engine #1 (0) reported test result for SPN = 123, FMI = 14 is now initialized");
     }
 
+    @Test
+    public void testInitAndNonInitTestsForSameSPNFMI() {
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        ScaledTestResult str1 = ScaledTestResult.create(247, 123, 14, 0, 5, 10, 1);
+        ScaledTestResult str2 = ScaledTestResult.create(247, 456, 9, 4, 9, 12, 3);
+        obdModuleInformation.setNonInitializedTests(Map.of(str1, 1, str2, 0));
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var str_123Init = ScaledTestResult.create(247, 123, 14, 0, 0, 0, 0);
+        var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str1, str_123Init);
+        when(communicationsModule.requestTestResults(any(),
+                                                     eq(0),
+                                                     eq(250),
+                                                     eq(123),
+                                                     eq(14))).thenReturn(List.of(dm30_123));
+
+        var str_456Init = ScaledTestResult.create(247, 456, 9, 4,  0xFB00, 0xFFFF, 0xFFFF);
+        var dm30_456 = DM30ScaledTestResultsPacket.create(0, 0, str2, str_456Init);
+        when(communicationsModule.requestTestResults(any(),
+                                                     eq(0),
+                                                     eq(250),
+                                                     eq(456),
+                                                     eq(9))).thenReturn(List.of(dm30_456));
+
+        runTest();
+
+        verify(communicationsModule).requestTestResults(any(), eq(0), eq(250), eq(123), eq(14));
+        verify(communicationsModule).requestTestResults(any(), eq(0), eq(250), eq(456), eq(9));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.8.14.2.a - Engine #1 (0) reported test result for SPN = 456, FMI = 9 is now initialized");
+    }
+
 }
