@@ -13,7 +13,7 @@ import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
 public class DM5Heartbeat {
     static public AutoCloseable run(J1939 j1939, ResultsListener listener) {
         AtomicBoolean running = new AtomicBoolean(true);
-        new Thread(() -> {
+        Thread thread = new Thread(() -> {
             try {
                 Thread.sleep(10_000);
                 while (running.get()) {
@@ -21,9 +21,14 @@ public class DM5Heartbeat {
                     Thread.sleep(10_000);
                 }
             } catch (InterruptedException e) {
-                System.err.println("DM5 Heartbeat interrupted.");
+               // System.err.println("DM5 Heartbeat interrupted.");
             }
-        }, "DM5Ping").start();
-        return () -> running.set(false);
+        }, "DM5Ping");
+        thread.start();
+        return () -> {
+            running.set(false);
+            thread.interrupt();
+            thread.join();
+        };
     }
 }
