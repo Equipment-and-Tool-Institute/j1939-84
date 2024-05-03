@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part08;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -64,18 +65,29 @@ public class Part08Step14Controller extends StepController {
         // from list created earlier in this part.
         // 6.8.14.2.a. Fail if any test results now have initialized values.
         for (OBDModuleInformation moduleInformation : getDataRepository().getObdModules()) {
-            moduleInformation.getNonInitializedTests().keySet()
-                             .stream()
-                             .map(str -> requestTestResults(moduleInformation, str))
-                             .flatMap(Collection::stream)
-                             .map(DM30ScaledTestResultsPacket::getTestResults)
-                             .flatMap(Collection::stream)
-                             .filter(ScaledTestResult::isInitialized)
-                             .forEach(r -> {
-                                 addFailure("6.8.14.2.a - " + moduleInformation.getModuleName()
-                                         + " reported test result for SPN = " + r.getSpn() + ", FMI = " + r.getFmi()
-                                         + " is now initialized");
-                             });
+
+            for (Map.Entry<ScaledTestResult, Integer> e : moduleInformation.getNonInitializedTests().entrySet()) {
+                ScaledTestResult str = e.getKey();
+                int spn = str.getSpn();
+                int fmi = str.getFmi();
+                long initializedCount = e.getValue();
+
+                requestTestResults(moduleInformation, str)
+                        .stream()
+                        .forEach(p -> {
+                            p.getTestResults().stream().filter(ScaledTestResult::isInitialized).forEach(s -> {
+                                if (initializedCount != p.getTestResults()
+                                        .stream()
+                                        .filter(pstr -> pstr.equals(s) && pstr.isInitialized())
+                                        .count()) {
+                                    addFailure("6.8.14.2.a - " + moduleInformation.getModuleName()
+                                                       + " reported test result for SPN = " + spn + ", FMI = " + fmi
+                                                       + " is now initialized");
+                                }
+                            });
+                        });
+
+            }
         }
 
     }
