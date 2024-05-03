@@ -65,8 +65,6 @@ public class Part08Step14Controller extends StepController {
         // from list created earlier in this part.
         // 6.8.14.2.a. Fail if any test results now have initialized values.
         for (OBDModuleInformation moduleInformation : getDataRepository().getObdModules()) {
-            int moduleAddress = moduleInformation.getSourceAddress();
-            String moduleName = moduleInformation.getModuleName();
 
             for (Map.Entry<ScaledTestResult, Integer> e : moduleInformation.getNonInitializedTests().entrySet()) {
                 ScaledTestResult str = e.getKey();
