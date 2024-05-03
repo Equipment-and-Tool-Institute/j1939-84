@@ -136,7 +136,7 @@ public class Part02Step17Controller extends StepController {
         // in 6.1.4, where the data stream support bit (SPN 4101) defined in SAE J1939-73 5.7.24 is 0
         // 6.2.17.1.b. Create a second list of Table A-1 omissions from the consolidated OBD ECU DM24 response(s),
         // excluding those SPs noted (as CI or SI) for the opposite fuel type provided by the user.
-        // 6.2.17.1.c. Omit the following SPNs (588, 976, 1213, 1220, 12675, 12691, 12730, 12783, 12797) which are
+        // 6.2.17.1.c. Omit the following SPNs (588, 976, 1213, 1220, 12675, 12691, 12730, 12783, 12797, 22227) which are
         // included in the lists. Display a list of the omitted SPs in the report.
         // 6.2.17.1.d. Display the completed lists of supported SPs and unsupported SPs (as ‘broadcast’ or ‘upon
         // request’), that follow from the vehicle DM24 composite
@@ -356,6 +356,10 @@ public class Part02Step17Controller extends StepController {
                 if (obdModule.supportsSpn(12783)) {
                     // 6.2.17.23 - 6.2.17.26
                     testSp12783(obdModule);
+                }
+                if (obdModule.supportsSpn(22227)){
+                    //6.2.17.27 - 6.2.17.28
+                    testSp22227(obdModule);
                 }
             }
         }// end obdModule
@@ -819,6 +823,32 @@ public class Part02Step17Controller extends StepController {
         }
         if (!lifetimeIndexes.containsAll(storedIndexes)) {
             addFailure("6.2.17.18.f - Stored labels received is not a subset of lifetime labels");
+        }
+    }
+
+    private void testSp22227(OBDModuleInformation module) {
+        //6.2.17.27 Actions14 CSERS Support.
+        //a. DS request message to ECU that indicated support in DM24 for upon request SP 22227 (Current Cycle Catalyst Heat Energy Until FTP Cold Start Tracking Time) for PGs 64019 and 64020.
+        //
+        //PG PG Label PG Acronym
+        //64019 Cold Start Emissions Reduction Strategy Current Operating Cycle Data CSERSC
+        //64020 Cold Start Emissions Reduction Strategy Average Data CSERSA
+        int[] pgns = { 64019, 64020 };
+        List<GenericPacket> packets = requestPackets(module.getSourceAddress(), pgns).stream()
+                .peek(this::save)
+                .collect(Collectors.toList());
+
+        //6.2.17.28 Fail/Warn Criteria
+        //a. Fail if either PG 64019 and PG 64020 is not provided for engines that support SPN 22227.
+        int[] notReceived = Arrays.stream(pgns)
+                .filter(pgn -> packets.stream()
+                        .filter(p -> p.getPgnDefinition().getId() == pgn)
+                        .findFirst()
+                        .isPresent())
+                .toArray();
+        if (notReceived.length > 0) {
+            addFailure("6.2.17.28.a - No response was received from "
+                               + module.getModuleName() + " for PGN " + notReceived);
         }
     }
 
