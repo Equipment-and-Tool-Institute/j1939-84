@@ -184,12 +184,12 @@ public class SectionA6Validator {
                                     .filter(packet -> !packet.isObd())
                                     .collect(Collectors.toList());
 
-        // A6.3.a. Warn if any response from non-OBD ECU received.
+        // A6.3.a. Info if any response from non-OBD ECU received.
         nonObdPackets.stream()
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> {
                          String warnMessage = section + " (A6.3.a) - Non-OBD ECU " + moduleName + " responded";
-                         listener.addOutcome(partNumber, stepNumber, WARN, warnMessage);
+                         listener.addOutcome(partNumber, stepNumber, INFO, warnMessage);
                      });
 
         // A6.3.b. Warn if all the monitor status and support bits in any reply

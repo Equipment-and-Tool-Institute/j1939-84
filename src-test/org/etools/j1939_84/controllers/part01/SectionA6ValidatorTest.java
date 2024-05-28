@@ -395,7 +395,7 @@ public class SectionA6ValidatorTest {
         verify(mockListener).addOutcome(
                                         1,
                                         2,
-                                        WARN,
+                                        INFO,
                                         "6.1.2.3.a (A6.3.a) - Non-OBD ECU Body Controller (33) responded");
         verify(mockListener).addOutcome(
                                         1,
