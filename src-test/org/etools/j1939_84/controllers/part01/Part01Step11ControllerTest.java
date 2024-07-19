@@ -810,7 +810,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0x17));
         dataRepository.putObdModule(new OBDModuleInformation(0x21));
 
-        DM21DiagnosticReadinessPacket globalPacket0x00 = create(0x00, 0, 0, 15, 0, 0);
+        DM21DiagnosticReadinessPacket globalPacket0x00 = create(0x00, 0, 15, 0, 0, 0);
         DM21DiagnosticReadinessPacket globalPacket0x17 = create(0x17, 0, 0, 0, 0, 0);
         DM21DiagnosticReadinessPacket globalPacket0x21 = create(0x21, 0, 0, 0, 0, 0);
 
@@ -923,7 +923,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                                                                                                    packet0x00));
         packets.add(packet0x00);
 
-        DM21DiagnosticReadinessPacket packet0x17 = create(0x17, 0, 10, 0, 0, 0);
+        DM21DiagnosticReadinessPacket packet0x17 = create(0x17, 0, 0, 10, 0, 0);
         when(communicationsModule.requestDM21(any(ResultsListener.class), eq(0x17)))
                                                                                        .thenReturn(new BusResult<>(false,
                                                                                                                    packet0x17));

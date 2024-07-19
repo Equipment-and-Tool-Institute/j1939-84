@@ -84,7 +84,7 @@ public class Part01Step11Controller extends StepController {
         } else {
             // 6.1.11.2.a. Fail if any ECU reports distance with MIL on (SP 3069) is not zero.
             globalPackets.stream()
-                    .filter(packet -> isNotZero(packet.getKmSinceDTCsCleared()))
+                    .filter(packet -> isNotZero(packet.getKmWhileMILIsActivated()))
                     .map(ParsedPacket::getModuleName)
                     .forEach(moduleName -> {
                         addFailure("6.1.11.2.a - " + moduleName
@@ -93,7 +93,7 @@ public class Part01Step11Controller extends StepController {
 
             // 6.1.11.2.b. Fail if any ECU reports distance SCC (SP 3294) is not zero.
             globalPackets.stream()
-                    .filter(packet -> isNotZero(packet.getKmWhileMILIsActivated()))
+                    .filter(packet -> isNotZero(packet.getKmSinceDTCsCleared()))
                     .map(ParsedPacket::getModuleName)
                     .forEach(moduleName -> {
                         addFailure("6.1.11.2.b - " + moduleName + " reported distance SCC (SP 3294) is not zero");
@@ -128,7 +128,7 @@ public class Part01Step11Controller extends StepController {
 
         // 6.1.11.4.a. Fail if any ECU reports distance with MIL on (SP 3069) is not zero.
         dsPackets.stream()
-                .filter(packet -> isNotZero(packet.getKmSinceDTCsCleared()))
+                .filter(packet -> isNotZero(packet.getKmWhileMILIsActivated()))
                 .map(ParsedPacket::getModuleName)
                 .forEach(moduleName -> {
                     addFailure("6.1.11.4.a - " + moduleName + " reported distance with MIL on (SP 3069) is not zero");
@@ -136,7 +136,7 @@ public class Part01Step11Controller extends StepController {
 
         // 6.1.11.4.b. Fail if any ECU reports distance SCC (SP 3294) is not zero.
         dsPackets.stream()
-                .filter(packet -> isNotZero(packet.getKmWhileMILIsActivated()))
+                .filter(packet -> isNotZero(packet.getKmSinceDTCsCleared()))
                 .map(ParsedPacket::getModuleName)
                 .forEach(moduleName -> {
                     addFailure("6.1.11.4.b - " + moduleName + " reported distance SCC (SP 3294) is not zero");
