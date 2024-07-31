@@ -119,7 +119,9 @@ public class VehicleInformationTest {
                 "Number of CAL IDs Expected: 0" + NL +
                 "Fuel Type: Diesel vehicle" + NL +
                 "Ignition Type: Compression" + NL +
-                "Number of Trips for Fault B Implant: 0" + NL + NL +
+                "Number of Trips for Fault B Implant: 0" + NL +
+                "Number of Fault A Implants: 0" + NL +
+                NL +
                 "Vehicle Information:" + NL +
                 "VIN: vin" + NL +
                 "Vehicle MY: 2" + NL +

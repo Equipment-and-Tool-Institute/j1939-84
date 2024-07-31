@@ -98,6 +98,10 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      */
     private int numberOfTripsForFaultBImplant;
     /**
+     *
+     */
+    private int numberOfFaultAImplants;
+    /**
      * The VehicleInformation that will be returned to the listener
      */
     private VehicleInformation vehicleInformation;
@@ -175,6 +179,9 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
 
         numberOfTripsForFaultBImplant = 1;
         view.setNumberOfTripsForFaultBImplant(numberOfTripsForFaultBImplant);
+
+        numberOfFaultAImplants = 0;
+        view.setNumberOfFaultAImplants(numberOfFaultAImplants);
 
         try {
             vin = vehicleInformationModule.getVin();
@@ -278,6 +285,12 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     }
 
     @Override
+    public void onNumberOfFaultAImplantsChanged(int numberOfFaults){
+        this.numberOfFaultAImplants = numberOfFaults;
+        validate();
+    }
+
+    @Override
     public void onOkButtonClicked() {
         vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin(vin);
@@ -289,6 +302,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         vehicleInformation.setCertificationIntent(certificationIntent);
         vehicleInformation.setUsCarb(usCarb);
         vehicleInformation.setNumberOfTripsForFaultBImplant(numberOfTripsForFaultBImplant);
+        vehicleInformation.setNumberOfFaultAImplants((numberOfFaultAImplants));
 
         vehicleInformation.setCalIdsFound(calIdsFound);
         vehicleInformation.setEmissionUnitsFound(emissionUnitsFound);
