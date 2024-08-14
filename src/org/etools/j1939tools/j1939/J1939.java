@@ -1002,6 +1002,15 @@ public class J1939 {
         J1939_84.getLogger().info(message);
     }
 
+    String logFilePath = "";
+    private void setLogFilePath(String logFilePath){
+        this.logFilePath = logFilePath;
+    }
+
+    public Optional<String> getLogFilePath(){
+        return Optional.of(logFilePath);
+    }
+
     public Stream<Packet> startLogger(String prefix) throws BusException {
         Instant start = Instant.now();
         // do not crash tests that do not include a raw bus.
@@ -1010,6 +1019,7 @@ public class J1939 {
             try {
                 final String SUFFIX = ".asc";
                 File file = File.createTempFile(prefix, SUFFIX);
+                setLogFilePath(file.getAbsolutePath());
                 // delete all but last 10 logs
                 Stream.of(file.getParentFile()
                               .listFiles((dir, name) -> name.startsWith(prefix) && name.endsWith(SUFFIX)))
