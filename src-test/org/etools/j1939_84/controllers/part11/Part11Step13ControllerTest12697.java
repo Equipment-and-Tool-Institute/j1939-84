@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part11;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -1175,7 +1176,7 @@ public class Part11Step13ControllerTest12697 extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(eq(11),
                                         eq(13),
-                                        eq(WARN),
+                                        eq(INFO),
                                         eq("6.11.13.4.g - Value received from Engine #1 (0) for SPN 12361, NOx Tracking Active 100 Hour Engine Output Energy Bin 7: 3.000 kWh in part 11 was less than part 2 value"));
 
         // @formatter:off

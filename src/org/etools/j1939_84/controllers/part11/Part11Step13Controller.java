@@ -312,11 +312,11 @@ public class Part11Step13Controller extends StepController {
                                      addFailure("6.11.13.16.c - Bin value received is greater than 0xFAFF(h) from "
                                              + module.getModuleName() + " for " + spn);
                                  }
-                                 // 6.11.13.16.d - Fail all values where the corresponding value received in part 2
-                                 // is greater than the part 11 value. (Where supported)
+                                 // 6.11.13.16.d - Fail all values where the corresponding value received in the PSA
+                                 // Times stored Hours PG from part 2 is greater than the part 11 value. (Where supported).
                                  if (partTwoPacket == null) {
                                      addInfo("6.11.13.16.d - Message from part 2 is missing so verification of values skipped");
-                                 } else {
+                                 } else if (partTwoPacket.getPgnDefinition().getId() == GHG_STORED_HYBRID_100_HR){
                                      var partTwoValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
                                      if (spn.hasValue() && partTwoValue > spn.getValue()) {
                                          addFailure("6.11.13.16.d - Value received from " + module.getModuleName()
@@ -423,12 +423,12 @@ public class Part11Step13Controller extends StepController {
 
                     if (partTwoPacket == null) {
                         addInfo("6.11.13.8.d - Message from part 2 is missing so verification of values skipped");
-                    } else {
+                    } else if (partTwoPacket.getPgnDefinition().getId() == GHG_STORED_100_HR){
                         var partTwoSpn = partTwoPacket.getSpn(spn.getId())
                                                       .orElse(Spn.create(module.getSourceAddress(), NOT_AVAILABLE));
                         if (spn.getRawValue() < partTwoSpn.getRawValue()) {
-                            // 6.11.13.8.d - Fail all values where the corresponding value received in part 2 is greater
-                            // than the part 11 value. (Where supported)
+                            // 6.11.13.8.d -  Fail all values where the corresponding value for the GHG tracking stored
+                            // 100 hour array received in part 2 is greater than the part 11 value. (Where supported).
                             addFailure("6.11.13.8.d - Value received from " + module.getModuleName()
                                     + " for " + spn
                                     + " in part 2 was greater than part 11 value");
@@ -745,7 +745,7 @@ public class Part11Step13Controller extends StepController {
                                 + module.getModuleName() + " for " + spn.getLabel());
                     }
 
-                    // 6.11.13.4.g. Warn for all active 100 hr bin 3 through bin 16 values that are less than their
+                    // 6.11.13.4.g. Info for all active 100 hr bin 3 through bin 16 values that are less than their
                     // respective values for the bins 3 through 16 in part 2 (where supported)
                     // @formatter:off
                     List<Integer> bins3Thr16Spns = List.of(// PG 64274 bins 3 through 16
@@ -777,7 +777,7 @@ public class Part11Step13Controller extends StepController {
                                                         .orElse(NOT_AVAILABLE);
                         if (bins3Thr16Spns.contains(spn.getId())) {
                             if (spn.getValue() != null && spn.getValue() < partTwoValue) {
-                                addWarning("6.11.13.4.g - Value received from " + module.getModuleName()
+                                addInfo("6.11.13.4.g - Value received from " + module.getModuleName()
                                         + " for " + spn + " in part 11 was less than part 2 value");
                             }
                         } else {

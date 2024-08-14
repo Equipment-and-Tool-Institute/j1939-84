@@ -2741,7 +2741,7 @@ public class Part11Step13ControllerTest12675 extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(eq(11),
                                         eq(13),
-                                        eq(WARN),
+                                        eq(INFO),
                                         eq("6.11.13.4.g - Value received from Engine #1 (0) for SPN 12361, NOx Tracking Active 100 Hour Engine Output Energy Bin 7: 3.000 kWh in part 11 was less than part 2 value"));
 
         // @formatter:off
