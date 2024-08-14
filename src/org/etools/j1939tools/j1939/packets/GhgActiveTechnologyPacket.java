@@ -1,6 +1,7 @@
 package org.etools.j1939tools.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.J1939_84.getLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,10 +10,15 @@ import java.util.logging.Level;
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.j1939.model.ActiveTechnology;
+import org.etools.j1939tools.j1939.model.Spn;
+import org.etools.j1939tools.j1939.model.SpnDataParser;
+import org.etools.j1939tools.j1939.model.SpnDefinition;
 
 public class GhgActiveTechnologyPacket extends GenericPacket {
 
     private List<ActiveTechnology> activeTechnologies;
+
+    private List<Spn> spns;
 
     public GhgActiveTechnologyPacket(Packet packet) {
         super(packet);
@@ -36,6 +42,11 @@ public class GhgActiveTechnologyPacket extends GenericPacket {
             }
         }
         return activeTechnologies;
+    }
+
+    //shouldn't be called on Ghg packet
+    public List<Spn> getSpns(){
+        return List.of();
     }
 
     @Override

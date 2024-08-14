@@ -711,26 +711,35 @@ public class Part02Step17Controller extends StepController {
                     + module.getModuleName());
         } else {
             lifetimeGhgPackets.forEach(packet -> {
-                var partOnePacket = get(packet.getPgnDefinition().getId(), module.getSourceAddress(), 1);
+                var partOnePacket = (GhgActiveTechnologyPacket)get(packet.getPgnDefinition().getId(), module.getSourceAddress(), 1);
                 if (partOnePacket == null) {
                     addInfo("6.2.17.16.c - Message from part 1 is missing so verification of values skipped");
                 }
-                packet.getSpns()
-                      .forEach(spn -> {
-                          // 6.2.17.16.b. Fail any accumulator value received that is greater
-                          // than FAFFFFFFh.
-                          validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.2.17.16.b");
-                          // 6.2.17.16.c. Fail all values where the corresponding value received in part 1 is
-                          // greater than the part 2 value.
-                          if (spn.hasValue() && partOnePacket != null) {
-                              var partOneValue = partOnePacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                              if (partOneValue > spn.getValue()) {
-                                  addFailure("6.2.17.16.c - Value received from " + module.getModuleName()
-                                          + " for " + spn
-                                          + "  in part 1 was greater than part 2 value");
-                              }
-                          }
-                      });
+                packet.getActiveTechnologies().forEach(at -> {
+                    // 6.2.17.16.b. Fail any accumulator value received that is greater
+                    // than FAFFFFFFh.
+                    validateSpnValueGreaterThanFaBasedSlotLength(module, at.getTimeSpn(), FAIL, "6.2.17.16.b");
+                    validateSpnValueGreaterThanFaBasedSlotLength(module, at.getDistanceSpn(), FAIL, "6.2.17.16.b");
+
+                    // 6.2.17.16.c. Fail all values where the corresponding value received in part 1 is
+                    // greater than the part 2 value.
+                    if (partOnePacket != null){
+                          ActiveTechnology atPartOne  = partOnePacket.getActiveTechnologies().stream().filter(ato -> ato.getIndex() == at.getIndex()).findFirst().get();
+                            if (atPartOne != null){
+                                if (at.getTimeSpn().hasValue() && atPartOne.getTime() > at.getTime()){
+                                    addFailure("6.2.17.16.c - Value received from " + module.getModuleName()
+                                                       + " for " + at.getTimeSpn() //+ "(" + at.getIndex() + ")"
+                                                       + "  in part 1 was greater than part 2 value");
+                                }
+                                if (at.getDistanceSpn().hasValue() && atPartOne.getDistance() > at.getDistance()){
+                                    addFailure("6.2.17.16.c - Value received from " + module.getModuleName()
+                                                       + " for " + at.getDistanceSpn() //+ "(" + at.getIndex() + ")"
+                                                       + "  in part 1 was greater than part 2 value");
+                                }
+                            }
+                        }
+
+                });
             });
         }
 
