@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.ERROR;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939tools.j1939.packets.ParsedPacket.NOT_AVAILABLE;
@@ -826,27 +827,34 @@ public class Part02Step17Controller extends StepController {
         }
     }
 
-    private void testSp22227(OBDModuleInformation module) {
-        //6.2.17.27 Actions14 CSERS Support.
+    private void testSp22227(OBDModuleInformation module){
+        // 6.2.17.27 Actions14 CSERS Support.
         //a. DS request message to ECU that indicated support in DM24 for upon request SP 22227 (Current Cycle Catalyst Heat Energy Until FTP Cold Start Tracking Time) for PGs 64019 and 64020.
-        //
-        //PG PG Label PG Acronym
         //64019 Cold Start Emissions Reduction Strategy Current Operating Cycle Data CSERSC
         //64020 Cold Start Emissions Reduction Strategy Average Data CSERSA
-        int[] pgns = { 64019, 64020 };
+        int[] pgns = {64019, 64020};
         List<GenericPacket> packets = requestPackets(module.getSourceAddress(), pgns).stream()
                 .peek(this::save)
                 .collect(Collectors.toList());
 
-        //6.2.17.28 Fail/Warn Criteria
-        //a. Fail if either PG 64019 and PG 64020 is not provided for engines that support SPN 22227.
-        int[] notReceived = Arrays.stream(pgns)
-                .filter(pgn -> packets.stream()
-                        .filter(p -> p.getPgnDefinition().getId() == pgn)
-                        .findFirst()
-                        .isPresent())
-                .toArray();
-        if (notReceived.length > 0) {
+        List<Integer> notReceived = Arrays.asList(64019, 64020);
+        String result = "";
+
+        result += getDateTimeModule().getTime() + "Current Cycle Catalyst Heat Energy Until FTP Cold Start Tracking Time" + NL;
+        StringBuilder data = new StringBuilder("");
+        packets.stream().forEach(p -> p.getSpn(22227).ifPresent(spn -> {
+            if (spn.hasValue()){
+                notReceived.remove(p.getPgnDefinition().getId());
+                data.append("PGN " + p.getPgnDefinition().getId() + " " + p.getPgnDefinition().getLabel() + NL);
+                data.append(spn.toString() + NL);
+            }
+        }));
+
+        //6.2.17.27.b List data received in a
+        getListener().onResult(data.toString());
+
+        //6.2.17.28.a Fail if either PG 64019 and PG 64020 is not provided for engines that support SPN 22227.
+        if (notReceived.size() > 0){
             addFailure("6.2.17.28.a - No response was received from "
                                + module.getModuleName() + " for PGN " + notReceived);
         }

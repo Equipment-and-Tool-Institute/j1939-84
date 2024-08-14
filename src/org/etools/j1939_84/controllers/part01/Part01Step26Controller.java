@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.ERROR;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_100_HR;
@@ -24,6 +25,7 @@ import static org.etools.j1939tools.modules.NOxBinningModule.NOx_TRACKING_STORED
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -469,13 +471,24 @@ public class Part01Step26Controller extends StepController {
                 .peek(this::save)
                 .collect(Collectors.toList());
 
-        //b. List data received in a
-        getListener().onResult(packets.stream().toString());
+        List<Integer> notReceived = Arrays.asList(64019, 64020);
+        String result = "";
 
-        //6.1.26.28 Fail/Warn Criteria
-        //a. Fail if either PG 64019 and PG 64020 is not provided for engines that support SPN 22227.
-        int[] notReceived = Arrays.stream(pgns).filter(pgn -> packets.stream().filter(p -> p.getPgnDefinition().getId() == pgn).findFirst().isPresent()).toArray();
-        if (notReceived.length > 0){
+        result += getDateTimeModule().getTime() + "Current Cycle Catalyst Heat Energy Until FTP Cold Start Tracking Time" + NL;
+        StringBuilder data = new StringBuilder("");
+        packets.stream().forEach(p -> p.getSpn(22227).ifPresent(spn -> {
+            if (spn.hasValue()){
+                notReceived.remove(p.getPgnDefinition().getId());
+                data.append("PGN " + p.getPgnDefinition().getId() + " " + p.getPgnDefinition().getLabel() + NL);
+                data.append(spn.toString() + NL);
+            }
+        }));
+
+        //6.2.17.27.b List data received in a
+        getListener().onResult(data.toString());
+
+        //6.1.26.28.a Fail if either PG 64019 and PG 64020 is not provided for engines that support SPN 22227.
+        if (notReceived.size() > 0){
             addFailure("6.1.26.28.a - No response was received from "
                                + module.getModuleName() + " for PGN " + notReceived);
         }
