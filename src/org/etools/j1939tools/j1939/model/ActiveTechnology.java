@@ -59,6 +59,9 @@ public class ActiveTechnology {
         this.timeSpn = timeSpn;
         this.distanceSpn = distanceSpn;
     }
+    public List<Spn> getSpns(){
+        return List.of(indexSpn, timeSpn, distanceSpn);
+    }
 
     public String getLabel() {
         return indexSpn.getStringValueNoUnit();
