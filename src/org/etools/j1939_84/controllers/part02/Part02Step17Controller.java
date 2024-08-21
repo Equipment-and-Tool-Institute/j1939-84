@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -711,8 +712,11 @@ public class Part02Step17Controller extends StepController {
                     + module.getModuleName());
         } else {
             lifetimeGhgPackets.forEach(packet -> {
-                var partOnePacket = (GhgActiveTechnologyPacket)get(packet.getPgnDefinition().getId(), module.getSourceAddress(), 1);
-                if (partOnePacket == null) {
+               var partOnePacket = Optional.ofNullable(get(packet.getPgnDefinition().getId(), module.getSourceAddress(), 1))
+                        .map(p -> ((GenericPacket) p).getPacket())
+                        .map(GhgLifetimeActiveTechnologyPacket::new);
+
+                if (partOnePacket.isEmpty()) {
                     addInfo("6.2.17.16.c - Message from part 1 is missing so verification of values skipped");
                 }
                 packet.getActiveTechnologies().forEach(at -> {
@@ -723,17 +727,17 @@ public class Part02Step17Controller extends StepController {
 
                     // 6.2.17.16.c. Fail all values where the corresponding value received in part 1 is
                     // greater than the part 2 value.
-                    if (partOnePacket != null){
-                          ActiveTechnology atPartOne  = partOnePacket.getActiveTechnologies().stream().filter(ato -> ato.getIndex() == at.getIndex()).findFirst().get();
+                    if (partOnePacket.isPresent()){
+                          ActiveTechnology atPartOne  = partOnePacket.get().getActiveTechnologies().stream().filter(ato -> ato.getIndex() == at.getIndex()).findFirst().get();
                             if (atPartOne != null){
                                 if (at.getTimeSpn().hasValue() && atPartOne.getTime() > at.getTime()){
                                     addFailure("6.2.17.16.c - Value received from " + module.getModuleName()
-                                                       + " for " + at.getTimeSpn() //+ "(" + at.getIndex() + ")"
+                                                       + " for " + at.getTimeSpn() + " (index " + at.getIndex() + ")"
                                                        + "  in part 1 was greater than part 2 value");
                                 }
                                 if (at.getDistanceSpn().hasValue() && atPartOne.getDistance() > at.getDistance()){
                                     addFailure("6.2.17.16.c - Value received from " + module.getModuleName()
-                                                       + " for " + at.getDistanceSpn() //+ "(" + at.getIndex() + ")"
+                                                       + " for " + at.getDistanceSpn() + " (index " + at.getIndex() + ")"
                                                        + "  in part 1 was greater than part 2 value");
                                 }
                             }
@@ -782,10 +786,9 @@ public class Part02Step17Controller extends StepController {
             }
         } else {
             ghg100HrPackets.forEach(packet -> {
-                packet.getSpns().forEach(spn -> {
+                packet.getActiveTechnologies().stream().flatMap(at -> at.getSpns().stream()).forEach(spn -> {
                     // 6.2.17.18.c. Fail PG query where any bin value received is greater than FAFFh.
                     validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.2.17.18.c");
-
                 });
             });
         }

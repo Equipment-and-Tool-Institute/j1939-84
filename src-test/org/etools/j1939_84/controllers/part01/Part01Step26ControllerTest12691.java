@@ -879,7 +879,6 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
                                                                      // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x88, 0xC2,
                                                                       0x44, 0x66, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x92, 0x32, 0x88, 0xD4,
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,
                                                                       0x00, 0x00, 0x00, 0x00, 0x00));
@@ -925,7 +924,15 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(26),
                                         eq(FAIL),
-                                        eq("6.1.26.18.g - Active 100 hr array value received was greater than zero from Engine #1 (0) for SPN 12696, GHG Tracking Active 100 Hour Active Technology Vehicle Distance: 8704.000 km"));
+                                        eq("6.1.26.18.g - Active 100 hr array value received was greater than zero from Engine #1 (0) for SPN 12696, GHG Tracking Active 100 Hour Active Technology Vehicle Distance: 12450.000 km (index 0)"));
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(26),
+                                        eq(FAIL),
+                                        eq("6.1.26.18.g - Active 100 hr array value received was greater than zero from Engine #1 (0) for SPN 12695, GHG Tracking Active 100 Hour Active Technology Time: 1020.000 s (index 68)"));
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(26),
+                                        eq(FAIL),
+                                        eq("6.1.26.18.e - Number of active labels received differs from the number of lifetime labels"));
         verify(mockListener).addOutcome(eq(1),
                                         eq(26),
                                         eq(FAIL),
@@ -1960,14 +1967,14 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
                                                                      0x00,
                                                                      // @formatter:off
                                                                       0x00, 0xDB, 0x00, 0x00, 0x00,
-                                                                      0x06, 0x7D, 0x60, 0x10, 0x00,
-                                                                      0xC0, 0xBC, 0x05, 0x00, 0x00,
+                                                                      0x06, 0x00, 0x00, 0x00, 0x00,
+                                                                      0xC0, 0x00, 0x00, 0x00, 0x00,
                                                                       0xCE, 0x31, 0x02, 0x00, 0x02,
-                                                                      0x49, 0x1D, 0x00, 0x00, 0xE0,
-                                                                      0x79, 0x00, 0x00, 0xF9, 0x86,
-                                                                      0xAD, 0x00, 0x00, 0xA8, 0xD2,
-                                                                      0x02, 0x00, 0xF7, 0x4B, 0xC3,
-                                                                      0x00, 0xF5, 0xD0, 0xB3, 0x00));
+                                                                      0x49, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x79, 0x00, 0x00, 0x00, 0x00,
+                                                                      0xAD, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x02, 0x00, 0x00, 0x00, 0x00,
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00));
         // @formatter:on
         when(communicationsModule.request(eq(64256),
                                           eq(0),
@@ -2010,7 +2017,15 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(1),
                                         eq(26),
                                         eq(FAIL),
-                                        eq("6.1.26.18.g - Active 100 hr array value received was greater than zero from Engine #1 (0) for SPN 12695, GHG Tracking Active 100 Hour Active Technology Time: 2190.000 s"));
+                                        eq("6.1.26.18.g - Active 100 hr array value received was greater than zero from Engine #1 (0) for SPN 12695, GHG Tracking Active 100 Hour Active Technology Time: 2190.000 s (index 0)"));
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(26),
+                                        eq(FAIL),
+                                        eq("6.1.26.18.g - Active 100 hr array value received was greater than zero from Engine #1 (0) for SPN 12696, GHG Tracking Active 100 Hour Active Technology Vehicle Distance: 128.000 km (index 206)"));
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(26),
+                                        eq(FAIL),
+                                        eq("6.1.26.18.g - Active 100 hr array value received was greater than zero from Engine #1 (0) for SPN 12695, GHG Tracking Active 100 Hour Active Technology Time: 5610.000 s (index 206)"));
         verify(mockListener).addOutcome(eq(1),
                                         eq(26),
                                         eq(FAIL),
@@ -2047,12 +2062,12 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         expected += "| Description                         |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |    Time, m  |   Dist, km  |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += "| SAE/ISO Reserved                    |          36 |           0 |           0 |           0 |           0 |           0 |" + NL;
-        expected += "| Cylinder Deactivation               |      10,539 |      12,499 |         N/A |         N/A |         N/A |         N/A |" + NL;
-        expected += "| Predictive Cruise Control           |       4,117 |           4 |         N/A |         N/A |         N/A |         N/A |" + NL;
-        expected += "| Unknown 49                          |           5 |      14,336 |         N/A |         N/A |         N/A |         N/A |" + NL;
-        expected += "| Unknown 79                          |           0 |       8,638 |         N/A |         N/A |         N/A |         N/A |" + NL;
-        expected += "| Unknown AD                          |           0 |      13,482 |         N/A |         N/A |         N/A |         N/A |" + NL;
-        expected += "| Unknown C0                          |         245 |           0 |         N/A |         N/A |         N/A |         N/A |" + NL;
+        expected += "| Cylinder Deactivation               |           0 |           0 |         N/A |         N/A |         N/A |         N/A |" + NL;
+        expected += "| Predictive Cruise Control           |           0 |           0 |         N/A |         N/A |         N/A |         N/A |" + NL;
+        expected += "| Unknown 49                          |           0 |           0 |         N/A |         N/A |         N/A |         N/A |" + NL;
+        expected += "| Unknown 79                          |           0 |           0 |         N/A |         N/A |         N/A |         N/A |" + NL;
+        expected += "| Unknown AD                          |           0 |           0 |         N/A |         N/A |         N/A |         N/A |" + NL;
+        expected += "| Unknown C0                          |           0 |           0 |         N/A |         N/A |         N/A |         N/A |" + NL;
         expected += "| Unknown CE                          |          94 |         128 |         N/A |         N/A |         N/A |         N/A |" + NL;
         expected += "|-------------------------------------+-------------+-------------+-------------+-------------+-------------+-------------|" + NL;
         expected += NL;

@@ -55,6 +55,8 @@ import org.etools.j1939tools.j1939.model.FuelType;
 import org.etools.j1939tools.j1939.model.Spn;
 import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.GhgActiveTechnologyPacket;
+import org.etools.j1939tools.j1939.packets.GhgLifetimeActiveTechnologyPacket;
 import org.etools.j1939tools.j1939.packets.SupportedSPN;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
@@ -1856,31 +1858,23 @@ public class Part02Step17ControllerTest12691 extends AbstractControllerTest {
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
-                                                                      0x00,
-                                                                      // @formatter:off
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00));
-         GenericPacket response64257P1 = new GenericPacket(Packet.create(0xFB01,
+        GenericPacket response64257 = new GhgLifetimeActiveTechnologyPacket(Packet.create(0xFB01,
+                                                                                          0x00,
+                                                                                          // @formatter:off
+                                                                                          0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                                          0x00, 0x00, 0x00, 0x00));
+         GenericPacket response64257P1 = new GhgLifetimeActiveTechnologyPacket(Packet.create(0xFB01,
                                                                          0x00,
                                                                          // @formatter:off
                                                                          0x00, 0x0D, 0x00, 0x00, 0x00,
-                                                                         0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                         0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                         0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                         0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                         0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                         0x00, 0x00, 0x00, 0x00));
          // @formatter:on
         obdModule0.set(response64257P1, 1);
         when(communicationsModule.request(eq(64257),
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64257));
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = new GhgActiveTechnologyPacket(Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1894,15 +1888,15 @@ public class Part02Step17ControllerTest12691 extends AbstractControllerTest {
                                           eq(0),
                                           any(CommunicationsListener.class))).thenAnswer(answer -> BusResult.of(response64255));
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
-                                                                      0x00,
-                                                                      // @formatter:off
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00));
+        GenericPacket response64256 = new GhgActiveTechnologyPacket(Packet.create(0xFB00,
+                                                                                  0x00,
+                                                                                  // @formatter:off
+                                                                                  0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                                  0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                                  0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                                  0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                                  0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                                  0x00, 0x00, 0x00, 0x00, 0x00));
                                                                       // @formatter:on
         when(communicationsModule.request(eq(64256),
                                           eq(0),
@@ -1945,7 +1939,7 @@ public class Part02Step17ControllerTest12691 extends AbstractControllerTest {
         verify(mockListener).addOutcome(eq(2),
                                         eq(17),
                                         eq(FAIL),
-                                        eq("6.2.17.16.c - Value received from Engine #1 (0) for SPN 12692, GHG Tracking Lifetime Active Technology Time: 0.000 s  in part 1 was greater than part 2 value"));
+                                        eq("6.2.17.16.c - Value received from Engine #1 (0) for SPN 12692, GHG Tracking Lifetime Active Technology Time: 0.000 s (index 0)  in part 1 was greater than part 2 value"));
         verify(mockListener).addOutcome(eq(2),
                                         eq(17),
                                         eq(FAIL),
