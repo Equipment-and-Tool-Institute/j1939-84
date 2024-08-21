@@ -45,8 +45,9 @@ public class GhgActiveTechnologyPacket extends GenericPacket {
     }
 
     //shouldn't be called on Ghg packet
+    @Override
     public List<Spn> getSpns(){
-        return List.of();
+        throw new IllegalStateException("Use getActiveTechnologies() instead.");
     }
 
     @Override
