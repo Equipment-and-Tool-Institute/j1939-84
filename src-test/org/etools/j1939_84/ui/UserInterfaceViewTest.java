@@ -215,7 +215,7 @@ public class UserInterfaceViewTest {
     @Test
     public void testTitle() {
         String title = instance.getFrame().getTitle();
-        assertTrue(title.matches("J1939-84 Tool v[\\d\\.]+ - \\d{4}/\\d\\d/\\d\\d \\d\\d:\\d\\d"));
+        assertTrue(title.matches("J1939-84 Tool v[\\d\\.]+ - \\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\dZ"));
         assertEquals("J1939-84 Tool " + UserInterfaceView.getTitle(), title);
     }
 

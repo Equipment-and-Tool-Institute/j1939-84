@@ -817,7 +817,7 @@ public class J1939Test {
             /* verify there is a warning */
             String results = listener.getResults();
             assertTrue(results.matches("(?s).*TIMING: Late response -  [\\d:.]+ 18FF0100 \\[8] 02 02 03 04 05 06 07.*"));
-            assertTrue(results.matches("(?s).*TIMING: Late response -  [\\d:.]+ 18FF0100 \\[8] 02 02 03 04 05 06 07.*"));
+            assertTrue(results.matches("(?s).*TIMING: Late response -  [\\d:.]+ 18FF0100 \\[8] 03 02 03 04 05 06 07.*"));
             /* and only two warnings */
             assertFalse(results.matches("(?s).*TIMING.*TIMING.*TIMING.*"));
         }
