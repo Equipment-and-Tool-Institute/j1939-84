@@ -17,6 +17,7 @@ import static org.mockito.Mockito.when;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -830,7 +831,11 @@ public class J1939Test {
         try (Bus bus = new J1939TP(bus2, 0)) {
 
             Stream<Packet> requestStream = bus.read(1, TimeUnit.HOURS);
-            int PGN = 0xFF01;
+            int PGN = 0xFF00;
+            // this needs to be sent in encough time to be processed through TP queues.
+            bus.send(Packet.create(PGN, 0x0, 3, 2, 3, 4, 5, 6, 7, 8));
+            Thread.sleep(100);
+           
             new Thread(() -> {
                 try {
                     // wait for request
@@ -845,14 +850,13 @@ public class J1939Test {
             }).start();
             TestResultsListener listener = new TestResultsListener();
             var j1939 = new J1939(new J1939TP(bus2, 0xF9));
-            bus.send(Packet.create(PGN, 0x0, 0, 2, 3, 4, 5, 6, 7, 8));
             var response = j1939.requestGlobal("test",
                                                PGN,
                                                j1939.createRequestPacket(PGN, 0xFF),
                                                listener);
-            assertEquals(2, response.getPackets().size());
+            assertEquals( 2, response.getPackets().size());
             String results = listener.getResults();
-            assertTrue(results.matches("(?s).*TIMING: Late response -  [\\d:.]+ 18FF0100 \\[8] 02 02 03 04 05 06 07.*"));
+            assertTrue(results.matches("(?s).*TIMING: Late response -  [\\d:.]+ 18FF0000 \\[8] 02 02 03 04 05 06 07.*"));
             assertFalse(results.matches("(?s).*TIMING.*TIMING.*"));
         }
 
