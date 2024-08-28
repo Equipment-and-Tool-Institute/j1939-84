@@ -1,65 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="src-test"/>
-	<classpathentry kind="src" path="testdoc">
+	<classpathentry including="**/*.java" kind="src" output="target/classes" path="src">
 		<attributes>
 			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path=".apt_generated">
+	<classpathentry including="**/*.java" kind="src" output="target/test-classes" path="src-test">
 		<attributes>
 			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib-test/testdoc.jar"/>
-	<classpathentry kind="lib" path="lib-test/detekt-cli-1.0.0-RC16-all.jar"/>
-	<classpathentry kind="lib" path="lib-test/hamcrest-core-1.3.jar"/>
-	<classpathentry kind="lib" path="lib-test/junit-4.12.jar"/>
-	<classpathentry kind="lib" path="lib-test/launch4j/launch4j.jar"/>
-	<classpathentry kind="lib" path="lib-test/launch4j/lib/commons-beanutils.jar"/>
-	<classpathentry kind="lib" path="lib-test/launch4j/lib/commons-logging.jar"/>
-	<classpathentry kind="lib" path="lib-test/launch4j/lib/formsrt.jar"/>
-	<classpathentry kind="lib" path="lib-test/launch4j/lib/foxtrot.jar"/>
-	<classpathentry kind="lib" path="lib-test/launch4j/lib/jgoodies-common.jar"/>
-	<classpathentry kind="lib" path="lib-test/launch4j/lib/jgoodies-forms.jar"/>
-	<classpathentry kind="lib" path="lib-test/launch4j/lib/xstream.jar"/>
-	<classpathentry kind="lib" path="lib-test/objenesis-2.5.jar"/>
-	<classpathentry kind="lib" path="lib-test/byte-buddy-1.10.9.jar"/>
-	<classpathentry kind="lib" path="lib-test/byte-buddy-agent-1.10.9.jar"/>
-	<classpathentry kind="lib" path="lib-test/mockito-core-3.3.3.jar"/>
-	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/asm-8.0.1.jar"/>
-	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/asm-analysis-8.0.1.jar"/>
-	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/asm-commons-8.0.1.jar"/>
-	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/asm-tree-8.0.1.jar"/>
-	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/asm-util-8.0.1.jar"/>
-	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/bcel-6.4.1.jar"/>
-	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/commons-lang3-3.10.jar"/>
-	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/commons-text-1.8.jar"/>
-	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/dom4j-2.1.1.jar"/>
-	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/icu4j-63.1.jar"/>
-	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/jaxen-1.1.6.jar"/>
-	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/jcip-annotations-1.0.jar"/>
-	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/jsr305-3.0.2.jar"/>
-	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/log4j-slf4j18-impl-2.13.1.jar"/>
-	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/Saxon-HE-9.9.1-2.jar"/>
-	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/slf4j-api-1.8.0-beta4.jar"/>
-	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/spotbugs-annotations.jar"/>
-	<classpathentry kind="lib" path="lib/opencsv-3.8.jar"/>
-	<classpathentry kind="lib" path="lib/ini4j-0.5.4.jar"/>
-	<classpathentry kind="lib" path="lib/jna-5.5.0.jar"/>
-	<classpathentry kind="lib" path="lib/jna-platform-5.5.0.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-21">
 		<attributes>
-			<attribute name="module" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib-test/jacoco-0.8.9/lib/jacocoagent.jar"/>
-	<classpathentry kind="lib" path="lib-test/jacoco-0.8.9/lib/jacocoant.jar"/>
-	<classpathentry kind="lib" path="lib-test/jacoco-0.8.9/lib/jacococli.jar"/>
-	<classpathentry kind="lib" path="lib-test/jacoco-0.8.9/lib/org.jacoco.agent-0.8.9.202303310957.jar"/>
-	<classpathentry kind="lib" path="lib-test/jacoco-0.8.9/lib/org.jacoco.ant-0.8.9.202303310957.jar"/>
-	<classpathentry kind="lib" path="lib-test/jacoco-0.8.9/lib/org.jacoco.core-0.8.9.202303310957.jar"/>
-	<classpathentry kind="lib" path="lib-test/jacoco-0.8.9/lib/org.jacoco.report-0.8.9.202303310957.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>
