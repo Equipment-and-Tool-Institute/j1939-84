@@ -272,7 +272,7 @@ public class SectionA5MessageVerifier extends SectionVerifier {
                                         .filter(p -> {
                                             boolean isErased = p.getWarmUpsSinceClear() == 0;
                                             boolean wasErased = prev.getWarmUpsSinceClear() == 0;
-                                            boolean isNA = p.getWarmUpsSinceClear() == 0xFF;
+                                            boolean isNA = (p.getWarmUpsSinceClear() & 0xFF) == 0xFF;
 
                                             return !isNA && shouldBeReported(verifyIsErased, wasErased, isErased);
                                         })

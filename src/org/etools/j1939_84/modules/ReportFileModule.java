@@ -193,7 +193,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
     }
 
     @SuppressFBWarnings(value = { "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE",
-            "REC_CATCH_EXCEPTION" }, justification = "Several places in the calls down the stack can return null")
+            "REC_CATCH_EXCEPTION", "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" }, justification = "Several places in the calls down the stack can return null. Not important if zip file deletion sometimes fails.")
     private void writeFinalReport() {
         try {
             String pageHeader = bannerModule.getHeader() + NL

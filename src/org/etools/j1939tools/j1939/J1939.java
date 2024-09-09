@@ -3,6 +3,7 @@
  */
 package org.etools.j1939tools.j1939;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.SEVERE;
 import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.BUSY;
@@ -10,6 +11,7 @@ import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -1011,6 +1013,7 @@ public class J1939 {
         return Optional.of(logFilePath);
     }
 
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE", justification = "Not important if asc log file deletion sometimes fails.")
     public Stream<Packet> startLogger(String prefix) throws BusException {
         Instant start = Instant.now();
         // do not crash tests that do not include a raw bus.
@@ -1026,7 +1029,7 @@ public class J1939 {
                       .sorted(Comparator.comparing(f -> -f.lastModified()))
                       .skip(10)
                       .forEach(f -> f.delete());
-                try (PrintWriter out = new PrintWriter(new FileWriter(file))) {
+                try (PrintWriter out = new PrintWriter(new FileWriter(file, UTF_8))) {
                     out.println("base hex timestamps absolute");
                     loggerStream.forEach(p -> {
                         try {
