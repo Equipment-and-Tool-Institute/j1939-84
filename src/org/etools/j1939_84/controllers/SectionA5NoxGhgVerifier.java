@@ -4,6 +4,7 @@
 
 package org.etools.j1939_84.controllers;
 
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939tools.j1939.packets.ParsedPacket.NOT_AVAILABLE;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_100_HR;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_GREEN_HOUSE_100_HR;
@@ -32,7 +33,9 @@ import java.util.stream.Stream;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.j1939.model.ActiveTechnology;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.GhgActiveTechnologyPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.utils.CollectionUtils;
 
@@ -227,7 +230,6 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
                                          List<Integer> pgns,
                                          List<GenericPacket> packets) {
         packets.forEach(packet -> {
-
             if (pgns.contains(packet.getPgnDefinition().getId())) {
                 var partTwoPacket = get(packet.getPgnDefinition().getId(), packet.getSourceAddress(), 2);
                 if (partTwoPacket == null) {
@@ -237,21 +239,46 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
                                         "Section A.5.A - Message from part 2 for PG "
                                                 + packet.getPgnDefinition().getId()
                                                 + " is missing so verification of values skipped");
-                }
+                }else if (packet instanceof GhgActiveTechnologyPacket){
+                    GhgActiveTechnologyPacket ghgPkt = (GhgActiveTechnologyPacket) packet;
+                    var ghgPktPart1 = (GhgActiveTechnologyPacket) partTwoPacket;
 
-                packet.getSpns().forEach(spn -> {
-                    if (spn.hasValue() && partTwoPacket != null) {
-                        var partOneValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
-                        if (partOneValue > spn.getValue()) {
-                            listener.addOutcome(partNumber,
-                                                stepNumber,
-                                                Outcome.FAIL,
-                                                "Section A.5.A - Value received from " + packet.getModuleName() +
-                                                        " in part 2 was greater than current value for "
-                                                        + spn);
+                    ghgPkt.getActiveTechnologies().forEach(at -> {
+                        ghgPktPart1.getActiveTechnologies().stream().filter(at2 -> at2.getIndex() == at.getIndex()).findFirst().ifPresent(atPartOne -> {
+                            if (atPartOne.getTimeSpn().hasValue() && atPartOne.getTime() > at.getTime()){
+                                listener.addOutcome(partNumber,
+                                                    stepNumber,
+                                                    Outcome.FAIL,
+                                                    "Section A.5.A - Value received from " + packet.getModuleName() +
+                                                            " in part 2 was greater than current value for "
+                                                            + at.getTimeSpn());
+                            }
+                            if (atPartOne.getDistanceSpn().hasValue() && atPartOne.getDistance() > at.getDistance()){
+                                listener.addOutcome(partNumber,
+                                                    stepNumber,
+                                                    Outcome.FAIL,
+                                                    "Section A.5.A - Value received from " + packet.getModuleName() +
+                                                            " in part 2 was greater than current value for "
+                                                            + at.getDistanceSpn());
+                            }
+                        });
+                    });
+                }
+                else {
+                    packet.getSpns().forEach(spn -> {
+                        if (spn.hasValue()) {
+                            var partOneValue = partTwoPacket.getSpnValue(spn.getId()).orElse(NOT_AVAILABLE);
+                            if (partOneValue > spn.getValue()) {
+                                listener.addOutcome(partNumber,
+                                                    stepNumber,
+                                                    Outcome.FAIL,
+                                                    "Section A.5.A - Value received from " + packet.getModuleName() +
+                                                            " in part 2 was greater than current value for "
+                                                            + spn);
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
         });
     }
@@ -265,11 +292,28 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
         if (isErased) {
             packets.forEach(packet -> {
                 if (pgns.contains(packet.getPgnDefinition().getId())) {
+                    if (packet instanceof GhgActiveTechnologyPacket) {
+                        var ghgPkt = (GhgActiveTechnologyPacket)packet;
+                        ghgPkt.getActiveTechnologies().forEach(at ->{
+                            if (at.getTimeSpn().hasValue() && at.getTimeSpn().getValue() > 0){
+                                listener.addOutcome(partNumber,
+                                                    stepNumber,
+                                                    Outcome.FAIL,
+                                                    "Section A.5.C - Value received from " + packet.getModuleName()
+                                                            + " is greater than 0"
+                                                            + " for " + at.getTimeSpn());
+                            }
+                            if (at.getDistanceSpn().hasValue() && at.getDistanceSpn().getValue() > 0){
+                                listener.addOutcome(partNumber,
+                                                    stepNumber,
+                                                    Outcome.FAIL,
+                                                    "Section A.5.C - Value received from " + packet.getModuleName()
+                                                            + " is greater than 0"
+                                                            + " for " + at.getDistanceSpn());
+                            }
+                        });
+                    }else{
                     packet.getSpns().forEach(spn -> {
-                        if (spn.getId() == 12697 || spn.getId() == 12694 || spn.getId() == 12691) {
-                            // GHG technology index
-                            return;
-                        }
                         if (spn.hasValue() && spn.getValue() > 0) {
                             listener.addOutcome(partNumber,
                                                 stepNumber,
@@ -279,6 +323,7 @@ public class SectionA5NoxGhgVerifier extends SectionVerifier {
                                                         + " for " + spn);
                         }
                     });
+                }
                 }
             });
         } else

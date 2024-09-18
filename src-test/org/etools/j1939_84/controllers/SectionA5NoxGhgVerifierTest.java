@@ -21,6 +21,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
+import org.etools.j1939tools.j1939.packets.GhgActiveTechnologyPacket;
+import org.etools.j1939tools.j1939.packets.GhgLifetimeActiveTechnologyPacket;
 import org.etools.j1939tools.j1939.packets.SupportedSPN;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
@@ -2177,20 +2179,20 @@ public class SectionA5NoxGhgVerifierTest {
 
         List<GenericPacket> packets = new ArrayList<>();
 
-        GenericPacket response64257 = new GenericPacket(Packet.create(0xFB01,
-                                                                      0x00,
-                                                                      // @formatter:off
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00));
+        GenericPacket response64257 = new GhgLifetimeActiveTechnologyPacket((Packet.create(0xFB01,
+                                                                                                 0x00,
+                                                                                                 // @formatter:off
+                                                                                                 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                                                 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                                                 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                                                 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                                                 0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                                                 0x00, 0x00, 0x00, 0x00, 0x00)));
         // @formatter:on
         obdModule0.set(response64257, 2);
         packets.add(response64257);
 
-        GenericPacket response64255 = new GenericPacket(Packet.create(0xFAFF,
+        GenericPacket response64255 = new GhgActiveTechnologyPacket((Packet.create(0xFAFF,
                                                                       0x00,
                                                                       // @formatter:off
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2198,20 +2200,20 @@ public class SectionA5NoxGhgVerifierTest {
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,
                                                                       0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                      0x00, 0x00, 0x00, 0x00, 0x00)));
         // @formatter:on
         obdModule0.set(response64255, 2);
         packets.add(response64255);
 
-        GenericPacket response64256 = new GenericPacket(Packet.create(0xFB00,
-                                                                      0x00,
-                                                                      // @formatter:off
-                                                                      0x01, 0x00, 0x00, 0xC6, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00,
-                                                                      0x00, 0x00, 0x00, 0x00, 0x00));
+        GenericPacket response64256 = new GhgActiveTechnologyPacket((Packet.create(0xFB00,
+                                                                                   0x00,
+                                                                                   // @formatter:off
+                                                                                   0x01, 0x00, 0x00, 0xC6, 0x00,
+                                                                                   0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                                   0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                                   0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                                   0x00, 0x00, 0x00, 0x00, 0x00,
+                                                                                   0x00, 0x00, 0x00, 0x00, 0x00)));
         // @formatter:on
         obdModule0.set(response64256, 2);
         packets.add(response64256);
@@ -2227,7 +2229,7 @@ public class SectionA5NoxGhgVerifierTest {
                                         eq(Outcome.FAIL),
                                         eq("Section A.5.C - Value received from Engine #1 (0) is greater" +
                                                 " than 0 for SPN 12696, GHG Tracking Active 100 Hour Active" +
-                                                " Technology Vehicle Distance: 12672.000 km"));
+                                                " Technology Vehicle Distance: 49.500 km"));
 
         String expected = "";
         assertEquals(expected, listener.getResults());
