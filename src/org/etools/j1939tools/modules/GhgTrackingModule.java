@@ -2,6 +2,7 @@ package org.etools.j1939tools.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 
 import org.etools.j1939tools.j1939.packets.GenericPacket;
@@ -53,6 +54,7 @@ public class GhgTrackingModule {
              new GhgActiveTechnologyArrayModule(dateTimeModule));
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public GhgTrackingModule(GhgTrackingArrayModule ghgTrackingArrayModule,
                              GhgActiveTechnologyArrayModule ghgActiveTechnologyArrayModule) {
         this.ghgTrackingArrayModule = ghgTrackingArrayModule;

@@ -49,7 +49,7 @@ public class TableA1ValidatorProvidedNotSupportedTest {
         DateTimeModule.setInstance(new TestDateTimeModule());
         dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
-        TableA1Repository tableA1Repository = new TableA1Repository();
+        TableA1Repository tableA1Repository = TableA1Repository.getInstance();
         instance = new TableA1Validator(valueValidator, dataRepository, j1939DaRepository, tableA1Repository, 1, 26);
     }
 

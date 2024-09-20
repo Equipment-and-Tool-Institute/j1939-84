@@ -6,6 +6,7 @@ package org.etools.j1939_84.controllers;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.j1939.J1939;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
@@ -50,10 +51,12 @@ public class SectionVerifier {
         return stepNumber;
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public DataRepository getDataRepository() {
         return dataRepository;
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public CommunicationsModule getCommunicationsModule() {
         return communicationsModule;
     }

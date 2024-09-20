@@ -6,6 +6,7 @@ package org.etools.j1939_84.controllers;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -185,6 +186,7 @@ public class BusService {
      * available at compile time) This *MUST* be called before interacting with
      * an instance of this class
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public void setup(J1939 j1939, ResultsListener listener) {
         this.j1939 = j1939;
         this.listener = listener;

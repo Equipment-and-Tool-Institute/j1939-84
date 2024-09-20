@@ -3,6 +3,7 @@
  */
 package org.etools.j1939tools.j1939.packets;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -31,6 +32,7 @@ public class ParsedPacket {
      * @param packet
      *                   the {@link Packet} to wrap
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public ParsedPacket(Packet packet) {
         this.packet = packet;
     }
@@ -249,6 +251,7 @@ public class ParsedPacket {
      *
      * @return the {@link Packet}
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public Packet getPacket() {
         return packet;
     }

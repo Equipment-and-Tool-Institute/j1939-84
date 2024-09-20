@@ -7,6 +7,7 @@ import static java.util.logging.Level.INFO;
 import static org.etools.j1939_84.J1939_84.getLogger;
 import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -136,6 +137,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     /**
      * Constructor exposed for testing
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public VehicleInformationPresenter(VehicleInformationContract.View view,
                                        VehicleInformationListener listener,
                                        J1939 j1939,

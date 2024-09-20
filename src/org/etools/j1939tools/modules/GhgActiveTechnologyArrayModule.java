@@ -1,6 +1,8 @@
 package org.etools.j1939tools.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,7 @@ public class GhgActiveTechnologyArrayModule {
 
     private final DateTimeModule dateTimeModule;
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public GhgActiveTechnologyArrayModule(DateTimeModule dateTimeModule) {
         this.dateTimeModule = dateTimeModule;
     }
@@ -34,10 +37,6 @@ public class GhgActiveTechnologyArrayModule {
     }
 
     private String printTechnologyArray(List<GenericPacket> packets) {
-        var pgns = new ArrayList<>();
-        for (GenericPacket packet : packets) {
-            pgns.add(packet.getPgnDefinition().getId());
-        }
         return printTechnologyArray(packets, 64256, 64255, 64257);
     }
 

@@ -3,6 +3,7 @@
  */
 package org.etools.j1939tools.bus;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,6 +70,7 @@ public class RP1210 {
      * @throws BusException
      *                          if there is a problem generating the list
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public List<Adapter> getAdapters() throws BusException {
         if (adapters == null) {
             adapters = new ArrayList<>();

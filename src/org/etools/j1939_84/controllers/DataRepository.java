@@ -4,6 +4,7 @@
 
 package org.etools.j1939_84.controllers;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -34,7 +35,8 @@ public class DataRepository {
         instance = null;
     }
 
-    public static DataRepository getInstance() {
+    @SuppressFBWarnings(value = "MS_EXPOSE_REP", justification = "Not a concern in desktop app.")
+    public static synchronized DataRepository getInstance() {
         if (instance == null) {
             instance = new DataRepository();
         }
@@ -84,6 +86,7 @@ public class DataRepository {
         return Optional.ofNullable(vehicleInformation).map(VehicleInformation::clone).orElse(null);
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public void setVehicleInformation(VehicleInformation vehicleInformation) {
         this.vehicleInformation = vehicleInformation;
     }

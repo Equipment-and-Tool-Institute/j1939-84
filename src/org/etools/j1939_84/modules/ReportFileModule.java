@@ -77,6 +77,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
      * @param bannerModule
      *                          The {@link BannerModule}
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public ReportFileModule(Logger logger,
                             SummaryModule summaryModule,
                             BannerModule bannerModule) {
@@ -114,6 +115,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
     }
 
     @Override
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public void onVehicleInformationReceived(VehicleInformation vehicleInformation) {
         this.vehicleInformation = vehicleInformation;
     }

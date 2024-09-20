@@ -11,6 +11,7 @@ import static org.etools.j1939tools.bus.RP1210Library.CMD_PROTECT_J1939_ADDRESS;
 import static org.etools.j1939tools.bus.RP1210Library.CMD_SET_ALL_FILTERS_STATES_TO_PASS;
 import static org.etools.j1939tools.bus.RP1210Library.ECHO_ON;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -124,6 +125,7 @@ public class RP1210Bus implements Bus {
     /**
      * Constructor exposed for testing
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public RP1210Bus(RP1210Library rp1210Library,
                      ExecutorService decodingExecutor,
                      ExecutorService rp1210Executor,

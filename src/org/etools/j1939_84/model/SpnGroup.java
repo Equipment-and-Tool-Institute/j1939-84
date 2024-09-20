@@ -25,7 +25,6 @@ public class SpnGroup implements Comparable<SpnGroup> {
     }
 
     public boolean containsMultiple(Collection<Integer> supportedSpnValues) {
-        Collection<Integer> matchingSpns = new ArrayList<>();
         if (spns.isEmpty()) {
             return false;
         } else {

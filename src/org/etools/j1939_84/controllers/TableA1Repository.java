@@ -21,7 +21,7 @@ public class TableA1Repository {
 
     private static TableA1Repository instance;
 
-    public static TableA1Repository getInstance() {
+    public static synchronized TableA1Repository getInstance() {
         if (instance == null) {
             instance = new TableA1Repository();
         }
@@ -30,7 +30,7 @@ public class TableA1Repository {
 
     private List<TableA1Row> rows;
 
-    public TableA1Repository() {
+    private TableA1Repository() {
     }
 
     private List<TableA1Row> getRows() {

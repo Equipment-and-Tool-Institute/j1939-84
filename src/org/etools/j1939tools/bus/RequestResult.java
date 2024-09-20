@@ -5,6 +5,7 @@ package org.etools.j1939tools.bus;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +38,7 @@ public class RequestResult<T extends ParsedPacket> {
      * @param packets
      *                      list of packets to be included in the requestResult
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public RequestResult(boolean retryUsed, List<T> packets, List<AcknowledgmentPacket> acks) {
         this.retryUsed = retryUsed;
         this.packets = Objects.requireNonNull(packets);
@@ -70,6 +72,7 @@ public class RequestResult<T extends ParsedPacket> {
         return new RequestResult<>(false, packets);
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public List<AcknowledgmentPacket> getAcks() {
         return acks;
     }
@@ -84,6 +87,7 @@ public class RequestResult<T extends ParsedPacket> {
     /**
      * @return the packets
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public List<T> getPackets() {
         return packets;
     }

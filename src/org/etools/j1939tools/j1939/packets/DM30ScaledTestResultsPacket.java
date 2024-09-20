@@ -6,6 +6,7 @@ package org.etools.j1939tools.j1939.packets;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939tools.utils.CollectionUtils.join;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,6 +72,7 @@ public class DM30ScaledTestResultsPacket extends GenericPacket {
      *
      * @return a {@link List} of {@link ScaledTestResult}s
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public List<ScaledTestResult> getTestResults() {
         if (testResults == null) {
             testResults = new ArrayList<>();

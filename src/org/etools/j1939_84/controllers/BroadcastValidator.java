@@ -8,6 +8,8 @@ import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939tools.j1939.Lookup.getAddressName;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -35,6 +37,7 @@ public class BroadcastValidator {
     private final DataRepository dataRepository;
     private final J1939DaRepository j1939DaRepository;
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public BroadcastValidator(DataRepository dataRepository, J1939DaRepository j1939DaRepository) {
         this.dataRepository = dataRepository;
         this.j1939DaRepository = j1939DaRepository;

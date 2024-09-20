@@ -6,6 +6,7 @@ package org.etools.j1939tools.j1939.packets;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939tools.utils.CollectionUtils.join;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -71,6 +72,7 @@ public class DM58RationalityFaultSpData extends GenericPacket {
         return spnId;
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public byte[] getSpnDataBytes() {
         if (dataBytes == null) {
             byte[] bytes = getPacket().getBytes();

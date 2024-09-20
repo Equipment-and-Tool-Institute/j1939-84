@@ -10,6 +10,7 @@ import static org.etools.j1939tools.j1939.model.KeyState.KEY_OFF;
 import static org.etools.j1939tools.j1939.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939tools.j1939.model.KeyState.KEY_ON_ENGINE_RUNNING;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Collection;
@@ -74,6 +75,7 @@ public class VehicleInformationModule extends FunctionalModule {
      * @throws IOException
      *                         if there are no {@link CalibrationInformation} returned
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public List<CalibrationInformation> getCalibrations() throws IOException {
         if (calibrations == null) {
             calibrations = getJ1939()

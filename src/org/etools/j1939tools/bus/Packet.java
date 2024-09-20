@@ -408,10 +408,12 @@ public class Packet {
         return getId(0x3FFFF) < 0xF000 ? getId(0xFF) : J1939.GLOBAL_ADDR;
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public List<Packet> getFragments() {
         return fragments;
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public void setFragments(List<Packet> fragments) {
         this.fragments = fragments;
     }

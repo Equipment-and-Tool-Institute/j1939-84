@@ -3,6 +3,7 @@
  */
 package org.etools.j1939tools.bus;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 
 /**
@@ -56,6 +57,7 @@ public class Adapter {
      * @param deviceId
      *                     the device ID
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public Adapter(String name, String dllName, short deviceId, long timestampWeight, List<String> connectionStrings) {
         this.name = name;
         this.dllName = dllName;
@@ -64,6 +66,7 @@ public class Adapter {
         this.connectionStrings = connectionStrings;
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public List<String> getConnectionStrings() {
         return connectionStrings;
     }

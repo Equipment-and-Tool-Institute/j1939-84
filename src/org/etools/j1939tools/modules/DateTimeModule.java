@@ -9,6 +9,7 @@ import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
 import static java.time.temporal.ChronoField.NANO_OF_SECOND;
 import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -31,9 +32,11 @@ public class DateTimeModule {
     private long nanoOffset = 0;
     private Instant last = Instant.now();
 
+    @SuppressFBWarnings(value = " SING_SINGLETON_HAS_NONPRIVATE_CONSTRUCTOR", justification = "Protected constructor for test access.")
     protected DateTimeModule() {
     }
 
+    @SuppressFBWarnings(value = "MS_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public static DateTimeModule getInstance() {
         return instance;
     }

@@ -9,6 +9,7 @@ import static org.etools.j1939_84.model.Outcome.INCOMPLETE;
 import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -60,6 +61,7 @@ public class StepResult implements IResult {
         return outcome;
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public Collection<ActionOutcome> getOutcomes() {
         return results;
     }

@@ -4,6 +4,7 @@
 
 package org.etools.j1939_84.controllers;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,7 +29,8 @@ public class PartResultRepository implements ResultsListener {
         partResultFactory = new PartResultFactory();
     }
 
-    public static PartResultRepository getInstance() {
+    @SuppressFBWarnings(value = "MS_EXPOSE_REP", justification = "Not a concern in desktop app.")
+    public static synchronized PartResultRepository getInstance() {
         if (instance == null) {
             instance = new PartResultRepository();
         }

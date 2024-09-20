@@ -5,6 +5,7 @@ package org.etools.j1939_84.ui;
 
 import static org.etools.j1939_84.J1939_84.isAutoMode;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -505,6 +506,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      *
      * @return JFrame
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public JFrame getFrame() {
         if (frame == null) {
             frame = new JFrame();

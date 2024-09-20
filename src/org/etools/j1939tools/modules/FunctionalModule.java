@@ -3,6 +3,7 @@
  */
 package org.etools.j1939tools.modules;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.etools.j1939tools.CommunicationsListener;
 import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.j1939.J1939;
@@ -21,6 +22,7 @@ public abstract class FunctionalModule {
         return j1939;
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public void setJ1939(J1939 j1939) {
         this.j1939 = j1939;
     }
