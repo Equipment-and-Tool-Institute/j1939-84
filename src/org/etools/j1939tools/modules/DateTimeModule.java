@@ -32,7 +32,7 @@ public class DateTimeModule {
     private long nanoOffset = 0;
     private Instant last = Instant.now();
 
-    @SuppressFBWarnings(value = " SING_SINGLETON_HAS_NONPRIVATE_CONSTRUCTOR", justification = "Protected constructor for test access.")
+    @SuppressFBWarnings(value = "SING_SINGLETON_HAS_NONPRIVATE_CONSTRUCTOR", justification = "Protected constructor for test access.")
     protected DateTimeModule() {
     }
 

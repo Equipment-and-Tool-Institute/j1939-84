@@ -1013,7 +1013,6 @@ public class J1939 {
         return Optional.of(logFilePath);
     }
 
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE", justification = "Not important if asc log file deletion sometimes fails.")
     public Stream<Packet> startLogger(String prefix) throws BusException {
         Instant start = Instant.now();
         // do not crash tests that do not include a raw bus.
@@ -1028,7 +1027,12 @@ public class J1939 {
                               .listFiles((dir, name) -> name.startsWith(prefix) && name.endsWith(SUFFIX)))
                       .sorted(Comparator.comparing(f -> -f.lastModified()))
                       .skip(10)
-                      .forEach(f -> f.delete());
+                      .forEach(f -> {
+                          if (!f.delete()) {
+                              J1939_84.getLogger().log(Level.INFO, "Failed to delete file " + f.getAbsolutePath());
+                          }
+                      });
+
                 try (PrintWriter out = new PrintWriter(new FileWriter(file, UTF_8))) {
                     out.println("base hex timestamps absolute");
                     loggerStream.forEach(p -> {

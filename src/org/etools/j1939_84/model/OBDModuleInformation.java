@@ -64,6 +64,7 @@ public class OBDModuleInformation implements Cloneable {
         this.function = function;
     }
 
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Super class is Object, no need to clone Object fields.")
     @Override
     public OBDModuleInformation clone() {
         OBDModuleInformation obdInfo = new OBDModuleInformation(getSourceAddress(), getFunction());

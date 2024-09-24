@@ -8,6 +8,7 @@ import static org.etools.j1939tools.utils.CollectionUtils.join;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.etools.j1939tools.bus.Packet;
@@ -124,6 +125,11 @@ public class DM58RationalityFaultSpData extends GenericPacket {
 
         return getTestId() == that.getTestId()
                 && getSpnId() == that.getSpnId();
+    }
+
+    @Override
+    public int hashCode(){
+        return Objects.hash(getTestId(), getSpnId(), super.hashCode());
     }
 
 }

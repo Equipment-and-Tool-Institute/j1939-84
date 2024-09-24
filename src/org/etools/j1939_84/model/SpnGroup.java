@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.model;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,6 +38,7 @@ public class SpnGroup implements Comparable<SpnGroup> {
         return "SPNs: " + spns.stream().map(Object::toString).collect(Collectors.joining(", "));
     }
 
+    @SuppressFBWarnings(value = "EQ_COMPARETO_USE_OBJECT_EQUALS", justification = "Not using .equals() on purpose.")
     @Override
     public int compareTo(SpnGroup spnGroup) {
         int thisSum = spns.stream().mapToInt(s -> s).sum();

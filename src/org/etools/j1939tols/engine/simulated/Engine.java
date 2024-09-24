@@ -694,8 +694,12 @@ public class Engine implements AutoCloseable {
                                        .getPacket());
 
         // DM56 Engine Model Year
+//        sim.response(p -> isRequestFor(DM56EngineFamilyPacket.PGN, p),
+//                     DM56EngineFamilyPacket.create(ADDR, 2022, true, "US HD OBD    ")::getPacket);
+
+
         sim.response(p -> isRequestFor(DM56EngineFamilyPacket.PGN, p),
-                     DM56EngineFamilyPacket.create(ADDR, 2022, true, "US HD OBD    ")::getPacket);
+                     new DM56EngineFamilyPacket(Packet.create(0xFCC7, ADDR, 0x32, 0x30, 0x32, 0x34, 0x45, 0x2D, 0x4D, 0x59, 0x00))::getPacket);
 
         sim.response(p -> isRequestFor(0xFB02, p),
                      () -> Packet.create(0xFB02, ADDR,

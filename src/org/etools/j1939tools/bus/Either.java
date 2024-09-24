@@ -4,6 +4,7 @@
 
 package org.etools.j1939tools.bus;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -12,10 +13,12 @@ public class Either<L, R> {
     final public Optional<L> left;
     final public Optional<R> right;
 
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", justification = "Not a concern in desktop app.")
     public Either(L left, R right) {
         this(Optional.ofNullable(left), Optional.ofNullable(right));
     }
 
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", justification = "Not a concern in desktop app.")
     private Either(Optional<L> l, Optional<R> r) {
         if (!l.isPresent() ^ r.isPresent()) {
             throw new IllegalArgumentException("Either one must be null.");

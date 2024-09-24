@@ -69,4 +69,9 @@ public class GhgActiveTechnologyPacket extends GenericPacket {
         return super.equals(o);
     }
 
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
 }

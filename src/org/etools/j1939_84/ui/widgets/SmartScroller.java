@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.ui.widgets;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.awt.Component;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
@@ -53,6 +54,7 @@ public class SmartScroller implements AdjustmentListener {
      * @param scrollPane
      *                       the scroll pane to monitor
      */
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", justification = "Not a concern in desktop app.")
     public SmartScroller(JScrollPane scrollPane) {
         this(scrollPane, VERTICAL, END);
     }
@@ -65,6 +67,7 @@ public class SmartScroller implements AdjustmentListener {
      * @param viewportPosition
      *                             valid values are START and END
      */
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", justification = "Not a concern in desktop app.")
     public SmartScroller(JScrollPane scrollPane, int viewportPosition) {
         this(scrollPane, VERTICAL, viewportPosition);
     }
@@ -83,6 +86,7 @@ public class SmartScroller implements AdjustmentListener {
      *                             positioned as
      *                             data is added. Valid values are START and END
      */
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", justification = "Not a concern in desktop app.")
     public SmartScroller(JScrollPane scrollPane, int scrollDirection, int viewportPosition) {
         if (scrollDirection != HORIZONTAL && scrollDirection != VERTICAL) {
             throw new IllegalArgumentException("invalid scroll direction specified");

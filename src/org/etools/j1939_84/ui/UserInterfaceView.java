@@ -111,6 +111,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      *
      * @wbp.parser.entryPoint
      */
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", justification = "False positive.")
     public UserInterfaceView() {
         swingExecutor = SwingUtilities::invokeLater;
         controller = new UserInterfacePresenter(this);
@@ -126,6 +127,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      *                          The {@link Executor} used to make updates to the UI on the
      *                          Swing Thread
      */
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", justification = "False positive.")
     UserInterfaceView(Presenter controller, Executor swingExecutor) {
         this.controller = controller;
         this.swingExecutor = swingExecutor;

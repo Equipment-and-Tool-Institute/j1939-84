@@ -3,6 +3,7 @@
  */
 package org.etools.j1939tols.engine.simulated;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ScheduledExecutorService;
@@ -49,10 +50,12 @@ public class Sim implements AutoCloseable {
         }
     }, "Sim Thread"));
 
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", justification = "Not a concern in desktop app.")
     public Sim(Bus bus) throws BusException {
         this(bus, false);
     }
 
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", justification = "Not a concern in desktop app.")
     public Sim(Bus bus, boolean logPackets) throws BusException {
         this.bus = bus;
         // stream is collected in the current thread to avoid missing any
