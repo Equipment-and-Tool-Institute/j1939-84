@@ -14,6 +14,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
@@ -96,7 +97,6 @@ public class Part01Step06Controller extends StepController {
         List<DM56EngineFamilyPacket> packets = getCommunicationsModule().requestDM56(getListener());
         // packet.getModelYear() may be null, so use Integer, not int to avoid NPE.
         Integer engineModelYear = getEngineModelYear();
-        // int engineModelYear = getEngineModelYear();
 
         if (packets.isEmpty()) {
             if (engineModelYear >= 2024) {
@@ -136,11 +136,13 @@ public class Part01Step06Controller extends StepController {
         }
 
         for (DM56EngineFamilyPacket packet : packets) {
-            String firstCharacter = packet.getFamilyName().substring(0, 1);
-            Integer myCode = myCodes.get(firstCharacter);
-            if (myCode == null || !myCode.equals(engineModelYear)) {
-                addFailure("6.1.6.2.d - MY designation in engine family (1st digit) does not match user MY input");
-                break;
+            if (packet.getFamilyName() != null && packet.getFamilyName().length() > 0) {
+                String firstCharacter = packet.getFamilyName().substring(0, 1);
+                Integer myCode = myCodes.get(firstCharacter);
+                if (myCode == null || !myCode.equals(engineModelYear)) {
+                    addFailure("6.1.6.2.d - MY designation in engine family (1st digit) does not match user MY input");
+                    break;
+                }
             }
         }
 

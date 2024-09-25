@@ -265,7 +265,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
      * The asterisk termination at a char location of greater than 12
      */
     @Test
-    @TestDoc(value = @TestItem(verifies = "6.1.6.2.e", description = "Engine family has > 12 characters before first asterisk character"))
+    @TestDoc(value = @TestItem(verifies = "6.1.6.2.e", description = "Engine family has < 12 characters before first asterisk character"))
     public void testFamilyNameLessThan13Characters() {
         String famName = familyName.replace("0OBD*", "");
 
@@ -278,6 +278,25 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
                                         6,
                                         FAIL,
                                         "6.1.6.2.e - Engine family has 8 characters, which is not 12.");
+
+        verify(communicationsModule).requestDM56(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    @TestDoc(value = @TestItem(verifies = "6.1.6.2.e", description = "Engine family has > 12 characters before first asterisk character is empty"))
+    public void testFamilyNameEmpty() {
+        List<DM56EngineFamilyPacket> parsedPackets = List.of(createDM56(2006, ""));
+        when(communicationsModule.requestDM56(any())).thenReturn(parsedPackets);
+
+        runTest();
+
+        verify(mockListener).addOutcome(1,
+                                        6,
+                                        FAIL,
+                                        "6.1.6.2.e - Engine family has 0 characters, which is not 12.");
 
         verify(communicationsModule).requestDM56(any());
 
