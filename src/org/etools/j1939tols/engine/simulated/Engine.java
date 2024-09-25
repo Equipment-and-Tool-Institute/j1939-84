@@ -494,7 +494,8 @@ public class Engine implements AutoCloseable {
                                                       SupportedSPN.create(12691, false, true, false, false, 1),
                                                       SupportedSPN.create(12730, false, true, false, false, 1),
                                                       SupportedSPN.create(12797, false, true, false, false, 1),
-                                                      SupportedSPN.create(12783, false, true, false, false, 1))
+                                                      SupportedSPN.create(12783, false, true, false, false, 1),
+                                                      SupportedSPN.create(22227, false, true, false, false, 1))
                                               .getPacket());
 
         // DM25

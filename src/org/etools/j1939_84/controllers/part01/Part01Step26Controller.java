@@ -6,6 +6,8 @@ package org.etools.j1939_84.controllers.part01;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.ERROR;
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939tools.modules.CSERSModule.CSERS_AVERAGE_PG;
+import static org.etools.j1939tools.modules.CSERSModule.CSERS_CURRENT_OP_CYCLE_PG;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_100_HR;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_GREEN_HOUSE_100_HR;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_HYBRID_100_HR;
@@ -55,6 +57,7 @@ import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.GhgActiveTechnologyPacket;
 import org.etools.j1939tools.j1939.packets.GhgLifetimeActiveTechnologyPacket;
 import org.etools.j1939tools.j1939.packets.SupportedSPN;
+import org.etools.j1939tools.modules.CSERSModule;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 import org.etools.j1939tools.modules.GhgTrackingModule;
@@ -67,6 +70,7 @@ public class Part01Step26Controller extends StepController {
 
     private final GhgTrackingModule ghgTrackingModule;
     private final NOxBinningModule nOxBinningModule;
+    private final CSERSModule csersModule;
 
     private final BroadcastValidator broadcastValidator;
     private final BusService busService;
@@ -88,7 +92,8 @@ public class Part01Step26Controller extends StepController {
              new BroadcastValidator(DataRepository.getInstance(), J1939DaRepository.getInstance()),
              new BusService(J1939DaRepository.getInstance()),
              new GhgTrackingModule(DateTimeModule.getInstance()),
-             new NOxBinningModule(DateTimeModule.getInstance()));
+             new NOxBinningModule(DateTimeModule.getInstance()),
+             new CSERSModule(DateTimeModule.getInstance()));
     }
 
     Part01Step26Controller(Executor executor,
@@ -103,7 +108,8 @@ public class Part01Step26Controller extends StepController {
                            BroadcastValidator broadcastValidator,
                            BusService busService,
                            GhgTrackingModule ghgTrackingModule,
-                           NOxBinningModule nOxBinningModule) {
+                           NOxBinningModule nOxBinningModule,
+                           CSERSModule csersModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
@@ -120,6 +126,7 @@ public class Part01Step26Controller extends StepController {
         this.busService = busService;
         this.ghgTrackingModule = ghgTrackingModule;
         this.nOxBinningModule = nOxBinningModule;
+        this.csersModule = csersModule;
     }
 
     @Override
@@ -356,8 +363,8 @@ public class Part01Step26Controller extends StepController {
                     testSp12783(obdModule);
                 }
                 if (obdModule.supportsSpn(22227)){
-                        //6.1.26.27 - 6.1.26.28
-                        testSp22227(obdModule);
+                    //6.1.26.27 - 6.1.26.28
+                    testSp22227(obdModule);
 
                 }
             }
@@ -466,31 +473,21 @@ public class Part01Step26Controller extends StepController {
         //a. DS request message to ECU that indicated support in DM24 for upon request SP 22227 (Current Cycle Catalyst Heat Energy Until FTP Cold Start Tracking Time) for PGs 64019 and 64020.
         //64019 Cold Start Emissions Reduction Strategy Current Operating Cycle Data CSERSC
         //64020 Cold Start Emissions Reduction Strategy Average Data CSERSA
-        int[] pgns = {64019, 64020};
+        int[] pgns = {CSERS_CURRENT_OP_CYCLE_PG, CSERS_AVERAGE_PG};
         List<GenericPacket> packets = requestPackets(module.getSourceAddress(), pgns).stream()
                 .peek(this::save)
                 .collect(Collectors.toList());
 
-        List<Integer> notReceived = Arrays.asList(64019, 64020);
-        String result = "";
-
-        result += getDateTimeModule().getTime() + "Current Cycle Catalyst Heat Energy Until FTP Cold Start Tracking Time" + NL;
-        StringBuilder data = new StringBuilder("");
-        packets.stream().forEach(p -> p.getSpn(22227).ifPresent(spn -> {
-            if (spn.hasValue()){
-                notReceived.remove(p.getPgnDefinition().getId());
-                data.append("PGN " + p.getPgnDefinition().getId() + " " + p.getPgnDefinition().getLabel() + NL);
-                data.append(spn.toString() + NL);
-            }
-        }));
-
-        //6.2.17.27.b List data received in a
-        getListener().onResult(data.toString());
+        List<Integer> notReceived = Arrays.asList(CSERS_CURRENT_OP_CYCLE_PG, CSERS_AVERAGE_PG);
+        packets.stream().forEach(p -> notReceived.remove((Integer)p.getPgnDefinition().getId()));
 
         //6.1.26.28.a Fail if either PG 64019 and PG 64020 is not provided for engines that support SPN 22227.
         if (notReceived.size() > 0){
             addFailure("6.1.26.28.a - No response was received from "
                                + module.getModuleName() + " for PGN " + notReceived);
+        } else {
+            //6.2.17.27.b List data received in a
+            getListener().onResult(csersModule.format(packets));
         }
     }
 
