@@ -163,6 +163,7 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
 
         String urgentMessages2 = "Please start the engine";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq("Step 6.2.18.1.c"), eq(WARNING), any());
+        verify(mockListener).onUrgentMessage(eq("Wait for the manufacturer's recommended interval with the key on, engine on" + NL + NL + "Press OK to continue"), eq("Step 6.2.18.1.f,g"), eq(WARNING), any());
 
         String outcomeMessage = "User cancelled testing at Part 2 Step 18";
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, outcomeMessage);
@@ -196,6 +197,7 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
 
         String urgentMessages2 = "Please start the engine";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq("Step 6.2.18.1.c"), eq(WARNING), any());
+        verify(mockListener).onUrgentMessage(eq("Wait for the manufacturer's recommended interval with the key on, engine on" + NL + NL + "Press OK to continue"), eq("Step 6.2.18.1.f,g"), eq(WARNING), any());
 
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
         expected += "Final Engine Speed = 0.0 RPMs" + NL;
@@ -230,12 +232,14 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
                                              eq("Step 6.2.18.1.c"),
                                              eq(WARNING),
                                              any());
+        verify(mockListener).onUrgentMessage(eq("Wait for the manufacturer's recommended interval with the key on, engine on" + NL + NL + "Press OK to continue"), eq("Step 6.2.18.1.f,g"), eq(WARNING), any());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 2 Step 18");
 
         String expectedMessages = "Step 6.2.18.1.b - Waiting for implant of Fault A according to the engine manufacturer's instruction"
                 + NL;
         expectedMessages += "Step 6.2.18.1.c - Waiting for engine start" + NL;
+        expectedMessages += "Step 6.2.18.1.f,g - Waiting manufacturer’s recommended interval with the key on, engine running" + NL;
         expectedMessages += "User cancelled testing at Part 2 Step 18";
         assertEquals(expectedMessages, listener.getMessages());
 

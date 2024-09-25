@@ -31,7 +31,7 @@ LicenseData "..\LICENSE"
 # This will be in the installer/uninstaller's title bar
 Name "${COMPANYNAME} - ${APPNAME}"
 Icon "logo.ico"
-outFile "..\dist\J1939-84-installer.exe"
+outFile "..\target\J1939-84-installer.exe"
  
 !include LogicLib.nsh
  
@@ -62,7 +62,7 @@ section "install"
     createDirectory "$INSTDIR\jre"
 	file /r "..\jre\"
     setOutPath $INSTDIR
-	file "..\dist\J1939-84.exe"
+	file "..\target\J1939-84.exe"
 	file "logo.ico"
 	# Add any other files for the install directory (license files, app data, etc) here
  

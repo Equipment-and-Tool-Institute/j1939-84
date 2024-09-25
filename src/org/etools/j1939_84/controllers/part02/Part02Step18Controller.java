@@ -84,6 +84,12 @@ public class Part02Step18Controller extends StepController {
             // 6.2.18.1.d. Observe MIL and Wait to Start Lamps in Instrument Cluster
             // 6.2.18.1.e. Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished.
             ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.2.18.1.c");
+
+            //f.	Wait as directed by the manufacturer’s instruction to minimize DM6 query iteration
+            //g.	Display the time since engine start (calculated internally)
+            updateProgress("Step 6.2.18.1.f,g - Waiting manufacturer’s recommended interval with the key on, engine running");
+            String message = "Wait for the manufacturer's recommended interval with the key on, engine on" + NL + NL + "Press OK to continue";
+            displayInstructionAndWait(message, "Step 6.2.18.1.f,g", WARNING);
         }
     }
 

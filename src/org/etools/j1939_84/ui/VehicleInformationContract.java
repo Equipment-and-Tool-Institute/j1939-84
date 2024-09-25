@@ -91,6 +91,12 @@ public interface VehicleInformationContract {
         void onNumberOfTripsForFaultBImplantChanged(int trips);
 
         /**
+         *
+         * @param faults
+         */
+        void onNumberOfFaultAImplantsChanged(int faults);
+
+        /**
          * Called when the OK button is clicked
          */
         void onOkButtonClicked();
@@ -157,6 +163,8 @@ public interface VehicleInformationContract {
         void setFuelType(FuelType fuelType);
 
         void setNumberOfTripsForFaultBImplant(int count);
+
+        void setNumberOfFaultAImplants(int count);
 
         /**
          * Enables and Disables the Ok Button

@@ -347,7 +347,7 @@ public class TableA1ValidatorDuplicateSPNsTest {
         //@formatter:off
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.5 SPN 27 provided by more than one ECU");
         verify(mockListener).addOutcome(1, 26, INFO, "S - N.5 SPN 38 provided by more than one ECU");
-        verify(mockListener).addOutcome(1, 26, WARN, "S - N.5 SPN 74 provided by more than one ECU");
+        verify(mockListener).addOutcome(1, 26, INFO, "S - N.5 SPN 74 provided by more than one ECU");
         verify(mockListener).addOutcome(1, 26, INFO, "S - N.5 SPN 84 provided by more than one ECU");
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.5 SPN 91 provided by more than one ECU");
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.5 SPN 92 provided by more than one ECU");
@@ -508,7 +508,7 @@ public class TableA1ValidatorDuplicateSPNsTest {
         //@formatter:off
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.5 SPN 27 provided by more than one ECU");
         verify(mockListener).addOutcome(1, 26, INFO, "S - N.5 SPN 38 provided by more than one ECU");
-        verify(mockListener).addOutcome(1, 26, WARN, "S - N.5 SPN 74 provided by more than one ECU");
+        verify(mockListener).addOutcome(1, 26, INFO, "S - N.5 SPN 74 provided by more than one ECU");
         verify(mockListener).addOutcome(1, 26, INFO, "S - N.5 SPN 84 provided by more than one ECU");
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.5 SPN 91 provided by more than one ECU");
         verify(mockListener).addOutcome(1, 26, FAIL, "S - N.5 SPN 92 provided by more than one ECU");

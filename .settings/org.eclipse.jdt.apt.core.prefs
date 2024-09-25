@@ -1,5 +1,0 @@
-eclipse.preferences.version=1
-org.eclipse.jdt.apt.aptEnabled=true
-org.eclipse.jdt.apt.genSrcDir=testdoc
-org.eclipse.jdt.apt.genTestSrcDir=gen_testdoc
-org.eclipse.jdt.apt.reconcileEnabled=true

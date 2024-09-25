@@ -3,10 +3,14 @@
  */
 package org.etools.j1939_84.modules;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.SEVERE;
+import static java.util.logging.Level.WARNING;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.J1939_84.PAGE_BREAK;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -14,11 +18,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.ActionOutcome;
@@ -48,6 +57,8 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
      * The Writer used to write results to the report file
      */
     private Writer writer;
+
+    private static final String ZIP_FILE_END = "-J1939-84-CAN.zip";
 
     /**
      * Constructor
@@ -251,8 +262,31 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
             if (!copySuccess) {
                 logger.log(SEVERE, "Unable to delete file");
             }
+
+            getJ1939().getLogFilePath().ifPresentOrElse(s -> {
+                File busLogFile = new File(s);
+
+                String zipFileName = reportFile.toPath().toString();
+                zipFileName = zipFileName.substring(0, zipFileName.lastIndexOf(".")) + ZIP_FILE_END;
+                File zipFile = new File(zipFileName);
+
+                try(ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile))){
+                    zos.putNextEntry(new ZipEntry(busLogFile.getName().toString()));
+                    Files.copy(busLogFile.toPath(), zos);
+                    zos.closeEntry();
+                }catch(IOException e){
+                    logger.log(WARNING, "Failed to add .asc CAN log to zip file.");
+                }
+
+                //same file management logic as in J1939 class
+                Stream.of(zipFile.getParentFile()
+                                  .listFiles((dir, name) -> name.endsWith(ZIP_FILE_END)))
+                        .sorted(Comparator.comparing(f -> -f.lastModified()))
+                        .skip(10)
+                        .forEach(f -> f.delete());
+            }, () -> logger.log(INFO, "No .asc CAN log found."));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(WARNING, "Failure while creating final report or zipped CAN log", e);
         }
     }
 

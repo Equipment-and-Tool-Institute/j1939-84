@@ -679,18 +679,15 @@ public class Part01Step26Controller extends StepController {
                     + module.getModuleName());
         } else {
             lifetimeGhgPackets.forEach(packet -> {
-                packet.getSpns().forEach(spn -> {
-                    if (spn.hasValue()) {
-                        if (spn.getId() != 12691) {
-                            // 6.1.26.16.b. Fail any accumulator value received that is greater
-                            // than FAFFFFFFh.
-                            validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.16.b");
-                        } else {
-                            // 6.1.26.16.c. Fail PG query where any index value received is
-                            // greater than FAh.
-                            validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.16.c");
-                        }
-                    }
+                packet.getActiveTechnologies().forEach(at -> {
+                    // 6.1.26.16.b. Fail any accumulator value received that is greater
+                    // than FAFFFFFFh.
+                    validateSpnValueGreaterThanFaBasedSlotLength(module, at.getTimeSpn(), FAIL, "6.1.26.16.b");
+                    validateSpnValueGreaterThanFaBasedSlotLength(module, at.getDistanceSpn(), FAIL, "6.1.26.16.b");
+
+                    // 6.1.26.16.c. Fail PG query where any index value received is
+                    // greater than FAh.
+                    validateSpnValueGreaterThanFaBasedSlotLength(module, at.getIndexSpn(), FAIL, "6.1.26.16.c");
                 });
             });
         }
@@ -734,24 +731,24 @@ public class Part01Step26Controller extends StepController {
                         + module.getModuleName());
             }
         } else {
-            var indexes = List.of(12691, 12694, 12697);
+           // var indexes = List.of(12691, 12694, 12697);
             ghg100HrPackets.forEach(packet -> {
-                packet.getSpns().forEach(spn -> {
-                    if (spn.hasValue()) {
-                        if (!indexes.contains(spn.getId())) {
-                            // 6.1.26.18.c. Fail PG query where any bin value received is greater than FAFFh.
-                            validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.18.c");
-                        } else {
-                            // 6.1.26.18.d. Fail PG query where any index value received is greater than FAh.
-                            validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.1.26.18.d");
-                        }
-                    }
-                    if (!indexes.contains(spn.getId())
-                            && GHG_ACTIVE_GREEN_HOUSE_100_HR == packet.getPgnDefinition().getId()
-                            && spn.getValue() > 0) {
+                packet.getActiveTechnologies().forEach(at -> {
+                    // 6.1.26.18.c. Fail PG query where any bin value received is greater than FAFFh.
+                    validateSpnValueGreaterThanFaBasedSlotLength(module, at.getTimeSpn(), FAIL, "6.1.26.18.c");
+                    validateSpnValueGreaterThanFaBasedSlotLength(module, at.getDistanceSpn(), FAIL, "6.1.26.18.c");
+
+                    // 6.1.26.18.d. Fail PG query where any index value received is greater than FAh.
+                    validateSpnValueGreaterThanFaBasedSlotLength(module, at.getIndexSpn(), FAIL, "6.1.26.18.d");
+
+                    if (GHG_ACTIVE_GREEN_HOUSE_100_HR == packet.getPgnDefinition().getId()){
                         // 6.1.26.18.g. Fail each active 100 hr array value that is greater than zero
-                        addFailure("6.1.26.18.g - Active 100 hr array value received was greater than zero from "
-                                + module.getModuleName() + " for " + spn);
+                        List.of(at.getDistanceSpn(), at.getTimeSpn()).forEach(spn ->{
+                            if (spn.getValue() > 0){
+                                addFailure("6.1.26.18.g - Active 100 hr array value received was greater than zero from "
+                                                   + module.getModuleName() + " for " + spn + " (index " + at.getIndex() + ")");
+                            }
+                        });
                     }
                 });
             });

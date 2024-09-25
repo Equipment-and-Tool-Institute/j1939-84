@@ -121,6 +121,7 @@ public class VehicleInformationPresenterTest {
 
         verify(view).setFuelType(FuelType.DSL);
         verify(view).setNumberOfTripsForFaultBImplant(1);
+        verify(view).setNumberOfFaultAImplants(0);
         verify(view).setEmissionUnits(0);
         verify(view).setVin("vin");
         verify(view).setVehicleModelYear(2);
@@ -171,6 +172,7 @@ public class VehicleInformationPresenterTest {
 
         verify(view).setFuelType(FuelType.DSL);
         verify(view).setNumberOfTripsForFaultBImplant(1);
+        verify(view).setNumberOfFaultAImplants(0);
         verify(view).setEmissionUnits(0);
         verify(view).setVehicleModelYear(500);
         verify(view).setEngineModelYear(500);
@@ -367,25 +369,26 @@ public class VehicleInformationPresenterTest {
         instance.onEmissionUnitsChanged(4);
         instance.onCalIdsChanged(6);
         instance.onNumberOfTripsForFaultBImplantChanged(1);
+        instance.onNumberOfFaultAImplantsChanged(0);
         instance.onEngineModelYearChanged(1);
         instance.onFuelTypeChanged(FuelType.DSL);
         instance.onVehicleModelYearChanged(2);
         instance.onVinChanged("vin");
 
-        verify(vinDecoder, times(7)).isVinValid(null);
+        verify(vinDecoder, times(8)).isVinValid(null);
         verify(vinDecoder, times(1)).isVinValid("vin");
-        verify(vinDecoder, times(7)).getModelYear(null);
+        verify(vinDecoder, times(8)).getModelYear(null);
         verify(vinDecoder, times(1)).getModelYear("vin");
-        verify(vinDecoder, times(4)).isModelYearValid(0);
+        verify(vinDecoder, times(5)).isModelYearValid(0);
         verify(vinDecoder, times(4)).isModelYearValid(1);
 
-        verify(view, times(7)).setVinValid(false);
+        verify(view, times(8)).setVinValid(false);
         verify(view, times(1)).setVinValid(true);
         verify(view, times(1)).setVehicleModelYearValid(false);
-        verify(view, times(7)).setVehicleModelYearValid(true);
-        verify(view, times(7)).setOkButtonEnabled(false);
+        verify(view, times(8)).setVehicleModelYearValid(true);
+        verify(view, times(8)).setOkButtonEnabled(false);
         verify(view, times(1)).setOkButtonEnabled(true);
-        verify(view, times(7)).setOverrideControlVisible(true);
+        verify(view, times(8)).setOverrideControlVisible(true);
         verify(view, times(1)).setOverrideControlVisible(false);
 
         instance.onOkButtonClicked();
@@ -398,6 +401,7 @@ public class VehicleInformationPresenterTest {
         vehicleInformation.setEmissionUnits(4);
         vehicleInformation.setCalIds(6);
         vehicleInformation.setNumberOfTripsForFaultBImplant(1);
+        vehicleInformation.setNumberOfFaultAImplants(0);
         vehicleInformation.setEngineModelYear(1);
         vehicleInformation.setFuelType(FuelType.DSL);
         vehicleInformation.setVehicleModelYear(2);
