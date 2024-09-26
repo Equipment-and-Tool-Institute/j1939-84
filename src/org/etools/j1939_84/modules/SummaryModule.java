@@ -5,6 +5,7 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,6 +27,7 @@ public class SummaryModule {
         this(PartResultRepository.getInstance());
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public SummaryModule(PartResultRepository partResultRepository) {
         this.partResultRepository = partResultRepository;
     }

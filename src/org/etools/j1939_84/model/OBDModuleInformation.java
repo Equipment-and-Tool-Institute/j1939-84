@@ -6,6 +6,7 @@ package org.etools.j1939_84.model;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -63,6 +64,7 @@ public class OBDModuleInformation implements Cloneable {
         this.function = function;
     }
 
+    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Super class is Object, no need to clone Object fields.")
     @Override
     public OBDModuleInformation clone() {
         OBDModuleInformation obdInfo = new OBDModuleInformation(getSourceAddress(), getFunction());
@@ -146,6 +148,7 @@ public class OBDModuleInformation implements Cloneable {
         omittedSPNs.add(spn);
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public List<ScaledTestResult> getScaledTestResults() {
         return scaledTestResults;
     }

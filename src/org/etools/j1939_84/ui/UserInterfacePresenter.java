@@ -5,6 +5,7 @@ package org.etools.j1939_84.ui;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
@@ -124,6 +125,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      *                                     the {@link OverallController} which will run all the other
      *                                     parts
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public UserInterfacePresenter(UserInterfaceContract.View view,
                                   VehicleInformationModule vehicleInformationModule,
                                   RP1210 rp1210,
@@ -174,6 +176,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      * @see org.etools.j1939_84.ui.IUserInterfaceController#getAdapters()
      */
     @Override
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public List<Adapter> getAdapters() {
         if (adapters == null) {
             adapters = new ArrayList<>();
@@ -197,6 +200,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
     }
 
     @Override
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public J1939 getJ1939() {
         return j1939;
     }
@@ -207,6 +211,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      * @return the {@link ReportFileModule}
      */
     @Override
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public ReportFileModule getReportFileModule() {
         return reportFileModule;
     }

@@ -72,7 +72,7 @@ public class Part01Step14Controller extends StepController {
                                                      .stream()
                                                      .filter(p -> isObdModule(p.getSourceAddress()))
                                                     .filter(p -> p.getTimeSinceEngineStart() != NOT_AVAILABLE ||
-                                                            p.getWarmUpsSinceClear() != 0xFF)
+                                                            (p.getWarmUpsSinceClear() & 0xFF) != 0xFF)
                                                      .collect(Collectors.toList());
 
         // 6.1.14.2.g. Fail if no OBD ECU provides DM26.
@@ -168,7 +168,7 @@ public class Part01Step14Controller extends StepController {
 
         // 6.1.14.2.e. Fail if any response indicates number of warm-ups since code clear (SP 3302) is not zero or FFh.
         globalPackets.stream()
-                     .filter(packet -> packet.getWarmUpsSinceClear() != 0 && packet.getWarmUpsSinceClear() != 0xFF)
+                     .filter(packet -> packet.getWarmUpsSinceClear() != 0 && (packet.getWarmUpsSinceClear() & 0xFF) != 0xFF)
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> {
                          addFailure("6.1.14.2.e - " + moduleName

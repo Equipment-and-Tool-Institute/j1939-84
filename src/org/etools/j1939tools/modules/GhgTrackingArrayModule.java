@@ -2,6 +2,7 @@ package org.etools.j1939tools.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +15,7 @@ public class GhgTrackingArrayModule {
 
     private final DateTimeModule dateTimeModule;
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public GhgTrackingArrayModule(DateTimeModule dateTimeModule) {
         this.dateTimeModule = dateTimeModule;
     }

@@ -5,6 +5,7 @@ package org.etools.j1939_84.ui;
 
 import static org.etools.j1939_84.J1939_84.isAutoMode;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -110,6 +111,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      *
      * @wbp.parser.entryPoint
      */
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", justification = "False positive.")
     public UserInterfaceView() {
         swingExecutor = SwingUtilities::invokeLater;
         controller = new UserInterfacePresenter(this);
@@ -125,6 +127,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      *                          The {@link Executor} used to make updates to the UI on the
      *                          Swing Thread
      */
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", justification = "False positive.")
     UserInterfaceView(Presenter controller, Executor swingExecutor) {
         this.controller = controller;
         this.swingExecutor = swingExecutor;
@@ -505,6 +508,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      *
      * @return JFrame
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public JFrame getFrame() {
         if (frame == null) {
             frame = new JFrame();

@@ -21,6 +21,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -77,6 +78,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
      * @param bannerModule
      *                          The {@link BannerModule}
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public ReportFileModule(Logger logger,
                             SummaryModule summaryModule,
                             BannerModule bannerModule) {
@@ -114,6 +116,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
     }
 
     @Override
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public void onVehicleInformationReceived(VehicleInformation vehicleInformation) {
         this.vehicleInformation = vehicleInformation;
     }
@@ -192,8 +195,8 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
         writer.write(result + NL);
     }
 
-    @SuppressFBWarnings(value = { "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE",
-            "REC_CATCH_EXCEPTION" }, justification = "Several places in the calls down the stack can return null")
+    @SuppressFBWarnings(value = {"RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE",
+            "REC_CATCH_EXCEPTION" }, justification = "Several places in the calls down the stack can return null. Not important if zip file deletion sometimes fails.")
     private void writeFinalReport() {
         try {
             String pageHeader = bannerModule.getHeader() + NL
@@ -283,7 +286,11 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
                                   .listFiles((dir, name) -> name.endsWith(ZIP_FILE_END)))
                         .sorted(Comparator.comparing(f -> -f.lastModified()))
                         .skip(10)
-                        .forEach(f -> f.delete());
+                        .forEach(f -> {
+                            if (!f.delete()) {
+                                J1939_84.getLogger().log(Level.INFO, "Failed to delete file " + f.getAbsolutePath());
+                            }
+                        });
             }, () -> logger.log(INFO, "No .asc CAN log found."));
         } catch (Exception e) {
             logger.log(WARNING, "Failure while creating final report or zipped CAN log", e);

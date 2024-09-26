@@ -67,7 +67,7 @@ public class TableA1Validator {
         this(new TableA1ValueValidator(),
              DataRepository.getInstance(),
              J1939DaRepository.getInstance(),
-             new TableA1Repository(),
+             TableA1Repository.getInstance(),
              partNumber,
              stepNumber);
     }
@@ -421,10 +421,6 @@ public class TableA1Validator {
             List<Integer> omittedSPNs = outcomes.keySet().stream().filter(spn -> !reportedSPNs.contains(spn)).toList();
 
             if (!omittedSPNs.isEmpty()) {
-                Collection<Integer> spns = dataRepository.isObdModule(sourceAddress)
-                        ? dataRepository.getModuleSupportedSPNs(sourceAddress)
-                        : getAllSupportedSPNs();
-                List<String> supportedSPNs = getSupportedSPNs(spns, packet);
                 listener.onResult(packet.getPacket().toTimeString());
                 StringBuilder omitted = new StringBuilder("PGN " + pgn + " with Omitted SPNs " + omittedSPNs.stream().map(String::valueOf).collect(Collectors.joining(", ")) + NL);
                 StringBuilder supported = new StringBuilder("PGN " + pgn + " with supported SPNs" + NL);

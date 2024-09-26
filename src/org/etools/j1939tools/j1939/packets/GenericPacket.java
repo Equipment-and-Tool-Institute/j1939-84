@@ -5,6 +5,7 @@ package org.etools.j1939tools.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -79,6 +80,7 @@ public class GenericPacket extends ParsedPacket {
         return getSpn(spn).filter(Spn::hasValue).map(Spn::getValue);
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public List<Spn> getSpns() {
         if (spns == null) {
             spns = new ArrayList<>();

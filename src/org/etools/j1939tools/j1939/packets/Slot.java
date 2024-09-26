@@ -228,10 +228,6 @@ public class Slot {
         return maskedValue == mask;
     }
 
-    private long mask(int dataLength) {
-        return ~0L >>> (dataLength - length);
-    }
-
     protected long mask() {
         return ~0L >>> (64 - length);
     }

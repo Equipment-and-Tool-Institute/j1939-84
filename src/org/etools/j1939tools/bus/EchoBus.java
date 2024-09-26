@@ -3,6 +3,7 @@
  */
 package org.etools.j1939tools.bus;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -36,6 +37,7 @@ public class EchoBus implements Bus {
      * @param queue
      *                    the {@link MultiQueue} to use to back the bus
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public EchoBus(int address, MultiQueue<Packet> queue) {
         this.address = address;
         this.queue = queue;

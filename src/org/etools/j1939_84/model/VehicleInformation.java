@@ -74,10 +74,12 @@ public class VehicleInformation implements Cloneable {
         this.calIds = calIds;
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public List<DM19CalibrationInformationPacket> getCalIdsFound() {
         return calIdsFound;
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public void setCalIdsFound(List<DM19CalibrationInformationPacket> calIdsFound) {
         this.calIdsFound = calIdsFound;
     }
@@ -98,6 +100,7 @@ public class VehicleInformation implements Cloneable {
         this.emissionUnits = emissionUnits;
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public Map<Integer, Optional<ComponentIdentificationPacket>> getEmissionUnitsFound() {
         return emissionUnitsFound;
     }
@@ -197,6 +200,7 @@ public class VehicleInformation implements Cloneable {
     @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Calling super.clone() will cause a crash")
     @Override
     public VehicleInformation clone() {
+
         VehicleInformation vehInfo = new VehicleInformation();
         vehInfo.setAddressClaim(getAddressClaim());
         vehInfo.setCalIds(getCalIds());

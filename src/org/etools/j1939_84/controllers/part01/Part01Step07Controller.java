@@ -3,6 +3,9 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -153,7 +156,7 @@ public class Part01Step07Controller extends StepController {
             List<CalibrationInformation> calInfoList = packet.getCalibrationInformation();
             for (CalibrationInformation calInfo : calInfoList) {
                 // trimmed to verify calId, not raw cal Id
-                byte[] calId = new String(calInfo.getRawCalId()).trim().getBytes();
+                byte[] calId = new String(calInfo.getRawCalId(), UTF_8).trim().getBytes(UTF_8);
                 boolean isObdModule = isObdModule(packet.getSourceAddress());
 
                 if (calId != null && calId.length > 0 && StringUtils.containsNonPrintableAsciiCharacter(calId)) {

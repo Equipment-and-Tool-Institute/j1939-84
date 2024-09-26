@@ -7,6 +7,7 @@ import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,7 @@ public class TableA6Validator {
     private final int partNumber;
     private final int stepNumber;
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Not a concern in desktop app.")
     public TableA6Validator(DataRepository dataRepository, int partNumber, int stepNumber) {
         this.dataRepository = dataRepository;
         this.partNumber = partNumber;

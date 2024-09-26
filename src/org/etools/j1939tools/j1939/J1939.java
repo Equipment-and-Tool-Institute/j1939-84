@@ -3,6 +3,7 @@
  */
 package org.etools.j1939tools.j1939;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.SEVERE;
 import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.BUSY;
@@ -10,6 +11,7 @@ import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -1025,8 +1027,13 @@ public class J1939 {
                               .listFiles((dir, name) -> name.startsWith(prefix) && name.endsWith(SUFFIX)))
                       .sorted(Comparator.comparing(f -> -f.lastModified()))
                       .skip(10)
-                      .forEach(f -> f.delete());
-                try (PrintWriter out = new PrintWriter(new FileWriter(file))) {
+                      .forEach(f -> {
+                          if (!f.delete()) {
+                              J1939_84.getLogger().log(Level.INFO, "Failed to delete file " + f.getAbsolutePath());
+                          }
+                      });
+
+                try (PrintWriter out = new PrintWriter(new FileWriter(file, UTF_8))) {
                     out.println("base hex timestamps absolute");
                     loggerStream.forEach(p -> {
                         try {

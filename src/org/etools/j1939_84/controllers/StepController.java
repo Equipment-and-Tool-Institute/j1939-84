@@ -509,10 +509,7 @@ public abstract class StepController extends Controller {
 
     protected boolean areUnusedBytesPaddedWithFFh(DM58RationalityFaultSpData packet) {
         Slot slot = J1939DaRepository.findSlot(packet.getSpn().getSlot().getId(), packet.getSpn().getId());
-
         int slotLength = slot.getByteLength();
-        int spnLength = packet.getSpnDataBytes().length;
-
         byte[] paddingBytes;
 
         switch (slotLength) {

@@ -1,5 +1,6 @@
 package org.etools.j1939tools.j1939;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,10 +86,12 @@ public class J1939TP implements Bus {
         this(bus, bus.getAddress());
     }
 
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", justification = "Not a concern in desktop app.")
     public J1939TP(Bus bus, int address) throws BusException {
         this(bus, address, false);
     }
 
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", justification = "Not a concern in desktop app.")
     public J1939TP(Bus bus, int address, boolean passAll) throws BusException {
         this.bus = bus;
         this.passAll = passAll;

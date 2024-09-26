@@ -6,7 +6,9 @@ package org.etools.j1939tools.j1939.packets;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939tools.utils.CollectionUtils.join;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.etools.j1939tools.bus.Packet;
@@ -71,6 +73,7 @@ public class DM58RationalityFaultSpData extends GenericPacket {
         return spnId;
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Not a concern in desktop app.")
     public byte[] getSpnDataBytes() {
         if (dataBytes == null) {
             byte[] bytes = getPacket().getBytes();
@@ -105,6 +108,28 @@ public class DM58RationalityFaultSpData extends GenericPacket {
             spn = new Spn(getSpnId(), spnDefinition.getLabel(), slot, getSpnDataBytes());
         }
         return spn;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        DM58RationalityFaultSpData that = (DM58RationalityFaultSpData) o;
+
+        return getTestId() == that.getTestId()
+                && getSpnId() == that.getSpnId();
+    }
+
+    @Override
+    public int hashCode(){
+        return Objects.hash(getTestId(), getSpnId(), super.hashCode());
     }
 
 }

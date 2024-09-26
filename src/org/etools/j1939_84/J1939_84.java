@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.awt.EventQueue;
 import java.util.Arrays;
 import java.util.logging.ConsoleHandler;
@@ -64,6 +65,7 @@ public class J1939_84 {
         }
     }
 
+    @SuppressFBWarnings(value = "MS_EXPOSE_REP", justification = "Access to logger required for all classes.")
     public static Logger getLogger() {
         return logger;
     }

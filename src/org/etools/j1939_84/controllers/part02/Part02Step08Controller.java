@@ -116,7 +116,7 @@ public class Part02Step08Controller extends StepController {
                         }
 
                         // 6.2.8.2.d Fail if any ECU reports number of warm-ups SCC (SP 3302) greater than zero.
-                        if (dm26.getWarmUpsSinceClear() > 0 && dm26.getWarmUpsSinceClear() != 0xFF) {
+                        if (dm26.getWarmUpsSinceClear() > 0 && (dm26.getWarmUpsSinceClear() & 0xFF) != 0xFF) {
                             addFailure("6.2.8.2.d - " + moduleName
                                     + " indicates number of warm-ups since code clear greater than zero");
                         }
