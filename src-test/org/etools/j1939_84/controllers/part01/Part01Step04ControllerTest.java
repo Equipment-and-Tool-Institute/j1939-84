@@ -33,7 +33,6 @@ import java.util.concurrent.Executor;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.controllers.TableA1Validator;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
@@ -120,7 +119,6 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
         dataRepository = DataRepository.newInstance();
-        TableA1Validator tableA1Validator = new TableA1Validator(1, 4);
         supportedSpnModule = new SupportedSpnModule();
 
         instance = new Part01Step04Controller(executor,
@@ -130,8 +128,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                                               communicationsModule,
                                               supportedSpnModule,
                                               dataRepository,
-                                              DateTimeModule.getInstance(),
-                                              tableA1Validator);
+                                              DateTimeModule.getInstance());
 
         setup(instance,
               listener,

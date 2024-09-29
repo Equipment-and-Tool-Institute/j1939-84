@@ -801,16 +801,6 @@ public class Part12Step11ControllerTest extends AbstractControllerTest {
         assertEquals(List.of(), listener.getOutcomes());
     }
 
-    private List<ScaledTestResult> getDmScaledTestResults() {
-
-        ScaledTestResult str91 = ScaledTestResult.create(247, 91, 14, 0, 5, 10, 1);
-        ScaledTestResult str4145 = ScaledTestResult.create(247, 4145, 3, 0, 5, 10, 1);
-        ScaledTestResult str3301 = ScaledTestResult.create(247, 3301, 14, 0, 5, 10, 1);
-        ScaledTestResult str27 = ScaledTestResult.create(247, 27, 3, 0, 5, 10, 1);
-
-        return List.of(str91, str4145, str3301, str27);
-    }
-
     private DM24SPNSupportPacket getDm24SPNSupportPacket(int source) {
 
         return DM24SPNSupportPacket.create(source,

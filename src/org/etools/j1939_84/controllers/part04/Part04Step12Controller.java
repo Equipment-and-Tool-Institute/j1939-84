@@ -95,12 +95,7 @@ public class Part04Step12Controller extends StepController {
                 // 6.4.12.1.b. Create list of any ECU address+SPN+FMI combination with non-initialized test results,
                 // noting the number of initialized test results for each SPN+FMI combination that has non-initialized
                 // test results.
-                var nonInitializedTests = packets.stream()
-                                                 .map(DM30ScaledTestResultsPacket::getTestResults)
-                                                 .flatMap(Collection::stream)
-                                                 .filter(r -> !r.isInitialized())
-                                                 .collect(Collectors.toList());
-                Map nonInit = new HashMap<ScaledTestResult, Integer>();
+                Map<ScaledTestResult, Integer> nonInit = new HashMap<ScaledTestResult, Integer>();
 
                 packets.forEach(p -> {
                     p.getTestResults().stream().filter(tr -> !tr.isInitialized()).forEach(tr -> {

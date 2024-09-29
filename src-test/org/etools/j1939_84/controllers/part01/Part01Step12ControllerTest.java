@@ -994,7 +994,8 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
      * </table>
      * </P>
      */
-    @Test
+    @SuppressWarnings("unchecked")
+	@Test
     @TestDoc(value = {
             @TestItem(verifies = "6.1.12.2.a (A.7.2.b)", description = "Fail if any test result does not report the test result/min test limit/max test limit as initialized (after code clear) values (either 0xFB00(h)/0xFFFF(h)/0xFFFF(h) or 0x0000(h)/0x0000(h)/0x0000(h)).") })
     public void testReportedDuplicateTestResultsWarning() {

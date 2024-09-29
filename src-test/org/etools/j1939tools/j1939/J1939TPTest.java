@@ -290,9 +290,83 @@ public class J1939TPTest {
                 });
             }).start();
             assertEquals("1CD3FF3D [100] C0 C9 00 CE 33 41 73 33 30 31 4E 58 4E 00 00 00 00 00 00 00 C0 F5 FF 6A 4E 4F 78 2D 54 52 30 34 34 30 20 41 54 49 31 00 44 A9 2B 82 4E 4F 78 2D 54 52 30 34 34 30 20 41 54 4F 31 00 3C D4 F9 EE 50 4D 53 2A 31 32 2A 33 33 30 2A 41 31 30 30 00 6D 61 E7 CD 30 31 39 37 30 30 20 20 20 20 20 20 20 20 20 00",
-                                in.filter(VALID_FILTER)
-                                  .map(p -> p.toString())
-                                  .collect(Collectors.joining(System.lineSeparator())));
+                         in.filter(VALID_FILTER)
+                           .map(p -> p.toString())
+                           .collect(Collectors.joining(System.lineSeparator())));
+        }
+    }
+
+    /** Verify that abort in BAM stream actually aborts the receive. */
+    @Test
+    public void testRealBam2() throws BusException {
+        Collection<Packet> rawPackets = Packet.parseCollection("18EAFFF9 00 D3 00\r\n"
+                + "1CECFF00 20 B4 00 1A FF 00 D3 00\r\n"
+                + "1CEBFF00 01 86 AB E4 F8 50 43 49\r\n"
+                + "1CEBFF00 02 2D 4E 41 30 30 30 32\r\n"
+                + "1CEBFF00 03 34 32 39 30 36 37 1E\r\n"
+                + "1CEBFF00 04 27 AE 0C 44 41 46 4E\r\n"
+                + "1CEBFF00 05 6F 58 4E 5F 30 34 34\r\n"
+                + "1CEBFF00 06 30 41 54 49 31 5E 1F\r\n"
+                + "1CEBFF00 07 52 9C 4E 4F 58 5F 4E\r\n"
+                + "1CEBFF00 08 5F 30 50 33 30 20 41\r\n"
+                + "1CEBFF00 09 54 4F 31 00 DE 80 E6\r\n"
+                + "1CEBFF00 0A 1A 50 33 32 31 30 30\r\n"
+                + "1CEBFF00 0B 30 30 31 38 33 30 33\r\n"
+                + "1CEBFF00 0C 36 32 30 FB 1B B5 8C\r\n"
+                + "1CEBFF00 0D 30 32 30 31 30 31 30\r\n"
+                + "1CEBFF00 0E 30 30 35 00 00 00 00\r\n"
+                + "1CEBFF00 0F 00 00 2C 87 22 49 30\r\n"
+                + "1CEBFF00 10 32 31 32 30 38 30 32\r\n"
+                + "1CEBFF00 11 4E 41 00 00 00 00 00\r\n"
+                + "1CEBFF00 12 00 E3 FD 54 A8 45 47\r\n"
+                + "1CEBFF00 13 52 5F 4D 59 32 30 32\r\n"
+                + "1CEBFF00 14 31 5F 30 30 30 30 31\r\n"
+                + "1CEBFF00 15 B6 80 7A 0A 42 50 56\r\n"
+                + "1CEBFF00 16 5F 4D 59 32 30 32 31\r\n"
+                + "1CEBFF00 17 5F 30 30 30 30 31 D6\r\n"
+                + "1CEBFF00 18 1F 00 00 30 32 30 32\r\n"
+                + "1CEBFF00 19 30 30 30 30 30 31 00\r\n"
+                + "1CEBFF00 1A 00 00 00 00 00 FF FF\r\n");
+        try (EchoBus bus = new EchoBus(0);
+             J1939TP tp = new J1939TP(bus, 0xF9)) {
+            var start = Instant.now();
+            Stream<Packet> in = tp.read(750, TimeUnit.MILLISECONDS);
+            new Thread(() -> {
+                sleep(60);
+                rawPackets.forEach(p -> {
+                    sleep(60);
+                    System.err.println(bus.send(new Packet(p)).toVectorString(start));
+                });
+            }).start();
+            assertEquals("1CD3FF00 [180] 86 AB E4 F8 50 43 49 2D 4E 41 30 30 30 32 34 32 39 30 36 37 1E 27 AE 0C 44 41 46 4E 6F 58 4E 5F 30 34 34 30 41 54 49 31 5E 1F 52 9C 4E 4F 58 5F 4E 5F 30 50 33 30 20 41 54 4F 31 00 DE 80 E6 1A 50 33 32 31 30 30 30 30 31 38 33 30 33 36 32 30 FB 1B B5 8C 30 32 30 31 30 31 30 30 30 35 00 00 00 00 00 00 2C 87 22 49 30 32 31 32 30 38 30 32 4E 41 00 00 00 00 00 00 E3 FD 54 A8 45 47 52 5F 4D 59 32 30 32 31 5F 30 30 30 30 31 B6 80 7A 0A 42 50 56 5F 4D 59 32 30 32 31 5F 30 30 30 30 31 D6 1F 00 00 30 32 30 32 30 30 30 30 30 31 00 00 00 00 00 00",
+                         in.filter(VALID_FILTER)
+                           .map(p -> p.toString())
+                           .collect(Collectors.joining(System.lineSeparator())));
+        }
+    }
+
+    @Test
+    public void testRealBam3() throws BusException {
+        Collection<Packet> rawPackets = Packet.parseCollection("18EAFFF9 EC FE 00\r\n"
+                + "1CECFF00 20 12 00 03 FF EC FE 00\r\n"
+                + "1CEBFF00 01 31 58 50 42 44 4B 39\r\n"
+                + "1CEBFF00 02 58 38 52 44 36 36 35\r\n"
+                + "1CEBFF00 03 39 31 39 2A FF FF FF\r\n");
+        try (EchoBus bus = new EchoBus(0);
+             J1939TP tp = new J1939TP(bus, 0xF9)) {
+            var start = Instant.now();
+            Stream<Packet> in = tp.read(750, TimeUnit.MILLISECONDS);
+            new Thread(() -> {
+                sleep(60);
+                rawPackets.forEach(p -> {
+                    sleep(60);
+                    System.err.println(bus.send(new Packet(p)).toVectorString(start));
+                });
+            }).start();
+            assertEquals("1CFEEC00 [18] 31 58 50 42 44 4B 39 58 38 52 44 36 36 35 39 31 39 2A",
+                         in.filter(VALID_FILTER)
+                           .map(p -> p.toString())
+                           .collect(Collectors.joining(System.lineSeparator())));
         }
     }
 

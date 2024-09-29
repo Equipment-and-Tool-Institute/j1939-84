@@ -80,11 +80,7 @@ public class Part07Step15Controller extends StepController {
             }
 
             // 6.7.15.1.b. Create list of any ECU address+SPN+FMI combination with non-initialized test results.
-            var nonInitializedTests = testResults
-                    .stream()
-                    .filter(r -> !r.isInitialized())
-                    .collect(Collectors.toList());
-            Map nonInit = new HashMap<ScaledTestResult, Integer>();
+            Map<ScaledTestResult, Integer> nonInit = new HashMap<ScaledTestResult, Integer>();
             testResults.stream().filter(tr -> !tr.isInitialized()).forEach(tr -> {
                 nonInit.put(tr, (int)testResults.stream().filter(tr2 -> tr.equals(tr2) && tr2.isInitialized()).count());
             });

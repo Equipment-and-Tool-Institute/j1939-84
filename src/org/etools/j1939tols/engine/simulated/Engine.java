@@ -101,7 +101,6 @@ public class Engine implements AutoCloseable {
     // TODO Move this back
     private static final Charset A_UTF8 = StandardCharsets.UTF_8;
     private final static int ADDR = 0x00;
-    private static final int BUS_ADDR = 0xA5;
     private static final byte[] COMPONENT_ID = "INT*570261221315646M13*570HM2U3545277**".getBytes(A_UTF8);
     private static final byte[] DISTANCE = to4Bytes(256345L * 8); // km
 

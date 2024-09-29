@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.controllers.TableA1Validator;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.modules.BannerModule;
@@ -40,13 +39,12 @@ public class Part01Step04Controller extends StepController {
     private static final int TOTAL_STEPS = 0;
 
     private final SupportedSpnModule supportedSpnModule;
-    private final TableA1Validator tableA1Validator;
 
     Part01Step04Controller(DataRepository dataRepository) {
-        this(dataRepository, DateTimeModule.getInstance(), new TableA1Validator(1, 4));
+        this(dataRepository, DateTimeModule.getInstance());
     }
 
-    Part01Step04Controller(DataRepository dataRepository, DateTimeModule dateTimeModule, TableA1Validator tableA1Validator) {
+    Part01Step04Controller(DataRepository dataRepository, DateTimeModule dateTimeModule) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
              new BannerModule(),
@@ -54,8 +52,7 @@ public class Part01Step04Controller extends StepController {
              new CommunicationsModule(),
              new SupportedSpnModule(),
              dataRepository,
-             dateTimeModule,
-             tableA1Validator);
+             dateTimeModule);
     }
 
     Part01Step04Controller(Executor executor,
@@ -65,8 +62,7 @@ public class Part01Step04Controller extends StepController {
                            CommunicationsModule communicationsModule,
                            SupportedSpnModule supportedSpnModule,
                            DataRepository dataRepository,
-                           DateTimeModule dateTimeModule,
-                           TableA1Validator tableA1Validator) {
+                           DateTimeModule dateTimeModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
@@ -78,7 +74,6 @@ public class Part01Step04Controller extends StepController {
               STEP_NUMBER,
               TOTAL_STEPS);
         this.supportedSpnModule = supportedSpnModule;
-        this.tableA1Validator = tableA1Validator;
     }
 
     @Override
