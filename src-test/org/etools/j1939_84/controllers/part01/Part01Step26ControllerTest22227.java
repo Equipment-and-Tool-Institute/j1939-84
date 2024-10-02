@@ -2,22 +2,17 @@
  * Copyright (c) 2024. Equipment & Tool Institute
  */
 
-package org.etools.j1939_84.controllers.part02;
+package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.controllers.ResultsListener.MessageType.ERROR;
 import static org.etools.j1939_84.model.Outcome.FAIL;
-import static org.etools.j1939_84.model.Outcome.WARN;
-import static org.etools.j1939tools.j1939.model.FuelType.DSL;
 import static org.etools.j1939tools.modules.CSERSModule.CSERS_AVERAGE_PG;
 import static org.etools.j1939tools.modules.CSERSModule.CSERS_CURRENT_OP_CYCLE_PG;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -30,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.etools.j1939_84.controllers.BroadcastValidator;
 import org.etools.j1939_84.controllers.BusService;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -69,7 +63,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class Part02Step17ControllerTest22227 extends AbstractControllerTest {
+public class Part01Step26ControllerTest22227 extends AbstractControllerTest {
+
     @Mock
     private Executor executor;
 
@@ -96,7 +91,7 @@ public class Part02Step17ControllerTest22227 extends AbstractControllerTest {
     @Mock
     private BusService busService;
 
-    private Part02Step17Controller instance;
+    private Part01Step26Controller instance;
 
     @Mock
     private J1939 j1939;
@@ -108,6 +103,10 @@ public class Part02Step17ControllerTest22227 extends AbstractControllerTest {
 
     @Mock
     private ReportFileModule reportFileModule;
+
+    private GhgTrackingModule ghgTrackingModule;
+
+    private NOxBinningModule nOxBinningModule;
 
     private static List<SupportedSPN> spns(int... ids) {
         return Arrays.stream(ids).mapToObj(id -> {
@@ -135,11 +134,11 @@ public class Part02Step17ControllerTest22227 extends AbstractControllerTest {
         DateTimeModule.setInstance(new TestDateTimeModule());
         J1939DaRepository j1939DaRepository = J1939DaRepository.getInstance();
         dataRepository = DataRepository.newInstance();
-        GhgTrackingModule ghgTrackingModule = new GhgTrackingModule(DateTimeModule.getInstance());
-        NOxBinningModule nOxBinningModule = new NOxBinningModule((DateTimeModule.getInstance()));
+        ghgTrackingModule = new GhgTrackingModule(DateTimeModule.getInstance());
+        nOxBinningModule = new NOxBinningModule((DateTimeModule.getInstance()));
         CSERSModule csersModule = new CSERSModule((DateTimeModule.getInstance()));
 
-        instance = new Part02Step17Controller(executor,
+        instance = new Part01Step26Controller(executor,
                                               bannerModule,
                                               DateTimeModule.getInstance(),
                                               dataRepository,
@@ -179,6 +178,7 @@ public class Part02Step17ControllerTest22227 extends AbstractControllerTest {
     @Test
     public void testRunObdPgnSupports22227() {
         final int supportedSpn = 22227;
+        List<Integer> supportedSpns = List.of(supportedSpn);
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2025);
@@ -204,7 +204,7 @@ public class Part02Step17ControllerTest22227 extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(eq(12), eq("6.2.17.2.c"))).thenReturn(packets.stream());
+        when(busService.readBus(eq(12), eq("6.1.26.2.c"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
@@ -251,42 +251,44 @@ public class Part02Step17ControllerTest22227 extends AbstractControllerTest {
         verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
                                                          any(),
                                                          any(ResultsListener.class),
-                                                         eq(2),
-                                                         eq(17));
-        packets.forEach(packet -> {
-            verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(packet.getSourceAddress()),
-                                                                        any(),
-                                                                        eq(Collections.emptyList()),
-                                                                        eq(Collections.emptyList()),
-                                                                        any(ResultsListener.class),
-                                                                        eq(2),
-                                                                        eq(17),
-                                                                        eq("6.2.17.5.a"));
-        });
+                                                         eq(1),
+                                                         eq(26));
+        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(0x00),
+                                                                    any(),
+                                                                    eq(Collections.emptyList()),
+                                                                    eq(Collections.emptyList()),
+                                                                    any(ResultsListener.class),
+                                                                    eq(1),
+                                                                    eq(26),
+                                                                    eq("6.1.26.5.a"));
+
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.2.17.2.c");
+        verify(busService).readBus(12, "6.1.26.2.c");
         verify(busService).collectNonOnRequestPGNs(eq(List.of()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
         verify(busService).getPGNsForDSRequest(any(), any());
 
-        verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
-        verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
+        verify(tableA1Validator).reportExpectedMessages(any(ResultsListener.class));
+        packets.forEach(packet -> {
+            verify(tableA1Validator).reportNotAvailableSPNs(eq(packet),
+                                                            any(ResultsListener.class),
+                                                            eq("6.1.26.3.a"));
+            verify(tableA1Validator).reportImplausibleSPNValues(eq(packet),
+                                                                any(ResultsListener.class),
+                                                                eq(false),
+                                                                eq("6.1.26.3.c"));
+            verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet),
+                                                                    any(ResultsListener.class),
+                                                                    eq("6.1.26.3.d"));
+            verify(tableA1Validator).reportProvidedButNotSupportedSPNs(eq(packet),
                                                                        any(ResultsListener.class),
-                                                                       any());
-        verify(tableA1Validator, atLeastOnce()).reportImplausibleSPNValues(any(),
-                                                                           any(ResultsListener.class),
-                                                                           eq(true),
-                                                                           any());
-        verify(tableA1Validator, atLeastOnce()).reportNonObdModuleProvidedSPNs(any(),
-                                                                               any(ResultsListener.class),
-                                                                               any());
-        verify(tableA1Validator, atLeastOnce()).reportProvidedButNotSupportedSPNs(any(),
-                                                                                  any(ResultsListener.class),
-                                                                                  any());
-        verify(tableA1Validator, atLeastOnce()).reportPacketIfNotReported(any(),
-                                                                          any(ResultsListener.class),
-                                                                          eq(false));
-        verify(tableA1Validator, atLeastOnce()).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
+                                                                       eq("6.1.26.3.f"));
+            verify(tableA1Validator).reportPacketIfNotReported(eq(packet),
+                                                               any(ResultsListener.class),
+                                                               eq(false));
+        });
+        verify(tableA1Validator).reportDuplicateSPNs(eq(packets), any(ResultsListener.class), eq("6.1.26.3.e"));
+        verify(tableA1Validator).reportDuplicateSPNs(eq(List.of()), any(ResultsListener.class), eq("6.1.26.6.d"));
 
         // @formatter:off
         String expected = "10:15:30.0000 CSERS Average and Current Operating Cycle data from Engine #1 (0)" + NL;
@@ -321,6 +323,7 @@ public class Part02Step17ControllerTest22227 extends AbstractControllerTest {
     @Test
     public void testRunObdPgnSupports22227Failure28a() {
         final int supportedSpn = 22227;
+        List<Integer> supportedSpns = List.of(supportedSpn);
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2025);
@@ -346,7 +349,7 @@ public class Part02Step17ControllerTest22227 extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(eq(12), eq("6.2.17.2.c"))).thenReturn(packets.stream());
+        when(busService.readBus(eq(12), eq("6.1.26.2.c"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
@@ -383,52 +386,54 @@ public class Part02Step17ControllerTest22227 extends AbstractControllerTest {
         verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
                                                          any(),
                                                          any(ResultsListener.class),
-                                                         eq(2),
-                                                         eq(17));
-        packets.forEach(packet -> {
-            verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(packet.getSourceAddress()),
-                                                                        any(),
-                                                                        eq(Collections.emptyList()),
-                                                                        eq(Collections.emptyList()),
-                                                                        any(ResultsListener.class),
-                                                                        eq(2),
-                                                                        eq(17),
-                                                                        eq("6.2.17.5.a"));
-        });
+                                                         eq(1),
+                                                         eq(26));
+        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(0x00),
+                                                                    any(),
+                                                                    eq(Collections.emptyList()),
+                                                                    eq(Collections.emptyList()),
+                                                                    any(ResultsListener.class),
+                                                                    eq(1),
+                                                                    eq(26),
+                                                                    eq("6.1.26.5.a"));
+
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.2.17.2.c");
+        verify(busService).readBus(12, "6.1.26.2.c");
         verify(busService).collectNonOnRequestPGNs(eq(List.of()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
         verify(busService).getPGNsForDSRequest(any(), any());
 
-        verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
-        verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
+        verify(tableA1Validator).reportExpectedMessages(any(ResultsListener.class));
+        packets.forEach(packet -> {
+            verify(tableA1Validator).reportNotAvailableSPNs(eq(packet),
+                                                            any(ResultsListener.class),
+                                                            eq("6.1.26.3.a"));
+            verify(tableA1Validator).reportImplausibleSPNValues(eq(packet),
+                                                                any(ResultsListener.class),
+                                                                eq(false),
+                                                                eq("6.1.26.3.c"));
+            verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet),
+                                                                    any(ResultsListener.class),
+                                                                    eq("6.1.26.3.d"));
+            verify(tableA1Validator).reportProvidedButNotSupportedSPNs(eq(packet),
                                                                        any(ResultsListener.class),
-                                                                       any());
-        verify(tableA1Validator, atLeastOnce()).reportImplausibleSPNValues(any(),
-                                                                           any(ResultsListener.class),
-                                                                           eq(true),
-                                                                           any());
-        verify(tableA1Validator, atLeastOnce()).reportNonObdModuleProvidedSPNs(any(),
-                                                                               any(ResultsListener.class),
-                                                                               any());
-        verify(tableA1Validator, atLeastOnce()).reportProvidedButNotSupportedSPNs(any(),
-                                                                                  any(ResultsListener.class),
-                                                                                  any());
-        verify(tableA1Validator, atLeastOnce()).reportPacketIfNotReported(any(),
-                                                                          any(ResultsListener.class),
-                                                                          eq(false));
-        verify(tableA1Validator, atLeastOnce()).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
+                                                                       eq("6.1.26.3.f"));
+            verify(tableA1Validator).reportPacketIfNotReported(eq(packet),
+                                                               any(ResultsListener.class),
+                                                               eq(false));
+        });
+        verify(tableA1Validator).reportDuplicateSPNs(eq(packets), any(ResultsListener.class), eq("6.1.26.3.e"));
+        verify(tableA1Validator).reportDuplicateSPNs(eq(List.of()), any(ResultsListener.class), eq("6.1.26.6.d"));
 
         String expectedMsg = "";
         expectedMsg += "Requesting Cold Start Emissions Reduction Strategy Current Operating Cycle Data (CSERSC) from Engine #1 (0)" + NL;
         expectedMsg += "Requesting Cold Start Emissions Reduction Strategy Average Data (CSERSA) from Engine #1 (0)";
         assertEquals(expectedMsg, listener.getMessages());
 
-        verify(mockListener).addOutcome(eq(2),
-                                        eq(17),
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(26),
                                         eq(FAIL),
-                                        eq("6.2.17.28.a - No response was received from Engine #1 (0) for PGN [64020]"));
+                                        eq("6.1.26.28.a - No response was received from Engine #1 (0) for PGN [64020]"));
 
         // @formatter:on
 
@@ -438,6 +443,7 @@ public class Part02Step17ControllerTest22227 extends AbstractControllerTest {
     @Test
     public void testRunObdPgnSupports22227Failure28aBothMissing() {
         final int supportedSpn = 22227;
+        List<Integer> supportedSpns = List.of(supportedSpn);
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2025);
@@ -463,7 +469,7 @@ public class Part02Step17ControllerTest22227 extends AbstractControllerTest {
         packets.add(packet3);
         GenericPacket packet8 = packet(888, true, 0);
         packets.add(packet8);
-        when(busService.readBus(eq(12), eq("6.2.17.2.c"))).thenReturn(packets.stream());
+        when(busService.readBus(eq(12), eq("6.1.26.2.c"))).thenReturn(packets.stream());
 
         GenericPacket packet1 = packet(supportedSpn, false, 0);
         packets.add(packet1);
@@ -495,54 +501,57 @@ public class Part02Step17ControllerTest22227 extends AbstractControllerTest {
         verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
                                                          any(),
                                                          any(ResultsListener.class),
-                                                         eq(2),
-                                                         eq(17));
-        packets.forEach(packet -> {
-            verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(packet.getSourceAddress()),
-                                                                        any(),
-                                                                        eq(Collections.emptyList()),
-                                                                        eq(Collections.emptyList()),
-                                                                        any(ResultsListener.class),
-                                                                        eq(2),
-                                                                        eq(17),
-                                                                        eq("6.2.17.5.a"));
-        });
+                                                         eq(1),
+                                                         eq(26));
+        verify(broadcastValidator).collectAndReportNotAvailableSPNs(eq(0x00),
+                                                                    any(),
+                                                                    eq(Collections.emptyList()),
+                                                                    eq(Collections.emptyList()),
+                                                                    any(ResultsListener.class),
+                                                                    eq(1),
+                                                                    eq(26),
+                                                                    eq("6.1.26.5.a"));
+
         verify(busService).setup(eq(j1939), any(ResultsListener.class));
-        verify(busService).readBus(12, "6.2.17.2.c");
+        verify(busService).readBus(12, "6.1.26.2.c");
         verify(busService).collectNonOnRequestPGNs(eq(List.of()));
         verify(busService).getPGNsForDSRequest(eq(List.of()), eq(List.of()));
         verify(busService).getPGNsForDSRequest(any(), any());
 
-        verify(tableA1Validator, atLeastOnce()).reportExpectedMessages(any());
-        verify(tableA1Validator, atLeastOnce()).reportNotAvailableSPNs(any(),
+        verify(tableA1Validator).reportExpectedMessages(any(ResultsListener.class));
+        packets.forEach(packet -> {
+            verify(tableA1Validator).reportNotAvailableSPNs(eq(packet),
+                                                            any(ResultsListener.class),
+                                                            eq("6.1.26.3.a"));
+            verify(tableA1Validator).reportImplausibleSPNValues(eq(packet),
+                                                                any(ResultsListener.class),
+                                                                eq(false),
+                                                                eq("6.1.26.3.c"));
+            verify(tableA1Validator).reportNonObdModuleProvidedSPNs(eq(packet),
+                                                                    any(ResultsListener.class),
+                                                                    eq("6.1.26.3.d"));
+            verify(tableA1Validator).reportProvidedButNotSupportedSPNs(eq(packet),
                                                                        any(ResultsListener.class),
-                                                                       any());
-        verify(tableA1Validator, atLeastOnce()).reportImplausibleSPNValues(any(),
-                                                                           any(ResultsListener.class),
-                                                                           eq(true),
-                                                                           any());
-        verify(tableA1Validator, atLeastOnce()).reportNonObdModuleProvidedSPNs(any(),
-                                                                               any(ResultsListener.class),
-                                                                               any());
-        verify(tableA1Validator, atLeastOnce()).reportProvidedButNotSupportedSPNs(any(),
-                                                                                  any(ResultsListener.class),
-                                                                                  any());
-        verify(tableA1Validator, atLeastOnce()).reportPacketIfNotReported(any(),
-                                                                          any(ResultsListener.class),
-                                                                          eq(false));
-        verify(tableA1Validator, atLeastOnce()).reportDuplicateSPNs(any(), any(ResultsListener.class), any());
+                                                                       eq("6.1.26.3.f"));
+            verify(tableA1Validator).reportPacketIfNotReported(eq(packet),
+                                                               any(ResultsListener.class),
+                                                               eq(false));
+        });
+        verify(tableA1Validator).reportDuplicateSPNs(eq(packets), any(ResultsListener.class), eq("6.1.26.3.e"));
+        verify(tableA1Validator).reportDuplicateSPNs(eq(List.of()), any(ResultsListener.class), eq("6.1.26.6.d"));
 
         String expectedMsg = "";
         expectedMsg += "Requesting Cold Start Emissions Reduction Strategy Current Operating Cycle Data (CSERSC) from Engine #1 (0)" + NL;
         expectedMsg += "Requesting Cold Start Emissions Reduction Strategy Average Data (CSERSA) from Engine #1 (0)";
         assertEquals(expectedMsg, listener.getMessages());
 
-        verify(mockListener).addOutcome(eq(2),
-                                        eq(17),
+        verify(mockListener).addOutcome(eq(1),
+                                        eq(26),
                                         eq(FAIL),
-                                        eq("6.2.17.28.a - No response was received from Engine #1 (0) for PGN [64019, 64020]"));
+                                        eq("6.1.26.28.a - No response was received from Engine #1 (0) for PGN [64019, 64020]"));
 
         // @formatter:on
 
     }
+
 }

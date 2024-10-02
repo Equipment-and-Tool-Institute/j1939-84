@@ -858,8 +858,8 @@ public class Part02Step17Controller extends StepController {
                 .peek(this::save)
                 .collect(Collectors.toList());
 
-        List<Integer> notReceived = Arrays.asList(CSERS_CURRENT_OP_CYCLE_PG, CSERS_AVERAGE_PG);
-        packets.stream().forEach(p -> notReceived.remove((Integer)p.getPgnDefinition().getId()));
+        List<Integer> notReceived = new ArrayList<>(List.of(CSERS_CURRENT_OP_CYCLE_PG, CSERS_AVERAGE_PG));
+        notReceived.removeAll(packets.stream().map(p -> p.getPgnDefinition().getId()).collect(Collectors.toList()));
 
         //6.2.17.28.a Fail if either PG 64019 and PG 64020 is not provided for engines that support SPN 22227.
         if (notReceived.size() > 0){
@@ -900,7 +900,7 @@ public class Part02Step17Controller extends StepController {
                             + " is missing so verification of values skipped");
                 }
                 packet.getSpns().forEach(spn -> {
-                    // 6.2.17.8.b. Fail each PG query where any bin value received
+                    // 6.2.17.28.b. Fail each PG query where any bin value received
                     // is greater than FAFFFFFFh.
                     validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.2.17.8.b");
 

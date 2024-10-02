@@ -478,8 +478,8 @@ public class Part01Step26Controller extends StepController {
                 .peek(this::save)
                 .collect(Collectors.toList());
 
-        List<Integer> notReceived = Arrays.asList(CSERS_CURRENT_OP_CYCLE_PG, CSERS_AVERAGE_PG);
-        packets.stream().forEach(p -> notReceived.remove((Integer)p.getPgnDefinition().getId()));
+        List<Integer> notReceived = new ArrayList<>(List.of(CSERS_CURRENT_OP_CYCLE_PG, CSERS_AVERAGE_PG));
+        notReceived.removeAll(packets.stream().map(p -> p.getPgnDefinition().getId()).collect(Collectors.toList()));
 
         //6.1.26.28.a Fail if either PG 64019 and PG 64020 is not provided for engines that support SPN 22227.
         if (notReceived.size() > 0){
