@@ -4,7 +4,6 @@ import static org.etools.j1939_84.J1939_84.NL;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 import org.etools.j1939tools.j1939.model.ActiveTechnology;
 import org.etools.j1939tools.j1939.model.Spn;

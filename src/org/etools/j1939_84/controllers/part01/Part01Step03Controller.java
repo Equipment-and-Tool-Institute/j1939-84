@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939tools.modules.CommunicationsModule.getCompositeSystems;
 
 import java.util.Collection;
@@ -22,7 +21,6 @@ import org.etools.j1939tools.j1939.model.FuelType;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939tools.j1939.packets.AddressClaimPacket;
 import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
-import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 

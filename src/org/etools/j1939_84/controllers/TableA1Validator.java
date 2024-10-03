@@ -29,7 +29,6 @@ import org.etools.j1939tools.j1939.model.PgnDefinition;
 import org.etools.j1939tools.j1939.model.Spn;
 import org.etools.j1939tools.j1939.model.SpnDefinition;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
-import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.j1939.packets.SupportedSPN;
 
 public class TableA1Validator {

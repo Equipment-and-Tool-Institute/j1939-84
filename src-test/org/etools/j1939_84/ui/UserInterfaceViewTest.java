@@ -24,7 +24,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.etools.j1939_84.BuildNumber;
 import org.etools.j1939tools.bus.Adapter;
 import org.junit.After;
 import org.junit.Before;
@@ -41,8 +40,6 @@ import org.mockito.junit.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class UserInterfaceViewTest {
-
-    private BuildNumber buildNumber = new BuildNumber();
 
     @Mock
     private UserInterfacePresenter controller;

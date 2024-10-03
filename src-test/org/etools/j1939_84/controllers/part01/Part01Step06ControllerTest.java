@@ -28,7 +28,6 @@ import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.j1939.J1939;
 import org.etools.j1939tools.j1939.packets.DM56EngineFamilyPacket;
-import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 import org.etools.testdoc.TestDoc;
