@@ -39,7 +39,8 @@ public class OBDModuleInformation implements Cloneable {
                                                                       12691,
                                                                       12730,
                                                                       12783,
-                                                                      12797));
+                                                                      12797,
+                                                                      22227));
 
     // TODO this should be removed and tests re-factored to save a DM24 instead
     private final List<SupportedSPN> supportedSPNs = new ArrayList<>();

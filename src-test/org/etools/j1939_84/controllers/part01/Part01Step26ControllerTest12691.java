@@ -56,6 +56,7 @@ import org.etools.j1939tools.j1939.model.Spn;
 import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.SupportedSPN;
+import org.etools.j1939tools.modules.CSERSModule;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 import org.etools.j1939tools.modules.GhgTrackingModule;
@@ -137,6 +138,7 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
         dataRepository = DataRepository.newInstance();
         GhgTrackingModule ghgTrackingModule = new GhgTrackingModule(DateTimeModule.getInstance());
         NOxBinningModule nOxBinningModule = new NOxBinningModule((DateTimeModule.getInstance()));
+        CSERSModule csersModule = new CSERSModule((DateTimeModule.getInstance()));
 
         instance = new Part01Step26Controller(executor,
                                               bannerModule,
@@ -150,7 +152,8 @@ public class Part01Step26ControllerTest12691 extends AbstractControllerTest {
                                               broadcastValidator,
                                               busService,
                                               ghgTrackingModule,
-                                              nOxBinningModule);
+                                              nOxBinningModule,
+                                              csersModule);
         setup(instance,
               listener,
               j1939,

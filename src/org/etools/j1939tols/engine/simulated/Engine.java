@@ -494,7 +494,8 @@ public class Engine implements AutoCloseable {
                                                       SupportedSPN.create(12691, false, true, false, false, 1),
                                                       SupportedSPN.create(12730, false, true, false, false, 1),
                                                       SupportedSPN.create(12797, false, true, false, false, 1),
-                                                      SupportedSPN.create(12783, false, true, false, false, 1))
+                                                      SupportedSPN.create(12783, false, true, false, false, 1),
+                                                      SupportedSPN.create(22227, false, true, false, false, 1))
                                               .getPacket());
 
         // DM25
@@ -1179,6 +1180,22 @@ public class Engine implements AutoCloseable {
         // Req PGN 65255 from Engine #1 (0) with SPNs 248
         sim.response(p -> isRequestFor(65255, p),
                      () -> Packet.create(65255, ADDR, 0, 0, 0, 0, 0, 0, 0, 0));
+
+        sim.response(p -> isRequestFor(0xFA13, p),
+                     () -> Packet.create(0xFA13,
+                                         ADDR,
+                                         // @formatter:off
+                                         0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x00, 0x03,
+                                         0x00, 0x04, 0x00, 0x05, 0x00, 0x06, 0x00, 0x07,
+                                         0x00, 0x08, 0x00, 0x09));
+
+        sim.response(p -> isRequestFor(0xFA14, p),
+                     () -> Packet.create(0xFA14,
+                                         ADDR,
+                                         // @formatter:off
+                                         0x00, 0x00, 0x00, 0x02, 0x00, 0x04, 0x00, 0x06,
+                                         0x00, 0x08, 0x00, 0x0A, 0x00, 0x0C, 0x00, 0x0E,
+                                         0x00, 0x10, 0x00, 0x12));
 
         // DM58 Req PGN 64475 from Engine #1 (0)
         sim.response(Engine::isRequestForDM58,
