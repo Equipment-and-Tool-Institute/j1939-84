@@ -214,7 +214,7 @@ public class Part01Step26ControllerTest22227 extends AbstractControllerTest {
                                                                       0x00,
                                                                       0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x00, 0x03,
                                                                       0x00, 0x04, 0x00, 0x05, 0x00, 0x06, 0x00, 0x07,
-                                                                      0x00, 0x08, 0x00, 0x09, 0x00, 0x0A));
+                                                                      0x00, 0x08, 0x00, 0x09));
         // @formatter:on
         obdModule0.set(response64019, 1);
         when(communicationsModule.request(eq(CSERS_CURRENT_OP_CYCLE_PG),
@@ -226,7 +226,7 @@ public class Part01Step26ControllerTest22227 extends AbstractControllerTest {
                                                                       0x00,
                                                                       0x00, 0x00, 0x00, 0x02, 0x00, 0x04, 0x00, 0x06,
                                                                       0x00, 0x08, 0x00, 0x0A, 0x00, 0x0C, 0x00, 0x0E,
-                                                                      0x00, 0xA0, 0x00, 0xA2, 0x00, 0xA4));
+                                                                      0x00, 0x10, 0x00, 0x12));
         // @formatter:on
         obdModule0.set(response64020, 1);
         when(communicationsModule.request(eq(CSERS_AVERAGE_PG),
@@ -305,8 +305,8 @@ public class Part01Step26ControllerTest22227 extends AbstractControllerTest {
         expected += "| EGR Mass Until FTP Cold Start Tracking Time,                            g  |       6,400 |      12,800 |" + NL;
         expected += "| EGR Mass Until FTP Engine Output Energy,                                g  |       7,680 |      15,360 |" + NL;
         expected += "| EGR Mass Until Cold Start Tracking Catalyst Temperature Threshold,      g  |       8,960 |      17,920 |" + NL;
-        expected += "| Time Until FTP Engine Output Energy,                                    s  |          34 |         683 |" + NL;
-        expected += "| Time Until Catalyst Cold Start Tracking Temperature Threshold,          s  |          38 |         691 |" + NL;
+        expected += "| Time Until FTP Engine Output Energy,                                   min |          34 |          68 |" + NL;
+        expected += "| Time Until Catalyst Cold Start Tracking Temperature Threshold,         min |          38 |          77 |" + NL;
         expected += "|----------------------------------------------------------------------------+-------------+-------------+" + NL;
 
         expected += NL;

@@ -51,8 +51,8 @@ public class CSERSModule {
                 { "| EGR Mass Until FTP Cold Start Tracking Time,                            g  |", "SPN_22232", "SPN_22242" },
                 { "| EGR Mass Until FTP Engine Output Energy,                                g  |", "SPN_22233", "SPN_22243" },
                 { "| EGR Mass Until Cold Start Tracking Catalyst Temperature Threshold,      g  |", "SPN_22234", "SPN_22244" },
-                { "| Time Until FTP Engine Output Energy,                                    s  |", "SPN_22235", "SPN_22245" },
-                { "| Time Until Catalyst Cold Start Tracking Temperature Threshold,          s  |", "SPN_22236", "SPN_22246" },
+                { "| Time Until FTP Engine Output Energy,                                   min |", "SPN_22235", "SPN_22245" },
+                { "| Time Until Catalyst Cold Start Tracking Temperature Threshold,         min |", "SPN_22236", "SPN_22246" },
                 { "|----------------------------------------------------------------------------+", "-------------+", "-------------+" },
         };
 
@@ -124,8 +124,6 @@ public class CSERSModule {
         String unit = spn.getSlot().getUnit();
         if ("s".equals(unit)) {
             value = value / 60; //Convert seconds to minutes
-        } else if ("m".equals(unit)) {
-            value = value / 1000; //Convert meters to kilometers
         }
 
         return new DecimalFormat("#,##0").format(value);
