@@ -9,7 +9,6 @@ import static java.util.logging.Level.WARNING;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.J1939_84.PAGE_BREAK;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Reader;
@@ -27,7 +26,6 @@ import java.util.stream.Collectors;
 
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.controllers.ResultsListener;

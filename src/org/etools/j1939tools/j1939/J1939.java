@@ -11,7 +11,6 @@ import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;

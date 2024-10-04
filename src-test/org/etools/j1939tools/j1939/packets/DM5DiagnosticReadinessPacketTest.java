@@ -6,10 +6,7 @@ package org.etools.j1939tools.j1939.packets;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket.PGN;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

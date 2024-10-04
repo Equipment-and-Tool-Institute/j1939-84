@@ -1,7 +1,6 @@
 package org.etools.j1939tools.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.J1939_84.getLogger;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
@@ -12,8 +11,6 @@ import org.etools.j1939_84.J1939_84;
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.j1939.model.ActiveTechnology;
 import org.etools.j1939tools.j1939.model.Spn;
-import org.etools.j1939tools.j1939.model.SpnDataParser;
-import org.etools.j1939tools.j1939.model.SpnDefinition;
 
 public class GhgActiveTechnologyPacket extends GenericPacket {
 

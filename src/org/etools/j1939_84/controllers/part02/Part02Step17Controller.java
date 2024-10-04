@@ -3,9 +3,12 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.ERROR;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939tools.j1939.packets.ParsedPacket.NOT_AVAILABLE;
+import static org.etools.j1939tools.modules.CSERSModule.CSERS_AVERAGE_PG;
+import static org.etools.j1939tools.modules.CSERSModule.CSERS_CURRENT_OP_CYCLE_PG;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_100_HR;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_GREEN_HOUSE_100_HR;
 import static org.etools.j1939tools.modules.GhgTrackingModule.GHG_ACTIVE_HYBRID_100_HR;
@@ -23,6 +26,7 @@ import static org.etools.j1939tools.modules.NOxBinningModule.NOx_LIFETIME_PGs;
 import static org.etools.j1939tools.modules.NOxBinningModule.NOx_TRACKING_ACTIVE_100_HOURS_PGs;
 import static org.etools.j1939tools.modules.NOxBinningModule.NOx_TRACKING_STORED_100_HOURS_PGs;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -55,11 +59,13 @@ import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.GhgActiveTechnologyPacket;
 import org.etools.j1939tools.j1939.packets.GhgLifetimeActiveTechnologyPacket;
 import org.etools.j1939tools.j1939.packets.SupportedSPN;
+import org.etools.j1939tools.modules.CSERSModule;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 import org.etools.j1939tools.modules.GhgTrackingModule;
 import org.etools.j1939tools.modules.NOxBinningModule;
 import org.etools.j1939tools.utils.CollectionUtils;
+import org.etools.j1939tools.utils.StringUtils;
 
 /**
  * 6.2.17 KOER Data stream verification
@@ -72,6 +78,7 @@ public class Part02Step17Controller extends StepController {
 
     private final GhgTrackingModule ghgTrackingModule;
     private final NOxBinningModule nOxBinningModule;
+    private final CSERSModule csersModule;
 
     private final BroadcastValidator broadcastValidator;
     private final BusService busService;
@@ -93,7 +100,8 @@ public class Part02Step17Controller extends StepController {
              new BroadcastValidator(DataRepository.getInstance(), J1939DaRepository.getInstance()),
              new BusService(J1939DaRepository.getInstance()),
              new GhgTrackingModule(DateTimeModule.getInstance()),
-             new NOxBinningModule(DateTimeModule.getInstance()));
+             new NOxBinningModule(DateTimeModule.getInstance()),
+             new CSERSModule(DateTimeModule.getInstance()));
     }
 
     Part02Step17Controller(Executor executor,
@@ -108,7 +116,8 @@ public class Part02Step17Controller extends StepController {
                            BroadcastValidator broadcastValidator,
                            BusService busService,
                            GhgTrackingModule ghgTrackingModule,
-                           NOxBinningModule nOxBinningModule) {
+                           NOxBinningModule nOxBinningModule,
+                           CSERSModule csersModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
@@ -125,6 +134,7 @@ public class Part02Step17Controller extends StepController {
         this.busService = busService;
         this.ghgTrackingModule = ghgTrackingModule;
         this.nOxBinningModule = nOxBinningModule;
+        this.csersModule = csersModule;
     }
 
     @Override
@@ -137,7 +147,7 @@ public class Part02Step17Controller extends StepController {
         // in 6.1.4, where the data stream support bit (SPN 4101) defined in SAE J1939-73 5.7.24 is 0
         // 6.2.17.1.b. Create a second list of Table A-1 omissions from the consolidated OBD ECU DM24 response(s),
         // excluding those SPs noted (as CI or SI) for the opposite fuel type provided by the user.
-        // 6.2.17.1.c. Omit the following SPNs (588, 976, 1213, 1220, 12675, 12691, 12730, 12783, 12797) which are
+        // 6.2.17.1.c. Omit the following SPNs (588, 976, 1213, 1220, 12675, 12691, 12730, 12783, 12797, 22227) which are
         // included in the lists. Display a list of the omitted SPs in the report.
         // 6.2.17.1.d. Display the completed lists of supported SPs and unsupported SPs (as ‘broadcast’ or ‘upon
         // request’), that follow from the vehicle DM24 composite
@@ -357,6 +367,10 @@ public class Part02Step17Controller extends StepController {
                 if (obdModule.supportsSpn(12783)) {
                     // 6.2.17.23 - 6.2.17.26
                     testSp12783(obdModule);
+                }
+                if (obdModule.supportsSpn(22227)){
+                    //6.2.17.27 - 6.2.17.28
+                    testSp22227(obdModule);
                 }
             }
         }// end obdModule
@@ -834,6 +848,29 @@ public class Part02Step17Controller extends StepController {
         }
     }
 
+    private void testSp22227(OBDModuleInformation module){
+        // 6.2.17.27 Actions14 CSERS Support.
+        //a. DS request message to ECU that indicated support in DM24 for upon request SP 22227 (Current Cycle Catalyst Heat Energy Until FTP Cold Start Tracking Time) for PGs 64019 and 64020.
+        //64019 Cold Start Emissions Reduction Strategy Current Operating Cycle Data CSERSC
+        //64020 Cold Start Emissions Reduction Strategy Average Data CSERSA
+        int[] pgns = {CSERS_CURRENT_OP_CYCLE_PG, CSERS_AVERAGE_PG};
+        List<GenericPacket> packets = requestPackets(module.getSourceAddress(), pgns).stream()
+                .peek(this::save)
+                .collect(Collectors.toList());
+
+        List<Integer> notReceived = new ArrayList<>(List.of(CSERS_CURRENT_OP_CYCLE_PG, CSERS_AVERAGE_PG));
+        notReceived.removeAll(packets.stream().map(p -> p.getPgnDefinition().getId()).collect(Collectors.toList()));
+
+        //6.2.17.28.a Fail if either PG 64019 and PG 64020 is not provided for engines that support SPN 22227.
+        if (notReceived.size() > 0){
+            addFailure("6.2.17.28.a - No response was received from "
+                               + module.getModuleName() + " for PGN " + notReceived);
+        } else {
+            //6.2.17.27.b List data received in a
+            getListener().onResult(csersModule.format(packets));
+        }
+    }
+
     private void testSp12675(OBDModuleInformation module) {
         int[] nOxLifeTimeSps = Stream.of(new int[][] { NOx_LIFETIME_PGs, NOx_LIFETIME_ACTIVITY_PGs })
                                      .flatMapToInt(x -> IntStream.of(x))
@@ -863,7 +900,7 @@ public class Part02Step17Controller extends StepController {
                             + " is missing so verification of values skipped");
                 }
                 packet.getSpns().forEach(spn -> {
-                    // 6.2.17.8.b. Fail each PG query where any bin value received
+                    // 6.2.17.28.b. Fail each PG query where any bin value received
                     // is greater than FAFFFFFFh.
                     validateSpnValueGreaterThanFaBasedSlotLength(module, spn, FAIL, "6.2.17.8.b");
 

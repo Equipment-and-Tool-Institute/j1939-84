@@ -4,11 +4,9 @@
 
 package org.etools.j1939_84.controllers;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;

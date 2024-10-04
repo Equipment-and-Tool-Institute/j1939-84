@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part04;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -14,7 +13,6 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-import org.etools.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939tools.j1939.packets.ScaledTestResult;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;

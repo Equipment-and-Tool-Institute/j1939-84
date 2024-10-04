@@ -16,10 +16,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.HashMap;
 import java.util.List;
-
 import java.util.Map;
+
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.TestDateTimeModule;

@@ -137,10 +137,7 @@ public class CommunicationsModule extends FunctionalModule {
                                 listener);
     }
 
-    /*
-     * TODO: Remove when Step 9.8 & 12.9 are updated to match new requirements.
-     */
-    @Deprecated
+    // Only used in tests.
     public List<AcknowledgmentPacket> requestDM11(CommunicationsListener listener) {
         return requestDM11(listener, J1939.GLOBAL_TIMEOUT, MILLISECONDS);
     }

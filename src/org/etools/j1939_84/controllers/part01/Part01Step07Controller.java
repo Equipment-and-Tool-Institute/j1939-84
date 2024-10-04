@@ -5,7 +5,6 @@ package org.etools.j1939_84.controllers.part01;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;

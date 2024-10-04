@@ -16,7 +16,6 @@ import java.util.Map;
 import org.etools.j1939tools.j1939.Lookup;
 import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939tools.j1939.packets.DM27AllPendingDTCsPacket;
-import org.etools.j1939tools.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939tools.j1939.packets.GenericPacket;
 import org.etools.j1939tools.j1939.packets.ScaledTestResult;
 import org.etools.j1939tools.j1939.packets.SupportedSPN;
@@ -39,7 +38,8 @@ public class OBDModuleInformation implements Cloneable {
                                                                       12691,
                                                                       12730,
                                                                       12783,
-                                                                      12797));
+                                                                      12797,
+                                                                      22227));
 
     // TODO this should be removed and tests re-factored to save a DM24 instead
     private final List<SupportedSPN> supportedSPNs = new ArrayList<>();
@@ -91,10 +91,7 @@ public class OBDModuleInformation implements Cloneable {
         return function;
     }
 
-    /**
-     * @deprecated Use a DM24 to set the support SPNs
-     */
-    @Deprecated
+    // Only used in tests
     public void setSupportedSPNs(List<SupportedSPN> supportedSPNs) {
         this.supportedSPNs.clear();
         this.supportedSPNs.addAll(supportedSPNs);
@@ -191,7 +188,7 @@ public class OBDModuleInformation implements Cloneable {
         packetArchive.put(packet, partNumber);
     }
 
-    @Deprecated
+    // Only use in tests
     public <T extends GenericPacket> T get(Class<T> clazz, int partNumber) {
         return get(getPg(clazz), partNumber);
     }
@@ -232,7 +229,8 @@ public class OBDModuleInformation implements Cloneable {
             packetArchive.put(id, packets);
         }
 
-        public <T extends GenericPacket> T getLatest(Class<T> clazz) {
+        @SuppressWarnings("unchecked")
+		public <T extends GenericPacket> T getLatest(Class<T> clazz) {
             for (int i = PART_COUNT - 1; i > 0; i--) {
                 var packet = get(getPg(clazz), i);
                 if (packet != null) {
@@ -243,7 +241,8 @@ public class OBDModuleInformation implements Cloneable {
 
         }
 
-        public <T extends GenericPacket> T get(int pg, int partNumber) {
+        @SuppressWarnings("unchecked")
+		public <T extends GenericPacket> T get(int pg, int partNumber) {
             if (partNumber == 0) {
                 throw new IllegalArgumentException("0 is not a valid partNumber");
             }

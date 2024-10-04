@@ -9,7 +9,6 @@ import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
