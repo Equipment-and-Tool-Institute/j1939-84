@@ -99,7 +99,7 @@ public class RP1210Bus implements Bus {
 
 	private boolean appPacketize;
 
-    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", justification = "Not a concern in desktop app.")
+	@SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", justification = "Not a concern in desktop app.")
 	public RP1210Bus(Adapter adapter, String connectionString, int address, boolean appPacketize,
 			BiConsumer<ErrorType, String> errorFn) throws BusException {
 		this(RP1210Library.load(adapter), Executors.newSingleThreadExecutor(nameThreadFactory("RP1210 decoding")),
@@ -115,10 +115,10 @@ public class RP1210Bus implements Bus {
 		};
 	}
 
-    /**
-     * Constructor exposed for testing
-     */
-    @SuppressFBWarnings(value = {"EI_EXPOSE_REP2", "CT_CONSTRUCTOR_THROW"}, justification = "Not a concern in desktop app.")
+	/**
+	 * Constructor exposed for testing
+	 */
+	@SuppressFBWarnings(value = { "EI_EXPOSE_REP2", "CT_CONSTRUCTOR_THROW" }, justification = "Not a concern in desktop app.")
 	public RP1210Bus(RP1210Library rp1210Library, ExecutorService decodingExecutor, ExecutorService rp1210Executor,
 			MultiQueue<Packet> queue, Adapter adapter, String connectionString, int address, boolean appPacketize, Logger logger,
 			BiConsumer<ErrorType, String> errorFn) throws BusException {
@@ -140,10 +140,10 @@ public class RP1210Bus implements Bus {
 		timestampWeight = this.adapter.getTimestampWeight() * 1000L;
 		timestampStartNanoseconds = 0;
 
-		clientId = this.rp1210Library.RP1210_ClientConnect(0, this.adapter.getDeviceId(), this.connectionString, 0, 0,
-				(short) (this.appPacketize ? 1 : 0));
-		checkReturnCode(clientId);
 		try {
+			clientId = this.rp1210Library.RP1210_ClientConnect(0, this.adapter.getDeviceId(), this.connectionString, 0, 0,
+					(short) (this.appPacketize ? 1 : 0));
+			checkReturnCode(clientId);
 			sendCommand(CMD_PROTECT_J1939_ADDRESS, new byte[] { (byte) this.address, 0, 0, (byte) 0xE0, (byte) 0xFF, 0, (byte) 0x81,
 					0, 0, CLAIM_BLOCK_UNTIL_DONE });
 			sendCommand(CMD_ECHO_TRANSMITTED_MESSAGES, ECHO_ON);
@@ -391,8 +391,8 @@ public class RP1210Bus implements Bus {
 		try {
 			schedule(() -> {
 				if (clientId >= 0) {
-					clientId = -1;
 					rp1210Library.RP1210_ClientDisconnect(clientId);
+					clientId = -1;
 				}
 				return null;
 			}).get();
