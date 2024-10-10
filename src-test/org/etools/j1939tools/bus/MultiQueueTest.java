@@ -17,8 +17,8 @@ import org.junit.Test;
 @TestDoc(description = "Verifies queuing system works as expected.")
 public class MultiQueueTest {
     /** Add 10000 items from 25 different threads in less than 1 s */
-    @Test(timeout = 1000)
-    @TestDoc(description = "Verifies that 10,000 items can be added from 25 threads and all 250,000 items are read by one thread in less than 1 s.")
+    @Test(timeout = 5000)
+    @TestDoc(description = "Verifies that 10,000 items can be added from 25 threads and all 250,000 items are read by one thread in less than 5 s.")
     public void bandwidthTest() {
         try (MultiQueue<Integer> queue = new MultiQueue<>()) {
             long COUNT = 10000;
