@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.ERROR;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939tools.j1939.packets.ParsedPacket.NOT_AVAILABLE;
@@ -26,7 +25,6 @@ import static org.etools.j1939tools.modules.NOxBinningModule.NOx_LIFETIME_PGs;
 import static org.etools.j1939tools.modules.NOxBinningModule.NOx_TRACKING_ACTIVE_100_HOURS_PGs;
 import static org.etools.j1939tools.modules.NOxBinningModule.NOx_TRACKING_STORED_100_HOURS_PGs;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,7 +63,6 @@ import org.etools.j1939tools.modules.DateTimeModule;
 import org.etools.j1939tools.modules.GhgTrackingModule;
 import org.etools.j1939tools.modules.NOxBinningModule;
 import org.etools.j1939tools.utils.CollectionUtils;
-import org.etools.j1939tools.utils.StringUtils;
 
 /**
  * 6.2.17 KOER Data stream verification

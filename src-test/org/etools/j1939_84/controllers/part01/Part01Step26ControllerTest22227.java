@@ -11,20 +11,18 @@ import static org.etools.j1939tools.modules.CSERSModule.CSERS_CURRENT_OP_CYCLE_P
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
+
 import org.etools.j1939_84.controllers.BroadcastValidator;
 import org.etools.j1939_84.controllers.BusService;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -108,12 +106,6 @@ public class Part01Step26ControllerTest22227 extends AbstractControllerTest {
 
     private NOxBinningModule nOxBinningModule;
 
-    private static List<SupportedSPN> spns(int... ids) {
-        return Arrays.stream(ids).mapToObj(id -> {
-            return SupportedSPN.create(id, false, true, false, false, 1);
-        }).collect(Collectors.toList());
-    }
-
     private static GenericPacket packet(int spnId, Boolean isNotAvailable, int sourceAddress) {
         GenericPacket mock = mock(GenericPacket.class);
 
@@ -178,7 +170,6 @@ public class Part01Step26ControllerTest22227 extends AbstractControllerTest {
     @Test
     public void testRunObdPgnSupports22227() {
         final int supportedSpn = 22227;
-        List<Integer> supportedSpns = List.of(supportedSpn);
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2025);
@@ -323,7 +314,6 @@ public class Part01Step26ControllerTest22227 extends AbstractControllerTest {
     @Test
     public void testRunObdPgnSupports22227Failure28a() {
         final int supportedSpn = 22227;
-        List<Integer> supportedSpns = List.of(supportedSpn);
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2025);
@@ -443,7 +433,6 @@ public class Part01Step26ControllerTest22227 extends AbstractControllerTest {
     @Test
     public void testRunObdPgnSupports22227Failure28aBothMissing() {
         final int supportedSpn = 22227;
-        List<Integer> supportedSpns = List.of(supportedSpn);
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2025);
