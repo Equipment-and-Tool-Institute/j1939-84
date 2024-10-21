@@ -7,7 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
 import static org.etools.j1939_84.model.Outcome.FAIL;
-import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939tools.j1939.packets.LampStatus.ON;
 import static org.junit.Assert.assertEquals;
@@ -28,6 +28,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -90,6 +91,13 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
         dateTimeModule = new TestDateTimeModule();
+
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setNumberOfFaultAImplants(1);
+        vehInfo.setOneTripFaultACount(0);
+        vehInfo.setNumberOfFaultBImplants(1);
+        vehInfo.setOneTripFaultBCount(1);
+        dataRepository.setVehicleInformation(vehInfo);
 
         instance = new Part08Step02Controller(executor,
                                               bannerModule,
@@ -177,8 +185,8 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
 
         when(communicationsModule.requestDM12(any())).thenReturn(new RequestResult<>(true));
 
-        String promptMsg = "No ECU has reported an active DTC." + NL + "Do you wish to continue?";
-        String promptTitle = "No Active DTCs Found";
+        String promptMsg = "Fewer active Fault B DTCs have been reported than the expected total number of Fault B DTCs." + NL + "Do you wish to continue?";
+        String promptTitle = "Fewer Than Expected Active DTCs Found";
 
         doAnswer(invocationOnMock -> {
             QuestionListener questionListener = invocationOnMock.getArgument(3);
@@ -209,7 +217,7 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.8.2.1.b.ii - User says 'no' and no ECU reported an active DTC");
+                                        "6.8.2.1.b.ii - User says 'no' and fewer active Fault B DTCs are reported than the expected total number of Fault B DTCs.");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -225,8 +233,8 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
         when(communicationsModule.requestDM12(any())).thenReturn(RequestResult.of(dm12));
 
-        String promptMsg = "No ECU has reported an active DTC." + NL + "Do you wish to continue?";
-        String promptTitle = "No Active DTCs Found";
+        String promptMsg = "Fewer active Fault B DTCs have been reported than the expected total number of Fault B DTCs." + NL + "Do you wish to continue?";
+        String promptTitle = "Fewer Than Expected Active DTCs Found";
 
         doAnswer(invocationOnMock -> {
             QuestionListener questionListener = invocationOnMock.getArgument(3);
@@ -260,7 +268,7 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.8.2.1.b.ii - User says 'no' and no ECU reported an active DTC");
+                                        "6.8.2.1.b.ii - User says 'no' and fewer active Fault B DTCs are reported than the expected total number of Fault B DTCs.");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -295,7 +303,7 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.8.2.2.a - Engine #1 (0) reported > 1 active DTC");
     }
 
@@ -325,7 +333,7 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.8.2.2.b - More than one ECU reported an active DTC");
     }
 
@@ -391,7 +399,7 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        FAIL,
                                         "6.8.2.5.a - Engine #1 (0) reported an active DTC and did not report MIL on");
     }
 

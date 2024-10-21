@@ -217,7 +217,7 @@ public class Part08Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.8.4.2.c - Engine #1 (0) reported different MIL status than DM12 response earlier in this part");
+                                        "6.8.4.2.c - Engine #1 (0) reported different MIL status in DM23 than in DM12 response earlier in this part");
     }
 
 }

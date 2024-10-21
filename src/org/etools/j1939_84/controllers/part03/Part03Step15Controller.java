@@ -68,22 +68,32 @@ public class Part03Step15Controller extends StepController {
                                                                            .getPacket()
                                                                            .ifPresentOrElse(packet -> {
                                                                                if (packet.left.isPresent()) {
+                                                                                   if (getDataRepository().getVehicleInformation().getNumberOfFaultAImplants() == 0){
+                                                                                       return;
+                                                                                   }
 
                                                                                    DM21DiagnosticReadinessPacket dm21 = packet.left.get();
                                                                                    save(dm21);
 
                                                                                    // 6.3.15.2.a. Fail if any ECU
                                                                                    // reports distance (SPN 3069) or
-                                                                                   // time (SPN 3295) with MIL on > 0.
-                                                                                   if (dm21.getKmWhileMILIsActivated() > 0) {
-                                                                                       addFailure("6.3.15.2.a - OBD ECU "
-                                                                                               + dm21.getModuleName()
-                                                                                               + " reported active distance > 0");
-                                                                                   }
-                                                                                   if (dm21.getMinutesWhileMILIsActivated() > 0) {
-                                                                                       addFailure("6.3.15.2.a - OBD ECU "
-                                                                                               + dm21.getModuleName()
-                                                                                               + " reported active time > 0");
+                                                                                   // time (SPN 3295) with MIL on > 0,
+                                                                                   // where the expected number of one trip Fault DTCs is zero. (if supported).
+                                                                                   if(getDataRepository().getVehicleInformation().getOneTripFaultACount() == 0) {
+                                                                                       if (dm21.getKmWhileMILIsActivated() > 0) {
+                                                                                           addFailure(
+                                                                                                   "6.3.15.2.a - OBD ECU "
+                                                                                                           + dm21.getModuleName()
+                                                                                                           + " reported active distance > 0");
+                                                                                       }
+                                                                                       if (dm21.getMinutesWhileMILIsActivated() > 0
+                                                                                               && getDataRepository().getVehicleInformation()
+                                                                                               .getOneTripFaultACount() == 0) {
+                                                                                           addFailure(
+                                                                                                   "6.3.15.2.a - OBD ECU "
+                                                                                                           + dm21.getModuleName()
+                                                                                                           + " reported active time > 0");
+                                                                                       }
                                                                                    }
                                                                                } else if (packet.right.isPresent()) {
                                                                                    // if this isn't a NACK we have

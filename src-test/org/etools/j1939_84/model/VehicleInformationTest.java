@@ -121,6 +121,7 @@ public class VehicleInformationTest {
                 "Ignition Type: Compression" + NL +
                 "Number of Trips for Fault B Implant: 0" + NL +
                 "Number of Fault A Implants: 0" + NL +
+                "Number of Fault B Implants: 0" + NL +
                 NL +
                 "Vehicle Information:" + NL +
                 "VIN: vin" + NL +

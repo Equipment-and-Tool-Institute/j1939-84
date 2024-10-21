@@ -62,7 +62,7 @@ public class Part03Step03Controller extends StepController {
         // 6.3.3.1.a Global DM27 (send Request (PGN 59904) for PGN 64898 (SPNs 1213-1215, 3038, 1706)).
         var dm27s = getCommunicationsModule().requestDM27(getListener()).getPackets();
 
-        // 6.3.3.2.a Fail if (if supported) no ECU reports the same DTC observed in step 6.3.2.1 in a positive DM27
+        // 6.3.3.2.a Fail if any ECU fails to report the same DTC(s) observed in step 6.3.2.1 in a positive DM27
         // response.
         dm27s.forEach(packet -> {
             List<DiagnosticTroubleCode> dm27DTCs = packet.getDtcs();
@@ -78,10 +78,10 @@ public class Part03Step03Controller extends StepController {
             List<DiagnosticTroubleCode> dm27DTCs = packet.getDtcs();
             List<DiagnosticTroubleCode> dm6DTCs = getDTCs(packet.getSourceAddress());
 
-            // 6.3.3.3.a. Warn if (if supported) any ECU additional DTCs are provided than the DTC observed in step
+            // 6.3.3.3.a. Info if (if supported) any ECU additional DTCs are provided than the DTC observed in step
             // 6.3.2.1 in a positive DM27 response.
             if (isNotSubset(dm27DTCs, dm6DTCs)) {
-                addWarning("6.3.3.3.a - OBD ECU " + packet.getModuleName() +
+                addInfo("6.3.3.3.a - OBD ECU " + packet.getModuleName() +
                         " reported " + dm6DTCs.size() + " DTCs in response to DM6 in 6.3.2.1 and " +
                         dm27DTCs.size() + " DTCs when responding to DM27");
             }

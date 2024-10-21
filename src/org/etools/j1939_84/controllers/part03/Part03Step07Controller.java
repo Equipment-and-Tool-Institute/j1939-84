@@ -72,14 +72,17 @@ public class Part03Step07Controller extends StepController {
                          addFailure("6.3.7.2.a - OBD ECU " + moduleName + " reported a previously active DTC");
                      });
 
-        // 6.3.7.2.b (if supported) Fail if any OBD ECU does not report MIL off.
-        globalPackets.stream()
-                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                     .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF)
-                     .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> {
-                         addFailure("6.3.7.2.b - OBD ECU " + moduleName + " did not report MIL off");
-                     });
+        // 6.3.7.2.b (if supported) Fail if any OBD ECU does not report MIL off,
+        // where the expected number of one trip Fault DTCs is zero.
+        if (getDataRepository().getVehicleInformation().getOneTripFaultACount() == 0) {
+            globalPackets.stream()
+                    .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                    .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF)
+                    .map(ParsedPacket::getModuleName)
+                    .forEach(moduleName -> {
+                        addFailure("6.3.7.2.b - OBD ECU " + moduleName + " did not report MIL off");
+                    });
+        }
 
         // 6.3.7.2.c (if supported) Fail if any non-OBD ECU does not report MIL off or not supported.
         globalPackets.stream()

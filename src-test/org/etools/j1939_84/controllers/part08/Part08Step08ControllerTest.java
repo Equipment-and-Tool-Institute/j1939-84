@@ -4,7 +4,7 @@
 package org.etools.j1939_84.controllers.part08;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
-import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939tools.j1939.packets.LampStatus.ON;
 import static org.junit.Assert.assertEquals;
@@ -21,6 +21,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -83,6 +84,13 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
     public void setUp() throws Exception {
         dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
+
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setNumberOfFaultAImplants(1);
+        vehInfo.setOneTripFaultACount(0);
+        vehInfo.setNumberOfFaultBImplants(1);
+        vehInfo.setOneTripFaultBCount(1);
+        dataRepository.setVehicleInformation(vehInfo);
 
         instance = new Part08Step08Controller(executor,
                                               bannerModule,
@@ -423,7 +431,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.8.8.3.a - Engine #1 (0) reported > 1 for MIL on");
     }
 
@@ -457,7 +465,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.8.8.3.b - More than one ECU reported > 0 for MIL on");
     }
 
@@ -483,7 +491,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.8.8.3.c - Engine #1 (0) reported > 1 for previous MIL on");
     }
 
@@ -517,7 +525,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.8.8.3.d - More than one ECU reported > 0 for previous MIL on");
     }
 
@@ -543,7 +551,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.8.8.3.e - Engine #1 (0) reported > 1 for permanent");
     }
 
@@ -577,7 +585,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.8.8.3.f - More than one ECU reported > 0 for permanent");
     }
 

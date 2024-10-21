@@ -78,14 +78,17 @@ public class Part03Step10Controller extends StepController {
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> addFailure("6.3.10.2.b - " + moduleName + " did not report MIL off"));
 
-        // 6.3.10.2.c. Fail if any non- OBD ECU does not report MIL off or not supported.
-        globalPackets.stream()
-                     .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
-                     .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF
-                             && p.getMalfunctionIndicatorLampStatus() != NOT_SUPPORTED)
-                     .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.3.10.2.c - Non-OBD ECU " + moduleName
-                             + " did not report MIL off or not supported"));
+        // 6.3.10.2.c. Fail if any non- OBD ECU does not report MIL off or not supported,
+        // where the expected number of one trip Fault DTCs is zero.
+        if (getDataRepository().getVehicleInformation().getOneTripFaultACount() == 0) {
+            globalPackets.stream()
+                    .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
+                    .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF
+                            && p.getMalfunctionIndicatorLampStatus() != NOT_SUPPORTED)
+                    .map(ParsedPacket::getModuleName)
+                    .forEach(moduleName -> addFailure("6.3.10.2.c - Non-OBD ECU " + moduleName
+                                                              + " did not report MIL off or not supported"));
+        }
 
         // 6.3.10.2.d. Fail if no OBD ECU provides DM23
         boolean noObdModuleResponded = globalPackets.stream()

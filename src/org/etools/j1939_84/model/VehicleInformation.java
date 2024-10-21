@@ -51,6 +51,12 @@ public class VehicleInformation implements Cloneable {
 
     private int numberOfFaultAImplants;
 
+    private int oneTripFaultACount = 0;//TODO
+
+    private int numberOfFaultBImplants;
+
+    private int oneTripFaultBCount = 1;//TODO
+
     private int vehicleModelYear;
 
     private String vin = "";
@@ -139,6 +145,27 @@ public class VehicleInformation implements Cloneable {
     public void setNumberOfFaultAImplants(int numberOfFaultAImplants){
         this.numberOfFaultAImplants = numberOfFaultAImplants;
     }
+    public int getOneTripFaultACount() {return oneTripFaultACount;}
+
+    public void setOneTripFaultACount(int oneTripFaultACount){
+        this.oneTripFaultACount = oneTripFaultACount;
+    }
+
+    public int getTwoTripFaultACount() {return getNumberOfFaultAImplants() - getOneTripFaultACount();}
+
+    public int getNumberOfFaultBImplants() { return numberOfFaultBImplants; }
+
+    public int getOneTripFaultBCount() {return oneTripFaultBCount;}
+
+    public void setOneTripFaultBCount(int oneTripFaultBCount){
+        this.oneTripFaultBCount = oneTripFaultBCount;
+    }
+
+    public int getTwoTripFaultBCount() {return getNumberOfFaultBImplants() - getOneTripFaultBCount();}
+
+    public void setNumberOfFaultBImplants(int numberOfFaultBImplants){
+        this.numberOfFaultBImplants = numberOfFaultBImplants;
+    }
 
     public int getVehicleModelYear() {
         return vehicleModelYear;
@@ -171,7 +198,8 @@ public class VehicleInformation implements Cloneable {
                             vehicleModelYear,
                             vin,
                             numberOfTripsForFaultBImplant,
-                            numberOfFaultAImplants);
+                            numberOfFaultAImplants,
+                            numberOfFaultBImplants);
     }
 
     @Override
@@ -194,7 +222,10 @@ public class VehicleInformation implements Cloneable {
                 && engineModelYear == that.engineModelYear && fuelType == that.fuelType
                 && vehicleModelYear == that.vehicleModelYear && Objects.equals(vin, that.vin)
                 && numberOfTripsForFaultBImplant == that.numberOfTripsForFaultBImplant
-                && numberOfFaultAImplants == that.numberOfFaultAImplants;
+                && numberOfFaultAImplants == that.numberOfFaultAImplants
+                && oneTripFaultACount == that.oneTripFaultACount
+                && numberOfFaultBImplants == that.numberOfFaultBImplants
+                && oneTripFaultBCount == that.oneTripFaultBCount;
     }
 
     @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Calling super.clone() will cause a crash")
@@ -212,6 +243,9 @@ public class VehicleInformation implements Cloneable {
         vehInfo.setFuelType(getFuelType());
         vehInfo.setNumberOfTripsForFaultBImplant(getNumberOfTripsForFaultBImplant());
         vehInfo.setNumberOfFaultAImplants(getNumberOfFaultAImplants());
+        vehInfo.setOneTripFaultACount(getOneTripFaultACount());
+        vehInfo.setNumberOfFaultBImplants(getNumberOfFaultBImplants());
+        vehInfo.setOneTripFaultBCount(getOneTripFaultBCount());
         vehInfo.setVehicleModelYear(getVehicleModelYear());
         vehInfo.setVin(getVin());
         vehInfo.setUsCarb(isUsCarb());
@@ -230,6 +264,7 @@ public class VehicleInformation implements Cloneable {
                 + "Ignition Type: " + fuelType.ignitionType.name + NL
                 + "Number of Trips for Fault B Implant: " + numberOfTripsForFaultBImplant + NL
                 + "Number of Fault A Implants: " + numberOfFaultAImplants + NL
+                + "Number of Fault B Implants: " + numberOfFaultBImplants + NL
                 + NL
                 + "Vehicle Information:" + NL
                 + "VIN: " + vin + NL

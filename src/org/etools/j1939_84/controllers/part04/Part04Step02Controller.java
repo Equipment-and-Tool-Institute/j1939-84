@@ -70,8 +70,10 @@ public class Part04Step02Controller extends StepController {
     protected void run() throws Throwable {
         int attempts = 0;
         List<DM12MILOnEmissionDTCPacket> globalPackets = List.of();
-        AtomicBoolean foundDTC = new AtomicBoolean(false);
-        while (!foundDTC.get()) {
+        int faultAImplants = getDataRepository().getVehicleInformation().getNumberOfFaultAImplants();
+        int foundDTCCount = 0;
+        AtomicBoolean userCancel = new AtomicBoolean(false);
+        while (foundDTCCount < faultAImplants && !userCancel.get()) {
             // 6.4.2.1.a. Global DM12 ([send Request (PGN 59904) for PGN 65236 (SPN 1213-1215, 1706, and 3038)])
             // to retrieve confirmed and active DTCs.
 
@@ -84,24 +86,24 @@ public class Part04Step02Controller extends StepController {
             getListener().onResult(NL + "Attempt " + attempts);
             globalPackets = getCommunicationsModule().requestDM12(getListener()).getPackets();
 
-            foundDTC.set(globalPackets.stream().anyMatch(p -> !p.getDtcs().isEmpty()));
+            foundDTCCount = globalPackets.stream().mapToInt(p -> p.getDtcs().size()).sum();
 
-            if (!foundDTC.get()) {
+            if (foundDTCCount < faultAImplants && !userCancel.get()) {
                 if (attempts == 5 * 60) {
-                    // 6.4.2.1.a.ii. Time-out after every 5 minutes
-                    // and ask user “‘yes/no”’ to continue if there is still no confirmed and active DTC;
-                    // fail if user says “'no”' and no ECU reports a confirmed and active DTC.
-
+                    // 6.4.2.1.a.ii Time-out after every 5 minutes and ask user “yes/no” to continue if the
+                    // number of returned DM12 (MIL on) DTCs is less than the total number of Fault A DTCs;
+                    // and fail if user says “no” and fewer DM12 DTCs were reported than the expected total
+                    // number of Fault A DTCs.
                     QuestionListener questionListener = answer -> {
                         if (answer == CANCEL || answer == NO) {
-                            addFailure("6.4.2.1.a.ii - User said 'no' and no ECU reported a confirmed and active DTC");
-                            foundDTC.set(true);
+                            addFailure("6.4.2.1.a.ii - User said 'no' and fewer DM12 DTCs were reported than the expected total number of Fault A DTCs");
+                           userCancel.set(true);
                         }
                     };
 
-                    String msg = "No ECU has reported a confirmed and active DTC." + NL + "Do you wish to continue?";
+                    String msg = "Fewer confirmed and active DTCs have been reported than the expected total of Fault A DTCs." + NL + "Do you wish to continue?";
                     getListener().onUrgentMessage(msg,
-                                                  "No Confirmed and Active DTCs Found",
+                                                  "Fewer Than Expected Confirmed and Active DTCs Found",
                                                   QUESTION,
                                                   questionListener);
                     attempts = 0;
@@ -120,7 +122,7 @@ public class Part04Step02Controller extends StepController {
             addFailure("6.4.2.2.a - No ECU reported MIL on");
         }
 
-        // 6.4.2.2.b. Fail if DM12 DTC(s) is (are) not the same SPN+FMI(s) as DM6 pending DTC in part 3.
+        // 6.4.2.2.b Fail if all the DM6 pending DTCs observed in part 3, are not observed in the MIL on DM12 DTCs.
         globalPackets.stream()
                      .filter(p -> isObdModule(p.getSourceAddress()))
                      .filter(p -> !p.getDtcs().containsAll(getDTCs(p.getSourceAddress())))
@@ -139,12 +141,12 @@ public class Part04Step02Controller extends StepController {
                                  + " reported > 1 confirmed and active DTC");
                      });
 
-        // 6.4.2.3.b. Warn if more than one ECU reports a confirmed and active DTC.
+        // 6.4.2.3.b. Info if more than one ECU reports a confirmed and active DTC.
         long modulesWithFaults = globalPackets.stream()
                                               .filter(p -> !p.getDtcs().isEmpty())
                                               .count();
         if (modulesWithFaults > 1) {
-            addWarning("6.4.2.3.b - More than one ECU reported a confirmed and active DTC");
+            addInfo("6.4.2.3.b - More than one ECU reported a confirmed and active DTC");
         }
 
         // 6.4.2.4.a. DS DM12 to each OBD ECU.

@@ -22,6 +22,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -76,6 +77,8 @@ public class Part03Step11ControllerTest extends AbstractControllerTest {
 
     private DataRepository dataRepository;
 
+    private VehicleInformation vehicleInformation;
+
     private StepController instance;
 
     @Before
@@ -83,6 +86,11 @@ public class Part03Step11ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(new TestDateTimeModule());
         DateTimeModule dateTimeModule = DateTimeModule.getInstance();
         dataRepository = DataRepository.newInstance();
+
+        vehicleInformation = new VehicleInformation();
+        vehicleInformation.setNumberOfFaultAImplants(1);
+        vehicleInformation.setOneTripFaultACount(0);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         listener = new TestResultsListener(mockListener);
         instance = new Part03Step11Controller(executor,
@@ -194,6 +202,24 @@ public class Part03Step11ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.3.11.2.a - Engine #1 (0) reported a permanent DTC");
+    }
+    @Test
+    public void testNonZeroOneTripFaultA() {
+        vehicleInformation.setOneTripFaultACount(1);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        var dm23 = DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+
+        when(communicationsModule.requestDM28(any())).thenReturn(new RequestResult<>(false, dm23));
+        when(communicationsModule.requestDM28(any(), eq(0))).thenReturn(new BusResult<>(false, dm23));
+
+        runTest();
+
+        verify(communicationsModule).requestDM28(any());
+        verify(communicationsModule).requestDM28(any(), eq(0));
+
+        assertEquals("", listener.getResults());
     }
 
     @Test

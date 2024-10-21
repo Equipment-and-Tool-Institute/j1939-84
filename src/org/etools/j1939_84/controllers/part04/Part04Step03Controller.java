@@ -111,10 +111,10 @@ public class Part04Step03Controller extends StepController {
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> addWarning("6.4.3.2.d - Non-OBD ECU " + moduleName + " reported an active DTC"));
 
-        // 6.4.3.2.e Warn if more than 1 active DTC is reported by the vehicle.
+        // 6.4.3.2.e Info if more than 1 active DTC is reported by the vehicle.
         long dtcCount = packets.stream().map(DiagnosticTroubleCodePacket::getDtcs).mapToLong(Collection::size).sum();
         if (dtcCount > 1) {
-            addWarning("6.4.3.2.e - More than 1 active DTC is reported by the vehicle");
+            addInfo("6.4.3.2.e - More than 1 active DTC is reported by the vehicle");
         }
 
     }

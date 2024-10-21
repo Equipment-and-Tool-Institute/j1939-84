@@ -75,6 +75,8 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
     private TestResultsListener listener;
 
     private DataRepository dataRepository;
+    
+    private VehicleInformation vehicleInformation;
 
     private StepController instance;
 
@@ -85,6 +87,12 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
         faultModule = new FaultModule();
+
+        vehicleInformation = new VehicleInformation();
+        vehicleInformation.setNumberOfFaultBImplants(1);
+        vehicleInformation.setOneTripFaultBCount(1);
+        dataRepository.setVehicleInformation(vehicleInformation);
+
         instance = new Part07Step18Controller(executor,
                                               bannerModule,
                                               DateTimeModule.getInstance(),
@@ -245,7 +253,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                 "Step 6.7.18.1.g - Waiting for key off..." + NL +
                 "Step 6.7.18.1.h - Waiting manufacturer’s recommended interval with the key off" + NL +
                 "Step 6.7.18.1.i - Waiting for engine start" + NL +
-                "Step 6.7.18.1.j - Fault B is a single trip fault; proceeding with part 8 immediately";
+                "Step 6.7.18.1.j - all implanted Fault B DTCs are single trip faults; proceeding with part 8 immediately";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
@@ -264,7 +272,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailuresTwoFaultB() {
-
+        vehicleInformation.setOneTripFaultBCount(0);
         // ensureKeyOffEngineOff()
         when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,

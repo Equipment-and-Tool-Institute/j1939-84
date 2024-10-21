@@ -84,8 +84,8 @@ public class Part07Step12Controller extends StepController {
             addFailure("6.7.12.2.a - No ECU reported Freeze Frame data");
         }
 
-        // 6.7.12.2.b. Fail if DTC in reported Freeze Frame data does not include the DTC provided by DM23 earlier in
-        // this part.
+        // 6.7.12.2.b. Fail if DTC in reported Freeze Frame data does not include any DTC provided by DM23
+        // by any OBD ECU earlier in this part.
         for (DM25ExpandedFreezeFrame dm25 : packets) {
             List<DiagnosticTroubleCode> ffDTCs = dm25.getFreezeFrames()
                                                      .stream()

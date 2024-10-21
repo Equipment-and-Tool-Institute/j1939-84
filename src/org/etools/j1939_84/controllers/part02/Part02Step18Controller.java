@@ -73,7 +73,7 @@ public class Part02Step18Controller extends StepController {
             ensureKeyStateIs(KEY_OFF, "6.2.18.1.a");
             faultModule.setJ1939(getJ1939());
 
-            // 6.2.18.1.b. Implant Fault A according to engine manufacturer’s instruction (See section 5 for additional
+            // 6.2.18.1.b. Implant (multiple) Fault A DTC according to engine manufacturer’s instruction (See section 5 for additional
             // discussion).
             waitForFaultA();
             if (isTesting()) {
@@ -94,9 +94,9 @@ public class Part02Step18Controller extends StepController {
     }
 
     private void waitForFaultA() throws InterruptedException {
-        updateProgress("Step 6.2.18.1.b - Waiting for implant of Fault A according to the engine manufacturer's instruction");
+        updateProgress("Step 6.2.18.1.b - Waiting for implant of Fault A DTCs according to the engine manufacturer's instruction");
 
-        String message = "Implant Fault A according to engine manufacturer’s instruction" + NL + NL;
+        String message = "Implant Fault A DTCs according to engine manufacturer’s instruction" + NL + NL;
         message += "Press OK to continue";
         displayInstructionAndWait(message, "Step 6.2.18.1.b", WARNING);
     }

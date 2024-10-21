@@ -91,31 +91,34 @@ public class Part06Step08Controller extends StepController {
             addFailure("6.6.8.2.b - No ECU reported > 0 for MIL on");
         }
 
-        // 6.6.8.2.c. Fail if any ECU reports a different number for MIL on than what that ECU reported in DM12.
-        packets.stream()
-               .filter(p -> p.getEmissionRelatedMILOnDTCCount() != getDM12DTCs(p.getSourceAddress()).size())
-               .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> {
-                   addFailure("6.6.8.2.c - " + moduleName
-                           + " reported a different number for MIL on than what it reported in DM12");
-               });
+        // 6.6.8.2.c. Fail if any OBD System reports a different sum MIL on counts than what that OBD System reported in DM12 (from 6.5.2).
+        int permanentDTCCount = packets.stream()
+                .mapToInt(p -> p.getEmissionRelatedPermanentDTCCount())
+                .sum();
+        int dm12Count = packets.stream()
+                .mapToInt(p -> getDM12DTCs(p.getSourceAddress()).size())
+                .sum();
+        if (permanentDTCCount != dm12Count){
+            addFailure("6.6.8.2.c - OBD System reported a different sum of MIL on counts than what it reported in DM12");
+        }
 
-        // 6.6.8.2.d. Fail if no ECU reports > 0 for permanent.
+        // 6.6.8.2.d. Fail if no ECU reports > 0 for permanent DTC counts.
         boolean noPerm = packets.stream()
                                 .map(DM29DtcCounts::getEmissionRelatedPermanentDTCCount)
                                 .noneMatch(perm -> perm > 0);
         if (noPerm) {
-            addFailure("6.6.8.2.d - No ECU reported > 0 for permanent");
+            addFailure("6.6.8.2.d - No ECU reported > 0 for permanent DTC counts");
         }
 
-        // 6.6.8.2.e. Fail if any ECU reports a different number for permanent than what that ECU reported in DM28.
-        packets.stream()
-               .filter(p -> p.getEmissionRelatedPermanentDTCCount() != getDM28DTCs(p.getSourceAddress()).size())
-               .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> {
-                   addFailure("6.6.8.2.e - " + moduleName
-                           + " reported a different number for MIL on than what it reported in DM28");
-               });
+        // 6.6.8.2.e. Fail if OBD System reports a different sum of permanent DTC counts in DM29 than the sum of
+        // the DTCs counted in OBD system’s DM28 responses, where the sum of the DM29 permanent DTC counts
+        // is 4 or less.
+        int dm28Count = packets.stream()
+                .mapToInt(p -> getDM28DTCs(p.getSourceAddress()).size())
+                .sum();
+        if (permanentDTCCount <= 4 && permanentDTCCount != dm28Count){
+                addFailure("6.6.8.2.e - OBD System reported a different number for MIL on than what it reported in DM28");
+        }
 
         // 6.6.8.2.f. For ECUs that support DM27, fail if any ECU reports an all pending DTC (DM27) (SPN 4105) count
         // that is less than its pending DTC (DM6) count.
@@ -143,40 +146,40 @@ public class Part06Step08Controller extends StepController {
         // 6.6.8.2.h. Fail if NACK not received from OBD ECUs that did not provide a DM29 message.
         checkForNACKsDS(packets, filterAcks(dsResults), "6.6.8.2.h");
 
-        // 6.6.8.3.a. Warn if any ECU reports > 1 for MIL on.
+        // 6.6.8.3.a. Info if any ECU reports > 1 for MIL on.
         packets.stream()
                .filter(p -> p.getEmissionRelatedMILOnDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 1)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
-                   addWarning("6.6.8.3.a - " + moduleName + " reported > 1 for MIL on");
+                   addInfo("6.6.8.3.a - " + moduleName + " reported > 1 for MIL on");
                });
 
-        // 6.6.8.3.b. Warn if more than one ECU reports > 0 for MIL on.
+        // 6.6.8.3.b. Info if more than one ECU reports > 0 for MIL on.
         long milOnCount = packets.stream()
                                  .filter(p -> p.getEmissionRelatedMILOnDTCCount() != 0xFF)
                                  .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 0)
                                  .count();
         if (milOnCount > 1) {
-            addWarning("6.6.8.3.b - More than one ECU reported > 0 for MIL on");
+            addInfo("6.6.8.3.b - More than one ECU reported > 0 for MIL on");
         }
 
-        // 6.6.8.3.c. Warn if any ECU reports > 1 for permanent.
+        // 6.6.8.3.c. Info if any ECU reports > 1 for permanent.
         packets.stream()
                .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 1)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
-                   addWarning("6.6.8.3.c - " + moduleName + " reported > 1 for permanent");
+                   addInfo("6.6.8.3.c - " + moduleName + " reported > 1 for permanent");
                });
 
-        // 6.6.8.3.d. Warn if more than one ECU reports > 0 for permanent
+        // 6.6.8.3.d. Info if more than one ECU reports > 0 for permanent
         long permCount = packets.stream()
                                 .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
                                 .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 0)
                                 .count();
         if (permCount > 1) {
-            addWarning("6.6.8.3.d - More than one ECU reported > 0 for permanent");
+            addInfo("6.6.8.3.d - More than one ECU reported > 0 for permanent");
         }
     }
 

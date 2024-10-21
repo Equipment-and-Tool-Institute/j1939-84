@@ -100,35 +100,27 @@ public class Part07Step18Controller extends StepController {
             // 6.7.18.1.i. Start Engine.
             ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.7.18.1.i");
 
-            // 6.7.18.1.j. If Fault B is a single trip fault proceed with part 8 immediately.
-            if (getTripsRequired() != 1) {
-                // We already handle the first fault B, so only iterate over rest
-                for (int i = 2; i <= getTripsRequired(); i++) {
-                    updateProgress(format("Step 6.7.18.1.j - Running fault B trip #%d of %d total fault trips",
-                                          i,
-                                          getTripsRequired()));
-                    // 6.7.18.1.k. Wait for manufacturer’s recommended time for Fault B to be detected as failed.
-                    waitForFault("Step 6.7.18.1.k");
+            // 6.7.18.1.j. If all implanted Fault B DTCs are single trip faults, proceed with part 8 immediately.
+            if (getDataRepository().getVehicleInformation().getTwoTripFaultBCount() > 0){
+                updateProgress(format("Step 6.7.18.1.j - Running fault B trip #2 of 2 total fault trips"));
 
-                    // 6.7.18.1.l. Turn engine off.
-                    ensureKeyStateIs(KEY_OFF, "6.7.18.1.l");
+                // 6.7.18.1.k. Wait for manufacturer’s recommended time for Fault B to be detected as failed.
+                waitForFault("Step 6.7.18.1.k");
 
-                    // 6.7.18.1.m. Wait engine manufacturer’s recommended interval for permanent fault recording.
-                    waitMfgIntervalWithKeyOff("Step 6.7.18.1.m");
+                // 6.7.18.1.l. Turn engine off.
+                ensureKeyStateIs(KEY_OFF, "6.7.18.1.l");
 
-                    // 6.7.18.1.n. Start Engine.
-                    // 6.7.18.1.o. Proceed with part 8 (cycle 8b).
-                    ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.7.18.1.n");
-                }
+                // 6.7.18.1.m. Wait engine manufacturer’s recommended interval for permanent fault recording.
+                waitMfgIntervalWithKeyOff("Step 6.7.18.1.m");
+
+                // 6.7.18.1.n. Start Engine.
+                // 6.7.18.1.o. Proceed with part 8 (cycle 8b).
+                ensureKeyStateIs(KEY_ON_ENGINE_RUNNING, "6.7.18.1.n");
             } else {
-                // 6.7.18.1.j. If Fault B is a single trip fault proceed with part 8 immediately.
-                updateProgress("Step 6.7.18.1.j - Fault B is a single trip fault; proceeding with part 8 immediately");
+                // 6.7.18.1.j. If all implanted Fault B DTCs are single trip faults, proceed with part 8 immediately.
+                updateProgress("Step 6.7.18.1.j - all implanted Fault B DTCs are single trip faults; proceeding with part 8 immediately");
             }
         }
-    }
-
-    private int getTripsRequired() {
-        return getDataRepository().getVehicleInformation().getNumberOfTripsForFaultBImplant();
     }
 
     private void waitForFault(String stepId) throws InterruptedException {

@@ -4,7 +4,7 @@
 package org.etools.j1939_84.controllers.part09;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
-import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -283,7 +283,7 @@ public class Part09Step15ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.9.15.2.c - Engine #1 (0) reported different number for permanent DTC than what it reported in DM28");
+                                        "6.9.15.2.c - Engine #1 (0) reported lower sum of permanent DTC counts than what it reported in DM28");
     }
 
     @Test
@@ -351,7 +351,7 @@ public class Part09Step15ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.9.15.3.a - Engine #1 (0) reported > 1 for permanent DTC");
     }
 
@@ -380,7 +380,7 @@ public class Part09Step15ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.9.15.3.b - More than one ECU reported > 0 for permanent DTC");
     }
 

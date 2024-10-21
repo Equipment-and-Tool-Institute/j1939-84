@@ -64,12 +64,15 @@ public class Part03Step08Controller extends StepController {
                                                   .filter(DM5DiagnosticReadinessPacket::isObd)
                                                   .collect(Collectors.toList());
 
-        // 6.3.8.2.a Fail if any OBD ECU does not report 0 for the number of active DTCs.
-        packets.stream()
-               .filter(p -> p.getActiveCodeCount() != 0 && p.getActiveCodeCount() != (byte) 0xFF)
-               .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.3.8.2.a - OBD ECU " + moduleName
-                       + " reported active DTC count not = 0"));
+        // 6.3.8.2.a Fail if any OBD ECU does not report 0 for the number of active DTCs,
+        // where the expected number of one trip Fault A DTCs is zero.
+        if (getDataRepository().getVehicleInformation().getOneTripFaultACount() == 0) {
+            packets.stream()
+                    .filter(p -> p.getActiveCodeCount() != 0 && p.getActiveCodeCount() != (byte) 0xFF)
+                    .map(ParsedPacket::getModuleName)
+                    .forEach(moduleName -> addFailure("6.3.8.2.a - OBD ECU " + moduleName
+                                                              + " reported active DTC count not = 0"));
+        }
 
         // 6.3.8.2.a Fail if any OBD ECU does not report 0 for the number of previously active DTCs.
         packets.stream()

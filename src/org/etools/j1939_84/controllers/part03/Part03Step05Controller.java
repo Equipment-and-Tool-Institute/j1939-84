@@ -75,16 +75,19 @@ public class Part03Step05Controller extends StepController {
 
                                List<DM31DtcToLampAssociation> packets = response.getPackets();
                                if (!packets.isEmpty()) {
-                                   // 6.3.5.2.a (if supported) Fail if MIL not reported as off in all returned DTCs. See
-                                   // section A.8 for allowed values.
-                                   boolean milNotOff = packets
-                                                              .stream()
-                                                              .flatMap(p -> p.getDtcLampStatuses().stream())
-                                                              .map(DTCLampStatus::getMalfunctionIndicatorLampStatus)
-                                                              .anyMatch(this::isNotOff);
-                                   if (milNotOff) {
-                                       addFailure("6.3.5.2.a - " + moduleName
-                                               + " did not report MIL 'off' in all returned DTCs");
+                                   // 6.3.5.2.a (if supported) Fail if MIL not reported as off in all returned DTCs,
+                                   // where the expected number of one trip Fault DTCs is zero
+                                   // See section A.8 for allowed values.
+                                   if (getDataRepository().getVehicleInformation().getOneTripFaultACount() == 0) {
+                                       boolean milNotOff = packets
+                                               .stream()
+                                               .flatMap(p -> p.getDtcLampStatuses().stream())
+                                               .map(DTCLampStatus::getMalfunctionIndicatorLampStatus)
+                                               .anyMatch(this::isNotOff);
+                                       if (milNotOff) {
+                                           addFailure("6.3.5.2.a - " + moduleName
+                                                              + " did not report MIL 'off' in all returned DTCs");
+                                       }
                                    }
                                } else {
                                    // 6.3.5.2.b (if supported) Fail if NACK not received from OBD ECUs that did not

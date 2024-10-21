@@ -77,23 +77,28 @@ public class Part03Step06Controller extends StepController {
             addFailure("6.3.6.2.a - No OBD ECU supports DM1");
         }
 
-        // 6.3.6.2.b Fail if any OBD ECU reports an active DTC.
-        packets.stream()
-               .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-               .filter(p -> !p.getDtcs().isEmpty())
-               .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> {
-                   addFailure("6.3.6.2.b - " + moduleName + " reported an active DTC");
-               });
+        if (getDataRepository().getVehicleInformation().getOneTripFaultACount() == 0) {
+            // 6.3.6.2.b Fail if any OBD ECU reports an active DTC,
+            // where the expected number of one trip (Fault A) DTCs is zero.
+            packets.stream()
+                    .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                    .filter(p -> !p.getDtcs().isEmpty())
+                    .map(ParsedPacket::getModuleName)
+                    .forEach(moduleName -> {
+                        addFailure("6.3.6.2.b - " + moduleName + " reported an active DTC");
+                    });
 
-        // 6.3.6.2.c Fail if any OBD ECU does not report MIL off. See section A.8 for allowed values.
-        packets.stream()
-               .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-               .filter(p -> isNotOff(p.getMalfunctionIndicatorLampStatus()))
-               .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> {
-                   addFailure("6.3.6.2.c - " + moduleName + " did not report MIL 'off'");
-               });
+            // 6.3.6.2.c Fail if any OBD ECU does not report MIL off,
+            // where the expected number of one trip (Fault A) DTCs is zero.
+            // See section A.8 for allowed values.
+            packets.stream()
+                    .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                    .filter(p -> isNotOff(p.getMalfunctionIndicatorLampStatus()))
+                    .map(ParsedPacket::getModuleName)
+                    .forEach(moduleName -> {
+                        addFailure("6.3.6.2.c - " + moduleName + " did not report MIL 'off'");
+                    });
+        }
 
         // 6.3.6.2.d Fail if any non-OBD ECU does not report MIL off or not supported.
         packets.stream()

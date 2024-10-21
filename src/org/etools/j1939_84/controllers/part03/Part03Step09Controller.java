@@ -64,29 +64,34 @@ public class Part03Step09Controller extends StepController {
         // 6.3.9.1.a Global DM12 (send Request (PGN 59904) for PGN 65236 (SPNs 1213-1215, 1706, and 3038)).
         var globalPackets = getCommunicationsModule().requestDM12(getListener()).getPackets();
 
-        // 6.3.9.2.a Fail if any ECU reports an active DTC.
-        globalPackets.stream()
-                     .filter(p -> !p.getDtcs().isEmpty())
-                     .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.3.9.2.a - " + moduleName + " reported an active DTC"));
+        if (getDataRepository().getVehicleInformation().getOneTripFaultACount() == 0) {
+            // 6.3.9.2.a Fail if any ECU reports an active DTC,
+            // where the expected number of one trip Fault A DTCs is zero.
+            globalPackets.stream()
+                    .filter(p -> !p.getDtcs().isEmpty())
+                    .map(ParsedPacket::getModuleName)
+                    .forEach(moduleName -> addFailure("6.3.9.2.a - " + moduleName + " reported an active DTC"));
 
-        // 6.3.9.2.b Fail if any OBD ECU does not report MIL off. See section A.8 for allowed values
-        globalPackets.stream()
-                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                     .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF
-                             && p.getMalfunctionIndicatorLampStatus() != ALTERNATE_OFF)
-                     .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.3.9.2.b - " + moduleName + " did not report MIL 'off'"));
+            // 6.3.9.2.b Fail if any OBD ECU does not report MIL off,
+            // where the expected number of one trip Fault A DTCs is zero.
+            // See section A.8 for allowed values
+            globalPackets.stream()
+                    .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                    .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF
+                            && p.getMalfunctionIndicatorLampStatus() != ALTERNATE_OFF)
+                    .map(ParsedPacket::getModuleName)
+                    .forEach(moduleName -> addFailure("6.3.9.2.b - " + moduleName + " did not report MIL 'off'"));
 
-        // 6.3.9.2.c Fail if any non-OBD ECU does not report MIL off or not supported.
-        globalPackets.stream()
-                     .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
-                     .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF
-                             && p.getMalfunctionIndicatorLampStatus() != NOT_SUPPORTED)
-                     .map(ParsedPacket::getModuleName)
-                     .forEach(moduleName -> addFailure("6.3.9.2.c - Non-OBD ECU " + moduleName
-                             + " did not report MIL off or not supported"));
-
+            // 6.3.9.2.c Fail if any non-OBD ECU does not report MIL off or not supported,
+            // where the expected number of one trip Fault A DTCs is zero.
+            globalPackets.stream()
+                    .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
+                    .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF
+                            && p.getMalfunctionIndicatorLampStatus() != NOT_SUPPORTED)
+                    .map(ParsedPacket::getModuleName)
+                    .forEach(moduleName -> addFailure("6.3.9.2.c - Non-OBD ECU " + moduleName
+                                                              + " did not report MIL off or not supported"));
+        }
         // 6.3.9.2.d Fail if no OBD ECU provides DM12
         boolean noObdModuleResponded = globalPackets.stream()
                                                     .noneMatch(p -> getDataRepository().isObdModule(p.getSourceAddress()));

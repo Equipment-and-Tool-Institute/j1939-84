@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part03;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 import static org.junit.Assert.assertEquals;
@@ -19,6 +20,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -80,6 +82,11 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(new TestDateTimeModule());
         DateTimeModule dateTimeModule = DateTimeModule.getInstance();
         dataRepository = DataRepository.newInstance();
+
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setNumberOfFaultAImplants(1);
+        vehInfo.setOneTripFaultACount(0);
+        dataRepository.setVehicleInformation(vehInfo);
 
         listener = new TestResultsListener(mockListener);
         instance = new Part03Step04Controller(executor,
@@ -170,7 +177,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.4.2.a - Engine #1 (0) reported > 0 for MIL on count");
+                                        "6.3.4.2.a.ii - Engine #1 (0) reported > 0 for MIL on count");
     }
 
     @Test
@@ -218,7 +225,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.4.2.a - Engine #1 (0) reported > 0 for permanent DTC count");
+                                        "6.3.4.2.a.ii - Engine #1 (0) reported > 0 for permanent DTC count");
     }
 
     @Test
@@ -265,7 +272,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.4.2.c - Engine #1 (0) reported a different number of emission-related pending DTCs than what it reported in the previous DM6");
+                                        "6.3.4.2.c - OBD system reported a greater number of emission-related pending DTCs than what it reported in the previous DM6");
     }
 
     @Test
@@ -288,7 +295,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.4.2.c - Engine #1 (0) reported a different number of emission-related pending DTCs than what it reported in the previous DM6");
+                                        "6.3.4.2.c - OBD system reported a greater number of emission-related pending DTCs than what it reported in the previous DM6");
     }
 
     @Test
@@ -378,7 +385,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.4.2.a - Engine #1 (0) reported > 0 for MIL on count");
+                                        "6.3.4.2.a.ii - Engine #1 (0) reported > 0 for MIL on count");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -388,7 +395,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.4.2.a - Engine #1 (0) reported > 0 for permanent DTC count");
+                                        "6.3.4.2.a.ii - Engine #1 (0) reported > 0 for permanent DTC count");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -467,11 +474,11 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.3.4.3.b - More than one ECU reported > 0 for pending DTC count");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.3.4.3.b - More than one ECU reported > 0 for all pending DTC count");
     }
 

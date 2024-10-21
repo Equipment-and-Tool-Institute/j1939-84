@@ -157,7 +157,7 @@ public class Part04Step15ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages2 = "With the key in the off position, remove the implanted Fault A according to the"
+        String urgentMessages2 = "With the key in the off position, remove the implanted Fault A DTC(s) according to the"
                 + NL;
         urgentMessages2 += "manufacturer’s instructions for restoring the system to a fault-free operating condition"
                 + NL + NL;
@@ -185,7 +185,7 @@ public class Part04Step15ControllerTest extends AbstractControllerTest {
         String expectedMessages = "Step 6.4.15.1.a - Waiting for key off" + NL +
                 "Step 6.4.15.1.a - Waiting for key off..." + NL +
                 "Step 6.4.15.1.b - Waiting manufacturer’s recommended interval with the key off" + NL +
-                "Step 6.4.15.1.c - Waiting for implanted Fault A to be removed" + NL +
+                "Step 6.4.15.1.c - Waiting for implanted Fault A DTC(s) to be removed" + NL +
                 "Step 6.4.15.1.f - Waiting for engine start" + NL +
                 "Step 6.4.15.1.f - Waiting for engine start..." + NL +
                 "Step 6.4.15.1.g - Waiting for manufacturer’s recommended time for Fault A to be detected (as passed)";

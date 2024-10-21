@@ -16,6 +16,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939tools.j1939.packets.DM21DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.DM29DtcCounts;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
@@ -67,27 +68,21 @@ public class Part06Step10Controller extends StepController {
 
         var packets = filterPackets(dsResults);
 
-        // 6.6.10.2.a. Fail if any ECU reports distance with MIL on (SPN 3069) is > 0.
+        // 6.6.10.2.a. Fail if any ECU reports distance with MIL on (SPN 3069) is > 0 (where supported).
         packets.stream()
                .filter(p -> p.getKmWhileMILIsActivated() > 0 && p.getKmWhileMILIsActivated() != NOT_AVAILABLE)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> addFailure("6.6.10.2.a - " + moduleName + " reported distance with MIL on > 0"));
 
-        // 6.6.10.2.a. Fail if any ECU reports distance with MIL on (SPN 3069) is not supported.
-        packets.stream()
-               .filter(p -> p.getKmWhileMILIsActivated() == NOT_AVAILABLE)
-               .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.6.10.2.a - " + moduleName
-                       + " reported distance with MIL on is not supported"));
-
-        // 6.6.10.2.b. Fail if any ECU reports time with MIL on greater than 0 minute, and did not report a DTC in its
-        // DM12 response.
+        // 6.6.10.2.b. Fail, if any ECU reports time with MIL on greater than 0 minute,
+        // and the OBD system did not report a MIL on DTC count > 0 in its DM29 response
         packets.stream()
                .filter(p -> p.getMinutesWhileMILIsActivated() > 0)
-               .filter(p -> !hasDM12DTC(p.getSourceAddress()))
+                .filter(p -> get(DM29DtcCounts.class, p.getSourceAddress(), 6)
+                        .getEmissionRelatedMILOnDTCCount() == 0)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> addFailure("6.6.10.2.b - " + moduleName
-                       + " reported with with MIL on > 0 minutes, and did not report a DTC in its DM12 response"));
+                       + " reported with MIL on > 0 minutes, and did not report a MIL on DTC count > 0 in its DM29 response."));
 
         // 6.6.10.2.c. Fail if no ECU supports DM21.
         if (packets.isEmpty()) {
