@@ -86,8 +86,6 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         listener = new TestResultsListener(mockListener);
 
         VehicleInformation vehInfo = new VehicleInformation();
-        vehInfo.setNumberOfFaultAImplants(1);
-        vehInfo.setOneTripFaultACount(0);
         vehInfo.setNumberOfFaultBImplants(1);
         vehInfo.setOneTripFaultBCount(1);
         dataRepository.setVehicleInformation(vehInfo);

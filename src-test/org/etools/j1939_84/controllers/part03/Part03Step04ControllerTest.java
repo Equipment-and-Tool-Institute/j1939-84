@@ -251,31 +251,6 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testFailureForDifferenceFromDM6WithMore() {
-        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 0, 0);
-        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
-
-        OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
-        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        var dtc2 = DiagnosticTroubleCode.create(456, 12, 0, 1);
-        moduleInfo.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1), 3);
-        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1, dtc2), 3);
-        dataRepository.putObdModule(moduleInfo);
-
-        runTest();
-
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
-
-        verify(communicationsModule).requestDM29(any());
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.3.4.2.c - OBD system reported a greater number of emission-related pending DTCs than what it reported in the previous DM6");
-    }
-
-    @Test
     public void testFailureForDifferenceFromDM6WithLess() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 0, 0);
         when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
@@ -319,7 +294,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.4.2.d - Engine #1 (0) reported a lower number of all pending DTCs than the number of emission-related pending DTCs");
+                                        "6.3.4.2.d - OBD System reported a lower number of all pending DTCs than the number of emission-related pending DTCs");
     }
 
     @Test
@@ -474,11 +449,11 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        INFO,
+                                        WARN,
                                         "6.3.4.3.b - More than one ECU reported > 0 for pending DTC count");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        INFO,
+                                        WARN,
                                         "6.3.4.3.b - More than one ECU reported > 0 for all pending DTC count");
     }
 

@@ -76,6 +76,8 @@ public class Part03Step06ControllerTest extends AbstractControllerTest {
 
     @Mock
     private VehicleInformationModule vehicleInformationModule;
+    
+    private VehicleInformation vehicleInformation;
 
     private DataRepository dataRepository;
 
@@ -87,10 +89,10 @@ public class Part03Step06ControllerTest extends AbstractControllerTest {
         DateTimeModule dateTimeModule = DateTimeModule.getInstance();
         dataRepository = DataRepository.newInstance();
 
-        VehicleInformation vehInfo = new VehicleInformation();
-        vehInfo.setNumberOfFaultAImplants(1);
-        vehInfo.setOneTripFaultACount(0);
-        dataRepository.setVehicleInformation(vehInfo);
+        vehicleInformation = new VehicleInformation();
+        vehicleInformation.setNumberOfFaultAImplants(1);
+        vehicleInformation.setOneTripFaultACount(0);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         listener = new TestResultsListener(mockListener);
         instance = new Part03Step06Controller(executor,
@@ -167,6 +169,40 @@ public class Part03Step06ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testNoFailureIfOneTripAIsNonZero() {
+        vehicleInformation.setOneTripFaultACount(1);
+        List<DM1ActiveDTCsPacket> packetList = new ArrayList<>();
+        var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        var dm1_0 = DM1ActiveDTCsPacket.create(0x00, ON, OFF, OFF, OFF, dtc);
+        packetList.add(dm1_0);
+        var dm1_21 = DM1ActiveDTCsPacket.create(0x21, ON, OFF, OFF, OFF);
+        packetList.add(dm1_21);
+
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        when(communicationsModule.read(eq(DM1ActiveDTCsPacket.class),
+                                       eq(3),
+                                       eq(SECONDS),
+                                       any(CommunicationsListener.class)))
+                .thenReturn(new ArrayList<>(packetList));
+
+        runTest();
+
+        verify(communicationsModule).read(eq(DM1ActiveDTCsPacket.class),
+                                          eq(3),
+                                          eq(SECONDS),
+                                          any(CommunicationsListener.class));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.3.6.2.d - Non-OBD ECU Body Controller (33) did not report MIL off or not supported");
     }
 
     @Test

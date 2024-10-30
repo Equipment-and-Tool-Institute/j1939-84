@@ -235,7 +235,7 @@ public class Part03Step04Controller extends StepController {
                                                      .filter(p -> p.getAllPendingDTCCount() > 0)
                                                      .count();
         if (modulesReportingAllPendingCount > 1) {
-            addInfo("6.3.4.3.b - More than one ECU reported > 0 for all pending DTC count");
+            addWarning("6.3.4.3.b - More than one ECU reported > 0 for all pending DTC count");
         }
     }
 
