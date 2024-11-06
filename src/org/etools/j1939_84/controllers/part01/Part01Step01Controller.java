@@ -131,7 +131,7 @@ public class Part01Step01Controller extends StepController {
         // 6.1.1.1.e.iv. Fuel type,
         // 6.1.1.1.e.v. Number of emission or diagnostic-critical control units on vehicle (i.e., number that are
         // required to support CAL ID and CVN),3 and
-        //vi.	Total number of implanted faults for Fault A,       TODO
+        //vi.	Total number of implanted faults for Fault A,
         //vii.	The number of one trip faults implanted for Fault A,
         //viii.	The inferred number of two trip faults implanted for Fault A,
         //ix. Total number of implanted faults for Fault B,

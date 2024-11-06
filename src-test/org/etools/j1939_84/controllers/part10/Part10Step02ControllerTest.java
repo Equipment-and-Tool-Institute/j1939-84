@@ -155,7 +155,6 @@ public class Part10Step02ControllerTest extends AbstractControllerTest {
                                                                     "500.0 RPMs");
 
         VehicleInformation vehicleInformation = new VehicleInformation();
-        vehicleInformation.setNumberOfTripsForFaultBImplant(1);
         dataRepository.setVehicleInformation(vehicleInformation);
 
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
@@ -234,7 +233,6 @@ public class Part10Step02ControllerTest extends AbstractControllerTest {
                                                                     "500.0 RPMs");
 
         VehicleInformation vehicleInformation = new VehicleInformation();
-        vehicleInformation.setNumberOfTripsForFaultBImplant(1);
         dataRepository.setVehicleInformation(vehicleInformation);
 
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);

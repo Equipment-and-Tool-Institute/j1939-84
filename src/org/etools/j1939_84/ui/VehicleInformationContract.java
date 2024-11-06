@@ -82,15 +82,6 @@ public interface VehicleInformationContract {
         void onFuelTypeChanged(FuelType fuelType);
 
         /**
-         * Called when number of trips for fault B implant changes
-         *
-         * @param trips
-         *                  the new value
-         */
-
-        void onNumberOfTripsForFaultBImplantChanged(int trips);
-
-        /**
          *
          * @param faults
          */
@@ -101,6 +92,18 @@ public interface VehicleInformationContract {
          * @param faults
          */
         void onNumberOfFaultBImplantsChanged(int faults);
+
+        /**
+         *
+         * @param count
+         */
+        void onNumberOfOneTripFaultAChanged(int count);
+
+        /**
+         *
+         * @param count
+         */
+        void onNumberOfOneTripFaultBChanged(int count);
 
         /**
          * Called when the OK button is clicked
@@ -168,11 +171,13 @@ public interface VehicleInformationContract {
          */
         void setFuelType(FuelType fuelType);
 
-        void setNumberOfTripsForFaultBImplant(int count);
-
         void setNumberOfFaultAImplants(int count);
 
+        void setNumberOfOneTripFaultA(int count);
+
         void setNumberOfFaultBImplants(int count);
+
+        void setNumberOfOneTripFaultB(int count);
 
         /**
          * Enables and Disables the Ok Button

@@ -85,16 +85,14 @@ public class Part05Step05Controller extends StepController {
                });
 
         // 6.5.5.2.b Fail if any OBD ECU that reports > 0 MIL on DTCs where the same ECU provides one or more permanent DTCs.
-        packets.stream()
+        boolean noReports = packets.stream()
                 .filter(p -> p.getEmissionRelatedMILOnDTCCount() != 0xFF)
                 .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
-                .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 0
-                        && p.getEmissionRelatedPermanentDTCCount() > 0)
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> {
-                    addFailure("6.5.5.2.b - " + moduleName
-                                       + " reported > 0 MIL on DTCs and one or more permanent DTCs");
-                });
+                .noneMatch(p -> p.getEmissionRelatedMILOnDTCCount() > 0
+                        && p.getEmissionRelatedPermanentDTCCount() > 0);
+        if (noReports) {
+            addFailure("6.5.5.2.b - No ECU reported > 0 MIL on DTCs and > 0 permanent DTCs");
+        }
 
         // 6.5.5.2.c. Fail if any OBD System that reports a different number of MIL on DTCs than what that OBD System
         // reported in DM12 earlier in this part.

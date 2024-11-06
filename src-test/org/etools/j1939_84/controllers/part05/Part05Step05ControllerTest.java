@@ -185,11 +185,6 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.5.5.2.a - Engine #1 (0) reported > 0 for emissions-related pending");
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.5.5.2.b - Engine #1 (0) reported > 0 MIL on DTCs and one or more permanent DTCs");
     }
 
     @Test
@@ -239,6 +234,11 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
+                                        "6.5.5.2.c - OBD System reported fewer MIL on DTCs than the total number of implanted faults for Fault A");
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
                                         "6.5.5.2.b - No ECU reported > 0 MIL on DTCs and > 0 permanent DTCs");
     }
 
@@ -266,7 +266,7 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.5.5.2.c - Engine #1 (0) reported a different number of MIL on DTCs than what it reported in DM12 earlier in this part");
+                                        "6.5.5.2.c - OBD System reported a different number of MIL on DTCs than what it reported in DM12 earlier in this part");
     }
 
     @Test

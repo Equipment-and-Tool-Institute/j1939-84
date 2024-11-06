@@ -85,7 +85,7 @@ public class Part08Step02Controller extends StepController {
             getListener().onResult(NL + "Attempt " + attempts);
             globalPackets = getCommunicationsModule().requestDM12(getListener()).getPackets();
 
-            userCancel.set(globalPackets.stream().anyMatch(p -> !p.getDtcs().isEmpty()));
+            foundDTCCount = globalPackets.stream().mapToInt(p -> p.getDtcs().size()).sum();
 
             if (foundDTCCount < faultBImplants && !userCancel.get()) {
                 if (attempts == 5 * 60) {

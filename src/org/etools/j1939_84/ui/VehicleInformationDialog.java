@@ -61,9 +61,10 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     private JLabel fuelTypeLabel;
     private JLabel headerLabel;
     private JPanel mainPanel;
-    private JSpinner numberOfTripsForFaultBImplantSpinner;
     private JSpinner numberOfFaultAImplantsSpinner;
+    private JSpinner numberOfOneTripFaultASpinner;
     private JSpinner numberOfFaultBImplantsSpinner;
+    private JSpinner numberOfOneTripFaultBSpinner;
     private JLabel overrideLabel;
     private JCheckBox overrideCheckBox;
     private JButton okButton;
@@ -308,9 +309,9 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
         if (mainPanel == null) {
             GridBagLayout panelLayout = new GridBagLayout();
             panelLayout.columnWidths = new int[] { 0, 0, 0, 0 };
-            panelLayout.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            panelLayout.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             panelLayout.columnWeights = new double[] { 1.0, 1.0, 1.0, 1.0 };
-            panelLayout.rowWeights = new double[] { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+            panelLayout.rowWeights = new double[] { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
             mainPanel = new JPanel();
             mainPanel.setLayout(panelLayout);
@@ -357,42 +358,61 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
             certificationGbc.gridwidth = 3;
             mainPanel.add(getCertificationScrollPane(), certificationGbc);
 
-            mainPanel.add(new JLabel("Number Of Trips For Fault B Implant"), getLabelGbc(9));
-            mainPanel.add(getNumberOfTripsForFaultBImplantJSpinner(), getValueGbc(9));
+            mainPanel.add(new JLabel("Number Of Implanted Fault A DTCs"), getLabelGbc(9));
+            mainPanel.add(getNumberOfFaultAImplantsSpinner(), getValueGbc(9));
 
-            mainPanel.add(new JLabel("Number Of Implanted Fault A DTCs"), getLabelGbc(10));
-            mainPanel.add(getNumberOfFaultAImplantsSpinner(), getValueGbc(10));
+            mainPanel.add(new JLabel("Number Of One Trip Fault A"), getLabelGbc(10));
+            mainPanel.add(getNumberOfOneTripFaultAJSpinner(), getValueGbc(10));
 
             mainPanel.add(new JLabel("Number Of Implanted Fault B DTCs"), getLabelGbc(11));
             mainPanel.add(getNumberOfFaultBImplantsSpinner(), getValueGbc(11));
 
-            mainPanel.add(getOverrideLabel(), getLabelGbc(12));
-            mainPanel.add(getOverrideControl(), getValueGbc(12));
+            mainPanel.add(new JLabel("Number Of One Trip Fault B"), getLabelGbc(12));
+            mainPanel.add(getNumberOfOneTripFaultBJSpinner(), getValueGbc(12));
+
+            mainPanel.add(getOverrideLabel(), getLabelGbc(13));
+            mainPanel.add(getOverrideControl(), getValueGbc(13));
 
             GridBagConstraints buttonPanelGbc = new GridBagConstraints();
             buttonPanelGbc.insets = new Insets(0, 0, 0, 5);
             buttonPanelGbc.anchor = GridBagConstraints.WEST;
             buttonPanelGbc.gridwidth = 2;
             buttonPanelGbc.gridx = 1;
-            buttonPanelGbc.gridy = 13;
+            buttonPanelGbc.gridy = 14;
             mainPanel.add(getButtonPanel(), buttonPanelGbc);
             getRootPane().setDefaultButton(getOkButton());
         }
         return mainPanel;
     }
 
-    private JSpinner getNumberOfTripsForFaultBImplantJSpinner() {
-        if (numberOfTripsForFaultBImplantSpinner == null) {
-            numberOfTripsForFaultBImplantSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 2, 1));
-            JSpinner.NumberEditor editor = new JSpinner.NumberEditor(numberOfTripsForFaultBImplantSpinner, "#");
+    private JSpinner getNumberOfOneTripFaultAJSpinner() {
+        if (numberOfOneTripFaultASpinner == null) {
+            numberOfOneTripFaultASpinner = new JSpinner(new SpinnerNumberModel(0, 0, 2, 1));
+            JSpinner.NumberEditor editor = new JSpinner.NumberEditor(numberOfOneTripFaultASpinner, "#");
             editor.getTextField().setColumns(2);
-            numberOfTripsForFaultBImplantSpinner.setEditor(editor);
-            numberOfTripsForFaultBImplantSpinner
-                                                .addChangeListener(e -> presenter
-                                                                                 .onNumberOfTripsForFaultBImplantChanged(
-                                                                                                                         (int) numberOfTripsForFaultBImplantSpinner.getValue()));
+            numberOfOneTripFaultASpinner.setEditor(editor);
+            numberOfOneTripFaultASpinner
+                    .addChangeListener(e -> presenter
+                            .onNumberOfOneTripFaultAChanged(
+                                    (int) numberOfOneTripFaultASpinner
+                                            .getValue()));
         }
-        return numberOfTripsForFaultBImplantSpinner;
+        return numberOfOneTripFaultASpinner;
+    }
+
+    private JSpinner getNumberOfOneTripFaultBJSpinner() {
+        if (numberOfOneTripFaultBSpinner == null) {
+            numberOfOneTripFaultBSpinner = new JSpinner(new SpinnerNumberModel(1, 0, 2, 1));
+            JSpinner.NumberEditor editor = new JSpinner.NumberEditor(numberOfOneTripFaultBSpinner, "#");
+            editor.getTextField().setColumns(2);
+            numberOfOneTripFaultBSpinner.setEditor(editor);
+            numberOfOneTripFaultBSpinner
+                    .addChangeListener(e -> presenter
+                            .onNumberOfOneTripFaultBChanged(
+                                    (int) numberOfOneTripFaultBSpinner
+                                            .getValue()));
+        }
+        return numberOfOneTripFaultBSpinner;
     }
 
     private JSpinner getNumberOfFaultAImplantsSpinner() {
@@ -557,17 +577,22 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
         getFuelTypeComboBox().setSelectedItem(fuelType);
     }
 
-    @Override
-    public void setNumberOfTripsForFaultBImplant(int count) {
-        getNumberOfTripsForFaultBImplantJSpinner().setValue(count);
-    }
-
     @Override public void setNumberOfFaultAImplants(int count) {
         getNumberOfFaultAImplantsSpinner().setValue(count);
     }
 
     @Override public void setNumberOfFaultBImplants(int count) {
         getNumberOfFaultBImplantsSpinner().setValue(count);
+    }
+
+    @Override
+    public void setNumberOfOneTripFaultA(int count) {
+        getNumberOfOneTripFaultAJSpinner().setValue(count);
+    }
+
+    @Override
+    public void setNumberOfOneTripFaultB(int count) {
+        getNumberOfOneTripFaultBJSpinner().setValue(count);
     }
 
     @Override

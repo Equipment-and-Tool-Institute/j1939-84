@@ -82,6 +82,8 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
     private TestResultsListener listener;
 
     private DataRepository dataRepository;
+    
+    private VehicleInformation vehicleInformation;
 
     private TestDateTimeModule dateTimeModule;
     private StepController instance;
@@ -92,12 +94,12 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         listener = new TestResultsListener(mockListener);
         dateTimeModule = new TestDateTimeModule();
 
-        VehicleInformation vehInfo = new VehicleInformation();
-        vehInfo.setNumberOfFaultAImplants(1);
-        vehInfo.setOneTripFaultACount(0);
-        vehInfo.setNumberOfFaultBImplants(1);
-        vehInfo.setOneTripFaultBCount(1);
-        dataRepository.setVehicleInformation(vehInfo);
+        vehicleInformation = new VehicleInformation();
+        vehicleInformation.setNumberOfFaultAImplants(1);
+        vehicleInformation.setOneTripFaultACount(0);
+        vehicleInformation.setNumberOfFaultBImplants(1);
+        vehicleInformation.setOneTripFaultBCount(1);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         instance = new Part08Step02Controller(executor,
                                               bannerModule,
@@ -178,6 +180,61 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         assertEquals(0, dateTimeModule.getTimeAsLong());
 
         assertEquals(List.of(), listener.getOutcomes());
+    }
+
+
+    @Test
+    public void testTooFewResponse() {
+        vehicleInformation.setNumberOfFaultBImplants(3);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+
+        var nack = AcknowledgmentPacket.create(0, AcknowledgmentPacket.Response.NACK);
+        when(communicationsModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, nack));
+
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc1);
+        when(communicationsModule.requestDM12(any(), eq(1))).thenReturn(new BusResult<>(false, dm12_1));
+
+        when(communicationsModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12_1));
+
+        String promptMsg = "Fewer active Fault B DTCs have been reported than the expected total number of Fault B DTCs." + NL + "Do you wish to continue?";
+        String promptTitle = "Fewer Than Expected Active DTCs Found";
+
+        doAnswer(invocationOnMock -> {
+            QuestionListener questionListener = invocationOnMock.getArgument(3);
+            questionListener.answered(NO);
+            return null;
+        }).when(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
+
+        runTest();
+
+        StringBuilder expectedMessages = new StringBuilder();
+        for (int i = 1; i <= 300; i++) {
+            expectedMessages.append("Step 6.8.2.1.a - Requesting DM12 Attempt ").append(i);
+            if (i != 300) {
+                expectedMessages.append(NL);
+            }
+        }
+        assertEquals(expectedMessages.toString(), listener.getMessages());
+
+        StringBuilder expectedResults = new StringBuilder();
+        for (int i = 1; i <= 300; i++) {
+            expectedResults.append(NL).append("Attempt ").append(i).append(NL);
+        }
+        assertEquals(expectedResults.toString(), listener.getResults());
+
+        verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
+        verify(communicationsModule, times(300)).requestDM12(any());
+        verify(communicationsModule).requestDM12(any(), eq(1));
+        verify(communicationsModule).requestDM12(any(), eq(0));
+        verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.8.2.1.b.ii - User says 'no' and fewer active Fault B DTCs are reported than the expected total number of Fault B DTCs.");
+
+        assertEquals(299000, dateTimeModule.getTimeAsLong());
     }
 
     @Test

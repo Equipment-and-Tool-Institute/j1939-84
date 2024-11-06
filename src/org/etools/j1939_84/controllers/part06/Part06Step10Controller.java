@@ -78,8 +78,10 @@ public class Part06Step10Controller extends StepController {
         // and the OBD system did not report a MIL on DTC count > 0 in its DM29 response
         packets.stream()
                .filter(p -> p.getMinutesWhileMILIsActivated() > 0)
-                .filter(p -> get(DM29DtcCounts.class, p.getSourceAddress(), 6)
-                        .getEmissionRelatedMILOnDTCCount() == 0)
+                .filter(p -> {
+                    DM29DtcCounts dm29 = get(DM29DtcCounts.class, p.getSourceAddress(), 6);
+                    return dm29 != null && dm29.getEmissionRelatedMILOnDTCCount() == 0;
+                })
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> addFailure("6.6.10.2.b - " + moduleName
                        + " reported with MIL on > 0 minutes, and did not report a MIL on DTC count > 0 in its DM29 response."));
