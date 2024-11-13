@@ -245,6 +245,6 @@ public class Part04Step10ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.4.10.2.b - Engine #1 (0) did not report DTC in freeze frame data which included the DTC reported in DM12 earlier in this part");
+                                        "6.4.10.2.b - Engine #1 (0) did not report DTC in freeze frame data which included any DTC reported in DM12 earlier in this part");
     }
 }

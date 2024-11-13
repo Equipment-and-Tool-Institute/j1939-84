@@ -91,9 +91,10 @@ public class Part07Step12Controller extends StepController {
                                                      .stream()
                                                      .map(ff -> ff.getDtc())
                                                      .collect(Collectors.toList());
-            if (!ffDTCs.containsAll(getDTCs(dm25.getSourceAddress()))) {
+            List<DiagnosticTroubleCode> dm23DTCs = getDTCs(dm25.getSourceAddress());
+            if (ffDTCs.stream().filter(dtc -> dm23DTCs.contains(dtc)).findFirst().isEmpty()) {
                 addFailure("6.7.12.2.b - " + dm25.getModuleName()
-                        + " did not reported DTC in Freeze Frame data which included the DTC provided by DM23 earlier in this part");
+                        + " did not report DTC in Freeze Frame data which included any DTC provided by DM23 earlier in this part");
             }
         }
 

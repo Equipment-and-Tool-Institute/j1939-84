@@ -208,6 +208,36 @@ public class Part08Step07ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testFourOrMorePermanentFaults() {
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        var dtc1 = DiagnosticTroubleCode.create(123, 1, 0, 1);
+        var dtc2 = DiagnosticTroubleCode.create(456, 1, 0, 1);
+        var dtc3 = DiagnosticTroubleCode.create(789, 1, 0, 1);
+        var dtc4 = DiagnosticTroubleCode.create(321, 1, 0, 1);
+        var dtc5 = DiagnosticTroubleCode.create(654, 1, 0, 1);
+
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc5), 8);
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var dm28 = DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2, dtc3, dtc4);
+        when(communicationsModule.requestDM28(any())).thenReturn(RequestResult.of(dm28));
+        when(communicationsModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
+
+        runTest();
+
+        verify(communicationsModule).requestDM28(any());
+        verify(communicationsModule).requestDM28(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.8.7.3.b - Engine #1 (0) reported more than one permanent DTC");
+    }
+
+    @Test
     public void testFailureForDifferentMIL() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 1, 0, 1);

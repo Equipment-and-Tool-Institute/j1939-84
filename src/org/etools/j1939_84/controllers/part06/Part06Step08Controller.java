@@ -92,13 +92,13 @@ public class Part06Step08Controller extends StepController {
         }
 
         // 6.6.8.2.c. Fail if any OBD System reports a different sum MIL on counts than what that OBD System reported in DM12 (from 6.5.2).
-        int permanentDTCCount = packets.stream()
-                .mapToInt(p -> p.getEmissionRelatedPermanentDTCCount())
+        int sumMil = packets.stream()
+                .mapToInt(p -> p.getEmissionRelatedMILOnDTCCount())
                 .sum();
         int dm12Count = packets.stream()
                 .mapToInt(p -> getDM12DTCs(p.getSourceAddress()).size())
                 .sum();
-        if (permanentDTCCount != dm12Count){
+        if (sumMil != dm12Count){
             addFailure("6.6.8.2.c - OBD System reported a different sum of MIL on counts than what it reported in DM12");
         }
 
@@ -113,6 +113,9 @@ public class Part06Step08Controller extends StepController {
         // 6.6.8.2.e. Fail if OBD System reports a different sum of permanent DTC counts in DM29 than the sum of
         // the DTCs counted in OBD system’s DM28 responses, where the sum of the DM29 permanent DTC counts
         // is 4 or less.
+        int permanentDTCCount = packets.stream()
+                .mapToInt(p -> p.getEmissionRelatedPermanentDTCCount())
+                .sum();
         int dm28Count = packets.stream()
                 .mapToInt(p -> getDM28DTCs(p.getSourceAddress()).size())
                 .sum();

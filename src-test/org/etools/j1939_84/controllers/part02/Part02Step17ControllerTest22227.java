@@ -290,8 +290,8 @@ public class Part02Step17ControllerTest22227 extends AbstractControllerTest {
         expected += "| EGR Mass Until FTP Cold Start Tracking Time,                            g  |       6,400 |      12,800 |" + NL;
         expected += "| EGR Mass Until FTP Engine Output Energy,                                g  |       7,680 |      15,360 |" + NL;
         expected += "| EGR Mass Until Cold Start Tracking Catalyst Temperature Threshold,      g  |       8,960 |      17,920 |" + NL;
-        expected += "| Time Until FTP Engine Output Energy,                                    s  |          34 |         683 |" + NL;
-        expected += "| Time Until Catalyst Cold Start Tracking Temperature Threshold,          s  |          38 |         691 |" + NL;
+        expected += "| Time Until FTP Engine Output Energy,                                   min |          34 |         683 |" + NL;
+        expected += "| Time Until Catalyst Cold Start Tracking Temperature Threshold,         min |          38 |         691 |" + NL;
         expected += "|----------------------------------------------------------------------------+-------------+-------------+" + NL;
 
         expected += NL;

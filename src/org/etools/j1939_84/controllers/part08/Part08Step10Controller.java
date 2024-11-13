@@ -90,7 +90,7 @@ public class Part08Step10Controller extends StepController {
             oldDTCs.retainAll(ffDTCs);
             if (oldDTCs.isEmpty() && !ffDTCs.isEmpty()) {
                 addFailure("6.8.10.2.a - DTC(s) reported in the freeze frame by " + pp.getModuleName()
-                        + " did not include either the DTC reported in DM12 or DM23 earlier in this part");
+                        + " did not include either any DTC reported in DM12 or any DTC reported in DM23 earlier in this part");
             }
         });
 

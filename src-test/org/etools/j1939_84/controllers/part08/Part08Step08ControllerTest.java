@@ -74,6 +74,8 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    private VehicleInformation vehicleInformation;
+
     private TestResultsListener listener;
 
     private DataRepository dataRepository;
@@ -85,10 +87,10 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
 
-        VehicleInformation vehInfo = new VehicleInformation();
-        vehInfo.setNumberOfFaultBImplants(1);
-        vehInfo.setOneTripFaultBCount(1);
-        dataRepository.setVehicleInformation(vehInfo);
+        vehicleInformation = new VehicleInformation();
+        vehicleInformation.setNumberOfFaultBImplants(1);
+        vehicleInformation.setOneTripFaultBCount(1);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         instance = new Part08Step08Controller(executor,
                                               bannerModule,
@@ -166,7 +168,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testNoResponse() {
-
+        vehicleInformation.setNumberOfFaultBImplants(0);
         when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.empty());
 
         runTest();
@@ -213,6 +215,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForNoMilOn() {
+        vehicleInformation.setNumberOfFaultBImplants(0);
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 12, 1, 0);
         obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF), 8);
@@ -234,32 +237,8 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testFailureForDM12Difference() {
-        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        var dtc = DiagnosticTroubleCode.create(123, 12, 1, 0);
-        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF), 8);
-        obdModuleInformation.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
-        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
-        obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
-        dataRepository.putObdModule(obdModuleInformation);
-        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 1, 1, 1);
-
-        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
-
-        runTest();
-
-        verify(communicationsModule).requestDM29(any());
-
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.8.8.2.c - Engine #1 (0) reported a different number for MIL on than what it reported in DM12 earlier in this part");
-    }
-
-    @Test
     public void testFailureForNoPreviousMilOn() {
+        vehicleInformation.setNumberOfFaultBImplants(0);
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 12, 1, 0);
         obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
@@ -285,6 +264,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForDM23Difference() {
+        vehicleInformation.setNumberOfFaultBImplants(2);
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 12, 1, 0);
         obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
@@ -292,7 +272,7 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
         dataRepository.putObdModule(obdModuleInformation);
-        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 1, 1, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 2, 1, 1);
 
         when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
 
@@ -305,7 +285,12 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.8.8.2.e - Engine #1 (0) reported a different number for previous MIL on than what it reported in DM23 earlier in this part");
+                                        "6.8.8.2.e - OBD System reported a sum of previous MIL on DTCs counts that is less than the total number of implanted faults for Fault B");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.8.8.3.a - Engine #1 (0) reported > 1 for MIL on");
+
     }
 
     @Test
@@ -336,11 +321,12 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDM28Difference() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        var dtc = DiagnosticTroubleCode.create(123, 12, 1, 0);
-        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
-        obdModuleInformation.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
-        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF), 8);
-        obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc), 8);
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 1, 0);
+        var dtc2 = DiagnosticTroubleCode.create(456, 12, 1, 0);
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
+        obdModuleInformation.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc2), 8);
+        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2), 8);
+        obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
         dataRepository.putObdModule(obdModuleInformation);
         var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 1, 1, 1);
 
@@ -355,7 +341,74 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.8.8.2.g - Engine #1 (0) reported a different number for permanent than what it reported in DM28 earlier in this part");
+                                        "6.8.8.2.g - OBD system reported a sum of permanent DTC counts less than the sum of the permanent DTCs counted the DM28 responses");
+    }
+
+    @Test
+    public void testFourOrMoreImplantedB() {
+        vehicleInformation.setNumberOfFaultBImplants(4);
+
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 1, 0);
+        var dtc2 = DiagnosticTroubleCode.create(456, 12, 1, 0);
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
+        obdModuleInformation.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc2), 8);
+        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2), 8);
+        obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
+        dataRepository.putObdModule(obdModuleInformation);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 4, 4, 1);
+
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
+
+        runTest();
+
+        verify(communicationsModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.8.8.3.a - Engine #1 (0) reported > 1 for MIL on");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.8.8.3.c - Engine #1 (0) reported > 1 for previous MIL on");
+    }
+
+    @Test
+    public void testFewerDTCsThanImplantedFaultB() {
+        vehicleInformation.setNumberOfFaultBImplants(2);
+
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 1, 0);
+        var dtc2 = DiagnosticTroubleCode.create(456, 12, 1, 0);
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
+        obdModuleInformation.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc2), 8);
+        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
+        obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
+        dataRepository.putObdModule(obdModuleInformation);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 1, 1, 1);
+
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
+
+        runTest();
+
+        verify(communicationsModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.8.8.2.c - OBD System reported a sum of MIL on DTCs counts that is less than the total number of implanted faults for Fault B");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.8.8.2.e - OBD System reported a sum of previous MIL on DTCs counts that is less than the total number of implanted faults for Fault B");
     }
 
     @Test

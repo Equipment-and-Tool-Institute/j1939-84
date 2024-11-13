@@ -35,6 +35,7 @@ import org.etools.j1939tools.j1939.J1939;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939tools.j1939.packets.DM21DiagnosticReadinessPacket;
+import org.etools.j1939tools.j1939.packets.DM29DtcCounts;
 import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
@@ -188,9 +189,34 @@ public class Part06Step10ControllerTest extends AbstractControllerTest {
                                         "6.6.10.2.a - Engine #1 (0) reported distance with MIL on > 0");
     }
 
+
+    public void testFailureForDistanceNotSupported() {
+        var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
+
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0xFFFF, 0, 1, 0);
+        when(communicationsModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
+
+        runTest();
+
+        verify(communicationsModule).requestDM21(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.6.10.2.a - Engine #1 (0) reported distance with MIL on is not supported");
+    }
+
     @Test
-    public void testFailureForNoDTC() {
-        dataRepository.putObdModule(new OBDModuleInformation(0));
+    public void testFailureForDM29MILOnValueOfZero() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.set(DM29DtcCounts.create(0, 0, 0, 0, 0, 0, 0), 6);
+        dataRepository.putObdModule(obdModuleInformation0);
 
         var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1, 0);
         when(communicationsModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
@@ -206,6 +232,23 @@ public class Part06Step10ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.6.10.2.b - Engine #1 (0) reported with MIL on > 0 minutes, and did not report a MIL on DTC count > 0 in its DM29 response.");
     }
+
+    @Test
+    public void testSuccessForDM29MILOnPositiveValue() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.set(DM29DtcCounts.create(0, 0, 0, 0, 3, 0, 0), 6);
+        dataRepository.putObdModule(obdModuleInformation0);
+
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1, 0);
+        when(communicationsModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
+
+        runTest();
+
+        verify(communicationsModule).requestDM21(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+   }
 
     @Test
     public void testFailureNoSupport() {
