@@ -23,6 +23,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -75,6 +76,8 @@ public class Part03Step09ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    private VehicleInformation vehicleInformation;
+
     private DataRepository dataRepository;
 
     private StepController instance;
@@ -84,6 +87,11 @@ public class Part03Step09ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(new TestDateTimeModule());
         DateTimeModule dateTimeModule = DateTimeModule.getInstance();
         dataRepository = DataRepository.newInstance();
+
+        vehicleInformation = new VehicleInformation();
+        vehicleInformation.setNumberOfFaultAImplants(1);
+        vehicleInformation.setOneTripFaultACount(0);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         listener = new TestResultsListener(mockListener);
         instance = new Part03Step09Controller(executor,
@@ -198,8 +206,28 @@ public class Part03Step09ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testFailureForMILNotOff() {
+    public void testSuccessIfOneTripAIsNonZero() {
+        vehicleInformation.setOneTripFaultACount(1);
+
         dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc);
+
+        when(communicationsModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12));
+        when(communicationsModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, dm12));
+
+        runTest();
+
+        verify(communicationsModule).requestDM12(any());
+        verify(communicationsModule).requestDM12(any(), eq(0));
+
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testFailureForMILNotOff() {
+    dataRepository.putObdModule(new OBDModuleInformation(0));
 
         var dm12 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF);
 

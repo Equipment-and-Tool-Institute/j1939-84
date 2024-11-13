@@ -20,6 +20,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -71,6 +72,8 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
     private VehicleInformationModule vehicleInformationModule;
 
     private DataRepository dataRepository;
+    
+    private VehicleInformation vehicleInformation;
 
     private StepController instance;
 
@@ -79,6 +82,13 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(new TestDateTimeModule());
         DateTimeModule dateTimeModule = DateTimeModule.getInstance();
         dataRepository = DataRepository.newInstance();
+
+        vehicleInformation = new VehicleInformation();
+        vehicleInformation.setNumberOfFaultAImplants(1);
+        vehicleInformation.setOneTripFaultACount(0);
+        vehicleInformation.setNumberOfFaultBImplants(1);
+        vehicleInformation.setOneTripFaultBCount(1);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         listener = new TestResultsListener(mockListener);
         instance = new Part03Step15Controller(executor,
@@ -147,6 +157,40 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
 
         verify(communicationsModule).requestDM21(any(), eq(0));
 
+    }
+
+    @Test
+    public void testNonZeroOneTripFaultA() {
+        vehicleInformation.setOneTripFaultACount(1);
+
+        OBDModuleInformation obdModule = new OBDModuleInformation(0);
+        OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
+        OBDModuleInformation obdModule2 = new OBDModuleInformation(2);
+        OBDModuleInformation obdModule3 = new OBDModuleInformation(3);
+        dataRepository.putObdModule(obdModule);
+        dataRepository.putObdModule(obdModule1);
+        dataRepository.putObdModule(obdModule2);
+        dataRepository.putObdModule(obdModule3);
+
+        DM21DiagnosticReadinessPacket dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 1000, 0, 0, 0);
+        AcknowledgmentPacket ackPacket = AcknowledgmentPacket.create(1, NACK);
+        DM21DiagnosticReadinessPacket dm21_2 = DM21DiagnosticReadinessPacket.create(2, 0, 0, 0, 90, 0);
+        DM21DiagnosticReadinessPacket dm21_3 = DM21DiagnosticReadinessPacket.create(3, 0, 0, 0, 90, 0);
+        when(communicationsModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, dm21));
+        when(communicationsModule.requestDM21(any(), eq(1))).thenReturn(new BusResult<>(false, ackPacket));
+        when(communicationsModule.requestDM21(any(), eq(2))).thenReturn(new BusResult<>(false, dm21_2));
+        when(communicationsModule.requestDM21(any(), eq(3))).thenReturn(new BusResult<>(false, dm21_3));
+
+        runTest();
+
+        assertEquals("", listener.getResults());
+        assertEquals("", listener.getMessages());
+
+
+        verify(communicationsModule).requestDM21(any(), eq(0));
+        verify(communicationsModule).requestDM21(any(), eq(1));
+        verify(communicationsModule).requestDM21(any(), eq(2));
+        verify(communicationsModule).requestDM21(any(), eq(3));
     }
 
     @Test

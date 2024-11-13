@@ -67,10 +67,10 @@ public class Part04Step15Controller extends StepController {
             // 6.4.15.1.b Wait engine manufacturer’s recommended interval.
             waitMfgIntervalWithKeyOff("Step 6.4.15.1.b");
 
-            // 6.4.15.1.c With the key in the off position remove the implanted Fault A according to the
+            // 6.4.15.1.c With the key in the off position remove the implanted Fault A DTC(s) according to the
             // manufacturer’s instructions for restoring the system to a fault- free operating condition.
-            updateProgress("Step 6.4.15.1.c - Waiting for implanted Fault A to be removed");
-            String message = "With the key in the off position, remove the implanted Fault A according to the"
+            updateProgress("Step 6.4.15.1.c - Waiting for implanted Fault A DTC(s) to be removed");
+            String message = "With the key in the off position, remove the implanted Fault A DTC(s) according to the"
                     + NL + "manufacturer’s instructions for restoring the system to a fault-free operating condition"
                     + NL
                     + NL;

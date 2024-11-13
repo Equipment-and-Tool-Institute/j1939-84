@@ -118,10 +118,11 @@ public class VehicleInformationPresenterTest {
 
         verify(vinDecoder).getModelYear("vin");
         verify(vinDecoder).isModelYearValid(2);
-
         verify(view).setFuelType(FuelType.DSL);
-        verify(view).setNumberOfTripsForFaultBImplant(1);
-        verify(view).setNumberOfFaultAImplants(0);
+        verify(view).setNumberOfFaultAImplants(1);
+        verify(view).setNumberOfFaultBImplants(1);
+        verify(view).setNumberOfOneTripFaultA(0);
+        verify(view).setNumberOfOneTripFaultB(1);
         verify(view).setEmissionUnits(0);
         verify(view).setVin("vin");
         verify(view).setVehicleModelYear(2);
@@ -171,8 +172,10 @@ public class VehicleInformationPresenterTest {
         verify(vinDecoder).isModelYearValid(-1);
 
         verify(view).setFuelType(FuelType.DSL);
-        verify(view).setNumberOfTripsForFaultBImplant(1);
-        verify(view).setNumberOfFaultAImplants(0);
+        verify(view).setNumberOfFaultAImplants(1);
+        verify(view).setNumberOfOneTripFaultA(0);
+        verify(view).setNumberOfFaultBImplants(1);
+        verify(view).setNumberOfOneTripFaultB(1);
         verify(view).setEmissionUnits(0);
         verify(view).setVehicleModelYear(500);
         verify(view).setEngineModelYear(500);
@@ -368,27 +371,29 @@ public class VehicleInformationPresenterTest {
         instance.onCertificationChanged("cert");
         instance.onEmissionUnitsChanged(4);
         instance.onCalIdsChanged(6);
-        instance.onNumberOfTripsForFaultBImplantChanged(1);
-        instance.onNumberOfFaultAImplantsChanged(0);
+        instance.onNumberOfFaultAImplantsChanged(1);
+        instance.onNumberOfFaultBImplantsChanged(1);
+        instance.onNumberOfOneTripFaultAChanged(0);
+        instance.onNumberOfOneTripFaultBChanged(1);
         instance.onEngineModelYearChanged(1);
         instance.onFuelTypeChanged(FuelType.DSL);
         instance.onVehicleModelYearChanged(2);
         instance.onVinChanged("vin");
 
-        verify(vinDecoder, times(8)).isVinValid(null);
+        verify(vinDecoder, times(10)).isVinValid(null);
         verify(vinDecoder, times(1)).isVinValid("vin");
-        verify(vinDecoder, times(8)).getModelYear(null);
+        verify(vinDecoder, times(10)).getModelYear(null);
         verify(vinDecoder, times(1)).getModelYear("vin");
-        verify(vinDecoder, times(5)).isModelYearValid(0);
+        verify(vinDecoder, times(7)).isModelYearValid(0);
         verify(vinDecoder, times(4)).isModelYearValid(1);
 
-        verify(view, times(8)).setVinValid(false);
+        verify(view, times(10)).setVinValid(false);
         verify(view, times(1)).setVinValid(true);
         verify(view, times(1)).setVehicleModelYearValid(false);
-        verify(view, times(8)).setVehicleModelYearValid(true);
-        verify(view, times(8)).setOkButtonEnabled(false);
+        verify(view, times(10)).setVehicleModelYearValid(true);
+        verify(view, times(10)).setOkButtonEnabled(false);
         verify(view, times(1)).setOkButtonEnabled(true);
-        verify(view, times(8)).setOverrideControlVisible(true);
+        verify(view, times(10)).setOverrideControlVisible(true);
         verify(view, times(1)).setOverrideControlVisible(false);
 
         instance.onOkButtonClicked();
@@ -400,8 +405,10 @@ public class VehicleInformationPresenterTest {
         vehicleInformation.setCertificationIntent("cert");
         vehicleInformation.setEmissionUnits(4);
         vehicleInformation.setCalIds(6);
-        vehicleInformation.setNumberOfTripsForFaultBImplant(1);
-        vehicleInformation.setNumberOfFaultAImplants(0);
+        vehicleInformation.setNumberOfFaultAImplants(1);
+        vehicleInformation.setOneTripFaultACount(0);
+        vehicleInformation.setNumberOfFaultBImplants(1);
+        vehicleInformation.setOneTripFaultBCount(1);
         vehicleInformation.setEngineModelYear(1);
         vehicleInformation.setFuelType(FuelType.DSL);
         vehicleInformation.setVehicleModelYear(2);

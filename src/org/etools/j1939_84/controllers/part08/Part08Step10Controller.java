@@ -75,8 +75,8 @@ public class Part08Step10Controller extends StepController {
         var packets = filterPackets(dsResults);
         packets.forEach(this::save);
 
-        // 6.8.10.2.a. Fail if DTC(s) reported in the freeze frame does not include either the DTC reported in DM12 or
-        // the DTC reported in DM23 earlier in this part
+        // 6.8.10.2.a. Fail if DTC(s) reported in the freeze frame does not include either any DTC reported in DM12 or
+        // any DTC reported in DM23 earlier in this part
         packets.forEach(pp -> {
             // Pass = (There exists an X that is an element of {DM12} that is also an element of {DM25})
             // Or (There exists a Y that is an element of {DM23} that is also an element of {DM25})
@@ -90,7 +90,7 @@ public class Part08Step10Controller extends StepController {
             oldDTCs.retainAll(ffDTCs);
             if (oldDTCs.isEmpty() && !ffDTCs.isEmpty()) {
                 addFailure("6.8.10.2.a - DTC(s) reported in the freeze frame by " + pp.getModuleName()
-                        + " did not include either the DTC reported in DM12 or DM23 earlier in this part");
+                        + " did not include either any DTC reported in DM12 or any DTC reported in DM23 earlier in this part");
             }
         });
 
@@ -103,16 +103,20 @@ public class Part08Step10Controller extends StepController {
         // 6.8.10.2.c. Fail if NACK not received from OBD that did not provide an DM25 message.
         checkForNACKsDS(packets, filterAcks(dsResults), "6.8.10.2.c");
 
-        // 6.8.10.3.a. Warn if DTC reported by DM23 earlier in this part is not present in the freeze frame data.
-        packets.forEach(p -> {
-            List<DiagnosticTroubleCode> ffDTCs = p.getFreezeFrames()
-                                                  .stream()
-                                                  .map(ff -> ff.getDtc())
-                                                  .collect(Collectors.toList());
-            if (!ffDTCs.containsAll(getDM23DTCs(p.getSourceAddress())))
-                addWarning("6.8.10.3.a - DTC(s) reported by DM23 earlier in this part is/are not present in the freeze frame data from "
-                        + p.getModuleName());
-        });
+        // 6.8.10.3.a. Warn if DTC reported by DM23 earlier in this part is not present in the freeze frame data,
+        // where the expected total number of Fault A DTCs is 1.
+        if (getDataRepository().getVehicleInformation().getNumberOfFaultAImplants() == 1) {
+            packets.forEach(p -> {
+                List<DiagnosticTroubleCode> ffDTCs = p.getFreezeFrames()
+                        .stream()
+                        .map(ff -> ff.getDtc())
+                        .collect(Collectors.toList());
+                if (!ffDTCs.containsAll(getDM23DTCs(p.getSourceAddress())))
+                    addWarning(
+                            "6.8.10.3.a - DTC(s) reported by DM23 earlier in this part is/are not present in the freeze frame data from "
+                                    + p.getModuleName());
+            });
+        }
     }
 
     private List<DiagnosticTroubleCode> getDM23DTCs(int address) {

@@ -8,6 +8,7 @@ import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939tools.j1939.packets.LampStatus.ON;
@@ -28,6 +29,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -84,6 +86,8 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
     private DateTimeModule dateTimeModule;
 
     private StepController instance;
+    
+    private VehicleInformation vehicleInformation;
 
     @Before
     public void setUp() throws Exception {
@@ -98,6 +102,11 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               vehicleInformationModule,
                                               communicationsModule);
+
+        vehicleInformation = new VehicleInformation();
+        vehicleInformation.setNumberOfFaultAImplants(1);
+        vehicleInformation.setOneTripFaultACount(0);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         setup(instance,
               listener,
@@ -195,8 +204,8 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
         when(communicationsModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6));
 
-        String promptMsg = "No ECU has reported a Pending Emission DTC." + NL + NL + "Do you wish to continue?";
-        String promptTitle = "No Pending Emission DTCs Found";
+        String promptMsg = "Fewer Pending Emission DTCs have been reported than the expected number of two trip Fault A DTCs." + NL + NL + "Do you wish to continue?";
+        String promptTitle = "Fewer Than Expected Pending Emission DTCs Found";
 
         doAnswer(invocationOnMock -> {
             QuestionListener questionListener = invocationOnMock.getArgument(3);
@@ -231,7 +240,52 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testMultipleDTCFailure() {
+    public void testTooFewDTCs() {
+        vehicleInformation.setNumberOfFaultAImplants(2);
+
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
+        when(communicationsModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6));
+
+        String promptMsg = "Fewer Pending Emission DTCs have been reported than the expected number of two trip Fault A DTCs." + NL + NL + "Do you wish to continue?";
+        String promptTitle = "Fewer Than Expected Pending Emission DTCs Found";
+
+        doAnswer(invocationOnMock -> {
+            QuestionListener questionListener = invocationOnMock.getArgument(3);
+            questionListener.answered(NO);
+            return null;
+        }).when(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
+
+        runTest();
+
+        StringBuilder expectedMessages = new StringBuilder();
+        for (int i = 1; i <= 300; i++) {
+            expectedMessages.append("Step 6.3.2.1.a - Requesting DM6 Attempt ").append(i).append(NL);
+        }
+        expectedMessages.append("User cancelled testing at Part 3 Step 2");
+        assertEquals(expectedMessages.toString(), listener.getMessages());
+
+        StringBuilder expectedResults = new StringBuilder();
+        for (int i = 1; i <= 300; i++) {
+            expectedResults.append(NL).append("Attempt ").append(i).append(NL);
+        }
+        assertEquals(expectedResults.toString(), listener.getResults());
+
+        verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
+        verify(communicationsModule, times(300)).requestDM6(any());
+        verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
+        verify(mockListener, times(2)).addOutcome(PART_NUMBER,
+                                                  STEP_NUMBER,
+                                                  ABORT,
+                                                  "User cancelled testing at Part 3 Step 2");
+
+        assertEquals(299000, dateTimeModule.getTimeAsLong());
+    }
+
+    @Test
+    public void testMultipleDTCWarning() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
@@ -286,7 +340,7 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.3.2.3.b - More than one ECU reported a pending DTC");
     }
 

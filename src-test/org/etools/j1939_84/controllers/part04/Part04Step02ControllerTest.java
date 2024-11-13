@@ -7,6 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939tools.j1939.packets.LampStatus.ON;
@@ -28,6 +29,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -78,6 +80,8 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
     @Mock
     private VehicleInformationModule vehicleInformationModule;
+    
+    private VehicleInformation vehicleInformation;
 
     private TestResultsListener listener;
 
@@ -92,6 +96,11 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
         dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
         dateTimeModule = new TestDateTimeModule();
+
+        vehicleInformation = new VehicleInformation();
+        vehicleInformation.setNumberOfFaultAImplants(1);
+        vehicleInformation.setOneTripFaultACount(0);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         instance = new Part04Step02Controller(executor,
                                               bannerModule,
@@ -179,8 +188,8 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
         when(communicationsModule.requestDM12(any())).thenReturn(new RequestResult<>(true));
 
-        String promptMsg = "No ECU has reported a confirmed and active DTC." + NL + "Do you wish to continue?";
-        String promptTitle = "No Confirmed and Active DTCs Found";
+        String promptMsg = "Fewer confirmed and active DTCs have been reported than the expected total of Fault A DTCs." + NL + "Do you wish to continue?";
+        String promptTitle = "Fewer Than Expected Confirmed and Active DTCs Found";
 
         doAnswer(invocationOnMock -> {
             QuestionListener questionListener = invocationOnMock.getArgument(3);
@@ -211,7 +220,7 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.4.2.1.a.ii - User said 'no' and no ECU reported a confirmed and active DTC");
+                                        "6.4.2.1.a.ii - User said 'no' and fewer DM12 DTCs were reported than the expected total number of Fault A DTCs");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -227,8 +236,8 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
         var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
         when(communicationsModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12));
 
-        String promptMsg = "No ECU has reported a confirmed and active DTC." + NL + "Do you wish to continue?";
-        String promptTitle = "No Confirmed and Active DTCs Found";
+        String promptMsg = "Fewer confirmed and active DTCs have been reported than the expected total of Fault A DTCs." + NL + "Do you wish to continue?";
+        String promptTitle = "Fewer Than Expected Confirmed and Active DTCs Found";
 
         doAnswer(invocationOnMock -> {
             QuestionListener questionListener = invocationOnMock.getArgument(3);
@@ -262,7 +271,61 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.4.2.1.a.ii - User said 'no' and no ECU reported a confirmed and active DTC");
+                                        "6.4.2.1.a.ii - User said 'no' and fewer DM12 DTCs were reported than the expected total number of Fault A DTCs");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.4.2.2.a - No ECU reported MIL on");
+
+        assertEquals(299000, dateTimeModule.getTimeAsLong());
+    }
+
+    @Test
+    public void testTooFewDTCs() {
+        vehicleInformation.setNumberOfFaultAImplants(2);
+
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
+        when(communicationsModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12));
+
+        String promptMsg = "Fewer confirmed and active DTCs have been reported than the expected total of Fault A DTCs." + NL + "Do you wish to continue?";
+        String promptTitle = "Fewer Than Expected Confirmed and Active DTCs Found";
+
+        doAnswer(invocationOnMock -> {
+            QuestionListener questionListener = invocationOnMock.getArgument(3);
+            questionListener.answered(NO);
+            return null;
+        }).when(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
+
+        when(communicationsModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12));
+
+        runTest();
+
+        StringBuilder expectedMessages = new StringBuilder();
+        for (int i = 1; i <= 300; i++) {
+            expectedMessages.append("Step 6.4.2.1.a - Requesting DM12 Attempt ").append(i);
+            if (i != 300) {
+                expectedMessages.append(NL);
+            }
+        }
+        assertEquals(expectedMessages.toString(), listener.getMessages());
+
+        StringBuilder expectedResults = new StringBuilder();
+        for (int i = 1; i <= 300; i++) {
+            expectedResults.append(NL).append("Attempt ").append(i).append(NL);
+        }
+        assertEquals(expectedResults.toString(), listener.getResults());
+
+        verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
+        verify(communicationsModule, times(300)).requestDM12(any());
+        verify(communicationsModule).requestDM12(any(), eq(0));
+        verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.4.2.1.a.ii - User said 'no' and fewer DM12 DTCs were reported than the expected total number of Fault A DTCs");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -333,7 +396,7 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.4.2.3.b - More than one ECU reported a confirmed and active DTC");
     }
 

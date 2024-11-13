@@ -77,7 +77,8 @@ public class Part08Step04Controller extends StepController {
             addFailure("6.8.4.2.a - No OBD ECU reported a previously active DTC");
         }
 
-        // 6.8.4.2.b Fail if previously active DTC reported is not the same as previously active DTC from part 7.
+        // 6.8.4.2.b Fail if previously active DTC(s) reported by an OBD ECU are not the same as
+        // previously active DTCs reported by that OBD ECU from part 7.
         packets.stream()
                .filter(p -> {
                    List<DiagnosticTroubleCode> oldDTCs = getDTCs(p.getSourceAddress());
@@ -90,14 +91,14 @@ public class Part08Step04Controller extends StepController {
                            + " is not the same as previously active DTC from part 7");
                });
 
-        // 6.8.4.2.c Fail if any ECU reporting different MIL status than DM12 response earlier in this part.
+        // 6.8.4.2.c Fail if any OBD ECU reports a different MIL status in DM23 than it reported in its DM12 response earlier in this part.
         packets.stream()
                .filter(p -> getMIL(p.getSourceAddress()) != null)
                .filter(p -> p.getMalfunctionIndicatorLampStatus() != getMIL(p.getSourceAddress()))
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
                    addFailure("6.8.4.2.c - " + moduleName
-                           + " reported different MIL status than DM12 response earlier in this part");
+                           + " reported different MIL status in DM23 than in DM12 response earlier in this part");
                });
     }
 

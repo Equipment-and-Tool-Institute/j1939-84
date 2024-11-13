@@ -93,14 +93,21 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      * The value the user has entered for the Fuel Type
      */
     private FuelType fuelType;
-    /**
-     * The number of trips for fault B implant
-     */
-    private int numberOfTripsForFaultBImplant;
+
     /**
      *
      */
     private int numberOfFaultAImplants;
+
+    private int numberOfOneTripFaultA;
+
+    /**
+     *
+     */
+    private int numberOfFaultBImplants;
+
+    private int numberOfOneTripFaultB;
+
     /**
      * The VehicleInformation that will be returned to the listener
      */
@@ -178,11 +185,18 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
 
         view.setFuelType(FuelType.DSL); // Assuming this used mostly on Diesel engines
 
-        numberOfTripsForFaultBImplant = 1;
-        view.setNumberOfTripsForFaultBImplant(numberOfTripsForFaultBImplant);
-
-        numberOfFaultAImplants = 0;
+        numberOfFaultAImplants = 1;
         view.setNumberOfFaultAImplants(numberOfFaultAImplants);
+
+        numberOfFaultBImplants = 1;
+        view.setNumberOfFaultBImplants(numberOfFaultBImplants);
+
+        numberOfOneTripFaultA = 0;
+        view.setNumberOfOneTripFaultA(numberOfOneTripFaultA);
+
+        numberOfOneTripFaultB = 1;
+        view.setNumberOfOneTripFaultB(numberOfOneTripFaultB);
+
 
         try {
             vin = vehicleInformationModule.getVin();
@@ -280,14 +294,26 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     }
 
     @Override
-    public void onNumberOfTripsForFaultBImplantChanged(int numberOfTripsForFaultBImplant) {
-        this.numberOfTripsForFaultBImplant = numberOfTripsForFaultBImplant;
+    public void onNumberOfFaultAImplantsChanged(int numberOfFaults){
+        this.numberOfFaultAImplants = numberOfFaults;
         validate();
     }
 
     @Override
-    public void onNumberOfFaultAImplantsChanged(int numberOfFaults){
-        this.numberOfFaultAImplants = numberOfFaults;
+    public void onNumberOfOneTripFaultAChanged(int count){
+        this.numberOfOneTripFaultA = count;
+        validate();
+    }
+
+    @Override
+    public void onNumberOfFaultBImplantsChanged(int numberOfFaults){
+        this.numberOfFaultBImplants = numberOfFaults;
+        validate();
+    }
+
+    @Override
+    public void onNumberOfOneTripFaultBChanged(int count){
+        this.numberOfOneTripFaultB = count;
         validate();
     }
 
@@ -302,9 +328,10 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         vehicleInformation.setCalIds(calIds);
         vehicleInformation.setCertificationIntent(certificationIntent);
         vehicleInformation.setUsCarb(usCarb);
-        vehicleInformation.setNumberOfTripsForFaultBImplant(numberOfTripsForFaultBImplant);
         vehicleInformation.setNumberOfFaultAImplants((numberOfFaultAImplants));
-
+        vehicleInformation.setNumberOfFaultBImplants((numberOfFaultBImplants));
+        vehicleInformation.setOneTripFaultACount(numberOfOneTripFaultA);
+        vehicleInformation.setOneTripFaultBCount(numberOfOneTripFaultB);
         vehicleInformation.setCalIdsFound(calIdsFound);
         vehicleInformation.setEmissionUnitsFound(emissionUnitsFound);
         vehicleInformation.setAddressClaim(addressClaim);
@@ -350,7 +377,8 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         enabled &= emissionUnits > 0;
         enabled &= calIds > 0;
         enabled &= certificationIntent != null && certificationIntent.trim().length() > 0;
-        enabled &= numberOfTripsForFaultBImplant > 0;
+        enabled &= numberOfFaultAImplants >= 0;
+        enabled &= numberOfFaultBImplants >= 0;
 
         if (enabled) {
             isOverridden = false;

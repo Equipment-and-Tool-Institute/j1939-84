@@ -66,19 +66,25 @@ public class Part08Step07Controller extends StepController {
 
         globalPackets.forEach(this::save);
 
-        // 6.8.7.2.a. Fail if no OBD ECU reports a permanent DTC.
+        // 6.8.7.2.a. Fail if no OBD ECU reports a (DM28) permanent DTC.
         boolean noDTCs = globalPackets.stream().allMatch(p -> p.getDtcs().isEmpty());
         if (noDTCs) {
             addFailure("6.8.7.2.a - No OBD ECU reported a permanent DTC");
         }
 
-        // 6.8.7.2.b. Fail if permanent DTC does not match DM12 DTC from earlier in test 6.8.2.
-        globalPackets.forEach(p -> {
-            if (!p.getDtcs().containsAll(getDTCs(p.getSourceAddress()))) {
-                addFailure("6.8.7.2.b - " + p.getModuleName()
-                        + " DM28 does not include the DM12 active DTC that the SA reported from earlier in this part.");
-            }
-        });
+        // 6.8.7.2.b. Fail, if permanent DTC(s) from the SA reporting a DM12 active DTC does not
+        // include the DM12 active DTC that the SA reported earlier in this part in test 6.8.2,
+        // if fewer than 4 permanent fault DTCs are reported and any DM12 DTCs reported earlier
+        // in test 6.8.2 are missing from the permanent faults provided.
+        int dm28Count = globalPackets.stream().mapToInt(p -> p.getDtcs().size()).sum();
+        if (dm28Count < 4) {
+            globalPackets.forEach(p -> {
+                if (!p.getDtcs().containsAll(getDTCs(p.getSourceAddress()))) {
+                    addFailure("6.8.7.2.b - " + p.getModuleName()
+                                       + " DM28 does not include the DM12 active DTC that the SA reported from earlier in this part.");
+                }
+            });
+        }
 
         // 6.8.7.2.c. Fail if any ECU reporting different MIL status than DM12 response earlier in test 6.8.2.
         globalPackets.stream()
@@ -89,18 +95,18 @@ public class Part08Step07Controller extends StepController {
                                  + " reported different MIL status than DM12 response earlier in test 6.8.2");
                      });
 
-        // 6.8.7.3.a. Warn if more than one ECU reports a permanent DTC.
+        // 6.8.7.3.a. Info if more than one ECU reports a permanent DTC.
         long dtcCount = globalPackets.stream().filter(p -> !p.getDtcs().isEmpty()).count();
         if (dtcCount > 1) {
-            addWarning("6.8.7.3.a - More than on ECU reported a permanent DTC");
+            addInfo("6.8.7.3.a - More than on ECU reported a permanent DTC");
         }
 
-        // 6.8.7.3.b. Warn if any ECU reports more than one permanent DTC.
+        // 6.8.7.3.b. Info if any ECU reports more than one permanent DTC.
         globalPackets.stream()
                      .filter(p -> p.getDtcs().size() > 1)
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> {
-                         addWarning("6.8.7.3.b - " + moduleName + " reported more than one permanent DTC");
+                         addInfo("6.8.7.3.b - " + moduleName + " reported more than one permanent DTC");
                      });
 
         // 6.8.7.4.a. DS DM28 to each OBD ECU.

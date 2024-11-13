@@ -51,6 +51,12 @@ public class VehicleInformation implements Cloneable {
 
     private int numberOfFaultAImplants;
 
+    private int oneTripFaultACount;
+
+    private int numberOfFaultBImplants;
+
+    private int oneTripFaultBCount;
+
     private int vehicleModelYear;
 
     private String vin = "";
@@ -126,18 +132,31 @@ public class VehicleInformation implements Cloneable {
         this.fuelType = fuelType;
     }
 
-    public int getNumberOfTripsForFaultBImplant() {
-        return numberOfTripsForFaultBImplant;
-    }
-
-    public void setNumberOfTripsForFaultBImplant(int numberOfTripsForFaultBImplant) {
-        this.numberOfTripsForFaultBImplant = numberOfTripsForFaultBImplant;
-    }
-
     public int getNumberOfFaultAImplants() { return numberOfFaultAImplants; }
 
     public void setNumberOfFaultAImplants(int numberOfFaultAImplants){
         this.numberOfFaultAImplants = numberOfFaultAImplants;
+    }
+    public int getOneTripFaultACount() {return oneTripFaultACount;}
+
+    public void setOneTripFaultACount(int oneTripFaultACount){
+        this.oneTripFaultACount = oneTripFaultACount;
+    }
+
+    public int getTwoTripFaultACount() {return getNumberOfFaultAImplants() - getOneTripFaultACount();}
+
+    public int getNumberOfFaultBImplants() { return numberOfFaultBImplants; }
+
+    public int getOneTripFaultBCount() {return oneTripFaultBCount;}
+
+    public void setOneTripFaultBCount(int oneTripFaultBCount){
+        this.oneTripFaultBCount = oneTripFaultBCount;
+    }
+
+    public int getTwoTripFaultBCount() {return getNumberOfFaultBImplants() - getOneTripFaultBCount();}
+
+    public void setNumberOfFaultBImplants(int numberOfFaultBImplants){
+        this.numberOfFaultBImplants = numberOfFaultBImplants;
     }
 
     public int getVehicleModelYear() {
@@ -171,7 +190,8 @@ public class VehicleInformation implements Cloneable {
                             vehicleModelYear,
                             vin,
                             numberOfTripsForFaultBImplant,
-                            numberOfFaultAImplants);
+                            numberOfFaultAImplants,
+                            numberOfFaultBImplants);
     }
 
     @Override
@@ -194,7 +214,10 @@ public class VehicleInformation implements Cloneable {
                 && engineModelYear == that.engineModelYear && fuelType == that.fuelType
                 && vehicleModelYear == that.vehicleModelYear && Objects.equals(vin, that.vin)
                 && numberOfTripsForFaultBImplant == that.numberOfTripsForFaultBImplant
-                && numberOfFaultAImplants == that.numberOfFaultAImplants;
+                && numberOfFaultAImplants == that.numberOfFaultAImplants
+                && oneTripFaultACount == that.oneTripFaultACount
+                && numberOfFaultBImplants == that.numberOfFaultBImplants
+                && oneTripFaultBCount == that.oneTripFaultBCount;
     }
 
     @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Calling super.clone() will cause a crash")
@@ -210,8 +233,10 @@ public class VehicleInformation implements Cloneable {
         vehInfo.setEmissionUnitsFound(getEmissionUnitsFound());
         vehInfo.setEngineModelYear(getEngineModelYear());
         vehInfo.setFuelType(getFuelType());
-        vehInfo.setNumberOfTripsForFaultBImplant(getNumberOfTripsForFaultBImplant());
         vehInfo.setNumberOfFaultAImplants(getNumberOfFaultAImplants());
+        vehInfo.setOneTripFaultACount(getOneTripFaultACount());
+        vehInfo.setNumberOfFaultBImplants(getNumberOfFaultBImplants());
+        vehInfo.setOneTripFaultBCount(getOneTripFaultBCount());
         vehInfo.setVehicleModelYear(getVehicleModelYear());
         vehInfo.setVin(getVin());
         vehInfo.setUsCarb(isUsCarb());
@@ -228,8 +253,12 @@ public class VehicleInformation implements Cloneable {
                 + "Number of CAL IDs Expected: " + calIds + NL
                 + "Fuel Type: " + fuelType + NL
                 + "Ignition Type: " + fuelType.ignitionType.name + NL
-                + "Number of Trips for Fault B Implant: " + numberOfTripsForFaultBImplant + NL
                 + "Number of Fault A Implants: " + numberOfFaultAImplants + NL
+                + "One Trip Fault A: " + getOneTripFaultACount() + NL
+                + "Two Trip Fault A: " + getTwoTripFaultACount() + NL
+                + "Number of Fault B Implants: " + numberOfFaultBImplants + NL
+                + "One Trip Fault B: " + getOneTripFaultBCount() + NL
+                + "Two Trip Fault B: " + getTwoTripFaultBCount() + NL
                 + NL
                 + "Vehicle Information:" + NL
                 + "VIN: " + vin + NL

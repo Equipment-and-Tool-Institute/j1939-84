@@ -4,7 +4,7 @@
 package org.etools.j1939_84.controllers.part09;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
-import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -283,7 +283,31 @@ public class Part09Step15ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.9.15.2.c - Engine #1 (0) reported different number for permanent DTC than what it reported in DM28");
+                                        "6.9.15.2.c - Engine #1 (0) reported lower sum of permanent DTC counts than what it reported in DM28");
+    }
+
+    @Test
+    public void testMoreThanFourPermanentDTCs() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        var dtc1 = DiagnosticTroubleCode.create(123, 1, 1, 1);
+        var dtc2 = DiagnosticTroubleCode.create(456, 1, 1, 1);
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2), 9);
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 9);
+        dataRepository.putObdModule(obdModuleInformation0);
+        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 0, 5);
+
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0));
+
+        runTest();
+
+        verify(communicationsModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.9.15.3.a - Engine #1 (0) reported > 1 for permanent DTC");
     }
 
     @Test
@@ -351,7 +375,7 @@ public class Part09Step15ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.9.15.3.a - Engine #1 (0) reported > 1 for permanent DTC");
     }
 
@@ -380,7 +404,7 @@ public class Part09Step15ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.9.15.3.b - More than one ECU reported > 0 for permanent DTC");
     }
 

@@ -94,17 +94,17 @@ public class Part07Step02Controller extends StepController {
             }
         });
 
-        // 6.7.2.3.a Warn if any ECU reports > 1 previously active DTC.
+        // 6.7.2.3.a Info if any ECU reports > 1 previously active DTC.
         packets.forEach(p -> {
             if (p.getDtcs().size() > 1) {
-                addWarning("6.7.2.3.a - OBD ECU " + p.getModuleName() + " reported > 1 previously active DTCs");
+                addInfo("6.7.2.3.a - OBD ECU " + p.getModuleName() + " reported > 1 previously active DTCs");
             }
         });
 
-        // 6.7.2.3.b Warn if more than one ECU reports a previously active DTC.
+        // 6.7.2.3.b Info if more than one ECU reports a previously active DTC.
         long activeDtcCount = packets.stream().filter(DiagnosticTroubleCodePacket::hasDTCs).count();
         if (activeDtcCount > 1) {
-            addWarning("6.7.2.3.b - More than one ECU reported previously active DTC");
+            addInfo("6.7.2.3.b - More than one ECU reported previously active DTC");
         }
 
         // 6.7.2.2.d Fail if NACK not received from OBD ECUs that did not provide a DM23 message.

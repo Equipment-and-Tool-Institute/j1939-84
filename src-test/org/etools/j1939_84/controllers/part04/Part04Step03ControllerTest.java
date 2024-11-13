@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part04;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939tools.j1939.packets.LampStatus.ON;
@@ -301,7 +302,7 @@ public class Part04Step03ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.4.3.2.e - More than 1 active DTC is reported by the vehicle");
     }
 
@@ -342,7 +343,7 @@ public class Part04Step03ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.4.3.2.e - More than 1 active DTC is reported by the vehicle");
     }
 

@@ -16,6 +16,7 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -65,6 +66,8 @@ public class Part03Step08ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    private VehicleInformation vehicleInformation;
+
     private DataRepository dataRepository;
 
     private StepController instance;
@@ -74,6 +77,11 @@ public class Part03Step08ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(new TestDateTimeModule());
         DateTimeModule dateTimeModule = DateTimeModule.getInstance();
         dataRepository = DataRepository.newInstance();
+
+        vehicleInformation = new VehicleInformation();
+        vehicleInformation.setNumberOfFaultAImplants(1);
+        vehicleInformation.setOneTripFaultACount(0);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         listener = new TestResultsListener(mockListener);
         instance = new Part03Step08Controller(executor,
@@ -164,6 +172,20 @@ public class Part03Step08ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.3.8.2.a - OBD ECU Engine #1 (0) reported active DTC count not = 0");
+    }
+
+    @Test
+    public void testSuccessForActiveCountIfOneTripAIsNonZero() {
+        vehicleInformation.setOneTripFaultACount(1);
+
+        var dm5 = DM5DiagnosticReadinessPacket.create(0, 1, 0xFF, 0x23);
+        when(communicationsModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
+
+        runTest();
+
+        verify(communicationsModule).requestDM5(any());
+
+        assertEquals("", listener.getResults());
     }
 
     @Test

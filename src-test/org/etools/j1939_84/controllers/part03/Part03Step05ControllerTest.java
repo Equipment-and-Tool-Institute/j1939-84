@@ -23,6 +23,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -85,6 +86,11 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(new TestDateTimeModule());
         DateTimeModule dateTimeModule = DateTimeModule.getInstance();
         dataRepository = DataRepository.newInstance();
+
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setNumberOfFaultAImplants(1);
+        vehInfo.setOneTripFaultACount(0);
+        dataRepository.setVehicleInformation(vehInfo);
 
         listener = new TestResultsListener(mockListener);
         instance = new Part03Step05Controller(executor,

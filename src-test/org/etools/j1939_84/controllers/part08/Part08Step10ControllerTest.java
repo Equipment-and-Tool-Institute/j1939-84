@@ -23,6 +23,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -74,6 +75,8 @@ public class Part08Step10ControllerTest extends AbstractControllerTest {
 
     @Mock
     private VehicleInformationModule vehicleInformationModule;
+    
+    private VehicleInformation vehicleInformation;
 
     private TestResultsListener listener;
 
@@ -85,6 +88,11 @@ public class Part08Step10ControllerTest extends AbstractControllerTest {
     public void setUp() throws Exception {
         dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
+
+        vehicleInformation = new VehicleInformation();
+        vehicleInformation.setNumberOfFaultAImplants(1);
+        vehicleInformation.setOneTripFaultACount(0);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         instance = new Part08Step10Controller(executor,
                                               bannerModule,
@@ -196,11 +204,7 @@ public class Part08Step10ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         WARN,
                                         "6.8.10.3.a - DTC(s) reported by DM23 earlier in this part is/are not present in the freeze frame data from Engine #1 (0)");
-//        verify(mockListener).addOutcome(PART_NUMBER,
-//                                        STEP_NUMBER,
-//                                        FAIL,
-//                                        "6.8.10.2.a - DTC(s) reported in the freeze frame by Engine #1 (0) did not include either the DTC reported in DM12 or DM23 earlier in this part");
-    }
+}
 
     @Test
     public void testFailureForFreezeFrameWithoutDTC12() {
@@ -225,11 +229,7 @@ public class Part08Step10ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
-//        verify(mockListener).addOutcome(PART_NUMBER,
-//                                        STEP_NUMBER,
-//                                        FAIL,
-//                                        "6.8.10.2.a - DTC(s) reported in the freeze frame by Engine #1 (0) did not include either the DTC reported in DM12 or DM23 earlier in this part");
-    }
+}
 
     @Test
     public void testFailureForFreezeFrameWithDTC() {
@@ -286,7 +286,7 @@ public class Part08Step10ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.8.10.2.a - DTC(s) reported in the freeze frame by Engine #1 (0) did not include either the DTC reported in DM12 or DM23 earlier in this part");
+                                        "6.8.10.2.a - DTC(s) reported in the freeze frame by Engine #1 (0) did not include either any DTC reported in DM12 or any DTC reported in DM23 earlier in this part");
     }
 
     @Test
@@ -364,10 +364,29 @@ public class Part08Step10ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         WARN,
                                         "6.8.10.3.a - DTC(s) reported by DM23 earlier in this part is/are not present in the freeze frame data from Engine #1 (0)");
-        // verify(mockListener).addOutcome(PART_NUMBER,
-        // STEP_NUMBER,
-        // FAIL,
-        //          "6.8.10.2.a - DTC(s) reported in the freeze frame by Engine #1 (0) did not include either the DTC reported in DM12 or DM23 earlier in this part");
+    }
+
+    @Test
+    public void testMoreThanOneFaultA() {
+        //6.8.10.3.a WARNING would occur if 1 Fault A is implanted
+        vehicleInformation.setNumberOfFaultAImplants(2);
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        var dtc1 = DiagnosticTroubleCode.create(123, 4, 0, 1);
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
+        var dtc2 = DiagnosticTroubleCode.create(456, 4, 0, 1);
+        obdModuleInformation.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc2), 8);
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var ff1 = new FreezeFrame(dtc1, new int[0]);
+        var dm25 = DM25ExpandedFreezeFrame.create(0, ff1);
+        when(communicationsModule.requestDM25(any(), eq(0), any())).thenReturn(BusResult.of(dm25));
+
+        runTest();
+
+        verify(communicationsModule).requestDM25(any(), eq(0), any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
     }
 
 }

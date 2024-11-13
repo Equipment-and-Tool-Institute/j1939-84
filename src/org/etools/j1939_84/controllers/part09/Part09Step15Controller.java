@@ -96,14 +96,19 @@ public class Part09Step15Controller extends StepController {
             addFailure("6.9.15.2.b - No ECU reported > 0 for permanent DTC");
         }
 
-        // 6.9.15.2.c. Fail if any ECU reports a different number for permanent DTC than what that ECU reported in DM28.
-        packets.stream()
-               .filter(p -> p.getEmissionRelatedPermanentDTCCount() != getDTCs(p.getSourceAddress()).size())
-               .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> {
-                   addFailure("6.9.15.2.c - " + moduleName
-                           + " reported different number for permanent DTC than what it reported in DM28");
-               });
+        // 6.9.15.2.c Fail if any ECU reports a lower sum of permanent DTC counts than the count of DTCs
+        // reported in DM28 responses, where the sum of permanent DTC counts is not greater than 4.
+        int permanentDTCCount = packets.stream()
+                .mapToInt(p -> p.getEmissionRelatedPermanentDTCCount()).sum();
+        if (permanentDTCCount <= 4) {
+            packets.stream()
+                    .filter(p -> p.getEmissionRelatedPermanentDTCCount() < getDTCs(p.getSourceAddress()).size())
+                    .map(ParsedPacket::getModuleName)
+                    .forEach(moduleName -> {
+                        addFailure("6.9.15.2.c - " + moduleName
+                                           + " reported lower sum of permanent DTC counts than what it reported in DM28");
+                    });
+        }
 
         // 6.9.15.2.d. For OBD ECUs that support DM27, fail if any ECU reports > 0 for all pending DTCs (SPN 4105).
         packets.stream()
@@ -127,20 +132,20 @@ public class Part09Step15Controller extends StepController {
                    addFailure("6.9.15.2.e - " + moduleName + " did not report all pending DTCs = 0xFF");
                });
 
-        // 6.9.15.3.a. Warn if any ECU reports > 1 for permanent DTC.
+        // 6.9.15.3.a. Info if any ECU reports > 1 for permanent DTC.
         packets.stream()
                               .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
 .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 1)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
-                   addWarning("6.9.15.3.a - " + moduleName + " reported > 1 for permanent DTC");
+                   addInfo("6.9.15.3.a - " + moduleName + " reported > 1 for permanent DTC");
                });
 
-        // 6.9.15.3.b. Warn if more than one ECU reports > 0 for permanent DTC.
-        long count = packets.stream()               .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
+        // 6.9.15.3.b. Info if more than one ECU reports > 0 for permanent DTC.
+        long count = packets.stream().filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
 .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 0).count();
         if (count > 1) {
-            addWarning("6.9.15.3.b - More than one ECU reported > 0 for permanent DTC");
+            addInfo("6.9.15.3.b - More than one ECU reported > 0 for permanent DTC");
         }
     }
 

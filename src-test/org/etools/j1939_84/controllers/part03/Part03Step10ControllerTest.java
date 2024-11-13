@@ -22,6 +22,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -75,6 +76,8 @@ public class Part03Step10ControllerTest extends AbstractControllerTest {
     private VehicleInformationModule vehicleInformationModule;
 
     private DataRepository dataRepository;
+    
+    private VehicleInformation vehicleInformation;
 
     private StepController instance;
 
@@ -83,6 +86,11 @@ public class Part03Step10ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(new TestDateTimeModule());
         DateTimeModule dateTimeModule = DateTimeModule.getInstance();
         dataRepository = DataRepository.newInstance();
+
+        vehicleInformation = new VehicleInformation();
+        vehicleInformation.setNumberOfFaultAImplants(1);
+        vehicleInformation.setOneTripFaultACount(0);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         listener = new TestResultsListener(mockListener);
         instance = new Part03Step10Controller(executor,
@@ -236,6 +244,24 @@ public class Part03Step10ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.3.10.2.c - Non-OBD ECU Engine #2 (1) did not report MIL off or not supported");
     }
+
+    @Test
+    public void testNonZeroFaultA() {
+        vehicleInformation.setOneTripFaultACount(1
+        );
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        var dm23_0 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
+        var dm23_1 = DM23PreviouslyMILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF);
+        when(communicationsModule.requestDM23(any())).thenReturn(new RequestResult<>(false, dm23_0, dm23_1));
+        when(communicationsModule.requestDM23(any(), eq(0))).thenReturn(new BusResult<>(false, dm23_0));
+
+        runTest();
+
+        verify(communicationsModule).requestDM23(any());
+        verify(communicationsModule).requestDM23(any(), eq(0));
+
+        assertEquals("", listener.getResults());
+        }
 
     @Test
     public void testFailureForGlobalDSDifference() {

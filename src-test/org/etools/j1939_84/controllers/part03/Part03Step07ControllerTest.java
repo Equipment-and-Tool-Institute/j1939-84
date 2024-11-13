@@ -21,6 +21,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -73,6 +74,8 @@ public class Part03Step07ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    private VehicleInformation vehicleInformation;
+
     private DataRepository dataRepository;
 
     private StepController instance;
@@ -82,6 +85,11 @@ public class Part03Step07ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(new TestDateTimeModule());
         DateTimeModule dateTimeModule = DateTimeModule.getInstance();
         dataRepository = DataRepository.newInstance();
+
+        vehicleInformation = new VehicleInformation();
+        vehicleInformation.setNumberOfFaultAImplants(1);
+        vehicleInformation.setOneTripFaultACount(0);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         listener = new TestResultsListener(mockListener);
         instance = new Part03Step07Controller(executor,
@@ -229,6 +237,25 @@ public class Part03Step07ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.3.7.2.b - OBD ECU Engine #1 (0) did not report MIL off");
+    }
+
+    @Test
+    public void testSuccessForMILNotOffIfOneTripAIsNonZero() {
+        vehicleInformation.setOneTripFaultACount(1);
+
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        var dm2 = DM2PreviouslyActiveDTC.create(0, ON, OFF, OFF, OFF);
+        when(communicationsModule.requestDM2(any())).thenReturn(new RequestResult<>(false, dm2));
+        when(communicationsModule.requestDM2(any(), eq(0))).thenReturn(new BusResult<>(false, dm2));
+
+        runTest();
+
+        verify(communicationsModule).requestDM2(any());
+        verify(communicationsModule).requestDM2(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
     }
 
     @Test

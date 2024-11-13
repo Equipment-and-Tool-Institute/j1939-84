@@ -4,7 +4,7 @@
 package org.etools.j1939_84.controllers.part03;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
-import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939tools.j1939.packets.DM27AllPendingDTCsPacket.PGN;
 import static org.etools.j1939tools.j1939.packets.LampStatus.FAST_FLASH;
@@ -25,6 +25,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -88,6 +89,11 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(new TestDateTimeModule());
         DateTimeModule dateTimeModule = DateTimeModule.getInstance();
         dataRepository = DataRepository.newInstance();
+
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setNumberOfFaultAImplants(1);
+        vehInfo.setOneTripFaultACount(0);
+        dataRepository.setVehicleInformation(vehInfo);
 
         listener = new TestResultsListener(mockListener);
         instance = new Part03Step03Controller(executor,
@@ -341,12 +347,12 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.3.3.3.a - OBD ECU Engine #2 (1) reported 1 DTCs in response to DM6 in 6.3.2.1 and 2 DTCs when responding to DM27");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.3.3.3.a - OBD ECU Turbocharger (2) reported 1 DTCs in response to DM6 in 6.3.2.1 and 1 DTCs when responding to DM27");
 
         verify(mockListener).addOutcome(PART_NUMBER,

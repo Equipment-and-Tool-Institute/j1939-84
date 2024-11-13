@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part09;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939tools.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
@@ -295,7 +296,7 @@ public class Part09Step02ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.9.2.3.b - More than one ECU reported an active DTC");
     }
 

@@ -105,34 +105,41 @@ public class Part07Step10Controller extends StepController {
             addFailure("6.7.10.2.b - No ECU reported > 0 previous MIL on");
         }
 
-        // 6.7.10.2.c. Fail if any ECU reports a different number of previous MIL on DTCs than what that ECU reported in
-        // DM23 earlier in this part.
-        packets.stream()
-               .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() != getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class,
-                                                                                     p.getSourceAddress(),
-                                                                                     7).size())
-               .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> {
-                   addFailure("6.7.10.2.c - " + moduleName
-                           + " reported a different number of previous MIL on DTCs that what it reported in DM23 earlier in this part");
-               });
+        // 6.7.10.2.c. Fail if any OBD system that reports a greater sum of previous MIL on DTC counts
+        // than the number of DTCs counted in DM23 responses earlier in this part
+        int previousMILOnCount = packets.stream()
+                .filter(p -> isObdModule(p.getSourceAddress()))
+                .mapToInt(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount()).sum();
+        int dm23Count = packets.stream()
+                .filter(p -> isObdModule(p.getSourceAddress()))
+                .mapToInt(p -> getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class,
+                                       p.getSourceAddress(),
+                                       7).size()).sum();
+        if (previousMILOnCount > dm23Count){
+            addFailure("6.7.10.2.c - OBD System reported a greater sum of previous MIL on DTC counts than what it reported in DM23 earlier in this part");
 
-        // 6.7.10.3.a. Warn if any ECU reports > 1 for previous MIL on.
-        packets.stream()
-               .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() != 0xFF)
-               .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 1)
-               .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> {
-                   addWarning("6.7.10.3.a - " + moduleName + " reported > 1 for previous MIL on");
-               });
+        }
 
-        // 6.7.10.3.b. Warn if more than one ECU reports > 0 for previous MIL on.
-        long count = packets.stream()
-                  .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() != 0xFF)
-                         .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 0)
-                            .count();
-        if (count > 1) {
-            addWarning("6.7.10.3.b - More than one ECU reported > 0 for previous MIL on");
+        if (getDataRepository().getVehicleInformation().getNumberOfFaultAImplants() == 1) {
+            // 6.7.10.3.a. Warn if any ECU reports > 1 for previous MIL on,
+            // and the total number of Fault A DTCs expected is 1.
+            packets.stream()
+                    .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() != 0xFF)
+                    .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 1)
+                    .map(ParsedPacket::getModuleName)
+                    .forEach(moduleName -> {
+                        addWarning("6.7.10.3.a - " + moduleName + " reported > 1 for previous MIL on");
+                    });
+
+            // 6.7.10.3.b. Warn if more than one ECU reports > 0 for previous MIL on,
+            // and the total number of Fault A DTCs expected is 1.
+            long count = packets.stream()
+                    .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() != 0xFF)
+                    .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 0)
+                    .count();
+            if (count > 1) {
+                addWarning("6.7.10.3.b - More than one ECU reported > 0 for previous MIL on");
+            }
         }
     }
 

@@ -74,6 +74,8 @@ public class Part10Step05ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    private VehicleInformation vehicleInformation;
+
     private TestResultsListener listener;
 
     private DataRepository dataRepository;
@@ -84,6 +86,11 @@ public class Part10Step05ControllerTest extends AbstractControllerTest {
     public void setUp() throws Exception {
         dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
+
+        vehicleInformation = new VehicleInformation();
+        vehicleInformation.setNumberOfFaultBImplants(1);
+        vehicleInformation.setOneTripFaultBCount(1);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         instance = new Part10Step05Controller(executor,
                                               bannerModule,
@@ -151,10 +158,6 @@ public class Part10Step05ControllerTest extends AbstractControllerTest {
                                                                     "0.0 RPMs",
                                                                     "0.0 RPMs",
                                                                     "500.0 RPMs");
-
-        VehicleInformation vehicleInformation = new VehicleInformation();
-        vehicleInformation.setNumberOfTripsForFaultBImplant(1);
-        dataRepository.setVehicleInformation(vehicleInformation);
 
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
         runTest();

@@ -37,6 +37,10 @@ public class VehicleInformationTest {
         instance.setFuelType(FuelType.DSL);
         instance.setVehicleModelYear(2);
         instance.setVin("vin");
+        instance.setNumberOfFaultAImplants(1);
+        instance.setOneTripFaultACount(0);
+        instance.setNumberOfFaultBImplants(1);
+        instance.setOneTripFaultBCount(1);
 
         instance2 = new VehicleInformation();
         instance2.setCertificationIntent("cert");
@@ -45,6 +49,10 @@ public class VehicleInformationTest {
         instance2.setFuelType(FuelType.DSL);
         instance2.setVehicleModelYear(2);
         instance2.setVin("vin");
+        instance2.setNumberOfFaultAImplants(1);
+        instance2.setOneTripFaultACount(0);
+        instance2.setNumberOfFaultBImplants(1);
+        instance2.setOneTripFaultBCount(1);
 
         instance3 = instance.clone();
     }
@@ -119,8 +127,12 @@ public class VehicleInformationTest {
                 "Number of CAL IDs Expected: 0" + NL +
                 "Fuel Type: Diesel vehicle" + NL +
                 "Ignition Type: Compression" + NL +
-                "Number of Trips for Fault B Implant: 0" + NL +
-                "Number of Fault A Implants: 0" + NL +
+                "Number of Fault A Implants: 1" + NL +
+                "One Trip Fault A: 0" + NL +
+                "Two Trip Fault A: 1" + NL +
+                "Number of Fault B Implants: 1" + NL +
+                "One Trip Fault B: 1" + NL +
+                "Two Trip Fault B: 0" + NL +
                 NL +
                 "Vehicle Information:" + NL +
                 "VIN: vin" + NL +

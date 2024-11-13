@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part05;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.etools.j1939tools.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939tools.j1939.packets.LampStatus.ON;
@@ -21,6 +22,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -72,6 +74,8 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    private VehicleInformation vehicleInformation;
+
     private TestResultsListener listener;
 
     private DataRepository dataRepository;
@@ -82,6 +86,11 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
     public void setUp() throws Exception {
         dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
+
+        vehicleInformation = new VehicleInformation();
+        vehicleInformation.setNumberOfFaultAImplants(1);
+        vehicleInformation.setOneTripFaultACount(0);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         instance = new Part05Step05Controller(executor,
                                               bannerModule,
@@ -227,6 +236,11 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
+                                        "6.5.5.2.c - OBD System reported fewer MIL on DTCs than the total number of implanted faults for Fault A");
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
                                         "6.5.5.2.b - No ECU reported > 0 MIL on DTCs and > 0 permanent DTCs");
     }
 
@@ -254,7 +268,126 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.5.5.2.c - Engine #1 (0) reported a different number of MIL on DTCs than what it reported in DM12 earlier in this part");
+                                        "6.5.5.2.c - OBD System reported a different number of MIL on DTCs than what it reported in DM12 earlier in this part");
+    }
+
+    @Test
+    public void testFailureMultipleECUsOBDSystem() {
+        vehicleInformation.setNumberOfFaultAImplants(2);
+        var dtc1 = DiagnosticTroubleCode.create(123, 4, 0, 9);
+        var dtc2 = DiagnosticTroubleCode.create(456, 4, 0, 9);
+        var dtc3 = DiagnosticTroubleCode.create(789, 4, 0, 9);
+
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2), 5);
+        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
+        obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
+        dataRepository.putObdModule(obdModuleInformation);
+
+        OBDModuleInformation obdModuleInformation2 = new OBDModuleInformation(0x21);
+        obdModuleInformation2.set(DM12MILOnEmissionDTCPacket.create(0x21, OFF, OFF, OFF, OFF), 5);
+        obdModuleInformation2.set(DM28PermanentEmissionDTCPacket.create(0x21, ON, OFF, OFF, OFF), 5);
+        dataRepository.putObdModule(obdModuleInformation2);
+
+        OBDModuleInformation obdModuleInformation3 = new OBDModuleInformation(0x99);
+        obdModuleInformation3.set(DM12MILOnEmissionDTCPacket.create(0x99, ON, OFF, OFF, OFF, dtc3), 5);
+        obdModuleInformation3.set(DM28PermanentEmissionDTCPacket.create(0x99, ON, OFF, OFF, OFF, dtc3), 5);
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 1, 0, 1);
+        var dm29Addr21 = DM29DtcCounts.create(0x21, 0, 0, 0xFF, 0, 0, 0);
+        var dm29Addr99 = DM29DtcCounts.create(0x99, 0, 0, 0xFF, 1, 0, 0);
+        when(communicationsModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29, dm29Addr21, dm29Addr99));
+
+        runTest();
+
+        verify(communicationsModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.5.5.3.b - More than one ECU reported > 0 for MIL on");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.5.5.2.c - OBD System reported a different number of MIL on DTCs than what it reported in DM12 earlier in this part");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.5.5.2.c - OBD System reported fewer MIL on DTCs than the total number of implanted faults for Fault A");
+    }
+
+    @Test
+    public void testSuccessMultipleECUsOBDSystem() {
+        vehicleInformation.setNumberOfFaultAImplants(2);
+        var dtc1 = DiagnosticTroubleCode.create(123, 4, 0, 9);
+        var dtc2 = DiagnosticTroubleCode.create(456, 4, 0, 9);
+        var dtc3 = DiagnosticTroubleCode.create(789, 4, 0, 9);
+
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
+        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
+        obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
+        dataRepository.putObdModule(obdModuleInformation);
+
+        OBDModuleInformation obdModuleInformation2 = new OBDModuleInformation(0x21);
+        obdModuleInformation2.set(DM12MILOnEmissionDTCPacket.create(0x21, OFF, OFF, OFF, OFF, dtc2), 5);
+        obdModuleInformation2.set(DM28PermanentEmissionDTCPacket.create(0x21, ON, OFF, OFF, OFF), 5);
+        dataRepository.putObdModule(obdModuleInformation2);
+
+        OBDModuleInformation obdModuleInformation3 = new OBDModuleInformation(0x99);
+        obdModuleInformation3.set(DM12MILOnEmissionDTCPacket.create(0x99, ON, OFF, OFF, OFF, dtc3), 5);
+        obdModuleInformation3.set(DM28PermanentEmissionDTCPacket.create(0x99, ON, OFF, OFF, OFF, dtc3), 5);
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 1, 0, 1);
+        var dm29Addr21 = DM29DtcCounts.create(0x21, 0, 0, 0xFF, 1, 0, 0);
+        var dm29Addr99 = DM29DtcCounts.create(0x99, 0, 0, 0xFF, 0, 0, 0);
+        when(communicationsModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29, dm29Addr21, dm29Addr99));
+
+        runTest();
+
+        verify(communicationsModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.5.5.3.b - More than one ECU reported > 0 for MIL on");
+    }
+
+    @Test
+    public void testFailureForFewerMILOnThanImplantedFaults() {
+        vehicleInformation.setNumberOfFaultAImplants(2);
+        var dtc1 = DiagnosticTroubleCode.create(123, 4, 0, 9);
+
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
+        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
+        obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 1, 0, 1);
+        when(communicationsModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29));
+
+        runTest();
+
+        verify(communicationsModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.5.5.2.c - OBD System reported fewer MIL on DTCs than the total number of implanted faults for Fault A");
     }
 
     @Test
@@ -384,7 +517,7 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.5.5.3.a - Engine #1 (0) reported > 1 for MIL on");
     }
 
@@ -411,7 +544,7 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.5.5.3.a - Engine #1 (0) reported > 1 for permanent");
     }
 
@@ -444,7 +577,7 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.5.5.3.b - More than one ECU reported > 0 for MIL on");
     }
 
@@ -476,7 +609,7 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.5.5.3.b - More than one ECU reported > 0 for permanent");
     }
 }

@@ -81,15 +81,16 @@ public class Part04Step10Controller extends StepController {
             addFailure("6.4.10.2.a - No ECU reported freeze frame data");
         }
 
-        // 6.4.10.2.b. Fail if DTC in freeze frame data does not include the DTC reported in DM12 earlier in this part.
+        // 6.4.10.2.b. Fail if DTC in freeze frame data does not include any DTC reported in DM12 earlier in this part.
         packets.forEach(p -> {
             List<DiagnosticTroubleCode> ffDTCs = p.getFreezeFrames()
                   .stream()
                   .map(f -> f.getDtc())
                   .collect(Collectors.toList());
-            if (!ffDTCs.containsAll(getDTCs(p.getSourceAddress()))) {
+            List<DiagnosticTroubleCode> dm12DTCs = getDTCs(p.getSourceAddress());
+            if (ffDTCs.stream().filter(dtc -> dm12DTCs.contains(dtc)).findFirst().isEmpty()) {
                 addFailure("6.4.10.2.b - " + p.getModuleName()
-                        + " did not report DTC in freeze frame data which included the DTC reported in DM12 earlier in this part");
+                        + " did not report DTC in freeze frame data which included any DTC reported in DM12 earlier in this part");
             }
         });
 

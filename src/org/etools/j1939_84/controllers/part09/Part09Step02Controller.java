@@ -99,10 +99,10 @@ public class Part09Step02Controller extends StepController {
                    addWarning("6.9.2.3.a - " + moduleName + " reported > 1 active DTC");
                });
 
-        // 6.9.2.3.b Warn if more than one ECU reports an active DTC
+        // 6.9.2.3.b Info if more than one ECU reports an active DTC
         var dtcCount = packets.stream().filter(DiagnosticTroubleCodePacket::hasDTCs).count();
         if (dtcCount > 1) {
-            addWarning("6.9.2.3.b - More than one ECU reported an active DTC");
+            addInfo("6.9.2.3.b - More than one ECU reported an active DTC");
         }
 
     }

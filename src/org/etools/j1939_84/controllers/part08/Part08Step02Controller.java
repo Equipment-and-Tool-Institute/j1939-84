@@ -71,10 +71,13 @@ public class Part08Step02Controller extends StepController {
     protected void run() throws Throwable {
         int attempts = 0;
         List<DM12MILOnEmissionDTCPacket> globalPackets = List.of();
-        AtomicBoolean foundDTC = new AtomicBoolean(false);
-        while (!foundDTC.get()) {
+        int faultBImplants = getDataRepository().getVehicleInformation().getNumberOfFaultBImplants();
+        int foundDTCCount = 0;
+        AtomicBoolean userCancel = new AtomicBoolean(false);
+        while (foundDTCCount < faultBImplants && !userCancel.get()) {
             // 6.8.2.1.a. Global DM12 [(send Request (PGN 59904) for PGN 65236 (SPNs 1213-1215, 1706, and 3038)]).
-            // 6.8.2.1.b. Repeat request until one or more ECUs reports an active DTC.
+            // 6.8.2.1.b. Repeat request no more frequently than once per second while the number of returned
+            // DM12 (MIL on) DTCs is less than the total number of Fault B DTCs.
 
             attempts++;
             updateProgress("Step 6.8.2.1.a - Requesting DM12 Attempt " + attempts);
@@ -82,24 +85,26 @@ public class Part08Step02Controller extends StepController {
             getListener().onResult(NL + "Attempt " + attempts);
             globalPackets = getCommunicationsModule().requestDM12(getListener()).getPackets();
 
-            foundDTC.set(globalPackets.stream().anyMatch(p -> !p.getDtcs().isEmpty()));
+            foundDTCCount = globalPackets.stream().mapToInt(p -> p.getDtcs().size()).sum();
 
-            if (!foundDTC.get()) {
+            if (foundDTCCount < faultBImplants && !userCancel.get()) {
                 if (attempts == 5 * 60) {
                     // 6.8.2.1.b.i. Time-out after 5 minutes and ask user yes/no to continue
-                    // if there is still no active DTC.
-                    // 6.8.2.1.b.ii. Fail if user says “no” and no ECU reports an active DTC.
+                    // if there are fewer active Fault B DTCs are reported than the expected
+                    // total number of Fault B DTCs.
+                    // 6.8.2.1.b.ii. Fail if user says “no” and fewer active Fault B DTCs are
+                    // reported than the expected total number of Fault B DTCs
 
                     QuestionListener questionListener = answer -> {
                         if (answer == CANCEL || answer == NO) {
-                            addFailure("6.8.2.1.b.ii - User says 'no' and no ECU reported an active DTC");
-                            foundDTC.set(true);
+                            addFailure("6.8.2.1.b.ii - User says 'no' and fewer active Fault B DTCs are reported than the expected total number of Fault B DTCs.");
+                            userCancel.set(true);
                         }
                     };
 
-                    String msg = "No ECU has reported an active DTC." + NL + "Do you wish to continue?";
+                    String msg = "Fewer active Fault B DTCs have been reported than the expected total number of Fault B DTCs." + NL + "Do you wish to continue?";
                     getListener().onUrgentMessage(msg,
-                                                  "No Active DTCs Found",
+                                                  "Fewer Than Expected Active DTCs Found",
                                                   QUESTION,
                                                   questionListener);
                     attempts = 0;
@@ -112,18 +117,18 @@ public class Part08Step02Controller extends StepController {
         // Save the DTCs per module
         globalPackets.forEach(this::save);
 
-        // 6.8.2.2.a. Warn if any ECU reports > 1 active DTC.
+        // 6.8.2.2.a. Info if any ECU reports > 1 active DTC.
         globalPackets.stream()
                      .filter(p -> p.getDtcs().size() > 1)
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> {
-                         addWarning("6.8.2.2.a - " + moduleName + " reported > 1 active DTC");
+                         addInfo("6.8.2.2.a - " + moduleName + " reported > 1 active DTC");
                      });
 
-        // 6.8.2.2.b. Warn if more than one ECU reports an active DTC.
+        // 6.8.2.2.b. Info if more than one ECU reports an active DTC.
         long modulesWithFaults = globalPackets.stream().filter(DiagnosticTroubleCodePacket::hasDTCs).count();
         if (modulesWithFaults > 1) {
-            addWarning("6.8.2.2.b - More than one ECU reported an active DTC");
+            addInfo("6.8.2.2.b - More than one ECU reported an active DTC");
         }
 
         // 6.8.2.3.a. DS DM12 to each OBD ECU.
@@ -147,13 +152,13 @@ public class Part08Step02Controller extends StepController {
             addFailure("6.8.2.4.b - No ECU reported MIL on");
         }
 
-        // 6.8.2.5.a. Warn if ECU reporting active DTC does not report MIL on.
+        // 6.8.2.5.a Fail, if any ECU reporting any active (DM12) DTC does not also report MIL status as MIL on.
         dsPackets.stream()
                  .filter(DiagnosticTroubleCodePacket::hasDTCs)
                  .filter(p -> p.getMalfunctionIndicatorLampStatus() != ON)
                  .map(ParsedPacket::getModuleName)
                  .forEach(moduleName -> {
-                     addWarning("6.8.2.5.a - " + moduleName + " reported an active DTC and did not report MIL on");
+                     addFailure("6.8.2.5.a - " + moduleName + " reported an active DTC and did not report MIL on");
                  });
 
         // 6.8.2.5.b. Warn if an ECU not reporting an active DTC reports MIL on.
