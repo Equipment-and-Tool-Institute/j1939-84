@@ -48,8 +48,10 @@ import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.j1939.J1939;
 import org.etools.j1939tools.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939tools.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939tools.j1939.packets.LampStatus;
+import org.etools.j1939tools.j1939.packets.SupportedSPN;
 import org.etools.j1939tools.modules.CommunicationsModule;
 import org.etools.j1939tools.modules.DateTimeModule;
 import org.junit.After;
@@ -185,6 +187,57 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
                                               eq(CLR_ACT_REQ),
                                               eq(0x7FFFF),
                                               eq(31))).thenReturn(RequestResult.empty());
+
+        runTest();
+
+        verify(verifier).setJ1939(j1939);
+        verify(communicationsModule).requestDM22(any(), eq(1), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
+        verify(communicationsModule).requestDM22(any(), eq(0), eq(CLR_PA_REQ), eq(123), eq(10));
+        verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(123), eq(10));
+        verify(communicationsModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
+
+        verify(verifier).verifyDataNotErased(any(), eq("6.9.3.10.d"));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        assertEquals(List.of(), listener.getOutcomes());
+    }
+
+    @Test
+    public void testNoFailuresNonObdResponseToGlobalReq() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        var dtc = DiagnosticTroubleCode.create(123, 10, 0, 1);
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, LampStatus.ON, OFF, OFF, OFF, dtc), 9);
+        dataRepository.putObdModule(obdModuleInformation0);
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+
+        var dm22_1 = create(1, 0, CLR_ACT_NACK, GENERAL_NACK, 0x7FFFF, 31);
+        var dm22_99_PA = create(99, 0, CLR_PA_ACK, NOT_SUPPORTED, 0x7FFFF, 31);
+        var dm22_99_ACT = create(99, 0, CLR_ACT_ACK, NOT_SUPPORTED, 0x7FFFF, 31);
+
+        when(communicationsModule.requestDM22(any(),
+                                              eq(1),
+                                              eq(CLR_ACT_REQ),
+                                              eq(0x7FFFF),
+                                              eq(31))).thenReturn(BusResult.of(dm22_1));
+
+        var dm22_0 = create(0, 0, CLR_PA_NACK, GENERAL_NACK, 123, 10);
+        when(communicationsModule.requestDM22(any(),
+                                              eq(0),
+                                              eq(CLR_PA_REQ),
+                                              eq(123),
+                                              eq(10))).thenReturn(BusResult.of(dm22_0));
+
+        when(communicationsModule.requestDM22(any(),
+                                              eq(CLR_PA_REQ),
+                                              eq(123),
+                                              eq(10))).thenReturn(RequestResult.of(dm22_99_ACT));
+
+        when(communicationsModule.requestDM22(any(),
+                                              eq(CLR_ACT_REQ),
+                                              eq(0x7FFFF),
+                                              eq(31))).thenReturn(RequestResult.of(dm22_99_PA));
 
         runTest();
 
@@ -715,8 +768,17 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForCLR_PA_ACK3() {
-
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dm22_0 = create(0, 0, CLR_PA_ACK, NOT_SUPPORTED, 0x7FFFF, 31);
+        var dm22_0_ACT_NACK = create(0, 0, CLR_ACT_NACK, GENERAL_NACK, 0x7FFFF, 31);
+        dataRepository.putObdModule(obdModuleInformation0);
+
+
+        when(communicationsModule.requestDM22(any(),
+                                              eq(0),
+                                              eq(CLR_ACT_REQ),
+                                              eq(0x7FFFF),
+                                              eq(31))).thenReturn(BusResult.of(dm22_0_ACT_NACK));
 
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_PA_REQ),
@@ -731,6 +793,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(verifier).setJ1939(j1939);
+        verify(communicationsModule).requestDM22(any(), eq(0), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
         verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
         verify(communicationsModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
@@ -751,8 +814,17 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForCLR_ACT_ACK3() {
-
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dm22_0 = create(0, 0, CLR_ACT_ACK, NOT_SUPPORTED, 0x7FFFF, 31);
+        var dm22_0_ACT_NACK = create(0, 0, CLR_ACT_NACK, GENERAL_NACK, 0x7FFFF, 31);
+        dataRepository.putObdModule(obdModuleInformation0);
+
+
+        when(communicationsModule.requestDM22(any(),
+                                              eq(0),
+                                              eq(CLR_ACT_REQ),
+                                              eq(0x7FFFF),
+                                              eq(31))).thenReturn(BusResult.of(dm22_0_ACT_NACK));
 
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_PA_REQ),
@@ -767,6 +839,8 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(verifier).setJ1939(j1939);
+
+        verify(communicationsModule).requestDM22(any(), eq(0), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
         verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
         verify(communicationsModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
@@ -821,8 +895,17 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForCLR_ACT_NACKWithNonZeroAck3() {
-
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dm22_0 = create(0, 0, CLR_ACT_NACK, NOT_SUPPORTED, 0x7FFFF, 31);
+        var dm22_0_ACT_NACK = create(0, 0, CLR_ACT_NACK, GENERAL_NACK, 0x7FFFF, 31);
+        dataRepository.putObdModule(obdModuleInformation0);
+
+
+        when(communicationsModule.requestDM22(any(),
+                                              eq(0),
+                                              eq(CLR_ACT_REQ),
+                                              eq(0x7FFFF),
+                                              eq(31))).thenReturn(BusResult.of(dm22_0_ACT_NACK));
 
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_PA_REQ),
@@ -837,6 +920,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(verifier).setJ1939(j1939);
+        verify(communicationsModule).requestDM22(any(), eq(0), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
         verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
         verify(communicationsModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
@@ -857,9 +941,17 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForCLR_PA_NACKWithNonZeroAck3() {
-
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dm22_0 = create(0, 0, CLR_PA_NACK, NOT_SUPPORTED, 0x7FFFF, 31);
+        var dm22_0_ACT_NACK = create(0, 0, CLR_ACT_NACK, GENERAL_NACK, 0x7FFFF, 31);
+       dataRepository.putObdModule(obdModuleInformation0);
 
+
+        when(communicationsModule.requestDM22(any(),
+                                              eq(0),
+                                              eq(CLR_ACT_REQ),
+                                              eq(0x7FFFF),
+                                              eq(31))).thenReturn(BusResult.of(dm22_0_ACT_NACK));
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_PA_REQ),
                                               eq(0x7FFFF),
@@ -873,6 +965,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(verifier).setJ1939(j1939);
+        verify(communicationsModule).requestDM22(any(), eq(0), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
         verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
         verify(communicationsModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
@@ -893,8 +986,17 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForCLR_PA_ACK4() {
-
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dm22_0 = create(0, 0, CLR_PA_ACK, NOT_SUPPORTED, 0x7FFFF, 31);
+        var dm22_0_ACT_NACK = create(0, 0, CLR_ACT_NACK, GENERAL_NACK, 0x7FFFF, 31);
+        dataRepository.putObdModule(obdModuleInformation0);
+
+
+        when(communicationsModule.requestDM22(any(),
+                                              eq(0),
+                                              eq(CLR_ACT_REQ),
+                                              eq(0x7FFFF),
+                                              eq(31))).thenReturn(BusResult.of(dm22_0_ACT_NACK));
 
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_PA_REQ),
@@ -909,6 +1011,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(verifier).setJ1939(j1939);
+        verify(communicationsModule).requestDM22(any(), eq(0), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
         verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
         verify(communicationsModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
@@ -929,8 +1032,17 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForCLR_ACT_ACK4() {
-
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dm22_0 = create(0, 0, CLR_ACT_ACK, NOT_SUPPORTED, 0x7FFFF, 31);
+        var dm22_0_ACT_NACK = create(0, 0, CLR_ACT_NACK, GENERAL_NACK, 0x7FFFF, 31);
+        dataRepository.putObdModule(obdModuleInformation0);
+
+
+        when(communicationsModule.requestDM22(any(),
+                                              eq(0),
+                                              eq(CLR_ACT_REQ),
+                                              eq(0x7FFFF),
+                                              eq(31))).thenReturn(BusResult.of(dm22_0_ACT_NACK));
 
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_PA_REQ),
@@ -945,6 +1057,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(verifier).setJ1939(j1939);
+        verify(communicationsModule).requestDM22(any(), eq(0), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
         verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
         verify(communicationsModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
@@ -1000,8 +1113,17 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForCLR_ACT_NACKWithNonZeroAck4() {
-
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dm22_0 = create(0, 0, CLR_ACT_NACK, UNKNOWN_DTC, 0x7FFFF, 31);
+        var dm22_0_ACT_NACK = create(0, 0, CLR_ACT_NACK, GENERAL_NACK, 0x7FFFF, 31);
+        dataRepository.putObdModule(obdModuleInformation0);
+
+
+        when(communicationsModule.requestDM22(any(),
+                                              eq(0),
+                                              eq(CLR_ACT_REQ),
+                                              eq(0x7FFFF),
+                                              eq(31))).thenReturn(BusResult.of(dm22_0_ACT_NACK));
 
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_PA_REQ),
@@ -1016,6 +1138,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(verifier).setJ1939(j1939);
+        verify(communicationsModule).requestDM22(any(), eq(0), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
         verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
         verify(communicationsModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
@@ -1036,8 +1159,17 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForCLR_PA_NACKWithNonZeroAck4() {
-
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dm22_0 = create(0, 0, CLR_PA_NACK, DTC_NOT_PA, 0x7FFFF, 31);
+        var dm22_0_ACT_NACK = create(0, 0, CLR_ACT_NACK, GENERAL_NACK, 0x7FFFF, 31);
+        dataRepository.putObdModule(obdModuleInformation0);
+
+
+        when(communicationsModule.requestDM22(any(),
+                                              eq(0),
+                                              eq(CLR_ACT_REQ),
+                                              eq(0x7FFFF),
+                                              eq(31))).thenReturn(BusResult.of(dm22_0_ACT_NACK));
 
         when(communicationsModule.requestDM22(any(),
                                               eq(CLR_PA_REQ),
@@ -1052,6 +1184,7 @@ public class Part09Step03ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(verifier).setJ1939(j1939);
+        verify(communicationsModule).requestDM22(any(), eq(0), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
         verify(communicationsModule).requestDM22(any(), eq(CLR_PA_REQ), eq(0x7FFFF), eq(31));
         verify(communicationsModule).requestDM22(any(), eq(CLR_ACT_REQ), eq(0x7FFFF), eq(31));
 
