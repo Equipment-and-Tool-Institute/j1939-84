@@ -259,10 +259,10 @@ public class Part09Step03Controller extends StepController {
                                                                   dtc.map(d -> d.getSuspectParameterNumber())
                                                                      .orElse(0x7FFFF),
                                                                   dtc.map(d -> d.getFailureModeIndicator()).orElse(31));
-        packets = globalResults.getPackets();
+        packets = globalResults.getPackets().stream().filter(p -> isObdModule(p.getSourceAddress())).collect(Collectors.toList());
         acks = globalResults.getAcks();
 
-        // 6.9.3.8.a. Fail if any ECU provides DM22 with CLR_PA_ACK.
+        // 6.9.3.8.a. Fail if any OBD ECU provides DM22 with CLR_PA_ACK.
         packets.stream()
                .filter(p -> p.getControlByte() == CLR_PA_ACK)
                .map(ParsedPacket::getModuleName)
@@ -270,7 +270,7 @@ public class Part09Step03Controller extends StepController {
                    addFailure("6.9.3.8.a - " + moduleName + " provided DM22 with CLR_PA_ACK");
                });
 
-        // 6.9.3.8.a. Fail if any ECU provides DM22 with CLR_ACT_ACK.
+        // 6.9.3.8.a. Fail if any OBD ECU provides DM22 with CLR_ACT_ACK.
         packets.stream()
                .filter(p -> p.getControlByte() == CLR_ACT_ACK)
                .map(ParsedPacket::getModuleName)
@@ -278,7 +278,7 @@ public class Part09Step03Controller extends StepController {
                    addFailure("6.9.3.8.a - " + moduleName + " provided DM22 with CLR_ACT_ACK");
                });
 
-        // 6.9.3.8.b. Fail if any ECU provides J1939-21 ACK for PGN 49920.
+        // 6.9.3.8.b. Fail if any OBD ECU provides J1939-21 ACK for PGN 49920.
         acks.stream()
             .filter(p -> p.getResponse() == ACK)
             .map(ParsedPacket::getModuleName)
@@ -286,7 +286,7 @@ public class Part09Step03Controller extends StepController {
                 addFailure("6.9.3.8.b - " + moduleName + " provided J1939-21 ACK for PGN 49920");
             });
 
-        // 6.9.3.8.c. Fail if any ECU provides CLR_ACT_NACK or CLR_PA_NACK with an acknowledgement code greater than 0.
+        // 6.9.3.8.c. Fail if any OBD ECU provides CLR_ACT_NACK or CLR_PA_NACK with an acknowledgement code greater than 0.
         packets.stream()
                .filter(p -> p.getControlByte() == CLR_ACT_NACK && p.getAcknowledgementCode() > 0)
                .map(ParsedPacket::getModuleName)
@@ -295,7 +295,7 @@ public class Part09Step03Controller extends StepController {
                            + " provided CLR_ACT_NACK with an acknowledgement code greater than 0");
                });
 
-        // 6.9.3.8.c. Fail if any ECU provides CLR_PA_NACK with an acknowledgement code greater than 0.
+        // 6.9.3.8.c. Fail if any OBD ECU provides CLR_PA_NACK with an acknowledgement code greater than 0.
         packets.stream()
                .filter(p -> p.getControlByte() == CLR_PA_NACK && p.getAcknowledgementCode() > 0)
                .map(ParsedPacket::getModuleName)
@@ -307,10 +307,10 @@ public class Part09Step03Controller extends StepController {
         // 6.9.3.9.a. Global DM22 using DM12 MIL On DTC SPN and FMI with control byte = 17, Request to Clear/Reset
         // Active DTC.
         globalResults = getCommunicationsModule().requestDM22(getListener(), CLR_ACT_REQ, 0x7FFFF, 31);
-        packets = globalResults.getPackets();
+        packets = globalResults.getPackets().stream().filter(p -> isObdModule(p.getSourceAddress())).collect(Collectors.toList());
         acks = globalResults.getAcks();
 
-        // 6.9.3.10.a. Fail if any ECU provides CLR_PA_ACK.
+        // 6.9.3.10.a. Fail if any OBD ECU provides CLR_PA_ACK.
         packets.stream()
                .filter(p -> p.getControlByte() == CLR_PA_ACK)
                .map(ParsedPacket::getModuleName)
@@ -318,7 +318,7 @@ public class Part09Step03Controller extends StepController {
                    addFailure("6.9.3.10.a - " + moduleName + " provided DM22 with CLR_PA_ACK");
                });
 
-        // 6.9.3.10.a. Fail if any ECU provides CLR_ACT_ACK.
+        // 6.9.3.10.a. Fail if any OBD ECU provides CLR_ACT_ACK.
         packets.stream()
                .filter(p -> p.getControlByte() == CLR_ACT_ACK)
                .map(ParsedPacket::getModuleName)
@@ -326,7 +326,7 @@ public class Part09Step03Controller extends StepController {
                    addFailure("6.9.3.10.a - " + moduleName + " provided DM22 with CLR_ACT_ACK");
                });
 
-        // 6.9.3.10.b. Fail if any ECU provides J1939-21 ACK for PGN 49920.
+        // 6.9.3.10.b. Fail if any OBD ECU provides J1939-21 ACK for PGN 49920.
         acks.stream()
             .filter(p -> p.getResponse() == ACK)
             .map(ParsedPacket::getModuleName)
@@ -334,7 +334,7 @@ public class Part09Step03Controller extends StepController {
                 addFailure("6.9.3.10.b - " + moduleName + " provided J1939-21 ACK for PGN 49920");
             });
 
-        // 6.9.3.10.c. Fail if any ECU provides CLR_ACT_NACK with an acknowledgement code greater than 0.
+        // 6.9.3.10.c. Fail if any OBD ECU provides CLR_ACT_NACK with an acknowledgement code greater than 0.
         packets.stream()
                .filter(p -> p.getControlByte() == CLR_ACT_NACK && p.getAcknowledgementCode() > 0)
                .map(ParsedPacket::getModuleName)
@@ -343,7 +343,7 @@ public class Part09Step03Controller extends StepController {
                            + " provided CLR_ACT_NACK with an acknowledgement code greater than 0");
                });
 
-        // 6.9.3.10.c. Fail if any ECU provides CLR_PA_NACK with an acknowledgement code greater than 0.
+        // 6.9.3.10.c. Fail if any OBD ECU provides CLR_PA_NACK with an acknowledgement code greater than 0.
         packets.stream()
                .filter(p -> p.getControlByte() == CLR_PA_NACK && p.getAcknowledgementCode() > 0)
                .map(ParsedPacket::getModuleName)
