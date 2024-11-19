@@ -412,6 +412,42 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testOBDSystemMultipleECUs() {
+        vehicleInformation.setNumberOfFaultBImplants(2);
+
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 1, 0);
+        obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
+        dataRepository.putObdModule(obdModuleInformation);
+
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        var dtc2 = DiagnosticTroubleCode.create(789, 12, 1, 0);
+        obdModuleInformation1.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc2), 8);
+        dataRepository.putObdModule(obdModuleInformation1);
+
+        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 1, 1, 1);
+        var dm29_1 = DM29DtcCounts.create(1, 0, 0, 0, 1, 1, 0);
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0, dm29_1));
+
+        runTest();
+
+        verify(communicationsModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.8.8.3.b - More than one ECU reported > 0 for MIL on");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.8.8.3.d - More than one ECU reported > 0 for previous MIL on");
+
+    }
+
+    @Test
     public void testFailureForSupportedDM27() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc = DiagnosticTroubleCode.create(123, 12, 1, 0);

@@ -220,6 +220,7 @@ public class VehicleInformationPresenterTest {
         verify(view, times(5)).setVehicleModelYearValid(true);
         verify(view, times(6)).setOkButtonEnabled(false);
         verify(view, times(6)).setOverrideControlVisible(true);
+        verify(view, times(6)).setOneTripFaultValid(true);
     }
 
     @Test
@@ -248,6 +249,7 @@ public class VehicleInformationPresenterTest {
         verify(view, times(5)).setVehicleModelYearValid(true);
         verify(view, times(6)).setOkButtonEnabled(false);
         verify(view, times(6)).setOverrideControlVisible(true);
+        verify(view, times(6)).setOneTripFaultValid(true);
     }
 
     @Test
@@ -276,6 +278,7 @@ public class VehicleInformationPresenterTest {
         verify(view, times(5)).setVehicleModelYearValid(true);
         verify(view, times(6)).setOkButtonEnabled(false);
         verify(view, times(6)).setOverrideControlVisible(true);
+        verify(view, times(6)).setOneTripFaultValid(true);
     }
 
     @Test
@@ -304,6 +307,7 @@ public class VehicleInformationPresenterTest {
         verify(view, times(5)).setVehicleModelYearValid(true);
         verify(view, times(6)).setOkButtonEnabled(false);
         verify(view, times(6)).setOverrideControlVisible(true);
+        verify(view, times(6)).setOneTripFaultValid(true);
     }
 
     @Test
@@ -332,6 +336,7 @@ public class VehicleInformationPresenterTest {
         verify(view, times(4)).setVehicleModelYearValid(true);
         verify(view, times(6)).setOkButtonEnabled(false);
         verify(view, times(6)).setOverrideControlVisible(true);
+        verify(view, times(6)).setOneTripFaultValid(true);
     }
 
     @Test
@@ -359,6 +364,7 @@ public class VehicleInformationPresenterTest {
         verify(view, times(5)).setVehicleModelYearValid(true);
         verify(view, times(6)).setOkButtonEnabled(false);
         verify(view, times(6)).setOverrideControlVisible(true);
+        verify(view, times(6)).setOneTripFaultValid(true);
     }
 
     @Test
@@ -395,6 +401,7 @@ public class VehicleInformationPresenterTest {
         verify(view, times(1)).setOkButtonEnabled(true);
         verify(view, times(10)).setOverrideControlVisible(true);
         verify(view, times(1)).setOverrideControlVisible(false);
+        verify(view, times(11)).setOneTripFaultValid(true);
 
         instance.onOkButtonClicked();
         verify(view).setVisible(false);

@@ -120,7 +120,7 @@ public class Part06Step08Controller extends StepController {
                 .mapToInt(p -> getDM28DTCs(p.getSourceAddress()).size())
                 .sum();
         if (permanentDTCCount <= 4 && permanentDTCCount != dm28Count){
-                addFailure("6.6.8.2.e - OBD System reported a different number for MIL on than what it reported in DM28");
+                addFailure("6.6.8.2.e - OBD System reported a different sum of permanent DTC counts than what it reported in DM28 responses");
         }
 
         // 6.6.8.2.f. For ECUs that support DM27, fail if any ECU reports an all pending DTC (DM27) (SPN 4105) count

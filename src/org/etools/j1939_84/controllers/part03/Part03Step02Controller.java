@@ -67,7 +67,7 @@ public class Part03Step02Controller extends StepController {
         int attempts = 0;
         List<DM6PendingEmissionDTCPacket> globalPackets = List.of();
         int expectedTwoTripA = getDataRepository().getVehicleInformation().getTwoTripFaultACount();
-        int foundDTCCount = 0;
+        int foundDTCCount = -1; //send global DM6 query at least once
         boolean hasNoObdPackets = false;
 
         while (foundDTCCount < expectedTwoTripA) {

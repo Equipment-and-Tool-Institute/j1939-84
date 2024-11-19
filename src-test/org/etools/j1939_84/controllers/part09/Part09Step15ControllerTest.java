@@ -263,7 +263,7 @@ public class Part09Step15ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testFailureForDTCDifference() {
+    public void testFailureForFewerPermanentDTCsThanDM28() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 1, 1, 1);
         var dtc2 = DiagnosticTroubleCode.create(456, 1, 1, 1);
@@ -284,6 +284,31 @@ public class Part09Step15ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.9.15.2.c - Engine #1 (0) reported lower sum of permanent DTC counts than what it reported in DM28");
+    }
+
+    @Test
+    public void testMorePermanentDTCsThanDM28() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        var dtc1 = DiagnosticTroubleCode.create(123, 1, 1, 1);
+        var dtc2 = DiagnosticTroubleCode.create(456, 1, 1, 1);
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2), 9);
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 9);
+        dataRepository.putObdModule(obdModuleInformation0);
+        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 0, 3);
+
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0));
+
+        runTest();
+
+        verify(communicationsModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.9.15.3.a - Engine #1 (0) reported > 1 for permanent DTC");
     }
 
     @Test

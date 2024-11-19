@@ -117,7 +117,6 @@ public class Part07Step10Controller extends StepController {
                                        7).size()).sum();
         if (previousMILOnCount > dm23Count){
             addFailure("6.7.10.2.c - OBD System reported a greater sum of previous MIL on DTC counts than what it reported in DM23 earlier in this part");
-
         }
 
         if (getDataRepository().getVehicleInformation().getNumberOfFaultAImplants() == 1) {

@@ -221,13 +221,13 @@ public class Part03Step04Controller extends StepController {
                .forEach(moduleName -> addWarning("6.3.4.3.a - " + moduleName
                        + " reported > 1 for all pending DTC count"));
 
-        // 6.3.4.3.b Warn if more than one ECU reports > 0 for pending or all pending.
+        // 6.3.4.3.b Info if more than one ECU reports > 0 for pending or all pending.
         var modulesReportingPendingCount = packets.stream()
                                                   .filter(p -> p.getEmissionRelatedPendingDTCCount() != 0xFF)
                                                   .filter(p -> p.getEmissionRelatedPendingDTCCount() > 0)
                                                   .count();
         if (modulesReportingPendingCount > 1) {
-            addWarning("6.3.4.3.b - More than one ECU reported > 0 for pending DTC count");
+            addInfo("6.3.4.3.b - More than one ECU reported > 0 for pending DTC count");
         }
 
         var modulesReportingAllPendingCount = packets.stream()
@@ -235,7 +235,7 @@ public class Part03Step04Controller extends StepController {
                                                      .filter(p -> p.getAllPendingDTCCount() > 0)
                                                      .count();
         if (modulesReportingAllPendingCount > 1) {
-            addWarning("6.3.4.3.b - More than one ECU reported > 0 for all pending DTC count");
+            addInfo("6.3.4.3.b - More than one ECU reported > 0 for all pending DTC count");
         }
     }
 

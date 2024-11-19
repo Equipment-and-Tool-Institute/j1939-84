@@ -315,7 +315,7 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testDTCsMultipleModulesFailure() {
+    public void testDTCsMultipleModulesInfo() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
@@ -375,6 +375,43 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testMultipleModulesWithTwoDTCs() {
+        vehicleInformation.setNumberOfFaultAImplants(2);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        var dm6_0 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
+        when(communicationsModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6_0));
+
+        var dtc2 = DiagnosticTroubleCode.create(456, 12, 0, 1);
+        var dm6_1 = DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc2);
+        when(communicationsModule.requestDM6(any(), eq(1))).thenReturn(new RequestResult<>(false, dm6_1));
+
+        when(communicationsModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6_0, dm6_1));
+
+        runTest();
+
+        String expectedMessages = "Step 6.3.2.1.a - Requesting DM6 Attempt 1";
+        assertEquals(expectedMessages, listener.getMessages());
+
+        String expectedResults = "" + NL;
+        expectedResults += "Attempt 1" + NL;
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(communicationsModule).requestDM6(any());
+        verify(communicationsModule).requestDM6(any(), eq(1));
+        verify(communicationsModule).requestDM6(any(), eq(0));
+
+        assertEquals(0, dateTimeModule.getTimeAsLong());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.3.2.3.b - More than one ECU reported a pending DTC");
+    }
+
+    @Test
     public void testMILNotOffFailure() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
@@ -400,6 +437,30 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.3.2.5.b - Engine #1 (0) did not report MIL 'off'");
+    }
+
+    @Test
+    public void testMILNotOffNonZeroFaultAOneTrip() {
+        vehicleInformation.setOneTripFaultACount(1);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        var dm6 = DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);
+        when(communicationsModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6));
+        when(communicationsModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6));
+
+        runTest();
+
+        String expectedMessages = "Step 6.3.2.1.a - Requesting DM6 Attempt 1";
+        assertEquals(expectedMessages, listener.getMessages());
+
+        String expectedResults = "" + NL;
+        expectedResults += "Attempt 1" + NL;
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(communicationsModule).requestDM6(any());
+        verify(communicationsModule).requestDM6(any(), eq(0));
+
+        assertEquals(0, dateTimeModule.getTimeAsLong());
     }
 
     @Test

@@ -369,6 +369,9 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         boolean vehicleMYMatch = vinDecoder.getModelYear(vin) == vehicleModelYear;
         view.setVehicleModelYearValid(vehicleMYMatch);
 
+        view.setOneTripFaultValid(numberOfOneTripFaultA <= numberOfFaultAImplants &&
+                                          numberOfOneTripFaultB <= numberOfFaultBImplants);
+
         boolean enabled = true;
         enabled &= vinValid;
         enabled &= vehicleMYMatch;
@@ -379,6 +382,8 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         enabled &= certificationIntent != null && certificationIntent.trim().length() > 0;
         enabled &= numberOfFaultAImplants >= 0;
         enabled &= numberOfFaultBImplants >= 0;
+        enabled &= numberOfOneTripFaultA <= numberOfFaultAImplants;
+        enabled &= numberOfOneTripFaultB <= numberOfFaultBImplants;
 
         if (enabled) {
             isOverridden = false;

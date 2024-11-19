@@ -326,7 +326,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.6.8.2.e - OBD System reported a different number for MIL on than what it reported in DM28");
+                                        "6.6.8.2.e - OBD System reported a different sum of permanent DTC counts than what it reported in DM28 responses");
     }
 
     @Test
@@ -481,7 +481,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testWarningForMoreThanOneMILOn() {
+    public void testInfoForMoreThanOneMILOn() {
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 9);
         var dtc1 = DiagnosticTroubleCode.create(456, 12, 0, 9);
 
@@ -508,7 +508,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testWarningForMoreThanOneMILOnModule() {
+    public void testInfoForMoreThanOneMILOnModule() {
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 9);
 
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
@@ -544,7 +544,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testWarningForMoreThanOnePermanent() {
+    public void testInfoForMoreThanOnePermanent() {
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 9);
         var dtc1 = DiagnosticTroubleCode.create(456, 12, 0, 9);
 
