@@ -76,15 +76,17 @@ public class Part06Step10Controller extends StepController {
 
         // 6.6.10.2.b. Fail, if any ECU reports time with MIL on greater than 0 minute,
         // and the OBD system did not report a MIL on DTC count > 0 in its DM29 response
-        packets.stream()
-               .filter(p -> p.getMinutesWhileMILIsActivated() > 0)
-                .filter(p -> {
-                    DM29DtcCounts dm29 = get(DM29DtcCounts.class, p.getSourceAddress(), 6);
-                    return dm29 != null && dm29.getEmissionRelatedMILOnDTCCount() == 0;
-                })
-               .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> addFailure("6.6.10.2.b - " + moduleName
-                       + " reported with MIL on > 0 minutes, and did not report a MIL on DTC count > 0 in its DM29 response."));
+        boolean positiveMILOn = getDataRepository().getObdModuleAddresses().stream()
+                .map(a -> get(DM29DtcCounts.class, a, 6))
+                .mapToInt(dm29 -> dm29 == null ? 0 : dm29.getEmissionRelatedMILOnDTCCount())
+                .sum() > 0;
+        if (!positiveMILOn) {
+            packets.stream()
+                    .filter(p -> p.getMinutesWhileMILIsActivated() > 0)
+                    .map(ParsedPacket::getModuleName)
+                    .forEach(moduleName -> addFailure("6.6.10.2.b - " + moduleName
+                                                              + " reported with MIL on > 0 minutes, and the OBD System did not report a MIL on DTC count > 0 in its DM29 response."));
+        }
 
         // 6.6.10.2.c. Fail if no ECU supports DM21.
         if (packets.isEmpty()) {

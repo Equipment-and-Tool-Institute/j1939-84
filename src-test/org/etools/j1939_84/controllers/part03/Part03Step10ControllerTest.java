@@ -247,8 +247,7 @@ public class Part03Step10ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testNonZeroFaultA() {
-        vehicleInformation.setOneTripFaultACount(1
-        );
+        vehicleInformation.setOneTripFaultACount(1);
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var dm23_0 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
         var dm23_1 = DM23PreviouslyMILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF);

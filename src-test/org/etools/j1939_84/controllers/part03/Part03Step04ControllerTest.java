@@ -73,6 +73,8 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    private VehicleInformation vehicleInformation;
+
     private DataRepository dataRepository;
 
     private StepController instance;
@@ -83,10 +85,10 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         DateTimeModule dateTimeModule = DateTimeModule.getInstance();
         dataRepository = DataRepository.newInstance();
 
-        VehicleInformation vehInfo = new VehicleInformation();
-        vehInfo.setNumberOfFaultAImplants(1);
-        vehInfo.setOneTripFaultACount(0);
-        dataRepository.setVehicleInformation(vehInfo);
+        vehicleInformation = new VehicleInformation();
+        vehicleInformation.setNumberOfFaultAImplants(1);
+        vehicleInformation.setOneTripFaultACount(0);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         listener = new TestResultsListener(mockListener);
         instance = new Part03Step04Controller(executor,
@@ -226,6 +228,44 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.3.4.2.a.ii - Engine #1 (0) reported > 0 for permanent DTC count");
+    }
+
+    @Test
+    public void testMILAndPermamentDTCsGreaterThanZeroOneTripFaultANonZero() {
+        vehicleInformation.setOneTripFaultACount(1);
+        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 1, 0, 1);
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
+
+        OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        moduleInfo.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1), 3);
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1), 3);
+        dataRepository.putObdModule(moduleInfo);
+
+        runTest();
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(communicationsModule).requestDM29(any());
+    }
+
+    @Test
+    public void testNoEmissionPendingCountTwoTripFaultAZero() {
+        vehicleInformation.setOneTripFaultACount(1);
+        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 0, 0, 0, 0, 0);
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
+
+        OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
+        moduleInfo.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 3);
+        dataRepository.putObdModule(moduleInfo);
+
+        runTest();
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(communicationsModule).requestDM29(any());
     }
 
     @Test
@@ -449,11 +489,11 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.3.4.3.b - More than one ECU reported > 0 for pending DTC count");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.3.4.3.b - More than one ECU reported > 0 for all pending DTC count");
     }
 

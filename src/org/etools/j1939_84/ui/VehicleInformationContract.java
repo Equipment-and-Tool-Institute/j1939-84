@@ -204,6 +204,14 @@ public interface VehicleInformationContract {
         void setVehicleModelYearValid(boolean isValid);
 
         /**
+         * Indicates if One Trip Fault A & B is valid
+         *
+         * @param isValid
+         *                    true indicates One Trip Fault A & B is valid
+         */
+        void setOneTripFaultValid(boolean isValid);
+
+        /**
          * Sets the VIN
          *
          * @param vin

@@ -304,6 +304,37 @@ public class Part07Step10ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testFailureForTooManyPrevMilOn() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        var dtc1 = DiagnosticTroubleCode.create(123, 1, 1, 1);
+        obdModuleInformation0.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1), 7);
+        dataRepository.putObdModule(obdModuleInformation0);
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        obdModuleInformation1.set(DM23PreviouslyMILOnEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF), 7);
+        dataRepository.putObdModule(obdModuleInformation1);
+
+        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 1, 0);
+        var dm29_1 = DM29DtcCounts.create(1, 0, 0, 0, 0, 1, 0);
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0, dm29_1));
+
+        runTest();
+
+        verify(communicationsModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.7.10.2.c - OBD System reported a greater sum of previous MIL on DTC counts than what it reported in DM23 earlier in this part");
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.7.10.3.b - More than one ECU reported > 0 for previous MIL on");
+    }
+
+    @Test
     public void testSuccessForMoreThanOnePreviousMultipleFaultAs() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 1, 1, 1);

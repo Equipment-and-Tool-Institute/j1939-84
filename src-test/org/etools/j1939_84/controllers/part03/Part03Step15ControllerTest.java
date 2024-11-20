@@ -186,7 +186,6 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
 
-
         verify(communicationsModule).requestDM21(any(), eq(0));
         verify(communicationsModule).requestDM21(any(), eq(1));
         verify(communicationsModule).requestDM21(any(), eq(2));

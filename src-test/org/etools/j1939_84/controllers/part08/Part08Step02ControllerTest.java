@@ -182,6 +182,39 @@ public class Part08Step02ControllerTest extends AbstractControllerTest {
         assertEquals(List.of(), listener.getOutcomes());
     }
 
+    @Test
+    public void testHappyPathZeroFaultBDTCs() {
+        vehicleInformation.setNumberOfFaultBImplants(0);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+
+        var nack = AcknowledgmentPacket.create(0, AcknowledgmentPacket.Response.NACK);
+        when(communicationsModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, nack));
+
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc1);
+        when(communicationsModule.requestDM12(any(), eq(1))).thenReturn(new BusResult<>(false, dm12_1));
+
+        when(communicationsModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12_1));
+
+        runTest();
+
+        String expectedMessages = "Step 6.8.2.1.a - Requesting DM12 Attempt 1";
+        assertEquals(expectedMessages, listener.getMessages());
+
+        String expectedResults = "" + NL;
+        expectedResults += "Attempt 1" + NL;
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(communicationsModule).requestDM12(any());
+        verify(communicationsModule).requestDM12(any(), eq(1));
+        verify(communicationsModule).requestDM12(any(), eq(0));
+
+        assertEquals(0, dateTimeModule.getTimeAsLong());
+
+        assertEquals(List.of(), listener.getOutcomes());
+    }
+
 
     @Test
     public void testTooFewResponse() {

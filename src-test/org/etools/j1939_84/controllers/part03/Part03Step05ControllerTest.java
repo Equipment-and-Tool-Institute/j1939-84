@@ -77,6 +77,8 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    private VehicleInformation vehicleInformation;
+
     private DataRepository dataRepository;
 
     private StepController instance;
@@ -87,10 +89,10 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
         DateTimeModule dateTimeModule = DateTimeModule.getInstance();
         dataRepository = DataRepository.newInstance();
 
-        VehicleInformation vehInfo = new VehicleInformation();
-        vehInfo.setNumberOfFaultAImplants(1);
-        vehInfo.setOneTripFaultACount(0);
-        dataRepository.setVehicleInformation(vehInfo);
+        vehicleInformation = new VehicleInformation();
+        vehicleInformation.setNumberOfFaultAImplants(1);
+        vehicleInformation.setOneTripFaultACount(0);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         listener = new TestResultsListener(mockListener);
         instance = new Part03Step05Controller(executor,
@@ -265,6 +267,25 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.3.5.2.a - Engine #1 (0) did not report MIL 'off' in all returned DTCs");
+    }
+
+    @Test
+    public void testMilNotOffOneTripFaultANonZero() {
+        vehicleInformation.setOneTripFaultACount(1);
+        var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        var dm31 = DM31DtcToLampAssociation.create(0, 0, DTCLampStatus.create(dtc, OFF, ON, OFF, OFF));
+        when(communicationsModule.requestDM31(any(), eq(0))).thenReturn(new RequestResult<>(false, dm31));
+
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc), 3);
+        dataRepository.putObdModule(obdModuleInformation);
+
+        runTest();
+
+        verify(communicationsModule).requestDM31(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
     }
 
 }

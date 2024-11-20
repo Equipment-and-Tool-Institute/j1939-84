@@ -72,7 +72,7 @@ public class Part08Step02Controller extends StepController {
         int attempts = 0;
         List<DM12MILOnEmissionDTCPacket> globalPackets = List.of();
         int faultBImplants = getDataRepository().getVehicleInformation().getNumberOfFaultBImplants();
-        int foundDTCCount = 0;
+        int foundDTCCount = -1; //send global DM12 query at least once
         AtomicBoolean userCancel = new AtomicBoolean(false);
         while (foundDTCCount < faultBImplants && !userCancel.get()) {
             // 6.8.2.1.a. Global DM12 [(send Request (PGN 59904) for PGN 65236 (SPNs 1213-1215, 1706, and 3038)]).

@@ -147,6 +147,7 @@ public class Part06Step10ControllerTest extends AbstractControllerTest {
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
+        obdModuleInformation.set(DM29DtcCounts.create(0, 0, 0, 0, 1, 0, 0), 6);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1, 0);
@@ -172,6 +173,7 @@ public class Part06Step10ControllerTest extends AbstractControllerTest {
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
+        obdModuleInformation.set(DM29DtcCounts.create(0, 0, 0, 0, 1, 0, 0), 6);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 1, 0, 1, 0);
@@ -230,7 +232,39 @@ public class Part06Step10ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.6.10.2.b - Engine #1 (0) reported with MIL on > 0 minutes, and did not report a MIL on DTC count > 0 in its DM29 response.");
+                                        "6.6.10.2.b - Engine #1 (0) reported with MIL on > 0 minutes, and the OBD System did not report a MIL on DTC count > 0 in its DM29 response.");
+    }
+
+    @Test
+    public void testFailureForDM29MILOnValueOfZeroMultipleECUs() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.set(DM29DtcCounts.create(0, 0, 0, 0, 0, 0, 0), 6);
+        dataRepository.putObdModule(obdModuleInformation0);
+
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        obdModuleInformation1.set(DM29DtcCounts.create(0, 0, 0, 0, 0, 0, 0), 6);
+        dataRepository.putObdModule(obdModuleInformation1);
+
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 2, 0);
+        var dm21_1 = DM21DiagnosticReadinessPacket.create(1, 0, 0, 0, 1, 0);
+        when(communicationsModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
+        when(communicationsModule.requestDM21(any(), eq(1))).thenReturn(BusResult.of(dm21_1));
+
+        runTest();
+
+        verify(communicationsModule).requestDM21(any(), eq(0));
+        verify(communicationsModule).requestDM21(any(), eq(1));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.6.10.2.b - Engine #1 (0) reported with MIL on > 0 minutes, and the OBD System did not report a MIL on DTC count > 0 in its DM29 response.");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.6.10.2.b - Engine #2 (1) reported with MIL on > 0 minutes, and the OBD System did not report a MIL on DTC count > 0 in its DM29 response.");
     }
 
     @Test
@@ -276,6 +310,8 @@ public class Part06Step10ControllerTest extends AbstractControllerTest {
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
+        obdModuleInformation.set(DM29DtcCounts.create(0, 0, 0, 0, 1, 0, 0), 6);
+
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1, 0);
@@ -326,6 +362,7 @@ public class Part06Step10ControllerTest extends AbstractControllerTest {
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
+        obdModuleInformation.set(DM29DtcCounts.create(0, 0, 0, 0, 1, 0, 0), 6);
         dataRepository.putObdModule(obdModuleInformation);
 
         var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1, 0);
