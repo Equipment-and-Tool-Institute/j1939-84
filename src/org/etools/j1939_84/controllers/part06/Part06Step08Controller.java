@@ -68,6 +68,7 @@ public class Part06Step08Controller extends StepController {
                                            .collect(Collectors.toList());
 
         var packets = filterPackets(dsResults);
+        packets.forEach(this::save);
 
         // 6.6.8.2.a. Fail if any ECU reports > 0 for emission-related pending
         packets.stream()
