@@ -314,6 +314,30 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testSuccessForDM6DTCsOnMultipleModules() {
+        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 1, 0, 0, 0);
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
+
+        OBDModuleInformation moduleInfo0 = new OBDModuleInformation(0);
+        moduleInfo0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF), 3);
+        moduleInfo0.set(DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF), 3);
+        dataRepository.putObdModule(moduleInfo0);
+
+        OBDModuleInformation moduleInfo1 = new OBDModuleInformation(1);
+        var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        moduleInfo1.set(DM27AllPendingDTCsPacket.create(1, OFF, OFF, OFF, OFF, dtc), 3);
+        moduleInfo1.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc), 3);
+        dataRepository.putObdModule(moduleInfo1);
+
+        runTest();
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(communicationsModule).requestDM29(any());
+    }
+
+    @Test
     public void testFailureForDifferencePendingCounts() {
         DM29DtcCounts dm29 = DM29DtcCounts.create(0, 0, 1, 0, 0, 0, 0);
         when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));

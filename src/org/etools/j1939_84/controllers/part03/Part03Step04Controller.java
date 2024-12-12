@@ -117,9 +117,8 @@ public class Part03Step04Controller extends StepController {
         int emissionRelatedPendingCount = packets.stream()
                 .filter(p -> isObdModule(p.getSourceAddress()))
                 .mapToInt(p -> p.getEmissionRelatedPendingDTCCount()).sum();
-        int dm6Count = packets.stream()
-                .filter(p -> isObdModule(p.getSourceAddress()))
-                .mapToInt(p -> getDM6DTCSize(p.getSourceAddress())).sum();
+        int dm6Count = getDataRepository().getObdModuleAddresses().stream()
+                .mapToInt(addr -> getDM6DTCSize(addr)).sum();
         if (emissionRelatedPendingCount > dm6Count){
             addFailure("6.3.4.2.c - OBD system reported a greater number of emission-related pending DTCs than what it reported in the previous DM6");
         }
