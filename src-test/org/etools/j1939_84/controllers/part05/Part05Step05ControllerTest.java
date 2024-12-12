@@ -272,6 +272,39 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testSuccessForDM12DTCsOnMultipleModules() {
+        var dtc1 = DiagnosticTroubleCode.create(123, 4, 0, 9);
+        var dtc2 = DiagnosticTroubleCode.create(456, 4, 0, 9);
+
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
+        dataRepository.putObdModule(obdModuleInformation0);
+
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        obdModuleInformation1.set(DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc2), 5);
+        obdModuleInformation1.set(DM28PermanentEmissionDTCPacket.create(1, ON, OFF, OFF, OFF), 5);
+        obdModuleInformation1.set(DM27AllPendingDTCsPacket.create(1, ON, OFF, OFF, OFF), 5);
+        dataRepository.putObdModule(obdModuleInformation1);
+
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 2, 0, 1);
+        when(communicationsModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29));
+
+        runTest();
+
+        verify(communicationsModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.5.5.3.a - Engine #1 (0) reported > 1 for MIL on");
+    }
+
+    @Test
     public void testFailureMultipleECUsOBDSystem() {
         vehicleInformation.setNumberOfFaultAImplants(2);
         var dtc1 = DiagnosticTroubleCode.create(123, 4, 0, 9);

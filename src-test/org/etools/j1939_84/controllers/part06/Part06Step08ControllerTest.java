@@ -277,6 +277,43 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testSuccessForDM12DTCsOnMultipleModules() {
+        var dtc = DiagnosticTroubleCode.create(123, 12, 0, 9);
+        var dtc1 = DiagnosticTroubleCode.create(456, 12, 0, 9);
+
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
+        obdModuleInformation0.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
+        dataRepository.putObdModule(obdModuleInformation0);
+
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        obdModuleInformation1.set(DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc1), 6);
+        obdModuleInformation1.set(DM27AllPendingDTCsPacket.create(1, ON, OFF, OFF, OFF), 6);
+        obdModuleInformation1.set(DM28PermanentEmissionDTCPacket.create(1, ON, OFF, OFF, OFF), 6);
+        obdModuleInformation1.set(DM6PendingEmissionDTCPacket.create(1, ON, OFF, OFF, OFF), 6);
+        dataRepository.putObdModule(obdModuleInformation1);
+
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 2, 0, 1);
+        when(communicationsModule.requestDM29(any(), eq(0))).thenReturn(BusResult.of(dm29));
+        when(communicationsModule.requestDM29(any(), eq(1))).thenReturn(BusResult.of(AcknowledgmentPacket.create(1, NACK)));
+
+        runTest();
+
+        verify(communicationsModule).requestDM29(any(), eq(0));
+        verify(communicationsModule).requestDM29(any(), eq(1));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.6.8.3.a - Engine #1 (0) reported > 1 for MIL on");
+    }
+
+    @Test
     public void testFailureForNoPermanent() {
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 9);
 
@@ -327,6 +364,43 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.6.8.2.e - OBD System reported a different sum of permanent DTC counts than what it reported in DM28 responses");
+    }
+
+    @Test
+    public void testSuccessForDM28DTCsOnMultipleModules() {
+        var dtc = DiagnosticTroubleCode.create(123, 12, 0, 9);
+        var dtc1 = DiagnosticTroubleCode.create(456, 12, 0, 9);
+
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
+        obdModuleInformation0.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc), 6);
+        dataRepository.putObdModule(obdModuleInformation0);
+
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        obdModuleInformation1.set(DM12MILOnEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF), 6);
+        obdModuleInformation1.set(DM27AllPendingDTCsPacket.create(1, OFF, OFF, OFF, OFF), 6);
+        obdModuleInformation1.set(DM28PermanentEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1), 6);
+        obdModuleInformation1.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF), 6);
+        dataRepository.putObdModule(obdModuleInformation1);
+
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 0, 2);
+        when(communicationsModule.requestDM29(any(), eq(0))).thenReturn(BusResult.of(dm29));
+        when(communicationsModule.requestDM29(any(), eq(1))).thenReturn(BusResult.of(AcknowledgmentPacket.create(1, NACK)));
+
+        runTest();
+
+        verify(communicationsModule).requestDM29(any(), eq(0));
+        verify(communicationsModule).requestDM29(any(), eq(1));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.6.8.3.c - Engine #1 (0) reported > 1 for permanent");
     }
 
     @Test

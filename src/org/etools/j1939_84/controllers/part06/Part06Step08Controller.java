@@ -95,9 +95,8 @@ public class Part06Step08Controller extends StepController {
         int sumMil = packets.stream()
                 .mapToInt(p -> p.getEmissionRelatedMILOnDTCCount())
                 .sum();
-        int dm12Count = packets.stream()
-                .mapToInt(p -> getDM12DTCs(p.getSourceAddress()).size())
-                .sum();
+        int dm12Count = getDataRepository().getObdModuleAddresses().stream()
+                .mapToInt(addr -> getDM12DTCs(addr).size()).sum();
         if (sumMil != dm12Count){
             addFailure("6.6.8.2.c - OBD System reported a different sum of MIL on counts than what it reported in DM12");
         }
@@ -116,9 +115,8 @@ public class Part06Step08Controller extends StepController {
         int permanentDTCCount = packets.stream()
                 .mapToInt(p -> p.getEmissionRelatedPermanentDTCCount())
                 .sum();
-        int dm28Count = packets.stream()
-                .mapToInt(p -> getDM28DTCs(p.getSourceAddress()).size())
-                .sum();
+        int dm28Count = getDataRepository().getObdModuleAddresses().stream()
+                .mapToInt(addr -> getDM28DTCs(addr).size()).sum();
         if (permanentDTCCount <= 4 && permanentDTCCount != dm28Count){
                 addFailure("6.6.8.2.e - OBD System reported a different sum of permanent DTC counts than what it reported in DM28 responses");
         }

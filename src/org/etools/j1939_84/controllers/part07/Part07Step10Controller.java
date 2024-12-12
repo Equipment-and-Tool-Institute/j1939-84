@@ -110,11 +110,10 @@ public class Part07Step10Controller extends StepController {
         int previousMILOnCount = packets.stream()
                 .filter(p -> isObdModule(p.getSourceAddress()))
                 .mapToInt(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount()).sum();
-        int dm23Count = packets.stream()
-                .filter(p -> isObdModule(p.getSourceAddress()))
-                .mapToInt(p -> getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class,
-                                       p.getSourceAddress(),
-                                       7).size()).sum();
+        int dm23Count = getDataRepository().getObdModuleAddresses().stream()
+                .mapToInt(addr -> getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class,
+                                                                           addr,
+                                                                           7).size()).sum();
         if (previousMILOnCount > dm23Count){
             addFailure("6.7.10.2.c - OBD System reported a greater sum of previous MIL on DTC counts than what it reported in DM23 earlier in this part");
         }

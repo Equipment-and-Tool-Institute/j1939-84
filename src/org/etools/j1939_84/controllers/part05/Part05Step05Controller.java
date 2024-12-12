@@ -99,9 +99,8 @@ public class Part05Step05Controller extends StepController {
         int MILOnCount = packets.stream()
                 .filter(p -> isObdModule(p.getSourceAddress()))
                 .mapToInt(p -> p.getEmissionRelatedMILOnDTCCount()).sum();
-        int dm12Count = packets.stream()
-                .filter(p -> isObdModule(p.getSourceAddress()))
-                .mapToInt(p -> getDM12DTCs(p.getSourceAddress()).size()).sum();
+        int dm12Count = getDataRepository().getObdModuleAddresses().stream()
+                .mapToInt(addr -> getDM12DTCs(addr).size()).sum();
         if (MILOnCount != dm12Count){
             addFailure("6.5.5.2.c - OBD System reported a different number of MIL on DTCs than what it reported in DM12 earlier in this part");
         }
