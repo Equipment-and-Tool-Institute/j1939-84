@@ -600,7 +600,7 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
-        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
+        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1,dtc2), 5);
         obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
         dataRepository.putObdModule(obdModuleInformation);
 
