@@ -170,13 +170,18 @@ public class Part11Step06ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailureForDifferentNumberOfDTCs() {
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
-        obdModuleInformation0.set(DM29DtcCounts.create(0, 0, 5, 4, 3, 2, 2), 11);
+        obdModuleInformation0.set(DM29DtcCounts.create(0, 0, 5, 4, 3, 2, 1), 11);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
-        var dm28_0 = DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        dataRepository.putObdModule(obdModuleInformation1);
 
-        when(communicationsModule.requestDM28(any())).thenReturn(RequestResult.of(dm28_0));
+        var dtc0 = DiagnosticTroubleCode.create(123, 1, 1, 1);
+        var dtc1 = DiagnosticTroubleCode.create(456, 1, 1, 1);
+        var dm28_0 = DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc0);
+        var dm28_1 = DM28PermanentEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1);
+
+        when(communicationsModule.requestDM28(any())).thenReturn(RequestResult.of(dm28_0, dm28_1));
 
         runTest();
 
@@ -187,7 +192,31 @@ public class Part11Step06ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.11.6.2.b - Engine #1 (0) reported a different number of permanent DTCs that indicate in DM29 response earlier in test 6.11.4");
+                                        "6.11.6.2.b - OBD System reported a different sum of permanent DTCs than indicated in DM29 response earlier in test 6.11.4");
+    }
+
+    @Test
+    public void testSuccessForDTCsOnMultipleModules() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.set(DM29DtcCounts.create(0, 0, 5, 4, 3, 2, 2), 11);
+        dataRepository.putObdModule(obdModuleInformation0);
+
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        dataRepository.putObdModule(obdModuleInformation1);
+
+        var dtc0 = DiagnosticTroubleCode.create(123, 1, 1, 1);
+        var dtc1 = DiagnosticTroubleCode.create(456, 1, 1, 1);
+        var dm28_0 = DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc0);
+        var dm28_1 = DM28PermanentEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1);
+
+        when(communicationsModule.requestDM28(any())).thenReturn(RequestResult.of(dm28_0, dm28_1));
+
+        runTest();
+
+        verify(communicationsModule).requestDM28(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
     }
 
 }

@@ -401,6 +401,12 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
         dataRepository.putObdModule(obdModuleInformation);
 
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        obdModuleInformation1.set(DM12MILOnEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF), 5);
+        obdModuleInformation1.set(DM28PermanentEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc2), 5);
+        obdModuleInformation1.set(DM27AllPendingDTCsPacket.create(1, OFF, OFF, OFF, OFF), 5);
+        dataRepository.putObdModule(obdModuleInformation1);
+
         var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 1, 0, 1);
         when(communicationsModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29));
 
@@ -414,7 +420,40 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.5.5.2.d - Engine #1 (0) reported a different number of permanent DTCs than what it reported in DM28 earlier in this part");
+                                        "6.5.5.2.d - OBD System reported a different sum of permanent DTCs than what it reported in DM28 earlier in this part");
+    }
+
+    @Test
+    public void testSuccessForDM28DTCsFromMultipleModules() {
+        var dtc1 = DiagnosticTroubleCode.create(123, 4, 0, 9);
+        var dtc2 = DiagnosticTroubleCode.create(456, 4, 0, 9);
+
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
+        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
+        obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
+        dataRepository.putObdModule(obdModuleInformation);
+
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        obdModuleInformation1.set(DM12MILOnEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF), 5);
+        obdModuleInformation1.set(DM28PermanentEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc2), 5);
+        obdModuleInformation1.set(DM27AllPendingDTCsPacket.create(1, OFF, OFF, OFF, OFF), 5);
+        dataRepository.putObdModule(obdModuleInformation1);
+
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 1, 0, 2);
+        when(communicationsModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29));
+
+        runTest();
+
+        verify(communicationsModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.5.5.3.a - Engine #1 (0) reported > 1 for permanent");
     }
 
     @Test
@@ -528,7 +567,7 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
-        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2), 5);
+        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
         obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc1), 5);
         dataRepository.putObdModule(obdModuleInformation);
 

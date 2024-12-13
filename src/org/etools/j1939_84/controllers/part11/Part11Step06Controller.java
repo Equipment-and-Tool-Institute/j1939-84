@@ -67,15 +67,17 @@ public class Part11Step06Controller extends StepController {
             addFailure("6.11.6.2.a - No ECU report a permanent DTC");
         }
 
-        // 6.11.6.2.b. Fail if any ECU reports a different number of permanent DTCs than indicated in DM29 response
-        // earlier in test 6.11.4.
-        packets.stream()
-               .filter(p -> p.getDtcs().size() != getDTCCount(p.getSourceAddress()))
-               .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> {
-                   addFailure("6.11.6.2.b - " + moduleName
-                           + " reported a different number of permanent DTCs that indicate in DM29 response earlier in test 6.11.4");
-               });
+        // 6.11.6.2.b. Fail if any OBD ECU System reports a different sum of permanent DTCs than indicated in DM29 response earlier in test 6.11.4.
+        int sumPermanent = packets.stream()
+                .mapToInt(p -> p.getDtcs().size())
+                .sum();
+        int dm29Count = getDataRepository().getObdModuleAddresses().stream()
+                .map(addr -> get(DM29DtcCounts.class, addr, 11))
+                .mapToInt(dm29 -> dm29 == null ? 0 : dm29.getEmissionRelatedPermanentDTCCount())
+                .sum();
+        if (sumPermanent != dm29Count){
+            addFailure("6.11.6.2.b - OBD System reported a different sum of permanent DTCs than indicated in DM29 response earlier in test 6.11.4");
+       }
     }
 
     private int getDTCCount(int address) {

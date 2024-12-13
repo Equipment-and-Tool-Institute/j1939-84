@@ -112,15 +112,16 @@ public class Part05Step05Controller extends StepController {
             addFailure("6.5.5.2.c - OBD System reported fewer MIL on DTCs than the total number of implanted faults for Fault A");
         }
 
-        // 6.5.5.2.d Fail if any ECU reports a different number of permanent DTCs than what that ECU reported in DM28
-        // earlier in this part.
-        packets.stream()
-               .filter(p -> p.getEmissionRelatedPermanentDTCCount() != getDM28DTCs(p.getSourceAddress()).size())
-               .map(ParsedPacket::getModuleName)
-               .forEach(moduleName -> {
-                   addFailure("6.5.5.2.d - " + moduleName
-                           + " reported a different number of permanent DTCs than what it reported in DM28 earlier in this part");
-               });
+        // 6.5.5.2.d Fail if any OBD System reports a different sum of permanent DTCs than what that ECU reported in DM28 earlier in this part.
+        int sumPermanent = packets.stream()
+                .mapToInt(p -> p.getEmissionRelatedPermanentDTCCount())
+                .sum();
+        int dm28Count = getDataRepository().getObdModuleAddresses().stream()
+                .mapToInt(addr -> getDM28DTCs(addr).size())
+                .sum();
+        if (sumPermanent != dm28Count){
+            addFailure("6.5.5.2.d - OBD System reported a different sum of permanent DTCs than what it reported in DM28 earlier in this part");
+        }
 
         // 6.5.5.2.e.i. For OBD ECUs that support DM27, Fail if any ECU reports > 0 for all pending DTCs (SPN 4105).
         packets.stream()
