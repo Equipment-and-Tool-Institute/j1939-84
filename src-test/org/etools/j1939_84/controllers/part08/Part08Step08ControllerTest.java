@@ -345,6 +345,37 @@ public class Part08Step08ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testSuccessForDM28MultipleModules() {
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 1, 0);
+        var dtc2 = DiagnosticTroubleCode.create(456, 12, 1, 0);
+        obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
+        obdModuleInformation.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF), 8);
+        obdModuleInformation.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
+        obdModuleInformation.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc1), 8);
+        obdModuleInformation1.set(DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF), 8);
+        obdModuleInformation1.set(DM23PreviouslyMILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc2), 8);
+        obdModuleInformation1.set(DM28PermanentEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc2), 8);
+        obdModuleInformation1.set(DM27AllPendingDTCsPacket.create(1, ON, OFF, OFF, OFF), 8);
+        dataRepository.putObdModule(obdModuleInformation);
+        var dm29 = DM29DtcCounts.create(0, 0, 0, 0, 1, 1, 2);
+
+        when(communicationsModule.requestDM29(any())).thenReturn(RequestResult.of(dm29));
+
+        runTest();
+
+        verify(communicationsModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        INFO,
+                                        "6.8.8.3.e - Engine #1 (0) reported > 1 for permanent");
+    }
+
+    @Test
     public void testFourOrMoreImplantedB() {
         vehicleInformation.setNumberOfFaultBImplants(4);
 

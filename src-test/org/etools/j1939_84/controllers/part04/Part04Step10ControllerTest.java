@@ -245,6 +245,34 @@ public class Part04Step10ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.4.10.2.b - Engine #1 (0) did not report DTC in freeze frame data which included any DTC reported in DM12 earlier in this part");
+                                        "6.4.10.2.b - OBD System did not report DTC in freeze frame data which included any DTC reported in DM12 earlier in this part");
+    }
+
+    @Test
+    public void testSuccessMultipleModules() {
+        var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
+
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        dataRepository.putObdModule(obdModuleInformation0);
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(0);
+        obdModuleInformation1.set(DM12MILOnEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc), 4);
+        dataRepository.putObdModule(obdModuleInformation1);
+
+        var spn = Spn.create(102, 900);
+        var dm25 = DM25ExpandedFreezeFrame.create(0, new FreezeFrame(dtc, spn));
+        when(communicationsModule.requestDM25(any(), eq(0), any())).thenReturn(BusResult.of(dm25));
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        var nack = AcknowledgmentPacket.create(1, NACK);
+        when(communicationsModule.requestDM25(any(), eq(1), any())).thenReturn(BusResult.of(nack));
+
+        runTest();
+
+        verify(communicationsModule).requestDM25(any(), eq(0), any());
+        verify(communicationsModule).requestDM25(any(), eq(1), any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        assertEquals(List.of(), listener.getOutcomes());
     }
 }
