@@ -195,7 +195,7 @@ public class Part07Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.7.12.2.b - Engine #1 (0) did not report DTC in Freeze Frame data which included any DTC provided by DM23 earlier in this part");
+                                        "6.7.12.2.b - OBD System did not report DTC in Freeze Frame data which included any DTC provided by DM23 earlier in this part");
     }
 
     @Test

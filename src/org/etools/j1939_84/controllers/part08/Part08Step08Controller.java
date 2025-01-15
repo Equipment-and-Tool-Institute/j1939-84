@@ -121,8 +121,8 @@ public class Part08Step08Controller extends StepController {
             int permanentCount = packets.stream()
                     .filter(p -> isObdModule(p.getSourceAddress()))
                     .mapToInt(p -> p.getEmissionRelatedPermanentDTCCount()).sum();
-            int dm28Count = packets.stream().filter(p -> isObdModule(p.getSourceAddress()))
-                    .mapToInt(p -> getDM28Count(p.getSourceAddress())).sum();
+            int dm28Count = getDataRepository().getObdModuleAddresses().stream()
+                    .mapToInt(addr -> getDM28Count(addr)).sum();
             if (permanentCount < dm28Count){
                 addFailure("6.8.8.2.g - OBD system reported a sum of permanent DTC counts less than the sum of the permanent DTCs counted the DM28 responses");
             }
@@ -209,14 +209,6 @@ public class Part08Step08Controller extends StepController {
         if (permanentCount > 1) {
             addInfo("6.8.8.3.f - More than one ECU reported > 0 for permanent");
         }
-    }
-
-    private int getDM12Count(int address) {
-        return getDTCs(DM12MILOnEmissionDTCPacket.class, address, 8).size();
-    }
-
-    private int getDM23Count(int address) {
-        return getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class, address, 8).size();
     }
 
     private int getDM28Count(int address) {

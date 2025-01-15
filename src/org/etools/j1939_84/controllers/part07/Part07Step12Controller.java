@@ -82,19 +82,20 @@ public class Part07Step12Controller extends StepController {
                                         .isPresent();
         if (!hasFreezeFrame) {
             addFailure("6.7.12.2.a - No ECU reported Freeze Frame data");
-        }
-
-        // 6.7.12.2.b. Fail if DTC in reported Freeze Frame data does not include any DTC provided by DM23
-        // by any OBD ECU earlier in this part.
-        for (DM25ExpandedFreezeFrame dm25 : packets) {
-            List<DiagnosticTroubleCode> ffDTCs = dm25.getFreezeFrames()
-                                                     .stream()
-                                                     .map(ff -> ff.getDtc())
-                                                     .collect(Collectors.toList());
-            List<DiagnosticTroubleCode> dm23DTCs = getDTCs(dm25.getSourceAddress());
+        } else {
+            // 6.7.12.2.b. Fail if DTC in reported Freeze Frame data does not include any DTC provided by DM23
+            // by any OBD ECU earlier in this part.
+            List<DiagnosticTroubleCode> ffDTCs = packets.stream()
+                    .flatMap(p -> p.getFreezeFrames().stream())
+                    .map(f -> f.getDtc())
+                    .collect(Collectors.toList());
+            List<DiagnosticTroubleCode> dm23DTCs = getDataRepository().getObdModuleAddresses().stream()
+                    .map(addr -> getDTCs(addr))
+                    .flatMap(List::stream)
+                    .collect(Collectors.toList());
             if (ffDTCs.stream().filter(dtc -> dm23DTCs.contains(dtc)).findFirst().isEmpty()) {
-                addFailure("6.7.12.2.b - " + dm25.getModuleName()
-                        + " did not report DTC in Freeze Frame data which included any DTC provided by DM23 earlier in this part");
+                addFailure(
+                        "6.7.12.2.b - OBD System did not report DTC in Freeze Frame data which included any DTC provided by DM23 earlier in this part");
             }
         }
 
