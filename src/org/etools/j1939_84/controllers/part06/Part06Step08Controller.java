@@ -16,7 +16,6 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939tools.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939tools.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939tools.j1939.packets.DM29DtcCounts;
-import org.etools.j1939tools.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939tools.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939tools.j1939.packets.ParsedPacket;
 import org.etools.j1939tools.modules.CommunicationsModule;
@@ -127,7 +126,7 @@ public class Part06Step08Controller extends StepController {
         packets.stream()
                .filter(p -> supportsDM27(p.getSourceAddress()))
                .filter(p -> p.getAllPendingDTCCount() != 0xFF)
-               .filter(p -> p.getAllPendingDTCCount() < getDM6DTCs(p.getSourceAddress()).size())
+               .filter(p -> p.getAllPendingDTCCount() < p.getEmissionRelatedPendingDTCCount())
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
                    addFailure("6.6.8.2.f - " + moduleName
@@ -191,10 +190,6 @@ public class Part06Step08Controller extends StepController {
 
     private List<DiagnosticTroubleCode> getDM28DTCs(int moduleAddress) {
         return getDTCs(DM28PermanentEmissionDTCPacket.class, moduleAddress, 6);
-    }
-
-    private List<DiagnosticTroubleCode> getDM6DTCs(int moduleAddress) {
-        return getDTCs(DM6PendingEmissionDTCPacket.class, moduleAddress, 6);
     }
 
 }

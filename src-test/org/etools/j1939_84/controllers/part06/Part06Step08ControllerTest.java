@@ -484,7 +484,7 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc, dtc1), 6);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        var dm29 = DM29DtcCounts.create(0, 0, 0, 1, 1, 0, 1);
+        var dm29 = DM29DtcCounts.create(0, 0, 2, 1, 1, 0, 1);
         when(communicationsModule.requestDM29(any(), eq(0))).thenReturn(BusResult.of(dm29));
 
         runTest();
@@ -493,6 +493,11 @@ public class Part06Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.6.8.2.a - Engine #1 (0) reports > 0 for emission-related pending");
+
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
