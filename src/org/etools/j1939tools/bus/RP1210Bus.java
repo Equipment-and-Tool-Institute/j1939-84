@@ -108,11 +108,7 @@ public class RP1210Bus implements Bus {
     }
 
     private static ThreadFactory nameThreadFactory(String name) {
-        return r -> {
-            final Thread thread = new Thread(r);
-            thread.setName(name);
-            return thread;
-        };
+        return r -> new Thread(r,name);
     }
 
     /**
@@ -358,7 +354,9 @@ public class RP1210Bus implements Bus {
             logger.log(Level.SEVERE, "Failed to read RP1210", e);
             errorFn.accept(ErrorType.OTHER, "Failed to read RP1210, restarting: " + e.getMessage());
             try {
-                stop();
+                stopImmediate();
+                // don't spin
+                Thread.sleep(1000);
             } catch (Exception e2) {
             }
             try {
@@ -411,16 +409,20 @@ public class RP1210Bus implements Bus {
     public void stop() throws BusException {
         try {
             schedule(() -> {
-                if (clientId >= 0) {
-                    rp1210Library.RP1210_ClientDisconnect(clientId);
-                    clientId = -1;
-                }
-                return null;
+                return stopImmediate();
             }).get();
         } catch (Exception e) {
             throw new BusException("Failed to stop RP1210.", e);
         }
     }
+
+	private Object stopImmediate() {
+		if (clientId >= 0) {
+		    rp1210Library.RP1210_ClientDisconnect(clientId);
+		    clientId = -1;
+		}
+		return null;
+	}
 
     /**
      * Checks the code returned from calls to the adapter to determine if it's
