@@ -358,7 +358,7 @@ public class RP1210Bus implements Bus {
             logger.log(Level.SEVERE, "Failed to read RP1210", e);
             errorFn.accept(ErrorType.OTHER, "Failed to read RP1210, restarting: " + e.getMessage());
             try {
-                stop();
+                stopImmediate();
             } catch (Exception e2) {
             }
             try {
@@ -410,17 +410,19 @@ public class RP1210Bus implements Bus {
      */
     public void stop() throws BusException {
         try {
-            schedule(() -> {
-                if (clientId >= 0) {
-                    rp1210Library.RP1210_ClientDisconnect(clientId);
-                    clientId = -1;
-                }
-                return null;
-            }).get();
+            schedule(this::stopImmediate).get();
         } catch (Exception e) {
             throw new BusException("Failed to stop RP1210.", e);
         }
     }
+
+	private Object stopImmediate() {
+		if (clientId >= 0) {
+		    rp1210Library.RP1210_ClientDisconnect(clientId);
+		    clientId = -1;
+		}
+		return null;
+	}
 
     /**
      * Checks the code returned from calls to the adapter to determine if it's
