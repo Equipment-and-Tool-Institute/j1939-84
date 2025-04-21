@@ -478,11 +478,11 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.3.4.3.a - Engine #1 (0) reported > 1 for pending DTC count");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
-                                        WARN,
+                                        INFO,
                                         "6.3.4.3.a - Engine #1 (0) reported > 1 for all pending DTC count");
     }
 

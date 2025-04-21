@@ -117,20 +117,20 @@ public class Part11Step04Controller extends StepController {
                    addFailure("6.11.4.2.d - " + moduleName + " did not report all pending DTCs = 0xFF");
                });
 
-        // 6.11.4.3.a. Warn if any ECU reports > 1 for permanent DTC.
+        // 6.11.4.3.a. Info if any ECU reports > 1 for permanent DTC.
         packets.stream()               .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
 
                .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 1)
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
-                   addWarning("6.11.4.3.a - " + moduleName + " reported > 1 for permanent DTC");
+                   addInfo("6.11.4.3.a - " + moduleName + " reported > 1 for permanent DTC");
                });
 
-        // 6.11.4.3.b. Warn if more than one ECU reports > 0 for permanent DTC.
+        // 6.11.4.3.b. Info if more than one ECU reports > 0 for permanent DTC.
         long count = packets.stream()               .filter(p -> p.getEmissionRelatedPermanentDTCCount() != 0xFF)
 .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 0).count();
         if (count > 1) {
-            addWarning("6.11.4.3.b - More than one ECU reported > 0 for permanent DTC");
+            addInfo("6.11.4.3.b - More than one ECU reported > 0 for permanent DTC");
         }
 
     }

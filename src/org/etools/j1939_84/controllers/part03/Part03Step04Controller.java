@@ -204,20 +204,20 @@ public class Part03Step04Controller extends StepController {
                .forEach(moduleName -> addFailure("6.3.4.2.g - Non-OBD ECU " + moduleName
                        + " reported > 0 for permanent DTC count"));
 
-        // 6.3.4.3.a Warn if any ECU reports > 1 for pending or all pending.
+        // 6.3.4.3.a Info if any ECU reports > 1 for pending or all pending.
         packets.stream()
                .filter(p -> p.getEmissionRelatedPendingDTCCount() != 0xFF)
                .filter(p -> p.getEmissionRelatedPendingDTCCount() > 1)
                .map(ParsedPacket::getSourceAddress)
                .map(Lookup::getAddressName)
-               .forEach(moduleName -> addWarning("6.3.4.3.a - " + moduleName + " reported > 1 for pending DTC count"));
+               .forEach(moduleName -> addInfo("6.3.4.3.a - " + moduleName + " reported > 1 for pending DTC count"));
 
         packets.stream()
                .filter(p -> p.getAllPendingDTCCount() != 0xFF)
                .filter(p -> p.getAllPendingDTCCount() > 1)
                .map(ParsedPacket::getSourceAddress)
                .map(Lookup::getAddressName)
-               .forEach(moduleName -> addWarning("6.3.4.3.a - " + moduleName
+               .forEach(moduleName -> addInfo("6.3.4.3.a - " + moduleName
                        + " reported > 1 for all pending DTC count"));
 
         // 6.3.4.3.b Info if more than one ECU reports > 0 for pending or all pending.
