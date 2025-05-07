@@ -26,7 +26,6 @@ import java.util.stream.Stream;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
-import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TableA1Validator;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
@@ -94,7 +93,7 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
 
     private TestDateTimeModule dateTimeModule;
 
-    private StepController instance;
+    private Part11Step07Controller instance;
 
     @Before
     public void setUp() throws Exception {
@@ -181,7 +180,6 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
         var packet1 = mock(GenericPacket.class);
         var packet2 = mock(GenericPacket.class);
         var packet3 = mock(GenericPacket.class);
-        when(j1939.readGenericPacket(any())).thenReturn(Stream.of(packet1, packet2, packet3));
 
         doAnswer((Answer<Void>) invocation -> {
             ((QuestionListener) invocation.getArguments()[3]).answered(YES);
@@ -199,9 +197,11 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
 
         verify(executor).shutdownNow();
 
-        var submitCaptor = ArgumentCaptor.forClass(Runnable.class);
-        verify(executor).submit(submitCaptor.capture());
-        submitCaptor.getValue().run();
+        verify(engineSpeedModule).setAdditionalProcessor(any());
+        verify(engineSpeedModule).removeAdditionalProcessor();
+        instance.processImplausible(packet1);
+        instance.processImplausible(packet2);
+        instance.processImplausible(packet3);
 
         verify(validator).reportImplausibleSPNValues(eq(packet2), any(), eq(true), eq("6.11.7.3.a"));
 
@@ -275,8 +275,9 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(executor).submit((Runnable) any());
+        verify(engineSpeedModule).setAdditionalProcessor(any());
         verify(executor).scheduleAtFixedRate(any(), eq(0L), eq(1L), eq(TimeUnit.MINUTES));
+        verify(engineSpeedModule).removeAdditionalProcessor();
         verify(executor).shutdownNow();
 
         verify(engineSpeedModule).startMonitoringEngineSpeed(eq(executor), any());
@@ -315,8 +316,9 @@ public class Part11Step07ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(executor).submit((Runnable) any());
+        verify(engineSpeedModule).setAdditionalProcessor(any());
         verify(executor).scheduleAtFixedRate(any(), eq(0L), eq(1L), eq(TimeUnit.MINUTES));
+        verify(engineSpeedModule).removeAdditionalProcessor();
         verify(executor).shutdownNow();
 
         verify(engineSpeedModule).startMonitoringEngineSpeed(eq(executor), any());
