@@ -140,13 +140,7 @@ public class Part11Step07Controller extends StepController {
             // 6.11.7.3.a. Identify any broadcast data meeting warning criteria in Table A1 during engine idle periods.
             // 6.11.7.2.c. Fail if any broadcast data is missing according to Table A1,
             // or otherwise meets failure criteria during engine idle speed periods.
-            executor.submit(() -> {
-                getJ1939().readGenericPacket(stopPredicate)
-                          .filter(p -> getEngineSpeedModule().isEngineAtIdle())
-                          .forEach(p -> {
-                              validator.reportImplausibleSPNValues(p, getListener(), true, "6.11.7.3.a");
-                          });
-            });
+            getEngineSpeedModule().setAdditionalProcessor(p -> {processImplausible(p);});
 
             // 6.11.7.4.a. Once 620 seconds of engine operation overall in part 11 have elapsed (including over 300
             // seconds
@@ -159,8 +153,16 @@ public class Part11Step07Controller extends StepController {
                 secondsToGo = calculateSecondsRemaining();
             } while (secondsToGo > 0);
 
+            getEngineSpeedModule().removeAdditionalProcessor();
+
             executor.shutdownNow();
             isComplete.set(true);
+        }
+    }
+
+    protected void processImplausible(GenericPacket p){
+        if (getEngineSpeedModule().isEngineAtIdle()){
+            validator.reportImplausibleSPNValues(p, getListener(), true, "6.11.7.3.a");
         }
     }
 

@@ -11,10 +11,12 @@ import static org.etools.j1939tools.j1939.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.etools.j1939tools.j1939.model.KeyState.UNKNOWN;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -109,6 +111,17 @@ public class EngineSpeedModule extends FunctionalModule {
         return noPedalDemand && currentInRange && averageInRange && idleSpeedReasonable;
     }
 
+    private Optional<Consumer<GenericPacket>> additionalProcessor = Optional.empty();
+    public void setAdditionalProcessor(Consumer<GenericPacket> processor){
+        this.additionalProcessor = Optional.of(processor);
+    }
+    public void removeAdditionalProcessor(){
+        this.additionalProcessor = Optional.empty();
+    }
+    private Consumer<GenericPacket> getAdditionalProcessor(){
+        return additionalProcessor.orElse(p -> {});
+    }
+
     public void startMonitoringEngineSpeed(ExecutorService executor,
                                            Predicate<Either<GenericPacket, AcknowledgmentPacket>> stopPredicate) {
         lastTimestamp = null;
@@ -127,25 +140,26 @@ public class EngineSpeedModule extends FunctionalModule {
 
         executor.submit(() -> {
             getJ1939().readGenericPacket(stopPredicate)
-                      .filter(p -> p.getSourceAddress() == ENGINE_ADDR)
-                      .forEach(p -> {
-                          int pgn = p.getPacket().getPgn();
-                          switch (pgn) {
-                              case 61444:
-                                  processEngineSpeedPacket(p);
-                                  break;
-                              case 65251:
-                                  processIdleSpeedPacket(p);
-                                  break;
-                              case 61443:
-                                  processPedalPositionPacket(p);
-                                  break;
-                              default:
-                                  break;
-                          }
-                      });
+                    .filter(p -> p.getSourceAddress() == ENGINE_ADDR)
+                    .peek(p -> {
+                        int pgn = p.getPacket().getPgn();
+                        switch (pgn) {
+                        case 61444:
+                            processEngineSpeedPacket(p);
+                            break;
+                        case 65251:
+                            processIdleSpeedPacket(p);
+                            break;
+                        case 61443:
+                            processPedalPositionPacket(p);
+                            break;
+                        default:
+                            break;
+                        }
+                    }).forEach(p -> {
+                        getAdditionalProcessor().accept(p);
+                    });
         });
-
     }
 
     private void processIdleSpeedPacket(GenericPacket packet) {
