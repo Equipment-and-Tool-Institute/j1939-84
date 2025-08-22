@@ -254,16 +254,16 @@ public class Part02Step17Controller extends StepController {
                                                                                             getStepNumber(),
                                                                                             "6.2.17.5.a");
 
-            List<Integer> requestPGNs = busService.getPGNsForDSRequest(missingSPNs, dataStreamSPNs);
-
             // Remove the SPNs that were already received
             Set<Integer> receivedSPNs = packets.stream()
-                                               .filter(p -> p.getSourceAddress() == moduleAddress)
-                                               .flatMap(p -> p.getSpns().stream())
-                                               .filter(s -> !s.isNotAvailable())
-                                               .map(Spn::getId)
-                                               .collect(Collectors.toSet());
+                    .filter(p -> p.getSourceAddress() == moduleAddress)
+                    .flatMap(p -> p.getSpns().stream())
+                    .filter(s -> !s.isNotAvailable())
+                    .map(Spn::getId)
+                    .collect(Collectors.toSet());
             dataStreamSPNs.removeAll(receivedSPNs);
+
+            List<Integer> requestPGNs = busService.getPGNsForDSRequest(missingSPNs, dataStreamSPNs);
 
             for (int pgn : requestPGNs) {
                 updateProgress("Test 2.17 - Verifying " + Lookup.getAddressName(moduleAddress));
