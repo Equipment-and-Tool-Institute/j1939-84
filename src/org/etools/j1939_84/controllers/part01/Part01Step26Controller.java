@@ -251,18 +251,17 @@ public class Part01Step26Controller extends StepController {
                                                                                             "6.1.26.5.a");
 
             // DS Request for all SPNs that are sent on-request AND those were missed earlier
+            List<Integer> requestPGNs = busService.getPGNsForDSRequest(missingSPNs, dataStreamSPNs);
 
-
-            // Remove the SPNs that were already received
+            // Remove the SPNs that were already received, except for 'on request'
             Set<Integer> receivedSPNs = packets.stream()
                     .filter(p -> p.getSourceAddress() == moduleAddress)
+                    .filter(p -> !p.getPgnDefinition().isOnRequest())
                     .flatMap(p -> p.getSpns().stream())
                     .filter(s -> !s.isNotAvailable())
                     .map(Spn::getId)
                     .collect(Collectors.toSet());
             dataStreamSPNs.removeAll(receivedSPNs);
-
-            List<Integer> requestPGNs = busService.getPGNsForDSRequest(missingSPNs, dataStreamSPNs);
 
             for (int pgn : requestPGNs) {
                 updateProgress("Test 1.26 - Verifying " + Lookup.getAddressName(moduleAddress));
