@@ -101,18 +101,23 @@ public class Part01Step08Controller extends StepController {
                 failure = true;
             }
         } else if (getFuelType().isSparkIgnition()) {
+            List<Integer> SPNsBank2 = new ArrayList<>(List.of(3051, 21228, 21230));
             List<Integer> SPNsi = new ArrayList<>(List.of(3054,
                                                           3058,
                                                           3306,
                                                           3053,
                                                           3050,
-                                                          3051,
-                                                          3055,
                                                           3056,
-                                                          3057,
-                                                          21227,
-                                                          21228));
+                                                          21227));
+            //3055 Fail if used on 2024MY+
+            //21229 Fail if absent on 2024MY+ engines
+            SPNsi.add(getVehicleInformationModule().getEngineModelYear() > 2024 ? 21229 : 3055);
             SPNsi.removeAll(dm20Sps);
+            SPNsBank2.removeAll(dm20Sps);
+            if (!SPNsBank2.isEmpty() && SPNsBank2.size() != 3){
+                //Bank 2 SPNs - all or none
+                SPNsi.addAll(SPNsBank2);
+            }
             if (!SPNsi.isEmpty()) {
                 msg += " Not Supported SPs: " + spToString(SPNsi);
                 failure = true;
