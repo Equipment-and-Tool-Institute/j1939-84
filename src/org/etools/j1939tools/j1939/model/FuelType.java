@@ -7,6 +7,7 @@ import static org.etools.j1939tools.j1939.packets.IgnitionType.COMPRESSION;
 import static org.etools.j1939tools.j1939.packets.IgnitionType.SPARK;
 import static org.etools.j1939tools.j1939.packets.IgnitionType.UNKNOWN;
 
+import java.util.Arrays;
 import org.etools.j1939tools.j1939.packets.IgnitionType;
 
 /**
@@ -203,6 +204,10 @@ public enum FuelType {
 
     public boolean isHybrid() {
         return isHybrid;
+    }
+
+    public static FuelType getFuelTypeForValue(int value){
+        return Arrays.stream(FuelType.values()).filter(ft -> ft.getValue() == value).findFirst().orElse(FuelType.DSL);
     }
 
     @Override

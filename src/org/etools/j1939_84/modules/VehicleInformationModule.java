@@ -23,6 +23,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939tools.CommunicationsListener;
 import org.etools.j1939tools.bus.BusException;
 import org.etools.j1939tools.bus.RequestResult;
+import org.etools.j1939tools.j1939.model.FuelType;
 import org.etools.j1939tools.j1939.model.KeyState;
 import org.etools.j1939tools.j1939.packets.AddressClaimPacket;
 import org.etools.j1939tools.j1939.packets.DM19CalibrationInformationPacket;
@@ -179,6 +180,21 @@ public class VehicleInformationModule extends FunctionalModule {
             }
         }
         return vin;
+    }
+
+    /**
+     * Requests the vehicle fuel type
+     *
+     * @return Fuel Type
+     *
+     * defaults to Diesel if no response received
+     */
+    public FuelType getFuelType() {
+        return getJ1939().requestGlobal(null, 64962, getJ1939().createRequestPacket(64962, GLOBAL_ADDR), NOOP)
+                .toPacketStream().flatMap(p -> p.getSpns().stream())
+                .filter( spn -> spn.getId() == 5837)
+                .map(spn -> FuelType.getFuelTypeForValue(spn.getValue().intValue()))
+                .findFirst().orElse(FuelType.DSL);
     }
 
     /**
