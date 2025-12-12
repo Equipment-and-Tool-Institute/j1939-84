@@ -26,6 +26,7 @@ import org.etools.j1939tools.bus.BusException;
 import org.etools.j1939tools.bus.Packet;
 import org.etools.j1939tools.bus.RequestResult;
 import org.etools.j1939tools.j1939.J1939;
+import org.etools.j1939tools.j1939.model.FuelType;
 import org.etools.j1939tools.j1939.packets.AddressClaimPacket;
 import org.etools.j1939tools.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939tools.j1939.packets.DM5DiagnosticReadinessPacket;
@@ -168,6 +169,20 @@ public class VehicleInformationModuleTest {
         }
 
         verify(j1939).requestGlobal(null, DM56EngineFamilyPacket.class, NOOP);
+    }
+
+    @Test
+    public void testGetFuelType() {
+        Packet p = Packet.create(64962, 0, 0, 0, 0, 0, 0, 0, 0x01, 0);
+        when(j1939.createRequestPacket(64962, GLOBAL_ADDR)).thenReturn(p);
+        assertEquals(FuelType.GAS, instance.getFuelType());
+    }
+
+    @Test
+    public void testGetFuelTypeDefaultIfInvalidResponse() {
+        Packet p = Packet.create(64962, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0);
+        when(j1939.createRequestPacket(64962, GLOBAL_ADDR)).thenReturn(p);
+        assertEquals(FuelType.DSL, instance.getFuelType());
     }
 
     @Test
