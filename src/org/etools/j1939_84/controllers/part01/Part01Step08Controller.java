@@ -101,21 +101,25 @@ public class Part01Step08Controller extends StepController {
                 failure = true;
             }
         } else if (getFuelType().isSparkIgnition()) {
-            List<Integer> SPNsBank2 = new ArrayList<>(List.of(3051, 21228, 21230));
+            List<Integer> SPNsBank2 = new ArrayList<>(List.of(3051, 3057, 21228, 21230));
             List<Integer> SPNsi = new ArrayList<>(List.of(3054,
                                                           3058,
                                                           3306,
                                                           3053,
                                                           3050,
-                                                          3056,
-                                                          21227));
-            //3055 Fail if used on 2024MY+
-            //21229 Fail if absent on 2024MY+ engines
-            SPNsi.add(getVehicleInformationModule().getEngineModelYear() > 2024 ? 21229 : 3055);
+                                                          3056));
+
+            if (getDataRepository().getVehicleInformation().getEngineModelYear() >= 2024){
+                SPNsi.addAll(List.of(21227, 21229));
+            } else if (!dm20Sps.contains(3055) && !dm20Sps.contains(21229)){
+                //Before MY2024+ SI Engines, SP 21229 may replace SP 3055
+                SPNsi.add(3055);
+            }
+
             SPNsi.removeAll(dm20Sps);
             SPNsBank2.removeAll(dm20Sps);
-            if (!SPNsBank2.isEmpty() && SPNsBank2.size() != 3){
-                //Bank 2 SPNs - all or none
+            if (!SPNsBank2.isEmpty() && SPNsBank2.size() != 4){
+                //MY2024+ Bank 2 SPNs - all or none
                 SPNsi.addAll(SPNsBank2);
             }
             if (!SPNsi.isEmpty()) {
