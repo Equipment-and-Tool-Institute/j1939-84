@@ -4,7 +4,9 @@
 package org.etools.j1939_84.controllers.part09;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -68,11 +70,18 @@ public class Part09Step10Controller extends StepController {
             String moduleName = moduleInformation.getModuleName();
             int address = moduleInformation.getSourceAddress();
 
+            Map<Integer, DM30ScaledTestResultsPacket> resultsTID247 = new HashMap<>();
             var scaledTestResults = moduleInformation.getScaledTestResults()
                                                      .stream()
                                                      .map(SpnFmi::of)
                                                      .distinct()
                                                      .map(k -> {
+                                                         //if 247 result present, skip 250 & duplicate 247 requests
+                                                         DM30ScaledTestResultsPacket result = resultsTID247.get(k.spn);
+                                                         if (result != null){
+                                                             return Optional.of(result);
+                                                         }
+
                                                          Optional<DM30ScaledTestResultsPacket> o = requestTestResults(address,
                                                                                                                       k.spn,
                                                                                                                       k.fmi);
@@ -84,10 +93,16 @@ public class Part09Step10Controller extends StepController {
                                                                      + address
                                                                      + " SPN "
                                                                      + k.spn + " TID 250 and TID 247 queries");
+                                                         } else {
+                                                             DM30ScaledTestResultsPacket pkt = o.get();
+                                                             if (!pkt.getTestResults().isEmpty() && pkt.getTestResults().getFirst().getTestIdentifier() == 247){
+                                                                 resultsTID247.put(k.spn, pkt);
+                                                             }
                                                          }
                                                          return o;
                                                      })
                                                      .flatMap(Optional::stream)
+                                                    .distinct()
                                                      .map(DM30ScaledTestResultsPacket::getTestResults)
                                                      .flatMap(Collection::stream)
                                                      .peek(str -> {
