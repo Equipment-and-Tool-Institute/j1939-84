@@ -336,7 +336,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         8,
                                         FAIL,
-                                        "6.1.8.2.a - Minimum expected SPs are not supported. Not Supported SPs: 3050, 3053, 3054, 3055, 3056, 3058, 3306");
+                                        "6.1.8.2.a - Minimum expected SPs are not supported. Either SP 3055 or SP 21229 must be supported. Not Supported SPs: 3050, 3053, 3054, 3055, 3056, 3058, 3306");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
@@ -455,6 +455,32 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
                                         8,
                                         FAIL,
                                         "6.1.8.2.a - Minimum expected SPs are not supported. Not Supported SPs: 21227, 21229");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    @TestDoc(value = @TestItem(verifies = "6.1.8.2.a", description = "A.4 - 3055 should NOT be used on SI MY2024+"))
+    public void testFailureSP3055OnMY2024(){
+        List<Integer> sps = List.of(3054, 3055, 3058, 3306, 3053, 3050, 3051, 3056, 3057, 21227, 21228, 21229, 21230);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, sps);
+
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(FuelType.BI_CNG);
+        vehicleInformation.setEngineModelYear(2025);
+        dataRepository.setVehicleInformation(vehicleInformation);
+
+        runTest();
+
+        verify(communicationsModule).requestDM20(any());
+
+        verify(mockListener).addOutcome(1,
+                                        8,
+                                        FAIL,
+                                        "6.1.8.2.a - Received SP 3055, which should not be used on 2024MY+ engines.");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

@@ -111,8 +111,12 @@ public class Part01Step08Controller extends StepController {
 
             if (getDataRepository().getVehicleInformation().getEngineModelYear() >= 2024){
                 SPNsi.addAll(List.of(21227, 21229));
+                if (dm20Sps.contains(3055)){
+                    addFailure("6.1.8.2.a - Received SP 3055, which should not be used on 2024MY+ engines.");
+                }
             } else if (!dm20Sps.contains(3055) && !dm20Sps.contains(21229)){
                 //Before MY2024+ SI Engines, SP 21229 may replace SP 3055
+                msg += " Either SP 3055 or SP 21229 must be supported.";
                 SPNsi.add(3055);
             }
 
