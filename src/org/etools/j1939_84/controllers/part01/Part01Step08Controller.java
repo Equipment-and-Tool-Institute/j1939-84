@@ -102,12 +102,17 @@ public class Part01Step08Controller extends StepController {
             }
         } else if (getFuelType().isSparkIgnition()) {
             List<Integer> SPNsBank2 = new ArrayList<>(List.of(3051, 3057, 21228, 21230));
-            List<Integer> SPNsi = new ArrayList<>(List.of(3054,
-                                                          3058,
+            List<Integer> SPNsi = new ArrayList<>(List.of(3058,
                                                           3306,
                                                           3053,
                                                           3050,
                                                           3056));
+
+            if (getDataRepository().getVehicleInformation().getEngineModelYear() < 2019){
+                SPNsi.add(3054);
+            } else if (!dm20Sps.contains(3054)){
+                addWarning("6.1.8.2.a - SP 3054 is not supported.");
+            }
 
             if (getDataRepository().getVehicleInformation().getEngineModelYear() >= 2024){
                 SPNsi.addAll(List.of(21227, 21229));
