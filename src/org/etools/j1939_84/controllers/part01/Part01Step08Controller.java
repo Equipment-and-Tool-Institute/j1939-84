@@ -101,18 +101,31 @@ public class Part01Step08Controller extends StepController {
                 failure = true;
             }
         } else if (getFuelType().isSparkIgnition()) {
+            List<Integer> SPNsBank2 = new ArrayList<>(List.of(3051, 3057, 21228, 21230));
             List<Integer> SPNsi = new ArrayList<>(List.of(3054,
                                                           3058,
                                                           3306,
                                                           3053,
                                                           3050,
-                                                          3051,
-                                                          3055,
-                                                          3056,
-                                                          3057,
-                                                          21227,
-                                                          21228));
+                                                          3056));
+
+            if (getDataRepository().getVehicleInformation().getEngineModelYear() >= 2024){
+                SPNsi.addAll(List.of(21227, 21229));
+                if (dm20Sps.contains(3055)){
+                    addFailure("6.1.8.2.a - Received SP 3055, which should not be used on 2024MY+ engines.");
+                }
+            } else if (!dm20Sps.contains(3055) && !dm20Sps.contains(21229)){
+                //Before MY2024+ SI Engines, SP 21229 may replace SP 3055
+                msg += " Either SP 3055 or SP 21229 must be supported.";
+                SPNsi.add(3055);
+            }
+
             SPNsi.removeAll(dm20Sps);
+            SPNsBank2.removeAll(dm20Sps);
+            if (!SPNsBank2.isEmpty() && SPNsBank2.size() != 4){
+                //MY2024+ Bank 2 SPNs - all or none
+                SPNsi.addAll(SPNsBank2);
+            }
             if (!SPNsi.isEmpty()) {
                 msg += " Not Supported SPs: " + spToString(SPNsi);
                 failure = true;
