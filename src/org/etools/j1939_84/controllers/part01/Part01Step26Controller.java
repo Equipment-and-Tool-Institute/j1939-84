@@ -253,13 +253,14 @@ public class Part01Step26Controller extends StepController {
             // DS Request for all SPNs that are sent on-request AND those were missed earlier
             List<Integer> requestPGNs = busService.getPGNsForDSRequest(missingSPNs, dataStreamSPNs);
 
-            // Remove the SPNs that were already received
+            // Remove the SPNs that were already received, except for 'on request'
             Set<Integer> receivedSPNs = packets.stream()
-                                               .filter(p -> p.getSourceAddress() == moduleAddress)
-                                               .flatMap(p -> p.getSpns().stream())
-                                               .filter(s -> !s.isNotAvailable())
-                                               .map(Spn::getId)
-                                               .collect(Collectors.toSet());
+                    .filter(p -> p.getSourceAddress() == moduleAddress)
+                    .filter(p -> !p.getPgnDefinition().isOnRequest())
+                    .flatMap(p -> p.getSpns().stream())
+                    .filter(s -> !s.isNotAvailable())
+                    .map(Spn::getId)
+                    .collect(Collectors.toSet());
             dataStreamSPNs.removeAll(receivedSPNs);
 
             for (int pgn : requestPGNs) {
