@@ -183,7 +183,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     public void readVehicle() {
         addressClaim = vehicleInformationModule.reportAddressClaim(listener.getResultsListener());
 
-        view.setFuelType(FuelType.DSL); // Assuming this used mostly on Diesel engines
+        view.setFuelType(vehicleInformationModule.getFuelType());
 
         numberOfFaultAImplants = 1;
         view.setNumberOfFaultAImplants(numberOfFaultAImplants);

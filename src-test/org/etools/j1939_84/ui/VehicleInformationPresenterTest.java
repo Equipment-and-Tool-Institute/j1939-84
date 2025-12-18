@@ -96,6 +96,7 @@ public class VehicleInformationPresenterTest {
         when(vehicleInformationModule.getVin()).thenReturn("vin");
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
         when(vinDecoder.isModelYearValid(2)).thenReturn(true);
+        when(vehicleInformationModule.getFuelType()).thenReturn(FuelType.DSL);
         AddressClaimPacket addressClaimPacket = mock(AddressClaimPacket.class);
         when(vehicleInformationModule.reportAddressClaim(resultsListener)).thenReturn(new RequestResult<>(false,
                                                                                                           addressClaimPacket));
@@ -111,6 +112,7 @@ public class VehicleInformationPresenterTest {
         verify(listener).getResultsListener();
 
         verify(vehicleInformationModule).getVin();
+        verify(vehicleInformationModule).getFuelType();
         verify(vehicleInformationModule).getEngineFamilyName();
         verify(vehicleInformationModule).getEngineModelYear();
         verify(vehicleInformationModule).getOBDModules(any(ResultsListener.class));
@@ -149,6 +151,7 @@ public class VehicleInformationPresenterTest {
         when(vehicleInformationModule.reportAddressClaim(any(ResultsListener.class))).thenReturn(RequestResult.empty(false));
         when(vehicleInformationModule.getEngineModelYear()).thenThrow(new IOException());
         when(vehicleInformationModule.getEngineFamilyName()).thenThrow(new IOException());
+        when(vehicleInformationModule.getFuelType()).thenReturn(FuelType.DSL);
         when(vehicleInformationModule.getOBDModules(any(ResultsListener.class))).thenReturn(List.of());
 
         when(vinDecoder.getModelYear(null)).thenReturn(-1);
@@ -163,6 +166,7 @@ public class VehicleInformationPresenterTest {
         verify(listener).getResultsListener();
 
         verify(vehicleInformationModule).getVin();
+        verify(vehicleInformationModule).getFuelType();
         verify(vehicleInformationModule).reportAddressClaim(any(ResultsListener.class));
         verify(vehicleInformationModule).getEngineModelYear();
         verify(vehicleInformationModule).getEngineFamilyName();
