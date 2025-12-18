@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -481,6 +482,31 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
                                         8,
                                         FAIL,
                                         "6.1.8.2.a - Received SP 3055, which should not be used on 2024MY+ engines.");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testWarnSP3054OnMY2019(){
+        List<Integer> sps = List.of(3058, 3306, 3053, 3050, 3051, 3056, 3057, 21227, 21228, 21229, 21230);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, sps);
+
+        when(communicationsModule.requestDM20(any())).thenReturn(RequestResult.of(dm20));
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(FuelType.BI_CNG);
+        vehicleInformation.setEngineModelYear(2019);
+        dataRepository.setVehicleInformation(vehicleInformation);
+
+        runTest();
+
+        verify(communicationsModule).requestDM20(any());
+
+        verify(mockListener).addOutcome(1,
+                                        8,
+                                        WARN,
+                                        "6.1.8.2.a - SP 3054 is not supported.");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
