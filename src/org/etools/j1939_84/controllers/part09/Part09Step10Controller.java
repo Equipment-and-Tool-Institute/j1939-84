@@ -70,59 +70,48 @@ public class Part09Step10Controller extends StepController {
             String moduleName = moduleInformation.getModuleName();
             int address = moduleInformation.getSourceAddress();
 
-            Map<Integer, DM30ScaledTestResultsPacket> resultsTID247 = new HashMap<>();
             var scaledTestResults = moduleInformation.getScaledTestResults()
-                                                     .stream()
-                                                     .map(SpnFmi::of)
-                                                     .distinct()
-                                                     .map(k -> {
-                                                         //if 247 result present, skip 250 & duplicate 247 requests
-                                                         DM30ScaledTestResultsPacket result = resultsTID247.get(k.spn);
-                                                         if (result != null){
-                                                             return Optional.of(result);
-                                                         }
+                    .stream()
+                    .map(SpnFmi::of)
+                    .distinct()
+                    .map(k -> {
+                        Optional<DM30ScaledTestResultsPacket> o = requestTestResults(address,
+                                                                                     k.spn,
+                                                                                     k.fmi);
 
-                                                         Optional<DM30ScaledTestResultsPacket> o = requestTestResults(address,
-                                                                                                                      k.spn,
-                                                                                                                      k.fmi);
-                                                         // 6.9.10.2.c Fail each SP exercised, where there is no
-                                                         // response for
-                                                         // TID 250 and TID 247 queries.
-                                                         if (o.isEmpty()) {
-                                                             addFailure("6.9.10.2.c - No response for address "
-                                                                     + address
-                                                                     + " SPN "
-                                                                     + k.spn + " TID 250 and TID 247 queries");
-                                                         } else {
-                                                             DM30ScaledTestResultsPacket pkt = o.get();
-                                                             if (!pkt.getTestResults().isEmpty() && pkt.getTestResults().getFirst().getTestIdentifier() == 247){
-                                                                 resultsTID247.put(k.spn, pkt);
-                                                             }
-                                                         }
-                                                         return o;
-                                                     })
-                                                     .flatMap(Optional::stream)
-                                                    .distinct()
-                                                     .map(DM30ScaledTestResultsPacket::getTestResults)
-                                                     .flatMap(Collection::stream)
-                                                     .peek(str -> {
-                                                         // 6.9.10.2.a. Fail if any test result not initialized.
-                                                         int spn = str.getSpn();
-                                                         int fmi = str.getFmi();
-                                                         boolean fromPart1 = moduleInformation.getInitialized_1_12_Tests()
-                                                                                              .stream()
-                                                                                              .filter(t -> t.getSpn() == spn
-                                                                                                      && t.getFmi() == fmi)
-                                                                                              .findAny()
-                                                                                              .isPresent();
-                                                         if (fromPart1 && !str.isInitialized()) {
-                                                             addFailure("6.9.10.2.a - " + moduleName
-                                                                     + " reported test result for SPN = " + str.getSpn()
-                                                                     + ", FMI = " + str.getFmi()
-                                                                     + " is not initialized");
-                                                         }
-                                                     })
-                                                     .collect(Collectors.toList());
+                        // 6.9.10.2.c Fail each SP exercised, where there is no
+                        // response for
+                        // TID 250 and TID 247 queries.
+                        if (o.isEmpty()) {
+                            addFailure("6.9.10.2.c - No response for address "
+                                               + address
+                                               + " SPN "
+                                               + k.spn + " TID 250 and TID 247 queries");
+                        }
+                        return o;
+                    })
+                    .flatMap(Optional::stream)
+                    .distinct()
+                    .map(DM30ScaledTestResultsPacket::getTestResults)
+                    .flatMap(Collection::stream)
+                    .peek(str -> {
+                        // 6.9.10.2.a. Fail if any test result not initialized.
+                        int spn = str.getSpn();
+                        int fmi = str.getFmi();
+                        boolean fromPart1 = moduleInformation.getInitialized_1_12_Tests()
+                                .stream()
+                                .filter(t -> t.getSpn() == spn
+                                        && t.getFmi() == fmi)
+                                .findAny()
+                                .isPresent();
+                        if (fromPart1 && !str.isInitialized()) {
+                            addFailure("6.9.10.2.a - " + moduleName
+                                               + " reported test result for SPN = " + str.getSpn()
+                                               + ", FMI = " + str.getFmi()
+                                               + " is not initialized");
+                        }
+                    })
+                    .collect(Collectors.toList());
 
             // 6.9.10.2.b. Fail if any difference in what ECU+SPN+FMI combinations have test results compared to the
             // combinations identified in part 1 as having test results.
@@ -130,7 +119,7 @@ public class Part09Step10Controller extends StepController {
             var currentResults = toString(scaledTestResults);
             if (!currentResults.equals(prevResults)) {
                 addFailure("6.9.10.2.b - " + moduleName
-                        + " reported different SPN+FMI combinations for tests results compared to the combinations in part 1");
+                                   + " reported different SPN+FMI combinations for tests results compared to the combinations in part 1");
             }
         }
 
@@ -138,7 +127,7 @@ public class Part09Step10Controller extends StepController {
 
     private Optional<DM30ScaledTestResultsPacket> requestTestResults(int address, int spn, int fmi) {
         var packet = getCommunicationsModule().requestTestResult(getListener(), address, 250, spn, fmi)
-                                              .getPacket();
+                .getPacket();
         if (packet.flatMap(p -> p.left).isEmpty()) {
             // 6.9.10.1.b If the response for the TID 250 query is NACK (control byte = 1), then send DS DM7, for the SP
             // using TID 247 and FMI 31 to obtain all test results for the SPN. [Item b. will be performed for all SPs
@@ -154,25 +143,32 @@ public class Part09Step10Controller extends StepController {
         return packet.flatMap(o -> o.left);
     }
 
+    private Map<Integer, Map<Integer, DM30ScaledTestResultsPacket>> results247 = new HashMap<>();
+
     protected Optional<DM30ScaledTestResultsPacket> secondTryTid247(int address, int spn) {
-        var packet = getCommunicationsModule().requestTestResult(getListener(),
-                                                                 address,
-                                                                 247,
-                                                                 spn,
-                                                                 31)
-                                              .getPacket();
-        if (!packet.flatMap(p -> p.left).isEmpty()) {
-            return Optional.of(DM30ScaledTestResultsPacket.create(address,
-                                                                  0xf9,
-                                                                  packet.flatMap(e -> e.left)
-                                                                        .get()
-                                                                        .getTestResults()
-                                                                        .stream()
-                                                                        .filter(t -> t.getSpn() == spn
-                                                                                && t.getFmi() == t.getFmi())
-                                                                        .toArray(ScaledTestResult[]::new)));
-        }
-        return Optional.empty();
+        return Optional.ofNullable(results247
+                                           .computeIfAbsent(address, a -> new HashMap<>())
+                                           .computeIfAbsent(spn, s -> {
+                                               var packet = getCommunicationsModule().requestTestResult(getListener(),
+                                                                                                        address,
+                                                                                                        247,
+                                                                                                        spn,
+                                                                                                        31)
+                                                       .getPacket();
+
+                                               if (!packet.flatMap(p -> p.left).isEmpty()) {
+                                                   return DM30ScaledTestResultsPacket.create(address,
+                                                                                             0xf9,
+                                                                                             packet.flatMap(e -> e.left)
+                                                                                                     .get()
+                                                                                                     .getTestResults()
+                                                                                                     .stream()
+                                                                                                     .filter(t -> t.getSpn() == spn)
+                                                                                                     .toArray(
+                                                                                                             ScaledTestResult[]::new));
+                                               }
+                                               return null;
+                                           }));
     }
 
     private static String toString(List<ScaledTestResult> testResults) {

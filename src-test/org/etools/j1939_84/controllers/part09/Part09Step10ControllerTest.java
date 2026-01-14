@@ -282,6 +282,11 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
                                                     eq(9))).thenReturn(BusResult.of(AcknowledgmentPacket.create(0, Response.NACK)));
         when(communicationsModule.requestTestResult(any(),
                                                     eq(0),
+                                                    eq(250),
+                                                    eq(123),
+                                                    eq(14))).thenReturn(BusResult.of(AcknowledgmentPacket.create(0, Response.NACK)));
+        when(communicationsModule.requestTestResult(any(),
+                                                    eq(0),
                                                     eq(247),
                                                     eq(123),
                                                     eq(31))).thenReturn(BusResult.of(dm30_123));
@@ -291,6 +296,7 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(communicationsModule).requestTestResult(any(), eq(0), eq(250), eq(123), eq(9));
+        verify(communicationsModule).requestTestResult(any(), eq(0), eq(250), eq(123), eq(14));
         verify(communicationsModule).requestTestResult(any(), eq(0), eq(247), eq(123), eq(31));
 
         assertEquals("", listener.getMessages());
