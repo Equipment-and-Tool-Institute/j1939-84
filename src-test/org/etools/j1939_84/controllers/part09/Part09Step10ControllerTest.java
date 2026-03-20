@@ -263,6 +263,48 @@ public class Part09Step10ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testSingleRequestWithMultipleResultsForTid247() {
+        //only 1 TID 247 request should be sent for a given SP
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+
+        ScaledTestResult str1 = ScaledTestResult.create(250, 123, 9, 0, 0, 0, 0);
+        ScaledTestResult str2 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
+        obdModuleInformation.setScaledTestResults(List.of(str1, str2));
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var str123 = ScaledTestResult.create(247, 123, 14, 0, 0, 0, 0);
+        var str123_9 = ScaledTestResult.create(247, 123, 9, 0, 0, 0, 0);
+        var dm30_123 = DM30ScaledTestResultsPacket.create(0, 0, str123, str123_9);
+        when(communicationsModule.requestTestResult(any(),
+                                                    eq(0),
+                                                    eq(250),
+                                                    eq(123),
+                                                    eq(9))).thenReturn(BusResult.of(AcknowledgmentPacket.create(0, Response.NACK)));
+        when(communicationsModule.requestTestResult(any(),
+                                                    eq(0),
+                                                    eq(250),
+                                                    eq(123),
+                                                    eq(14))).thenReturn(BusResult.of(AcknowledgmentPacket.create(0, Response.NACK)));
+        when(communicationsModule.requestTestResult(any(),
+                                                    eq(0),
+                                                    eq(247),
+                                                    eq(123),
+                                                    eq(31))).thenReturn(BusResult.of(dm30_123));
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+
+        runTest();
+
+        verify(communicationsModule).requestTestResult(any(), eq(0), eq(250), eq(123), eq(9));
+        verify(communicationsModule).requestTestResult(any(), eq(0), eq(250), eq(123), eq(14));
+        verify(communicationsModule).requestTestResult(any(), eq(0), eq(247), eq(123), eq(31));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        assertEquals(List.of(), listener.getOutcomes());
+    }
+
+    @Test
     public void testFailureForNonInitialized() {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         ScaledTestResult str1 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
